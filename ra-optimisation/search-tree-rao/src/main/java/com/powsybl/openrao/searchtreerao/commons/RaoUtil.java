@@ -70,12 +70,12 @@ public final class RaoUtil {
         if ((raoParameters.hasExtension(LoopFlowParametersExtension.class)
                 || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
                 && (Objects.isNull(raoInput.getReferenceProgram()))) {
-            SearchTreeReports.reportReferenceProgramWillBeGeneratedFromNetwork(reportNode);
+            RaoCommonsReports.reportReferenceProgramWillBeGeneratedFromNetwork(reportNode);
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters(), reportNode));
         }
 
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class) && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
-            SearchTreeReports.reportLoopflowComputationErrorLackOfReferenceProgramOrGlskProvider(reportNode, raoInput.getCrac().getId());
+            RaoCommonsReports.reportLoopflowComputationErrorLackOfReferenceProgramOrGlskProvider(reportNode, raoInput.getCrac().getId());
             throw new OpenRaoException(format(
                     "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
                     raoInput.getCrac().getId()));

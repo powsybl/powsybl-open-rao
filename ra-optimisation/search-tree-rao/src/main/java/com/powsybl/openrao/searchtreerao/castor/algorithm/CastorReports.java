@@ -400,4 +400,36 @@ public final class CastorReports {
         BUSINESS_LOGS.error(message);
         return addedNode;
     }
+
+    public static ReportNode reportAutomatonSkipped(ReportNode reportNode, String networkActionId, String networkActionName) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportAutomatonSkipped", "Automaton ${networkActionId} - ${networkActionName} has been skipped as it has no impact on network.")
+            .withUntypedValue("networkActionId", networkActionId)
+            .withUntypedValue("networkActionName", networkActionName)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkActionId, networkActionName);
+        return addedNode;
+    }
+
+    public static ReportNode reportTopologicalAutomatonSkipped(ReportNode reportNode, String automatonStateId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportTopologicalAutomatonSkipped", "Topological automaton state ${automatonStateId} has been skipped as no topological automatons were activated.")
+            .withUntypedValue("automatonStateId", automatonStateId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonStateId);
+        return addedNode;
+    }
+
+    public static ReportNode reportAutomatonActivated(ReportNode reportNode, String id, String name) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportAutomatonActivated", "Activating automaton ${id} - ${name}.")
+            .withUntypedValue("id", id)
+            .withUntypedValue("name", name)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Activating automaton {} - {}.", id, name);
+        return addedNode;
+    }
 }

@@ -56,7 +56,7 @@ public final class RaoLogger {
 
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
             sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus(), reportNode);
-        SearchTreeReports.reportSensitivityAnalysisResults(reportNode,
+        RaoCommonsReports.reportSensitivityAnalysisResults(reportNode,
                 prefix,
                 prePerimeterObjectiveFunctionResult.getCost(),
                 prePerimeterObjectiveFunctionResult.getFunctionalCost(),
@@ -86,9 +86,9 @@ public final class RaoLogger {
 
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
         if (isRangeActionSetPointEmpty) {
-            SearchTreeReports.reportSearchTreeOneLeafNoRangeActionActivated(reportNode, prefix);
+            RaoCommonsReports.reportSearchTreeOneLeafNoRangeActionActivated(reportNode, prefix);
         } else {
-            SearchTreeReports.reportSearchTreeOneLeafRangeActionActivated(reportNode, prefix, String.join(", ", rangeActionSetpoints));
+            RaoCommonsReports.reportSearchTreeOneLeafRangeActionActivated(reportNode, prefix, String.join(", ", rangeActionSetpoints));
         }
     }
 
@@ -125,7 +125,7 @@ public final class RaoLogger {
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             Side mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
-            SearchTreeReports.reportMostLimitingElement(reportNode, reportSeverity, i + 1, isRelativeMargin, cnecMargin, unit, ptdfIfRelative, cnecNetworkElementName, cnecStateId, cnec.getId());
+            RaoCommonsReports.reportMostLimitingElement(reportNode, reportSeverity, i + 1, isRelativeMargin, cnecMargin, unit, ptdfIfRelative, cnecNetworkElementName, cnecStateId, cnec.getId());
         }
     }
 
@@ -180,7 +180,7 @@ public final class RaoLogger {
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            SearchTreeReports.reportMostLimitingElement(reportNode, TypedValue.INFO_SEVERITY, i + 1, isRelativeMargin, cnecMargin, unit, "", cnecNetworkElementName, cnecStateId, cnec.getId());
+            RaoCommonsReports.reportMostLimitingElement(reportNode, TypedValue.INFO_SEVERITY, i + 1, isRelativeMargin, cnecMargin, unit, "", cnecNetworkElementName, cnecStateId, cnec.getId());
         }
     }
 
@@ -215,7 +215,7 @@ public final class RaoLogger {
     public static void logFailedOptimizationSummary(State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ReportNode reportNode) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
-        SearchTreeReports.reportFailedOptimizationSummary(reportNode, scenarioName, raResult);
+        RaoCommonsReports.reportFailedOptimizationSummary(reportNode, scenarioName, raResult);
     }
 
     public static void logOptimizationSummary(State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective, ReportNode reportNode) {
@@ -240,7 +240,7 @@ public final class RaoLogger {
             preOptimObjectiveFunctionResultVirtualCost = formatDouble(preOptimObjectiveFunctionResult.getVirtualCost());
         }
         String initialVirtualCostDetailedString = initialVirtualCostDetailed.isEmpty() ? "null" : initialVirtualCostDetailed.toString();
-        SearchTreeReports.reportOptimizationSummaryOnScenario(reportNode, scenarioName, preOptimObjectiveFunctionResultCost, preOptimObjectiveFunctionResultFunctionalCost, preOptimObjectiveFunctionResultVirtualCost, initialVirtualCostDetailedString, raResult, optimizedState.getInstant().toString(), finalObjective.getCost(), finalObjective.getFunctionalCost(), finalObjective.getVirtualCost(), finalVirtualCostDetailedString);
+        RaoCommonsReports.reportOptimizationSummaryOnScenario(reportNode, scenarioName, preOptimObjectiveFunctionResultCost, preOptimObjectiveFunctionResultFunctionalCost, preOptimObjectiveFunctionResultVirtualCost, initialVirtualCostDetailedString, raResult, optimizedState.getInstant().toString(), finalObjective.getCost(), finalObjective.getFunctionalCost(), finalObjective.getVirtualCost(), finalVirtualCostDetailedString);
     }
 
     public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {

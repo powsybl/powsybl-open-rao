@@ -258,20 +258,20 @@ public final class AutomatonSimulator {
             .filter(ra -> RaoUtil.isRemedialActionForced(ra, automatonState, prePerimeterSensitivityOutput, flowCnecs, network, raoParameters))
             .peek(networkAction -> {
                 if (!networkAction.hasImpactOnNetwork(network)) {
-                    TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkAction.getId(), networkAction.getName());
+                    CastorReports.reportAutomatonSkipped(automatonStateReportNode, networkAction.getId(), networkAction.getName());
                 }
             })
             .filter(networkAction -> networkAction.hasImpactOnNetwork(network))
             .collect(Collectors.toSet());
 
         if (appliedNetworkActions.isEmpty()) {
-            TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonState.getId());
+            CastorReports.reportTopologicalAutomatonSkipped(automatonStateReportNode, automatonState.getId());
             return new TopoAutomatonSimulationResult(prePerimeterSensitivityOutput, appliedNetworkActions);
         }
 
         // -- Apply
         appliedNetworkActions.forEach(na -> {
-            TECHNICAL_LOGS.debug("Activating automaton {} - {}.", na.getId(), na.getName());
+            CastorReports.reportAutomatonActivated(automatonStateReportNode, na.getId(), na.getName());
             na.apply(network);
         });
 
