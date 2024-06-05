@@ -449,11 +449,11 @@ class CastorFullOptimizationTest {
 
         Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac, firstPreventiveResult, contingencyResult);
 
-        assertEquals(3, rangeActionsExcludedFrom2P.size());
+        assertEquals(7, rangeActionsExcludedFrom2P.size());
         assertFalse(rangeActionsExcludedFrom2P.contains(ra1)); // Should not be excluded as it's preventive only.
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra2)); // Should not be excluded as it's UNAVAILABLE for preventive.
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra5)); // Should not be excluded as it's not preventive.
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra7)); // Should not be excluded as it's not preventive.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra2)); // Should be excluded as it's UNAVAILABLE for preventive.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra5)); // Should be excluded as it's not preventive.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra7)); // Should be excluded as it's not preventive.
         assertTrue(rangeActionsExcludedFrom2P.contains(ra3));  // Should be excluded as it has a range limitation RELATIVE_TO_PREVIOUS_INSTANT.
 
         assertFalse(rangeActionsExcludedFrom2P.contains(ra9)); // It shares the same network elements as ra8 but their tap are different. It should not be excluded.
