@@ -10,7 +10,6 @@ package com.powsybl.openrao.searchtreerao.commons;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
@@ -113,8 +112,8 @@ public final class RaoUtil {
      * 3) It computes the "strongest" usage method.
      * The remedial action is available if and only if the usage method is "AVAILABLE".
      */
-    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters, ReportNode reportNode) {
+        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters, reportNode);
         return finalUsageMethod != null && finalUsageMethod.equals(UsageMethod.AVAILABLE);
     }
 
@@ -127,22 +126,22 @@ public final class RaoUtil {
      * For automatonState, the remedial action is forced if and only if the usage method is "FORCED".
      * For non-automaton states, a forced remedial action is not supported and the remedial action is ignored.
      */
-    public static boolean isRemedialActionForced(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+    public static boolean isRemedialActionForced(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters, ReportNode reportNode) {
+        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters, reportNode);
         if (finalUsageMethod == null) {
             return false;
         }
         if (!state.getInstant().isAuto() && finalUsageMethod.equals(UsageMethod.FORCED)) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, {} will be ignored for this state: {}", remedialAction.getName(), state.getId()));
+            RaoCommonsReports.reportForceUsageMethodForAutomatonOnly(reportNode, remedialAction.getName(), state.getId());
             return false;
         }
         return finalUsageMethod.equals(UsageMethod.FORCED);
     }
 
-    private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+    private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters, ReportNode reportNode) {
         Set<UsageRule> usageRules = remedialAction.getUsageRules();
         if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action {} has no usage rule and therefore will not be available.", remedialAction.getName()));
+            RaoCommonsReports.reportRemedialActionWithoutUsageRule(reportNode, remedialAction.getName());
             return null;
         }
 

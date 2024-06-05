@@ -50,7 +50,7 @@ class NetworkActionParametersTest {
         raoParameters.getTopoOptimizationParameters().setSkipActionsFarFromMostLimitingElement(true);
         raoParameters.getTopoOptimizationParameters().setMaxNumberOfBoundariesForSkippingActions(4);
 
-        NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
+        NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac, ReportNode.NO_OP);
 
         assertEquals(1, nap.getNetworkActionCombinations().size());
         assertEquals(2, nap.getNetworkActionCombinations().get(0).getNetworkActionSet().size());
@@ -113,7 +113,7 @@ class NetworkActionParametersTest {
                 List.of("topological-action-1"), // should be filtered (one action only)
                 new ArrayList<>())); // should be filtered
 
-        List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters.getTopoOptimizationParameters());
+        List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters.getTopoOptimizationParameters(), ReportNode.NO_OP);
 
         assertEquals(5, parameters.getTopoOptimizationParameters().getPredefinedCombinations().size());
         assertEquals(2, naCombinations.size());

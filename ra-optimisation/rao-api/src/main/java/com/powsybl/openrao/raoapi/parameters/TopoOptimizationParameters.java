@@ -13,7 +13,6 @@ import com.powsybl.openrao.raoapi.RaoReports;
 
 import java.util.*;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
@@ -65,7 +64,7 @@ public class TopoOptimizationParameters {
             RaoReports.reportNegativeRelativeMinimumImpactThreshold(reportNode, relativeMinImpactThreshold);
             this.relativeMinImpactThreshold = 0;
         } else if (relativeMinImpactThreshold > 1) {
-            BUSINESS_WARNS.warn("The value {} provided for relativeminimum impact threshold is greater than 1. It will be set to 1.", relativeMinImpactThreshold);
+            RaoReports.reportCappingRelativeMinimumImpactThreshold(reportNode, relativeMinImpactThreshold);
             this.relativeMinImpactThreshold = 1;
         } else {
             this.relativeMinImpactThreshold = relativeMinImpactThreshold;
@@ -82,7 +81,7 @@ public class TopoOptimizationParameters {
 
     public void setMaxNumberOfBoundariesForSkippingActions(int maxNumberOfBoundariesForSkippingActions) {
         if (maxNumberOfBoundariesForSkippingActions < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for max number of boundaries for skipping actions is smaller than 0. It will be set to 0.", maxNumberOfBoundariesForSkippingActions);
+            RaoReports.reportNegativeMaxNumberOfBoundariesForSkippingActions(reportNode, maxNumberOfBoundariesForSkippingActions);
             this.maxNumberOfBoundariesForSkippingActions = 0;
         } else {
             this.maxNumberOfBoundariesForSkippingActions = maxNumberOfBoundariesForSkippingActions;

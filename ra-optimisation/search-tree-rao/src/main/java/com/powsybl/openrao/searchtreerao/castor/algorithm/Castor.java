@@ -49,14 +49,14 @@ public class Castor implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
         RaoUtil.initData(raoInput, parameters, reportNode);
-        ReportNode raoReportNode = CastorReports.reportRao(raoInput.getNetwork().getId(), reportNode);
+        ReportNode raoReportNode = CastorAlgorithmReports.reportRao(raoInput.getNetwork().getId(), reportNode);
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {
             try {
                 return new CastorOneStateOnly(raoInput, parameters).run(raoReportNode);
             } catch (Exception e) {
-                CastorReports.reportRaoFailure(raoInput.getOptimizedState().getId(), e, reportNode);
+                CastorAlgorithmReports.reportRaoFailure(raoInput.getOptimizedState().getId(), e, reportNode);
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl());
             }
         } else {

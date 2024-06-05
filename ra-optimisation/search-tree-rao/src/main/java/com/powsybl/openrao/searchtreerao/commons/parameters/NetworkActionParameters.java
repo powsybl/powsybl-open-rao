@@ -6,14 +6,14 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.raoapi.parameters.TopoOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.commons.RaoCommonsReports;
 
 import java.util.*;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -60,8 +60,8 @@ public class NetworkActionParameters {
         return maxNumberOfBoundariesForSkippingNetworkActions;
     }
 
-    public static NetworkActionParameters buildFromRaoParameters(TopoOptimizationParameters topoOptimizationParameters, Crac crac) {
-        return new NetworkActionParameters(computePredefinedCombinations(crac, topoOptimizationParameters),
+    public static NetworkActionParameters buildFromRaoParameters(TopoOptimizationParameters topoOptimizationParameters, Crac crac, ReportNode reportNode) {
+        return new NetworkActionParameters(computePredefinedCombinations(crac, topoOptimizationParameters, reportNode),
                 topoOptimizationParameters.getAbsoluteMinImpactThreshold(),
                 topoOptimizationParameters.getRelativeMinImpactThreshold(),
                 topoOptimizationParameters.getSkipActionsFarFromMostLimitingElement(),
@@ -95,20 +95,20 @@ public class NetworkActionParameters {
         return Objects.hash(predefinedCombinations, absoluteNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold, skipNetworkActionFarFromMostLimitingElements, maxNumberOfBoundariesForSkippingNetworkActions);
     }
 
-    public static List<NetworkActionCombination> computePredefinedCombinations(Crac crac, TopoOptimizationParameters topoOptimizationParameters) {
+    public static List<NetworkActionCombination> computePredefinedCombinations(Crac crac, TopoOptimizationParameters topoOptimizationParameters, ReportNode reportNode) {
         List<List<String>> predefinedCombinationsIds = topoOptimizationParameters.getPredefinedCombinations();
         List<NetworkActionCombination> computedPredefinedCombinations = new ArrayList<>();
         predefinedCombinationsIds.forEach(networkActionIds -> {
-            Optional<NetworkActionCombination> optNaCombination = computePredefinedCombinationsFromIds(networkActionIds, crac);
+            Optional<NetworkActionCombination> optNaCombination = computePredefinedCombinationsFromIds(networkActionIds, crac, reportNode);
             optNaCombination.ifPresent(computedPredefinedCombinations::add);
         });
         return computedPredefinedCombinations;
     }
 
-    private static Optional<NetworkActionCombination> computePredefinedCombinationsFromIds(List<String> networkActionIds, Crac crac) {
+    private static Optional<NetworkActionCombination> computePredefinedCombinationsFromIds(List<String> networkActionIds, Crac crac, ReportNode reportNode) {
 
         if (networkActionIds.size() < 2) {
-            BUSINESS_WARNS.warn("A predefined combination should contain at least 2 NetworkAction ids");
+            RaoCommonsReports.reportPredefinedCombinationTooSmall(reportNode);
             return Optional.empty();
         }
 
@@ -116,7 +116,7 @@ public class NetworkActionParameters {
         for (String naId : networkActionIds) {
             NetworkAction na = crac.getNetworkAction(naId);
             if (na == null) {
-                BUSINESS_WARNS.warn("Unknown network action id in predefined-combinations parameter: {}", naId);
+                RaoCommonsReports.reportUnknownNetworkActionInPredefinedCombination(reportNode, naId);
                 return Optional.empty();
             }
             networkActions.add(na);

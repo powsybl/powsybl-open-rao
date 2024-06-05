@@ -43,7 +43,7 @@ class SearchTreeParametersTest {
 
     @BeforeEach
     public void setup() {
-        builder = SearchTreeParameters.create();
+        builder = SearchTreeParameters.create(ReportNode.NO_OP);
     }
 
     @Test
@@ -55,7 +55,7 @@ class SearchTreeParametersTest {
         assertNotNull(searchTreeParameters);
 
         assertEquals(raoParameters.getObjectiveFunctionParameters().getType(), searchTreeParameters.getObjectiveFunction());
-        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac), searchTreeParameters.getNetworkActionParameters());
+        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac, ReportNode.NO_OP), searchTreeParameters.getNetworkActionParameters());
         assertEquals(crac.getRaUsageLimitsPerInstant(), searchTreeParameters.getRaLimitationParameters());
         assertEquals(RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getRangeActionParameters());
         assertEquals(raoParameters.getExtension(MnecParametersExtension.class), searchTreeParameters.getMnecParameters());
@@ -160,7 +160,7 @@ class SearchTreeParametersTest {
             Network.read(Paths.get(new File(Objects.requireNonNull(SearchTreeParametersTest.class.getResource("/network/small-network-2P.uct")).getFile()).toString()))
         );
 
-        SearchTreeParameters parameters = SearchTreeParameters.create()
+        SearchTreeParameters parameters = SearchTreeParameters.create(ReportNode.NO_OP)
             .withGlobalRemedialActionLimitationParameters(
                 Map.of(
                     crac.getInstant("preventive"), crac.getRaUsageLimits(crac.getInstant("preventive")),

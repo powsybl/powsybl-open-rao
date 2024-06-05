@@ -61,4 +61,24 @@ public final class RaoReports {
         BUSINESS_WARNS.warn("The value {} provided for relative minimum impact threshold is smaller than 0. It will be set to 0.", relativeMinImpactThreshold);
         return addedNode;
     }
+
+    public static ReportNode reportCappingRelativeMinimumImpactThreshold(ReportNode reportNode, double relativeMinImpactThreshold) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportCappingRelativeMinimumImpactThreshold", "The value ${relativeMinImpactThreshold} provided for relative minimum impact threshold is greater than 1. It will be set to 1.")
+            .withUntypedValue("relativeMinImpactThreshold", relativeMinImpactThreshold)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("The value {} provided for relative minimum impact threshold is greater than 1. It will be set to 1.", relativeMinImpactThreshold);
+        return addedNode;
+    }
+
+    public static ReportNode reportNegativeMaxNumberOfBoundariesForSkippingActions(ReportNode reportNode, int maxNumberOfBoundariesForSkippingActions) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNegativeMaxNumberOfBoundariesForSkippingActions", "The value ${maxNumberOfBoundariesForSkippingActions} provided for max number of boundaries for skipping actions is smaller than 0. It will be set to 0.")
+            .withUntypedValue("maxNumberOfBoundariesForSkippingActions", maxNumberOfBoundariesForSkippingActions)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("The value {} provided for max number of boundaries for skipping actions is smaller than 0. It will be set to 0.", maxNumberOfBoundariesForSkippingActions);
+        return addedNode;
+    }
 }

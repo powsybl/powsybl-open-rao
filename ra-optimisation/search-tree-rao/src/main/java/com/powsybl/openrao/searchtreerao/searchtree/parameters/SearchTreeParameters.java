@@ -20,6 +20,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.searchtree.SearchTreeReports;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ public class SearchTreeParameters {
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
     private final int maxNumberOfIterations;
+    private final ReportNode reportNode;
 
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                 TreeParameters treeParameters,
@@ -57,7 +59,8 @@ public class SearchTreeParameters {
                                 LoopFlowParametersExtension loopFlowParameters,
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
                                 RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
-                                int maxNumberOfIterations) {
+                                int maxNumberOfIterations,
+                                ReportNode reportNode) {
         this.objectiveFunction = objectiveFunction;
         this.treeParameters = treeParameters;
         this.networkActionParameters = networkActionParameters;
@@ -69,6 +72,7 @@ public class SearchTreeParameters {
         this.unoptimizedCnecParameters = unoptimizedCnecParameters;
         this.solverParameters = solverParameters;
         this.maxNumberOfIterations = maxNumberOfIterations;
+        this.reportNode = reportNode;
     }
 
     public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunction() {
@@ -116,10 +120,6 @@ public class SearchTreeParameters {
     }
 
     public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant) {
-        setRaLimitationsForSecondPreventive(raUsageLimits, rangeActionSet, preventiveInstant, ReportNode.NO_OP);
-    }
-
-    public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant, ReportNode reportNode) {
         Set<String> tsoCount = new HashSet<>();
         int raCount = 0;
         Map<String, Integer> currentPstPerTsoLimits = raUsageLimits.getMaxPstPerTso();
@@ -143,10 +143,6 @@ public class SearchTreeParameters {
     }
 
     public void decreaseRemedialActionUsageLimits(Map<State, OptimizationResult> resultsPerOptimizationState) {
-        decreaseRemedialActionUsageLimits(resultsPerOptimizationState, ReportNode.NO_OP);
-    }
-
-    public void decreaseRemedialActionUsageLimits(Map<State, OptimizationResult> resultsPerOptimizationState, ReportNode reportNode) {
         resultsPerOptimizationState.forEach((optimizedState, result) ->
             raLimitationParameters.keySet().forEach(
                 otherInstant -> {
@@ -203,11 +199,12 @@ public class SearchTreeParameters {
         return raUsageLimits.getMaxTso() - (raUsageLimits.getMaxTsoExclusion().size() - tsosWithPreviouslyAppliedRas);
     }
 
-    public static SearchTreeParametersBuilder create() {
-        return new SearchTreeParametersBuilder();
+    public static SearchTreeParametersBuilder create(ReportNode reportNode) {
+        return new SearchTreeParametersBuilder(reportNode);
     }
 
     public static class SearchTreeParametersBuilder {
+        private final ReportNode reportNode;
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
         private TreeParameters treeParameters;
         private NetworkActionParameters networkActionParameters;
@@ -220,9 +217,13 @@ public class SearchTreeParameters {
         private RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
         private int maxNumberOfIterations;
 
+        public SearchTreeParametersBuilder(ReportNode reportNode) {
+            this.reportNode = SearchTreeReports.reportSearchTreeParameter(reportNode);
+        }
+
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
-            this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
+            this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac, reportNode);
             this.raLimitationParameters = crac.getRaUsageLimitsPerInstant();
             this.rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
             this.mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
@@ -299,7 +300,8 @@ public class SearchTreeParameters {
                 loopFlowParameters,
                 unoptimizedCnecParameters,
                 solverParameters,
-                maxNumberOfIterations);
+                maxNumberOfIterations,
+                reportNode);
         }
     }
 }

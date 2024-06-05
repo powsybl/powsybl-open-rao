@@ -148,4 +148,68 @@ public final class RaoCommonsReports {
         TECHNICAL_LOGS.info("{}range action(s): {}", prefix, rangeActionSetpoints);
         return null;
     }
+
+    public static ReportNode reportForceUsageMethodForAutomatonOnly(ReportNode reportNode, String remedialActionName, String stateId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportForceUsageMethodForAutomatonOnly", "The 'forced' usage method is for automatons only. Therefore, ${remedialActionName} will be ignored for this state: ${stateId}")
+            .withUntypedValue("remedialActionName", remedialActionName)
+            .withUntypedValue("stateId", stateId)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("The 'forced' usage method is for automatons only. Therefore, {} will be ignored for this state: {}", remedialActionName, stateId);
+        return addedNode;
+    }
+
+    public static ReportNode reportRemedialActionWithoutUsageRule(ReportNode reportNode, String remedialActionName) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportRemedialActionWithoutUsageRule", "The remedial action ${contingencyId} has no usage rule and therefore will not be available.")
+            .withUntypedValue("remedialActionName", remedialActionName)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("The remedial action {} has no usage rule and therefore will not be available.", remedialActionName);
+        return addedNode;
+    }
+
+    public static ReportNode reportRangeActionSetPointOutsideAllowedRange(ReportNode reportNode, String rangeActionId, double preperimeterSetPoint, double minSetPoint, double maxSetPoint) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportRangeActionSetPointOutsideAllowedRange", "Range action ${rangeActionId} has an initial setpoint of ${preperimeterSetPoint} that does not respect its allowed range [${minSetPoint} ${maxSetPoint}]. It will be filtered out of the linear problem.")
+            .withUntypedValue("rangeActionId", rangeActionId)
+            .withUntypedValue("preperimeterSetPoint", preperimeterSetPoint)
+            .withUntypedValue("minSetPoint", minSetPoint)
+            .withUntypedValue("maxSetPoint", maxSetPoint)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
+            rangeActionId, preperimeterSetPoint, minSetPoint, maxSetPoint);
+        return addedNode;
+    }
+
+    public static ReportNode reportDifferentPrePerimeterSetPoint(ReportNode reportNode, String group) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportDifferentPrePerimeterSetPoint", "Range actions of group ${group} do not have the same prePerimeter setpoint. They will be filtered out of the linear problem.")
+            .withUntypedValue("group", group)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Range actions of group {} do not have the same prePerimeter setpoint. They will be filtered out of the linear problem.", group);
+        return addedNode;
+    }
+
+    public static ReportNode reportPredefinedCombinationTooSmall(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportPredefinedCombinationTooSmall", "A predefined combination should contain at least 2 NetworkAction ids")
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("A predefined combination should contain at least 2 NetworkAction ids");
+        return addedNode;
+    }
+
+    public static ReportNode reportUnknownNetworkActionInPredefinedCombination(ReportNode reportNode, String naId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportUnknownNetworkActionInPredefinedCombination", "Unknown network action id in predefined-combinations parameter: ${naId}")
+            .withUntypedValue("naId", naId)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Unknown network action id in predefined-combinations parameter: {}", naId);
+        return addedNode;
+    }
 }

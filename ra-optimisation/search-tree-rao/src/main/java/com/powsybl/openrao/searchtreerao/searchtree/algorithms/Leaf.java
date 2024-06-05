@@ -29,6 +29,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLine
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.searchtree.SearchTreeReports;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -39,8 +40,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 
 /**
@@ -150,14 +149,14 @@ public class Leaf implements OptimizationResult {
      */
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer, ReportNode reportNode) {
         if (status.equals(Status.EVALUATED)) {
-            TECHNICAL_LOGS.debug("Leaf has already been evaluated");
+            SearchTreeReports.reportLeafAlreadyEvaluated(reportNode);
             preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus(), reportNode);
             return;
         }
-        TECHNICAL_LOGS.debug("Evaluating {}", this);
+        SearchTreeReports.reportEvaluatingLeaf(reportNode, this.toString());
         sensitivityComputer.compute(network);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
-            BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
+            SearchTreeReports.reportFailedEvaluateLeafSensitivityAnalysisFailed(reportNode);
             status = Status.ERROR;
             return;
         }
@@ -183,11 +182,11 @@ public class Leaf implements OptimizationResult {
         }
         if (status.equals(Status.OPTIMIZED)) {
             // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
-            TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
+            SearchTreeReports.reportResettingRangeActionSetPointsToPreOptimValues(reportNode);
             resetPreOptimRangeActionsSetpoints(searchTreeInput.getOptimizationPerimeter());
         }
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
-            TECHNICAL_LOGS.debug("Optimizing leaf...");
+            SearchTreeReports.reportOptimizingLeaf(reportNode);
 
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
@@ -223,9 +222,9 @@ public class Leaf implements OptimizationResult {
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
-            BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation failed", this);
+            SearchTreeReports.reportEvaluationFailed(reportNode, this.toString());
         } else if (status.equals(Status.CREATED)) {
-            BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", this);
+            SearchTreeReports.reportEvaluationNotPerformed(reportNode, this.toString());
         }
     }
 

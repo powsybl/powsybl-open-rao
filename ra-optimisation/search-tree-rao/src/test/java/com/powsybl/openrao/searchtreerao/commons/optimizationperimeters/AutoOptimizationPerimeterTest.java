@@ -46,7 +46,7 @@ class AutoOptimizationPerimeterTest {
     void buildAutoOptimizationPerimeter() {
         Crac crac = initCrac();
         State automatonState = crac.getState("contingency", crac.getInstant("auto"));
-        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(ReportNode.NO_OP), null);
+        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(ReportNode.NO_OP), null, ReportNode.NO_OP);
 
         // Only available topological actions are considered in the perimeter
         assertEquals(automatonState, autoOptimizationPerimeter.getMainOptimizationState());

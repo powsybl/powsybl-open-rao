@@ -356,4 +356,77 @@ public final class SearchTreeReports {
         logger(severity).info(message);
         return addedNode;
     }
+
+    public static ReportNode reportSearchTreeParameter(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportSearchTreeParameter", "New Search Tree Parameter")
+            .withSeverity(INFO_SEVERITY)
+            .add();
+    }
+
+    public static ReportNode reportLeafAlreadyEvaluated(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLeafAlreadyEvaluated", "Leaf has already been evaluated")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Leaf has already been evaluated");
+        return addedNode;
+    }
+
+    public static ReportNode reportEvaluatingLeaf(ReportNode reportNode, String leaf) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportEvaluatingLeaf", "Evaluating ${leaf}")
+            .withUntypedValue("leaf", leaf)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Evaluating {}", leaf);
+        return addedNode;
+    }
+
+    public static ReportNode reportFailedEvaluateLeafSensitivityAnalysisFailed(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportFailedEvaluateLeafSensitivityAnalysisFailed", "Failed to evaluate leaf: sensitivity analysis failed")
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
+        return addedNode;
+    }
+
+    public static ReportNode reportResettingRangeActionSetPointsToPreOptimValues(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportResettingRangeActionSetPointsToPreOptimValues", "Resetting range action setpoints to their pre-optim values")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
+        return addedNode;
+    }
+
+    public static ReportNode reportOptimizingLeaf(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportOptimizingLeaf", "Optimizing leaf...")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Optimizing leaf...");
+        return addedNode;
+    }
+
+    public static ReportNode reportEvaluationFailed(ReportNode reportNode, String leaf) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportEvaluationFailed", "Impossible to optimize leaf: ${leaf}\n because evaluation failed")
+            .withUntypedValue("leaf", leaf)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation failed", leaf);
+        return addedNode;
+    }
+
+    public static ReportNode reportEvaluationNotPerformed(ReportNode reportNode, String leaf) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportEvaluationNotPerformed", "Impossible to optimize leaf: ${leaf}\\n because evaluation has not been performed")
+            .withUntypedValue("leaf", leaf)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", leaf);
+        return addedNode;
+    }
 }

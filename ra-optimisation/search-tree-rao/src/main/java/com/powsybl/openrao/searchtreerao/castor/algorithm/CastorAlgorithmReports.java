@@ -6,12 +6,11 @@ import com.powsybl.commons.report.TypedValue;
 import java.time.Instant;
 import java.util.Locale;
 
-import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
-import static com.powsybl.commons.report.TypedValue.TRACE_SEVERITY;
+import static com.powsybl.commons.report.TypedValue.*;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
-public final class CastorReports {
-    private CastorReports() {
+public final class CastorAlgorithmReports {
+    private CastorAlgorithmReports() {
         // Utility class
     }
 
@@ -430,6 +429,126 @@ public final class CastorReports {
             .withSeverity(TRACE_SEVERITY)
             .add();
         TECHNICAL_LOGS.debug("Activating automaton {} - {}.", id, name);
+        return addedNode;
+    }
+
+    public static ReportNode reportRunSensitivityAnalysisPostApplicationForState(ReportNode reportNode, String automatonStateId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportRunSensitivityAnalysisPostApplicationForState", "Running sensitivity analysis post application of auto network actions for automaton state ${automatonStateId}.")
+            .withUntypedValue("automatonStateId", automatonStateId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Running sensitivity analysis post application of auto network actions for automaton state {}.", automatonStateId);
+        return addedNode;
+    }
+
+    public static ReportNode reportAutomatonStateOptimizedNoAutomatonRangeActionAvailable(ReportNode reportNode, String automatonStateId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportAutomatonStateOptimizedNoAutomatonRangeActionAvailable", "Automaton state ${automatonStateId} has been optimized (no automaton range actions available).")
+            .withUntypedValue("automatonStateId", automatonStateId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Automaton state {} has been optimized (no automaton range actions available).", automatonStateId);
+        return addedNode;
+    }
+
+    public static ReportNode reportAutomatonSimulatorRangeActionIgnoredNoSpeed(ReportNode reportNode, String rangeActionId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportAutomatonSimulatorRangeActionIgnoredNoSpeed", "Range action ${rangeActionId} will not be considered in RAO as no speed is defined.")
+            .withUntypedValue("rangeActionId", rangeActionId)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Range action {} will not be considered in RAO as no speed is defined", rangeActionId);
+        return addedNode;
+    }
+
+    public static ReportNode reportHeterogenousRangeActionGroupTypes(ReportNode reportNode, String rangeActionGroupId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportHeterogenousRangeActionGroupTypes", "Range action group ${rangeActionGroupId} contains range actions of different types; they are not simulated")
+            .withUntypedValue("rangeActionGroupId", rangeActionGroupId)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", rangeActionGroupId);
+        return addedNode;
+    }
+
+    public static ReportNode reportRangeActionGroupNotAllAvailableAtAutoInstant(ReportNode reportNode, String rangeActionGroupId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportRangeActionGroupNotAllAvailableAtAutoInstant", "Range action group ${rangeActionGroupId} contains range actions not all available at AUTO instant; they are not simulated")
+            .withUntypedValue("rangeActionGroupId", rangeActionGroupId)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Range action group {} contains range actions not all available at AUTO instant; they are not simulated", rangeActionGroupId);
+        return addedNode;
+    }
+
+    public static ReportNode reportRunPreCurativeSensitivityAnalysis(ReportNode reportNode, String automatonStateId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportRunPreCurativeSensitivityAnalysis", "Running pre curative sensitivity analysis after auto state ${automatonStateId}.")
+            .withUntypedValue("automatonStateId", automatonStateId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Running pre curative sensitivity analysis after auto state {}.", automatonStateId);
+        return addedNode;
+    }
+
+    public static ReportNode reportRunLoadFlowForHvdcAngleDroopActivePowerControlSetPoint(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportRunLoadFlowForHvdcAngleDroopActivePowerControlSetPoint", "Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.");
+        return addedNode;
+    }
+
+    public static ReportNode reportRunSensitivityAnalysisAfterDisablingAngleDroopActivePowerControlOnHvdcRa(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportRunSensitivityAnalysisAfterDisablingAngleDroopActivePowerControlOnHvdcRa", "Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.")
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.");
+        return addedNode;
+    }
+
+    public static ReportNode reportDisablingAngleDroopActivePowerControl(ReportNode reportNode, String hvdcId, double activePowerSetpoint) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportDisablingAngleDroopActivePowerControl", "Disabling HvdcAngleDroopActivePowerControl on HVDC line ${hvdcId} and setting its set-point to ${activePowerSetpoint}.}")
+            .withUntypedValue("hvdcId", hvdcId)
+            .withUntypedValue("activePowerSetpoint", activePowerSetpoint)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcId, activePowerSetpoint);
+        return addedNode;
+    }
+
+    public static ReportNode reportShiftSetPointOfRangeActionToSecureCnecOnSide(ReportNode reportNode, String currentSetPoint, String optimalSetpoint, String rangeActionIds, String cnecId, String side, String cnecMargin) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportShiftSetPointOfRangeActionToSecureCnecOnSide", "Shifting set-point from ${currentSetPoint} to ${optimalSetpoint} on range action(s) \"${rangeActionIds}\" to secure CNEC ${rangeActionIds} on side ${side} (current margin: ${cnecMargin} MW).")
+            .withUntypedValue("currentSetPoint", currentSetPoint)
+            .withUntypedValue("optimalSetpoint", optimalSetpoint)
+            .withUntypedValue("rangeActionIds", rangeActionIds)
+            .withUntypedValue("cnecId", cnecId)
+            .withUntypedValue("side", side)
+            .withUntypedValue("cnecMargin", cnecMargin)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Shifting set-point from {} to {} on range action(s) {} to secure CNEC {} on side {} (current margin: {} MW).",
+            currentSetPoint,
+            optimalSetpoint,
+            rangeActionIds,
+            cnecId,
+            side,
+            cnecMargin);
+        return addedNode;
+    }
+
+    public static ReportNode reportNoCnecAfterContingencyWithAutomatonOrCurativeRemedialAction(ReportNode reportNode, String contingencyId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNoCnecAfterContingencyWithAutomatonOrCurativeRemedialAction", "Contingency ${contingencyId} has an automaton or a curative remedial action but no CNECs associated.")
+            .withUntypedValue("contingencyId", contingencyId)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative remedial action but no CNECs associated.", contingencyId);
         return addedNode;
     }
 }

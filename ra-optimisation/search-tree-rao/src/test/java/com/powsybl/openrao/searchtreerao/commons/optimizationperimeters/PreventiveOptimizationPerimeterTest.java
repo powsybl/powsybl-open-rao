@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
@@ -34,7 +35,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());
         assertEquals(Set.of(pState), optPerimeter.getRangeActionOptimizationStates());
@@ -59,7 +60,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(10000.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(Set.of(oCnec1, cCnec2), optPerimeter.getLoopFlowCnecs());
         assertTrue(optPerimeter.getRangeActions().isEmpty());
@@ -72,7 +73,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         raoParameters.getExtension(LoopFlowParametersExtension.class).setCountries(Set.of(Country.BE));
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(Set.of(cCnec2), optPerimeter.getLoopFlowCnecs()); // the other loop-flow CNEC is not considered as outside of the loopFlow countries scope
     }
@@ -81,7 +82,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
     void fullWithPreventiveCnecOnlyTest() {
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());
         assertEquals(Set.of(pState), optPerimeter.getRangeActionOptimizationStates());
