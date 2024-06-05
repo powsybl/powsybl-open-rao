@@ -774,7 +774,10 @@ public class CastorFullOptimization {
      * For the same reason, we are going to check preventive RAs that share the same network elements as auto or curative RAs.
      */
     static Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(Crac crac, PerimeterResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults) {
-        Set<RangeAction<?>> rangeActionsToExclude = new HashSet<>();
+
+        // Excludes every non-preventive RA.
+        Set<RangeAction<?>> nonPreventiveRangeActions = crac.getRangeActions().stream().filter(ra -> !isRangeActionPreventive(ra, crac)).collect(Collectors.toSet());
+        Set<RangeAction<?>> rangeActionsToExclude = new HashSet<>(nonPreventiveRangeActions);
 
         // Gathers PRAs that are also ARA/CRAs.
         Set<RangeAction<?>> multipleInstantRangeActions = crac.getRangeActions().stream()
@@ -786,11 +789,10 @@ public class CastorFullOptimization {
         rangeActionsToExclude.forEach(multipleInstantRangeActions::remove);
 
         // We look for PRAs that share the same network element as ARA/CRAs as the same rules apply to them.
-        Set<RangeAction<?>> rangeActionsNotPreventive = crac.getRangeActions().stream().filter(ra -> !isRangeActionPreventive(ra, crac)).collect(Collectors.toSet());
         Map<RangeAction<?>, Set<RangeAction<?>>> correspondanceMap = new HashMap<>();
         crac.getRangeActions().stream().filter(ra -> isRangeActionPreventive(ra, crac) && !isRangeActionAutoOrCurative(ra, crac)).forEach(pra -> {
             Set<NetworkElement> praNetworkElements = pra.getNetworkElements();
-            for (RangeAction<?> cra : rangeActionsNotPreventive) {
+            for (RangeAction<?> cra : nonPreventiveRangeActions) {
                 if (cra.getNetworkElements().equals(praNetworkElements)) {
                     if (raHasRelativeToPreviousInstantRange(cra)) {
                         // Excludes PRAs which share the same network element as an ARA/CRA with a range limit relative to the previous instant.
