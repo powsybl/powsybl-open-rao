@@ -23,15 +23,21 @@ import java.util.Objects;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
-    private ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
-    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
-    private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
-    private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
-    private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
-    private NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
+    private ObjectiveFunctionParameters objectiveFunctionParameters;
+    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
+    private TopoOptimizationParameters topoOptimizationParameters;
+    private MultithreadingParameters multithreadingParameters;
+    private SecondPreventiveRaoParameters secondPreventiveRaoParameters;
+    private NotOptimizedCnecsParameters notOptimizedCnecsParameters;
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters;
 
     public RaoParameters(ReportNode reportNode) {
+        this.objectiveFunctionParameters = new ObjectiveFunctionParameters(reportNode);
+        this.rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
+        this.topoOptimizationParameters = new TopoOptimizationParameters(reportNode);
+        this.multithreadingParameters = new MultithreadingParameters();
+        this.secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
+        this.notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
         this.loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters(reportNode);
     }
 
@@ -131,9 +137,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static void load(RaoParameters parameters, PlatformConfig platformConfig, ReportNode reportNode) {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);
-        parameters.setObjectiveFunctionParameters(ObjectiveFunctionParameters.load(platformConfig));
+        parameters.setObjectiveFunctionParameters(ObjectiveFunctionParameters.load(platformConfig, reportNode));
         parameters.setRangeActionsOptimizationParameters(RangeActionsOptimizationParameters.load(platformConfig));
-        parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig));
+        parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig, reportNode));
         parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
         parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
         parameters.setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters.load(platformConfig));

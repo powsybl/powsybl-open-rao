@@ -40,4 +40,25 @@ public final class RaoReports {
         BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible. HvdcAcEmulation parameter set to false.");
         return addedNode;
     }
+
+    public static ReportNode reportNegativeMinimumObjectiveImprovement(ReportNode reportNode, double curativeRaoMinObjImprovement) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNegativeMinimumObjectiveImprovement", "The value ${curativeRaoMinObjImprovement} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + ${positiveCurativeRaoMinObjImprovement}")
+            .withUntypedValue("curativeRaoMinObjImprovement", curativeRaoMinObjImprovement)
+            .withUntypedValue("positiveCurativeRaoMinObjImprovement", -curativeRaoMinObjImprovement)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
+        return addedNode;
+    }
+
+    public static ReportNode reportNegativeRelativeMinimumImpactThreshold(ReportNode reportNode, double relativeMinImpactThreshold) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNegativeRelativeMinimumImpactThreshold", "The value ${relativeMinImpactThreshold} provided for relative minimum impact threshold is smaller than 0. It will be set to 0.")
+            .withUntypedValue("relativeMinImpactThreshold", relativeMinImpactThreshold)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+        BUSINESS_WARNS.warn("The value {} provided for relative minimum impact threshold is smaller than 0. It will be set to 0.", relativeMinImpactThreshold);
+        return addedNode;
+    }
 }

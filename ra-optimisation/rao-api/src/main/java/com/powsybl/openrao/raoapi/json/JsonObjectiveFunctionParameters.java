@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.raoapi.json;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -35,7 +36,7 @@ final class JsonObjectiveFunctionParameters {
         jsonGenerator.writeEndObject();
     }
 
-    static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoParameters raoParameters, ReportNode reportNode) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case TYPE:

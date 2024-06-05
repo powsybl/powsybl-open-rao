@@ -8,6 +8,8 @@
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.raoapi.RaoReports;
 
 import java.util.*;
 
@@ -28,6 +30,7 @@ public class TopoOptimizationParameters {
     private static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
     private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
     // Attributes
+    private final ReportNode reportNode;
     private int maxPreventiveSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
     private int maxAutoSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
     private int maxCurativeSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
@@ -36,6 +39,10 @@ public class TopoOptimizationParameters {
     private double absoluteMinImpactThreshold = DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD;
     private boolean skipActionsFarFromMostLimitingElement = DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
     private int maxNumberOfBoundariesForSkippingActions = DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
+
+    public TopoOptimizationParameters(ReportNode reportNode) {
+        this.reportNode = reportNode;
+    }
 
     public void setMaxPreventiveSearchTreeDepth(int maxPreventiveSearchTreeDepth) {
         this.maxPreventiveSearchTreeDepth = maxPreventiveSearchTreeDepth;
@@ -55,7 +62,7 @@ public class TopoOptimizationParameters {
 
     public void setRelativeMinImpactThreshold(double relativeMinImpactThreshold) {
         if (relativeMinImpactThreshold < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for relative minimum impact threshold is smaller than 0. It will be set to 0.", relativeMinImpactThreshold);
+            RaoReports.reportNegativeRelativeMinimumImpactThreshold(reportNode, relativeMinImpactThreshold);
             this.relativeMinImpactThreshold = 0;
         } else if (relativeMinImpactThreshold > 1) {
             BUSINESS_WARNS.warn("The value {} provided for relativeminimum impact threshold is greater than 1. It will be set to 1.", relativeMinImpactThreshold);
@@ -114,9 +121,9 @@ public class TopoOptimizationParameters {
         return predefinedCombinations;
     }
 
-    public static TopoOptimizationParameters load(PlatformConfig platformConfig) {
+    public static TopoOptimizationParameters load(PlatformConfig platformConfig, ReportNode reportNode) {
         Objects.requireNonNull(platformConfig);
-        TopoOptimizationParameters parameters = new TopoOptimizationParameters();
+        TopoOptimizationParameters parameters = new TopoOptimizationParameters(reportNode);
         platformConfig.getOptionalModuleConfig(TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setMaxPreventiveSearchTreeDepth(config.getIntProperty(MAX_PREVENTIVE_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));

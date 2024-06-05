@@ -53,7 +53,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     break;
                 case OBJECTIVE_FUNCTION:
                     parser.nextToken();
-                    JsonObjectiveFunctionParameters.deserialize(parser, parameters);
+                    JsonObjectiveFunctionParameters.deserialize(parser, parameters, reportNode);
                     break;
                 case RANGE_ACTIONS_OPTIMIZATION:
                     parser.nextToken();
