@@ -212,4 +212,14 @@ public final class RaoCommonsReports {
         BUSINESS_WARNS.warn("Unknown network action id in predefined-combinations parameter: {}", naId);
         return addedNode;
     }
+
+    public static ReportNode reportNoGlskFoundForCountry(ReportNode reportNode, String eiCode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNoGlskFoundForCountry", "No GLSK found for CountryEICode ${eiCode}")
+            .withUntypedValue("eiCode", eiCode)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
+        return addedNode;
+    }
 }

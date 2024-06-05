@@ -44,7 +44,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
@@ -330,16 +329,9 @@ public class CastorFullOptimization {
     }
 
     private ReportNode runScenario(Crac crac, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, TreeParameters automatonTreeParameters, TreeParameters curativeTreeParameters, PrePerimeterResult initialSensitivityOutput, PrePerimeterResult prePerimeterSensitivityOutput, boolean automatonsOnly, ContingencyScenario optimizedScenario, AbstractNetworkPool networkPool, AutomatonSimulator automatonSimulator, Map<State, OptimizationResult> contingencyScenarioResults, AtomicInteger remainingScenarios) throws InterruptedException {
-        ReportNode rootReportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("postContingencyScenarioOptimization", "Optimizing scenario post-contingency.")
-                .build();
+        ReportNode rootReportNode = CastorAlgorithmReports.reportPostContingencyScenarioOptimization();
 
-        ReportNode scenarioReportNode = rootReportNode.newReportNode()
-                .withMessageTemplate("postContingencyScenarioOptimization", "Optimizing scenario post-contingency ${contingencyId}.")
-                .withUntypedValue("contingencyId", optimizedScenario.getContingency().getId())
-                .withSeverity(TypedValue.DEBUG_SEVERITY)
-                .add();
-        TECHNICAL_LOGS.info("Optimizing scenario post-contingency {}.", optimizedScenario.getContingency().getId());
+        ReportNode scenarioReportNode = CastorAlgorithmReports.reportPostContingencyScenarioOptimization(rootReportNode, optimizedScenario.getContingency().getId());
         Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
 
         // Init variables
@@ -398,10 +390,7 @@ public class CastorFullOptimization {
             }
         }
         int remainingScenariosNumber = remainingScenarios.decrementAndGet();
-        scenarioReportNode.newReportNode()
-                .withMessageTemplate("remainingPostContingencyScenarios", "Remaining post-contingency scenarios to optimize: ${remainingScenarios}")
-                .withUntypedValue("remainingScenarios", remainingScenariosNumber).add();
-        TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenariosNumber);
+        CastorAlgorithmReports.reportRemainingPostContingencyScenarios(scenarioReportNode, remainingScenariosNumber);
         networkPool.releaseUsedNetwork(networkClone);
         return rootReportNode;
     }
@@ -427,11 +416,7 @@ public class CastorFullOptimization {
                                                          Map<State, OptimizationResult> resultsPerPerimeter,
                                                          ReportNode reportNode) {
         State curativeState = curativePerimeter.getRaOptimisationState();
-        reportNode.newReportNode()
-                .withMessageTemplate("optimizingCurativeState", "Optimizing curative state ${curativeStateId}.")
-                .withUntypedValue("curativeStateId", curativeState.getId())
-                .add();
-        TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
+        CastorAlgorithmReports.reportOptimizingCurativeState(reportNode, curativeState.getId());
 
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput, ReportNode.NO_OP);
 
@@ -455,11 +440,7 @@ public class CastorFullOptimization {
             .build();
 
         OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run(reportNode).join();
-        reportNode.newReportNode()
-                .withMessageTemplate("curativeStateOptimized", "Curative state ${curativeStateId} has been optimized.")
-                .withUntypedValue("curativeStateId", curativeState.getId())
-                .add();
-        TECHNICAL_LOGS.info("Curative state {} has been optimized.", curativeState.getId());
+        CastorAlgorithmReports.reportCurativeStateOptimized(reportNode, curativeState.getId());
         return result;
     }
 

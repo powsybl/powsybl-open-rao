@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.*;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -108,12 +107,12 @@ public final class ToolProvider {
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();
             eic.addAll(getEicForLoopFlows());
-            builder.withPtdfSensitivities(getGlskForEic(eic), cnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(eic, reportNode), cnecs, Collections.singleton(Unit.MEGAWATT));
         } else if (computeLoopFlows) {
             Set<FlowCnec> loopflowCnecs = getLoopFlowCnecs(cnecs);
-            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows()), loopflowCnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows(), reportNode), loopflowCnecs, Collections.singleton(Unit.MEGAWATT));
         } else if (computePtdfs) {
-            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction(), reportNode), cnecs, Collections.singleton(Unit.MEGAWATT));
         }
 
         return builder.build();
@@ -135,13 +134,13 @@ public final class ToolProvider {
             collect(Collectors.toSet());
     }
 
-    ZonalData<SensitivityVariableSet> getGlskForEic(Set<String> listEicCode) {
+    ZonalData<SensitivityVariableSet> getGlskForEic(Set<String> listEicCode, ReportNode reportNode) {
         Map<String, SensitivityVariableSet> glskBoundaries = new HashMap<>();
 
         for (String eiCode : listEicCode) {
             SensitivityVariableSet linearGlsk = glskProvider.getData(eiCode);
             if (Objects.isNull(linearGlsk)) {
-                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
+                RaoCommonsReports.reportNoGlskFoundForCountry(reportNode, eiCode);
             } else {
                 glskBoundaries.put(eiCode, linearGlsk);
             }

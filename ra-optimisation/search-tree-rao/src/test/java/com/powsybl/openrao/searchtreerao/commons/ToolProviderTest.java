@@ -131,7 +131,7 @@ class ToolProviderTest {
                 .withLoopFlowComputation(Mockito.mock(ReferenceProgram.class), glskProvider, Mockito.mock(LoopFlowComputation.class))
                 .build();
 
-        ZonalData<SensitivityVariableSet> result = toolProvider.getGlskForEic(Set.of("10YFR-RTE------C", "10YES-REE------0", "absent"));
+        ZonalData<SensitivityVariableSet> result = toolProvider.getGlskForEic(Set.of("10YFR-RTE------C", "10YES-REE------0", "absent"), ReportNode.NO_OP);
         assertEquals(linearGlsk1, result.getData("10YFR-RTE------C"));
         assertEquals(linearGlsk2, result.getData("10YES-REE------0"));
         assertNull(result.getData("absent"));

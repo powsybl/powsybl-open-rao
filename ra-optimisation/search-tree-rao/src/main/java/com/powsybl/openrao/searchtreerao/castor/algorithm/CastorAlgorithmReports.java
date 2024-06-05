@@ -551,4 +551,49 @@ public final class CastorAlgorithmReports {
         BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative remedial action but no CNECs associated.", contingencyId);
         return addedNode;
     }
+
+    static ReportNode reportPostContingencyScenarioOptimization() {
+        return ReportNode.newRootReportNode()
+                .withMessageTemplate("postContingencyScenarioOptimization", "Optimizing scenario post-contingency.")
+                .build();
+    }
+
+    static ReportNode reportPostContingencyScenarioOptimization(ReportNode reportNode, String contingencyId) {
+        ReportNode addedNode = reportNode.newReportNode()
+                .withMessageTemplate("postContingencyScenarioOptimizationId", "Optimizing scenario post-contingency ${contingencyId}.")
+                .withUntypedValue("contingencyId", contingencyId)
+                .withSeverity(DEBUG_SEVERITY)
+                .add();
+        TECHNICAL_LOGS.info("Optimizing scenario post-contingency {}.", contingencyId);
+        return addedNode;
+    }
+
+    static ReportNode reportRemainingPostContingencyScenarios(ReportNode scenarioReportNode, int remainingScenariosNumber) {
+        ReportNode addedNode = scenarioReportNode.newReportNode()
+            .withMessageTemplate("remainingPostContingencyScenarios", "Remaining post-contingency scenarios to optimize: ${remainingScenarios}")
+            .withUntypedValue("remainingScenarios", remainingScenariosNumber)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenariosNumber);
+        return addedNode;
+    }
+
+    static ReportNode reportOptimizingCurativeState(ReportNode reportNode, String curativeStateId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("optimizingCurativeState", "Optimizing curative state ${curativeStateId}.")
+            .withUntypedValue("curativeStateId", curativeStateId)
+            .withSeverity(DEBUG_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeStateId);
+        return addedNode;
+    }
+
+    static void reportCurativeStateOptimized(ReportNode reportNode, String curativeStateId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("curativeStateOptimized", "Curative state ${curativeStateId} has been optimized.")
+            .withUntypedValue("curativeStateId", curativeStateId)
+            .withSeverity(DEBUG_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Curative state {} has been optimized.", curativeStateId);
+    }
 }
