@@ -429,4 +429,44 @@ public final class SearchTreeReports {
         BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", leaf);
         return addedNode;
     }
+
+    public static ReportNode reportNetworkActionsTooFarFromMostLimitingElement(ReportNode reportNode, int numberOfEliminatedNetworkActions) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNetworkActionsTooFarFromMostLimitingElement", "${numberOfEliminatedNetworkActions} network action combinations have been filtered out because they are too far from the most limiting element")
+            .withUntypedValue("numberOfEliminatedNetworkActions", numberOfEliminatedNetworkActions)
+            .withSeverity(DEBUG_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", numberOfEliminatedNetworkActions);
+        return addedNode;
+    }
+
+    public static ReportNode reportTooManyNetworkActionsForTheirTso(ReportNode reportNode, int numberOfEliminatedNetworkActions) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportTooManyNetworkActionsForTheirTso", "${numberOfEliminatedNetworkActions} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached")
+            .withUntypedValue("numberOfEliminatedNetworkActions", numberOfEliminatedNetworkActions)
+            .withSeverity(DEBUG_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", numberOfEliminatedNetworkActions);
+        return addedNode;
+    }
+
+    public static ReportNode reportNetworkActionsFilteredTooManyUsableRemedialActions(ReportNode reportNode, int numberOfEliminatedNetworkActions) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNetworkActionsFilteredTooManyUsableRemedialActions", "${numberOfEliminatedNetworkActions} network action combinations have been filtered out because the max number of usable RAs has been reached")
+            .withUntypedValue("numberOfEliminatedNetworkActions", numberOfEliminatedNetworkActions)
+            .withSeverity(DEBUG_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", numberOfEliminatedNetworkActions);
+        return addedNode;
+    }
+
+    public static ReportNode reportNetworkActionsFilteredTooManyUsableTso(ReportNode reportNode, int numberOfEliminatedNetworkActions) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNetworkActionsFilteredTooManyUsableTso", "${numberOfEliminatedNetworkActions} network action combinations have been filtered out because the max number of usable TSOs has been reached")
+            .withUntypedValue("numberOfEliminatedNetworkActions", numberOfEliminatedNetworkActions)
+            .withSeverity(DEBUG_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", numberOfEliminatedNetworkActions);
+        return addedNode;
+    }
 }

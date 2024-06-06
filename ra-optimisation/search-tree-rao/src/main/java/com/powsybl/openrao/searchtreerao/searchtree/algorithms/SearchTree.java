@@ -205,7 +205,7 @@ public class SearchTree {
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool, ReportNode rootLeafReportNode) throws InterruptedException {
 
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
-        naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
+        naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions(), rootLeafReportNode));
         int numberOfCombinations = naCombinationsSorted.size();
 
         networkPool.initClones(numberOfCombinations);

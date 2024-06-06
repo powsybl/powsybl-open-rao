@@ -81,6 +81,10 @@ class LeafTest {
     private MockedStatic<LinearProblem> linearProblemMockedStatic;
     private MockedStatic<IteratingLinearOptimizer> iteratingLinearOptimizerMockedStatic;
 
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     @BeforeEach
     public void setUp() {
         // network
@@ -243,15 +247,22 @@ class LeafTest {
         double expectedCost = 5.;
         Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
-        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, ReportNode.NO_OP);
+        ReportNode reportNode1 = buildNewRootNode();
+        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, reportNode1);
+        List<ReportNode> reportNode1Children = reportNode1.getChildren();
+        assertEquals(1, reportNode1Children.size());
+        assertEquals("Evaluating network action(s): null", reportNode1Children.get(0).getMessage());
 
         ListAppender<ILoggingEvent> listAppender = getTechnicalLogs();
 
-        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, ReportNode.NO_OP);
+        ReportNode reportNode2 = buildNewRootNode();
+        leaf1.evaluate(costEvaluatorMock, sensitivityComputer, reportNode2);
         List<ILoggingEvent> logsList = listAppender.list;
         assertEquals(1, logsList.size());
         assertEquals("[DEBUG] Leaf has already been evaluated", logsList.get(0).toString());
-
+        List<ReportNode> reportNode2Children = reportNode2.getChildren();
+        assertEquals(1, reportNode2Children.size());
+        assertEquals("Leaf has already been evaluated", reportNode2Children.get(0).getMessage());
     }
 
     private ListAppender<ILoggingEvent> getLogs(Class clazz) {

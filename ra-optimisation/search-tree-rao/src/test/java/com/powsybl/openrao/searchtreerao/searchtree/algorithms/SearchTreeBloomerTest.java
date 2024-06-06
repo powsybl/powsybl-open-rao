@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.State;
@@ -40,7 +41,7 @@ class SearchTreeBloomerTest {
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
-        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2));
+        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2), ReportNode.NO_OP);
         assertEquals(2, bloomResults.size());
         assertTrue(bloomResults.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na1)));
         assertTrue(bloomResults.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na2)));
@@ -56,7 +57,7 @@ class SearchTreeBloomerTest {
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
-        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2));
+        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2), ReportNode.NO_OP);
         assertEquals(4, bloomResults.size());
     }
 

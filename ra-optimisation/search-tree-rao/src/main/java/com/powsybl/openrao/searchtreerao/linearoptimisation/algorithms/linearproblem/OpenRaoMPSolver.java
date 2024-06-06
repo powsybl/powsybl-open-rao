@@ -30,6 +30,7 @@ public class OpenRaoMPSolver {
             Loader.loadNativeLibraries();
         } catch (Exception e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+            // TODO change this ?
         }
     }
 
@@ -164,7 +165,7 @@ public class OpenRaoMPSolver {
     }
 
     public LinearProblemStatus solve() {
-        if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
+        if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) { // TODO change this ?
             mpSolver.enableOutput();
         }
         return convertResultStatus(mpSolver.solve(solveConfiguration));
