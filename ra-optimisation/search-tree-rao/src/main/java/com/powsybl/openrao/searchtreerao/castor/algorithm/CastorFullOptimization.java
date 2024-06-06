@@ -268,10 +268,10 @@ public class CastorFullOptimization {
 
         PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(stateTree.getBasecaseScenario(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResult, reportNode);
 
-        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(ReportNode.NO_OP)
+        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(reportNode)
             .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
             .withTreeParameters(TreeParameters.buildForPreventivePerimeter(raoParameters))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac(), reportNode))
             .build();
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
@@ -418,12 +418,12 @@ public class CastorFullOptimization {
         State curativeState = curativePerimeter.getRaOptimisationState();
         CastorAlgorithmReports.reportOptimizingCurativeState(reportNode, curativeState.getId());
 
-        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput, ReportNode.NO_OP);
+        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput, reportNode);
 
-        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(ReportNode.NO_OP)
+        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(reportNode)
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(curativeTreeParameters)
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac(), reportNode))
             .build();
 
         searchTreeParameters.decreaseRemedialActionUsageLimits(resultsPerPerimeter);
@@ -709,10 +709,10 @@ public class CastorFullOptimization {
             optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(crac, rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult, reportNode);
         }
 
-        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(ReportNode.NO_OP)
+        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(reportNode)
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(TreeParameters.buildForSecondPreventivePerimeter(raoParameters))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac, reportNode))
             .build();
 
         // update RaUsageLimits with already applied RangeActions

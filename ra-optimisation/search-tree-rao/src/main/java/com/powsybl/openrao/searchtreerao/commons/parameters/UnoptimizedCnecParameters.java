@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -14,14 +15,13 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoCommonsReports;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -45,7 +45,7 @@ public class UnoptimizedCnecParameters {
     }
 
     // unoptimizedCnecsInSeriesWithPsts and operatorNotToOptimize cannot be activated together.
-    public static UnoptimizedCnecParameters build(NotOptimizedCnecsParameters parameters, Set<String> operatorsNotSharingCras, Crac crac) {
+    public static UnoptimizedCnecParameters build(NotOptimizedCnecsParameters parameters, Set<String> operatorsNotSharingCras, Crac crac, ReportNode reportNode) {
         if (parameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
                 && !parameters.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
             throw new OpenRaoException("SearchTreeRaoParameters : unoptimizedCnecsInSeriesWithPsts and operatorNotToOptimize cannot be activated together");
@@ -56,21 +56,21 @@ public class UnoptimizedCnecParameters {
         } else if (!parameters.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
             return new UnoptimizedCnecParameters(
                     null,
-                    getDoNotOptimizeCnecsSecuredByTheirPstFromIds(parameters.getDoNotOptimizeCnecsSecuredByTheirPst(), crac));
+                    getDoNotOptimizeCnecsSecuredByTheirPstFromIds(parameters.getDoNotOptimizeCnecsSecuredByTheirPst(), crac, reportNode));
         } else {
             return null;
         }
     }
 
-    public static Map<FlowCnec, RangeAction<?>> getDoNotOptimizeCnecsSecuredByTheirPst(NotOptimizedCnecsParameters parameters, Crac crac) {
+    public static Map<FlowCnec, RangeAction<?>> getDoNotOptimizeCnecsSecuredByTheirPst(NotOptimizedCnecsParameters parameters, Crac crac, ReportNode reportNode) {
         if (!parameters.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
-            return getDoNotOptimizeCnecsSecuredByTheirPstFromIds(parameters.getDoNotOptimizeCnecsSecuredByTheirPst(), crac);
+            return getDoNotOptimizeCnecsSecuredByTheirPstFromIds(parameters.getDoNotOptimizeCnecsSecuredByTheirPst(), crac, reportNode);
         } else {
             return Collections.emptyMap();
         }
     }
 
-    private static Map<FlowCnec, RangeAction<?>> getDoNotOptimizeCnecsSecuredByTheirPstFromIds(Map<String, String> ids, Crac crac) {
+    private static Map<FlowCnec, RangeAction<?>> getDoNotOptimizeCnecsSecuredByTheirPstFromIds(Map<String, String> ids, Crac crac, ReportNode reportNode) {
         Map<FlowCnec, RangeAction<?>> mapOfUnoptimizedCnecsAndPsts = new HashMap<>();
         // Create map elements for all cnecs with network element id in ids.keySet()
         for (Map.Entry<String, String> entrySet : ids.entrySet()) {
@@ -80,7 +80,7 @@ public class UnoptimizedCnecParameters {
             Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(flowCnec -> flowCnec.getNetworkElement().getId().equals(cnecId)).collect(Collectors.toSet());
             Set<PstRangeAction> pstRangeActions = crac.getPstRangeActions().stream().filter(pstRangeAction -> pstRangeAction.getNetworkElement().getId().equals(pstId)).collect(Collectors.toSet());
 
-            if (skipEntry(cnecId, pstId, flowCnecs, pstRangeActions)) {
+            if (skipEntry(cnecId, pstId, flowCnecs, pstRangeActions, reportNode)) {
                 continue;
             }
 
@@ -89,7 +89,7 @@ public class UnoptimizedCnecParameters {
                     pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.AVAILABLE) ||
                         pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.FORCED)).collect(Collectors.toSet());
 
-                if (skipFlowCnec(availablePstRangeActions, pstId)) {
+                if (skipFlowCnec(availablePstRangeActions, pstId, reportNode)) {
                     continue;
                 }
 
@@ -99,22 +99,22 @@ public class UnoptimizedCnecParameters {
         return mapOfUnoptimizedCnecsAndPsts;
     }
 
-    private static boolean skipEntry(String cnecId, String pstId, Set<FlowCnec> flowCnecs, Set<PstRangeAction> pstRangeActions) {
+    private static boolean skipEntry(String cnecId, String pstId, Set<FlowCnec> flowCnecs, Set<PstRangeAction> pstRangeActions, ReportNode reportNode) {
         if (flowCnecs.isEmpty()) {
-            TECHNICAL_LOGS.debug("No flowCnec with network element id {} exists in unoptimized-cnecs-in-series-with-psts parameter", cnecId);
+            RaoCommonsReports.reportNoFlowCnecWithId(reportNode, cnecId);
             return true;
         }
 
         if (pstRangeActions.isEmpty()) {
-            TECHNICAL_LOGS.debug("No pst range actions are defined with network element {}", pstId);
+            RaoCommonsReports.reportNoPstRangeActionWithNetworkElement(reportNode, pstId);
             return true;
         }
         return false;
     }
 
-    private static boolean skipFlowCnec(Set<PstRangeAction> availablePstRangeActions, String pstId) {
+    private static boolean skipFlowCnec(Set<PstRangeAction> availablePstRangeActions, String pstId, ReportNode reportNode) {
         if (availablePstRangeActions.size() > 1) {
-            TECHNICAL_LOGS.debug("{} pst range actions are defined with network element {} instead of 1", availablePstRangeActions.size(), pstId);
+            RaoCommonsReports.reportMultiplePstRangeActions(reportNode, availablePstRangeActions.size(), pstId);
             return true;
         }
 

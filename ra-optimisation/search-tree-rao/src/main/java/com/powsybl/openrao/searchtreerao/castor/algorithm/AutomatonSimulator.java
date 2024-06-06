@@ -80,7 +80,8 @@ public final class AutomatonSimulator {
     private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap;
     private final ReportNode reportNode;
 
-    public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, RangeActionSetpointResult prePerimeterRangeActionSetpointResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao, ReportNode reportNode) {
+    public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, RangeActionSetpointResult prePerimeterRangeActionSetpointResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao, ReportNode rootReportNode) {
+        this.reportNode = CastorAlgorithmReports.reportNewAutomatonSimulator(rootReportNode);
         this.crac = crac;
         this.raoParameters = raoParameters;
         this.flowUnit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
@@ -90,8 +91,7 @@ public final class AutomatonSimulator {
         this.prePerimeterSensitivityOutput = prePerimeterSensitivityOutput;
         this.operatorsNotSharingCras = operatorsNotSharingCras;
         this.numberLoggedElementsDuringRao = numberLoggedElementsDuringRao;
-        this.flowCnecRangeActionMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
-        this.reportNode = CastorAlgorithmReports.reportNewAutomatonSimulator(reportNode);
+        this.flowCnecRangeActionMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac, reportNode);
     }
 
     /**
@@ -167,10 +167,10 @@ public final class AutomatonSimulator {
     }
 
     private OptimizationResult runAutoSearchTree(State automatonState, Network network, StateTree stateTree, TreeParameters automatonTreeParameters, PrePerimeterResult initialSensitivityOutput, OptimizationPerimeter autoOptimizationPerimeter, Set<NetworkAction> forcedNetworkActions, ReportNode automatonStateReportNode) {
-        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(ReportNode.NO_OP)
+        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(automatonStateReportNode)
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(automatonTreeParameters)
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac, automatonStateReportNode))
             .build();
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
@@ -424,7 +424,7 @@ public final class AutomatonSimulator {
             } else {
                 alignedRa = List.of(availableRangeAction);
             }
-            if (!checkAlignedRangeActions(alignedRa, rangeActionsOrderedBySpeed)) {
+            if (!checkAlignedRangeActions(alignedRa, rangeActionsOrderedBySpeed, automatonStateReportNode)) {
                 continue;
             }
             rangeActionsOnAutomatonState.add(alignedRa);
@@ -438,19 +438,19 @@ public final class AutomatonSimulator {
      * - contains range actions that are all available at AUTO instant.
      * Returns true if checks are valid.
      */
-    static boolean checkAlignedRangeActions(List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed) {
+    static boolean checkAlignedRangeActions(List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed, ReportNode reportNode) {
         if (alignedRa.size() == 1) {
             // nothing to check
             return true;
         }
         // Ignore aligned range actions with heterogeneous types
         if (alignedRa.stream().map(Object::getClass).distinct().count() > 1) {
-            CastorAlgorithmReports.reportHeterogenousRangeActionGroupTypes(ReportNode.NO_OP, alignedRa.get(0).getGroupId().orElseThrow());
+            CastorAlgorithmReports.reportHeterogenousRangeActionGroupTypes(reportNode, alignedRa.get(0).getGroupId().orElseThrow());
             return false;
         }
         // Ignore aligned range actions when one element of the group is not available at AUTO instant
         if (alignedRa.stream().anyMatch(aRa -> !rangeActionsOrderedBySpeed.contains(aRa))) {
-            CastorAlgorithmReports.reportRangeActionGroupNotAllAvailableAtAutoInstant(ReportNode.NO_OP, alignedRa.get(0).getGroupId().orElseThrow());
+            CastorAlgorithmReports.reportRangeActionGroupNotAllAvailableAtAutoInstant(reportNode, alignedRa.get(0).getGroupId().orElseThrow());
             return false;
         }
         return true;

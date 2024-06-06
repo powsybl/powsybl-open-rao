@@ -222,4 +222,44 @@ public final class RaoCommonsReports {
         TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
         return addedNode;
     }
+
+    public static ReportNode reportLoopFlowConstraintsNotRespected(ReportNode reportNode) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportLoopFlowConstraintsNotRespected", "Some loopflow constraints are not respected.")
+            .withSeverity(DEBUG_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
+        return addedNode;
+    }
+
+    public static ReportNode reportNoFlowCnecWithId(ReportNode reportNode, String cnecId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNoFlowCnecWithId", "No flowCnec with network element id ${cnecId} exists in unoptimized-cnecs-in-series-with-psts parameter")
+            .withUntypedValue("cnecId", cnecId)
+            .withSeverity(DEBUG_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("No flowCnec with network element id {} exists in unoptimized-cnecs-in-series-with-psts parameter", cnecId);
+        return addedNode;
+    }
+
+    public static ReportNode reportNoPstRangeActionWithNetworkElement(ReportNode reportNode, String pstId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportNoPstRangeActionWithNetworkElement", "No pst range actions are defined with network element ${pstId}")
+            .withUntypedValue("pstId", pstId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("No pst range actions are defined with network element {}", pstId);
+        return addedNode;
+    }
+
+    public static ReportNode reportMultiplePstRangeActions(ReportNode reportNode, int availablePstRangeActionsSize, String pstId) {
+        ReportNode addedNode = reportNode.newReportNode()
+            .withMessageTemplate("reportMultiplePstRangeActions", "${availablePstRangeActionsSize} pst range actions are defined with network element ${pstId} instead of 1")
+            .withUntypedValue("availablePstRangeActionsSize", availablePstRangeActionsSize)
+            .withUntypedValue("pstId", pstId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+        TECHNICAL_LOGS.debug("{} pst range actions are defined with network element {} instead of 1", availablePstRangeActionsSize, pstId);
+        return addedNode;
+    }
 }

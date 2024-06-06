@@ -102,10 +102,10 @@ public class CastorOneStateOnly {
                 operatorsNotToOptimize.addAll(stateTree.getOperatorsNotSharingCras());
             }
             perimeterFlowCnecs = optPerimeter.getFlowCnecs();
-            SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(ReportNode.NO_OP)
+            SearchTreeParameters searchTreeParameters = SearchTreeParameters.create(reportNode)
                     .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
                     .withTreeParameters(treeParameters)
-                    .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
+                    .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac(), reportNode))
                     .build();
             SearchTreeInput searchTreeInput = SearchTreeInput.create()
                     .withNetwork(raoInput.getNetwork())

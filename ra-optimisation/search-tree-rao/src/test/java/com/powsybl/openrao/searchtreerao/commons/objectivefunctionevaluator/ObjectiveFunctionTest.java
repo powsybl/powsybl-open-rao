@@ -141,13 +141,13 @@ class ObjectiveFunctionTest {
 
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.);
         ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
-            Set.of(cnec1, cnec2), raoParameters, Mockito.mock(Crac.class), Mockito.mock(RangeActionSetpointResult.class)
+            Set.of(cnec1, cnec2), raoParameters, Mockito.mock(Crac.class), Mockito.mock(RangeActionSetpointResult.class), ReportNode.NO_OP
         );
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
 
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(1.);
         objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
-            Set.of(cnec1, cnec2), raoParameters, Mockito.mock(Crac.class), Mockito.mock(RangeActionSetpointResult.class)
+            Set.of(cnec1, cnec2), raoParameters, Mockito.mock(Crac.class), Mockito.mock(RangeActionSetpointResult.class), ReportNode.NO_OP
         );
         assertEquals(Set.of("sensitivity-failure-cost"), objectiveFunction.getVirtualCostNames());
     }

@@ -53,7 +53,7 @@ class UnoptimizedCnecParametersTest {
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
 
-        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
+        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac, ReportNode.NO_OP);
 
         assertNotNull(ocp);
         assertEquals(Set.of("BE"), ocp.getOperatorsNotToOptimize());
@@ -64,7 +64,7 @@ class UnoptimizedCnecParametersTest {
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
 
-        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
+        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac, ReportNode.NO_OP);
         assertNull(ocp);
     }
 
@@ -126,9 +126,9 @@ class UnoptimizedCnecParametersTest {
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("ne1Id", "pst1",
                 "ne2Id", "fakeId",
                 "fakeId", "pst2"));
-        UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
+        UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac, ReportNode.NO_OP);
 
-        Map<FlowCnec, RangeAction<?>> map = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
+        Map<FlowCnec, RangeAction<?>> map = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac, ReportNode.NO_OP);
         assertEquals(3, raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().size());
         assertEquals(1, map.size());
         assertTrue(map.containsKey(crac.getFlowCnec("flowCnec-1")));
@@ -148,7 +148,7 @@ class UnoptimizedCnecParametersTest {
                 .add();
         RaoParameters newRaoParameters = new RaoParameters(ReportNode.NO_OP);
         newRaoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("ne1Id", "pst2"));
-        Map<FlowCnec, RangeAction<?>> newMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(newRaoParameters.getNotOptimizedCnecsParameters(), crac);
+        Map<FlowCnec, RangeAction<?>> newMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(newRaoParameters.getNotOptimizedCnecsParameters(), crac, ReportNode.NO_OP);
         assertEquals(0, newMap.size());
     }
 
