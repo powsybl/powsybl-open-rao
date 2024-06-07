@@ -93,7 +93,7 @@ public final class IteratingLinearOptimizerMultiTS {
             }
 
             IteratingLinearOptimizationResultImpl currentResult = createResult(
-                sensitivityComputerMultiTS.getBranchResult(input.getNetwork(0), 0), // TODO: network is only useful for loopflows
+                sensitivityComputerMultiTS.getSensitivityResults(),
                 sensitivityComputerMultiTS.getSensitivityResults(),
                 currentRangeActionActivationResult,
                 iteration,

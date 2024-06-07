@@ -22,7 +22,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizerMultiTS;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.BetweenTimeStepsFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MultiTSFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CoreProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstTapFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxMinMarginFiller;
@@ -49,6 +49,7 @@ public class NewRAOTest {
     List<OptimizationPerimeter> optimizationPerimeters;
     List<Map<State, Set<PstRangeAction>>> rangeActionsPerStatePerTimestamp;
     MultipleSensitivityResult initialSensiResult;
+    RangeActionsOptimizationParameters.PstModel pstModel;
 
     @BeforeEach
     public void setUp() {
@@ -69,6 +70,7 @@ public class NewRAOTest {
         rangeActionsPerStatePerTimestamp = computeRangeActionsPerStatePerTimestamp();
 
         initialSensiResult = runInitialSensi();
+        pstModel  = RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS;
     }
 
     private RangeActionSetpointResult computeInitialSetpointsResults() {
@@ -126,9 +128,9 @@ public class NewRAOTest {
     }
 
     @Test
-    public void testLinearProblem() {
+    public void testLinearProblemMerge() {
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
-        rangeActionParameters.setPstModel(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+        rangeActionParameters.setPstModel(pstModel);
         OpenRaoMPSolver orMpSolver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.SCIP);
 
         CoreProblemFiller coreProblemFiller0 = new CoreProblemFiller(
@@ -162,25 +164,29 @@ public class NewRAOTest {
         allCnecs.addAll(cracs.get(1).getFlowCnecs());
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(allCnecs, Unit.MEGAWATT);
 
-        BetweenTimeStepsFiller betweenTimeStepsFiller = new BetweenTimeStepsFiller(
-            cracs,
+        MultiTSFiller multiTSFiller = new MultiTSFiller(
+            List.of(cracs.get(0).getRangeActions(),cracs.get(1).getRangeActions()),
             networks,
-            optimizationPerimeters.get(0).getMainOptimizationState(),
+            List.of(optimizationPerimeters.get(0).getMainOptimizationState(),optimizationPerimeters.get(1).getMainOptimizationState()),
             rangeActionParameters);
 
-        LinearProblem linearProblemMerge = new LinearProblemBuilder()
+        LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder()
             .withSolver(orMpSolver.getSolver())
             .withProblemFiller(coreProblemFiller0)
             .withProblemFiller(coreProblemFiller1)
-            .withProblemFiller(maxMinMarginFiller)
-            .withProblemFiller(discretePstTapFiller0)
-            .withProblemFiller(discretePstTapFiller1)
-            .withProblemFiller(betweenTimeStepsFiller)
+            .withProblemFiller(maxMinMarginFiller);
+
+        if (pstModel == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
+            linearProblemBuilder.withProblemFiller(discretePstTapFiller0)
+                .withProblemFiller(discretePstTapFiller1);
+        }
+        LinearProblem linearProblemMerge = linearProblemBuilder
+            .withProblemFiller(multiTSFiller)
             .build();
 
         linearProblemMerge.fill(initialSensiResult, initialSensiResult);
         linearProblemMerge.solve();
-        //System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
+        System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
         // Pour avoir le setpoint après résolution du problème
         PstRangeAction pstRa0 = cracs.get(0).getPstRangeActions().iterator().next();
         PstRangeAction pstRa1 = cracs.get(1).getPstRangeActions().iterator().next();
@@ -195,16 +201,13 @@ public class NewRAOTest {
 
     @Test
     public void testIteratingLinearOptimization() {
-        Instant preventiveInstant = Mockito.mock(Instant.class);
-        Instant outageInstant = Mockito.mock(Instant.class);
 
         Set<FlowCnec> allCnecs = new HashSet<>();
         allCnecs.addAll(cracs.get(0).getFlowCnecs());
         allCnecs.addAll(cracs.get(1).getFlowCnecs());
 
-        //FlowResultImpl initialFlowResult = new FlowResultImpl();
         RaoParameters raoParameters = RaoParameters.load();
-        raoParameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+        raoParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
             allCnecs,
@@ -215,7 +218,6 @@ public class NewRAOTest {
             null, //crac(s), not useful (CNECs secured by PST)
             Collections.emptySet(), // operators not sharing CRAs
             raoParameters);
-        //ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, initialResult, raoInput.getCrac(), Collections.emptySet(), raoParameters)
 
         ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
 
@@ -231,7 +233,7 @@ public class NewRAOTest {
             .withRaActivationFromParentLeaf(new RangeActionActivationResultImpl(initialSetpoints))
             .withObjectiveFunction(objectiveFunction)
             .withToolProvider(toolProvider)
-            .withOutageInstant(cracs.get(0).getOutageInstant()) //TODO: check if multiple are needed
+            .withOutageInstant(cracs.get(0).getOutageInstant()) //TODO: check if multiple are needed (only useful l:92 SystematicSensitivityAdapter)
             .build();
 
         IteratingLinearOptimizerParameters parameters = IteratingLinearOptimizerParameters.create()
@@ -247,7 +249,7 @@ public class NewRAOTest {
             .withRaRangeShrinking(false) //TODO: maybe set to true
             .build();
 
-        LinearOptimizationResult result = IteratingLinearOptimizerMultiTS.optimize(input, parameters, preventiveInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizerMultiTS.optimize(input, parameters, cracs.get(0).getOutageInstant());
 
         System.out.println(result.getStatus());
 
@@ -261,36 +263,60 @@ public class NewRAOTest {
 
         System.out.println(pstOptimizedSetPoint0);
         System.out.println(pstOptimizedSetPoint1);
+    }
 
-//        // Résultat des deux LP séparés
-//        OpenRaoMPSolver orMpSolver1 = new OpenRaoMPSolver("solver1", RangeActionsOptimizationParameters.Solver.SCIP);
-//        OpenRaoMPSolver orMpSolver2 = new OpenRaoMPSolver("solver2", RangeActionsOptimizationParameters.Solver.SCIP);
-//        MaxMinMarginFiller maxMinMarginFiller1 = new MaxMinMarginFiller(Set.of(cnec1),Unit.MEGAWATT);
-//        MaxMinMarginFiller maxMinMarginFiller2 = new MaxMinMarginFiller(Set.of(cnec2),Unit.MEGAWATT);
-//
-//        LinearProblem linearProblem1 = new LinearProblemBuilder()
-//                .withSolver(orMpSolver1)
-//                .withProblemFiller(coreProblemFiller1)
-//                .withProblemFiller(maxMinMarginFiller1)
-//                .build();
-//
-//        linearProblem1.fill(multipleSensitivityResult, multipleSensitivityResult);
-//        linearProblem1.solve();
-//
-//        LinearProblem linearProblem2 = new LinearProblemBuilder()
-//                .withSolver(orMpSolver2)
-//                .withProblemFiller(coreProblemFiller2)
-//                .withProblemFiller(maxMinMarginFiller2)
-//                .build();
-//
-//        linearProblem2.fill(multipleSensitivityResult, multipleSensitivityResult);
-//        linearProblem2.solve();
-//
-//        double setpoint1 = linearProblem1.getRangeActionSetpointVariable(pstRa1, state1).solutionValue();
-//        double setpoint2 = linearProblem2.getRangeActionSetpointVariable(pstRa2, state1).solutionValue();
-//        System.out.println(setpoint1);
-//        System.out.println(setpoint2);
-//
-//        System.out.println(orMpSolver2.getMpSolver().exportModelAsLpFormat());/**/
+
+    @Test
+    public void testLinearProblemsSeparated() {
+
+        OpenRaoMPSolver orMpSolver0 = new OpenRaoMPSolver("solver0", RangeActionsOptimizationParameters.Solver.SCIP);
+        OpenRaoMPSolver orMpSolver1 = new OpenRaoMPSolver("solver1", RangeActionsOptimizationParameters.Solver.SCIP);
+        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
+
+        MaxMinMarginFiller maxMinMarginFiller0 = new MaxMinMarginFiller(cracs.get(0).getFlowCnecs(), Unit.MEGAWATT);
+        MaxMinMarginFiller maxMinMarginFiller1 = new MaxMinMarginFiller(cracs.get(1).getFlowCnecs(),Unit.MEGAWATT);
+
+        CoreProblemFiller coreProblemFiller0 = new CoreProblemFiller(
+            optimizationPerimeters.get(0),
+            initialSetpoints,
+            new RangeActionActivationResultImpl(initialSetpoints),
+            rangeActionParameters,
+            Unit.MEGAWATT,
+            false);
+        CoreProblemFiller coreProblemFiller1 = new CoreProblemFiller(
+            optimizationPerimeters.get(1),
+            initialSetpoints,
+            new RangeActionActivationResultImpl(initialSetpoints),
+            rangeActionParameters,
+            Unit.MEGAWATT,
+            false);
+
+        LinearProblem linearProblem0 = new LinearProblemBuilder()
+                .withSolver(orMpSolver0.getSolver())
+                .withProblemFiller(coreProblemFiller0)
+                .withProblemFiller(maxMinMarginFiller0)
+                .build();
+
+        linearProblem0.fill(initialSensiResult, initialSensiResult);
+        linearProblem0.solve();
+
+        LinearProblem linearProblem1 = new LinearProblemBuilder()
+                .withSolver(orMpSolver1.getSolver())
+                .withProblemFiller(coreProblemFiller1)
+                .withProblemFiller(maxMinMarginFiller1)
+                .build();
+
+        linearProblem1.fill(initialSensiResult, initialSensiResult);
+        linearProblem1.solve();
+
+        PstRangeAction pstRa0 = cracs.get(0).getPstRangeActions().iterator().next();
+        PstRangeAction pstRa1 = cracs.get(1).getPstRangeActions().iterator().next();
+        State state0 = optimizationPerimeters.get(0).getMainOptimizationState();
+        State state1 = optimizationPerimeters.get(1).getMainOptimizationState();
+        double setpointMerge0 = linearProblem0.getRangeActionSetpointVariable(pstRa0, state0).solutionValue();
+        double setpointMerge1 = linearProblem1.getRangeActionSetpointVariable(pstRa1, state1).solutionValue();
+
+        System.out.println(setpointMerge0);
+        System.out.println(setpointMerge1);
     }
 }

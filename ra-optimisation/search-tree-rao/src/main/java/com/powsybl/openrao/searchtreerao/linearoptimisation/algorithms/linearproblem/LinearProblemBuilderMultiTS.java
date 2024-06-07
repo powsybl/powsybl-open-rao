@@ -97,6 +97,11 @@ public class LinearProblemBuilderMultiTS {
             }
         }
 
+        // Add Multi time steps constraints
+        if (inputs.getNetworks().size() > 1) {
+            this.withProblemFiller(buildMultiTSFiller(inputs, parameters));
+        }
+
         // RA limitation
         for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {
             if (parameters.getRaLimitationParameters() != null
@@ -214,6 +219,24 @@ public class LinearProblemBuilderMultiTS {
             pstRangeActions
         );
     }
+
+    private ProblemFiller buildMultiTSFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters) {
+        List<Set<RangeAction<?>>> rangeActionsList = inputs.getOptimizationPerimeters()
+            .stream().map(perimeter -> perimeter.getRangeActions().stream().collect(Collectors.toSet()))
+            .collect(Collectors.toList());
+
+        List<State> statesList = inputs.getOptimizationPerimeters()
+            .stream().map(perimeter -> perimeter.getMainOptimizationState())
+            .collect(Collectors.toList());
+
+        return new MultiTSFiller(
+            rangeActionsList,
+            inputs.getNetworks(),
+            statesList,
+            parameters.getRangeActionParameters()
+        );
+    }
+
 
     private ProblemFiller buildContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
         return new ContinuousRangeActionGroupFiller(rangeActionsPerState);
