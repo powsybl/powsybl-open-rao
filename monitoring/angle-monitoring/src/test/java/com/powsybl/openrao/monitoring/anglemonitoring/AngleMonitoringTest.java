@@ -122,7 +122,7 @@ class AngleMonitoringTest {
         crac.newNetworkAction()
                 .withId("Open L1 - 1")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnAngleConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withAngleCnec(acPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(acPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
     }
 
@@ -221,7 +221,7 @@ class AngleMonitoringTest {
         naL1Cur = crac.newNetworkAction()
                 .withId("Open L1 - 2")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnsecure());
@@ -243,7 +243,7 @@ class AngleMonitoringTest {
         naL1Cur = crac.newNetworkAction()
                 .withId("Injection L1 - 2")
                 .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnAngleConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withAngleCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         runAngleMonitoring(reportNode);
         assertTrue(angleMonitoringResult.isSecure());

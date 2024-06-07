@@ -56,18 +56,8 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     }
 
     @Override
-    public OnFlowConstraintAdder<T> newOnFlowConstraintUsageRule() {
-        return new OnFlowConstraintAdderImpl(this);
-    }
-
-    @Override
-    public OnAngleConstraintAdder<T> newOnAngleConstraintUsageRule() {
-        return new OnAngleConstraintAdderImpl(this);
-    }
-
-    @Override
-    public OnVoltageConstraintAdder<T> newOnVoltageConstraintUsageRule() {
-        return new OnVoltageConstraintAdderImpl(this);
+    public OnConstraintAdder<T, ?> newOnConstraintUsageRule() {
+        return new OnConstraintAdderImpl(this);
     }
 
     @Override

@@ -120,6 +120,9 @@ public class SearchTreeParameters {
     }
 
     public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant) {
+        if (rangeActionSet.isEmpty()) {
+            return;
+        }
         Set<String> tsoCount = new HashSet<>();
         int raCount = 0;
         Map<String, Integer> currentPstPerTsoLimits = raUsageLimits.getMaxPstPerTso();

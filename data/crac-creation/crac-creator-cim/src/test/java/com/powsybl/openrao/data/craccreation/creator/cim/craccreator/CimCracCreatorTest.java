@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
@@ -294,24 +295,27 @@ class CimCracCreatorTest {
     private void assertHasOnFlowConstraintUsageRule(RemedialAction<?> ra, Instant instant, String flowCnecId) {
         assertTrue(
                 ra.getUsageRules().stream()
-                        .filter(OnFlowConstraint.class::isInstance)
-                        .map(OnFlowConstraint.class::cast)
+                        .filter(OnConstraint.class::isInstance)
+                        .map(OnConstraint.class::cast)
                         .anyMatch(
                                 ur -> ur.getInstant().equals(instant)
-                                        && ur.getFlowCnec().getId().equals(flowCnecId)
+                                        && ur.getCnec() instanceof FlowCnec
+                                        && ur.getCnec().getId().equals(flowCnecId)
                                         && ur.getUsageMethod().equals(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
                         ));
     }
 
     private void assertHasOnAngleUsageRule(String raId, String angleCnecId) {
-        RemedialAction ra = importedCrac.getRemedialAction(raId);
+        RemedialAction<?> ra = importedCrac.getRemedialAction(raId);
         assertTrue(
                 ra.getUsageRules().stream()
-                        .filter(OnAngleConstraint.class::isInstance)
+                        .filter(OnConstraint.class::isInstance)
+                        .map(OnConstraint.class::cast)
                         .anyMatch(
-                                ur -> ((OnAngleConstraint) ur).getInstant().isCurative()
-                                        && ((OnAngleConstraint) ur).getAngleCnec().getId().equals(angleCnecId)
-                                        && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.AVAILABLE)
+                                ur -> ur.getInstant().isCurative()
+                                        && ur.getCnec() instanceof AngleCnec
+                                        && ur.getCnec().getId().equals(angleCnecId)
+                                        && ur.getUsageMethod().equals(UsageMethod.AVAILABLE)
                         ));
     }
 

@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnVoltageConstraint;
+import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Bus;
@@ -255,9 +255,9 @@ public class VoltageMonitoring {
         Set<RemedialAction<?>> availableRemedialActions =
             crac.getRemedialActions().stream()
                 .filter(remedialAction ->
-                    remedialAction.getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
-                        .map(OnVoltageConstraint.class::cast)
-                        .anyMatch(onVoltageConstraint -> onVoltageConstraint.getVoltageCnec().equals(voltageCnec)))
+                    remedialAction.getUsageRules().stream().filter(OnConstraint.class::isInstance)
+                        .map(OnConstraint.class::cast)
+                        .anyMatch(onVoltageConstraint -> onVoltageConstraint.getCnec().equals(voltageCnec)))
                 .collect(Collectors.toSet());
         if (availableRemedialActions.isEmpty()) {
             VoltageMonitoringReports.reportNoRaAvailable(reportNode, voltageCnec.getId(), state.getId());
