@@ -170,6 +170,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
         if (getPrimaryVersionNumber(CRAC_IO_VERSION) > getPrimaryVersionNumber(cracVersion)) {
             LOGGER.warn("CRAC importer {} might not be longer compatible with json CRAC version {}, consider updating your json CRAC file", CRAC_IO_VERSION, cracVersion);
+            // TODO ?
         }
         if (getPrimaryVersionNumber(CRAC_IO_VERSION) < getPrimaryVersionNumber(cracVersion)) {
             throw new OpenRaoException(String.format("CRAC importer %s cannot handle json CRAC version %s, consider upgrading open-rao version", CRAC_IO_VERSION, cracVersion));

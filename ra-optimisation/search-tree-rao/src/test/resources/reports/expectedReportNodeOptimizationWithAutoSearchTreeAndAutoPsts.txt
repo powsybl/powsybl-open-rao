@@ -1,0 +1,242 @@
++ This is a parent report node for report tests
+   + Run castor full optimization
+      + Initial sensitivity analysis
+         + New systematic sensitivity interface
+            + New range action sensitivity provider
+               New systematic sensitivity load flow provider
+         + Systematic sensitivity analysis
+            + Sensitivity analysis on network '12Nodes_2_twin_lines'
+               + Network CC0 SC0
+                  + Network info
+                     Network has 12 buses and 16 branches
+                     Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+            End of systematic sensitivity analysis
+         + Initial sensitivity analysis: cost = 864.9999999999984 (functional: 864.9999999999984, virtual: 0.0)
+            Limiting element #01: margin = -865.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+            Limiting element #02: margin = -865.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - curative, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"
+      + Preventive perimeter optimization
+         New Search Tree Parameter
+         + Run search tree
+            + Evaluating root leaf
+               + New systematic sensitivity interface
+                  + New range action sensitivity provider
+                     New systematic sensitivity load flow provider
+               Leaf has already been evaluated
+               + Root leaf, cost: -0.00 (functional: -0.00, virtual: 0.00)
+                  Limiting element #01: margin = 0.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - outage, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"
+                  Limiting element #02: margin = 417.77 MW, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
+               + Linear optimization on root leaf
+                  No range actions to optimize
+               + Root leaf, cost: -0.00 (functional: -0.00, virtual: 0.00)
+                  No range actions activated
+                  Limiting element #01: margin = 0.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - outage, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"
+                  Limiting element #02: margin = 417.77 MW, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
+            No network action available
+            Search-tree RAO completed with status DEFAULT
+            + Best leaf: Root leaf, cost: -0.00 (functional: -0.00, virtual: 0.00)
+               Best leaf: No range actions activated
+               Limiting element #01: margin = 0.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - outage, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"
+               Limiting element #02: margin = 417.77 MW, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
+            Scenario "preventive": initial cost = -0.00 (functional: -0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = -0.00 (functional: -0.00, virtual: 0.00, detail: null)
+         End of preventive perimeter optimization
+      + Sensitivity Post PRA
+         + New systematic sensitivity interface
+            + New range action sensitivity provider
+               New systematic sensitivity load flow provider
+         + Systematic sensitivity analysis
+            + Sensitivity analysis on network '12Nodes_2_twin_lines'
+               + Network CC0 SC0
+                  + Network info
+                     Network has 12 buses and 16 branches
+                     Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+            End of systematic sensitivity analysis
+         + Systematic sensitivity analysis after preventive remedial actions: cost = 864.9999999999984 (functional: 864.9999999999984, virtual: 0.0)
+            Limiting element #01: margin = -865.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+            Limiting element #02: margin = -865.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - curative, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"
+      + Post-contingency perimeters optimization
+         New automaton simulator
+         + Optimizing scenario post-contingency Contingency DE2 NL3 1.
+            + Optimizing automaton state Contingency DE2 NL3 1 - auto.
+               + Initial situation:
+                  Limiting element #01: margin = -865.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+               Activating automaton ARA_CLOSE_NL2_BE3_2 - ARA_CLOSE_NL2_BE3_2.
+               Running sensitivity analysis post application of auto network actions for automaton state Contingency DE2 NL3 1 - auto.
+               + New systematic sensitivity interface
+                  + New range action sensitivity provider
+                     New systematic sensitivity load flow provider
+               + Systematic sensitivity analysis
+                  + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                     + Network CC0 SC0
+                        + Network info
+                           Network has 12 buses and 17 branches
+                           Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                  End of systematic sensitivity analysis
+               Limiting element #01: margin = -365.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+               New Search Tree Parameter
+               + Run search tree
+                  + Evaluating root leaf
+                     + New systematic sensitivity interface
+                        + New range action sensitivity provider
+                           New systematic sensitivity load flow provider
+                     Leaf has already been evaluated
+                     + Root leaf, cost: 365.00 (functional: 365.00, virtual: 0.00)
+                        Limiting element #01: margin = -365.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+                     + Linear optimization on root leaf
+                        No range actions to optimize
+                     + Root leaf, cost: 365.00 (functional: 365.00, virtual: 0.00)
+                        No range actions activated
+                        Limiting element #01: margin = -365.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+                  + Evaluating 1 leaves in parallel
+                     + Search depth 1
+                        Leaves to evaluate: 2
+                        + Leaf with network actions ARA_CLOSE_DE2_NL3_2 and 2 remaining leaves
+                           + New systematic sensitivity interface
+                              + New range action sensitivity provider
+                                 New systematic sensitivity load flow provider
+                           Evaluating network action(s): ARA_CLOSE_DE2_NL3_2
+                           + Systematic sensitivity analysis with applied RA
+                              + ... (1/2) 0 state(s) without RA
+                                 + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                                    + Network CC0 SC0
+                                       + Network info
+                                          Network has 12 buses and 18 branches
+                                          Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              + ... (2/2) state with RA Contingency DE2 NL3 1 - auto
+                                 + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                                    + Network CC0 SC0
+                                       + Network info
+                                          Network has 12 buses and 18 branches
+                                          Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              End of systematic sensitivity analysis with applied RA
+                           + Evaluated network action(s): ARA_CLOSE_DE2_NL3_2, cost: 71.61 (functional: 71.61, virtual: 0.00)
+                              No range actions to optimize
+                              Optimized network action(s): ARA_CLOSE_DE2_NL3_2, cost: 71.61 (functional: 71.61, virtual: 0.00)
+                           Remaining leaves to evaluate: 1
+                        + Leaf with network actions ARA_INJECTION_SETPOINT_800MW and 2 remaining leaves
+                           + New systematic sensitivity interface
+                              + New range action sensitivity provider
+                                 New systematic sensitivity load flow provider
+                           Evaluating network action(s): ARA_INJECTION_SETPOINT_800MW
+                           + Systematic sensitivity analysis with applied RA
+                              + ... (1/2) 0 state(s) without RA
+                                 + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                                    + Network CC0 SC0
+                                       + Network info
+                                          Network has 12 buses and 17 branches
+                                          Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              + ... (2/2) state with RA Contingency DE2 NL3 1 - auto
+                                 + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                                    + Network CC0 SC0
+                                       + Network info
+                                          Network has 12 buses and 17 branches
+                                          Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              End of systematic sensitivity analysis with applied RA
+                           + Evaluated network action(s): ARA_INJECTION_SETPOINT_800MW, cost: 265.00 (functional: 265.00, virtual: 0.00)
+                              No range actions to optimize
+                              Optimized network action(s): ARA_INJECTION_SETPOINT_800MW, cost: 265.00 (functional: 265.00, virtual: 0.00)
+                           Remaining leaves to evaluate: 0
+                        + End of search depth 1
+                           + Search depth 1 best leaf: network action(s): ARA_CLOSE_DE2_NL3_2, cost: 71.61 (functional: 71.61, virtual: 0.00)
+                              Search depth 1 best leaf: No range actions activated
+                              Limiting element #01: margin = -71.61 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+                     + Search depth 2
+                        Leaves to evaluate: 1
+                        + Leaf with network actions ARA_INJECTION_SETPOINT_800MW and 1 remaining leaves
+                           + New systematic sensitivity interface
+                              + New range action sensitivity provider
+                                 New systematic sensitivity load flow provider
+                           Evaluating network action(s): ARA_CLOSE_DE2_NL3_2, ARA_INJECTION_SETPOINT_800MW
+                           + Systematic sensitivity analysis with applied RA
+                              + ... (1/2) 0 state(s) without RA
+                                 + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                                    + Network CC0 SC0
+                                       + Network info
+                                          Network has 12 buses and 18 branches
+                                          Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              + ... (2/2) state with RA Contingency DE2 NL3 1 - auto
+                                 + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                                    + Network CC0 SC0
+                                       + Network info
+                                          Network has 12 buses and 18 branches
+                                          Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              End of systematic sensitivity analysis with applied RA
+                           + Evaluated network action(s): ARA_CLOSE_DE2_NL3_2, ARA_INJECTION_SETPOINT_800MW, cost: 17.56 (functional: 17.56, virtual: 0.00)
+                              No range actions to optimize
+                              Optimized network action(s): ARA_CLOSE_DE2_NL3_2, ARA_INJECTION_SETPOINT_800MW, cost: 17.56 (functional: 17.56, virtual: 0.00)
+                           Remaining leaves to evaluate: 0
+                        + End of search depth 2
+                           + Search depth 2 best leaf: network action(s): ARA_CLOSE_DE2_NL3_2, ARA_INJECTION_SETPOINT_800MW, cost: 17.56 (functional: 17.56, virtual: 0.00)
+                              Search depth 2 best leaf: No range actions activated
+                              Limiting element #01: margin = -17.56 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+                        maximum search depth has been reached, exiting search tree
+                  Search-tree RAO completed with status DEFAULT
+                  + Best leaf: network action(s): ARA_CLOSE_DE2_NL3_2, ARA_INJECTION_SETPOINT_800MW, cost: 17.56 (functional: 17.56, virtual: 0.00)
+                     Best leaf: No range actions activated
+                     Limiting element #01: margin = -17.56 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+                  Scenario "Contingency DE2 NL3 1": initial cost = 365.00 (functional: 365.00, virtual: 0.00, detail: null), 2 network action(s) activated : ARA_CLOSE_DE2_NL3_2, ARA_INJECTION_SETPOINT_800MW, cost after auto optimization = 17.56 (functional: 17.56, virtual: 0.00, detail: null)
+               + New systematic sensitivity interface
+                  + New range action sensitivity provider
+                     New systematic sensitivity load flow provider
+               + Systematic sensitivity analysis
+                  + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                     + Network CC0 SC0
+                        + Network info
+                           Network has 12 buses and 18 branches
+                           Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                  End of systematic sensitivity analysis
+               Shifting set-point from 4.67 to 6.23 on range action(s) "ARA_PST_BE" to secure CNEC ARA_PST_BE on side LEFT (current margin: -17.56 MW).
+               + New systematic sensitivity interface
+                  + New range action sensitivity provider
+                     New systematic sensitivity load flow provider
+               + Systematic sensitivity analysis
+                  + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                     + Network CC0 SC0
+                        + Network info
+                           Network has 12 buses and 18 branches
+                           Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                  End of systematic sensitivity analysis
+               Limiting element #01: margin = 3.62 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+               Running pre curative sensitivity analysis after auto state Contingency DE2 NL3 1 - auto.
+               + New systematic sensitivity interface
+                  + New range action sensitivity provider
+                     New systematic sensitivity load flow provider
+               + Systematic sensitivity analysis
+                  + Sensitivity analysis on network '12Nodes_2_twin_lines'
+                     + Network CC0 SC0
+                        + Network info
+                           Network has 12 buses and 18 branches
+                           Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                  End of systematic sensitivity analysis
+               Limiting element #01: margin = 3.62 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+               Automaton state Contingency DE2 NL3 1 - auto has been optimized.
+               Scenario "Contingency DE2 NL3 1": initial cost = null (functional: null, virtual: null, detail: null), 3 network action(s) and 1 range action(s) activated : ARA_CLOSE_DE2_NL3_2, ARA_CLOSE_NL2_BE3_2, ARA_INJECTION_SETPOINT_800MW and ARA_PST_BE: 16, cost after auto optimization = -3.62 (functional: -3.62, virtual: 0.00, detail: null)
+            + Optimizing curative state Contingency DE2 NL3 1 - curative.
+               New Search Tree Parameter
+               + Run search tree
+                  + Evaluating root leaf
+                     + New systematic sensitivity interface
+                        + New range action sensitivity provider
+                           New systematic sensitivity load flow provider
+                     Leaf has already been evaluated
+                     + Root leaf, cost: -3.62 (functional: -3.62, virtual: 0.00)
+                        Limiting element #01: margin = 3.62 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - curative, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"
+                     + Linear optimization on root leaf
+                        No range actions to optimize
+                     + Root leaf, cost: -3.62 (functional: -3.62, virtual: 0.00)
+                        No range actions activated
+                        Limiting element #01: margin = 3.62 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - curative, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"
+                  No network action available
+                  Search-tree RAO completed with status DEFAULT
+                  + Best leaf: Root leaf, cost: -3.62 (functional: -3.62, virtual: 0.00)
+                     Best leaf: No range actions activated
+                     Limiting element #01: margin = 3.62 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - curative, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"
+                  Scenario "Contingency DE2 NL3 1": initial cost = -3.62 (functional: -3.62, virtual: 0.00, detail: null), no remedial actions activated, cost after curative optimization = -3.62 (functional: -3.62, virtual: 0.00, detail: null)
+               Curative state Contingency DE2 NL3 1 - curative has been optimized.
+            Remaining post-contingency scenarios to optimize: 0
+         End of post-contingency perimeters optimization
+      + Merging preventive and post-contingency RAO results
+         Limiting element #01: margin = 0.00 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - outage, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"
+         Limiting element #02: margin = 3.62 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - auto, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"
+         Limiting element #03: margin = 3.62 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 NL3 1 - curative, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"
+         Limiting element #04: margin = 417.77 MW, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
+      Cost before RAO = 864.9999999999984 (functional: 864.9999999999984, virtual: 0.0), cost after RAO = -1.5916157281026244E-12 (functional: -1.5916157281026244E-12, virtual: 0.0)

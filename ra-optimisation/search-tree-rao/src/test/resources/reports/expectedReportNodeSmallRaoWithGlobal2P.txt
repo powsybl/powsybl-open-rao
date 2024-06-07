@@ -319,68 +319,68 @@
       + Post-contingency perimeters optimization
          New automaton simulator
          + Optimizing scenario post-contingency co1_fr2_fr3_1.
-            Optimizing curative state co1_fr2_fr3_1 - curative.
-            New Search Tree Parameter
-            + Run search tree
-               + Evaluating root leaf
-                  + New systematic sensitivity interface
-                     + New range action sensitivity provider
-                        New systematic sensitivity load flow provider
-                     New systematic sensitivity load flow provider
-                  Leaf has already been evaluated
-                  + Root leaf, cost: 493.57 (functional: 493.57, virtual: 0.00)
-                     Limiting element #01: margin = -493.57 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-                     Limiting element #02: margin = 783.91 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-                  + Linear optimization on root leaf
-                     No range actions to optimize
-                  + Root leaf, cost: 493.57 (functional: 493.57, virtual: 0.00)
-                     No range actions activated
-                     Limiting element #01: margin = -493.57 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-                     Limiting element #02: margin = 783.91 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-               + Evaluating 1 leaves in parallel
-                  + Search depth 1
-                     Leaves to evaluate: 1
-                     + Leaf with network actions open_fr1_fr3 and 1 remaining leaves
-                        + New systematic sensitivity interface
-                           + New range action sensitivity provider
-                              New systematic sensitivity load flow provider
+            + Optimizing curative state co1_fr2_fr3_1 - curative.
+               New Search Tree Parameter
+               + Run search tree
+                  + Evaluating root leaf
+                     + New systematic sensitivity interface
+                        + New range action sensitivity provider
                            New systematic sensitivity load flow provider
-                        Evaluating network action(s): open_fr1_fr3
-                        + Systematic sensitivity analysis
-                           + Sensitivity analysis on network 'small-network-2P'
-                              + Network CC0 SC0
-                                 + Network info
-                                    Network has 14 buses and 26 branches
-                                    Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                                 Outer loop DistributedSlack
-                                 Outer loop VoltageMonitoring
-                                 Outer loop ReactiveLimits
-                                 AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                                 Outer loop DistributedSlack
-                                 Outer loop VoltageMonitoring
-                                 Outer loop ReactiveLimits
-                                 AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                           End of systematic sensitivity analysis
-                        + Evaluated network action(s): open_fr1_fr3, cost: 256.80 (functional: 256.80, virtual: 0.00)
-                           No range actions to optimize
-                           Optimized network action(s): open_fr1_fr3, cost: 256.80 (functional: 256.80, virtual: 0.00)
-                        Remaining leaves to evaluate: 0
-                     + End of search depth 1
-                        + Search depth 1 best leaf: network action(s): open_fr1_fr3, cost: 256.80 (functional: 256.80, virtual: 0.00)
-                           Search depth 1 best leaf: No range actions activated
-                           Limiting element #01: margin = -256.80 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-                           Limiting element #02: margin = 417.43 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-                  + Search depth 2
-                     No more network action available
-                     No better result found in search depth 2, exiting search tree
-               Search-tree RAO completed with status DEFAULT
-               + Best leaf: network action(s): open_fr1_fr3, cost: 256.80 (functional: 256.80, virtual: 0.00)
-                  Best leaf: No range actions activated
-                  Limiting element #01: margin = -256.80 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-                  Limiting element #02: margin = 417.43 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-                  Limiting element #03: margin = 1047.06 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"
-               Scenario "co1_fr2_fr3_1": initial cost = 493.57 (functional: 493.57, virtual: 0.00, detail: null), 1 network action(s) activated : open_fr1_fr3, cost after curative optimization = 256.80 (functional: 256.80, virtual: 0.00, detail: null)
-            Curative state co1_fr2_fr3_1 - curative has been optimized.
+                        New systematic sensitivity load flow provider
+                     Leaf has already been evaluated
+                     + Root leaf, cost: 493.57 (functional: 493.57, virtual: 0.00)
+                        Limiting element #01: margin = -493.57 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+                        Limiting element #02: margin = 783.91 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+                     + Linear optimization on root leaf
+                        No range actions to optimize
+                     + Root leaf, cost: 493.57 (functional: 493.57, virtual: 0.00)
+                        No range actions activated
+                        Limiting element #01: margin = -493.57 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+                        Limiting element #02: margin = 783.91 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+                  + Evaluating 1 leaves in parallel
+                     + Search depth 1
+                        Leaves to evaluate: 1
+                        + Leaf with network actions open_fr1_fr3 and 1 remaining leaves
+                           + New systematic sensitivity interface
+                              + New range action sensitivity provider
+                                 New systematic sensitivity load flow provider
+                              New systematic sensitivity load flow provider
+                           Evaluating network action(s): open_fr1_fr3
+                           + Systematic sensitivity analysis
+                              + Sensitivity analysis on network 'small-network-2P'
+                                 + Network CC0 SC0
+                                    + Network info
+                                       Network has 14 buses and 26 branches
+                                       Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                                    Outer loop DistributedSlack
+                                    Outer loop VoltageMonitoring
+                                    Outer loop ReactiveLimits
+                                    AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                                    Outer loop DistributedSlack
+                                    Outer loop VoltageMonitoring
+                                    Outer loop ReactiveLimits
+                                    AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                              End of systematic sensitivity analysis
+                           + Evaluated network action(s): open_fr1_fr3, cost: 256.80 (functional: 256.80, virtual: 0.00)
+                              No range actions to optimize
+                              Optimized network action(s): open_fr1_fr3, cost: 256.80 (functional: 256.80, virtual: 0.00)
+                           Remaining leaves to evaluate: 0
+                        + End of search depth 1
+                           + Search depth 1 best leaf: network action(s): open_fr1_fr3, cost: 256.80 (functional: 256.80, virtual: 0.00)
+                              Search depth 1 best leaf: No range actions activated
+                              Limiting element #01: margin = -256.80 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+                              Limiting element #02: margin = 417.43 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+                     + Search depth 2
+                        No more network action available
+                        No better result found in search depth 2, exiting search tree
+                  Search-tree RAO completed with status DEFAULT
+                  + Best leaf: network action(s): open_fr1_fr3, cost: 256.80 (functional: 256.80, virtual: 0.00)
+                     Best leaf: No range actions activated
+                     Limiting element #01: margin = -256.80 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+                     Limiting element #02: margin = 417.43 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+                     Limiting element #03: margin = 1047.06 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"
+                  Scenario "co1_fr2_fr3_1": initial cost = 493.57 (functional: 493.57, virtual: 0.00, detail: null), 1 network action(s) activated : open_fr1_fr3, cost after curative optimization = 256.80 (functional: 256.80, virtual: 0.00, detail: null)
+               Curative state co1_fr2_fr3_1 - curative has been optimized.
             Remaining post-contingency scenarios to optimize: 0
          End of post-contingency perimeters optimization
       + Second preventive perimeter optimization

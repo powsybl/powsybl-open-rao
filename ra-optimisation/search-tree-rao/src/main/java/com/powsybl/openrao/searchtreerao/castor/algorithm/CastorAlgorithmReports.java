@@ -41,7 +41,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("message", exception.getMessage())
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();
-        BUSINESS_LOGS.error("Optimizing state \"{}\" failed: ", state, exception);
+        BUSINESS_LOGS.error("Optimizing state \"{}\" failed: ", state, exception); // TODO test this
         return addedNode;
     }
 
@@ -77,7 +77,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("preCurativeSensitivityFailure", "Systematic sensitivity analysis after preventive remedial actions failed")
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();
-        BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions failed");
+        BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions failed"); // TODO test this
         return addedNode;
     }
 
@@ -122,7 +122,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("secondPreventiveFailed", "Second preventive failed. Falling back to previous solution")
             .withSeverity(INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("Second preventive failed. Falling back to previous solution:");
+        BUSINESS_LOGS.info("Second preventive failed. Falling back to previous solution:"); // TODO test this
         return addedNode;
     }
 
@@ -131,7 +131,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("secondPreventiveFixedSituation", "RAO has succeeded thanks to second preventive step when first preventive step had failed")
             .withSeverity(INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("RAO has succeeded thanks to second preventive step when first preventive step had failed");
+        BUSINESS_LOGS.info("RAO has succeeded thanks to second preventive step when first preventive step had failed"); // TODO test this
         return addedNode;
     }
 
@@ -148,7 +148,7 @@ public final class CastorAlgorithmReports {
             .add();
         BUSINESS_LOGS.info("Second preventive step has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to previous solution:",
             formatDouble(firstPreventiveCost), formatDouble(firstPreventiveFunctionalCost), formatDouble(firstPreventiveVirtualCost),
-            formatDouble(secondPreventiveCost), formatDouble(secondPreventiveFunctionalCost), formatDouble(secondPreventiveVirtualCost));
+            formatDouble(secondPreventiveCost), formatDouble(secondPreventiveFunctionalCost), formatDouble(secondPreventiveVirtualCost)); // TODO test this
         return addedNode;
     }
 
@@ -218,7 +218,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("postRaoSensitivityAnalysisFailed", "Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed")
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed");
+        BUSINESS_LOGS.info("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed"); // TODO test this
         return addedNode;
     }
 
@@ -236,7 +236,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("preSecondPreventiveSensitivityAnalysisFailed", "Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed")
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();
-        BUSINESS_LOGS.error("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
+        BUSINESS_LOGS.error("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed"); // TODO test this
         return addedNode;
     }
 
@@ -245,7 +245,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("postSecondPreventiveSensitivityAnalysisFailed", "Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed")
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();
-        BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed");
+        BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed"); // TODO test this
         return addedNode;
     }
 
@@ -264,7 +264,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("rangeActionId", rangeActionId)
             .withSeverity(TypedValue.WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Range action {} will not be considered in 2nd preventive RAO as it is also auto/curative (or its network element has an associated ARA/CRA)", rangeActionId);
+        BUSINESS_WARNS.warn("Range action {} will not be considered in 2nd preventive RAO as it is also auto/curative (or its network element has an associated ARA/CRA)", rangeActionId); // TODO test this
         return addedNode;
     }
 
@@ -293,7 +293,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("noNeedSecondPreventiveBecauseFirstPreventiveRaoUnsecure", "First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time")
             .withSeverity(INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
+        BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time."); // TODO test this
         return addedNode;
     }
 
@@ -308,7 +308,7 @@ public final class CastorAlgorithmReports {
         return reportNode.newReportNode()
             .withMessageTemplate("reportRunCastorOneStateOnly", "Run castor one state only")
             .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+            .add(); // TODO test this
     }
 
     public static ReportNode reportNewAutomatonSimulator(ReportNode reportNode) {
@@ -354,7 +354,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("instantQualifier", instantQualifier)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} automaton simulation.", stateId, instantQualifier);
+        TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} automaton simulation.", stateId, instantQualifier); // TODO test this
         return addedNode;
     }
 
@@ -368,7 +368,7 @@ public final class CastorAlgorithmReports {
             .withSeverity(INFO_SEVERITY)
             .add();
         BUSINESS_LOGS.info(String.format("HVDC range action %s could not be activated because its initial set-point (%.1f) does not fall within its allowed range (%.1f - %.1f)",
-            hvdcRaId, activePowerSetpoint, minAdmissibleSetpoint, maxAdmissibleSetpoint));
+            hvdcRaId, activePowerSetpoint, minAdmissibleSetpoint, maxAdmissibleSetpoint)); // TODO test this
         return addedNode;
     }
 
@@ -387,7 +387,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("message", message)
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();
-        BUSINESS_LOGS.error(message);
+        BUSINESS_LOGS.error(message); // TODO test this
         return addedNode;
     }
 
@@ -398,7 +398,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("networkActionName", networkActionName)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkActionId, networkActionName);
+        TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkActionId, networkActionName); // TODO test this
         return addedNode;
     }
 
@@ -408,7 +408,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("automatonStateId", automatonStateId)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonStateId);
+        TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonStateId); // TODO test this
         return addedNode;
     }
 
@@ -439,7 +439,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("automatonStateId", automatonStateId)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Automaton state {} has been optimized (no automaton range actions available).", automatonStateId);
+        TECHNICAL_LOGS.info("Automaton state {} has been optimized (no automaton range actions available).", automatonStateId); // TODO test this
         return addedNode;
     }
 
@@ -449,7 +449,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("rangeActionId", rangeActionId)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Range action {} will not be considered in RAO as no speed is defined", rangeActionId);
+        BUSINESS_WARNS.warn("Range action {} will not be considered in RAO as no speed is defined", rangeActionId); // TODO test this
         return addedNode;
     }
 
@@ -459,7 +459,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("rangeActionGroupId", rangeActionGroupId)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", rangeActionGroupId);
+        BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", rangeActionGroupId); // TODO test this
         return addedNode;
     }
 
@@ -469,7 +469,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("rangeActionGroupId", rangeActionGroupId)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Range action group {} contains range actions not all available at AUTO instant; they are not simulated", rangeActionGroupId);
+        BUSINESS_WARNS.warn("Range action group {} contains range actions not all available at AUTO instant; they are not simulated", rangeActionGroupId); // TODO test this
         return addedNode;
     }
 
@@ -488,7 +488,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("reportRunLoadFlowForHvdcAngleDroopActivePowerControlSetPoint", "Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.");
+        TECHNICAL_LOGS.debug("Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values."); // TODO test this
         return addedNode;
     }
 
@@ -497,7 +497,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("reportRunSensitivityAnalysisAfterDisablingAngleDroopActivePowerControlOnHvdcRa", "Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.");
+        TECHNICAL_LOGS.info("Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs."); // TODO test this
         return addedNode;
     }
 
@@ -508,7 +508,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("activePowerSetpoint", activePowerSetpoint)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcId, activePowerSetpoint);
+        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcId, activePowerSetpoint); // TODO test this
         return addedNode;
     }
 
@@ -539,7 +539,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("contingencyId", contingencyId)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative remedial action but no CNECs associated.", contingencyId);
+        BUSINESS_WARNS.warn("Contingency {} has an automaton or a curative remedial action but no CNECs associated.", contingencyId); // TODO test this
         return addedNode;
     }
 

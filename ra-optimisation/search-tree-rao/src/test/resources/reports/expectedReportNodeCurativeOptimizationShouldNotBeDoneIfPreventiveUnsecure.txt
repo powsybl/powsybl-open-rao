@@ -1,0 +1,76 @@
++ This is a parent report node for report tests
+   + Run castor full optimization
+      + Initial sensitivity analysis
+         + New systematic sensitivity interface
+            + New range action sensitivity provider
+               New systematic sensitivity load flow provider
+            New systematic sensitivity load flow provider
+         + Systematic sensitivity analysis
+            + Sensitivity analysis on network 'small-network-2P'
+               + Network CC0 SC0
+                  + Network info
+                     Network has 15 buses and 26 branches
+                     Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                  Outer loop DistributedSlack
+                  Outer loop VoltageMonitoring
+                  Outer loop ReactiveLimits
+                  AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                  Outer loop DistributedSlack
+                  Outer loop VoltageMonitoring
+                  Outer loop ReactiveLimits
+                  AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+            End of systematic sensitivity analysis
+         + Initial sensitivity analysis: cost = 1371.8824946911468 (functional: 1371.8824946911468, virtual: 0.0)
+            Limiting element #01: margin = -1371.88 A, element FFR1AA1  FFR4AA1  1 at state Contingency FFR2AA1  FFR3AA1  1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - curative"
+            Limiting element #02: margin = -1228.89 A, element FFR1AA1  FFR4AA1  1 at state preventive, CNEC ID = "FFR1AA1  FFR4AA1  1 - preventive - unsecure"
+      + Preventive perimeter optimization
+         New Search Tree Parameter
+         + Run search tree
+            + Evaluating root leaf
+               + New systematic sensitivity interface
+                  + New range action sensitivity provider
+                     New systematic sensitivity load flow provider
+                  New systematic sensitivity load flow provider
+               Leaf has already been evaluated
+               + Root leaf, cost: 1228.89 (functional: 1228.89, virtual: 0.00)
+                  Limiting element #01: margin = -1228.89 A, element FFR1AA1  FFR4AA1  1 at state preventive, CNEC ID = "FFR1AA1  FFR4AA1  1 - preventive - unsecure"
+               + Linear optimization on root leaf
+                  No range actions to optimize
+               + Root leaf, cost: 1228.89 (functional: 1228.89, virtual: 0.00)
+                  No range actions activated
+                  Limiting element #01: margin = -1228.89 A, element FFR1AA1  FFR4AA1  1 at state preventive, CNEC ID = "FFR1AA1  FFR4AA1  1 - preventive - unsecure"
+            No network action available
+            Search-tree RAO completed with status DEFAULT
+            + Best leaf: Root leaf, cost: 1228.89 (functional: 1228.89, virtual: 0.00)
+               Best leaf: No range actions activated
+               Limiting element #01: margin = -1228.89 A, element FFR1AA1  FFR4AA1  1 at state preventive, CNEC ID = "FFR1AA1  FFR4AA1  1 - preventive - unsecure"
+            Scenario "preventive": initial cost = 1228.89 (functional: 1228.89, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 1228.89 (functional: 1228.89, virtual: 0.00, detail: null)
+         End of preventive perimeter optimization
+      + Sensitivity Post PRA
+         + New systematic sensitivity interface
+            + New range action sensitivity provider
+               New systematic sensitivity load flow provider
+            New systematic sensitivity load flow provider
+         + Systematic sensitivity analysis
+            + Sensitivity analysis on network 'small-network-2P'
+               + Network CC0 SC0
+                  + Network info
+                     Network has 15 buses and 26 branches
+                     Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                  Outer loop DistributedSlack
+                  Outer loop VoltageMonitoring
+                  Outer loop ReactiveLimits
+                  AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                  Outer loop DistributedSlack
+                  Outer loop VoltageMonitoring
+                  Outer loop ReactiveLimits
+                  AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+            End of systematic sensitivity analysis
+         + Systematic sensitivity analysis after preventive remedial actions: cost = 1371.8824946911468 (functional: 1371.8824946911468, virtual: 0.0)
+            Limiting element #01: margin = -1371.88 A, element FFR1AA1  FFR4AA1  1 at state Contingency FFR2AA1  FFR3AA1  1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - curative"
+            Limiting element #02: margin = -1228.89 A, element FFR1AA1  FFR4AA1  1 at state preventive, CNEC ID = "FFR1AA1  FFR4AA1  1 - preventive - unsecure"
+      + Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.
+         Limiting element #01: margin = -1371.88 A, element FFR1AA1  FFR4AA1  1 at state Contingency FFR2AA1  FFR3AA1  1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - curative"
+         Limiting element #02: margin = -1228.89 A, element FFR1AA1  FFR4AA1  1 at state preventive, CNEC ID = "FFR1AA1  FFR4AA1  1 - preventive - unsecure"
+         Limiting element #03: margin = 8444.73 A, element FFR1AA1  FFR3AA1  1 at state Contingency FFR2AA1  FFR3AA1  1 - curative, CNEC ID = "FFR1AA1  FFR3AA1  1 - curative"
+      Cost before RAO = 1371.8824946911468 (functional: 1371.8824946911468, virtual: 0.0), cost after RAO = 1371.8824946911468 (functional: 1371.8824946911468, virtual: 0.0)

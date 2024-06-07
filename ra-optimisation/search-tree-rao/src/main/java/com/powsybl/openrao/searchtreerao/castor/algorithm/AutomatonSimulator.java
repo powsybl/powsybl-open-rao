@@ -78,10 +78,9 @@ public final class AutomatonSimulator {
     private final Set<String> operatorsNotSharingCras;
     private final int numberLoggedElementsDuringRao;
     private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap;
-    private final ReportNode reportNode;
 
     public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, RangeActionSetpointResult prePerimeterRangeActionSetpointResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao, ReportNode rootReportNode) {
-        this.reportNode = CastorAlgorithmReports.reportNewAutomatonSimulator(rootReportNode);
+        ReportNode reportNode = CastorAlgorithmReports.reportNewAutomatonSimulator(rootReportNode);
         this.crac = crac;
         this.raoParameters = raoParameters;
         this.flowUnit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
@@ -99,7 +98,7 @@ public final class AutomatonSimulator {
      * then range actions by order of speed. TODO Network actions by speed  is not implemented yet
      * Returns an AutomatonPerimeterResult
      */
-    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network, StateTree stateTree, TreeParameters automatonTreeParameters) {
+    AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network, StateTree stateTree, TreeParameters automatonTreeParameters, ReportNode reportNode) {
         ReportNode automatonStateReportNode = CastorAlgorithmReports.reportOptimizingAutomatingState(reportNode, automatonState.getId());
         ReportNode initialStateReportNode = CastorAlgorithmReports.reportAutomatonSimulatorInitialSituation(automatonStateReportNode);
         RaoLogger.logMostLimitingElementsResults(prePerimeterSensitivityOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao, initialStateReportNode, TypedValue.DEBUG_SEVERITY);
