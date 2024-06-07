@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   + Evaluating root leaf
+      Could not evaluate leaf: root leaf description
+      Scenario "preventive": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)
+   New sensitivity computer

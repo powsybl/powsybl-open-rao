@@ -53,7 +53,7 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
             .collect(Collectors.toSet());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
-            SearchTreeReports.reportNetworkActionsTooFarFromMostLimitingElement(ReportNode.NO_OP, naCombinations.size() - filteredNaCombinations.size());
+            SearchTreeReports.reportNetworkActionsTooFarFromMostLimitingElement(reportNode, naCombinations.size() - filteredNaCombinations.size());
         }
         return filteredNaCombinations;
     }

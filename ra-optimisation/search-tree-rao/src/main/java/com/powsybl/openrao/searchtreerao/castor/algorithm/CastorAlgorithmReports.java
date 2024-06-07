@@ -26,17 +26,17 @@ public final class CastorAlgorithmReports {
 
     public static ReportNode reportRao(String networkId, ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("rao", "Running RAO on network '${networkId}'")
+            .withMessageTemplate("rao", "Running RAO on network \"${networkId}\"")
             .withUntypedValue("networkId", networkId)
             .withSeverity(INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("Running RAO on network '{}'", networkId);
+        BUSINESS_LOGS.info("Running RAO on network \"{}\"", networkId);
         return addedNode;
     }
 
     public static ReportNode reportRaoFailure(String state, Exception exception, ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("raoFailure", "Optimizing state '${state}' failed with message: ${message}")
+            .withMessageTemplate("raoFailure", "Optimizing state \"${state}\" failed with message: ${message}")
             .withUntypedValue("state", state)
             .withUntypedValue("message", exception.getMessage())
             .withSeverity(TypedValue.ERROR_SEVERITY)

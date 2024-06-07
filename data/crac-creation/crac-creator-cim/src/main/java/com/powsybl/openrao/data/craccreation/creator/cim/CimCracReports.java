@@ -12,7 +12,7 @@ public final class CimCracReports {
 
     public static ReportNode reportValidCimCrac(ReportNode reportNode, String filename) {
         ReportNode addedNode = reportNode.newReportNode()
-                        .withMessageTemplate("validCimCrac", "'${filename}' is a valid CIM CRAC document")
+                        .withMessageTemplate("validCimCrac", "\"${filename}\" is a valid CIM CRAC document")
                         .withUntypedValue("filename", filename)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
@@ -22,7 +22,7 @@ public final class CimCracReports {
 
     public static ReportNode reportInvalidCimCrac(ReportNode reportNode, String filename, String reason) {
         ReportNode addedNode = reportNode.newReportNode()
-                .withMessageTemplate("invalidCimCrac", "'${filename}' is NOT a valid CIM CRAC document. Reason: ${reason}")
+                .withMessageTemplate("invalidCimCrac", "\"${filename}\" is NOT a valid CIM CRAC document. Reason: ${reason}")
                 .withUntypedValue("filename", filename)
                 .withUntypedValue("reason", reason)
                 .withSeverity(TypedValue.TRACE_SEVERITY)

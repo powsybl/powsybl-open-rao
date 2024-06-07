@@ -1,7 +1,7 @@
 + This is a parent report node for report tests
    + Angle monitoring
       + Angle monitoring post-contingency coL1.
-         + Monitoring angles at state 'coL1 - curative'
+         + Monitoring angles at state "coL1 - curative"
             + Load-flow computation
                + Load flow on network 'phaseShifter'
                   + Network CC0 SC0
@@ -13,7 +13,7 @@
                      Outer loop ReactiveLimits
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
-            Applying the following remedial action(s) in order to reduce constraints on CNEC 'acCur1': Injection L1 - 2
+            Applying the following remedial action(s) in order to reduce constraints on CNEC "acCur1": Injection L1 - 2
             + Redispatching -50.0 MW in FR [end]
                Redispatching -50.0 MW in FR [end]
             Redispatching failed: asked=-50.0 MW, applied=0.0 MW
@@ -34,6 +34,6 @@
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
          All AngleCnecs are secure.
-         End of monitoring angles at state 'coL1 - curative'
+         End of monitoring angles at state "coL1 - curative"
       All AngleCnecs are secure.
       End of angle monitoring

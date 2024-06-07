@@ -43,7 +43,7 @@ public final class VoltageMonitoringReports {
 
     public static ReportNode reportMonitoringVoltagesAtState(ReportNode reportNode, State state) {
         ReportNode addedNode = reportNode.newReportNode()
-                .withMessageTemplate("monitoringVoltagesAtState", "Monitoring voltages at state '${state}'")
+                .withMessageTemplate("monitoringVoltagesAtState", "Monitoring voltages at state \"${state}\"")
                 .withUntypedValue("state", state.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -53,7 +53,7 @@ public final class VoltageMonitoringReports {
 
     public static ReportNode reportMonitoringVoltagesAtStateEnd(ReportNode reportNode, State state) {
         ReportNode addedNode = reportNode.newReportNode()
-                .withMessageTemplate("monitoringVoltagesAtStateEnd", "End of monitoring voltages at state '${state}'")
+                .withMessageTemplate("monitoringVoltagesAtStateEnd", "End of monitoring voltages at state \"${state}\"")
                 .withUntypedValue("state", state.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -143,7 +143,7 @@ public final class VoltageMonitoringReports {
 
     public static ReportNode reportAppliedNetworkActions(ReportNode reportNode, String cnecId, String appliedRasList) {
         ReportNode addedNode = reportNode.newReportNode()
-                .withMessageTemplate("appliedNetworkActions", "Applying the following remedial action(s) in order to reduce constraints on CNEC '${cnecId}': ${appliedRasList}")
+                .withMessageTemplate("appliedNetworkActions", "Applying the following remedial action(s) in order to reduce constraints on CNEC \"${cnecId}\": ${appliedRasList}")
                 .withUntypedValue("cnecId", cnecId)
                 .withUntypedValue("appliedRasList", appliedRasList)
                 .withSeverity(TypedValue.INFO_SEVERITY)

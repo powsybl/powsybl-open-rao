@@ -663,7 +663,8 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void testOptimizationStepsExecutedAndLogsWhenFallbackOnFirstPrev() {
+    void testOptimizationStepsExecutedAndLogsWhenFallbackOnFirstPrev() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         // Catch future logs
         Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessLogs.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
@@ -674,9 +675,9 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P_cost_increase.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), reportNode);
         raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(reportNode).join();
 
         // Test Optimization steps executed
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
@@ -687,6 +688,13 @@ class CastorFullOptimizationTest {
         listAppender.stop();
         List<ILoggingEvent> logsList = listAppender.list;
         assert logsList.get(logsList.size() - 1).toString().equals("[INFO] Cost before RAO = 371.88 (functional: 371.88, virtual: 0.00), cost after RAO = 371.88 (functional: 371.88, virtual: 0.00)");
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeOptimizationStepsExecutedAndLogsWhenFallbackOnFirstPrev.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test

@@ -29,8 +29,7 @@ public class OpenRaoMPSolver {
         try {
             Loader.loadNativeLibraries();
         } catch (Exception e) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
-            // TODO change this ?
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed."); // TODO change this ?
         }
     }
 

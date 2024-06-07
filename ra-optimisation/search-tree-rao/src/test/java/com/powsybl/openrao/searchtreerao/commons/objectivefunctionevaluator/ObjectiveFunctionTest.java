@@ -73,8 +73,8 @@ class ObjectiveFunctionTest {
                 .build();
 
         // functional cost
-        assertEquals(-300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getRight());
+        assertEquals(-300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, ReportNode.NO_OP).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, ReportNode.NO_OP).getRight());
 
         // virtual cost
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
@@ -106,8 +106,8 @@ class ObjectiveFunctionTest {
                 .build();
 
         // functional cost
-        assertEquals(-300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getRight());
+        assertEquals(-300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, ReportNode.NO_OP).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, ReportNode.NO_OP).getRight());
 
         // virtual cost sum
         assertEquals(2, objectiveFunction.getVirtualCostNames().size());

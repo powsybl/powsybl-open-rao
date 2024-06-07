@@ -88,7 +88,7 @@ public final class RaoLogger {
         if (isRangeActionSetPointEmpty) {
             RaoCommonsReports.reportSearchTreeOneLeafNoRangeActionActivated(reportNode, prefix);
         } else {
-            RaoCommonsReports.reportSearchTreeOneLeafRangeActionActivated(reportNode, prefix, String.join(", ", rangeActionSetpoints));
+            RaoCommonsReports.reportSearchTreeOneLeafRangeActionActivated(reportNode, prefix, rangeActionSetpoints.stream().sorted().collect(Collectors.joining(", ")));
         }
     }
 

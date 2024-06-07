@@ -299,10 +299,14 @@ class LeafTest {
         Leaf rootLeaf = buildNotEvaluatedRootLeaf();
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
-        rootLeaf.optimize(searchTreeInput, searchTreeParameters, ReportNode.NO_OP);
+        ReportNode reportNode = buildNewRootNode();
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters, reportNode);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation has not been performed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
+        List<ReportNode> children = reportNode.getChildren();
+        assertEquals(1, children.size());
+        assertEquals("Impossible to optimize leaf: network action(s): null\n because evaluation has not been performed", children.get(0).getMessage());
     }
 
     @Test
@@ -312,12 +316,22 @@ class LeafTest {
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
         Mockito.doNothing().when(sensitivityComputer).compute(network);
-        rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, ReportNode.NO_OP);
+        ReportNode reportNode1 = buildNewRootNode();
+        rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, reportNode1);
+        List<ReportNode> reportNode1Children = reportNode1.getChildren();
+        assertEquals(2, reportNode1Children.size());
+        assertEquals("Evaluating network action(s): null", reportNode1Children.get(0).getMessage());
+        assertEquals("Failed to evaluate leaf: sensitivity analysis failed", reportNode1Children.get(1).getMessage());
+
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
-        rootLeaf.optimize(searchTreeInput, searchTreeParameters, ReportNode.NO_OP);
+        ReportNode reportNode2 = buildNewRootNode();
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters, reportNode2);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation failed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
+        List<ReportNode> reportNode2Children = reportNode2.getChildren();
+        assertEquals(1, reportNode2Children.size());
+        assertEquals("Impossible to optimize leaf: network action(s): null\n because evaluation failed", reportNode2Children.get(0).getMessage());
     }
 
     @Test

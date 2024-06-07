@@ -137,7 +137,7 @@ class RaoLoggerTest {
         String relativeMargin = relative ? " relative" : "";
         String ptdfString = (ptdf != null) ? format(" (PTDF %f)", ptdf) : "";
         String descriptor = format("%s at state %s", cnec.getNetworkElement().getName(), cnec.getState().getId());
-        return format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s, CNEC ID = '%s'", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
+        return format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s, CNEC ID = \"%s\"", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
     }
 
     @Test
@@ -372,7 +372,7 @@ class RaoLoggerTest {
         assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -210.30, virtual: 10.30, detail: {sensi-fallback-cost=10.3})," +
             " 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2," +
             " cost after preventive optimization = -100.00 (functional: -150.00, virtual: 50.00, detail: {mnec-violation-cost=42.2, loopflow-violation-cost=7.8})", logsList.get(logsList.size() - 1).toString());
-        assertEquals("Scenario 'preventive': initial cost = -200.00 (functional: -210.30, virtual: 10.30, detail: {sensi-fallback-cost=10.3})," +
+        assertEquals("Scenario \"preventive\": initial cost = -200.00 (functional: -210.30, virtual: 10.30, detail: {sensi-fallback-cost=10.3})," +
             " 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2," +
             " cost after preventive optimization = -100.00 (functional: -150.00, virtual: 50.00, detail: {mnec-violation-cost=42.2, loopflow-violation-cost=7.8})", reportNode.getChildren().get(0).getMessage());
 
@@ -391,25 +391,25 @@ class RaoLoggerTest {
         RaoLogger.logOptimizationSummary(curative, Collections.emptySet(), rangeActions, initialObjectiveFunctionResult, objectiveFunctionResult, reportNode);
         assertEquals("[INFO] Scenario \"contingency\": initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null)," +
             " 2 range action(s) activated : PST_2: 4, PST_1: -2, cost after curative optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)", logsList.get(logsList.size() - 1).toString());
-        assertEquals("Scenario 'contingency': initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null)," +
+        assertEquals("Scenario \"contingency\": initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null)," +
             " 2 range action(s) activated : PST_2: 4, PST_1: -2, cost after curative optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)", reportNode.getChildren().get(1).getMessage());
 
         RaoLogger.logOptimizationSummary(preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult, reportNode);
         assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null)," +
             " no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)", logsList.get(logsList.size() - 1).toString());
-        assertEquals("Scenario 'preventive': initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null)," +
+        assertEquals("Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null)," +
             " no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)", reportNode.getChildren().get(2).getMessage());
 
         RaoLogger.logOptimizationSummary(preventive, networkActions, Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult, reportNode);
         assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null)," +
             " 1 network action(s) activated : Open_fake_RA, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)", logsList.get(logsList.size() - 1).toString());
-        assertEquals("Scenario 'preventive': initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null)," +
+        assertEquals("Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00, detail: null)," +
             " 1 network action(s) activated : Open_fake_RA, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)", reportNode.getChildren().get(3).getMessage());
 
         RaoLogger.logOptimizationSummary(preventive, Collections.emptySet(), Collections.emptyMap(), null, objectiveFunctionResult, reportNode);
         assertEquals("[INFO] Scenario \"preventive\": initial cost = null (functional: null, virtual: null, detail: null)," +
             " no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)", logsList.get(logsList.size() - 1).toString());
-        assertEquals("Scenario 'preventive': initial cost = null (functional: null, virtual: null, detail: null)," +
+        assertEquals("Scenario \"preventive\": initial cost = null (functional: null, virtual: null, detail: null)," +
             " no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00, detail: null)", reportNode.getChildren().get(4).getMessage());
 
         assertThrows(java.lang.NullPointerException.class, () -> RaoLogger.logOptimizationSummary(preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, null, reportNode));
@@ -446,15 +446,19 @@ class RaoLoggerTest {
 
         RaoLogger.logFailedOptimizationSummary(preventive, Collections.emptySet(), Collections.emptyMap(), reportNode);
         assertEquals("[INFO] Scenario \"preventive\": no remedial actions activated", logsList.get(logsList.size() - 1).toString());
+        assertEquals("Scenario \"preventive\": no remedial actions activated", reportNode.getChildren().get(0).getMessage());
 
         RaoLogger.logFailedOptimizationSummary(curative, networkActions, Collections.emptyMap(), reportNode);
         assertEquals("[INFO] Scenario \"contingency\": 1 network action(s) activated : Open_fake_RA", logsList.get(logsList.size() - 1).toString());
+        assertEquals("Scenario \"contingency\": 1 network action(s) activated : Open_fake_RA", reportNode.getChildren().get(1).getMessage());
 
         RaoLogger.logFailedOptimizationSummary(curative, Collections.emptySet(), rangeActions, reportNode);
         assertEquals("[INFO] Scenario \"contingency\": 2 range action(s) activated : PST_2: 4, PST_1: -2", logsList.get(logsList.size() - 1).toString());
+        assertEquals("Scenario \"contingency\": 2 range action(s) activated : PST_2: 4, PST_1: -2", reportNode.getChildren().get(2).getMessage());
 
         RaoLogger.logFailedOptimizationSummary(curative, networkActions, rangeActions, reportNode);
         assertEquals("[INFO] Scenario \"contingency\": 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2", logsList.get(logsList.size() - 1).toString());
+        assertEquals("Scenario \"contingency\": 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2", reportNode.getChildren().get(3).getMessage());
 
         String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentFailedOptimizationSummary.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {

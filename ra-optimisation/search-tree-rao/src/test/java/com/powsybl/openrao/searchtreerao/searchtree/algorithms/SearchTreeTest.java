@@ -45,6 +45,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logRangeActions;
@@ -477,7 +482,8 @@ class SearchTreeTest {
     }
 
     @Test
-    void testLogsVerbose() {
+    void testLogsVerbose() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
@@ -487,22 +493,32 @@ class SearchTreeTest {
         when(initialResult.getFunctionalCost()).thenReturn(0.);
         when(initialResult.getVirtualCost()).thenReturn(0.);
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
-        String expectedLog1 = "[DEBUG] Evaluating root leaf";
-        String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
-        searchTree.run(ReportNode.NO_OP);
+        searchTree.run(reportNode);
         assertEquals(1, technical.list.size());
         assertEquals(2, business.list.size());
-        assertEquals(expectedLog1, technical.list.get(0).toString());
-        assertEquals(expectedLog2, business.list.get(0).toString());
-        assertEquals(expectedLog3, business.list.get(1).toString());
+        assertEquals("[DEBUG] Evaluating root leaf", technical.list.get(0).toString());
+        assertEquals("[INFO] Could not evaluate leaf: root leaf description", business.list.get(0).toString());
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)", business.list.get(1).toString());
+
+        ReportNode evaluationReportNode = reportNode.getChildren().get(0);
+        assertEquals("Evaluating root leaf", evaluationReportNode.getMessage());
+        assertEquals("Could not evaluate leaf: root leaf description", evaluationReportNode.getChildren().get(0).getMessage());
+        assertEquals("Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)", evaluationReportNode.getChildren().get(1).getMessage());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSearchTreeRun.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testLogsDontVerbose() {
+    void testLogsDontVerbose() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false));
         raoWithoutLoopFlowLimitation();
 
@@ -513,18 +529,26 @@ class SearchTreeTest {
         when(initialResult.getFunctionalCost()).thenReturn(0.);
         when(initialResult.getVirtualCost()).thenReturn(0.);
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
-        String expectedLog1 = "[DEBUG] Evaluating root leaf";
-        String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
-        searchTree.run(ReportNode.NO_OP);
+        searchTree.run(reportNode);
         assertEquals(2, technical.list.size());
         assertEquals(1, business.list.size());
-        assertEquals(expectedLog1, technical.list.get(0).toString());
-        assertEquals(expectedLog2, technical.list.get(1).toString());
-        assertEquals(expectedLog3, business.list.get(0).toString());
+        assertEquals("[DEBUG] Evaluating root leaf", technical.list.get(0).toString());
+        assertEquals("[INFO] Could not evaluate leaf: root leaf description", technical.list.get(1).toString());
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)", business.list.get(0).toString());
+        ReportNode evaluationReportNode = reportNode.getChildren().get(0);
+        assertEquals("Evaluating root leaf", evaluationReportNode.getMessage());
+        assertEquals("Could not evaluate leaf: root leaf description", evaluationReportNode.getChildren().get(0).getMessage());
+        assertEquals("Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)", evaluationReportNode.getChildren().get(1).getMessage());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSearchTreeRun.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     private ListAppender<ILoggingEvent> getLogs(Class clazz) {
@@ -587,12 +611,13 @@ class SearchTreeTest {
 
         searchTree.logVirtualCostlyElementsLogs(reportNode, rootLeaf, "loop-flow-cost", "Optimized ", TypedValue.INFO_SEVERITY);
         assertEquals(1, reportNode.getChildren().size());
-        assertEquals("Optimized leaf-id, limiting 'loop-flow-cost' constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = 'cnec-id', CNEC name = 'cnec-name'", reportNode.getChildren().get(0).getMessage());
+        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
-    void testLogVirtualCostDetails() {
+    void testLogVirtualCostDetails() throws IOException, URISyntaxException {
         setUpForVirtualLogs();
+        ReportNode reportNode = buildNewRootNode();
 
         when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
         when(treeParameters.targetObjectiveValue()).thenReturn(0.);
@@ -605,20 +630,34 @@ class SearchTreeTest {
 
         // Functional cost does not satisfy stop criterion
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
-        searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ", ReportNode.NO_OP);
+        searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ", reportNode);
         assertEquals(2, business.list.size());
         assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
         assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());
+        assertEquals("Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", reportNode.getChildren().get(0).getMessage());
+        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", reportNode.getChildren().get(1).getMessage());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSearchTreeLogVirtualCostDetails.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
     void testLogRangeActions() {
         setUpForVirtualLogs();
+        ReportNode reportNodeWithoutRangeActions = buildNewRootNode();
         List<ILoggingEvent> logsList = getLogs(TechnicalLogs.class).list;
-        logRangeActions(rootLeaf, searchTreeInput.getOptimizationPerimeter(), "", ReportNode.NO_OP);
+        logRangeActions(rootLeaf, searchTreeInput.getOptimizationPerimeter(), "", reportNodeWithoutRangeActions);
         assertEquals("[INFO] No range actions activated", logsList.get(logsList.size() - 1).toString());
+        assertEquals(1, reportNodeWithoutRangeActions.getChildren().size());
+        assertEquals("No range actions activated", reportNodeWithoutRangeActions.getChildren().get(0).getMessage());
+        assertEquals(0, reportNodeWithoutRangeActions.getChildren().get(0).getChildren().size());
 
         // apply 2 range actions
+        ReportNode reportNodeWithRangeActions = buildNewRootNode();
         rangeAction1 = Mockito.mock(PstRangeAction.class);
         rangeAction2 = Mockito.mock(PstRangeAction.class);
         when(rangeAction1.getName()).thenReturn("PST1");
@@ -626,11 +665,11 @@ class SearchTreeTest {
         when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
         when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
 
-        logRangeActions(rootLeaf, searchTreeInput.getOptimizationPerimeter(), "", ReportNode.NO_OP);
-        // PST can be logged in any order
-        assert logsList.get(logsList.size() - 1).toString().contains("[INFO] range action(s):");
-        assert logsList.get(logsList.size() - 1).toString().contains("PST1: 0");
-        assert logsList.get(logsList.size() - 1).toString().contains("PST2: 0");
+        logRangeActions(rootLeaf, searchTreeInput.getOptimizationPerimeter(), "", reportNodeWithRangeActions);
+        assertEquals("[INFO] range action(s): PST1: 0, PST2: 0", logsList.get(logsList.size() - 1).toString());
+        assertEquals(1, reportNodeWithRangeActions.getChildren().size());
+        assertEquals("range action(s): PST1: 0, PST2: 0", reportNodeWithRangeActions.getChildren().get(0).getMessage());
+        assertEquals(0, reportNodeWithoutRangeActions.getChildren().get(0).getChildren().size());
     }
 
     @Test

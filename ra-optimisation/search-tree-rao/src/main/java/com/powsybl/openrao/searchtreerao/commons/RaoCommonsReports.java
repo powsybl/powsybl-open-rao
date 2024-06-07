@@ -58,7 +58,7 @@ public final class RaoCommonsReports {
 
     public static ReportNode reportMostLimitingElement(ReportNode reportNode, TypedValue severity, int index, String isRelativeMargin, double cnecMargin, Unit unit, String ptdfIfRelative, String cnecNetworkElementName, String cnecStateId, String cnecId) {
         ReportNode addedNode = reportNode.newReportNode()
-                .withMessageTemplate("mostLimitingElement", "Limiting element ${index}:${isRelativeMargin} margin = ${cnecMargin} ${unit}${ptdfIfRelative}, element ${cnecNetworkElementName} at state ${cnecStateId}, CNEC ID = '${cnecId}'")
+                .withMessageTemplate("mostLimitingElement", "Limiting element ${index}:${isRelativeMargin} margin = ${cnecMargin} ${unit}${ptdfIfRelative}, element ${cnecNetworkElementName} at state ${cnecStateId}, CNEC ID = \"${cnecId}\"")
                 .withUntypedValue("index", formatIndex(index))
                 .withUntypedValue("isRelativeMargin", isRelativeMargin)
                 .withUntypedValue("cnecMargin", formatDouble(cnecMargin))
@@ -76,7 +76,7 @@ public final class RaoCommonsReports {
 
     public static ReportNode reportOptimizationSummaryOnScenario(ReportNode reportNode, String scenarioName, String initialCost, String initialFunctionalCost, String initialVirtualCost, String initialVirtualCostDetailed, String raResult, String instant, double finalCost, double finalFunctionalCost, double finalVirtualCost, String finalVirtualCostDetailed) {
         ReportNode addedNode = reportNode.newReportNode()
-                .withMessageTemplate("optimizationSummaryOnScenario", "Scenario '${scenarioName}': initial cost = ${initialCost} (functional: ${initialFunctionalCost}, virtual: ${initialVirtualCost}, detail: ${initialVirtualCostDetailed}), ${raResult}, cost after ${instant} optimization = ${finalCost} (functional: ${finalFunctionalCost}, virtual: ${finalVirtualCost}, detail: ${finalVirtualCostDetailed})")
+                .withMessageTemplate("optimizationSummaryOnScenario", "Scenario \"${scenarioName}\": initial cost = ${initialCost} (functional: ${initialFunctionalCost}, virtual: ${initialVirtualCost}, detail: ${initialVirtualCostDetailed}), ${raResult}, cost after ${instant} optimization = ${finalCost} (functional: ${finalFunctionalCost}, virtual: ${finalVirtualCost}, detail: ${finalVirtualCostDetailed})")
                 .withUntypedValue("scenarioName", scenarioName)
                 .withUntypedValue("initialCost", initialCost)
                 .withUntypedValue("initialFunctionalCost", initialFunctionalCost)
@@ -151,12 +151,12 @@ public final class RaoCommonsReports {
 
     public static ReportNode reportForceUsageMethodForAutomatonOnly(ReportNode reportNode, String remedialActionName, String stateId) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportForceUsageMethodForAutomatonOnly", "The 'forced' usage method is for automatons only. Therefore, ${remedialActionName} will be ignored for this state: ${stateId}")
+            .withMessageTemplate("reportForceUsageMethodForAutomatonOnly", "The \"forced\" usage method is for automatons only. Therefore, ${remedialActionName} will be ignored for this state: ${stateId}")
             .withUntypedValue("remedialActionName", remedialActionName)
             .withUntypedValue("stateId", stateId)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("The 'forced' usage method is for automatons only. Therefore, {} will be ignored for this state: {}", remedialActionName, stateId);
+        BUSINESS_WARNS.warn("The \"forced\" usage method is for automatons only. Therefore, {} will be ignored for this state: {}", remedialActionName, stateId);
         return addedNode;
     }
 

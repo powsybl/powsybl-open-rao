@@ -192,7 +192,7 @@ public final class SearchTreeReports {
 
     public static ReportNode reportLeavesToEvaluate(ReportNode reportNode, int numberOfCombinations) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSearchTreeLeavesToEvaluate", "Leaves to evaluate: ${numberOfCombination}")
+            .withMessageTemplate("reportSearchTreeLeavesToEvaluate", "Leaves to evaluate: ${numberOfCombinations}")
             .withUntypedValue("numberOfCombinations", numberOfCombinations)
             .withSeverity(TRACE_SEVERITY)
             .add();
@@ -315,7 +315,7 @@ public final class SearchTreeReports {
 
     public static ReportNode reportVirtualCostDetail(ReportNode reportNode, String prefix, String identifier, String virtualCostName, TypedValue severity) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("virtualCostDetail", "${prefix}${identifier}, stop criterion could have been reached without '${virtualCostName}' virtual cost")
+            .withMessageTemplate("virtualCostDetail", "${prefix}${identifier}, stop criterion could have been reached without \"${virtualCostName}\" virtual cost")
             .withUntypedValue("prefix", prefix)
             .withUntypedValue("identifier", identifier)
             .withUntypedValue("virtualCostName", virtualCostName)
@@ -327,7 +327,7 @@ public final class SearchTreeReports {
 
     public static ReportNode reportVirtualCostlyElementsLog(ReportNode reportNode, String prefix, String identifier, String virtualCostName, int index, double flow, Unit unit, double limitingThreshold, double margin, String networkElementId, String stateId, String cnecId, String cnecName, TypedValue severity) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("virtualCostlyElementsLog", "${prefix}${identifier}, limiting '${virtualCostName}' constraint ${index}: flow = ${flow} ${unit}, threshold = ${limitingThreshold} ${unit}, margin = ${margin} ${unit}, element ${networkElementId} at state ${stateId}, CNEC ID = '${cnecId}', CNEC name = '${cnecName}'")
+            .withMessageTemplate("virtualCostlyElementsLog", "${prefix}${identifier}, limiting \"${virtualCostName}\" constraint ${index}: flow = ${flow} ${unit}, threshold = ${limitingThreshold} ${unit}, margin = ${margin} ${unit}, element ${networkElementId} at state ${stateId}, CNEC ID = \"${cnecId}\", CNEC name = \"${cnecName}\"")
             .withUntypedValue("prefix", prefix)
             .withUntypedValue("identifier", identifier)
             .withUntypedValue("virtualCostName", virtualCostName)
@@ -422,7 +422,7 @@ public final class SearchTreeReports {
 
     public static ReportNode reportEvaluationNotPerformed(ReportNode reportNode, String leaf) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportEvaluationNotPerformed", "Impossible to optimize leaf: ${leaf}\\n because evaluation has not been performed")
+            .withMessageTemplate("reportEvaluationNotPerformed", "Impossible to optimize leaf: ${leaf}\n because evaluation has not been performed")
             .withUntypedValue("leaf", leaf)
             .withSeverity(WARN_SEVERITY)
             .add();
