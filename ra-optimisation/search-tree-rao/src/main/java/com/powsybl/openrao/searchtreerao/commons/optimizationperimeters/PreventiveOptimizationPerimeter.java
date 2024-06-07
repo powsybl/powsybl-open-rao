@@ -57,7 +57,7 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         return buildForStates(preventiveState, allMonitoredStates, crac, network, crac.getRangeActions(), raoParameters, prePerimeterResult, reportNode);
     }
 
-    public static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Network network, Set<RangeAction<?>> rangeActions, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Network network, Set<RangeAction<?>> rangeActions, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult, ReportNode reportNode) {
         Set<State> filteredStates = allMonitoredStates.stream()
             .filter(state -> !prePerimeterResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE))
             .collect(Collectors.toSet());
