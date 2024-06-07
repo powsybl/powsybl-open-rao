@@ -1,0 +1,6 @@
++ This is a parent report node for report tests
+   + Optimizing automaton state contingency1 - auto.
+      Initial situation:
+      Topological automaton state contingency1 - auto has been skipped as no topological automatons were activated.
+      Automaton state contingency1 - auto has been optimized.
+      Scenario "contingency1": initial cost = null (functional: null, virtual: null, detail: null), no remedial actions activated, cost after auto optimization = -381.05 (functional: -381.05, virtual: 0.00, detail: null)

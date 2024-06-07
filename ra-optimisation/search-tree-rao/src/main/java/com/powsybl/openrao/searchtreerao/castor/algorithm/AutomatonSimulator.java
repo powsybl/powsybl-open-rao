@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.commons.Unit;
@@ -107,7 +108,7 @@ public final class AutomatonSimulator {
 
         // Sensitivity analysis failed :
         if (prePerimeterSensitivityOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
-            return createFailedAutomatonPerimeterResult(automatonState, prePerimeterSensitivityOutput, new HashSet<>(), "before", automatonStateReportNode);
+            return createFailedAutomatonPerimeterResult(automatonState, prePerimeterSensitivityOutput, new HashSet<>(), "before", initialStateReportNode);
         }
 
         // I) Simulate FORCED topological automatons
@@ -505,14 +506,14 @@ public final class AutomatonSimulator {
             return Pair.of(prePerimeterSensitivityOutput, new HashMap<>());
         }
 
-        CastorAlgorithmReports.reportRunLoadFlowForHvdcAngleDroopActivePowerControlSetPoint(automatonStateReportNode);
-        Map<String, Double> controls = computeHvdcAngleDroopActivePowerControlValues(network, automatonState, raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+        ReportNode loadFlowReportNode = CastorAlgorithmReports.reportRunLoadFlowForHvdcAngleDroopActivePowerControlSetPoint(automatonStateReportNode);
+        Map<String, Double> controls = computeHvdcAngleDroopActivePowerControlValues(network, automatonState, raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters(), loadFlowReportNode);
 
         // Next, disable AngleDroopActivePowerControl on HVDCs and set their active power set-points to the value
         // previously computed by the AngleDroopActivePowerControl.
         // This makes sure that the future sensitivity computations will converge.
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();
-        hvdcRasWithControl.forEach(hvdcRa -> {
+        hvdcRasWithControl.stream().sorted(Comparator.comparing(HvdcRangeAction::getId)).forEach(hvdcRa -> {
             String hvdcLineId = hvdcRa.getNetworkElement().getId();
             double activePowerSetpoint = controls.get(hvdcLineId);
             double minAdmissibleSetpoint = hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint);
@@ -532,14 +533,14 @@ public final class AutomatonSimulator {
         }
 
         // Finally, run a sensitivity analysis to get sensitivity values in DC set-point mode if needed
-        CastorAlgorithmReports.reportRunSensitivityAnalysisAfterDisablingAngleDroopActivePowerControlOnHvdcRa(automatonStateReportNode);
-        PrePerimeterResult result = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null, automatonStateReportNode);
+        ReportNode sensitivityReportNode = CastorAlgorithmReports.reportRunSensitivityAnalysisAfterDisablingAngleDroopActivePowerControlOnHvdcRa(automatonStateReportNode);
+        PrePerimeterResult result = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null, sensitivityReportNode);
         RaoLogger.logMostLimitingElementsResults(result, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao, automatonStateReportNode, TypedValue.DEBUG_SEVERITY);
 
         return Pair.of(result, activePowerSetpoints);
     }
 
-    private static Map<String, Double> computeHvdcAngleDroopActivePowerControlValues(Network network, State state, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+    private static Map<String, Double> computeHvdcAngleDroopActivePowerControlValues(Network network, State state, String loadFlowProvider, LoadFlowParameters loadFlowParameters, ReportNode reportNode) {
         // Create a temporary variant to apply contingency and compute load-flow on
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
         String tmpVariant = RandomizedString.getRandomizedString("HVDC_LF", network.getVariantManager().getVariantIds(), 10);
@@ -554,7 +555,7 @@ public final class AutomatonSimulator {
             }
             contingency.toModification().apply(network, (ComputationManager) null);
         }
-        LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
+        LoadFlow.find(loadFlowProvider).run(network, network.getVariantManager().getWorkingVariantId(), LocalComputationManager.getDefault(), loadFlowParameters, reportNode);
 
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
         Map<String, Double> controls = network.getHvdcLineStream()

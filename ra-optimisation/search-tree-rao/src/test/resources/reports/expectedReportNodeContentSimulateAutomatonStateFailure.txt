@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   + Optimizing automaton state contingency1 - auto.
+      + Initial situation:
+         Automaton state contingency1 - auto has failed during sensitivity computation before topological automaton simulation.
+         Scenario "contingency1": no remedial actions activated

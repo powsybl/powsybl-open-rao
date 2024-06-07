@@ -114,19 +114,38 @@ public final class RaoLogger {
         Unit unit = objectiveFunction.getUnit();
         boolean relativePositiveMargins = objectiveFunction.relativePositiveMargins();
 
-        List<FlowCnec> sortedCnecs = getMostLimitingElements(objectiveFunctionResult, states, numberOfLoggedElements);
+        List<FlowCnec> sortedCnecs = getMostLimitingElements(objectiveFunctionResult, states, numberOfLoggedElements).stream()
+            .sorted((cnec1, cnec2) -> compareTwoFlowCnecs(flowResult, cnec1, cnec2, relativePositiveMargins, unit))
+            .toList();
 
         for (int i = 0; i < sortedCnecs.size(); i++) {
             FlowCnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
-            double cnecMargin = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, unit) : flowResult.getMargin(cnec, unit);
+            double cnecMargin = getCnecMargin(flowResult, cnec, relativePositiveMargins, unit);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             Side mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
             RaoCommonsReports.reportMostLimitingElement(reportNode, reportSeverity, i + 1, isRelativeMargin, cnecMargin, unit, ptdfIfRelative, cnecNetworkElementName, cnecStateId, cnec.getId());
         }
+    }
+
+    private static int compareTwoFlowCnecs(FlowResult flowResult, FlowCnec cnec1, FlowCnec cnec2, boolean relativePositiveMargins, Unit unit) {
+        double cnecMargin1 = getCnecMargin(flowResult, cnec1, relativePositiveMargins, unit);
+        double cnecMargin2 = getCnecMargin(flowResult, cnec2, relativePositiveMargins, unit);
+        return compareCnecMarginsAndIds(cnec1, cnec2, cnecMargin1, cnecMargin2);
+    }
+
+    private static double getCnecMargin(FlowResult flowResult, FlowCnec cnec1, boolean relativePositiveMargins, Unit unit) {
+        return relativePositiveMargins ? flowResult.getRelativeMargin(cnec1, unit) : flowResult.getMargin(cnec1, unit);
+    }
+
+    private static int compareCnecMarginsAndIds(FlowCnec cnec1, FlowCnec cnec2, Double cnecMargin1, Double cnecMargin2) {
+        if (Objects.equals(cnecMargin1, cnecMargin2)) {
+            return cnec1.getId().compareTo(cnec2.getId());
+        }
+        return Double.compare(cnecMargin1, cnecMargin2);
     }
 
     private static Side getMostConstrainedSide(FlowCnec cnec,
@@ -169,7 +188,7 @@ public final class RaoLogger {
         });
 
         List<FlowCnec> sortedCnecs = mostLimitingElementsAndMargins.keySet().stream()
-            .sorted(Comparator.comparing(mostLimitingElementsAndMargins::get))
+            .sorted((cnec1, cnec2) -> compareCnecMarginsAndIds(cnec1, cnec2, mostLimitingElementsAndMargins.get(cnec1), mostLimitingElementsAndMargins.get(cnec2)))
             .toList();
         sortedCnecs = sortedCnecs.subList(0, Math.min(sortedCnecs.size(), numberOfLoggedElements));
 
@@ -206,7 +225,7 @@ public final class RaoLogger {
         Map<FlowCnec, Double> mostLimitingElementsAndMargins = new HashMap<>();
         List<FlowCnec> cnecs = getMostLimitingElements(optimizationResult, states, maxNumberOfElements);
         cnecs.forEach(cnec -> {
-            double cnecMargin = relativePositiveMargins ? optimizationResult.getRelativeMargin(cnec, unit) : optimizationResult.getMargin(cnec, unit);
+            double cnecMargin = getCnecMargin(optimizationResult, cnec, relativePositiveMargins, unit);
             mostLimitingElementsAndMargins.put(cnec, cnecMargin);
         });
         return mostLimitingElementsAndMargins;

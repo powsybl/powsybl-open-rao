@@ -354,7 +354,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("instantQualifier", instantQualifier)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} automaton simulation.", stateId, instantQualifier); // TODO test this
+        TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} automaton simulation.", stateId, instantQualifier);
         return addedNode;
     }
 
@@ -368,7 +368,7 @@ public final class CastorAlgorithmReports {
             .withSeverity(INFO_SEVERITY)
             .add();
         BUSINESS_LOGS.info(String.format("HVDC range action %s could not be activated because its initial set-point (%.1f) does not fall within its allowed range (%.1f - %.1f)",
-            hvdcRaId, activePowerSetpoint, minAdmissibleSetpoint, maxAdmissibleSetpoint)); // TODO test this
+            hvdcRaId, activePowerSetpoint, minAdmissibleSetpoint, maxAdmissibleSetpoint));
         return addedNode;
     }
 
@@ -398,7 +398,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("networkActionName", networkActionName)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkActionId, networkActionName); // TODO test this
+        TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkActionId, networkActionName);
         return addedNode;
     }
 
@@ -408,7 +408,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("automatonStateId", automatonStateId)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonStateId); // TODO test this
+        TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonStateId);
         return addedNode;
     }
 
@@ -459,7 +459,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("rangeActionGroupId", rangeActionGroupId)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", rangeActionGroupId); // TODO test this
+        BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", rangeActionGroupId);
         return addedNode;
     }
 
@@ -469,7 +469,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("rangeActionGroupId", rangeActionGroupId)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Range action group {} contains range actions not all available at AUTO instant; they are not simulated", rangeActionGroupId); // TODO test this
+        BUSINESS_WARNS.warn("Range action group {} contains range actions not all available at AUTO instant; they are not simulated", rangeActionGroupId);
         return addedNode;
     }
 
@@ -488,7 +488,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("reportRunLoadFlowForHvdcAngleDroopActivePowerControlSetPoint", "Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values."); // TODO test this
+        TECHNICAL_LOGS.debug("Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.");
         return addedNode;
     }
 
@@ -497,18 +497,18 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("reportRunSensitivityAnalysisAfterDisablingAngleDroopActivePowerControlOnHvdcRa", "Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs."); // TODO test this
+        TECHNICAL_LOGS.info("Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.");
         return addedNode;
     }
 
     public static ReportNode reportDisablingAngleDroopActivePowerControl(ReportNode reportNode, String hvdcId, double activePowerSetpoint) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportDisablingAngleDroopActivePowerControl", "Disabling HvdcAngleDroopActivePowerControl on HVDC line ${hvdcId} and setting its set-point to ${activePowerSetpoint}.}")
+            .withMessageTemplate("reportDisablingAngleDroopActivePowerControl", "Disabling HvdcAngleDroopActivePowerControl on HVDC line ${hvdcId} and setting its set-point to ${activePowerSetpoint}.")
             .withUntypedValue("hvdcId", hvdcId)
             .withUntypedValue("activePowerSetpoint", activePowerSetpoint)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcId, activePowerSetpoint); // TODO test this
+        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcId, activePowerSetpoint);
         return addedNode;
     }
 

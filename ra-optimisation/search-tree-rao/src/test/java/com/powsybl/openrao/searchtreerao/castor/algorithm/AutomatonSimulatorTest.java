@@ -40,6 +40,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,6 +83,10 @@ class AutomatonSimulatorTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @BeforeEach
     public void setup() {
@@ -267,11 +276,19 @@ class AutomatonSimulatorTest {
         assertTrue(AutomatonSimulator.checkAlignedRangeActions(List.of(ara5, ra4), List.of(ara5, ra3, ra4), ReportNode.NO_OP));
 
         // different types
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara3, ara4), List.of(ara3, ara4), ReportNode.NO_OP));
+        ReportNode reportNode1 = buildNewRootNode();
+        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara3, ara4), List.of(ara3, ara4), reportNode1));
+        assertEquals(1, reportNode1.getChildren().size());
+        assertEquals("Range action group group2 contains range actions of different types; they are not simulated", reportNode1.getChildren().get(0).getMessage());
+        assertEquals(0, reportNode1.getChildren().get(0).getChildren().size());
         assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara4, ara3), List.of(ara3, ara4), ReportNode.NO_OP));
 
         // one unavailable RA
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara1, ara2), List.of(ara1), ReportNode.NO_OP));
+        ReportNode reportNode2 = buildNewRootNode();
+        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara1, ara2), List.of(ara1), reportNode2));
+        assertEquals(1, reportNode2.getChildren().size());
+        assertEquals("Range action group group1 contains range actions not all available at AUTO instant; they are not simulated", reportNode2.getChildren().get(0).getMessage());
+        assertEquals(0, reportNode2.getChildren().get(0).getChildren().size());
     }
 
     @Test
@@ -381,7 +398,7 @@ class AutomatonSimulatorTest {
     }
 
     @Test
-    void testDisableHvdcAngleDroopControl6() {
+    void testDisableHvdcAngleDroopControl6() throws IOException, URISyntaxException {
         // Initial setpoint is out of RA's allowed range. Do not disable HvdcAngleDroopControl
         hvdcRa1 = crac.newHvdcRangeAction()
             .withId("hvdc-ra3")
@@ -395,9 +412,17 @@ class AutomatonSimulatorTest {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
-        Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState, ReportNode.NO_OP);
+        ReportNode reportNode = buildNewRootNode();
+        Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState, reportNode);
         assertTrue(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertTrue(result.getRight().isEmpty());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentDisableHvdcAngleDroopControl6.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -589,10 +614,16 @@ class AutomatonSimulatorTest {
 
         // NA already activated (stay on same variant), do not activate NA
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-100.);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, ReportNode.NO_OP);
+        ReportNode reportNode1 = buildNewRootNode();
+        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, reportNode1);
         assertNotNull(result);
         assertNotNull(result.getPerimeterResult());
         assertEquals(Set.of(), result.getActivatedNetworkActions());
+        assertEquals(2, reportNode1.getChildren().size());
+        assertEquals("Automaton na - na has been skipped as it has no impact on network.", reportNode1.getChildren().get(0).getMessage());
+        assertEquals(0, reportNode1.getChildren().get(0).getChildren().size());
+        assertEquals("Topological automaton state contingency1 - auto has been skipped as no topological automatons were activated.", reportNode1.getChildren().get(1).getMessage());
+        assertEquals(0, reportNode1.getChildren().get(1).getChildren().size());
 
         // margin = 0 => activate NA
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(0.);
@@ -622,7 +653,7 @@ class AutomatonSimulatorTest {
     }
 
     @Test
-    void testSimulateAutomatonState() {
+    void testSimulateAutomatonState() throws IOException, URISyntaxException {
         State curativeState = mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
         when(curativeState.getInstant()).thenReturn(curativeInstant);
@@ -653,29 +684,45 @@ class AutomatonSimulatorTest {
         SensitivityResult mockedSensitivityResult = mock(SensitivityResult.class);
         when(mockedPrePerimeterResult.getSensitivityResult()).thenReturn(mockedSensitivityResult);
 
-        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null, ReportNode.NO_OP);
+        ReportNode reportNode = buildNewRootNode();
+        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null, reportNode);
         assertNotNull(result);
         assertEquals(Set.of(), result.getActivatedNetworkActions());
         assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
         assertEquals(Map.of(ara1, 0.1, ara2, 0.1), result.getOptimizedSetpointsOnState(autoState));
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentSimulateAutomatonState.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testSimulateAutomatonStateFailure() {
+    void testSimulateAutomatonStateFailure() throws IOException, URISyntaxException {
         when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
         State curativeState = mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
         when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
-        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null, ReportNode.NO_OP);
+        ReportNode reportNode = buildNewRootNode();
+        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null, reportNode);
         assertNotNull(result);
         assertEquals(ComputationStatus.FAILURE, result.getComputationStatus());
         assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
         assertEquals(Set.of(), result.getActivatedNetworkActions());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentSimulateAutomatonStateFailure.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testDisableHvdcAngleDroopControlBeforeShifting() {
+    void testDisableHvdcAngleDroopControlBeforeShifting() throws IOException, URISyntaxException {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
@@ -689,13 +736,21 @@ class AutomatonSimulatorTest {
         // check that angle-droop control is disabled when one margin is negative
         when(prePerimeterResult.getMargin(cnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-1.);
         when(prePerimeterResult.getMargin(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(100.);
-        automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState, ReportNode.NO_OP);
+        ReportNode reportNode = buildNewRootNode();
+        automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState, reportNode);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertFalse(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertEquals(2450.87, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getConvertersMode());
         assertEquals(46.61, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getConvertersMode());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentDisableHvdcAngleDroopControlBeforeShifting.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
