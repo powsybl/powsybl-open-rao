@@ -90,7 +90,7 @@ class SystematicSensitivityInterfaceTest {
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .withOutageInstant(outageInstant)
             .build();
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, ReportNode.NO_OP);
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -131,7 +131,7 @@ class SystematicSensitivityInterfaceTest {
             .build();
 
         // run - expected failure
-        SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, ReportNode.NO_OP);
         assertFalse(result.isSuccess());
 
         String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSystematicSensitivityRunDefaultConfigFails.txt").toURI()));

@@ -241,7 +241,7 @@ public final class AngleMonitoringReports {
 
     public static ReportNode reportRedispatchingStart(ReportNode reportNode, Double redispatchingValue, String countryId) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("redispatchingAngleMonitoring", "Redispatching ${redispatchingValue} MW in ${countryId} [start]") // TODO check if MW in string is required
+            .withMessageTemplate("redispatchingAngleMonitoring", "Redispatching ${redispatchingValue} MW in ${countryId}") // TODO check if MW in string is required
             .withTypedValue("redispatchingValue", redispatchingValue, TypedValue.ACTIVE_POWER)
             .withUntypedValue("countryId", countryId)
             .withSeverity(TypedValue.INFO_SEVERITY)
@@ -252,7 +252,7 @@ public final class AngleMonitoringReports {
 
     public static ReportNode reportRedispatchingEnd(ReportNode reportNode, Double redispatchingValue, String countryId) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("redispatchingAngleMonitoring", "Redispatching ${redispatchingValue} MW in ${countryId} [end]") // TODO check if MW in string is required
+            .withMessageTemplate("reportRedispatchingEnd", "End of redispatching ${redispatchingValue} MW in ${countryId}") // TODO check if MW in string is required
             .withTypedValue("redispatchingValue", redispatchingValue, TypedValue.ACTIVE_POWER)
             .withUntypedValue("countryId", countryId)
             .withSeverity(TypedValue.INFO_SEVERITY)

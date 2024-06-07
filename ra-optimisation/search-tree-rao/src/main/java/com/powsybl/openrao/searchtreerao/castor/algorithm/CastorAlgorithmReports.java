@@ -92,7 +92,7 @@ public final class CastorAlgorithmReports {
 
     public static ReportNode reportPostContingencyPerimeters(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("postContingencyPerimeters", "Post contingency perimeters optimization")
+            .withMessageTemplate("postContingencyPerimeters", "Post-contingency perimeters optimization")
             .withSeverity(INFO_SEVERITY)
             .add();
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
@@ -101,7 +101,7 @@ public final class CastorAlgorithmReports {
 
     public static ReportNode reportPostContingencyPerimetersEnd(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("postContingencyPerimetersEnd", "End of post contingency perimeters optimization")
+            .withMessageTemplate("postContingencyPerimetersEnd", "End of post-contingency perimeters optimization")
             .withSeverity(INFO_SEVERITY)
             .add();
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [end]");
@@ -231,7 +231,7 @@ public final class CastorAlgorithmReports {
         return addedNode;
     }
 
-    public static ReportNode reportPreSecondPreventiveSensitivityAnalysisFailed(ReportNode reportNode) { // TODO not used !
+    public static ReportNode reportPreSecondPreventiveSensitivityAnalysisFailed(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
             .withMessageTemplate("preSecondPreventiveSensitivityAnalysisFailed", "Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed")
             .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -260,11 +260,11 @@ public final class CastorAlgorithmReports {
 
     public static ReportNode reportRangeActionRemovedFromSecondCurative(ReportNode reportNode, String rangeActionId) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("rangeActionRemovedFromSecondCurative", "Range action ${rangeActionId} will not be considered in 2nd preventive RAO as it is also curative (or its network element has an associated CRA)")
+            .withMessageTemplate("rangeActionRemovedFromSecondCurative", "Range action ${rangeActionId} will not be considered in 2nd preventive RAO as it is also auto/curative (or its network element has an associated ARA/CRA)")
             .withUntypedValue("rangeActionId", rangeActionId)
             .withSeverity(TypedValue.WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Range action {} will not be considered in 2nd preventive RAO as it is also curative (or its network element has an associated CRA)", rangeActionId);
+        BUSINESS_WARNS.warn("Range action {} will not be considered in 2nd preventive RAO as it is also auto/curative (or its network element has an associated ARA/CRA)", rangeActionId);
         return addedNode;
     }
 
@@ -311,18 +311,9 @@ public final class CastorAlgorithmReports {
             .add();
     }
 
-    public static ReportNode reportInitialSensitivityFailure(ReportNode reportNode) {
-        ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("initialSensitivityFailure", "Initial sensitivity analysis failed")
-            .withSeverity(TypedValue.ERROR_SEVERITY)
-            .add();
-        BUSINESS_LOGS.error("Initial sensitivity analysis failed");
-        return addedNode;
-    }
-
     public static ReportNode reportNewAutomatonSimulator(ReportNode reportNode) {
         return reportNode.newReportNode()
-            .withMessageTemplate("reportNewAutomatonSimulator", "New  automaton simulator")
+            .withMessageTemplate("reportNewAutomatonSimulator", "New automaton simulator")
             .withSeverity(INFO_SEVERITY)
             .add();
     }
@@ -381,7 +372,7 @@ public final class CastorAlgorithmReports {
         return addedNode;
     }
 
-    public static ReportNode reportSensitivityAnalysisFailed(ReportNode reportNode) {
+    public static ReportNode reportInitialSensitivityAnalysisFailed(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
             .withMessageTemplate("reportSensitivityAnalysisFailed", "Initial sensitivity analysis failed")
             .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -595,5 +586,12 @@ public final class CastorAlgorithmReports {
             .withSeverity(DEBUG_SEVERITY)
             .add();
         TECHNICAL_LOGS.info("Curative state {} has been optimized.", curativeStateId);
+    }
+
+    public static ReportNode reportSensitivityPostPra(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportSensitivityPostPra", "Sensitivity Post PRA")
+            .withSeverity(INFO_SEVERITY)
+            .add();
     }
 }

@@ -37,7 +37,7 @@ public final class RaoReports {
             .withMessageTemplate("reportDisablingHvdcAcEmulation", "The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible. HvdcAcEmulation parameter set to false.")
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible. HvdcAcEmulation parameter set to false.");
+        BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible. HvdcAcEmulation parameter set to false."); // TODO test this
         return addedNode;
     }
 

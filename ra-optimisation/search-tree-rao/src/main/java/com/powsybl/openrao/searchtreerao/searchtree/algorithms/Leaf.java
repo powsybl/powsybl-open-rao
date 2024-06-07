@@ -154,7 +154,7 @@ public class Leaf implements OptimizationResult {
             return;
         }
         SearchTreeReports.reportEvaluatingLeaf(reportNode, this.toString());
-        sensitivityComputer.compute(network);
+        sensitivityComputer.compute(network, reportNode);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             SearchTreeReports.reportFailedEvaluateLeafSensitivityAnalysisFailed(reportNode);
             status = Status.ERROR;

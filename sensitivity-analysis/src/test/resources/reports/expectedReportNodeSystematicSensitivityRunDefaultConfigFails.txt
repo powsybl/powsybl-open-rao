@@ -1,4 +1,2 @@
 + This is a parent report node for report tests
-   + New systematic sensitivity interface
-      Sensitivity analysis failed: no output data available.
-      Sensitivity analysis failed.
+   New systematic sensitivity interface

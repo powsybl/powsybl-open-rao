@@ -1,5 +1,5 @@
 + This is a parent report node for report tests
-   + Systematic sensitivity analysis with applied RA [start]
+   + Systematic sensitivity analysis with applied RA
       ... (1/2) 3 state(s) without RA
       ... (2/2) state with RA Contingency FR1 FR3 - curative
-      Systematic sensitivity analysis with applied RA [end]]
+      End of systematic sensitivity analysis with applied RA

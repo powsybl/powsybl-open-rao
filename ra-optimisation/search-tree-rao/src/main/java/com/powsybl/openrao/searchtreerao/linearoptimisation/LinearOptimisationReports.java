@@ -72,7 +72,7 @@ public final class LinearOptimisationReports {
 
     public static ReportNode reportLinearProblemSolveStart(ReportNode reportNode, int iteration) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportLinearProblemSolveStart", "Iteration ${iteration}: linear optimization [start]")
+            .withMessageTemplate("reportLinearProblemSolveStart", "Iteration ${iteration}: linear optimization")
             .withUntypedValue("iteration", iteration)
             .withSeverity(TRACE_SEVERITY)
             .add();
@@ -82,7 +82,7 @@ public final class LinearOptimisationReports {
 
     public static ReportNode reportLinearProblemSolveEnd(ReportNode reportNode, int iteration) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportLinearProblemSolveEnd", "Iteration ${iteration}: linear optimization [end]")
+            .withMessageTemplate("reportLinearProblemSolveEnd", "End of iteration ${iteration}: linear optimization")
             .withUntypedValue("iteration", iteration)
             .withSeverity(TRACE_SEVERITY)
             .add();

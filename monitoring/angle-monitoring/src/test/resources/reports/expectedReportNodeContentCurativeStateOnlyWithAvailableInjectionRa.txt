@@ -14,8 +14,8 @@
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
             Applying the following remedial action(s) in order to reduce constraints on CNEC "acCur1": Injection L1 - 2
-            + Redispatching -50.0 MW in FR [end]
-               Redispatching -50.0 MW in FR [end]
+            + Redispatching -50.0 MW in FR
+               End of redispatching -50.0 MW in FR
             Redispatching failed: asked=-50.0 MW, applied=0.0 MW
             + Load-flow computation
                + Load flow on network 'phaseShifter'

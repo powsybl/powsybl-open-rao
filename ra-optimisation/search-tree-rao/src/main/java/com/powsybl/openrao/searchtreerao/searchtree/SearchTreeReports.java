@@ -124,7 +124,7 @@ public final class SearchTreeReports {
 
     public static ReportNode reportDepthStart(ReportNode reportNode, int depth) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSearchTreeDepthStart", "Search depth ${depth} [start]")
+            .withMessageTemplate("reportSearchTreeDepthStart", "Search depth ${depth}")
             .withUntypedValue("depth", depth)
             .withSeverity(TRACE_SEVERITY)
             .add();
@@ -134,7 +134,7 @@ public final class SearchTreeReports {
 
     public static ReportNode reportDepthEnd(ReportNode reportNode, int depth) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSearchTreeDepthEnd", "Search depth ${depth} [end]")
+            .withMessageTemplate("reportSearchTreeDepthEnd", "End of search depth ${depth}")
             .withUntypedValue("depth", depth)
             .withSeverity(TRACE_SEVERITY)
             .add();
@@ -203,6 +203,7 @@ public final class SearchTreeReports {
     public static ReportNode generateOneLeafRootReportNode() {
         return ReportNode.newRootReportNode()
             .withMessageTemplate("generateOneLeafRootReportNode", "Optimization of one search tree leaf")
+            .withSeverity(INFO_SEVERITY)
             .build();
     }
 
@@ -211,6 +212,7 @@ public final class SearchTreeReports {
             .withMessageTemplate("reportSearchTreeOneLeaf", "Leaf with network actions ${concatenatedId} and ${remainingLeaves} remaining leaves")
             .withUntypedValue("concatenatedId", concatenatedId)
             .withUntypedValue("remainingLeaves", remainingLeaves)
+            .withSeverity(INFO_SEVERITY)
             .add();
     }
 
@@ -468,5 +470,12 @@ public final class SearchTreeReports {
             .add();
         TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", numberOfEliminatedNetworkActions);
         return addedNode;
+    }
+
+    public static ReportNode reportRunSearchTree(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportRunSearchTree", "Run search tree")
+            .withSeverity(INFO_SEVERITY)
+            .add();
     }
 }

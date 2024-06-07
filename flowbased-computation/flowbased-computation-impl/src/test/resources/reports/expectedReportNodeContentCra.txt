@@ -4,8 +4,8 @@
       Remedial action may be available only on constraint. Condition is not checked but remedial action is applied
       + New systematic sensitivity interface
          New PTDF sensitivity provider
-         + Systematic sensitivity analysis with applied RA [start]
-            ... (1/2) 2 state(s) without RA
-            ... (2/2) state with RA N-1 FR-BE - curative
-            Systematic sensitivity analysis with applied RA [end]]
       RAO result is null: applying all network actions from CRAC.
+      + Systematic sensitivity analysis with applied RA
+         ... (1/2) 2 state(s) without RA
+         ... (2/2) state with RA N-1 FR-BE - curative
+         End of systematic sensitivity analysis with applied RA

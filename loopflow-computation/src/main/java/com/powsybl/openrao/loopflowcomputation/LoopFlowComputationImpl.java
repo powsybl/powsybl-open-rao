@@ -51,7 +51,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
                 .withOutageInstant(outageInstant)
                 .build();
 
-        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
+        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network, reportNode);
 
         return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, flowCnecs, network);
     }

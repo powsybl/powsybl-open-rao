@@ -1,24 +1,23 @@
 + This is a parent report node for report tests
    + Run castor full optimization
       + Initial sensitivity analysis
-         + New sensitivity computer
-            + New systematic sensitivity interface
-               + New range action sensitivity provider
-                  New systematic sensitivity load flow provider
+         + New systematic sensitivity interface
+            + New range action sensitivity provider
                New systematic sensitivity load flow provider
-               Systematic sensitivity analysis [start]
-               + Sensitivity analysis on network 'small-network-2P'
-                  + Network CC0 SC0
-                     + Network info
-                        Network has 15 buses and 26 branches
-                        Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                     AC load flow completed with error (solverStatus=MAX_ITERATION_REACHED, outerloopStatus=STABLE)
-               Systematic sensitivity analysis failed: com.powsybl.commons.PowsyblException: Load flow ended with status MAX_ITERATION_REACHED
-               Sensitivity analysis failed: no output data available.
-               Sensitivity analysis failed.
+            New systematic sensitivity load flow provider
+         + Systematic sensitivity analysis
+            + Sensitivity analysis on network 'small-network-2P'
+               + Network CC0 SC0
+                  + Network info
+                     Network has 15 buses and 26 branches
+                     Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                  AC load flow completed with error (solverStatus=MAX_ITERATION_REACHED, outerloopStatus=STABLE)
+            Systematic sensitivity analysis failed: com.powsybl.commons.PowsyblException: Load flow ended with status MAX_ITERATION_REACHED
+         Sensitivity analysis failed: no output data available.
+         Initial sensitivity analysis failed
          Sensitivity failure : assigning virtual overcost of 100000.0
-         Initial sensitivity analysis: cost = 99000.0 (functional: -1000.0, virtual: 100000.0)
+         + Initial sensitivity analysis: cost = 99000.0 (functional: -1000.0, virtual: 100000.0)
+            Limiting element #01: margin = 1000.00 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+            Limiting element #02: margin = 1200.00 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
          Sensitivity failure : assigning virtual overcost of 100000.0
-         Limiting element #01: margin = 1000.00 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-         Limiting element #02: margin = 1200.00 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
          Initial sensitivity analysis failed

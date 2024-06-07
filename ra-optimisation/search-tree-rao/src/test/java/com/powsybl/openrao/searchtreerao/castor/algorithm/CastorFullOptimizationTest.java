@@ -650,7 +650,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void smallRaoWithGlobal2P() {
+    void smallRaoWithGlobal2P() throws IOException, URISyntaxException {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
@@ -663,7 +663,8 @@ class CastorFullOptimizationTest {
         raoParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
+        ReportNode reportNode = buildNewRootNode();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(reportNode).join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
@@ -672,6 +673,13 @@ class CastorFullOptimizationTest {
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSmallRaoWithGlobal2P.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test

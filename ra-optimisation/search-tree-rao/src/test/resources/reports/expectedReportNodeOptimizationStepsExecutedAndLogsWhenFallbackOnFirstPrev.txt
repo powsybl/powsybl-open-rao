@@ -1,277 +1,131 @@
 + This is a parent report node for report tests
    + Run castor full optimization
       + Initial sensitivity analysis
-         + New sensitivity computer
-            + New systematic sensitivity interface
-               + New range action sensitivity provider
-                  New systematic sensitivity load flow provider
+         + New systematic sensitivity interface
+            + New range action sensitivity provider
                New systematic sensitivity load flow provider
-               Systematic sensitivity analysis [start]
-               + Sensitivity analysis on network 'small-network-2P'
-                  + Network CC0 SC0
-                     + Network info
-                        Network has 15 buses and 26 branches
-                        Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                     Outer loop DistributedSlack
-                     Outer loop VoltageMonitoring
-                     Outer loop ReactiveLimits
-                     AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                     Outer loop DistributedSlack
-                     Outer loop VoltageMonitoring
-                     Outer loop ReactiveLimits
-                     AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-               Systematic sensitivity analysis [end]
-         Systematic sensitivity analysis after preventive remedial actions: cost = 371.8824946911468 (functional: 371.8824946911468, virtual: 0.0)
-         Limiting element #01: margin = -371.88 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-         Limiting element #02: margin = 705.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+            New systematic sensitivity load flow provider
+         + Systematic sensitivity analysis
+            + Sensitivity analysis on network 'small-network-2P'
+               + Network CC0 SC0
+                  + Network info
+                     Network has 15 buses and 26 branches
+                     Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                  Outer loop DistributedSlack
+                  Outer loop VoltageMonitoring
+                  Outer loop ReactiveLimits
+                  AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                  Outer loop DistributedSlack
+                  Outer loop VoltageMonitoring
+                  Outer loop ReactiveLimits
+                  AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+            End of systematic sensitivity analysis
+         + Initial sensitivity analysis: cost = 371.8824946911468 (functional: 371.8824946911468, virtual: 0.0)
+            Limiting element #01: margin = -371.88 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+            Limiting element #02: margin = 705.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
       + Preventive perimeter optimization
          New Search Tree Parameter
-         + Evaluating root leaf
-            Root leaf, cost: -905.64 (functional: -905.64, virtual: 0.00)
-            Limiting element #01: margin = 905.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
-            Limiting element #02: margin = 1025.46 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
-            Linear optimization on root leaf
-            No range actions to optimize
-            Root leaf, cost: -905.64 (functional: -905.64, virtual: 0.00)
-            No range actions activated
-            Limiting element #01: margin = 905.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
-            Limiting element #02: margin = 1025.46 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
-            Evaluating 1 leaves in parallel
-            Search depth 1 [start]
-            Leaves to evaluate: 4
-            + Leaf with network actions open_fr1_fr2 and 4 remaining leaves
-               + New sensitivity computer
-                  + New systematic sensitivity interface
-                     + New range action sensitivity provider
-                        New systematic sensitivity load flow provider
-                     New systematic sensitivity load flow provider
-                     Systematic sensitivity analysis [start]
-                     + Sensitivity analysis on network 'small-network-2P'
-                        + Network CC0 SC0
-                           + Network info
-                              Network has 15 buses and 25 branches
-                              Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                     Systematic sensitivity analysis [end]
-               Evaluating network action(s): open_fr1_fr2
-               Evaluated network action(s): open_fr1_fr2, cost: -919.61 (functional: -919.61, virtual: 0.00)
-               No range actions to optimize
-               Optimized network action(s): open_fr1_fr2, cost: -919.61 (functional: -919.61, virtual: 0.00)
-               Remaining leaves to evaluate: 3
-            + Leaf with network actions open_be1_be4 and 4 remaining leaves
-               + New sensitivity computer
-                  + New systematic sensitivity interface
-                     + New range action sensitivity provider
-                        New systematic sensitivity load flow provider
-                     New systematic sensitivity load flow provider
-                     Systematic sensitivity analysis [start]
-                     + Sensitivity analysis on network 'small-network-2P'
-                        + Network CC0 SC0
-                           + Network info
-                              Network has 16 buses and 26 branches
-                              Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                     Systematic sensitivity analysis [end]
-               Evaluating network action(s): open_be1_be4
-               Evaluated network action(s): open_be1_be4, cost: -845.84 (functional: -845.84, virtual: 0.00)
-               No range actions to optimize
-               Optimized network action(s): open_be1_be4, cost: -845.84 (functional: -845.84, virtual: 0.00)
-               Remaining leaves to evaluate: 2
-            + Leaf with network actions close_de3_de4 and 4 remaining leaves
-               + New sensitivity computer
-                  + New systematic sensitivity interface
-                     + New range action sensitivity provider
-                        New systematic sensitivity load flow provider
-                     New systematic sensitivity load flow provider
-                     Systematic sensitivity analysis [start]
-                     + Sensitivity analysis on network 'small-network-2P'
-                        + Network CC0 SC0
-                           + Network info
-                              Network has 15 buses and 26 branches
-                              Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                     Systematic sensitivity analysis [end]
-               Evaluating network action(s): close_de3_de4
-               Evaluated network action(s): close_de3_de4, cost: -905.64 (functional: -905.64, virtual: 0.00)
-               No range actions to optimize
-               Optimized network action(s): close_de3_de4, cost: -905.64 (functional: -905.64, virtual: 0.00)
-               Remaining leaves to evaluate: 1
-            + Leaf with network actions close_fr1_fr5 and 4 remaining leaves
-               + New sensitivity computer
-                  + New systematic sensitivity interface
-                     + New range action sensitivity provider
-                        New systematic sensitivity load flow provider
-                     New systematic sensitivity load flow provider
-                     Systematic sensitivity analysis [start]
-                     + Sensitivity analysis on network 'small-network-2P'
-                        + Network CC0 SC0
-                           + Network info
-                              Network has 15 buses and 27 branches
-                              Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                     Systematic sensitivity analysis [end]
-               Evaluating network action(s): close_fr1_fr5
-               Evaluated network action(s): close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
-               No range actions to optimize
-               Optimized network action(s): close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
-               Remaining leaves to evaluate: 0
-            Search depth 1 [end]
-            Search depth 1 best leaf: network action(s): close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
-            Search depth 1 best leaf: No range actions activated
-            Limiting element #01: margin = 973.68 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
-            Limiting element #02: margin = 981.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
-            Search depth 2 [start]
-            Leaves to evaluate: 3
-            + Leaf with network actions open_fr1_fr2 and 3 remaining leaves
-               + New sensitivity computer
-                  + New systematic sensitivity interface
-                     + New range action sensitivity provider
-                        New systematic sensitivity load flow provider
-                     New systematic sensitivity load flow provider
-                     Systematic sensitivity analysis [start]
-                     + Sensitivity analysis on network 'small-network-2P'
-                        + Network CC0 SC0
-                           + Network info
-                              Network has 15 buses and 26 branches
-                              Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                     Systematic sensitivity analysis [end]
-               Evaluating network action(s): open_fr1_fr2, close_fr1_fr5
-               Evaluated network action(s): open_fr1_fr2, close_fr1_fr5, cost: -954.23 (functional: -954.23, virtual: 0.00)
-               No range actions to optimize
-               Optimized network action(s): open_fr1_fr2, close_fr1_fr5, cost: -954.23 (functional: -954.23, virtual: 0.00)
-               Remaining leaves to evaluate: 2
-            + Leaf with network actions open_be1_be4 and 3 remaining leaves
-               + New sensitivity computer
-                  + New systematic sensitivity interface
-                     + New range action sensitivity provider
-                        New systematic sensitivity load flow provider
-                     New systematic sensitivity load flow provider
-                     Systematic sensitivity analysis [start]
-                     + Sensitivity analysis on network 'small-network-2P'
-                        + Network CC0 SC0
-                           + Network info
-                              Network has 16 buses and 27 branches
-                              Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                     Systematic sensitivity analysis [end]
-               Evaluating network action(s): open_be1_be4, close_fr1_fr5
-               Evaluated network action(s): open_be1_be4, close_fr1_fr5, cost: -971.17 (functional: -971.17, virtual: 0.00)
-               No range actions to optimize
-               Optimized network action(s): open_be1_be4, close_fr1_fr5, cost: -971.17 (functional: -971.17, virtual: 0.00)
-               Remaining leaves to evaluate: 1
-            + Leaf with network actions close_de3_de4 and 3 remaining leaves
-               + New sensitivity computer
-                  + New systematic sensitivity interface
-                     + New range action sensitivity provider
-                        New systematic sensitivity load flow provider
-                     New systematic sensitivity load flow provider
-                     Systematic sensitivity analysis [start]
-                     + Sensitivity analysis on network 'small-network-2P'
-                        + Network CC0 SC0
-                           + Network info
-                              Network has 15 buses and 27 branches
-                              Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                           Outer loop DistributedSlack
-                           Outer loop VoltageMonitoring
-                           Outer loop ReactiveLimits
-                           AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                     Systematic sensitivity analysis [end]
-               Evaluating network action(s): close_de3_de4, close_fr1_fr5
-               Evaluated network action(s): close_de3_de4, close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
-               No range actions to optimize
-               Optimized network action(s): close_de3_de4, close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
-               Remaining leaves to evaluate: 0
-            No better result found in search depth 2, exiting search tree
-            Search-tree RAO completed with status DEFAULT
-            Best leaf: network action(s): close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
-            Best leaf: No range actions activated
-         + New sensitivity computer
-            + New systematic sensitivity interface
-               + New range action sensitivity provider
-                  New systematic sensitivity load flow provider
-               New systematic sensitivity load flow provider
-         Leaf has already been evaluated
-         Limiting element #01: margin = 973.68 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
-         Limiting element #02: margin = 981.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
-         Limiting element #03: margin = 1182.13 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"
-         Limiting element #04: margin = 3222.72 A, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
-         Scenario "preventive": initial cost = -905.64 (functional: -905.64, virtual: 0.00, detail: null), 1 network action(s) activated : close_fr1_fr5, cost after preventive optimization = -973.68 (functional: -973.68, virtual: 0.00, detail: null)
-         End of preventive perimeter optimization
-      Systematic sensitivity analysis after preventive remedial actions: cost = 536.8238024474103 (functional: 536.8238024474103, virtual: 0.0)
-      Limiting element #01: margin = -536.82 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-      Limiting element #02: margin = 781.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-      + Post contingency perimeters optimization
-         New  automaton simulator
-         + Optimizing scenario post-contingency co1_fr2_fr3_1.
-            Optimizing curative state co1_fr2_fr3_1 - curative.
-            New Search Tree Parameter
+         + Run search tree
             + Evaluating root leaf
-               Root leaf, cost: 536.82 (functional: 536.82, virtual: 0.00)
-               Limiting element #01: margin = -536.82 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-               Limiting element #02: margin = 781.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-               Linear optimization on root leaf
-               No range actions to optimize
-               Root leaf, cost: 536.82 (functional: 536.82, virtual: 0.00)
-               No range actions activated
-               Limiting element #01: margin = -536.82 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-               Limiting element #02: margin = 781.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-               Evaluating 1 leaves in parallel
-               Search depth 1 [start]
-               Leaves to evaluate: 1
-               + Leaf with network actions open_fr1_fr3 and 1 remaining leaves
-                  + New sensitivity computer
+               + New systematic sensitivity interface
+                  + New range action sensitivity provider
+                     New systematic sensitivity load flow provider
+                  New systematic sensitivity load flow provider
+               Leaf has already been evaluated
+               + Root leaf, cost: -905.64 (functional: -905.64, virtual: 0.00)
+                  Limiting element #01: margin = 905.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
+                  Limiting element #02: margin = 1025.46 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
+               + Linear optimization on root leaf
+                  No range actions to optimize
+               + Root leaf, cost: -905.64 (functional: -905.64, virtual: 0.00)
+                  No range actions activated
+                  Limiting element #01: margin = 905.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
+                  Limiting element #02: margin = 1025.46 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
+            + Evaluating 1 leaves in parallel
+               + Search depth 1
+                  Leaves to evaluate: 4
+                  + Leaf with network actions open_fr1_fr2 and 4 remaining leaves
                      + New systematic sensitivity interface
                         + New range action sensitivity provider
                            New systematic sensitivity load flow provider
                         New systematic sensitivity load flow provider
-                        Systematic sensitivity analysis [start]
+                     Evaluating network action(s): open_fr1_fr2
+                     + Systematic sensitivity analysis
+                        + Sensitivity analysis on network 'small-network-2P'
+                           + Network CC0 SC0
+                              + Network info
+                                 Network has 15 buses and 25 branches
+                                 Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                        End of systematic sensitivity analysis
+                     + Evaluated network action(s): open_fr1_fr2, cost: -919.61 (functional: -919.61, virtual: 0.00)
+                        No range actions to optimize
+                        Optimized network action(s): open_fr1_fr2, cost: -919.61 (functional: -919.61, virtual: 0.00)
+                     Remaining leaves to evaluate: 3
+                  + Leaf with network actions open_be1_be4 and 4 remaining leaves
+                     + New systematic sensitivity interface
+                        + New range action sensitivity provider
+                           New systematic sensitivity load flow provider
+                        New systematic sensitivity load flow provider
+                     Evaluating network action(s): open_be1_be4
+                     + Systematic sensitivity analysis
+                        + Sensitivity analysis on network 'small-network-2P'
+                           + Network CC0 SC0
+                              + Network info
+                                 Network has 16 buses and 26 branches
+                                 Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                        End of systematic sensitivity analysis
+                     + Evaluated network action(s): open_be1_be4, cost: -845.84 (functional: -845.84, virtual: 0.00)
+                        No range actions to optimize
+                        Optimized network action(s): open_be1_be4, cost: -845.84 (functional: -845.84, virtual: 0.00)
+                     Remaining leaves to evaluate: 2
+                  + Leaf with network actions close_de3_de4 and 4 remaining leaves
+                     + New systematic sensitivity interface
+                        + New range action sensitivity provider
+                           New systematic sensitivity load flow provider
+                        New systematic sensitivity load flow provider
+                     Evaluating network action(s): close_de3_de4
+                     + Systematic sensitivity analysis
+                        + Sensitivity analysis on network 'small-network-2P'
+                           + Network CC0 SC0
+                              + Network info
+                                 Network has 15 buses and 26 branches
+                                 Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                        End of systematic sensitivity analysis
+                     + Evaluated network action(s): close_de3_de4, cost: -905.64 (functional: -905.64, virtual: 0.00)
+                        No range actions to optimize
+                        Optimized network action(s): close_de3_de4, cost: -905.64 (functional: -905.64, virtual: 0.00)
+                     Remaining leaves to evaluate: 1
+                  + Leaf with network actions close_fr1_fr5 and 4 remaining leaves
+                     + New systematic sensitivity interface
+                        + New range action sensitivity provider
+                           New systematic sensitivity load flow provider
+                        New systematic sensitivity load flow provider
+                     Evaluating network action(s): close_fr1_fr5
+                     + Systematic sensitivity analysis
                         + Sensitivity analysis on network 'small-network-2P'
                            + Network CC0 SC0
                               + Network info
@@ -285,63 +139,200 @@
                               Outer loop VoltageMonitoring
                               Outer loop ReactiveLimits
                               AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-                        Systematic sensitivity analysis [end]
-                  Evaluating network action(s): open_fr1_fr3
-                  Evaluated network action(s): open_fr1_fr3, cost: 536.82 (functional: 536.82, virtual: 0.00)
-                  No range actions to optimize
-                  Optimized network action(s): open_fr1_fr3, cost: 536.82 (functional: 536.82, virtual: 0.00)
-                  Remaining leaves to evaluate: 0
-               No better result found in search depth 1, exiting search tree
-               Search-tree RAO completed with status DEFAULT
-               Best leaf: Root leaf, cost: 536.82 (functional: 536.82, virtual: 0.00)
+                        End of systematic sensitivity analysis
+                     + Evaluated network action(s): close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
+                        No range actions to optimize
+                        Optimized network action(s): close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
+                     Remaining leaves to evaluate: 0
+                  + End of search depth 1
+                     + Search depth 1 best leaf: network action(s): close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
+                        Search depth 1 best leaf: No range actions activated
+                        Limiting element #01: margin = 973.68 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
+                        Limiting element #02: margin = 981.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
+               + Search depth 2
+                  Leaves to evaluate: 3
+                  + Leaf with network actions open_fr1_fr2 and 3 remaining leaves
+                     + New systematic sensitivity interface
+                        + New range action sensitivity provider
+                           New systematic sensitivity load flow provider
+                        New systematic sensitivity load flow provider
+                     Evaluating network action(s): open_fr1_fr2, close_fr1_fr5
+                     + Systematic sensitivity analysis
+                        + Sensitivity analysis on network 'small-network-2P'
+                           + Network CC0 SC0
+                              + Network info
+                                 Network has 15 buses and 26 branches
+                                 Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                        End of systematic sensitivity analysis
+                     + Evaluated network action(s): open_fr1_fr2, close_fr1_fr5, cost: -954.23 (functional: -954.23, virtual: 0.00)
+                        No range actions to optimize
+                        Optimized network action(s): open_fr1_fr2, close_fr1_fr5, cost: -954.23 (functional: -954.23, virtual: 0.00)
+                     Remaining leaves to evaluate: 2
+                  + Leaf with network actions open_be1_be4 and 3 remaining leaves
+                     + New systematic sensitivity interface
+                        + New range action sensitivity provider
+                           New systematic sensitivity load flow provider
+                        New systematic sensitivity load flow provider
+                     Evaluating network action(s): open_be1_be4, close_fr1_fr5
+                     + Systematic sensitivity analysis
+                        + Sensitivity analysis on network 'small-network-2P'
+                           + Network CC0 SC0
+                              + Network info
+                                 Network has 16 buses and 27 branches
+                                 Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                        End of systematic sensitivity analysis
+                     + Evaluated network action(s): open_be1_be4, close_fr1_fr5, cost: -971.17 (functional: -971.17, virtual: 0.00)
+                        No range actions to optimize
+                        Optimized network action(s): open_be1_be4, close_fr1_fr5, cost: -971.17 (functional: -971.17, virtual: 0.00)
+                     Remaining leaves to evaluate: 1
+                  + Leaf with network actions close_de3_de4 and 3 remaining leaves
+                     + New systematic sensitivity interface
+                        + New range action sensitivity provider
+                           New systematic sensitivity load flow provider
+                        New systematic sensitivity load flow provider
+                     Evaluating network action(s): close_de3_de4, close_fr1_fr5
+                     + Systematic sensitivity analysis
+                        + Sensitivity analysis on network 'small-network-2P'
+                           + Network CC0 SC0
+                              + Network info
+                                 Network has 15 buses and 27 branches
+                                 Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                              Outer loop DistributedSlack
+                              Outer loop VoltageMonitoring
+                              Outer loop ReactiveLimits
+                              AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                        End of systematic sensitivity analysis
+                     + Evaluated network action(s): close_de3_de4, close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
+                        No range actions to optimize
+                        Optimized network action(s): close_de3_de4, close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
+                     Remaining leaves to evaluate: 0
+                  No better result found in search depth 2, exiting search tree
+            Search-tree RAO completed with status DEFAULT
+            + Best leaf: network action(s): close_fr1_fr5, cost: -973.68 (functional: -973.68, virtual: 0.00)
                Best leaf: No range actions activated
-            + New sensitivity computer
-               + New systematic sensitivity interface
-                  + New range action sensitivity provider
-                     New systematic sensitivity load flow provider
-                  New systematic sensitivity load flow provider
-            Leaf has already been evaluated
+               Limiting element #01: margin = 973.68 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
+               Limiting element #02: margin = 981.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
+               Limiting element #03: margin = 1182.13 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"
+               Limiting element #04: margin = 3222.72 A, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
+            Scenario "preventive": initial cost = -905.64 (functional: -905.64, virtual: 0.00, detail: null), 1 network action(s) activated : close_fr1_fr5, cost after preventive optimization = -973.68 (functional: -973.68, virtual: 0.00, detail: null)
+         End of preventive perimeter optimization
+      + Sensitivity Post PRA
+         + New systematic sensitivity interface
+            + New range action sensitivity provider
+               New systematic sensitivity load flow provider
+            New systematic sensitivity load flow provider
+         + Systematic sensitivity analysis
+            + Sensitivity analysis on network 'small-network-2P'
+               + Network CC0 SC0
+                  + Network info
+                     Network has 15 buses and 27 branches
+                     Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                  Outer loop DistributedSlack
+                  Outer loop VoltageMonitoring
+                  Outer loop ReactiveLimits
+                  AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                  Outer loop DistributedSlack
+                  Outer loop VoltageMonitoring
+                  Outer loop ReactiveLimits
+                  AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+            End of systematic sensitivity analysis
+         + Systematic sensitivity analysis after preventive remedial actions: cost = 536.8238024474103 (functional: 536.8238024474103, virtual: 0.0)
             Limiting element #01: margin = -536.82 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
             Limiting element #02: margin = 781.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-            Limiting element #03: margin = 982.13 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"
-            Scenario "co1_fr2_fr3_1": initial cost = 536.82 (functional: 536.82, virtual: 0.00, detail: null), no remedial actions activated, cost after curative optimization = 536.82 (functional: 536.82, virtual: 0.00, detail: null)
+      + Post-contingency perimeters optimization
+         New automaton simulator
+         + Optimizing scenario post-contingency co1_fr2_fr3_1.
+            Optimizing curative state co1_fr2_fr3_1 - curative.
+            New Search Tree Parameter
+            + Run search tree
+               + Evaluating root leaf
+                  + New systematic sensitivity interface
+                     + New range action sensitivity provider
+                        New systematic sensitivity load flow provider
+                     New systematic sensitivity load flow provider
+                  Leaf has already been evaluated
+                  + Root leaf, cost: 536.82 (functional: 536.82, virtual: 0.00)
+                     Limiting element #01: margin = -536.82 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+                     Limiting element #02: margin = 781.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+                  + Linear optimization on root leaf
+                     No range actions to optimize
+                  + Root leaf, cost: 536.82 (functional: 536.82, virtual: 0.00)
+                     No range actions activated
+                     Limiting element #01: margin = -536.82 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+                     Limiting element #02: margin = 781.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+               + Evaluating 1 leaves in parallel
+                  + Search depth 1
+                     Leaves to evaluate: 1
+                     + Leaf with network actions open_fr1_fr3 and 1 remaining leaves
+                        + New systematic sensitivity interface
+                           + New range action sensitivity provider
+                              New systematic sensitivity load flow provider
+                           New systematic sensitivity load flow provider
+                        Evaluating network action(s): open_fr1_fr3
+                        + Systematic sensitivity analysis
+                           + Sensitivity analysis on network 'small-network-2P'
+                              + Network CC0 SC0
+                                 + Network info
+                                    Network has 15 buses and 27 branches
+                                    Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+                                 Outer loop DistributedSlack
+                                 Outer loop VoltageMonitoring
+                                 Outer loop ReactiveLimits
+                                 AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                                 Outer loop DistributedSlack
+                                 Outer loop VoltageMonitoring
+                                 Outer loop ReactiveLimits
+                                 AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+                           End of systematic sensitivity analysis
+                        + Evaluated network action(s): open_fr1_fr3, cost: 536.82 (functional: 536.82, virtual: 0.00)
+                           No range actions to optimize
+                           Optimized network action(s): open_fr1_fr3, cost: 536.82 (functional: 536.82, virtual: 0.00)
+                        Remaining leaves to evaluate: 0
+                     No better result found in search depth 1, exiting search tree
+               Search-tree RAO completed with status DEFAULT
+               + Best leaf: Root leaf, cost: 536.82 (functional: 536.82, virtual: 0.00)
+                  Best leaf: No range actions activated
+                  Limiting element #01: margin = -536.82 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+                  Limiting element #02: margin = 781.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+                  Limiting element #03: margin = 982.13 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"
+               Scenario "co1_fr2_fr3_1": initial cost = 536.82 (functional: 536.82, virtual: 0.00, detail: null), no remedial actions activated, cost after curative optimization = 536.82 (functional: 536.82, virtual: 0.00, detail: null)
             Curative state co1_fr2_fr3_1 - curative has been optimized.
             Remaining post-contingency scenarios to optimize: 0
-         End of post contingency perimeters optimization
-      Merging preventive and post-contingency RAO results
-      Limiting element #01: margin = -536.82 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-      Limiting element #02: margin = 781.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-      Limiting element #03: margin = 973.68 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
-      Limiting element #04: margin = 981.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
-      Limiting element #05: margin = 982.13 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"
-      Limiting element #06: margin = 1182.13 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"
-      Limiting element #07: margin = 3222.72 A, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
-      RAO has increased the overall cost from 371.8824946911468 (functional: 371.8824946911468, virtual: 0.0) to 536.8238024474103 (functional: 536.8238024474103, virtual: 0.0). Falling back to initial solution:
-      Limiting element #01: margin = -371.88 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-      Limiting element #02: margin = 705.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-      Limiting element #03: margin = 905.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
-      Limiting element #04: margin = 1025.46 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
-      Limiting element #05: margin = 1048.91 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"
-      Limiting element #06: margin = 1248.91 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"
-      Limiting element #07: margin = 3113.94 A, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
+         End of post-contingency perimeters optimization
+      + Merging preventive and post-contingency RAO results
+         Limiting element #01: margin = -536.82 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+         Limiting element #02: margin = 781.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+         Limiting element #03: margin = 973.68 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
+         Limiting element #04: margin = 981.52 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
+         Limiting element #05: margin = 982.13 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"
+         Limiting element #06: margin = 1182.13 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"
+         Limiting element #07: margin = 3222.72 A, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
+      + RAO has increased the overall cost from 371.8824946911468 (functional: 371.8824946911468, virtual: 0.0) to 536.8238024474103 (functional: 536.8238024474103, virtual: 0.0). Falling back to initial solution:
+         Limiting element #01: margin = -371.88 A, element FFR1AA1  FFR4AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
+         Limiting element #02: margin = 705.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+         Limiting element #03: margin = 905.64 A, element FFR3AA1  FFR5AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"
+         Limiting element #04: margin = 1025.46 A, element FFR4AA1  DDE1AA1  1 at state preventive, CNEC ID = "FFR4AA1  DDE1AA1  1 - preventive"
+         Limiting element #05: margin = 1048.91 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - curative, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"
+         Limiting element #06: margin = 1248.91 A, element FFR4AA1  DDE1AA1  1 at state co1_fr2_fr3_1 - outage, CNEC ID = "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"
+         Limiting element #07: margin = 3113.94 A, element NNL2AA1  BBE3AA1  1 at state preventive, CNEC ID = "NNL2AA1  BBE3AA1  1 - preventive"
       Cost before RAO = 371.8824946911468 (functional: 371.8824946911468, virtual: 0.0), cost after RAO = 371.8824946911468 (functional: 371.8824946911468, virtual: 0.0)
-   + New sensitivity computer
-      + New systematic sensitivity interface
-         + New range action sensitivity provider
-            New systematic sensitivity load flow provider
-         New systematic sensitivity load flow provider
-         Systematic sensitivity analysis [start]
-         + Sensitivity analysis on network 'small-network-2P'
-            + Network CC0 SC0
-               + Network info
-                  Network has 15 buses and 27 branches
-                  Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-               Outer loop DistributedSlack
-               Outer loop VoltageMonitoring
-               Outer loop ReactiveLimits
-               AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-               Outer loop DistributedSlack
-               Outer loop VoltageMonitoring
-               Outer loop ReactiveLimits
-               AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
-         Systematic sensitivity analysis [end]

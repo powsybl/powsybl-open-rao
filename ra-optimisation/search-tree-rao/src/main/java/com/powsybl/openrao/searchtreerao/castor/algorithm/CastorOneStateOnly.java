@@ -73,7 +73,7 @@ public class CastorOneStateOnly {
         PrePerimeterResult initialResults;
         initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac(), raoReportNode);
         if (initialResults.getSensitivityStatus() == ComputationStatus.FAILURE) {
-            CastorAlgorithmReports.reportSensitivityAnalysisFailed(raoReportNode);
+            CastorAlgorithmReports.reportInitialSensitivityAnalysisFailed(raoReportNode);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl());
         }
 

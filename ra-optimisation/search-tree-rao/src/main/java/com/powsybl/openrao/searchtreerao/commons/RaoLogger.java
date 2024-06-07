@@ -56,23 +56,23 @@ public final class RaoLogger {
 
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
             sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus(), reportNode);
-        RaoCommonsReports.reportSensitivityAnalysisResults(reportNode,
-                prefix,
-                prePerimeterObjectiveFunctionResult.getCost(),
-                prePerimeterObjectiveFunctionResult.getFunctionalCost(),
-                prePerimeterObjectiveFunctionResult.getVirtualCost());
+        ReportNode reportSensitivityAnalysisResults = RaoCommonsReports.reportSensitivityAnalysisResults(reportNode,
+            prefix,
+            prePerimeterObjectiveFunctionResult.getCost(),
+            prePerimeterObjectiveFunctionResult.getFunctionalCost(),
+            prePerimeterObjectiveFunctionResult.getVirtualCost());
 
         RaoLogger.logMostLimitingElementsResults(
                 sensitivityAnalysisResult,
             raoParameters.getObjectiveFunctionParameters().getType(),
             numberOfLoggedLimitingElements,
-            reportNode, TypedValue.INFO_SEVERITY);
+            reportSensitivityAnalysisResults, TypedValue.INFO_SEVERITY);
     }
 
-    public static void logRangeActions(Leaf leaf,
-                                       OptimizationPerimeter optimizationContext,
-                                       String prefix,
-                                       ReportNode reportNode) {
+    public static ReportNode logRangeActions(Leaf leaf,
+                                             OptimizationPerimeter optimizationContext,
+                                             String prefix,
+                                             ReportNode reportNode) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
@@ -86,9 +86,9 @@ public final class RaoLogger {
 
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
         if (isRangeActionSetPointEmpty) {
-            RaoCommonsReports.reportSearchTreeOneLeafNoRangeActionActivated(reportNode, prefix);
+            return RaoCommonsReports.reportSearchTreeOneLeafNoRangeActionActivated(reportNode, prefix);
         } else {
-            RaoCommonsReports.reportSearchTreeOneLeafRangeActionActivated(reportNode, prefix, rangeActionSetpoints.stream().sorted().collect(Collectors.joining(", ")));
+            return RaoCommonsReports.reportSearchTreeOneLeafRangeActionActivated(reportNode, prefix, rangeActionSetpoints.stream().sorted().collect(Collectors.joining(", ")));
         }
     }
 

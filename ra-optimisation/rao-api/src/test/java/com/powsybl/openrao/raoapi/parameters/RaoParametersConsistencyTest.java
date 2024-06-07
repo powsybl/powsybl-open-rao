@@ -22,6 +22,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class RaoParametersConsistencyTest {
     private final RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
 
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     @Test
     void testSetBoundariesFromCountryCodes() {
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}"));
@@ -69,37 +73,59 @@ class RaoParametersConsistencyTest {
 
     @Test
     void testRelativeNetworkActionMinimumImpactThresholdBounds() {
-        parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(-0.5);
-        assertEquals(0, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), 1e-6);
-        parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(1.1);
-        assertEquals(1, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), 1e-6);
+        ReportNode reportNode = buildNewRootNode();
+        RaoParameters localParameters = new RaoParameters(reportNode);
+        localParameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(-0.5);
+        assertEquals(0, localParameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), 1e-6);
+        localParameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(1.1);
+        assertEquals(1, localParameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), 1e-6);
+        assertEquals(2, reportNode.getChildren().size());
+        assertEquals("The value -0.5 provided for relative minimum impact threshold is smaller than 0. It will be set to 0.", reportNode.getChildren().get(0).getMessage());
+        assertEquals(0, reportNode.getChildren().get(0).getChildren().size());
+        assertEquals("The value 1.1 provided for relative minimum impact threshold is greater than 1. It will be set to 1.", reportNode.getChildren().get(1).getMessage());
+        assertEquals(0, reportNode.getChildren().get(1).getChildren().size());
     }
 
     @Test
     void testMaxNumberOfBoundariesForSkippingNetworkActionsBounds() {
-        TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
+        ReportNode reportNode = buildNewRootNode();
+        RaoParameters localParameters = new RaoParameters(reportNode);
+        TopoOptimizationParameters topoOptimizationParameters = localParameters.getTopoOptimizationParameters();
         topoOptimizationParameters.setMaxNumberOfBoundariesForSkippingActions(300);
         assertEquals(300, topoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions());
         topoOptimizationParameters.setMaxNumberOfBoundariesForSkippingActions(-2);
         assertEquals(0, topoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions());
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("The value -2 provided for max number of boundaries for skipping actions is smaller than 0. It will be set to 0.", reportNode.getChildren().get(0).getMessage());
+        assertEquals(0, reportNode.getChildren().get(0).getChildren().size());
     }
 
     @Test
     void testNegativeCurativeRaoMinObjImprovement() {
-        ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
+        ReportNode reportNode = buildNewRootNode();
+        RaoParameters localParameters = new RaoParameters(reportNode);
+        ObjectiveFunctionParameters objectiveFunctionParameters = localParameters.getObjectiveFunctionParameters();
         objectiveFunctionParameters.setCurativeMinObjImprovement(100);
         assertEquals(100, objectiveFunctionParameters.getCurativeMinObjImprovement(), 1e-6);
         objectiveFunctionParameters.setCurativeMinObjImprovement(-100);
         assertEquals(100, objectiveFunctionParameters.getCurativeMinObjImprovement(), 1e-6);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("The value -100.0 provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + 100.0", reportNode.getChildren().get(0).getMessage());
+        assertEquals(0, reportNode.getChildren().get(0).getChildren().size());
     }
 
     @Test
     void testNegativeSensitivityFailureOverCost() {
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
+        ReportNode reportNode = buildNewRootNode();
+        RaoParameters localParameters = new RaoParameters(reportNode);
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = localParameters.getLoadFlowAndSensitivityParameters();
         loadFlowAndSensitivityParameters.setSensitivityFailureOvercost(60000);
         assertEquals(60000, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), 1e-6);
         loadFlowAndSensitivityParameters.setSensitivityFailureOvercost(-20000);
         assertEquals(20000, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), 1e-6);
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("The value -20000.0 for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer to make the loadflow diverge. Thus, it will be set to + 20000.0", reportNode.getChildren().get(0).getMessage());
+        assertEquals(0, reportNode.getChildren().get(0).getChildren().size());
     }
 
     @Test

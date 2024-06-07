@@ -233,7 +233,7 @@ class SearchTreeTest {
         when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(sensitivityComputer.getBranchResult(network)).thenReturn(null);
-        Mockito.doNothing().when(sensitivityComputer).compute(network);
+        Mockito.doNothing().when(sensitivityComputer).compute(network, ReportNode.NO_OP);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(objectiveFunction.evaluate(any(), any(), any(), any(), any())).thenReturn(null);
         leaf.evaluate(objectiveFunction, sensitivityComputer, ReportNode.NO_OP);
@@ -503,7 +503,7 @@ class SearchTreeTest {
         assertEquals("[INFO] Could not evaluate leaf: root leaf description", business.list.get(0).toString());
         assertEquals("[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)", business.list.get(1).toString());
 
-        ReportNode evaluationReportNode = reportNode.getChildren().get(0);
+        ReportNode evaluationReportNode = reportNode.getChildren().get(0).getChildren().get(0);
         assertEquals("Evaluating root leaf", evaluationReportNode.getMessage());
         assertEquals("Could not evaluate leaf: root leaf description", evaluationReportNode.getChildren().get(0).getMessage());
         assertEquals("Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)", evaluationReportNode.getChildren().get(1).getMessage());
@@ -538,7 +538,7 @@ class SearchTreeTest {
         assertEquals("[DEBUG] Evaluating root leaf", technical.list.get(0).toString());
         assertEquals("[INFO] Could not evaluate leaf: root leaf description", technical.list.get(1).toString());
         assertEquals("[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)", business.list.get(0).toString());
-        ReportNode evaluationReportNode = reportNode.getChildren().get(0);
+        ReportNode evaluationReportNode = reportNode.getChildren().get(0).getChildren().get(0);
         assertEquals("Evaluating root leaf", evaluationReportNode.getMessage());
         assertEquals("Could not evaluate leaf: root leaf description", evaluationReportNode.getChildren().get(0).getMessage());
         assertEquals("Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00, detail: null), no remedial actions activated, cost after preventive optimization = 0.00 (functional: 0.00, virtual: 0.00, detail: null)", evaluationReportNode.getChildren().get(1).getMessage());

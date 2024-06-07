@@ -37,7 +37,7 @@ final class SystematicSensitivityAdapter {
                                                       String sensitivityProvider,
                                                       Instant outageInstant,
                                                       ReportNode reportNode) {
-        SensitivityAnalysisReports.reportSystematicSensitivityAnalysisStart(reportNode);
+        ReportNode sensitivityAnalysisReportNode = SensitivityAnalysisReports.reportSystematicSensitivityAnalysisStart(reportNode);
         SensitivityAnalysisResult result;
         try {
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
@@ -47,12 +47,12 @@ final class SystematicSensitivityAdapter {
                     cnecSensitivityProvider.getVariableSets(),
                     sensitivityComputationParameters,
                     LocalComputationManager.getDefault(), // TODO check if this is ok ?
-                    reportNode);
+                    sensitivityAnalysisReportNode);
         } catch (Exception e) {
-            SensitivityAnalysisReports.reportSystematicSensitivityAnalysisFailed(reportNode, e.getMessage());
+            SensitivityAnalysisReports.reportSystematicSensitivityAnalysisFailed(sensitivityAnalysisReportNode, e.getMessage());
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
-        SensitivityAnalysisReports.reportSystematicSensitivityAnalysisEnd(reportNode);
+        SensitivityAnalysisReports.reportSystematicSensitivityAnalysisEnd(sensitivityAnalysisReportNode);
         return new SystematicSensitivityResult().completeData(result, outageInstant.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 

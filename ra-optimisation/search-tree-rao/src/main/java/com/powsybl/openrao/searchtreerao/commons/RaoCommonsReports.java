@@ -45,7 +45,8 @@ public final class RaoCommonsReports {
 
     public static ReportNode reportSensitivityAnalysisResults(ReportNode reportNode, String prefix, double cost, double functionalCost, double virtualCost) {
         ReportNode addedNode = reportNode.newReportNode()
-                .withMessageTemplate("sensitivityAnalysisResults", prefix + "cost = ${cost} (functional: ${functionalCost}, virtual: ${virtualCost})")
+                .withMessageTemplate("sensitivityAnalysisResults", "${prefix}cost = ${cost} (functional: ${functionalCost}, virtual: ${virtualCost})")
+                .withUntypedValue("prefix", prefix)
                 .withUntypedValue("cost", cost)
                 .withUntypedValue("functionalCost", functionalCost)
                 .withUntypedValue("virtualCost", virtualCost)

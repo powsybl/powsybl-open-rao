@@ -3,7 +3,7 @@
       RAO result is null: applying all network actions from CRAC.
       + New systematic sensitivity interface
          New PTDF sensitivity provider
-         Systematic sensitivity analysis [start]
-         Systematic sensitivity analysis [end]
       RAO result is null: applying all network actions from CRAC.
       Remedial action may be available only on constraint. Condition is not checked but remedial action is applied
+      + Systematic sensitivity analysis
+         End of systematic sensitivity analysis

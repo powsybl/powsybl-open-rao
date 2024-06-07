@@ -55,11 +55,6 @@ public final class SystematicSensitivityInterface {
     private Instant outageInstant;
 
     /**
-     * The report node
-     */
-    private ReportNode reportNode;
-
-    /**
      * Builder
      */
     public static final class SystematicSensitivityInterfaceBuilder {
@@ -138,7 +133,6 @@ public final class SystematicSensitivityInterface {
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
             systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
             systematicSensitivityInterface.outageInstant = outageInstant;
-            systematicSensitivityInterface.reportNode = reportNode;
             return systematicSensitivityInterface;
         }
     }
@@ -155,8 +149,8 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis on the given network and crac, and associates the
      * SystematicSensitivityResult to the given network variant.
      */
-    public SystematicSensitivityResult run(Network network) {
-        SystematicSensitivityResult result = runWithConfig(network);
+    public SystematicSensitivityResult run(Network network, ReportNode reportNode) {
+        SystematicSensitivityResult result = runWithConfig(network, reportNode);
         if (!result.isSuccess()) {
             SensitivityAnalysisReports.reportSensitivityAnalysisFailed(reportNode);
         }
@@ -167,7 +161,7 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityResult runWithConfig(Network network) {
+    private SystematicSensitivityResult runWithConfig(Network network, ReportNode reportNode) {
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
                 .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, parameters, sensitivityProvider, outageInstant, reportNode);
 

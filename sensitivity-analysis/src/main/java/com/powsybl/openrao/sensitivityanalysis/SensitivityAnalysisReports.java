@@ -28,13 +28,6 @@ public final class SensitivityAnalysisReports {
 
     }
 
-    public static ReportNode reportNewSensitivityComputer(ReportNode reportNode) {
-        return reportNode.newReportNode()
-            .withMessageTemplate("reportNewSensitivityComputer", "New sensitivity computer")
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
-    }
-
     public static ReportNode reportSensitivityAnalysisFailedNoOutputDataAvailable(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
             .withMessageTemplate("reportSensitivityAnalysisFailedNoOutputDataAvailable", "Sensitivity analysis failed: no output data available.")
@@ -46,7 +39,7 @@ public final class SensitivityAnalysisReports {
 
     public static ReportNode reportSystematicSensitivityAnalysisWithAppliedRAStart(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSystematicSensitivityAnalysisWithAppliedRAStart", "Systematic sensitivity analysis with applied RA [start]")
+            .withMessageTemplate("reportSystematicSensitivityAnalysisWithAppliedRAStart", "Systematic sensitivity analysis with applied RA")
             .withSeverity(TypedValue.TRACE_SEVERITY)
             .add();
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
@@ -78,7 +71,7 @@ public final class SensitivityAnalysisReports {
 
     public static ReportNode reportSystematicSensitivityAnalysisWithAppliedRAEnd(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSystematicSensitivityAnalysisWithAppliedRAEnd", "Systematic sensitivity analysis with applied RA [end]]")
+            .withMessageTemplate("reportSystematicSensitivityAnalysisWithAppliedRAEnd", "End of systematic sensitivity analysis with applied RA")
             .withSeverity(TypedValue.TRACE_SEVERITY)
             .add();
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [end]");
@@ -87,7 +80,7 @@ public final class SensitivityAnalysisReports {
 
     public static ReportNode reportSystematicSensitivityAnalysisStart(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSystematicSensitivityAnalysisStart", "Systematic sensitivity analysis [start]")
+            .withMessageTemplate("reportSystematicSensitivityAnalysisStart", "Systematic sensitivity analysis")
             .withSeverity(TypedValue.TRACE_SEVERITY)
             .add();
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
@@ -106,7 +99,7 @@ public final class SensitivityAnalysisReports {
 
     public static ReportNode reportSystematicSensitivityAnalysisEnd(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSystematicSensitivityAnalysisEnd", "Systematic sensitivity analysis [end]")
+            .withMessageTemplate("reportSystematicSensitivityAnalysisEnd", "End of systematic sensitivity analysis")
             .withSeverity(TypedValue.TRACE_SEVERITY)
             .add();
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");

@@ -88,7 +88,7 @@ class PrePerimeterSensitivityAnalysisTest {
     private void mockSystematicSensitivityInterface(boolean withPtdf, boolean withLf) {
         SystematicSensitivityResult sensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SystematicSensitivityInterface sensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
-        when(sensitivityInterface.run(network)).thenReturn(sensitivityResult);
+        when(sensitivityInterface.run(network, ReportNode.NO_OP)).thenReturn(sensitivityResult);
         when(sensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
         when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any(), any(), any())).thenReturn(sensitivityInterface);
     }

@@ -287,7 +287,7 @@ class LeafTest {
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        Mockito.doNothing().when(sensitivityComputer).compute(network);
+        Mockito.doNothing().when(sensitivityComputer).compute(network, ReportNode.NO_OP);
 
         rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, ReportNode.NO_OP);
 
@@ -315,7 +315,7 @@ class LeafTest {
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        Mockito.doNothing().when(sensitivityComputer).compute(network);
+        Mockito.doNothing().when(sensitivityComputer).compute(network, ReportNode.NO_OP);
         ReportNode reportNode1 = buildNewRootNode();
         rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer, reportNode1);
         List<ReportNode> reportNode1Children = reportNode1.getChildren();

@@ -100,48 +100,49 @@ public class SearchTree {
 
     public CompletableFuture<OptimizationResult> run(ReportNode reportNode) {
 
+        ReportNode searchTreeReportNode = SearchTreeReports.reportRunSearchTree(reportNode);
         initLeaves(input);
-        ReportNode rootLeafReportNode = SearchTreeReports.reportRootLeafEvaluation(reportNode);
-        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode);
+        ReportNode rootLeafEvaluationReportNode = SearchTreeReports.reportRootLeafEvaluation(searchTreeReportNode);
+        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, rootLeafEvaluationReportNode), rootLeafEvaluationReportNode);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
-            SearchTreeReports.reportLeafEvaluationError(rootLeafReportNode, rootLeaf.toString(), reportSeverity());
-            logOptimizationSummary(rootLeaf, rootLeafReportNode);
+            SearchTreeReports.reportLeafEvaluationError(rootLeafEvaluationReportNode, rootLeaf.toString(), reportSeverity());
+            logOptimizationSummary(rootLeaf, rootLeafEvaluationReportNode);
             rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
-        } else if (stopCriterionReached(rootLeaf, rootLeafReportNode)) {
-            SearchTreeReports.reportStopCriterionReached(rootLeafReportNode, rootLeaf.toString(), reportSeverity());
-            RaoLogger.logMostLimitingElementsResults(rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE, rootLeafReportNode, reportSeverity());
-            logOptimizationSummary(rootLeaf, rootLeafReportNode);
+        } else if (stopCriterionReached(rootLeaf, rootLeafEvaluationReportNode)) {
+            SearchTreeReports.reportStopCriterionReached(rootLeafEvaluationReportNode, rootLeaf.toString(), reportSeverity());
+            RaoLogger.logMostLimitingElementsResults(rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE, rootLeafEvaluationReportNode, reportSeverity());
+            logOptimizationSummary(rootLeaf, rootLeafEvaluationReportNode);
             rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
-        SearchTreeReports.reportLeaf(rootLeafReportNode, rootLeaf.toString(), reportSeverity());
-        RaoLogger.logMostLimitingElementsResults(rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE, rootLeafReportNode, TypedValue.DEBUG_SEVERITY);
+        ReportNode reportNodeLeaf = SearchTreeReports.reportLeaf(rootLeafEvaluationReportNode, rootLeaf.toString(), reportSeverity());
+        RaoLogger.logMostLimitingElementsResults(rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE, reportNodeLeaf, TypedValue.DEBUG_SEVERITY);
 
-        SearchTreeReports.reportLinearOptimization(rootLeafReportNode);
-        optimizeLeaf(rootLeaf, rootLeafReportNode);
+        ReportNode rootLeafLinearOptimizationReportNode = SearchTreeReports.reportLinearOptimization(rootLeafEvaluationReportNode);
+        optimizeLeaf(rootLeaf, rootLeafLinearOptimizationReportNode);
 
-        SearchTreeReports.reportLeaf(rootLeafReportNode, rootLeaf.toString(), reportSeverity());
+        ReportNode rootLeafReportNode = SearchTreeReports.reportLeaf(rootLeafEvaluationReportNode, rootLeaf.toString(), reportSeverity());
         RaoLogger.logRangeActions(optimalLeaf, input.getOptimizationPerimeter(), "", rootLeafReportNode);
         RaoLogger.logMostLimitingElementsResults(optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE, rootLeafReportNode, reportSeverity());
         logVirtualCostInformation(rootLeaf, "", rootLeafReportNode);
 
-        if (stopCriterionReached(rootLeaf, rootLeafReportNode)) {
-            logOptimizationSummary(rootLeaf, rootLeafReportNode);
+        if (stopCriterionReached(rootLeaf, rootLeafEvaluationReportNode)) {
+            logOptimizationSummary(rootLeaf, rootLeafEvaluationReportNode);
             rootLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
-        iterateOnTree(rootLeafReportNode);
+        iterateOnTree(searchTreeReportNode);
 
-        SearchTreeReports.reportRaoCompleted(rootLeafReportNode, optimalLeaf.getSensitivityStatus());
+        SearchTreeReports.reportRaoCompleted(searchTreeReportNode, optimalLeaf.getSensitivityStatus());
 
-        SearchTreeReports.reportBestLeaf(rootLeafReportNode, optimalLeaf.toString());
-        RaoLogger.logRangeActions(optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ", rootLeafReportNode);
-        RaoLogger.logMostLimitingElementsResults(optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE, reportNode, TypedValue.DEBUG_SEVERITY);
+        ReportNode bestLeafReportNode = SearchTreeReports.reportBestLeaf(searchTreeReportNode, optimalLeaf.toString());
+        RaoLogger.logRangeActions(optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ", bestLeafReportNode);
+        RaoLogger.logMostLimitingElementsResults(optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE, bestLeafReportNode, TypedValue.DEBUG_SEVERITY);
 
-        logOptimizationSummary(optimalLeaf, reportNode);
+        logOptimizationSummary(optimalLeaf, searchTreeReportNode);
         optimalLeaf.finalizeOptimization();
         return CompletableFuture.completedFuture(optimalLeaf);
     }
@@ -162,39 +163,39 @@ public class SearchTree {
         logVirtualCostInformation(optimalLeaf, "", reportNode);
     }
 
-    private void iterateOnTree(ReportNode rootLeafReportNode) {
+    private void iterateOnTree(ReportNode reportNode) {
         int depth = 0;
         boolean hasImproved = true;
         if (input.getOptimizationPerimeter().getNetworkActions().isEmpty()) {
-            SearchTreeReports.reportNoNetworkActionAvailable(rootLeafReportNode, reportSeverity());
+            SearchTreeReports.reportNoNetworkActionAvailable(reportNode, reportSeverity());
             return;
         }
 
         int leavesInParallel = Math.min(input.getOptimizationPerimeter().getNetworkActions().size(), parameters.getTreeParameters().leavesInParallel());
-        SearchTreeReports.reportLeavesInParallel(rootLeafReportNode, leavesInParallel);
+        ReportNode leavesInParallelReportNode = SearchTreeReports.reportLeavesInParallel(reportNode, leavesInParallel);
         try (AbstractNetworkPool networkPool = makeOpenRaoNetworkPool(input.getNetwork(), leavesInParallel)) {
-            while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf, rootLeafReportNode)) {
-                SearchTreeReports.reportDepthStart(rootLeafReportNode, depth + 1);
+            while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf, leavesInParallelReportNode)) {
+                ReportNode depthReportNode = SearchTreeReports.reportDepthStart(leavesInParallelReportNode, depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
-                updateOptimalLeafWithNextDepthBestLeaf(networkPool, rootLeafReportNode);
+                updateOptimalLeafWithNextDepthBestLeaf(networkPool, depthReportNode);
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
-                    SearchTreeReports.reportDepthEnd(rootLeafReportNode, depth + 1);
+                    ReportNode endDepthReportNode = SearchTreeReports.reportDepthEnd(depthReportNode, depth + 1);
 
-                    SearchTreeReports.reportBestLeafAtDepth(rootLeafReportNode, depth + 1, optimalLeaf.toString(), reportSeverity());
-                    RaoLogger.logRangeActions(optimalLeaf, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1), rootLeafReportNode);
-                    RaoLogger.logMostLimitingElementsResults(optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE, rootLeafReportNode, reportSeverity());
+                    ReportNode bestLeafReportNode = SearchTreeReports.reportBestLeafAtDepth(endDepthReportNode, depth + 1, optimalLeaf.toString(), reportSeverity());
+                    RaoLogger.logRangeActions(optimalLeaf, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1), bestLeafReportNode);
+                    RaoLogger.logMostLimitingElementsResults(optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE, bestLeafReportNode, reportSeverity());
                 } else {
-                    SearchTreeReports.reportDepthNoBetterResult(rootLeafReportNode, depth + 1, reportSeverity());
+                    SearchTreeReports.reportDepthNoBetterResult(depthReportNode, depth + 1, reportSeverity());
                 }
                 depth += 1;
                 if (depth >= parameters.getTreeParameters().maximumSearchDepth()) {
-                    SearchTreeReports.reportMaxDepth(rootLeafReportNode, reportSeverity());
+                    SearchTreeReports.reportMaxDepth(depthReportNode, reportSeverity());
                 }
             }
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
-            SearchTreeReports.reportInterrupted(rootLeafReportNode);
+            SearchTreeReports.reportInterrupted(leavesInParallelReportNode);
             Thread.currentThread().interrupt();
         }
     }
@@ -202,18 +203,18 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool, ReportNode rootLeafReportNode) throws InterruptedException {
+    private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool, ReportNode reportNode) throws InterruptedException {
 
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
-        naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions(), rootLeafReportNode));
+        naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions(), reportNode));
         int numberOfCombinations = naCombinationsSorted.size();
 
         networkPool.initClones(numberOfCombinations);
         if (naCombinationsSorted.isEmpty()) {
-            SearchTreeReports.reportNoMoreNetworkAction(rootLeafReportNode);
+            SearchTreeReports.reportNoMoreNetworkAction(reportNode);
             return;
         } else {
-            SearchTreeReports.reportLeavesToEvaluate(rootLeafReportNode, numberOfCombinations);
+            SearchTreeReports.reportLeavesToEvaluate(reportNode, numberOfCombinations);
         }
         AtomicInteger remainingLeaves = new AtomicInteger(numberOfCombinations);
         List<ForkJoinTask<ReportNode>> tasks = naCombinationsSorted.stream().map(naCombination ->
@@ -221,7 +222,7 @@ public class SearchTree {
         ).toList();
         for (ForkJoinTask<ReportNode> task : tasks) {
             try {
-                rootLeafReportNode.include(task.get());
+                reportNode.include(task.get());
             } catch (ExecutionException e) {
                 throw new OpenRaoException(e);
             }
@@ -328,23 +329,23 @@ public class SearchTree {
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
         leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved, leafReportNode), leafReportNode);
 
-        SearchTreeReports.reportOneLeafEvaluated(leafReportNode, leaf.toString(), reportSeverity());
+        ReportNode reportOneLeafEvaluated = SearchTreeReports.reportOneLeafEvaluated(leafReportNode, leaf.toString(), reportSeverity());
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
-            if (!stopCriterionReached(leaf, leafReportNode)) {
+            if (!stopCriterionReached(leaf, reportOneLeafEvaluated)) {
                 if (combinationFulfillingStopCriterion.isPresent() && deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
-                    SearchTreeReports.reportOneLeafSkipped(leafReportNode, naCombination.getConcatenatedId(), reportSeverity());
+                    SearchTreeReports.reportOneLeafSkipped(reportOneLeafEvaluated, naCombination.getConcatenatedId(), reportSeverity());
                 } else {
-                    optimizeLeaf(leaf, leafReportNode);
+                    optimizeLeaf(leaf, reportOneLeafEvaluated);
 
-                    SearchTreeReports.reportOneLeafOptimized(leafReportNode, leaf.toString(), reportSeverity());
-                    logVirtualCostInformation(leaf, "Optimized ", leafReportNode);
+                    SearchTreeReports.reportOneLeafOptimized(reportOneLeafEvaluated, leaf.toString(), reportSeverity());
+                    logVirtualCostInformation(leaf, "Optimized ", reportOneLeafEvaluated);
                 }
             } else {
-                SearchTreeReports.reportOneLeafOptimized(leafReportNode, leaf.toString(), reportSeverity());
+                SearchTreeReports.reportOneLeafOptimized(reportOneLeafEvaluated, leaf.toString(), reportSeverity());
             }
-            updateOptimalLeaf(leaf, naCombination, leafReportNode);
+            updateOptimalLeaf(leaf, naCombination, reportOneLeafEvaluated);
         } else {
-            SearchTreeReports.reportLeafEvaluationError(leafReportNode, leaf.toString(), reportSeverity());
+            SearchTreeReports.reportLeafEvaluationError(reportOneLeafEvaluated, leaf.toString(), reportSeverity());
         }
     }
 

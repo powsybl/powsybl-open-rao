@@ -204,7 +204,7 @@ public final class IteratingLinearOptimizer {
     }
 
     private static void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network, int iteration, ReportNode reportNode) {
-        sensitivityComputer.compute(network);
+        sensitivityComputer.compute(network, reportNode);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             LinearOptimisationReports.reportLinearOptimizationSystematicSensitivityComputationFailed(reportNode, iteration);
         }

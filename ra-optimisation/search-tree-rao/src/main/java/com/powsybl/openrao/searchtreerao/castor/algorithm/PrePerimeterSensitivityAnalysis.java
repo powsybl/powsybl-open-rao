@@ -117,7 +117,7 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction, ReportNode reportNode) {
-        sensitivityComputer.compute(network);
+        sensitivityComputer.compute(network, reportNode);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
