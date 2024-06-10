@@ -456,10 +456,18 @@
       "usageMethod" : "available"
     } ],
     "injectionSetpoints" : [ {
-      "networkElementId" : "injection",
+      "networkElementId" : "LD1",
       "setpoint" : 260.0,
       "unit" : "megawatt"
-    }]
+    },{
+      "networkElementId" : "DL1",
+      "setpoint" : -120.0,
+      "unit" : "megawatt"
+    }],
+    "topologicalActions" : [ {
+      "networkElementId" : "BR1",
+      "actionType" : "open"
+    } ]
   }, {
     "id" : "injectionSetpointRa3Id",
     "name" : "injectionSetpointRa3Name",
@@ -470,9 +478,9 @@
       "usageMethod" : "available"
     } ],
     "injectionSetpoints" : [ {
-      "networkElementId" : "injection",
+      "networkElementId" : "SC1",
       "setpoint" : 260.0,
-      "unit" : "megawatt"
+      "unit" : "section_count"
     }]
   }, {
     "id" : "pstSetpointRaId",

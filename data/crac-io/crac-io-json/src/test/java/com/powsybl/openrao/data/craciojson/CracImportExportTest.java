@@ -27,11 +27,8 @@ import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Set;
 
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.AVAILABLE;
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.FORCED;
@@ -59,7 +56,7 @@ class CracImportExportTest {
         assertEquals(1, importedCrac.getAngleCnecs().size());
         assertEquals(1, importedCrac.getVoltageCnecs().size());
         assertEquals(9, importedCrac.getRangeActions().size());
-        assertEquals(4, importedCrac.getNetworkActions().size());
+        assertEquals(6, importedCrac.getNetworkActions().size());
 
         // --------------------------
         // --- test Ra Usage Limits ---
@@ -190,6 +187,16 @@ class CracImportExportTest {
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().size());
         assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof GeneratorAction);
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
+        Iterator<Action> raComplexIt = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().iterator();
+        assertTrue(raComplexIt.next() instanceof PhaseTapChangerTapPositionAction);
+        assertTrue(raComplexIt.next() instanceof TerminalsConnectionAction);
+        assertEquals(3, crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().size());
+        Iterator<Action> ra2It = crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().iterator();
+        assertTrue(ra2It.next() instanceof DanglingLineAction);
+        assertTrue(ra2It.next() instanceof LoadAction);
+        assertTrue(ra2It.next() instanceof SwitchAction);
+        assertEquals(1, crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().size());
+        assertTrue(crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().iterator().next() instanceof ShuntCompensatorPositionAction);
 
         // check onInstant usage rule
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
