@@ -6,8 +6,7 @@
  */
 package com.powsybl.openrao.data.craciojson;
 
-import com.powsybl.action.GeneratorAction;
-import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -742,6 +742,19 @@ class JsonRetrocompatibilityTest {
         assertEquals("border1", crac.getCnec("cnec4prevId").getBorder());
         assertEquals("border4", crac.getCnec("angleCnecId").getBorder());
         assertEquals("border5", crac.getCnec("voltageCnecId").getBorder());
+
+        // check new/modified elementaryActions
+        assertEquals(3, crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().size());
+        Iterator<Action> ra2It = crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().iterator();
+        assertTrue(ra2It.next() instanceof DanglingLineAction);
+        assertTrue(ra2It.next() instanceof LoadAction);
+        assertTrue(ra2It.next() instanceof SwitchAction);
+        assertEquals(1, crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().size());
+        assertTrue(crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().iterator().next() instanceof ShuntCompensatorPositionAction);
+        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
+        Iterator<Action> raComplexIt = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().iterator();
+        assertTrue(raComplexIt.next() instanceof PhaseTapChangerTapPositionAction);
+        assertTrue(raComplexIt.next() instanceof TerminalsConnectionAction);
     }
 
     private void testContentOfV2Point4Crac(Crac crac) {
