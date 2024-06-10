@@ -691,6 +691,8 @@ public class CastorFullOptimization {
 
         OptimizationPerimeter optPerimeter;
         Crac crac = raoInput.getCrac();
+        Instant preventiveInstant = crac.getPreventiveInstant();
+        State preventiveState = crac.getPreventiveState();
         Set<RangeAction<?>> excludedRangeActions = getRangeActionsExcludedFromSecondPreventive(crac, firstPreventiveResult, postContingencyResults);
 
         if (raoParameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions()) {
@@ -711,8 +713,10 @@ public class CastorFullOptimization {
             .build();
 
         // update RaUsageLimits with already applied RangeActions
-        if (!raoParameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions() && !excludedRangeActions.isEmpty() && searchTreeParameters.getRaLimitationParameters().containsKey(crac.getPreventiveInstant())) {
-            searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(crac.getPreventiveInstant()), excludedRangeActions, crac.getPreventiveInstant());
+        if (!raoParameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions() && searchTreeParameters.getRaLimitationParameters().containsKey(preventiveInstant)) {
+            Set<RangeAction<?>> activatedPreventiveRangeActions = firstPreventiveResult.getActivatedRangeActions(preventiveState);
+            Set<RangeAction<?>> excludedActivatedRangeActions = excludedRangeActions.stream().filter(activatedPreventiveRangeActions::contains).collect(Collectors.toSet());
+            searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(preventiveInstant), excludedActivatedRangeActions, preventiveInstant);
         }
 
         if (raoParameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao()) {
@@ -735,10 +739,10 @@ public class CastorFullOptimization {
 
         // apply PRAs
         raoInput.getNetwork().getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
-        result.getActivatedRangeActions(crac.getPreventiveState()).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, crac.getPreventiveState())));
+        result.getActivatedRangeActions(preventiveState).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, preventiveState)));
         result.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(crac.getPreventiveState(), prePerimeterResult, result, optPerimeter.getFlowCnecs()));
+        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(preventiveState, prePerimeterResult, result, optPerimeter.getFlowCnecs()));
     }
 
     /**
@@ -766,7 +770,10 @@ public class CastorFullOptimization {
      * For the same reason, we are going to check preventive RAs that share the same network elements as auto or curative RAs.
      */
     static Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(Crac crac, PerimeterResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults) {
-        Set<RangeAction<?>> rangeActionsToExclude = new HashSet<>();
+
+        // Excludes every non-preventive RA.
+        Set<RangeAction<?>> nonPreventiveRangeActions = crac.getRangeActions().stream().filter(ra -> !isRangeActionPreventive(ra, crac)).collect(Collectors.toSet());
+        Set<RangeAction<?>> rangeActionsToExclude = new HashSet<>(nonPreventiveRangeActions);
 
         // Gathers PRAs that are also ARA/CRAs.
         Set<RangeAction<?>> multipleInstantRangeActions = crac.getRangeActions().stream()
@@ -778,11 +785,10 @@ public class CastorFullOptimization {
         rangeActionsToExclude.forEach(multipleInstantRangeActions::remove);
 
         // We look for PRAs that share the same network element as ARA/CRAs as the same rules apply to them.
-        Set<RangeAction<?>> rangeActionsNotPreventive = crac.getRangeActions().stream().filter(ra -> !isRangeActionPreventive(ra, crac)).collect(Collectors.toSet());
         Map<RangeAction<?>, Set<RangeAction<?>>> correspondanceMap = new HashMap<>();
         crac.getRangeActions().stream().filter(ra -> isRangeActionPreventive(ra, crac) && !isRangeActionAutoOrCurative(ra, crac)).forEach(pra -> {
             Set<NetworkElement> praNetworkElements = pra.getNetworkElements();
-            for (RangeAction<?> cra : rangeActionsNotPreventive) {
+            for (RangeAction<?> cra : nonPreventiveRangeActions) {
                 if (cra.getNetworkElements().equals(praNetworkElements)) {
                     if (raHasRelativeToPreviousInstantRange(cra)) {
                         // Excludes PRAs which share the same network element as an ARA/CRA with a range limit relative to the previous instant.
