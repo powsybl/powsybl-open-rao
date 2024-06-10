@@ -84,32 +84,57 @@ public class MultiTSFiller implements ProblemFiller {
         }
     }
 
+    private void updateObjectivePenaltyCost(LinearProblem linearProblem, PstRangeAction currentRangeAction, PstRangeAction previousRangeAction, Integer i) {
+        // modify absolute variable so it refers to previous TS and not initial value
+        OpenRaoMPVariable previousTSSetPointVariable = linearProblem.getRangeActionSetpointVariable(previousRangeAction, statesList.get(i-1));
+
+        OpenRaoMPConstraint varConstraintPositive = linearProblem.getAbsoluteRangeActionVariationConstraint(
+                currentRangeAction,
+                statesList.get(i),
+                LinearProblem.AbsExtension.POSITIVE
+            );
+            OpenRaoMPConstraint varConstraintNegative = linearProblem.getAbsoluteRangeActionVariationConstraint(
+                currentRangeAction,
+                statesList.get(i),
+                LinearProblem.AbsExtension.NEGATIVE
+            );
+
+            varConstraintPositive.setLb(0);
+            varConstraintPositive.setCoefficient(previousTSSetPointVariable, -1);
+            varConstraintNegative.setLb(0);
+            varConstraintNegative.setCoefficient(previousTSSetPointVariable, 1);
+
+    }
+
     /**
      * Builds constraints between time steps for every Pst that have a range "RELATIVE_TO_PREVIOUS_TIME_STEP"
      */
 
-    private void buildPstConstraintsAcrossTimeSteps(LinearProblem linearProblem, List<Set<PstRangeAction>> rangeActionsList) {
+    private void buildPstConstraintsAcrossTimeSteps(LinearProblem linearProblem, List<Set<PstRangeAction>> pstRangeActionsList) {
 
-        for (int i = 1; i < rangeActionsList.size(); i++) {
-            for (PstRangeAction currentRangeAction : rangeActionsList.get(i)) {
-                Set<PstRangeAction> previousRangeActionSet = rangeActionsList.get(i - 1)
+        for (int i = 1; i < pstRangeActionsList.size(); i++) {
+            for (PstRangeAction currentRangeAction : pstRangeActionsList.get(i)) {
+                Set<PstRangeAction> previousRangeActionSet = pstRangeActionsList.get(i - 1)
                     .stream()
                     .filter(rangeAction -> rangeAction.getNetworkElement().getName().equals(currentRangeAction.getNetworkElement().getName()))
                     .collect(Collectors.toSet());
                 if (previousRangeActionSet.size() == 1) {
+                    PstRangeAction previousRangeAction = previousRangeActionSet.stream().findAny().orElse(null);
                     if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.CONTINUOUS) {
                         buildConstraintOneTimeStepContinuous(
                             linearProblem,
                             currentRangeAction,
-                            previousRangeActionSet.stream().findAny().orElse(null),
+                            previousRangeAction,
                             i);
                     } else if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
                         buildConstraintOneTimeStepDiscrete(
                             linearProblem,
                             currentRangeAction,
-                            previousRangeActionSet.stream().findAny().orElse(null),
+                            previousRangeAction,
                             i);
                     }
+
+                    updateObjectivePenaltyCost(linearProblem, currentRangeAction, previousRangeAction, i);
 
                 } else if (previousRangeActionSet.size() > 1) {
                     throw new NotImplementedException(
@@ -223,7 +248,6 @@ public class MultiTSFiller implements ProblemFiller {
                 double lbConstraintUpdate = minRelativeTap - currentTimeStepTapOptimized + previousTimeStepTapOptimized;
                 double ubConstraintUpdate = maxRelativeTap - currentTimeStepTapOptimized + previousTimeStepTapOptimized;
                 tapRelTimeStepConstraint.setBounds(lbConstraintUpdate, ubConstraintUpdate);
-
             }
         }
     }
