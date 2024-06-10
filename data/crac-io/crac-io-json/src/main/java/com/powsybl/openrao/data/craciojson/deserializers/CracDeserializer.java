@@ -134,7 +134,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case NETWORK_ACTIONS:
                     jsonParser.nextToken();
-                    NetworkActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);
+                    NetworkActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
                     break;
                 case EXTENSIONS:
                     jsonParser.nextToken();

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracapi.networkaction;
 
+import com.powsybl.action.Action;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 
 /***
@@ -15,14 +16,14 @@ import com.powsybl.openrao.data.cracapi.NetworkElement;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface SwitchPair extends ElementaryAction {
+public interface SwitchPair extends Action {
     /**
      * Get the switch that should be opened by the elementary action
      */
-    public NetworkElement getSwitchToOpen();
+    NetworkElement getSwitchToOpen();
 
     /**
      * Get the switch that should be closed by the elementary action
      */
-    public NetworkElement getSwitchToClose();
+    NetworkElement getSwitchToClose();
 }

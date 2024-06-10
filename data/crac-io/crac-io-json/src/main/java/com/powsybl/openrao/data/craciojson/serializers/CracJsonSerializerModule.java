@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craciojson.serializers;
 
+import com.powsybl.action.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -49,9 +50,13 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(TapRange.class, new TapRangeSerializer());
         this.addSerializer(StandardRange.class, new StandardRangeSerializer());
         this.addSerializer(NetworkAction.class, new NetworkActionSerializer());
-        this.addSerializer(TopologicalAction.class, new TopologicalActionSerializer());
-        this.addSerializer(PstSetpoint.class, new PstSetpointSerializer());
-        this.addSerializer(InjectionSetpoint.class, new InjectionSetpointSerializer());
+        this.addSerializer(TerminalsConnectionAction.class, new TerminalsConnectionActionSerializer());
+        this.addSerializer(SwitchAction.class, new SwitchActionSerializer());
+        this.addSerializer(PhaseTapChangerTapPositionAction.class, new PhaseTapChangerTapPositionActionSerializer());
+        this.addSerializer(GeneratorAction.class, new GeneratorActionSerializer());
+        this.addSerializer(LoadAction.class, new LoadActionSerializer());
+        this.addSerializer(DanglingLineAction.class, new DanglingLineActionSerializer());
+        this.addSerializer(ShuntCompensatorPositionAction.class, new ShuntCompensatorPositionActionSerializer());
         this.addSerializer(SwitchPair.class, new SwitchPairSerializer());
         this.addSerializer(Instant.class, new InstantSerializer());
     }

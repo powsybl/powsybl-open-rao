@@ -6,12 +6,12 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpointAdder;
+import com.powsybl.openrao.data.cracapi.networkaction.PhaseTapChangerTapPositionActionAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class PstSetpointAdderImplTest {
+class PhaseTapChangerTapPositionActionAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
@@ -37,15 +37,15 @@ class PstSetpointAdderImplTest {
     @Test
     void testOk() {
 
-        NetworkAction networkAction = networkActionAdder.newPstSetPoint()
+        NetworkAction networkAction = networkActionAdder.newPhaseTapChangerTapPositionAction()
             .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(0)
+            .withTapPosition(0)
             .add()
             .add();
 
-        PstSetpoint pstSetpoint = (PstSetpoint) networkAction.getElementaryActions().iterator().next();
-        assertEquals("pstNetworkElementId", pstSetpoint.getNetworkElement().getId());
-        assertEquals(0, pstSetpoint.getSetpoint(), 1e-3);
+        PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction = (PhaseTapChangerTapPositionAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("pstNetworkElementId", phaseTapChangerTapPositionAction.getTransformerId());
+        assertEquals(0, phaseTapChangerTapPositionAction.getTapPosition(), 1e-3);
 
         // check that network element has been created in CracImpl
         assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
@@ -54,14 +54,14 @@ class PstSetpointAdderImplTest {
 
     @Test
     void testNoNetworkElement() {
-        PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
-            .withSetpoint(0);
+        PhaseTapChangerTapPositionActionAdder pstSetpointAdder = networkActionAdder.newPhaseTapChangerTapPositionAction()
+            .withTapPosition(0);
         assertThrows(OpenRaoException.class, pstSetpointAdder::add);
     }
 
     @Test
     void testNoSetpoint() {
-        PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
+        PhaseTapChangerTapPositionActionAdder pstSetpointAdder = networkActionAdder.newPhaseTapChangerTapPositionAction()
             .withNetworkElement("pstNetworkElementId");
         assertThrows(OpenRaoException.class, pstSetpointAdder::add);
     }

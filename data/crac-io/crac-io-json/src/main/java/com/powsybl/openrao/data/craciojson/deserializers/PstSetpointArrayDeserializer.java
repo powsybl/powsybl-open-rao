@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.data.craciojson.deserializers;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpointAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.cracapi.networkaction.PhaseTapChangerTapPositionActionAdder;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,7 +30,7 @@ public final class PstSetpointArrayDeserializer {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", PST_SETPOINTS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            PstSetpointAdder adder = ownerAdder.newPstSetPoint();
+            PhaseTapChangerTapPositionActionAdder adder = ownerAdder.newPhaseTapChangerTapPositionAction();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case NETWORK_ELEMENT_ID:
@@ -43,7 +43,7 @@ public final class PstSetpointArrayDeserializer {
                         break;
                     case SETPOINT:
                         jsonParser.nextToken();
-                        adder.withSetpoint(jsonParser.getIntValue());
+                        adder.withTapPosition(jsonParser.getIntValue());
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in PstSetpoint: " + jsonParser.getCurrentName());

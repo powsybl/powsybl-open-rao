@@ -189,7 +189,7 @@ class HvdcRangeActionAdderImplTest {
         crac.newNetworkAction()
                 .withId("sameId")
                 .withOperator("BE")
-                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add()
+                .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add()
                 .add();
         HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction()
             .withId("sameId")

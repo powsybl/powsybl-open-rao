@@ -154,7 +154,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void writeExtension() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonRaoParameters::write, ComparisonUtils::compareTxt, "/RaoParametersWithExtension_v2.json");
+        writeTest(parameters, JsonRaoParameters::write, ComparisonUtils::assertTxtEquals, "/RaoParametersWithExtension_v2.json");
     }
 
     @Test

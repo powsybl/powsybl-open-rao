@@ -38,7 +38,7 @@ Feature: US 21.6 : Import HVDC Range Actions
     And it should have 1 network actions
     And it should have the following network actions:
       | NetworkActionId | NetworkActionName | ElementaryActions | ElementaryActionType | NetworkElementId   | Action/Setpoint |
-      | Auto RA Gen FR  | Auto RA Gen FR    | 1                 | InjectionSetpoint    | FFR1AA11_generator | 0               |
+      | Auto RA Gen FR  | Auto RA Gen FR    | 1                 | GeneratorAction      | FFR1AA11_generator | 0               |
     And the remedial actions should have the following usage rules:
       | RemedialActionId | UsageRules | Rule                      | Method | Instant | ContingencyId | Country |
       | Auto RA Gen FR   | 1          | OnFlowConstraintInCountry | Forced | auto    | Co-1          | FR      |

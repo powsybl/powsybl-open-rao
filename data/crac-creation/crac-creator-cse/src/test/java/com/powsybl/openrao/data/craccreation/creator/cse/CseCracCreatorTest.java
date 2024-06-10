@@ -6,6 +6,8 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -25,8 +27,6 @@ import com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch.CseCriti
 import com.powsybl.openrao.data.craccreation.creator.cse.outage.CseOutageCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cse.parameters.CseCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cse.remedialaction.CsePstCreationContext;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -295,8 +295,8 @@ class CseCracCreatorTest {
         assertTrue(raContext.isImported());
         NetworkAction na = cracCreationContext.getCrac().getNetworkAction("cra_4");
         assertEquals(2, na.getNetworkElements().size());
-        assertTrue(na.getElementaryActions().stream().anyMatch(ea -> ea.getNetworkElements().iterator().next().getId().equals("FFR3AA1 _generator")));
-        assertTrue(na.getElementaryActions().stream().anyMatch(ea -> ea.getNetworkElements().iterator().next().getId().equals("FFR2AA1 _generator")));
+        assertTrue(na.getNetworkElements().stream().anyMatch(el -> el.getId().equals("FFR3AA1 _generator")));
+        assertTrue(na.getNetworkElements().stream().anyMatch(el -> el.getId().equals("FFR2AA1 _generator")));
     }
 
     @Test

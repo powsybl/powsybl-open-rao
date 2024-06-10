@@ -6,34 +6,31 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse.remedialaction;
 
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
+import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.cse.*;
-import com.powsybl.openrao.data.craccreation.creator.cse.xsd.*;
+import com.powsybl.openrao.data.craccreation.creator.api.parameters.RangeActionGroup;
+import com.powsybl.openrao.data.craccreation.creator.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cse.parameters.BusBarChangeSwitches;
 import com.powsybl.openrao.data.craccreation.creator.cse.parameters.CseCracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.RangeActionGroup;
+import com.powsybl.openrao.data.craccreation.creator.cse.xsd.*;
+import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.craccreation.util.ucte.UctePstHelper;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteTopologicalElementHelper;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -111,10 +108,20 @@ public class TRemedialActionAdder {
                 cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, branchHelper.getInvalidReason()));
                 return;
             }
-            networkActionAdder.newTopologicalAction()
-                .withNetworkElement(branchHelper.getIdInNetwork())
-                .withActionType(convertActionType(tBranch.getStatus()))
-                .add();
+            Identifiable<?> ne = network.getIdentifiable(branchHelper.getIdInNetwork());
+            if (ne.getType() == IdentifiableType.SWITCH) {
+                networkActionAdder.newSwitchAction()
+                    .withNetworkElement(branchHelper.getIdInNetwork())
+                    .withActionType(convertActionType(tBranch.getStatus()))
+                    .add();
+            } else if (ne instanceof Connectable<?>) {
+                networkActionAdder.newTerminalsConnectionAction()
+                    .withNetworkElement(branchHelper.getIdInNetwork())
+                    .withActionType(convertActionType(tBranch.getStatus()))
+                    .add();
+            } else {
+                throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "CSE topological action " + createdRAId + " should be on connectable or on switch, not on " + network.getIdentifiable(branchHelper.getIdInNetwork()).getType());
+            }
         }
 
         addUsageRules(networkActionAdder, tRemedialAction);
@@ -153,10 +160,16 @@ public class TRemedialActionAdder {
                 }
             }
             try {
-                networkActionAdder.newInjectionSetPoint()
+                Identifiable<?> networkElement = network.getIdentifiable(generatorHelper.getGeneratorId());
+                if (Objects.isNull(networkElement)) {
+                    throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not found in network", generatorHelper.getGeneratorId()));
+                }
+                if (networkElement.getType() != IdentifiableType.GENERATOR) {
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "CSE injection action " + createdRAId + " should be on generator, not on " + networkElement.getType());
+                }
+                networkActionAdder.newGeneratorAction()
                     .withNetworkElement(generatorHelper.getGeneratorId())
-                    .withSetpoint(tNode.getValue().getV())
-                    .withUnit(Unit.MEGAWATT)
+                    .withActivePowerValue(tNode.getValue().getV())
                     .add();
             } catch (OpenRaoException e) {
                 cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.OTHER, e.getMessage()));

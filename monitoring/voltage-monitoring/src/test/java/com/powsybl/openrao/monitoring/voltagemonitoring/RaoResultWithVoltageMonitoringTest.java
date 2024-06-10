@@ -7,6 +7,7 @@
 package com.powsybl.openrao.monitoring.voltagemonitoring;
 
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,9 +37,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RaoResultWithVoltageMonitoringTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
 
-    private static Network mockNetworkWithLines(String... lineIds) {
+    private static Network getMockedNetwork() {
         Network network = Mockito.mock(Network.class);
-        for (String lineId : lineIds) {
+        com.powsybl.iidm.network.Identifiable ne = Mockito.mock(com.powsybl.iidm.network.Identifiable.class);
+        Mockito.when(ne.getType()).thenReturn(IdentifiableType.SHUNT_COMPENSATOR);
+        Mockito.when(network.getIdentifiable("injection")).thenReturn(ne);
+        for (String lineId : List.of("ne1Id", "ne2Id", "ne3Id")) {
             Branch l = Mockito.mock(Line.class);
             Mockito.when(l.getId()).thenReturn(lineId);
             Mockito.when(network.getIdentifiable(lineId)).thenReturn(l);
@@ -50,7 +55,7 @@ class RaoResultWithVoltageMonitoringTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
         InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
+        Crac crac = new JsonImport().importCrac(cracFile, getMockedNetwork());
         Instant curativeInstant = crac.getInstant("curative");
         RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
         VoltageMonitoringResult voltageMonitoringResult = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-monitoring-result.json"), crac);
