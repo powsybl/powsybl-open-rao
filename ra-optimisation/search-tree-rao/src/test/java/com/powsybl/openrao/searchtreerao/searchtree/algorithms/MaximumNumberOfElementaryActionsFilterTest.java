@@ -59,9 +59,35 @@ class MaximumNumberOfElementaryActionsFilterTest {
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
         Mockito.when(leaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(pstRangeAction));
 
-        MaximumNumberOfElementaryActionsFilter naFilter = new MaximumNumberOfElementaryActionsFilter(Map.of("BE", 3, "DE", 2, "FR", 2, "NL", 2));
+        MaximumNumberOfElementaryActionsFilter naFilter = new MaximumNumberOfElementaryActionsFilter(Map.of("BE", 3, "DE", 2, "FR", 1, "NL", 2));
         Set<NetworkActionCombination> result = naFilter.filter(Set.of(networkActionCombinationFrNl, networkActionCombinationBe, networkActionCombinationDe), leaf);
 
         assertEquals(result, Set.of(networkActionCombinationBe, networkActionCombinationDe));
+    }
+
+    @Test
+    void testCommonElementaryActionsInNetworkActionCombination() {
+        PstRangeAction pstRangeAction = NetworkActionCombinationsUtils.addPstRangeActionToCrac();
+        pstRangeAction.apply(NETWORK, pstRangeAction.getTapToAngleConversionMap().get(3));
+
+        TopologicalAction topoFr1 = Mockito.mock(TopologicalAction.class);
+        TopologicalAction topoFr2 = Mockito.mock(TopologicalAction.class);
+        NetworkAction naFr = Mockito.mock(NetworkAction.class);
+        Mockito.when(naFr.getOperator()).thenReturn("FR");
+        Mockito.when(naFr.getElementaryActions()).thenReturn(Set.of(topoFr1, topoFr2));
+
+        TopologicalAction topoNl = Mockito.mock(TopologicalAction.class);
+        NetworkAction naNlFr = Mockito.mock(NetworkAction.class);
+        Mockito.when(naNlFr.getOperator()).thenReturn("FR");
+        Mockito.when(naNlFr.getElementaryActions()).thenReturn(Set.of(topoNl, topoFr1));
+
+        NetworkActionCombination networkActionCombinationFrNl = new NetworkActionCombination(Set.of(naFr, naNlFr));
+
+        Leaf leaf = Mockito.mock(Leaf.class);
+        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        Mockito.when(leaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(pstRangeAction));
+
+        MaximumNumberOfElementaryActionsFilter naFilter = new MaximumNumberOfElementaryActionsFilter(Map.of("FR", 3));
+        assertEquals(Set.of(networkActionCombinationFrNl), naFilter.filter(Set.of(networkActionCombinationFrNl), leaf));
     }
 }

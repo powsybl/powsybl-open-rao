@@ -7,10 +7,12 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -29,24 +31,15 @@ public class MaximumNumberOfElementaryActionsFilter implements NetworkActionComb
 
     public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
-        // TODO : pst injection = 1 ea or abs(newtap - initialtap)?
         naCombinations.stream().forEach(networkActionCombination -> {
-            int elementaryActions = 0;
-            for (NetworkAction networkAction : networkActionCombination.getNetworkActionSet()) {
-                // TODO: what if some network actions share common elementary action?
-                elementaryActions = elementaryActions + networkAction.getElementaryActions().size();
-            }
-            // TODO: will require elementaryActionsPerTso instead (create test)
-            if (networkActionCombination.getOperators().isEmpty()) {
+            // TODO: do the same for removePsts
+            // we use a set of elementary actions in case some network actions share the same elementary action which should thus only be counted once
+            Map<String, Set<ElementaryAction>> elementaryActionsPerTso = new HashMap<>();
+            networkActionCombination.getNetworkActionSet().forEach(networkAction -> elementaryActionsPerTso.computeIfAbsent(networkAction.getOperator(), e -> new HashSet<>()).addAll(networkAction.getElementaryActions()));
+            if (networkActionCombination.getOperators().stream().anyMatch(operator -> elementaryActionsPerTso.getOrDefault(operator, Set.of()).size() > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE))) {
+                TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of elementary actions has been exceeded for one of its operators", naCombinations.size() - filteredNaCombinations.size());
+            } else {
                 filteredNaCombinations.add(networkActionCombination);
-            }
-            for (String operator : networkActionCombination.getOperators()) {
-                // The network action combination alone has more elementary action than the accepted limit, so it must be removed
-                if (elementaryActions > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE)) {
-                    TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of elementary actions for TSO {} has been reached", naCombinations.size() - filteredNaCombinations.size(), operator);
-                } else {
-                    filteredNaCombinations.add(networkActionCombination);
-                }
             }
         });
         return filteredNaCombinations;
