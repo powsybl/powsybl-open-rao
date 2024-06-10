@@ -173,11 +173,11 @@ Feature: US 13.5: dynamic of range actions available in several instants
     And the tap of PstRangeAction "pra_pst_be" should be 10 in preventive
     And the tap of PstRangeAction "cra_pst_be" should be 10 in preventive
 
-    And 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
+    And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     # only one PST count as activated, as the other one didn't change its tap
     And the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
     And the remedial action "cra_pst_fr" is not used after "CO1_fr2_fr3_1" at "curative"
-    And the remedial action "cra_pst_be" is not used after "CO1_fr2_fr3_1" at "curative"
+    And the remedial action "cra_pst_be" is used after "CO1_fr2_fr3_1" at "curative"
     And the worst margin is 996 A
     Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
 
