@@ -601,8 +601,11 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             // curative
             Contingency contingency = state.getContingency().orElseThrow();
             return postContingencyResults.keySet().stream()
-                .filter(mapState -> mapState.getInstant().isAuto() && mapState.getContingency().equals(Optional.of(contingency)))
-                .findAny().orElse(preventiveState);
+                .filter(mapState -> mapState.getContingency().equals(Optional.of(contingency)))
+                .filter(mapState -> mapState.getInstant().isAuto() || mapState.getInstant().isCurative())
+                .filter(mapState -> mapState.getInstant().comesBefore(state.getInstant()))
+                .max(Comparator.comparingInt(mapState -> mapState.getInstant().getOrder()))
+                .orElse(preventiveState);
         }
     }
 
