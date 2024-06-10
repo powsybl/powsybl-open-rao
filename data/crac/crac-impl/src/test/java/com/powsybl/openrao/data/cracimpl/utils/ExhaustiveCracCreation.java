@@ -207,6 +207,17 @@ public final class ExhaustiveCracCreation {
             .newOnConstraintUsageRule().withCnec("cnec3autoId").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
+        // network action with multiple type elementary actions
+        crac.newNetworkAction().withId("complexNetworkAction2Id")
+            .withName("complexNetworkAction2Name")
+            .withOperator("RTE")
+            .newLoadAction().withActivePowerValue(260.0).withNetworkElement("LD1").add()
+            .newDanglingLineAction().withActivePowerValue(-120.0).withNetworkElement("DL1").add()
+            .newSwitchAction().withActionType(ActionType.OPEN).withNetworkElement("BR1").add()
+            .newShuntCompensatorPositionAction().withSectionCount(13).withNetworkElement("SC1").add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("contingency2Id").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
         // network action with one switch pair
         crac.newNetworkAction().withId("switchPairRaId")
             .withName("switchPairRaName")

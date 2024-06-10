@@ -6,8 +6,7 @@
  */
 package com.powsybl.openrao.data.craciojson;
 
-import com.powsybl.action.GeneratorAction;
-import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -31,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -305,7 +305,7 @@ class JsonRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json");
 
         Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
-        assertEquals(6, crac.getNetworkActions().size());
+        assertEquals(7, crac.getNetworkActions().size());
         testContentOfV2Point4Crac(crac);
     }
 
@@ -759,5 +759,17 @@ class JsonRetrocompatibilityTest {
 
     private void testContentOfV2Point4Crac(Crac crac) {
         testContentOfV2Point3Crac(crac);
+
+        // check (new) elementaryActions
+        assertEquals(4, crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().size());
+        Iterator<Action> ra2It = crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().iterator();
+        assertTrue(ra2It.next() instanceof DanglingLineAction);
+        assertTrue(ra2It.next() instanceof LoadAction);
+        assertTrue(ra2It.next() instanceof SwitchAction);
+        assertTrue(ra2It.next() instanceof ShuntCompensatorPositionAction);
+        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
+        Iterator<Action> raComplexIt = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().iterator();
+        assertTrue(raComplexIt.next() instanceof PhaseTapChangerTapPositionAction);
+        assertTrue(raComplexIt.next() instanceof TerminalsConnectionAction);
     }
 }

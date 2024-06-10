@@ -215,6 +215,33 @@ public final class NetworkImportsUtil {
                 .setB2(0.0)
                 .add();
         }
+        ShuntCompensator shuntCompensator = vl1.newShuntCompensator()
+            .setId("SC1")
+            .setName("SC1")
+            .setConnectableBus("B1")
+            .setBus("B1")
+            .setTargetV(400.)
+            .setSectionCount(1)
+            .setVoltageRegulatorOn(true)
+            .setTargetDeadband(5.0)
+            .newLinearModel().setBPerSection(1E-2).setGPerSection(0.0).setMaximumSectionCount(2).add()
+            .add();
+        shuntCompensator.getTerminal().setP(0.).setQ(0.);
+        DanglingLine danglingLine = vl1.newDanglingLine()
+            .setId("DL1")
+            .setName("DL1")
+            .setConnectableBus("B1")
+            .setBus("B1")
+            .setR(0.5)
+            .setX(0.5)
+            .setB(0.5)
+            .setG(0.5)
+            .setP0(0.)
+            .setQ0(0.)
+            .add();
+        danglingLine.getTerminal()
+            .setP(0.)
+            .setQ(0.);
         return network;
     }
 
