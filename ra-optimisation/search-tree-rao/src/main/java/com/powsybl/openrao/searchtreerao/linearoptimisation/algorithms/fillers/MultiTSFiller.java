@@ -1,12 +1,18 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.TapRange;
+import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -25,22 +31,35 @@ public class MultiTSFiller implements ProblemFiller {
     private final List<Network> networksList;
     private final List<State> statesList;
     private final RangeActionsOptimizationParameters rangeActionParameters;
+    private final List<Set<FlowCnec>> cnecsList;
+    private final RangeActionActivationResult raActivationFromParentLeaf;
+
     private final Map<RangeAction<?>, RangeAction<?>> rangeActionsConstraintsToUpdate = new HashMap<>();
 
-    public MultiTSFiller(List<Set<RangeAction<?>>> rangeActionsList,
+    public MultiTSFiller(List<OptimizationPerimeter> optimizationPerimeters,
                          List<Network> networksList,
-                         List<State> statesList,
-                         RangeActionsOptimizationParameters rangeActionParameters) {
-        this.rangeActionsList = rangeActionsList;
+                         RangeActionsOptimizationParameters rangeActionParameters,
+                         RangeActionActivationResult raActivationFromParentLeaf
+    ) {
+
+        this.rangeActionsList = optimizationPerimeters
+            .stream().map(perimeter -> perimeter.getRangeActions().stream().collect(Collectors.toSet()))
+            .collect(Collectors.toList());
         this.networksList = networksList;
-        this.statesList = statesList;
+        this.statesList = optimizationPerimeters
+            .stream().map(perimeter -> perimeter.getMainOptimizationState())
+            .collect(Collectors.toList());
         this.rangeActionParameters = rangeActionParameters;
+        this.cnecsList = optimizationPerimeters
+            .stream().map(perimeter -> perimeter.getFlowCnecs())
+            .collect(Collectors.toList());
+        this.raActivationFromParentLeaf = raActivationFromParentLeaf;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
 
-        // Better way to do it?
+        // Better way to filter only PstRangeActions?
         List<Set<PstRangeAction>> pstRangeActionList = new ArrayList<>();
         for (Set<RangeAction<?>> rangeActionsSet : rangeActionsList) {
             Set<PstRangeAction> pstRangeActionsSet = new HashSet<>();
@@ -51,7 +70,7 @@ public class MultiTSFiller implements ProblemFiller {
             }
             pstRangeActionList.add(pstRangeActionsSet);
         }
-
+        updateFlowConstraints(linearProblem, sensitivityResult, pstRangeActionList);
         buildPstConstraintsAcrossTimeSteps(linearProblem, pstRangeActionList);
     }
 
@@ -60,10 +79,10 @@ public class MultiTSFiller implements ProblemFiller {
         //run?
         if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
             for (int i = 1; i < rangeActionsList.size(); i++) {
-                for (RangeAction<?> currentRangeAction: rangeActionsList.get(i)) {
+                for (RangeAction<?> currentRangeAction : rangeActionsList.get(i)) {
                     if (rangeActionsConstraintsToUpdate.containsKey(currentRangeAction)) {
                         RangeAction<?> previousRangeAction = rangeActionsConstraintsToUpdate.get(currentRangeAction);
-                        updateTapValueContraints(linearProblem, currentRangeAction, previousRangeAction, rangeActionActivationResult, i);
+                        updateTapValueConstraints(linearProblem, currentRangeAction, previousRangeAction, rangeActionActivationResult, i);
                     }
                 }
             }
@@ -74,35 +93,85 @@ public class MultiTSFiller implements ProblemFiller {
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
         if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
             for (int i = 1; i < rangeActionsList.size(); i++) {
-                for (RangeAction<?> currentRangeAction: rangeActionsList.get(i)) {
+                for (RangeAction<?> currentRangeAction : rangeActionsList.get(i)) {
                     if (rangeActionsConstraintsToUpdate.containsKey(currentRangeAction)) {
                         RangeAction<?> previousRangeAction = rangeActionsConstraintsToUpdate.get(currentRangeAction);
-                        updateTapValueContraints(linearProblem, currentRangeAction, previousRangeAction, rangeActionActivationResult, i);
+                        updateTapValueConstraints(linearProblem, currentRangeAction, previousRangeAction, rangeActionActivationResult, i);
                     }
                 }
             }
         }
     }
 
+    private void updateFlowConstraints(LinearProblem linearProblem, SensitivityResult sensitivityResult, List<Set<PstRangeAction>> pstRangeActionsList) {
+        for (int i = 1; i < pstRangeActionsList.size(); i++) {
+            for (PstRangeAction previousRangeAction : pstRangeActionsList.get(i - 1)) {
+                if (!pstRangeActionsList.get(i).contains(previousRangeAction)) {
+                    addImpactOfRangeActionOnLaterTimeSteps(linearProblem, sensitivityResult, previousRangeAction, i);
+                }
+            }
+        }
+    }
+
+    private void addImpactOfRangeActionOnLaterTimeSteps(LinearProblem linearProblem, SensitivityResult sensitivityResult, PstRangeAction pstRangeAction, int i) {
+        cnecsList.get(i).forEach(cnec -> {
+            Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(cnecsList.get(i), sensitivityResult);
+            if (validFlowCnecs.contains(cnec)) {
+                cnec.getMonitoredSides().forEach(side -> {
+                    OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
+                    OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, statesList.get(i - 1));
+                    double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, pstRangeAction, Unit.MEGAWATT);
+
+                    if (isRangeActionSensitivityAboveThreshold(pstRangeAction, Math.abs(sensitivity))) {
+                        double currentSetPoint = raActivationFromParentLeaf.getOptimizedSetpoint(pstRangeAction, statesList.get(i - 1));
+
+                        // care : might not be robust as getCurrentValue get the current setPoint from a network variant
+                        //        we need to be sure that this variant has been properly set
+                        flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentSetPoint);
+                        flowConstraint.setUb(flowConstraint.ub() - sensitivity * currentSetPoint);
+                        flowConstraint.setCoefficient(setPointVariable, -sensitivity);
+                    } else {
+                        // We need to do this in case of an update
+                        flowConstraint.setCoefficient(setPointVariable, 0);
+                    }
+                });
+            }
+        });
+    }
+
+    private boolean isRangeActionSensitivityAboveThreshold(RangeAction<?> rangeAction, double sensitivity) {
+        if (rangeAction instanceof PstRangeAction) {
+            return sensitivity >= rangeActionParameters.getPstSensitivityThreshold();
+        } else if (rangeAction instanceof HvdcRangeAction) {
+            return sensitivity >= rangeActionParameters.getHvdcSensitivityThreshold();
+        } else if (rangeAction instanceof InjectionRangeAction) {
+            return sensitivity >= rangeActionParameters.getInjectionRaSensitivityThreshold();
+        } else {
+            throw new OpenRaoException("Type of RangeAction not yet handled by the LinearRao.");
+        }
+    }
+
+    /**
+     * Update penalty cost for PSTs in order to compare to previous TS and not initial value
+     */
     private void updateObjectivePenaltyCost(LinearProblem linearProblem, PstRangeAction currentRangeAction, PstRangeAction previousRangeAction, Integer i) {
-        // modify absolute variable so it refers to previous TS and not initial value
-        OpenRaoMPVariable previousTSSetPointVariable = linearProblem.getRangeActionSetpointVariable(previousRangeAction, statesList.get(i-1));
+        OpenRaoMPVariable previousTSSetPointVariable = linearProblem.getRangeActionSetpointVariable(previousRangeAction, statesList.get(i - 1));
 
         OpenRaoMPConstraint varConstraintPositive = linearProblem.getAbsoluteRangeActionVariationConstraint(
-                currentRangeAction,
-                statesList.get(i),
-                LinearProblem.AbsExtension.POSITIVE
-            );
-            OpenRaoMPConstraint varConstraintNegative = linearProblem.getAbsoluteRangeActionVariationConstraint(
-                currentRangeAction,
-                statesList.get(i),
-                LinearProblem.AbsExtension.NEGATIVE
-            );
+            currentRangeAction,
+            statesList.get(i),
+            LinearProblem.AbsExtension.POSITIVE
+        );
+        OpenRaoMPConstraint varConstraintNegative = linearProblem.getAbsoluteRangeActionVariationConstraint(
+            currentRangeAction,
+            statesList.get(i),
+            LinearProblem.AbsExtension.NEGATIVE
+        );
 
-            varConstraintPositive.setLb(0);
-            varConstraintPositive.setCoefficient(previousTSSetPointVariable, -1);
-            varConstraintNegative.setLb(0);
-            varConstraintNegative.setCoefficient(previousTSSetPointVariable, 1);
+        varConstraintPositive.setLb(0);
+        varConstraintPositive.setCoefficient(previousTSSetPointVariable, -1);
+        varConstraintNegative.setLb(0);
+        varConstraintNegative.setCoefficient(previousTSSetPointVariable, 1);
 
     }
 
@@ -135,7 +204,6 @@ public class MultiTSFiller implements ProblemFiller {
                     }
 
                     updateObjectivePenaltyCost(linearProblem, currentRangeAction, previousRangeAction, i);
-
                 } else if (previousRangeActionSet.size() > 1) {
                     throw new NotImplementedException(
                         previousRangeActionSet.size()
@@ -151,7 +219,6 @@ public class MultiTSFiller implements ProblemFiller {
      * Add constraint on the preivous time step for a Pst
      * Continuous case: constraint on setpoint variables
      */
-    // Change function arguments? List & index instead of all objects one by one?
     private void buildConstraintOneTimeStepContinuous(LinearProblem linearProblem, PstRangeAction currentRangeAction, PstRangeAction previousRangeAction, int timeStepIndex) {
         OpenRaoMPVariable currentTimeStepVariable = linearProblem.getRangeActionSetpointVariable(currentRangeAction, statesList.get(timeStepIndex));
         OpenRaoMPVariable previousTimeStepVariable = linearProblem.getRangeActionSetpointVariable(previousRangeAction, statesList.get(timeStepIndex - 1));
@@ -199,11 +266,9 @@ public class MultiTSFiller implements ProblemFiller {
             Network currentTimeStepNetwork = networksList.get(timeStepIndex);
             Network previousTimeStepNetwork = networksList.get(timeStepIndex - 1);
 
-            //getCurrentTapPosition????
             double lbConstraintTimeStep = minRelativeTap - currentRangeAction.getCurrentTapPosition(currentTimeStepNetwork) + previousRangeAction.getCurrentTapPosition(previousTimeStepNetwork);
             double ubConstraintTimeStep = maxRelativeTap - currentRangeAction.getCurrentTapPosition(currentTimeStepNetwork) + previousRangeAction.getCurrentTapPosition(previousTimeStepNetwork);
 
-            // Right constraint? (addRangeActionRelativeSetpointConstraint)
             OpenRaoMPConstraint relSetPointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(lbConstraintTimeStep, ubConstraintTimeStep, currentRangeAction, statesList.get(timeStepIndex), LinearProblem.RaRangeShrinking.FALSE);
             relSetPointConstraint.setCoefficient(pstTapCurrentUpwardVariationVariable, 1);
             relSetPointConstraint.setCoefficient(pstTapPreviousUpwardVariationVariable, -1);
@@ -227,7 +292,10 @@ public class MultiTSFiller implements ProblemFiller {
         return List.of(minRelativeTap, maxRelativeTap);
     }
 
-    public void updateTapValueContraints(LinearProblem linearProblem, RangeAction<?> currentRangeAction, RangeAction<?> previousRangeAction, RangeActionActivationResult rangeActionActivationResult, int timeStepIndex) {
+    /**
+     * Update bounds for constraints on tap variation
+     */
+    public void updateTapValueConstraints(LinearProblem linearProblem, RangeAction<?> currentRangeAction, RangeAction<?> previousRangeAction, RangeActionActivationResult rangeActionActivationResult, int timeStepIndex) {
         if (currentRangeAction instanceof PstRangeAction pstCurrentRangeAction && previousRangeAction instanceof PstRangeAction pstPreviousRangeAction) {
             OpenRaoMPConstraint tapRelTimeStepConstraint = linearProblem.getRangeActionRelativeSetpointConstraint(pstCurrentRangeAction, statesList.get(timeStepIndex), LinearProblem.RaRangeShrinking.FALSE);
 
@@ -243,7 +311,7 @@ public class MultiTSFiller implements ProblemFiller {
                 double maxRelativeTap = minAndMaxRelativeTaps.get(1);
 
                 double currentTimeStepTapOptimized = rangeActionActivationResult.getOptimizedTap(pstCurrentRangeAction, statesList.get(timeStepIndex));
-                double previousTimeStepTapOptimized = rangeActionActivationResult.getOptimizedTap(pstPreviousRangeAction, statesList.get(timeStepIndex-1));
+                double previousTimeStepTapOptimized = rangeActionActivationResult.getOptimizedTap(pstPreviousRangeAction, statesList.get(timeStepIndex - 1));
 
                 double lbConstraintUpdate = minRelativeTap - currentTimeStepTapOptimized + previousTimeStepTapOptimized;
                 double ubConstraintUpdate = maxRelativeTap - currentTimeStepTapOptimized + previousTimeStepTapOptimized;

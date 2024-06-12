@@ -4,7 +4,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -36,7 +35,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultIm
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,15 +52,16 @@ public class NewRAOTest {
     @BeforeEach
     public void setUp() {
         networks = new ArrayList<>();
-        networks.add(Network.read("network/12NodesProdFR.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct")));
-        networks.add(Network.read("network/12NodesProdNL.uct", getClass().getResourceAsStream("/network/12NodesProdNL.uct")));
+        networks.add(Network.read("network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct")));
+//        networks.add(Network.read("network/12NodesProdNL.uct", getClass().getResourceAsStream("/network/12NodesProdNL.uct")));
+        networks.add(Network.read("network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/network/12NodesProdFR_2PST.uct")));
 
         cracs = new ArrayList<>();
         cracs.add(CracImporters.importCrac("crac/crac-with-pst-range-action.json",
             getClass().getResourceAsStream("/crac/crac-with-pst-range-action.json"),
             networks.get(0)));
-        cracs.add(CracImporters.importCrac("crac/crac-with-pst-range-action_2.json",
-            getClass().getResourceAsStream("/crac/crac-with-pst-range-action_2.json"),
+        cracs.add(CracImporters.importCrac("crac/crac-second_pst.json",
+            getClass().getResourceAsStream("/crac/crac-second_pst.json"),
             networks.get(1)));
 
         initialSetpoints = computeInitialSetpointsResults();
@@ -70,7 +69,7 @@ public class NewRAOTest {
         rangeActionsPerStatePerTimestamp = computeRangeActionsPerStatePerTimestamp();
 
         initialSensiResult = runInitialSensi();
-        pstModel  = RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS;
+        pstModel = RangeActionsOptimizationParameters.PstModel.CONTINUOUS;
     }
 
     private RangeActionSetpointResult computeInitialSetpointsResults() {
@@ -112,14 +111,15 @@ public class NewRAOTest {
 
     private MultipleSensitivityResult runInitialSensi() {
         List<Set<FlowCnec>> cnecsList = List.of(cracs.get(0).getFlowCnecs(), cracs.get(1).getFlowCnecs());
-        List<Set<RangeAction<?>>> rangeActionsList = List.of(cracs.get(0).getRangeActions(), cracs.get(1).getRangeActions());
-
+        Set<RangeAction<?>> rangeActionsSet = new HashSet<>();
+        rangeActionsSet.addAll(cracs.get(0).getRangeActions());
+        rangeActionsSet.addAll(cracs.get(1).getRangeActions());
         RaoParameters raoParameters = RaoParameters.load();
         ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
 
         SensitivityComputerMultiTS sensitivityComputerMultiTS = SensitivityComputerMultiTS.create()
             .withCnecs(cnecsList)
-            .withRangeActions(rangeActionsList)
+            .withRangeActions(rangeActionsSet)
             .withOutageInstant(cracs.get(0).getOutageInstant())
             .withToolProvider(toolProvider)
             .build();
@@ -165,10 +165,10 @@ public class NewRAOTest {
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(allCnecs, Unit.MEGAWATT);
 
         MultiTSFiller multiTSFiller = new MultiTSFiller(
-            List.of(cracs.get(0).getRangeActions(),cracs.get(1).getRangeActions()),
+            optimizationPerimeters,
             networks,
-            List.of(optimizationPerimeters.get(0).getMainOptimizationState(),optimizationPerimeters.get(1).getMainOptimizationState()),
-            rangeActionParameters);
+            rangeActionParameters,
+            new RangeActionActivationResultImpl(initialSetpoints));
 
         LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder()
             .withSolver(orMpSolver.getSolver())
@@ -265,7 +265,6 @@ public class NewRAOTest {
         System.out.println(pstOptimizedSetPoint1);
     }
 
-
     @Test
     public void testLinearProblemsSeparated() {
 
@@ -274,7 +273,7 @@ public class NewRAOTest {
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
 
         MaxMinMarginFiller maxMinMarginFiller0 = new MaxMinMarginFiller(cracs.get(0).getFlowCnecs(), Unit.MEGAWATT);
-        MaxMinMarginFiller maxMinMarginFiller1 = new MaxMinMarginFiller(cracs.get(1).getFlowCnecs(),Unit.MEGAWATT);
+        MaxMinMarginFiller maxMinMarginFiller1 = new MaxMinMarginFiller(cracs.get(1).getFlowCnecs(), Unit.MEGAWATT);
 
         CoreProblemFiller coreProblemFiller0 = new CoreProblemFiller(
             optimizationPerimeters.get(0),
@@ -292,19 +291,19 @@ public class NewRAOTest {
             false);
 
         LinearProblem linearProblem0 = new LinearProblemBuilder()
-                .withSolver(orMpSolver0.getSolver())
-                .withProblemFiller(coreProblemFiller0)
-                .withProblemFiller(maxMinMarginFiller0)
-                .build();
+            .withSolver(orMpSolver0.getSolver())
+            .withProblemFiller(coreProblemFiller0)
+            .withProblemFiller(maxMinMarginFiller0)
+            .build();
 
         linearProblem0.fill(initialSensiResult, initialSensiResult);
         linearProblem0.solve();
 
         LinearProblem linearProblem1 = new LinearProblemBuilder()
-                .withSolver(orMpSolver1.getSolver())
-                .withProblemFiller(coreProblemFiller1)
-                .withProblemFiller(maxMinMarginFiller1)
-                .build();
+            .withSolver(orMpSolver1.getSolver())
+            .withProblemFiller(coreProblemFiller1)
+            .withProblemFiller(maxMinMarginFiller1)
+            .build();
 
         linearProblem1.fill(initialSensiResult, initialSensiResult);
         linearProblem1.solve();

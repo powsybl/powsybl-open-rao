@@ -2,7 +2,6 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
@@ -23,10 +22,6 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Preventi
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizerMultiTS;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CoreProblemFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstTapFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxMinMarginFiller;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MultiTSFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerMultiTSInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
@@ -42,10 +37,9 @@ import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MultiTSScenariosTest {
-
-
     List<Network> networks;
     List<Crac> cracs;
     RangeActionSetpointResult initialSetpoints;
@@ -55,8 +49,8 @@ public class MultiTSScenariosTest {
 
     @BeforeEach
     public void setUp() {
-        pstModel = RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS;
-        int caseNumber = 3;
+        pstModel = RangeActionsOptimizationParameters.PstModel.CONTINUOUS;
+        int caseNumber = 1;
 
         String path0 = "crac/crac-case" + caseNumber + "_0.json";
         String path1 = "crac/crac-case" + caseNumber + "_1.json";
@@ -65,9 +59,9 @@ public class MultiTSScenariosTest {
         networks.add(Network.read("network/12NodesProdFR.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct")));
 
         //for test cases number from 0 to 2
-//        networks.add(Network.read("network/12NodesProdFR.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct")));
+        networks.add(Network.read("network/12NodesProdFR.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct")));
         //for test cases number from 3 onwards
-        networks.add(Network.read("network/12NodesProdNL.uct", getClass().getResourceAsStream("/network/12NodesProdNL.uct")));
+//        networks.add(Network.read("network/12NodesProdNL.uct", getClass().getResourceAsStream("/network/12NodesProdNL.uct")));
 
         cracs = new ArrayList<>();
 //        cracs.add(CracImporters.importCrac("crac/crac-with-pst-range-action.json",
@@ -114,14 +108,15 @@ public class MultiTSScenariosTest {
 
     private MultipleSensitivityResult runInitialSensi() {
         List<Set<FlowCnec>> cnecsList = List.of(cracs.get(0).getFlowCnecs(), cracs.get(1).getFlowCnecs());
-        List<Set<RangeAction<?>>> rangeActionsList = List.of(cracs.get(0).getRangeActions(), cracs.get(1).getRangeActions());
-
+        Set<RangeAction<?>> rangeActionsSet = Stream.of(cracs.get(0).getRangeActions(), cracs.get(1).getRangeActions())
+            .flatMap(Set::stream)
+            .collect(Collectors.toSet());
         RaoParameters raoParameters = RaoParameters.load();
         ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
 
         SensitivityComputerMultiTS sensitivityComputerMultiTS = SensitivityComputerMultiTS.create()
             .withCnecs(cnecsList)
-            .withRangeActions(rangeActionsList)
+            .withRangeActions(rangeActionsSet)
             .withOutageInstant(cracs.get(0).getOutageInstant())
             .withToolProvider(toolProvider)
             .build();

@@ -22,7 +22,7 @@
   "contingencies": [],
   "flowCnecs": [
     {
-      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS3",
+      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS2",
       "name": "BBE2AA1  FFR3AA1  1 - preventive",
       "networkElementId": "BBE2AA1  FFR3AA1  1",
       "operator": "BE",
@@ -35,15 +35,15 @@
       "nominalV" : [ 400.0 ],
       "thresholds" : [ {
         "unit" : "megawatt",
-        "min" : -600.0,
-        "max" : 600.0,
+        "min" : -500.0,
+        "max" : 500.0,
         "side" : "left"
       } ]
     }
   ],
   "pstRangeActions": [
     {
-      "id": "pst_be - TS3",
+      "id": "pst_be - TS2",
       "name": "pst_be",
       "operator": "BE",
       "onInstantUsageRules": [
@@ -52,7 +52,7 @@
           "usageMethod": "available"
         }
       ],
-      "networkElementId": "BBE2AA1  BBE3AA1  1",
+      "networkElementId": "BBE2AA1  BBE3AA1  2",
       "initialTap": 0,
       "tapToAngleConversionMap": {
         "-1": -0.3896097993971608,

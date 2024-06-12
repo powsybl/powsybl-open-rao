@@ -221,22 +221,13 @@ public class LinearProblemBuilderMultiTS {
     }
 
     private ProblemFiller buildMultiTSFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters) {
-        List<Set<RangeAction<?>>> rangeActionsList = inputs.getOptimizationPerimeters()
-            .stream().map(perimeter -> perimeter.getRangeActions().stream().collect(Collectors.toSet()))
-            .collect(Collectors.toList());
-
-        List<State> statesList = inputs.getOptimizationPerimeters()
-            .stream().map(perimeter -> perimeter.getMainOptimizationState())
-            .collect(Collectors.toList());
-
         return new MultiTSFiller(
-            rangeActionsList,
+            inputs.getOptimizationPerimeters(),
             inputs.getNetworks(),
-            statesList,
-            parameters.getRangeActionParameters()
+            parameters.getRangeActionParameters(),
+            inputs.getRaActivationFromParentLeaf()
         );
     }
-
 
     private ProblemFiller buildContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
         return new ContinuousRangeActionGroupFiller(rangeActionsPerState);

@@ -26,10 +26,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
@@ -190,16 +187,16 @@ public final class IteratingLinearOptimizerMultiTS {
         //TODO : adapt sensitivity computer
         List<Set<FlowCnec>> cnecsList = new ArrayList<>();
         List<Set<FlowCnec>> loopFlowCnecsList = new ArrayList<>();
-        List<Set<RangeAction<?>>> rangeActionsList = new ArrayList<>();
+        Set<RangeAction<?>> rangeActions = new HashSet<>();
         for (OptimizationPerimeter perimeter : input.getOptimizationPerimeters()) {
             cnecsList.add(perimeter.getFlowCnecs());
-            rangeActionsList.add(perimeter.getRangeActions());
+            rangeActions.addAll(perimeter.getRangeActions());
             loopFlowCnecsList.add(perimeter.getLoopFlowCnecs());
         }
 
         SensitivityComputerMultiTS.SensitivityComputerBuilder builder = SensitivityComputerMultiTS.create()
             .withCnecs(cnecsList)
-            .withRangeActions(rangeActionsList)
+            .withRangeActions(rangeActions)
             .withAppliedRemedialActions(appliedRemedialActions)
             .withToolProvider(input.getToolProvider())
             .withOutageInstant(input.getOutageInstant());
