@@ -17,10 +17,9 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -45,7 +44,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         PstRangeAction pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
         Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, initialAlpha));
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
@@ -56,8 +55,8 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
-            initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
+            initialRangeActionResult,
+            new RangeActionResultImpl(initialRangeActionResult),
             rangeActionParameters,
             Unit.MEGAWATT,
             false);
@@ -68,7 +67,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             network,
             state,
             pstRangeActions,
-            initialRangeActionSetpointResult);
+            initialRangeActionResult);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -130,8 +129,8 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         // update linear problem, with a new PST tap equal to -4
         double alphaBeforeUpdate = tapToAngle.get(-4);
-        RangeActionActivationResult rangeActionActivationResultBeforeUpdate = new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(this.pstRangeAction, alphaBeforeUpdate)));
-        discretePstTapFiller.updateBetweenSensiIteration(linearProblem, flowResult, sensitivityResult, rangeActionActivationResultBeforeUpdate);
+        RangeActionResult rangeActionResultBeforeUpdate = new RangeActionResultImpl(new RangeActionResultImpl(Map.of(this.pstRangeAction, alphaBeforeUpdate)));
+        discretePstTapFiller.updateBetweenSensiIteration(linearProblem, flowResult, sensitivityResult, rangeActionResultBeforeUpdate);
 
         // check tap to angle conversion constraints
         assertEquals(alphaBeforeUpdate, tapToAngleConversionC.lb(), 1e-6);

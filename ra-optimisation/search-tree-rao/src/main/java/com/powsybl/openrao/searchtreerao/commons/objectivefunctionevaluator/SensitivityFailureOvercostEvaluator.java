@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -41,8 +41,8 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        if (sensitivityStatus == ComputationStatus.FAILURE) {
+    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
+        if (sensitivityResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
             TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
             return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
         }

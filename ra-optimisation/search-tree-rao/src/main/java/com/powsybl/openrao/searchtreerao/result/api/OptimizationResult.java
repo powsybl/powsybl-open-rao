@@ -10,5 +10,5 @@ package com.powsybl.openrao.searchtreerao.result.api;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface OptimizationResult extends FlowResult, SensitivityResult, ObjectiveFunctionResult, RangeActionActivationResult, NetworkActionsResult {
+public interface OptimizationResult extends FlowResult, SensitivityResult, ObjectiveFunctionResult, RangeActionResult, NetworkActionsResult {
 }

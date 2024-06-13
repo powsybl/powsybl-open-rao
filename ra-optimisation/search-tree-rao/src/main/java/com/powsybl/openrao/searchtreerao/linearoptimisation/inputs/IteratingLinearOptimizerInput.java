@@ -11,9 +11,10 @@ import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
+import com.powsybl.openrao.searchtreerao.result.impl.SearchTreeResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
@@ -28,14 +29,9 @@ public class IteratingLinearOptimizerInput {
 
     private final FlowResult initialFlowResult;
 
-    private final FlowResult prePerimeterFlowResult;
-    private final RangeActionSetpointResult prePerimeterSetpoints;
+    private final PerimeterResultWithCnecs prePerimeterResult;
 
-    private final FlowResult preOptimizationFlowResult;
-    private final SensitivityResult preOptimizationSensitivityResult;
-
-    private final AppliedRemedialActions preOptimizationAppliedRemedialActions;
-    private final RangeActionActivationResult raActivationFromParentLeaf;
+    private final SearchTreeResult preOptimizationResult;
 
     private final ObjectiveFunction objectiveFunction;
 
@@ -45,24 +41,16 @@ public class IteratingLinearOptimizerInput {
     public IteratingLinearOptimizerInput(Network network,
                                          OptimizationPerimeter optimizationPerimeter,
                                          FlowResult initialFlowResult,
-                                         FlowResult prePerimeterFlowResult,
-                                         RangeActionSetpointResult prePerimeterSetpoints,
-                                         FlowResult preOptimizationFlowResult,
-                                         SensitivityResult preOptimizationSensitivityResult,
-                                         AppliedRemedialActions preOptimizationAppliedRemedialActions,
-                                         RangeActionActivationResult raActivationFromParentLeaf,
+                                         PerimeterResultWithCnecs prePerimeterResult,
+                                         SearchTreeResult preOptimizationResult,
                                          ObjectiveFunction objectiveFunction,
                                          ToolProvider toolProvider,
                                          Instant outageInstant) {
         this.network = network;
         this.optimizationPerimeter = optimizationPerimeter;
         this.initialFlowResult = initialFlowResult;
-        this.prePerimeterFlowResult = prePerimeterFlowResult;
-        this.prePerimeterSetpoints = prePerimeterSetpoints;
-        this.preOptimizationFlowResult = preOptimizationFlowResult;
-        this.preOptimizationSensitivityResult = preOptimizationSensitivityResult;
-        this.preOptimizationAppliedRemedialActions = preOptimizationAppliedRemedialActions;
-        this.raActivationFromParentLeaf = raActivationFromParentLeaf;
+        this.prePerimeterResult = prePerimeterResult;
+        this.preOptimizationResult = preOptimizationResult;
         this.objectiveFunction = objectiveFunction;
         this.toolProvider = toolProvider;
         this.outageInstant = outageInstant;
@@ -80,28 +68,12 @@ public class IteratingLinearOptimizerInput {
         return initialFlowResult;
     }
 
-    public FlowResult getPrePerimeterFlowResult() {
-        return prePerimeterFlowResult;
+    public PerimeterResultWithCnecs getPrePerimeterResult() {
+        return prePerimeterResult;
     }
 
-    public RangeActionSetpointResult getPrePerimeterSetpoints() {
-        return prePerimeterSetpoints;
-    }
-
-    public FlowResult getPreOptimizationFlowResult() {
-        return preOptimizationFlowResult;
-    }
-
-    public SensitivityResult getPreOptimizationSensitivityResult() {
-        return preOptimizationSensitivityResult;
-    }
-
-    public AppliedRemedialActions getPreOptimizationAppliedRemedialActions() {
-        return preOptimizationAppliedRemedialActions;
-    }
-
-    public RangeActionActivationResult getRaActivationFromParentLeaf() {
-        return raActivationFromParentLeaf;
+    public SearchTreeResult getPreOptimizationResult() {
+        return preOptimizationResult;
     }
 
     public ObjectiveFunction getObjectiveFunction() {
@@ -124,12 +96,8 @@ public class IteratingLinearOptimizerInput {
         private Network network;
         private OptimizationPerimeter optimizationPerimeter;
         private FlowResult initialFlowResult;
-        private FlowResult prePerimeterFlowResult;
-        private RangeActionSetpointResult prePerimeterSetpoints;
-        private FlowResult preOptimizationFlowResult;
-        private SensitivityResult preOptimizationSensitivityResult;
-        private AppliedRemedialActions preOptimizationAppliedRemedialActions;
-        private RangeActionActivationResult raActivationFromParentLeaf;
+        private PerimeterResultWithCnecs prePerimeterResult;
+        private SearchTreeResult preOptimizationResult;
         private ObjectiveFunction objectiveFunction;
         private ToolProvider toolProvider;
         private Instant outageInstant;
@@ -149,33 +117,13 @@ public class IteratingLinearOptimizerInput {
             return this;
         }
 
-        public IteratingLinearOptimizerInputBuilder withPrePerimeterFlowResult(FlowResult prePerimeterFlowResult) {
-            this.prePerimeterFlowResult = prePerimeterFlowResult;
+        public IteratingLinearOptimizerInputBuilder withPrePerimeterResult(PerimeterResultWithCnecs prePerimeterResult) {
+            this.prePerimeterResult = prePerimeterResult;
             return this;
         }
 
-        public IteratingLinearOptimizerInputBuilder withPrePerimeterSetpoints(RangeActionSetpointResult prePerimeterSetpoints) {
-            this.prePerimeterSetpoints = prePerimeterSetpoints;
-            return this;
-        }
-
-        public IteratingLinearOptimizerInputBuilder withPreOptimizationFlowResult(FlowResult preOptimizationFlowResult) {
-            this.preOptimizationFlowResult = preOptimizationFlowResult;
-            return this;
-        }
-
-        public IteratingLinearOptimizerInputBuilder withPreOptimizationSensitivityResult(SensitivityResult preOptimizationSensitivityResult) {
-            this.preOptimizationSensitivityResult = preOptimizationSensitivityResult;
-            return this;
-        }
-
-        public IteratingLinearOptimizerInputBuilder withPreOptimizationAppliedRemedialActions(AppliedRemedialActions preOptimizationAppliedRemedialActions) {
-            this.preOptimizationAppliedRemedialActions = preOptimizationAppliedRemedialActions;
-            return this;
-        }
-
-        public IteratingLinearOptimizerInputBuilder withRaActivationFromParentLeaf(RangeActionActivationResult raActivationFromParentLeaf) {
-            this.raActivationFromParentLeaf = raActivationFromParentLeaf;
+        public IteratingLinearOptimizerInputBuilder withPreOptimizationResult(SearchTreeResult preOptimizationResult) {
+            this.preOptimizationResult = preOptimizationResult;
             return this;
         }
 
@@ -198,12 +146,8 @@ public class IteratingLinearOptimizerInput {
             return new IteratingLinearOptimizerInput(network,
                 optimizationPerimeter,
                 initialFlowResult,
-                prePerimeterFlowResult,
-                prePerimeterSetpoints,
-                preOptimizationFlowResult,
-                preOptimizationSensitivityResult,
-                preOptimizationAppliedRemedialActions,
-                raActivationFromParentLeaf,
+                prePerimeterResult,
+                preOptimizationResult,
                 objectiveFunction,
                 toolProvider,
                 outageInstant);

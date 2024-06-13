@@ -13,8 +13,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
         super(mainOptimizationState, flowCnecs, loopFlowCnecs, availableNetworkActions, availableRangeActions);
     }
 
-    public static GlobalOptimizationPerimeter build(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static GlobalOptimizationPerimeter build(Crac crac, Network network, RaoParameters raoParameters, PerimeterResultWithCnecs prePerimeterResult) {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 

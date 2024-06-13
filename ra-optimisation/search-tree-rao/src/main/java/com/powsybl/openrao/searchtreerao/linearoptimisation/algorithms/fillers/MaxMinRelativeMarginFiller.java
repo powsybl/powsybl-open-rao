@@ -17,8 +17,8 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import java.util.Optional;
 import java.util.Set;
@@ -52,21 +52,21 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        super.fill(linearProblem, flowResult, sensitivityResult);
+    public void fill(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult) {
+        super.fill(linearProblem, flowAndSensiResult);
         buildMinimumRelativeMarginSignBinaryVariable(linearProblem);
         updateMinimumNegativeMarginDefinition(linearProblem);
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult);
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, flowAndSensiResult);
         buildMinimumRelativeMarginVariable(linearProblem, validFlowCnecs);
         buildMinimumRelativeMarginConstraints(linearProblem, validFlowCnecs);
         fillObjectiveWithMinRelMargin(linearProblem);
     }
 
     @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult) {
         if (ptdfApproximationLevel.shouldUpdatePtdfWithPstChange()) {
-            FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult).forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
-                setOrUpdateRelativeMarginCoefficients(linearProblem, flowResult, cnec, side)
+            FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, flowAndSensiResult).forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
+                setOrUpdateRelativeMarginCoefficients(linearProblem, flowAndSensiResult, cnec, side)
             ));
         }
     }

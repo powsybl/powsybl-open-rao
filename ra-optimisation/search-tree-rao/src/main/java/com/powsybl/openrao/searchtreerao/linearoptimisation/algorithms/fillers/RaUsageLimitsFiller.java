@@ -15,10 +15,9 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitatio
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import java.util.Map;
 import java.util.Objects;
@@ -35,13 +34,13 @@ import java.util.stream.Collectors;
 public class RaUsageLimitsFiller implements ProblemFiller {
 
     private final Map<State, Set<RangeAction<?>>> rangeActions;
-    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
+    private final RangeActionResult prePerimeterRangeActionSetpoints;
     private final RangeActionLimitationParameters rangeActionLimitationParameters;
     private boolean arePstSetpointsApproximated;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-4;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
-                               RangeActionSetpointResult prePerimeterRangeActionSetpoints,
+                               RangeActionResult prePerimeterRangeActionSetpoints,
                                RangeActionLimitationParameters rangeActionLimitationParameters,
                                boolean arePstSetpointsApproximated) {
         this.rangeActions = rangeActions;
@@ -51,7 +50,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void fill(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult) {
         rangeActions.forEach((state, rangeActionSet) -> {
             if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
                 return;
@@ -73,12 +72,12 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult) {
         // nothing to do, we are only comparing optimal and pre-perimeter setpoints
     }
 
     @Override
-    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenMipIteration(LinearProblem linearProblem, MultiStateRemedialActionResultImpl rangeActionResult) {
         // nothing to do, we are only comparing optimal and pre-perimeter setpoints
     }
 
@@ -116,7 +115,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
         OpenRaoMPConstraint constraint = linearProblem.addIsVariationConstraint(-LinearProblem.infinity(), initialSetpointRelaxation, rangeAction, state);
         constraint.setCoefficient(absoluteVariationVariable, 1);
-        double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+        double initialSetpoint = prePerimeterRangeActionSetpoints.getOptimizedSetpoint(rangeAction);
         constraint.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - rangeAction.getMinAdmissibleSetpoint(initialSetpoint)));
     }
 

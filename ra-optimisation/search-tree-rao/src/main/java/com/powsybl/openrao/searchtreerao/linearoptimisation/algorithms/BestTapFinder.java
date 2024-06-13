@@ -16,8 +16,9 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
@@ -47,24 +48,24 @@ public final class BestTapFinder {
      *
      * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
-    public static RangeActionActivationResult round(RangeActionActivationResult linearProblemResult,
-                                                    Network network,
-                                                    OptimizationPerimeter optimizationContext,
-                                                    RangeActionSetpointResult prePerimeterSetpoint,
-                                                    LinearOptimizationResult linearOptimizationResult,
-                                                    Unit unit) {
+    public static MultiStateRemedialActionResultImpl round(LinearProblemResult linearProblemResult,
+                                                           Network network,
+                                                           OptimizationPerimeter optimizationContext,
+                                                           PerimeterResultWithCnecs previousPerimeterResult,
+                                                           PerimeterResultWithCnecs previousBestResult,
+                                                           Unit unit) {
 
-        RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoint);
-        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit);
+        MultiStateRemedialActionResultImpl roundedResult = new MultiStateRemedialActionResultImpl(previousPerimeterResult, optimizationContext);
+        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, previousBestResult, roundedResult, unit);
         roundOtherRa(linearProblemResult, optimizationContext, roundedResult);
         return roundedResult;
     }
 
-    private static void findBestTapOfPstRangeActions(RangeActionActivationResult linearProblemResult,
+    private static void findBestTapOfPstRangeActions(LinearProblemResult linearProblemResult,
                                                      Network network,
                                                      OptimizationPerimeter optimizationContext,
-                                                     LinearOptimizationResult linearOptimizationResult,
-                                                     RangeActionActivationResultImpl roundedResult,
+                                                     PerimeterResultWithCnecs previousBestResult,
+                                                     MultiStateRemedialActionResultImpl roundedResult,
                                                      Unit unit) {
 
         for (State state : optimizationContext.getRangeActionOptimizationStates()) {
@@ -74,12 +75,12 @@ public final class BestTapFinder {
             optimizationContext.getRangeActionsPerState().get(state).stream()
                 .filter(PstRangeAction.class::isInstance)
                 .map(PstRangeAction.class::cast)
-                .forEach(pstRangeAction -> minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, linearProblemResult.getOptimizedSetpoint(pstRangeAction, state), linearOptimizationResult, unit)));
+                .forEach(pstRangeAction -> minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, linearProblemResult.getSetpointOnState(pstRangeAction, state), previousBestResult, unit)));
 
             Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
             for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
-                if (rangeAction instanceof PstRangeAction pstRangeAction && linearProblemResult.getActivatedRangeActions(state).contains(rangeAction)) {
+                if (rangeAction instanceof PstRangeAction pstRangeAction) {
                     Optional<String> optGroupId = pstRangeAction.getGroupId();
                     if (optGroupId.isPresent()) {
                         roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTapPerPstGroup.get(optGroupId.get())));
@@ -138,14 +139,14 @@ public final class BestTapFinder {
      *
      * @param pstRangeAction:           the PstRangeAction for which we need the best taps and margins
      * @param angle:                    the optimal angle computed by the linear problem
-     * @param linearOptimizationResult: allows to get flow & sensitivity values, as well as most limiting flow CNECs
+     * @param previousBestResult:       allows to get flow & sensitivity values, as well as most limiting flow CNECs
      * @param unit:                     the unit of the evaluators (MW or A)
      * @return a map containing the minimum margin for each best tap position (one or two taps)
      */
     static Map<Integer, Double> computeMinMarginsForBestTaps(Network network,
                                                              PstRangeAction pstRangeAction,
                                                              double angle,
-                                                             LinearOptimizationResult linearOptimizationResult,
+                                                             PerimeterResultWithCnecs previousBestResult,
                                                              Unit unit) {
         int closestTap = pstRangeAction.convertAngleToTap(angle);
         double closestAngle = pstRangeAction.convertTapToAngle(closestTap);
@@ -162,7 +163,7 @@ public final class BestTapFinder {
         if (Math.abs(angle - approxLimitAngle) / Math.abs(closestAngle - otherAngle) < 0.15) {
             // Angle is too close to the limit between two tap positions
             // Chose the tap that maximizes the margin on the most limiting element
-            Pair<Double, Double> margins = computeMinMargins(network, pstRangeAction, closestAngle, otherAngle, linearOptimizationResult, unit);
+            Pair<Double, Double> margins = computeMinMargins(network, pstRangeAction, closestAngle, otherAngle, previousBestResult, unit);
             if (margins.getRight() > margins.getLeft()) {
                 return Map.of(closestTap, margins.getLeft(), otherTap, margins.getRight());
             }
@@ -221,7 +222,7 @@ public final class BestTapFinder {
      * @param pstRangeAction:           the PstRangeAction that we should test on two angles
      * @param angle1:                   the first angle for the PST
      * @param angle2:                   the second angle for the PST
-     * @param linearOptimizationResult: allows to get flow & sensitivity values, as well as most limiting flow CNECs
+     * @param previousBestResult:       allows to get flow & sensitivity values, as well as most limiting flow CNECs
      * @param unit:                     the unit of the evalutors (MW or A)
      * @return a pair of two minimum margins (margin for angle1, margin for angle2)
      */
@@ -229,15 +230,15 @@ public final class BestTapFinder {
                                                   PstRangeAction pstRangeAction,
                                                   double angle1,
                                                   double angle2,
-                                                  LinearOptimizationResult linearOptimizationResult,
+                                                  PerimeterResultWithCnecs previousBestResult,
                                                   Unit unit) {
         double minMargin1 = Double.MAX_VALUE;
         double minMargin2 = Double.MAX_VALUE;
-        for (FlowCnec flowCnec : linearOptimizationResult.getMostLimitingElements(10)) {
+        for (FlowCnec flowCnec : previousBestResult.getMostLimitingElements(10)) {
             for (Side side : flowCnec.getMonitoredSides()) {
-                double sensitivity = linearOptimizationResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
+                double sensitivity = previousBestResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
                 double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
-                double referenceFlow = linearOptimizationResult.getFlow(flowCnec, side, unit) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, unit, MEGAWATT);
+                double referenceFlow = previousBestResult.getFlow(flowCnec, side, unit) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, unit, MEGAWATT);
 
                 double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;
                 double flow2 = sensitivity * (angle2 - currentSetPoint) + referenceFlow;
@@ -249,13 +250,12 @@ public final class BestTapFinder {
         return Pair.of(minMargin1, minMargin2);
     }
 
-    private static void roundOtherRa(RangeActionActivationResult linearProblemResult,
+    private static void roundOtherRa(LinearProblemResult linearProblemResult,
                                      OptimizationPerimeter optimizationContext,
-                                     RangeActionActivationResultImpl roundedResult) {
+                                     MultiStateRemedialActionResultImpl roundedResult) {
 
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.stream()
             .filter(ra -> !(ra instanceof PstRangeAction))
-            .filter(ra -> linearProblemResult.getActivatedRangeActions(state).contains(ra))
-            .forEach(ra -> roundedResult.activate(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
+            .forEach(ra -> roundedResult.activate(ra, state, Math.round(linearProblemResult.getSetpointOnState(ra, state)))));
     }
 }

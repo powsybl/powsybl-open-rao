@@ -15,8 +15,8 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +40,7 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
         }
     }
 
-    public static CurativeOptimizationPerimeter build(State curativeState, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static CurativeOptimizationPerimeter build(State curativeState, Crac crac, Network network, RaoParameters raoParameters, PerimeterResultWithCnecs prePerimeterResult) {
 
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(curativeState);
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
@@ -62,7 +62,7 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
             availableRangeActions);
     }
 
-    public static CurativeOptimizationPerimeter buildForStates(State curativeState, Set<State> allMonitoredStates, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static CurativeOptimizationPerimeter buildForStates(State curativeState, Set<State> allMonitoredStates, Crac crac, Network network, RaoParameters raoParameters, PerimeterResultWithCnecs prePerimeterResult) {
         Set<RangeAction<?>> rangeActions = crac.getPotentiallyAvailableRangeActions(curativeState);
 
         Set<State> filteredStates = allMonitoredStates.stream()

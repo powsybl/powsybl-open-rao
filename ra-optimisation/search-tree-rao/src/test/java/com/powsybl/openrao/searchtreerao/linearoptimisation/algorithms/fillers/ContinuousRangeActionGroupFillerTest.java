@@ -17,9 +17,9 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -49,7 +49,7 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
         String groupId = "group1";
         Map<Integer, Double> tapToAngle = pstRa1.getTapToAngleConversionMap(); // both PSTs have the same map
         double initialAlpha = tapToAngle.get(0);
-        RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRa1, initialAlpha, pstRa2, initialAlpha));
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRa1, initialAlpha, pstRa2, initialAlpha));
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
@@ -60,8 +60,8 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
 
         CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
-            initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
+            initialRangeActionResult,
+            new RangeActionResultImpl(initialRangeActionResult),
             rangeActionParameters,
             Unit.MEGAWATT,
             false);

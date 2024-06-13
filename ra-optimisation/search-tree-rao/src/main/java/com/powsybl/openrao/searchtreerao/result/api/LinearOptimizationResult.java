@@ -10,9 +10,9 @@ package com.powsybl.openrao.searchtreerao.result.api;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface LinearOptimizationResult extends FlowResult, SensitivityResult, RangeActionActivationResult, ObjectiveFunctionResult {
+public interface LinearOptimizationResult extends FlowResult, SensitivityResult, RangeActionResult, ObjectiveFunctionResult {
 
     LinearProblemStatus getStatus();
 
-    RangeActionActivationResult getRangeActionActivationResult();
+    RangeActionResult getRangeActionResult();
 }

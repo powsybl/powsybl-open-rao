@@ -524,7 +524,7 @@ class CastorFullOptimizationTest {
 
     @Test
     void testGetAppliedRemedialActionsInCurative() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        PerimeterResultWithAllCnecs prePerimeterResult = Mockito.mock(PerimeterResultWithAllCnecs.class);
 
         String pstNeId = "BBE2AA1  BBE3AA1  1";
         String naNeId = "BBE1AA1  BBE2AA1  1";

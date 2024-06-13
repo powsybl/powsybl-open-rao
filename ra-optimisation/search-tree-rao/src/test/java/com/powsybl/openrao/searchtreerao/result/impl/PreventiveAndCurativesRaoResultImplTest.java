@@ -55,9 +55,9 @@ class PreventiveAndCurativesRaoResultImplTest {
     private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
-    private PrePerimeterResult initialResult;
+    private PerimeterResultWithCnecs initialResult;
     private PerimeterResult postPrevResult;
-    private PrePerimeterResult preCurativeResult;
+    private PerimeterResultWithCnecs preCurativeResult;
     private PstRangeAction pstRangeAction;
     private RangeAction<?> rangeAction;
     private NetworkAction networkAction;
@@ -173,9 +173,9 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         when(curativeState3.getInstant()).thenReturn(curativeInstant);
 
-        initialResult = mock(PrePerimeterResult.class);
+        initialResult = mock(PerimeterResultWithCnecs.class);
         postPrevResult = mock(PerimeterResult.class);
-        preCurativeResult = mock(PrePerimeterResult.class);
+        preCurativeResult = mock(PerimeterResultWithCnecs.class);
 
         autoResult1 = mock(OptimizationResult.class);
         curativeResult1 = mock(OptimizationResult.class);

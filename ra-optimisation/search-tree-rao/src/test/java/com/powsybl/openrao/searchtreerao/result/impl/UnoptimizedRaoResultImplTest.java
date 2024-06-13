@@ -34,7 +34,7 @@ import static com.powsybl.openrao.commons.Unit.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class UnoptimizedRaoResultImplTest {
-    private PrePerimeterResult initialResult;
+    private PerimeterResultWithCnecs initialResult;
     private UnoptimizedRaoResultImpl output;
     private FlowCnec flowCnec;
     private Instant preventiveInstant;
@@ -47,7 +47,7 @@ class UnoptimizedRaoResultImplTest {
         preventiveInstant = Mockito.mock(Instant.class);
         autoInstant = Mockito.mock(Instant.class);
         curativeInstant = Mockito.mock(Instant.class);
-        initialResult = Mockito.mock(PrePerimeterResult.class);
+        initialResult = Mockito.mock(PerimeterResultWithCnecs.class);
         output = new UnoptimizedRaoResultImpl(initialResult);
         flowCnec = Mockito.mock(FlowCnec.class);
     }

@@ -26,9 +26,9 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -88,7 +88,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         flowCnecRangeActionMap.put(cnecInSeries, pstRangeActionInSeries);
 
-        RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeActionInSeries, 0.5));
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeActionInSeries, 0.5));
 
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(classicCnec, cnecInSeries));
@@ -102,8 +102,8 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
-            initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
+            initialRangeActionResult,
+            new RangeActionResultImpl(initialRangeActionResult),
             rangeActionParameters,
             MEGAWATT,
             false);

@@ -20,9 +20,9 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 class CoreProblemFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
-    private RangeActionSetpointResult initialRangeActionSetpointResult;
+    private RangeActionResult initialRangeActionResult;
     // some additional data
     private double minAlpha;
     private double maxAlpha;
@@ -56,7 +56,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxAdmissibleSetpoint(0);
         initialAlpha = pstRangeAction.convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
-        initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, initialAlpha));
+        initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
     }
 
     private void buildLinearProblem() {
@@ -92,8 +92,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
-            initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
+            initialRangeActionResult,
+            new RangeActionResultImpl(initialRangeActionResult),
             rangeActionParameters,
             Unit.MEGAWATT, raRangeShrinking);
         buildLinearProblem();
@@ -384,8 +384,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         when(sensitivityResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
 
         // update the problem
-        RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, initialAlpha));
-        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, new RangeActionActivationResultImpl(rangeActionSetpointResult));
+        RangeActionResult rangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
+        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, new RangeActionResultImpl(rangeActionResult));
     }
 
     @Test

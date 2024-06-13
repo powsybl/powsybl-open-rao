@@ -14,9 +14,8 @@ import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -41,8 +40,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult);
+    public void fill(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult) {
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, flowAndSensiResult);
 
         // build variables
         buildMinimumMarginVariable(linearProblem, validFlowCnecs);
@@ -55,12 +54,12 @@ public class MaxMinMarginFiller implements ProblemFiller {
     }
 
     @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult) {
         // Objective does not change, nothing to do
     }
 
     @Override
-    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenMipIteration(LinearProblem linearProblem, MultiStateRemedialActionResultImpl rangeActionResult) {
         // Objective does not change, nothing to do
     }
 

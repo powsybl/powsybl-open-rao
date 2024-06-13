@@ -11,7 +11,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -23,9 +23,7 @@ import java.util.*;
 public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
     private final FlowResult flowResult;
-    private final RangeActionActivationResult rangeActionActivationResult;
     private final SensitivityResult sensitivityResult;
-    private final ComputationStatus sensitivityStatus;
     private boolean areCostsComputed;
     private Double functionalCost;
     private Map<String, Double> virtualCosts;
@@ -36,14 +34,10 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
                                        FlowResult flowResult,
-                                       RangeActionActivationResult rangeActionActivationResult,
-                                       SensitivityResult sensitivityResult,
-                                       ComputationStatus sensitivityStatus) {
+                                       SensitivityResult sensitivityResult) {
         this.objectiveFunction = objectiveFunction;
         this.flowResult = flowResult;
-        this.rangeActionActivationResult = rangeActionActivationResult;
         this.sensitivityResult = sensitivityResult;
-        this.sensitivityStatus = sensitivityStatus;
         this.areCostsComputed = false;
     }
 
@@ -108,13 +102,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     }
 
     private void computeCosts(Set<String> contingenciesToExclude) {
-        Pair<Double, List<FlowCnec>> functionalCostAndLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
+        Pair<Double, List<FlowCnec>> functionalCostAndLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityResult, contingenciesToExclude);
         functionalCost = functionalCostAndLimitingElements.getLeft();
         orderedLimitingElements = functionalCostAndLimitingElements.getRight();
         virtualCosts = new HashMap<>();
         orderedCostlyElements = new HashMap<>();
         getVirtualCostNames().forEach(vcn -> {
-            Pair<Double, List<FlowCnec>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, vcn, contingenciesToExclude);
+            Pair<Double, List<FlowCnec>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityResult, vcn, contingenciesToExclude);
             virtualCosts.put(vcn, virtualCostAndCostlyElements.getLeft());
             orderedCostlyElements.put(vcn, virtualCostAndCostlyElements.getRight());
         });

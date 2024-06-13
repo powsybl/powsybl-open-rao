@@ -31,7 +31,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -71,7 +71,7 @@ class SearchTreeTest {
     private RangeAction<?> rangeAction1;
     private RangeAction<?> rangeAction2;
     private Set<RangeAction<?>> availableRangeActions;
-    private PrePerimeterResult prePerimeterResult;
+    private PerimeterResultWithAllCnecs prePerimeterResult;
     private AppliedRemedialActions appliedRemedialActions;
 
     private Leaf rootLeaf;
@@ -126,7 +126,7 @@ class SearchTreeTest {
         when(cnec.isOptimized()).thenReturn(true);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec));
         when(searchTreeInput.getOptimizationPerimeter()).thenReturn(optimizationPerimeter);
-        prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        prePerimeterResult = Mockito.mock(PerimeterResultWithAllCnecs.class);
         when(searchTreeInput.getPrePerimeterResult()).thenReturn(prePerimeterResult);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
@@ -237,9 +237,9 @@ class SearchTreeTest {
 
         // 1) Mock rootLeaf and previousDepthOptimalLeaf to return Set.of(rangeAction)
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        RangeActionActivationResultImpl rangeActionActivationResult = Mockito.mock(RangeActionActivationResultImpl.class);
+        RangeActionResultImpl rangeActionActivationResult = Mockito.mock(RangeActionResultImpl.class);
         when(rangeActionActivationResult.getRangeActions()).thenReturn(Set.of(rangeAction));
-        when(rootLeaf.getRangeActionActivationResult()).thenReturn(rangeActionActivationResult);
+        when(rootLeaf.getRangeActionResult()).thenReturn(rangeActionActivationResult);
         doReturn(rootLeaf).when(searchTree).makeLeaf(any(), any(), any(), any());
         searchTree.initLeaves(searchTreeInput);
 
@@ -252,11 +252,11 @@ class SearchTreeTest {
         setLeafStatusToEvaluated(unfilteredLeaf);
 
         // 4) Asserts that unfilteredLeaf keeps in memory activated range actions of parentLeaf
-        assertEquals(rangeActionActivationResult, unfilteredLeaf.getRangeActionActivationResult());
-        assertEquals(Set.of(rangeAction), unfilteredLeaf.getRangeActionActivationResult().getRangeActions());
+        assertEquals(rangeActionActivationResult, unfilteredLeaf.getRangeActionResult());
+        assertEquals(Set.of(rangeAction), unfilteredLeaf.getRangeActionResult().getRangeActions());
 
         // 5) Asserts that the filteredLeaf reset activated range actions of parentLeaf
-        assertEquals(Set.of(), filteredLeaf.getRangeActionActivationResult().getRangeActions());
+        assertEquals(Set.of(), filteredLeaf.getRangeActionResult().getRangeActions());
     }
 
     @Test
