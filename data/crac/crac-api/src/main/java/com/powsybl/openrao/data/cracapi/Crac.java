@@ -6,14 +6,25 @@
  */
 package com.powsybl.openrao.data.cracapi;
 
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.cnec.*;
+import com.powsybl.openrao.data.cracapi.io.Exporter;
+import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -21,7 +32,7 @@ import static java.lang.String.format;
 /**
  * Interface to manage CRAC.
  * CRAC stands for Contingency list, Remedial Actions and additional Constraints
- *
+ * <p>
  * It involves:
  * <ul>
  *     <li>{@link Instant} objects</li>
@@ -162,7 +173,7 @@ public interface Crac extends Identifiable<Crac> {
      * Can return null if no matching state or contingency are found.
      *
      * @param contingency: The contingency after which we want to select the state.
-     * @param instant: The instant at which we want to select the state.
+     * @param instant:     The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant.
      */
     State getState(Contingency contingency, Instant instant);
@@ -200,7 +211,7 @@ public interface Crac extends Identifiable<Crac> {
      * Select a unique state after a contingency and at a specific instant, specified by their ids.
      *
      * @param contingencyId: The contingency id after which we want to select the state.
-     * @param instant: The instant at which we want to select the state.
+     * @param instant:       The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant. Can return null if no matching
      * state or contingency are found.
      */
@@ -254,7 +265,7 @@ public interface Crac extends Identifiable<Crac> {
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
     // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     Set<BranchCnec> getBranchCnecs();
 
     /**
@@ -264,7 +275,7 @@ public interface Crac extends Identifiable<Crac> {
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
     // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     Set<BranchCnec> getBranchCnecs(State state);
 
     /**
@@ -273,7 +284,7 @@ public interface Crac extends Identifiable<Crac> {
      * @deprecated consider using getCnec() or getFlowCnec() instead
      */
     // keep the method (might be usefuls when we will have other BranchCnec than FlowCnec)
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     BranchCnec getBranchCnec(String branchCnecId);
 
     /**
@@ -531,4 +542,113 @@ public interface Crac extends Identifiable<Crac> {
      * Get a {@link RaUsageLimitsAdder}, to add a {@link RaUsageLimits} to the crac
      */
     RaUsageLimitsAdder newRaUsageLimits(String instantName);
+
+    /**
+     * Import CRAC from a file
+     *
+     * @param importers   candidates CRAC importers to process the data
+     * @param inputStream CRAC data
+     * @param cracFactory CRAC factory
+     * @param network     the network on which the CRAC data is based
+     * @return CRAC object
+     */
+    static Crac read(List<Importer> importers, InputStream inputStream, CracFactory cracFactory, Network network) {
+        for (Importer importer : importers) {
+            try {
+                return importer.importData(inputStream, cracFactory, network);
+            } catch (Exception ignored) {
+            }
+        }
+        throw new OpenRaoException("No suitable CRAC importer found.");
+    }
+
+    /**
+     * Import CRAC from a file
+     *
+     * @param inputStream CRAC data
+     * @param network     the network on which the CRAC data is based
+     * @return CRAC object
+     */
+    static Crac read(InputStream inputStream, Network network) {
+        return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, CracFactory.findDefault(), network);
+    }
+
+    /**
+     * Import CRAC from a file
+     *
+     * @param file    path to the CRAC data file
+     * @param network the network on which the CRAC data is based
+     * @return CRAC object
+     */
+    static Crac read(Path file, Network network) throws FileNotFoundException {
+        return read(new FileInputStream(file.toFile()), network);
+    }
+
+    /**
+     * Import CRAC from a file
+     *
+     * @param file    path to the CRAC data file
+     * @param network the network on which the CRAC data is based
+     * @return CRAC object
+     */
+    static Crac read(String file, Network network) throws FileNotFoundException {
+        return read(Paths.get(file), network);
+    }
+
+    /**
+     * Import CRAC from a file
+     *
+     * @param filename    name of the CRAC data file
+     * @param inputStream CRAC data
+     * @param network     the network on which the CRAC data is based
+     * @return CRAC object
+     */
+    static Crac read(String filename, InputStream inputStream, Network network) {
+        return read(inputStream, network);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param exporters    candidate CRAC exporters
+     * @param format       desired output CRAC data type
+     * @param outputStream file where to write the CRAC data
+     */
+    default void write(List<Exporter> exporters, String format, OutputStream outputStream) {
+        exporters.stream()
+            .filter(ex -> format.equals(ex.getFormat()))
+            .findFirst()
+            .orElseThrow(() -> new OpenRaoException("Export format " + format + " not supported"))
+            .exportData(this, outputStream);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param format       desired output CRAC data type
+     * @param outputStream file where to write the CRAC data
+     */
+    default void write(String format, OutputStream outputStream) {
+        write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, outputStream);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param format desired output CRAC data type
+     * @param file   file where to write the CRAC data
+     */
+    default void write(String format, String file) throws FileNotFoundException {
+        write(format, new FileOutputStream(file));
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param format desired output CRAC data type
+     * @param file   file where to write the CRAC data
+     */
+    default void write(String format, Path file) throws FileNotFoundException {
+        write(format, new FileOutputStream(file.toFile()));
+    }
 }

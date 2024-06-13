@@ -22,9 +22,6 @@ import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCrea
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.craccreator.FbConstraintCreationContext;
-import com.powsybl.openrao.data.cracioapi.CracExporters;
-import com.powsybl.openrao.data.cracioapi.CracImporters;
-import com.powsybl.openrao.data.craciojson.JsonImport;
 import com.powsybl.openrao.data.nativecracapi.NativeCrac;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporters;
@@ -75,7 +72,7 @@ public final class Helpers {
 
     public static Crac importCracFromInternalFormat(File cracFile, Network network) {
         try {
-            return roundTripOnCrac(new JsonImport().importCrac(new FileInputStream(cracFile), network), network);
+            return roundTripOnCrac(Crac.read(new FileInputStream(cracFile), network), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -130,11 +127,11 @@ public final class Helpers {
     private static Crac roundTripOnCrac(Crac crac, Network network) {
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        CracExporters.exportCrac(crac, "Json", outputStream);
+        crac.write("JSON", outputStream);
 
         // import Crac
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        return CracImporters.importCrac("crac.json", inputStream, network);
+        return Crac.read(inputStream, network);
     }
 
     public static ZonalData<SensitivityVariableSet> importUcteGlskFile(File glskFile, String timestamp, Network network) throws IOException {

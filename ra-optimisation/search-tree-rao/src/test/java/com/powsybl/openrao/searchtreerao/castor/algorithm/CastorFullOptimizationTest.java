@@ -26,7 +26,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
-import com.powsybl.openrao.data.cracioapi.CracImporters;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -43,6 +42,7 @@ import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -83,7 +83,7 @@ class CastorFullOptimizationTest {
     @BeforeEach
     public void setup() {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
-        crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
+        crac = Crac.read("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
@@ -578,7 +578,7 @@ class CastorFullOptimizationTest {
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
+        crac = Crac.read("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_oneIteration_v2.json"));
 
@@ -593,7 +593,7 @@ class CastorFullOptimizationTest {
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
+        crac = Crac.read("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -612,7 +612,7 @@ class CastorFullOptimizationTest {
         // Same RAO as before but activating 2P => results should be better
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
+        crac = Crac.read("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -636,7 +636,7 @@ class CastorFullOptimizationTest {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
+        crac = Crac.read("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -666,7 +666,7 @@ class CastorFullOptimizationTest {
 
         // Set up RAO and run
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P_cost_increase.json"), network);
+        crac = Crac.read("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P_cost_increase.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
         raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
@@ -881,7 +881,7 @@ class CastorFullOptimizationTest {
     @Test
     void optimizationWithAutoSearchTree() {
         Network network = Network.read("12Nodes_2_twin_lines.uct", getClass().getResourceAsStream("/network/12Nodes_2_twin_lines.uct"));
-        Crac crac = CracImporters.importCrac("crac/small-crac-available-aras.json", getClass().getResourceAsStream("/crac/small-crac-available-aras.json"), network);
+        Crac crac = Crac.read("crac/small-crac-available-aras.json", getClass().getResourceAsStream("/crac/small-crac-available-aras.json"), network);
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
@@ -908,7 +908,7 @@ class CastorFullOptimizationTest {
     @Test
     void optimizationWithAutoSearchTreeAndAutoPsts() {
         Network network = Network.read("12Nodes_2_twin_lines.uct", getClass().getResourceAsStream("/network/12Nodes_2_twin_lines.uct"));
-        Crac crac = CracImporters.importCrac("crac/small-crac-available-aras-low-limits-thresholds.json", getClass().getResourceAsStream("/crac/small-crac-available-aras-low-limits-thresholds.json"), network);
+        Crac crac = Crac.read("crac/small-crac-available-aras-low-limits-thresholds.json", getClass().getResourceAsStream("/crac/small-crac-available-aras-low-limits-thresholds.json"), network);
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
@@ -933,9 +933,9 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() {
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() throws FileNotFoundException {
         Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
-        Crac crac = CracImporters.importCrac(
+        Crac crac = Crac.read(
             Paths.get(new File(Objects.requireNonNull(CastorFullOptimizationTest.class.getResource("/crac/small-crac-ra-limits-per-instant.json")).getFile()).toString()),
             network
         );
@@ -952,9 +952,9 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() {
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() throws FileNotFoundException {
         Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
-        Crac crac = CracImporters.importCrac(
+        Crac crac = Crac.read(
             Paths.get(new File(Objects.requireNonNull(CastorFullOptimizationTest.class.getResource("/crac/small-crac-ra-limits-per-instant-3-tsos.json")).getFile()).toString()),
             network
         );
@@ -974,7 +974,7 @@ class CastorFullOptimizationTest {
     @Test
     void curativeOptimizationShouldNotBeDoneIfPreventiveUnsecure() {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
+        crac = Crac.read("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -989,7 +989,7 @@ class CastorFullOptimizationTest {
     @Test
     void curativeOptimizationShouldBeDoneIfPreventiveSecure() {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-secure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
+        crac = Crac.read("crac/small-crac-to-check-curative-optimization-if-preventive-secure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -1004,7 +1004,7 @@ class CastorFullOptimizationTest {
     @Test
     void curativeOptimizationShouldBeDoneIfPreventiveMinMarginNegative() {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
+        crac = Crac.read("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -1018,7 +1018,7 @@ class CastorFullOptimizationTest {
     @Test
     void curativeOptimizationShouldBeDoneIfPreventiveUnsecureAndAssociatedParameterSet() {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
+        crac = Crac.read("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -1033,7 +1033,7 @@ class CastorFullOptimizationTest {
     @Test
     void curativeOptimizationShouldBeDoneIfPreventiveSecureAndAssociatedParameterSet() {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-secure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
+        crac = Crac.read("crac/small-crac-to-check-curative-optimization-if-preventive-secure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -1048,7 +1048,7 @@ class CastorFullOptimizationTest {
     @Test
     void curativeOptimizationShouldBeDoneIfPreventiveMinMarginNegativeAndAssociatedParameterSet() {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
+        crac = Crac.read("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 

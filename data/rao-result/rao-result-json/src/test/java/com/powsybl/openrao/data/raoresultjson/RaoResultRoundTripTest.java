@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
-import com.powsybl.openrao.data.craciojson.JsonExport;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultimpl.RaoResultImpl;
@@ -66,7 +65,7 @@ class RaoResultRoundTripTest {
         new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT, AMPERE), outputStream);
 
         ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
-        new JsonExport().exportCrac(crac, outputStream2);
+        crac.write("JSON", outputStream2);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());

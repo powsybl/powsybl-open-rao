@@ -9,7 +9,6 @@ package com.powsybl.openrao.flowbasedcomputation.impl;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracioapi.CracImporters;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -259,7 +258,7 @@ final class ExampleGenerator {
     }
 
     static Crac crac(String fileName, Network network) {
-        return CracImporters.importCrac(fileName, ExampleGenerator.class.getResourceAsStream("/" + fileName), network);
+        return Crac.read(fileName, ExampleGenerator.class.getResourceAsStream("/" + fileName), network);
     }
 
     static ZonalData<SensitivityVariableSet> glskProvider() {

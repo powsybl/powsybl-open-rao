@@ -444,4 +444,10 @@ class CracImportExportTest {
         assertEquals(AVAILABLE, ur.getUsageMethod());
 
     }
+
+    @Test
+    void testImport() {
+        Crac crac = Crac.read(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), ExhaustiveCracCreation.createAssociatedNetwork());
+        assertNotNull(crac);
+    }
 }

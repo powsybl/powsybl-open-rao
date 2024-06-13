@@ -51,7 +51,7 @@ public final class RoundTripUtil {
         }
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            return (new JsonImport()).importCrac(inputStream, network);
+            return Crac.read(inputStream, network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
