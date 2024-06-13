@@ -20,8 +20,8 @@ Feature: US 21.6 : Import HVDC Range Actions
       | HVDC-direction1 + HVDC-direction2 - BBE2AA12 FFR3AA12 1 | HVDC-direction1 + HVDC-direction2 - BBE2AA12 FFR3AA12 1 | BBE2AA12 FFR3AA12 1 | BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1 | 0.0             |
     And the HVDC range actions should have the following ranges:
       | HvdcRangeActionId                                       | Ranges | RangeType | Min     | Max    |
-      | HVDC-direction1 + HVDC-direction2 - BBE2AA11 FFR3AA11 1 | 1      | ABSOLUTE  | -1500.0 | 1000.0 |
-      | HVDC-direction1 + HVDC-direction2 - BBE2AA12 FFR3AA12 1 | 1      | ABSOLUTE  | -1500.0 | 1000.0 |
+      | HVDC-direction1 + HVDC-direction2 - BBE2AA11 FFR3AA11 1 | 1      | ABSOLUTE  | -1000.0 | 1500.0 |
+      | HVDC-direction1 + HVDC-direction2 - BBE2AA12 FFR3AA12 1 | 1      | ABSOLUTE  | -1000.0 | 1500.0 |
     And the remedial actions should have the following usage rules:
       | RemedialActionId                                        | UsageRules | Rule               | Method | Instant | ContingencyId | FlowCnecId |
       | HVDC-direction1 + HVDC-direction2 - BBE2AA11 FFR3AA11 1 | 1          | OnContingencyState | Forced | auto    | Co-1          |            |
