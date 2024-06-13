@@ -229,8 +229,14 @@ public class HvdcRangeActionCreator {
         }
     }
 
-    // Return type :
-    // -- the boolean indicates whether the Hvdc line is inverted
+    /**
+     * @param networkElement - HVDC line name
+     * @param minCapacity
+     * @param maxCapacity
+     * @param inNode - The area of the related oriented border study where the energy flows INTO.
+     * @param outNode - The area of the related oriented border study where the energy comes FROM.
+     * @return - the boolean indicates whether the Hvdc line is inverted
+     */
     private boolean readHvdcRange(String networkElement, int minCapacity, int maxCapacity, String inNode, String outNode) {
         HvdcLine hvdcLine = network.getHvdcLine(networkElement);
         boolean isInverted;
@@ -245,11 +251,11 @@ public class HvdcRangeActionCreator {
         if (Objects.isNull(inNode) || Objects.isNull(outNode)) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "Missing HVDC in or out aggregate nodes");
         }
-        if (inNode.equals(from) && outNode.equals(to)) {
+        if (inNode.equals(to) && outNode.equals(from)) {
             isInverted = false;
             min = minCapacity;
             max = maxCapacity;
-        } else if (inNode.equals(to) && outNode.equals(from)) {
+        } else if (inNode.equals(from) && outNode.equals(to)) {
             isInverted = true;
             min = -maxCapacity;
             max = -minCapacity;
