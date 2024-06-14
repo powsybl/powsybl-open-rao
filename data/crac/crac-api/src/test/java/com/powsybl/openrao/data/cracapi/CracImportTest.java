@@ -30,16 +30,16 @@ class CracImportTest {
 
     @Test
     void testImportFromInputStream() {
-        assertNull(Crac.read(getClass().getResourceAsStream("/crac.example"), null));
+        assertNull(Crac.read(getClass().getResourceAsStream("/crac.txt"), null));
     }
 
     @Test
     void testImportFromPath() throws FileNotFoundException {
-        assertNull(Crac.read(Path.of(getClass().getResource("/crac.example").getPath()), null));
+        assertNull(Crac.read(Path.of(getClass().getResource("/crac.txt").getPath()), null));
     }
 
     @Test
     void testImportFromString() throws FileNotFoundException {
-        assertNull(Crac.read(getClass().getResource("/crac.example").getPath(), null));
+        assertNull(Crac.read(getClass().getResource("/crac.txt").getPath(), null));
     }
 }

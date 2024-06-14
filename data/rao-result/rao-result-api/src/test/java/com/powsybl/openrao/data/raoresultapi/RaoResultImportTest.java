@@ -30,16 +30,16 @@ class RaoResultImportTest {
 
     @Test
     void testImportFromInputStream() {
-        assertNull(RaoResult.read(getClass().getResourceAsStream("/raoResult.example"), null));
+        assertNull(RaoResult.read(getClass().getResourceAsStream("/raoResult.txt"), null));
     }
 
     @Test
     void testImportFromPath() throws FileNotFoundException {
-        assertNull(RaoResult.read(Path.of(getClass().getResource("/raoResult.example").getPath()), null));
+        assertNull(RaoResult.read(Path.of(getClass().getResource("/raoResult.txt").getPath()), null));
     }
 
     @Test
     void testImportFromString() throws FileNotFoundException {
-        assertNull(RaoResult.read(getClass().getResource("/raoResult.example").getPath(), null));
+        assertNull(RaoResult.read(getClass().getResource("/raoResult.txt").getPath(), null));
     }
 }
