@@ -10,8 +10,6 @@ package com.powsybl.openrao.data.raoresultapi;
 import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,15 +29,5 @@ class RaoResultImportTest {
     @Test
     void testImportFromInputStream() {
         assertNull(RaoResult.read(getClass().getResourceAsStream("/raoResult.txt"), null));
-    }
-
-    @Test
-    void testImportFromPath() throws FileNotFoundException {
-        assertNull(RaoResult.read(Path.of(getClass().getResource("/raoResult.txt").getPath()), null));
-    }
-
-    @Test
-    void testImportFromString() throws FileNotFoundException {
-        assertNull(RaoResult.read(getClass().getResource("/raoResult.txt").getPath(), null));
     }
 }

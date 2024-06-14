@@ -10,8 +10,6 @@ package com.powsybl.openrao.data.cracapi;
 import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,15 +29,5 @@ class CracImportTest {
     @Test
     void testImportFromInputStream() {
         assertNull(Crac.read(getClass().getResourceAsStream("/crac.txt"), null));
-    }
-
-    @Test
-    void testImportFromPath() throws FileNotFoundException {
-        assertNull(Crac.read(Path.of(getClass().getResource("/crac.txt").getPath()), null));
-    }
-
-    @Test
-    void testImportFromString() throws FileNotFoundException {
-        assertNull(Crac.read(getClass().getResource("/crac.txt").getPath(), null));
     }
 }

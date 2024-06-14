@@ -25,13 +25,8 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.io.Exporter;
 import com.powsybl.openrao.data.raoresultapi.io.Importer;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -472,28 +467,6 @@ public interface RaoResult {
     }
 
     /**
-     * Import RaoResult from a file
-     *
-     * @param file path to the RaoResult data file
-     * @param crac the crac on which the RaoResult data is based
-     * @return RaoResult object
-     */
-    static RaoResult read(Path file, Crac crac) throws FileNotFoundException {
-        return read(new FileInputStream(file.toFile()), crac);
-    }
-
-    /**
-     * Import RaoResult from a file
-     *
-     * @param file path to the RaoResult data file
-     * @param crac the crac on which the RaoResult data is based
-     * @return RaoResult object
-     */
-    static RaoResult read(String file, Crac crac) throws FileNotFoundException {
-        return read(Paths.get(file), crac);
-    }
-
-    /**
      * Write CRAC data into a file
      *
      * @param exporters    candidate CRAC exporters
@@ -516,25 +489,5 @@ public interface RaoResult {
      */
     default void write(String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
         write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, crac, flowUnits, outputStream);
-    }
-
-    /**
-     * Write CRAC data into a file
-     *
-     * @param format desired output CRAC data type
-     * @param file   file where to write the CRAC data
-     */
-    default void write(String format, Crac crac, Set<Unit> flowUnits, String file) throws FileNotFoundException {
-        write(format, crac, flowUnits, new FileOutputStream(file));
-    }
-
-    /**
-     * Write CRAC data into a file
-     *
-     * @param format desired output CRAC data type
-     * @param file   file where to write the CRAC data
-     */
-    default void write(String format, Crac crac, Set<Unit> flowUnits, Path file) throws FileNotFoundException {
-        write(format, crac, flowUnits, new FileOutputStream(file.toFile()));
     }
 }

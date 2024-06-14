@@ -18,13 +18,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -576,28 +571,6 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Import CRAC from a file
      *
-     * @param file    path to the CRAC data file
-     * @param network the network on which the CRAC data is based
-     * @return CRAC object
-     */
-    static Crac read(Path file, Network network) throws FileNotFoundException {
-        return read(new FileInputStream(file.toFile()), network);
-    }
-
-    /**
-     * Import CRAC from a file
-     *
-     * @param file    path to the CRAC data file
-     * @param network the network on which the CRAC data is based
-     * @return CRAC object
-     */
-    static Crac read(String file, Network network) throws FileNotFoundException {
-        return read(Paths.get(file), network);
-    }
-
-    /**
-     * Import CRAC from a file
-     *
      * @param filename    name of the CRAC data file
      * @param inputStream CRAC data
      * @param network     the network on which the CRAC data is based
@@ -630,25 +603,5 @@ public interface Crac extends Identifiable<Crac> {
      */
     default void write(String format, OutputStream outputStream) {
         write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, outputStream);
-    }
-
-    /**
-     * Write CRAC data into a file
-     *
-     * @param format desired output CRAC data type
-     * @param file   file where to write the CRAC data
-     */
-    default void write(String format, String file) throws FileNotFoundException {
-        write(format, new FileOutputStream(file));
-    }
-
-    /**
-     * Write CRAC data into a file
-     *
-     * @param format desired output CRAC data type
-     * @param file   file where to write the CRAC data
-     */
-    default void write(String format, Path file) throws FileNotFoundException {
-        write(format, new FileOutputStream(file.toFile()));
     }
 }

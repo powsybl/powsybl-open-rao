@@ -41,9 +41,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -933,10 +930,10 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() throws FileNotFoundException {
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() {
         Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
         Crac crac = Crac.read(
-            Paths.get(new File(Objects.requireNonNull(CastorFullOptimizationTest.class.getResource("/crac/small-crac-ra-limits-per-instant.json")).getFile()).toString()),
+            CastorFullOptimizationTest.class.getResourceAsStream("/crac/small-crac-ra-limits-per-instant.json"),
             network
         );
 
@@ -952,10 +949,10 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() throws FileNotFoundException {
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() {
         Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
         Crac crac = Crac.read(
-            Paths.get(new File(Objects.requireNonNull(CastorFullOptimizationTest.class.getResource("/crac/small-crac-ra-limits-per-instant-3-tsos.json")).getFile()).toString()),
+            CastorFullOptimizationTest.class.getResourceAsStream("/crac/small-crac-ra-limits-per-instant-3-tsos.json"),
             network
         );
 
