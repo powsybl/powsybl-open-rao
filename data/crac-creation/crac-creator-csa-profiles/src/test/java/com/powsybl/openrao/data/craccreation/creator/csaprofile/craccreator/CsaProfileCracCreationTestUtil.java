@@ -3,6 +3,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.Contingency;
@@ -279,7 +280,7 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static Network getNetworkFromResource(String filename) {
         Properties importParams = new Properties();
-        importParams.put("iidm.import.cgmes.cgm-with-subnetworks", false);
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, true);
         return Network.read(Paths.get(new File(CsaProfileCracCreationTestUtil.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 }
