@@ -22,6 +22,8 @@ import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresultapi.io.Exporter;
+import com.powsybl.openrao.data.raoresultapi.io.Importer;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

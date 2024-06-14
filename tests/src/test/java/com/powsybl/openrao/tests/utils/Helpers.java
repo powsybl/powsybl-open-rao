@@ -26,7 +26,6 @@ import com.powsybl.openrao.data.nativecracapi.NativeCrac;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporters;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.data.raoresultjson.RaoResultJsonImporter;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;

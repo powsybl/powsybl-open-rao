@@ -8,7 +8,7 @@ package com.powsybl.openrao.data.raoresultjson;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.raoresultapi.Importer;
+import com.powsybl.openrao.data.raoresultapi.io.Importer;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultjson.deserializers.RaoResultDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;

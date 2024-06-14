@@ -11,7 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.raoresultapi.Exporter;
+import com.powsybl.openrao.data.raoresultapi.io.Exporter;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultjson.serializers.RaoResultJsonSerializerModule;
 import com.powsybl.commons.json.JsonUtil;

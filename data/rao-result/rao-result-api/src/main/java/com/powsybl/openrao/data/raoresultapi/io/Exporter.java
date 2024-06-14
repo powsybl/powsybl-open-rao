@@ -5,18 +5,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracapi.io;
+package com.powsybl.openrao.data.raoresultapi.io;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.io.OutputStream;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface Exporter {
-
+    /**
+     * Get a unique identifier of the format.
+     */
     String getFormat();
 
-    void exportData(Crac crac, OutputStream outputStream);
+    void exportData(RaoResult raoResult, Crac crac, Set<Unit> flowUnits, OutputStream outputStream);
 }

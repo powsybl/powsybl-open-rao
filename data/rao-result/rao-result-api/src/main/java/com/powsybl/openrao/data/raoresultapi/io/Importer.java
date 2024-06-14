@@ -5,11 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracapi.io;
+package com.powsybl.openrao.data.raoresultapi.io;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.CracFactory;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.io.InputStream;
 
@@ -17,19 +16,17 @@ import java.io.InputStream;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface Importer {
-
     /**
      * Get a unique identifier of the format.
      */
     String getFormat();
 
     /**
-     * Create a model.
+     * Create a RaoResult.
      *
-     * @param inputStream data input stream
-     * @param cracFactory CRAC factory
-     * @param network     network upon which the CRAC is based
+     * @param inputStream RaoResult data
+     * @param crac        the crac on which the RaoResult data is based
      * @return the model
      */
-    Crac importData(InputStream inputStream, CracFactory cracFactory, Network network);
+    RaoResult importData(InputStream inputStream, Crac crac);
 }
