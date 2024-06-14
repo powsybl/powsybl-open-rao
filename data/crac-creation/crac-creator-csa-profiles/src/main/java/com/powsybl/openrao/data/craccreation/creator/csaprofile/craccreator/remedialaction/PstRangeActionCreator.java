@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.cracapi.range.TapRangeAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NotEnabledException;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.PropertyReference;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.RelativeDirectionKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ValueOffsetKind;
@@ -35,27 +36,19 @@ public class PstRangeActionCreator {
         this.network = network;
     }
 
-    public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<TapPositionAction>> linkedTapPositionActions, Map<String, Set<StaticPropertyRange>> linkedStaticPropertyRanges, String remedialActionId, String elementaryActionsAggregatorId, List<String> alterations) {
+    public PstRangeActionAdder getPstRangeActionAdder(boolean isGroup, String elementaryActionsAggregatorId, TapPositionAction nativeTapPositionAction, Map<String, Set<StaticPropertyRange>> linkedStaticPropertyRanges, String remedialActionId) {
         PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction().withId(remedialActionId);
-
-        if (linkedTapPositionActions.containsKey(elementaryActionsAggregatorId)) {
-            if (linkedTapPositionActions.get(elementaryActionsAggregatorId).size() > 1) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because several TapPositionActions were defined for the same PST Range Action when only one is expected", remedialActionId));
-            }
-            TapPositionAction nativeTapPositionAction = linkedTapPositionActions.get(elementaryActionsAggregatorId).iterator().next();
-            Set<StaticPropertyRange> linkedStaticPropertyRangesToTapPositionAction = new HashSet<>();
-            if (linkedStaticPropertyRanges.containsKey(nativeTapPositionAction.mrid())) {
-                linkedStaticPropertyRangesToTapPositionAction = linkedStaticPropertyRanges.get(nativeTapPositionAction.mrid());
-            }
-            addTapPositionElementaryAction(linkedStaticPropertyRangesToTapPositionAction, remedialActionId, pstRangeActionAdder, nativeTapPositionAction);
+        Set<StaticPropertyRange> linkedStaticPropertyRangesToTapPositionAction = new HashSet<>();
+        if (linkedStaticPropertyRanges.containsKey(nativeTapPositionAction.mrid())) {
+            linkedStaticPropertyRangesToTapPositionAction = linkedStaticPropertyRanges.get(nativeTapPositionAction.mrid());
         }
-
+        addTapPositionElementaryAction(isGroup, elementaryActionsAggregatorId, linkedStaticPropertyRangesToTapPositionAction, remedialActionId, pstRangeActionAdder, nativeTapPositionAction);
         return pstRangeActionAdder;
     }
 
-    private void addTapPositionElementaryAction(Set<StaticPropertyRange> linkedStaticPropertyRangesToTapPositionAction, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, TapPositionAction nativeTapPositionAction) {
+    private void addTapPositionElementaryAction(boolean isGroup, String elementaryActionsAggregatorId, Set<StaticPropertyRange> linkedStaticPropertyRangesToTapPositionAction, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, TapPositionAction nativeTapPositionAction) {
         if (!nativeTapPositionAction.normalEnabled()) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because the field normalEnabled in TapPositionAction is set to false", remedialActionId));
+            throw new NotEnabledException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because the field normalEnabled in TapPositionAction is set to false", remedialActionId));
         }
         CsaProfileCracUtils.checkPropertyReference(remedialActionId, "TapPositionAction", PropertyReference.TAP_CHANGER, nativeTapPositionAction.propertyReference());
         IidmPstHelper iidmPstHelper = new IidmPstHelper(nativeTapPositionAction.tapChangerId(), network);
@@ -63,6 +56,9 @@ public class PstRangeActionCreator {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because " + iidmPstHelper.getInvalidReason());
         }
 
+        if (isGroup) {
+            pstRangeActionAdder.withGroupId(elementaryActionsAggregatorId);
+        }
         pstRangeActionAdder
             .withNetworkElement(nativeTapPositionAction.tapChangerId())
             .withInitialTap(iidmPstHelper.getInitialTap())
