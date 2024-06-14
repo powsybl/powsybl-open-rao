@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresultapi;
 
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -22,6 +23,14 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,9 +59,9 @@ public interface RaoResult {
      * given {@link Unit}.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried.
-     * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec:         The branch to be studied.
+     * @param side:             The side of the branch to be queried.
+     * @param unit:             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
     double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
@@ -62,8 +71,8 @@ public interface RaoResult {
      * given {@link Unit}.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param angleCnec: The angle cnec to be studied.
-     * @param unit: The unit in which the flow is queried. Only accepted value for now is DEGREE.
+     * @param angleCnec:        The angle cnec to be studied.
+     * @param unit:             The unit in which the flow is queried. Only accepted value for now is DEGREE.
      * @return The angle on the cnec at the optimization state in the given unit.
      */
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
@@ -75,8 +84,8 @@ public interface RaoResult {
      * given {@link Unit}.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec: The voltage cnec to be studied.
-     * @param unit: The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
+     * @param voltageCnec:      The voltage cnec to be studied.
+     * @param unit:             The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
      * @return The voltage on the cnec at the optimization state in the given unit.
      */
     default double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
@@ -89,8 +98,8 @@ public interface RaoResult {
      * flow direction of the given branch. If it is negative the branch is under constraint.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec: The branch to be studied.
-     * @param unit: The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec:         The branch to be studied.
+     * @param unit:             The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch at the optimization state in the given unit.
      */
     double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
@@ -101,8 +110,8 @@ public interface RaoResult {
      * angle direction of the given branch. If it is negative the cnec is under constraint.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param angleCnec: The angle cnec to be studied.
-     * @param unit: The unit in which the margin is queried. Only accepted for now is DEGREE.
+     * @param angleCnec:        The angle cnec to be studied.
+     * @param unit:             The unit in which the margin is queried. Only accepted for now is DEGREE.
      * @return The margin on the angle cnec at the optimization state in the given unit.
      */
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
@@ -115,8 +124,8 @@ public interface RaoResult {
      * of the given voltage level. If it is negative the cnec is under constraint.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec: The voltage cnec to be studied.
-     * @param unit: The unit in which the margin is queried. Only accepted for now is KILOVOLT.
+     * @param voltageCnec:      The voltage cnec to be studied.
+     * @param unit:             The unit in which the margin is queried. Only accepted for now is KILOVOLT.
      * @return The margin on the voltage cnec at the optimization state in the given unit.
      */
     default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
@@ -132,8 +141,8 @@ public interface RaoResult {
      * computation or the sum of them is null, this method could return {@code Double.NaN} values.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec: The branch to be studied.
-     * @param unit: The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec:         The branch to be studied.
+     * @param unit:             The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
     double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
@@ -144,8 +153,8 @@ public interface RaoResult {
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec: The branch to be studied.
-     * @param unit: The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec:         The branch to be studied.
+     * @param unit:             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
     double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
@@ -156,8 +165,8 @@ public interface RaoResult {
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec: The branch to be studied.
-     * @param unit: The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec:         The branch to be studied.
+     * @param unit:             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
     double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
@@ -168,7 +177,7 @@ public interface RaoResult {
      * not define any list of considered areas, this method could return {@code Double.NaN} values.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec: The branch to be studied.
+     * @param flowCnec:         The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
     double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side);
@@ -217,7 +226,7 @@ public interface RaoResult {
      * objective function, this method could return {@code Double.NaN} values.
      *
      * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param virtualCostName: The name of the virtual cost.
+     * @param virtualCostName:  The name of the virtual cost.
      * @return The specific virtual cost of the situation state.
      */
     double getVirtualCost(Instant optimizedInstant, String virtualCostName);
@@ -225,7 +234,7 @@ public interface RaoResult {
     /**
      * It states if the {@link RemedialAction} is activated on a specific {@link State}.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state:          The state of the state tree to be studied.
      * @param remedialAction: The remedial action to be studied.
      * @return True if the remedial action is chosen by the optimizer during the specified state.
      */
@@ -236,7 +245,7 @@ public interface RaoResult {
      * the network action has not been chosen by the optimizer on this state, but this action is already effective in
      * the network due to previous optimizations.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state:         The state of the state tree to be studied.
      * @param networkAction: The network action to be studied.
      * @return True if the network action is already active but has not been activated during the specified state.
      */
@@ -245,7 +254,7 @@ public interface RaoResult {
     /**
      * It states if the {@link NetworkAction} is activated on a specific {@link State}.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state:         The state of the state tree to be studied.
      * @param networkAction: The network action to be studied.
      * @return True if the network action is chosen by the optimizer during the specified state.
      */
@@ -254,7 +263,7 @@ public interface RaoResult {
     /**
      * It states if the {@link NetworkAction} is or was activated when a specific {@link State} is studied.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state:         The state of the state tree to be studied.
      * @param networkAction: The network action to be studied.
      * @return True if the network action is active during the specified state.
      */
@@ -275,7 +284,7 @@ public interface RaoResult {
      * point of the range action is different in the specified state compared to the previous state. The previous
      * "state" is the initial situation in the case of the preventive state.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state:       The state of the state tree to be studied.
      * @param rangeAction: The range action to be studied.
      * @return True if the set point of the range action has been changed during the specified state.
      */
@@ -286,18 +295,18 @@ public interface RaoResult {
      * on the specified {@link State}. So, in the specific case of a PST range action that would be defined several
      * times for the same PST (but available on different states), the final result would always be the situation of
      * the PST on the state before its optimization. For example, if two PST range actions are defined :
-     *  - RA1 : on "pst-element" only available in preventive state
-     *  - RA2 : on "pst-element" only available on curative state after contingency "co-example"
-     *
+     * - RA1 : on "pst-element" only available in preventive state
+     * - RA2 : on "pst-element" only available on curative state after contingency "co-example"
+     * <p>
      * Let's say tap of "pst-element" is initially at 0 in the network. During preventive optimization RA1 is activated
      * and the PST tap goes to 5. During curative optimization RA2 is activated and the PST tap goes to 10. So when the
      * method is called, we would get the following results :
-     *  - getPreOptimizationTapOnState(preventiveState, RA1) = getPreOptimizationTapOnState(preventiveState, RA2) = 0
-     *  - getPreOptimizationTapOnState(curativeState, RA1) = getPreOptimizationTapOnState(curativeState, RA2) = 5
+     * - getPreOptimizationTapOnState(preventiveState, RA1) = getPreOptimizationTapOnState(preventiveState, RA2) = 0
+     * - getPreOptimizationTapOnState(curativeState, RA1) = getPreOptimizationTapOnState(curativeState, RA2) = 5
      * So we will still get 0 in preventive even if RA2 has not been activated during preventive optimization. And we
      * will still get 5 in curative even if RA1 has not been activated during curative optimization.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state:          The state of the state tree to be studied.
      * @param pstRangeAction: The PST range action to be studied.
      * @return The tap of the PST defined in the PST range action at the specified state before its optimization.
      */
@@ -308,18 +317,18 @@ public interface RaoResult {
      * on the specified {@link State}. So, in the specific case of a PST range action that would be defined several
      * times for the same PST (but available on different states), the final result would always be the optimized
      * situation of the PST on the state. For example, if two range actions are defined :
-     *  - RA1 : on "pst-element" only available in preventive state
-     *  - RA2 : on "pst-element" only available on curative state after contingency "co-example"
-     *
+     * - RA1 : on "pst-element" only available in preventive state
+     * - RA2 : on "pst-element" only available on curative state after contingency "co-example"
+     * <p>
      * Let's say tap of "pst-element" is initially at 0 in the network. During preventive optimization RA1 is activated
      * and the PST tap goes to 5. During curative optimization RA2 is activated and the PST tap goes to 10. So when the
      * method is called, we would get the following results :
-     *  - getOptimizedTapOnState(preventiveState, RA1) = getOptimizedTapOnState(preventiveState, RA2) = 5
-     *  - getOptimizedTapOnState(curativeState, RA1) = getOptimizedTapOnState(curativeState, RA2) = 10
+     * - getOptimizedTapOnState(preventiveState, RA1) = getOptimizedTapOnState(preventiveState, RA2) = 5
+     * - getOptimizedTapOnState(curativeState, RA1) = getOptimizedTapOnState(curativeState, RA2) = 10
      * So we will still get 5 in preventive even if RA2 has not been activated during preventive optimization. And we
      * will still get 10 in curative even if RA1 has not been activated during curative optimization.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state:          The state of the state tree to be studied.
      * @param pstRangeAction: The PST range action to be studied.
      * @return The tap of the PST defined in the PST range action at the specified state after its optimization.
      */
@@ -331,18 +340,18 @@ public interface RaoResult {
      * times for the same network element (but available on different states), the final result would always be the
      * set point of the network element on the state before its optimization. For example, if two range actions are
      * defined :
-     *  - RA1 : on "pst-element" only available in preventive state
-     *  - RA2 : on "pst-element" only available on curative state after contingency "co-example"
-     *
+     * - RA1 : on "pst-element" only available in preventive state
+     * - RA2 : on "pst-element" only available on curative state after contingency "co-example"
+     * <p>
      * Let's say the set point of "pst-element" is initially at 0. in the network. During preventive optimization RA1
      * is activated and the PST set point goes to 3.2. During curative optimization RA2 is activated and the PST tap
      * goes to 5.6. So when the  method is called, we would get the following results :
-     *  - getOptimizedSetPointOnState(preventiveState, RA1) = getOptimizedSetPointOnState(preventiveState, RA2) = 0.
-     *  - getOptimizedSetPointOnState(curativeState, RA1) = getOptimizedSetPointOnState(curativeState, RA2) = 3.2
+     * - getOptimizedSetPointOnState(preventiveState, RA1) = getOptimizedSetPointOnState(preventiveState, RA2) = 0.
+     * - getOptimizedSetPointOnState(curativeState, RA1) = getOptimizedSetPointOnState(curativeState, RA2) = 3.2
      * So we will still get 0. in preventive even if RA2 has not been activated during preventive optimization. And we
      * will still get 3.2 in curative even if RA1 has not been activated during curative optimization.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state:       The state of the state tree to be studied.
      * @param rangeAction: The range action to be studied.
      * @return The set point of the network element defined in the range action at the specified state before its
      * optimization.
@@ -354,18 +363,18 @@ public interface RaoResult {
      * on the specified {@link State}. So, in the specific case of a range action that would be defined several
      * times for the same network element (but available on different states), the final result would always be the
      * optimized situation of the network element on the state. For example, if two PST range actions are defined :
-     *  - RA1 : on "pst-element" only available in preventive state
-     *  - RA2 : on "pst-element" only available on curative state after contingency "co-example"
-     *
+     * - RA1 : on "pst-element" only available in preventive state
+     * - RA2 : on "pst-element" only available on curative state after contingency "co-example"
+     * <p>
      * Let's say the set point of "pst-element" is initially at 0. in the network. During preventive optimization RA1
      * is activated and the PST set point goes to 3.2. During curative optimization RA2 is activated and the PST tap
      * goes to 5.6. So when the  method is called, we would get the following results :
-     *  - getOptimizedSetPointOnState(preventiveState, RA1) = getOptimizedSetPointOnState(preventiveState, RA2) = 3.2
-     *  - getOptimizedSetPointOnState(curativeState, RA1) = getOptimizedSetPointOnState(curativeState, RA2) = 5.6
+     * - getOptimizedSetPointOnState(preventiveState, RA1) = getOptimizedSetPointOnState(preventiveState, RA2) = 3.2
+     * - getOptimizedSetPointOnState(curativeState, RA1) = getOptimizedSetPointOnState(curativeState, RA2) = 5.6
      * So we will still get 3.2 in preventive even if RA2 has not been activated during preventive optimization. And we
      * will still get 5.6 in curative even if RA1 has not been activated during curative optimization.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state:       The state of the state tree to be studied.
      * @param rangeAction: The range action to be studied.
      * @return The set point of the network element defined in the range action at the specified state after its
      * optimization.
@@ -409,7 +418,7 @@ public interface RaoResult {
      * Indicates whether the all the CNECs of a given type at a given instant are secure.
      *
      * @param optimizedInstant: The instant to assess
-     * @param u: The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
+     * @param u:                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
      */
     boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
@@ -429,5 +438,101 @@ public interface RaoResult {
      */
     default boolean isSecure() {
         return isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
+    }
+
+    /**
+     * Import RaoResult from a file
+     *
+     * @param importers   candidates RaoResult importers to process the data
+     * @param inputStream RaoResult data
+     * @param crac        the crac on which the RaoResult data is based
+     * @return RaoResult object
+     */
+    static RaoResult read(List<Importer> importers, InputStream inputStream, Crac crac) {
+        for (Importer importer : importers) {
+            try {
+                return importer.importData(inputStream, crac);
+            } catch (Exception ignored) {
+            }
+        }
+        throw new OpenRaoException("No suitable RaoResult importer found.");
+    }
+
+    /**
+     * Import RaoResult from a file
+     *
+     * @param inputStream RaoResult data
+     * @param crac        the crac on which the RaoResult data is based
+     * @return RaoResult object
+     */
+    static RaoResult read(InputStream inputStream, Crac crac) {
+        return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, crac);
+    }
+
+    /**
+     * Import RaoResult from a file
+     *
+     * @param file path to the RaoResult data file
+     * @param crac the crac on which the RaoResult data is based
+     * @return RaoResult object
+     */
+    static RaoResult read(Path file, Crac crac) throws FileNotFoundException {
+        return read(new FileInputStream(file.toFile()), crac);
+    }
+
+    /**
+     * Import RaoResult from a file
+     *
+     * @param file path to the RaoResult data file
+     * @param crac the crac on which the RaoResult data is based
+     * @return RaoResult object
+     */
+    static RaoResult read(String file, Crac crac) throws FileNotFoundException {
+        return read(Paths.get(file), crac);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param exporters    candidate CRAC exporters
+     * @param format       desired output CRAC data type
+     * @param outputStream file where to write the CRAC data
+     */
+    default void write(List<Exporter> exporters, String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
+        exporters.stream()
+            .filter(ex -> format.equals(ex.getFormat()))
+            .findFirst()
+            .orElseThrow(() -> new OpenRaoException("Export format " + format + " not supported"))
+            .exportData(this, crac, flowUnits, outputStream);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param format       desired output CRAC data type
+     * @param outputStream file where to write the CRAC data
+     */
+    default void write(String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
+        write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, crac, flowUnits, outputStream);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param format desired output CRAC data type
+     * @param file   file where to write the CRAC data
+     */
+    default void write(String format, Crac crac, Set<Unit> flowUnits, String file) throws FileNotFoundException {
+        write(format, crac, flowUnits, new FileOutputStream(file));
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param format desired output CRAC data type
+     * @param file   file where to write the CRAC data
+     */
+    default void write(String format, Crac crac, Set<Unit> flowUnits, Path file) throws FileNotFoundException {
+        write(format, crac, flowUnits, new FileOutputStream(file.toFile()));
     }
 }

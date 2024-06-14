@@ -18,7 +18,7 @@ import com.powsybl.openrao.data.craccreation.creator.cim.importer.CimCracImporte
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.data.raoresultjson.RaoResultImporter;
+import com.powsybl.openrao.data.raoresultjson.RaoResultJsonImporter;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
 import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultImporter;
@@ -75,7 +75,7 @@ class SweCneTest {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+        RaoResult raoResult = RaoResult.read(inputStream, crac);
         InputStream inputStream2 = null;
         try {
             inputStream2 = new FileInputStream(SweCneTest.class.getResource("/AngleMonitoringResult.json").getFile());
@@ -89,7 +89,7 @@ class SweCneTest {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        RaoResult raoResultWithFailure = new RaoResultImporter().importRaoResult(inputStream3, crac);
+        RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
         raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
         raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, angleMonitoringResult);
     }

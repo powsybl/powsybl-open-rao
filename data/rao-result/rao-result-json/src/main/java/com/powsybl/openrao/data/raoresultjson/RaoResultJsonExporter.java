@@ -7,9 +7,11 @@
 
 package com.powsybl.openrao.data.raoresultjson;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.raoresultapi.Exporter;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultjson.serializers.RaoResultJsonSerializerModule;
 import com.powsybl.commons.json.JsonUtil;
@@ -25,9 +27,15 @@ import java.util.Set;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RaoResultExporter {
+@AutoService(Exporter.class)
+public class RaoResultJsonExporter implements Exporter {
+    @Override
+    public String getFormat() {
+        return "JSON";
+    }
 
-    public void export(RaoResult raoResult, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
+    @Override
+    public void exportData(RaoResult raoResult, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
         if (flowUnits.isEmpty()) {
             throw new OpenRaoException("At least one flow unit should be defined");
         }

@@ -70,7 +70,6 @@
         <module>util</module>
         <module>monitoring</module>
         <module>tests</module>
-        <module>data/data-io</module>
     </modules>
 
     <properties>

@@ -82,7 +82,7 @@ class ImporterRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.0/crac-for-rao-result-v1.0.json");
 
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
+        RaoResult raoResult = RaoResult.read(raoResultFile, crac);
 
         testBaseContentOfV1RaoResult(raoResult, crac);
     }
@@ -100,7 +100,7 @@ class ImporterRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.1/crac-for-rao-result-v1.1.json");
 
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
+        RaoResult raoResult = RaoResult.read(raoResultFile, crac);
 
         testBaseContentOfV1RaoResult(raoResult, crac);
         testExtraContentOfV1Point1RaoResult(raoResult, crac);
@@ -115,8 +115,8 @@ class ImporterRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.1/crac-for-rao-result-v1.1.json");
 
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
-        RaoResultImporter importer = new RaoResultImporter();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> importer.importRaoResult(raoResultFile, crac));
+        RaoResultJsonImporter importer = new RaoResultJsonImporter();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> importer.importData(raoResultFile, crac));
         assertEquals("Cannot deserialize RaoResult: field flow in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", exception.getMessage());
     }
 
@@ -126,7 +126,7 @@ class ImporterRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/crac-for-rao-result-v1.2.json");
 
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
+        RaoResult raoResult = RaoResult.read(raoResultFile, crac);
 
         testBaseContentOfV1Point2RaoResult(raoResult, crac);
     }
@@ -139,8 +139,8 @@ class ImporterRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/crac-for-rao-result-v1.2.json");
 
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
-        RaoResultImporter importer = new RaoResultImporter();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> importer.importRaoResult(raoResultFile, crac));
+        RaoResultJsonImporter importer = new RaoResultJsonImporter();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> importer.importData(raoResultFile, crac));
         assertEquals("Cannot deserialize RaoResult: field flow in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", exception.getMessage());
     }
 
@@ -150,7 +150,7 @@ class ImporterRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
 
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
+        RaoResult raoResult = RaoResult.read(raoResultFile, crac);
 
         testBaseContentOfV1Point3RaoResult(raoResult, crac);
     }
@@ -161,7 +161,7 @@ class ImporterRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.4/crac-for-rao-result-v1.4.json");
 
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
+        RaoResult raoResult = RaoResult.read(raoResultFile, crac);
 
         testBaseContentOfV1Point3RaoResult(raoResult, crac);
     }
@@ -170,14 +170,14 @@ class ImporterRetrocompatibilityTest {
     void importV1Point3TestFieldDeprecationTest() {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
-        RaoResultImporter importer = new RaoResultImporter();
+        RaoResultJsonImporter importer = new RaoResultJsonImporter();
 
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/rao-result-v1.3-error1.json");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> importer.importRaoResult(raoResultFile, crac));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> importer.importData(raoResultFile, crac));
         assertEquals("Cannot deserialize RaoResult: field pstRangeActionId in RAO_RESULT in not supported in file version 1.3 (last supported in version 1.2)", exception.getMessage());
 
         InputStream raoResultFile2 = getClass().getResourceAsStream("/retrocompatibility/v1.3/rao-result-v1.3-error2.json");
-        exception = assertThrows(OpenRaoException.class, () -> importer.importRaoResult(raoResultFile2, crac));
+        exception = assertThrows(OpenRaoException.class, () -> importer.importData(raoResultFile2, crac));
         assertEquals("Cannot deserialize RaoResult: field afterPraTap in rangeActionResults in not supported in file version 1.3 (last supported in version 1.2)", exception.getMessage());
     }
 

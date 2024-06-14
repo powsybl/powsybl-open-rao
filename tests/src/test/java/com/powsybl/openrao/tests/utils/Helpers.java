@@ -26,7 +26,7 @@ import com.powsybl.openrao.data.nativecracapi.NativeCrac;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporters;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.data.raoresultjson.RaoResultImporter;
+import com.powsybl.openrao.data.raoresultjson.RaoResultJsonImporter;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
@@ -177,7 +177,7 @@ public final class Helpers {
 
     public static RaoResult importRaoResult(File raoResultFile) throws IOException {
         InputStream inputStream = new FileInputStream(raoResultFile);
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(inputStream, CommonTestData.getCrac());
+        RaoResult raoResult = RaoResult.read(inputStream, CommonTestData.getCrac());
         inputStream.close();
         return raoResult;
     }

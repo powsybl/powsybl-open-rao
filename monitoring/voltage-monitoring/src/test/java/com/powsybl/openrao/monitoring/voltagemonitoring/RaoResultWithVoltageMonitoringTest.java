@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.data.raoresultjson.RaoResultImporter;
+import com.powsybl.openrao.data.raoresultjson.RaoResultJsonImporter;
 import com.powsybl.openrao.monitoring.voltagemonitoring.json.VoltageMonitoringResultImporter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -51,7 +51,7 @@ class RaoResultWithVoltageMonitoringTest {
 
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
         Instant curativeInstant = crac.getInstant("curative");
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
+        RaoResult raoResult = new RaoResultJsonImporter().importRaoResult(raoResultFile, crac);
         VoltageMonitoringResult voltageMonitoringResult = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-monitoring-result.json"), crac);
         RaoResult raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
 

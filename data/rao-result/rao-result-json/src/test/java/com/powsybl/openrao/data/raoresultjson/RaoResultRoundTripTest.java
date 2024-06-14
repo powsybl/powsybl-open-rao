@@ -62,14 +62,14 @@ class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT, AMPERE), outputStream);
+        raoResult.write("JSON", crac, Set.of(MEGAWATT, AMPERE), outputStream);
 
         ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
         crac.write("JSON", outputStream2);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+        RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 
         // --------------------------
         // --- Computation status ---
@@ -442,11 +442,11 @@ class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT, AMPERE), outputStream);
+        raoResult.write("JSON", crac, Set.of(MEGAWATT, AMPERE), outputStream);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+        RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 
         // Before & after Preventive state
         assertEquals(-1, importedRaoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pstPrev));
@@ -516,26 +516,26 @@ class RaoResultRoundTripTest {
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        RaoResultExporter raoResultExporter = new RaoResultExporter();
+        RaoResultJsonExporter raoResultExporter = new RaoResultJsonExporter();
 
         // Empty set
         Set<Unit> emptySet = Collections.emptySet();
-        Exception exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.export(raoResult, crac, emptySet, outputStream));
+        Exception exception = assertThrows(OpenRaoException.class, () -> raoResult.write("JSON", crac, emptySet, outputStream));
         assertEquals("At least one flow unit should be defined", exception.getMessage());
 
         // "TAP" unit
         Set<Unit> tapSingleton = Set.of(TAP);
-        exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.export(raoResult, crac, tapSingleton, outputStream));
+        exception = assertThrows(OpenRaoException.class, () -> raoResult.write("JSON", crac, tapSingleton, outputStream));
         assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
 
         // "DEGREE" unit
         Set<Unit> degreeSingleton = Set.of(DEGREE);
-        exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.export(raoResult, crac, degreeSingleton, outputStream));
+        exception = assertThrows(OpenRaoException.class, () -> raoResult.write("JSON", crac, degreeSingleton, outputStream));
         assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
 
         // "KILOVOLT" + "AMPERE" units
         Set<Unit> kvAndAmp = Set.of(KILOVOLT, AMPERE);
-        exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.export(raoResult, crac, kvAndAmp, outputStream));
+        exception = assertThrows(OpenRaoException.class, () -> raoResult.write("JSON", crac, kvAndAmp, outputStream));
         assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
     }
 
@@ -547,9 +547,9 @@ class RaoResultRoundTripTest {
 
         // RoundTrip with Ampere only
         ByteArrayOutputStream outputStreamAmpere = new ByteArrayOutputStream();
-        new RaoResultExporter().export(raoResult, crac, Set.of(AMPERE), outputStreamAmpere);
+        raoResult.write("JSON", crac, Set.of(AMPERE), outputStreamAmpere);
         ByteArrayInputStream inputStreamAmpere = new ByteArrayInputStream(outputStreamAmpere.toByteArray());
-        RaoResult importedRaoResultAmpere = new RaoResultImporter().importRaoResult(inputStreamAmpere, crac);
+        RaoResult importedRaoResultAmpere = RaoResult.read(inputStreamAmpere, crac);
 
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
         assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(null, cnecP, Side.LEFT, MEGAWATT)));
@@ -561,9 +561,9 @@ class RaoResultRoundTripTest {
 
         // RoundTrip with MW only
         ByteArrayOutputStream outputStreamMegawatt = new ByteArrayOutputStream();
-        new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT), outputStreamMegawatt);
+        raoResult.write("JSON", crac, Set.of(MEGAWATT), outputStreamMegawatt);
         ByteArrayInputStream inputStreamMegawatt = new ByteArrayInputStream(outputStreamMegawatt.toByteArray());
-        RaoResult importedRaoResultMegawatt = new RaoResultImporter().importRaoResult(inputStreamMegawatt, crac);
+        RaoResult importedRaoResultMegawatt = RaoResult.read(inputStreamMegawatt, crac);
 
         assertEquals(4110, importedRaoResultMegawatt.getFlow(null, cnecP, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertTrue(Double.isNaN(importedRaoResultMegawatt.getFlow(null, cnecP, Side.RIGHT, MEGAWATT)));
