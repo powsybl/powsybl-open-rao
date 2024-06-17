@@ -36,4 +36,9 @@ public interface Instant extends Identifiable<Instant>, Comparable<Instant> {
     boolean isAuto();
 
     boolean isCurative();
+
+    @Override
+    default int compareTo(Instant otherInstant) {
+        return Integer.compare(getOrder(), otherInstant.getOrder());
+    }
 }

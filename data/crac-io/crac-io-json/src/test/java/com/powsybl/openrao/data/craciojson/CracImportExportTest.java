@@ -28,7 +28,6 @@ import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
