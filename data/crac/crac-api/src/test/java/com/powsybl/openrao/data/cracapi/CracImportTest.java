@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -28,6 +27,7 @@ class CracImportTest {
 
     @Test
     void testImportFromInputStream() {
-        assertNull(Crac.read(getClass().getResourceAsStream("/crac.txt"), null));
+        assertEquals("crac", Crac.read(getClass().getResourceAsStream("/crac.txt"), null).getId());
+        assertEquals("crac", Crac.read("crac.txt", getClass().getResourceAsStream("/crac.txt"), null).getId());
     }
 }

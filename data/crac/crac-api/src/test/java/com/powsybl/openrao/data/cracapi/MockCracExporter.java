@@ -8,24 +8,24 @@
 package com.powsybl.openrao.data.cracapi;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.cracapi.io.Importer;
+import com.powsybl.openrao.data.cracapi.io.Exporter;
 
-import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-@AutoService(Importer.class)
-public class MockCracImporter implements Importer {
-
+@AutoService(Exporter.class)
+public class MockCracExporter implements Exporter {
     @Override
     public String getFormat() {
         return "Mock";
     }
 
     @Override
-    public Crac importData(InputStream inputStream, CracFactory cracFactory, Network network) {
-        return new MockCrac("crac");
+    public void exportData(Crac crac, OutputStream outputStream) {
+        if (crac instanceof MockCrac mockCrac) {
+            mockCrac.setExportSuccessful();
+        }
     }
 }
