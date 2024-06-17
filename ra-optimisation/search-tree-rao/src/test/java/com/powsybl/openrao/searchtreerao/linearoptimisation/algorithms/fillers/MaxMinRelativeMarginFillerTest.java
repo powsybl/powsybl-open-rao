@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
-    private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
+    private static final double PRECISE_DOUBLE_TOLERANCE = 1e-9;
 
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
@@ -100,7 +100,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
-            .withSolver(mpSolver)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
@@ -134,9 +134,9 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
-        assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), INFINITY_TOLERANCE);
         assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
-        assertEquals(-LinearProblem.infinity(), cnec1AboveThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), cnec1AboveThreshold.lb(), INFINITY_TOLERANCE);
         assertEquals(MAX_FLOW_1, cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
@@ -152,7 +152,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumRelativeMargin), DOUBLE_TOLERANCE);
-        assertTrue(linearProblem.getObjective().minimization());
+        assertTrue(linearProblem.minimization());
 
         // check the number of variables and constraints
         assertEquals(6, linearProblem.numVariables());
@@ -203,9 +203,9 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         OpenRaoMPConstraint cnec1AboveThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         OpenRaoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), INFINITY_TOLERANCE);
         assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
-        assertEquals(-LinearProblem.infinity(), cnec1AboveThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), cnec1AboveThreshold.lb(), INFINITY_TOLERANCE);
         assertEquals(MAX_FLOW_1, cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
@@ -219,10 +219,28 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE);
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumRelativeMargin), DOUBLE_TOLERANCE);
-        assertTrue(linearProblem.getObjective().minimization());
+        assertTrue(linearProblem.minimization());
 
         // check the number of variables and constraints
         assertEquals(6, linearProblem.numVariables());
         assertEquals(9, linearProblem.numConstraints());
+    }
+
+    @Test
+    void testPtdfIsNaN() {
+        parameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
+        parameters.setPtdfSumLowerBound(0.1234);
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(Double.NaN);
+        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
+            Set.of(cnec1),
+            initialFlowResult,
+            MEGAWATT,
+            parameters
+        );
+        buildLinearProblem();
+        checkFillerContentMw(0.1234);
+        linearProblem.updateBetweenSensiIteration(mockFlowResult(Double.NaN), sensitivityResult, new RangeActionActivationResultImpl(initialRangeActionSetpointResult));
+        checkFillerContentMw(0.1234);
     }
 }

@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraint;
+import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
@@ -158,25 +158,6 @@ class RaoUtilTest {
     }
 
     @Test
-    void testRounding() {
-        double d1 = 1.;
-
-        // big enough deltas are not rounded out by the rounding method
-        double eps = 1e-6;
-        double d2 = d1 + eps;
-        for (int i = 0; i <= 30; i++) {
-            assertNotEquals(RaoUtil.roundDouble(d1, i), RaoUtil.roundDouble(d2, i), 1e-20);
-        }
-
-        // small deltas are rounded out as long as we round enough bits
-        eps = 1e-15;
-        d2 = d1 + eps;
-        for (int i = 20; i <= 30; i++) {
-            assertEquals(RaoUtil.roundDouble(d1, i), RaoUtil.roundDouble(d2, i), 1e-20);
-        }
-    }
-
-    @Test
     void testGetLargestCnecThreshold() {
         FlowCnec cnecA = Mockito.mock(FlowCnec.class);
         FlowCnec cnecB = Mockito.mock(FlowCnec.class);
@@ -223,7 +204,7 @@ class RaoUtilTest {
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withFlowCnec(flowCnec.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(flowCnec.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
@@ -259,7 +240,7 @@ class RaoUtilTest {
         NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
         when(automatonRa.getName()).thenReturn("fake automaton");
         OnInstant onInstant = Mockito.mock(OnInstant.class);
-        OnFlowConstraint onFlowConstraint = Mockito.mock(OnFlowConstraint.class);
+        OnConstraint<FlowCnec> onFlowConstraint = Mockito.mock(OnConstraint.class);
         State automatonState = Mockito.mock(State.class);
         when(automatonState.getInstant()).thenReturn(crac.getInstant(AUTO_INSTANT_ID));
         when(automatonState.getId()).thenReturn("fake automaton state");
@@ -340,6 +321,7 @@ class RaoUtilTest {
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         State optimizedState = Mockito.mock(State.class);
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        when(optimizedState.getContingency()).thenReturn(Optional.of(crac.getContingency("Contingency FR1 FR3")));
 
         FlowCnec cnecCont1 = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecCont2 = crac.getFlowCnec("cnec2stateCurativeContingency2");

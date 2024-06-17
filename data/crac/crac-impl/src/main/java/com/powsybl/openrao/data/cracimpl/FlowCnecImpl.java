@@ -36,6 +36,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                  String name,
                  NetworkElement networkElement,
                  String operator,
+                 String border,
                  State state,
                  boolean optimized,
                  boolean monitored,
@@ -45,7 +46,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                  Double nominalVRight,
                  Double iMaxLeft,
                  Double iMaxRight) {
-        super(id, name, networkElement, operator, state, optimized, monitored, thresholds, frm, nominalVLeft, nominalVRight);
+        super(id, name, networkElement, operator, border, state, optimized, monitored, thresholds, frm, nominalVLeft, nominalVRight);
         this.iMax[0] = iMaxLeft;
         this.iMax[1] = iMaxRight;
     }

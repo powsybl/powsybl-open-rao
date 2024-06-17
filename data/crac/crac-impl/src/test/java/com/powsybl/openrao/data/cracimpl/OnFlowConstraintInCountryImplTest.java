@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
@@ -72,5 +73,42 @@ class OnFlowConstraintInCountryImplTest {
         onFlowConstraint2 = new OnFlowConstraintInCountryImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT, Optional.empty(), Country.FR);
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
+    }
+
+    @Test
+    void testGetUsageMethodWithContringency() {
+        Contingency contingency1 = Mockito.mock(Contingency.class);
+        Contingency contingency2 = Mockito.mock(Contingency.class);
+
+        State stateAuto1 = new PostContingencyState(contingency1, AUTO_INSTANT);
+        State stateCur1 = new PostContingencyState(contingency1, CURATIVE_INSTANT);
+        State stateAuto2 = new PostContingencyState(contingency2, AUTO_INSTANT);
+        State stateCur2 = new PostContingencyState(contingency2, CURATIVE_INSTANT);
+
+        OnFlowConstraintInCountry ur;
+
+        ur = new OnFlowConstraintInCountryImpl(UsageMethod.AVAILABLE, AUTO_INSTANT, Optional.of(contingency1), Country.ES);
+        assertEquals(UsageMethod.AVAILABLE, ur.getUsageMethod(stateAuto1));
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateCur1));
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateAuto2));
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateCur2));
+
+        ur = new OnFlowConstraintInCountryImpl(UsageMethod.AVAILABLE, AUTO_INSTANT, Optional.empty(), Country.ES);
+        assertEquals(UsageMethod.AVAILABLE, ur.getUsageMethod(stateAuto1));
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateCur1));
+        assertEquals(UsageMethod.AVAILABLE, ur.getUsageMethod(stateAuto2));
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateCur2));
+
+        ur = new OnFlowConstraintInCountryImpl(UsageMethod.AVAILABLE, CURATIVE_INSTANT, Optional.of(contingency1), Country.ES);
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateAuto1));
+        assertEquals(UsageMethod.AVAILABLE, ur.getUsageMethod(stateCur1));
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateAuto2));
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateCur2));
+
+        ur = new OnFlowConstraintInCountryImpl(UsageMethod.AVAILABLE, CURATIVE_INSTANT, Optional.empty(), Country.ES);
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateAuto1));
+        assertEquals(UsageMethod.AVAILABLE, ur.getUsageMethod(stateCur1));
+        assertEquals(UsageMethod.UNDEFINED, ur.getUsageMethod(stateAuto2));
+        assertEquals(UsageMethod.AVAILABLE, ur.getUsageMethod(stateCur2));
     }
 }

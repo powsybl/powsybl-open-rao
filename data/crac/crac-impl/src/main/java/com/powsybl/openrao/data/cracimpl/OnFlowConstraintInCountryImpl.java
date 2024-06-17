@@ -47,6 +47,9 @@ public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements 
 
     @Override
     public UsageMethod getUsageMethod(State state) {
+        if (contingency.isPresent() && !contingency.get().equals(state.getContingency().orElse(null))) {
+            return UsageMethod.UNDEFINED;
+        }
         return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
     }
 

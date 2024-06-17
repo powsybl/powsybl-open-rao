@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -17,7 +18,9 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtens
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +35,7 @@ public class SearchTreeParameters {
     // required for the search tree algorithm
     private final TreeParameters treeParameters;
     private final NetworkActionParameters networkActionParameters;
-    private Map<Instant, RaUsageLimits> raLimitationParameters;
+    private final Map<Instant, RaUsageLimits> raLimitationParameters;
 
     // required for sub-module iterating linear optimizer
     private final RangeActionsOptimizationParameters rangeActionParameters;
@@ -112,6 +115,9 @@ public class SearchTreeParameters {
     }
 
     public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant) {
+        if (rangeActionSet.isEmpty()) {
+            return;
+        }
         Set<String> tsoCount = new HashSet<>();
         int raCount = 0;
         Map<String, Integer> currentPstPerTsoLimits = raUsageLimits.getMaxPstPerTso();
@@ -132,6 +138,63 @@ public class SearchTreeParameters {
         raUsageLimits.setMaxTopoPerTso(currentTopoPerTsoLimits);
         raUsageLimits.setMaxRaPerTso(currentRaPerTsoLimits);
         this.raLimitationParameters.put(preventiveInstant, raUsageLimits);
+    }
+
+    public void decreaseRemedialActionUsageLimits(Map<State, OptimizationResult> resultsPerOptimizationState) {
+        resultsPerOptimizationState.forEach((optimizedState, result) ->
+            raLimitationParameters.keySet().forEach(
+                otherInstant -> {
+                    // Cumulative behaviour of constraints only applies to instants of the same kind
+                    if (!otherInstant.comesBefore(optimizedState.getInstant()) && optimizedState.getInstant().getKind().equals(otherInstant.getKind())) {
+                        RaUsageLimits raUsageLimits = raLimitationParameters.get(otherInstant);
+                        int decreasedMaxRa = decreaseMaxRemedialAction(raUsageLimits, optimizedState, result);
+                        Map<String, Integer> decreasedMaxRaPerTso = decreaseMaxRemedialActionPerTso(raUsageLimits, optimizedState, result);
+                        Map<String, Integer> decreasedMaxTopoPerTso = decreaseMaxTopoPerTso(raUsageLimits, result, decreasedMaxRaPerTso);
+                        Map<String, Integer> decreasedMaxPstPerTso = decreaseMaxPstPerTso(raUsageLimits, optimizedState, result, decreasedMaxRaPerTso);
+                        int decreasedMaxTso = decreaseMaxTso(raUsageLimits, optimizedState, result);
+
+                        RaUsageLimits decreasedRaUsageLimits = new RaUsageLimits();
+                        decreasedRaUsageLimits.setMaxRa(decreasedMaxRa);
+                        decreasedRaUsageLimits.setMaxRaPerTso(decreasedMaxRaPerTso);
+                        decreasedRaUsageLimits.setMaxTopoPerTso(decreasedMaxTopoPerTso);
+                        decreasedRaUsageLimits.setMaxPstPerTso(decreasedMaxPstPerTso);
+                        raUsageLimits.getMaxTsoExclusion().forEach(decreasedRaUsageLimits::addTsoToExclude);
+                        decreasedRaUsageLimits.setMaxTso(decreasedMaxTso);
+
+                        raLimitationParameters.put(otherInstant, decreasedRaUsageLimits);
+                    }
+                }
+            )
+        );
+    }
+
+    private static int decreaseMaxRemedialAction(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result) {
+        return raUsageLimits.getMaxRa() - result.getActivatedNetworkActions().size() - result.getActivatedRangeActions(optimizedState).size();
+    }
+
+    private static Map<String, Integer> decreaseMaxTopoPerTso(RaUsageLimits raUsageLimits, OptimizationResult result, Map<String, Integer> decreasedMaxRaPerTso) {
+        Map<String, Integer> decreasedMaxTopoPerTso = new HashMap<>();
+        raUsageLimits.getMaxTopoPerTso().forEach((key, value) -> decreasedMaxTopoPerTso.put(key, Math.min(value - (int) result.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).count(), decreasedMaxRaPerTso.get(key))));
+        return decreasedMaxTopoPerTso;
+    }
+
+    private static Map<String, Integer> decreaseMaxPstPerTso(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result, Map<String, Integer> decreasedMaxRaPerTso) {
+        Map<String, Integer> decreasedMaxPstPerTso = new HashMap<>();
+        raUsageLimits.getMaxPstPerTso().forEach((key, value) -> decreasedMaxPstPerTso.put(key, Math.min(value - (int) result.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).count(), decreasedMaxRaPerTso.get(key))));
+        return decreasedMaxPstPerTso;
+    }
+
+    private static Map<String, Integer> decreaseMaxRemedialActionPerTso(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result) {
+        Map<String, Integer> decreasedMaxRaPerTso = new HashMap<>();
+        raUsageLimits.getMaxRaPerTso().forEach((key, value) -> decreasedMaxRaPerTso.put(key, value - (int) result.getActivatedNetworkActions().stream().filter(networkAction -> key.equals(networkAction.getOperator())).count() - (int) result.getActivatedRangeActions(optimizedState).stream().filter(networkAction -> key.equals(networkAction.getOperator())).count()));
+        return decreasedMaxRaPerTso;
+    }
+
+    private static int decreaseMaxTso(RaUsageLimits raUsageLimits, State optimizedState, OptimizationResult result) {
+        int tsosWithPreviouslyAppliedRas = raUsageLimits.getMaxTsoExclusion().size();
+        result.getActivatedNetworkActions().forEach(networkAction -> raUsageLimits.addTsoToExclude(networkAction.getOperator()));
+        result.getActivatedRangeActions(optimizedState).forEach(rangeAction -> raUsageLimits.addTsoToExclude(rangeAction.getOperator()));
+        return raUsageLimits.getMaxTso() - (raUsageLimits.getMaxTsoExclusion().size() - tsosWithPreviouslyAppliedRas);
     }
 
     public static SearchTreeParametersBuilder create() {
@@ -180,7 +243,7 @@ public class SearchTreeParameters {
         }
 
         public SearchTreeParametersBuilder withGlobalRemedialActionLimitationParameters(Map<Instant, RaUsageLimits> raLimitationParameters) {
-            this.raLimitationParameters = raLimitationParameters;
+            this.raLimitationParameters = new HashMap<>(raLimitationParameters);
             return this;
         }
 

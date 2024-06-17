@@ -167,6 +167,39 @@ class InjectionSetpointImplTest {
     }
 
     @Test
+    void canNotBeAppliedOnShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("SC1"),
+            3, Unit.SECTION_COUNT);
+        assertEquals(2, network.getShuntCompensator("SC1").getMaximumSectionCount());
+        assertFalse(shuntCompensatorSetpoint.canBeApplied(network)); // max is 2 while setpoint is 3
+    }
+
+    @Test
+    void canBeAppliedOnShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("SC1"),
+            1, Unit.SECTION_COUNT);
+        assertEquals(2, network.getShuntCompensator("SC1").getMaximumSectionCount());
+        assertTrue(shuntCompensatorSetpoint.canBeApplied(network)); // max is 2 while setpoint is 1
+    }
+
+    @Test
+    void canMaxBeAppliedOnShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("SC1"),
+            2, Unit.SECTION_COUNT);
+        assertEquals(2, network.getShuntCompensator("SC1").getMaximumSectionCount());
+        assertTrue(shuntCompensatorSetpoint.canBeApplied(network)); // max is 2 while setpoint is 2
+    }
+
+    @Test
     void getUnit() {
         InjectionSetpointImpl dummy = new InjectionSetpointImpl(
                 new NetworkElementImpl("wrong_name"),

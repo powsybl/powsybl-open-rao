@@ -7,9 +7,8 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraint;
 import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
@@ -42,41 +41,36 @@ class GroupRemedialActionTest {
         assertEquals(InstantKind.PREVENTIVE, ur0.getInstant().getKind());
         assertEquals(UsageMethod.AVAILABLE, ur0.getUsageMethod());
 
-        assertNetworkActionImported(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 1, "RTE");
+        assertNetworkActionImported(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 3, "RTE");
         assertEquals("Topo 1 + Topo 2 - CRA", cracCreationContext.getCrac().getRemedialAction("5569e363-59ab-497a-99b0-c4ae239cbe73").getName());
-        UsageRule ur1 = cracCreationContext.getCrac().getNetworkAction("5569e363-59ab-497a-99b0-c4ae239cbe73").getUsageRules().iterator().next();
-        assertTrue(ur1 instanceof OnInstant);
-        assertEquals(InstantKind.CURATIVE, ur1.getInstant().getKind());
-        assertEquals(UsageMethod.AVAILABLE, ur1.getUsageMethod());
+        assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
-        assertNetworkActionImported(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 1, "RTE");
+        assertNetworkActionImported(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 3, "RTE");
         assertEquals("Topo 1 + Topo 2 - CRA x CO1", cracCreationContext.getCrac().getRemedialAction("f4e1e04c-0184-42ea-a3cb-75dfe70112f5").getName());
-        UsageRule ur2 = cracCreationContext.getCrac().getNetworkAction("f4e1e04c-0184-42ea-a3cb-75dfe70112f5").getUsageRules().iterator().next();
-        assertTrue(ur2 instanceof OnContingencyState);
-        assertEquals(InstantKind.CURATIVE, ur2.getInstant().getKind());
-        assertEquals(UsageMethod.FORCED, ur2.getUsageMethod());
-        assertEquals("co1_fr2_fr3_1", ((OnContingencyState) ur2).getContingency().getId());
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
-        assertNetworkActionImported(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 1, "RTE");
+        assertNetworkActionImported(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 6, "RTE");
         assertEquals("Topo 1 + Topo 2 - CRA x AE1", cracCreationContext.getCrac().getRemedialAction("7d2833e4-c5a8-4d79-b936-c735a58f1774").getName());
-        UsageRule ur3 = cracCreationContext.getCrac().getNetworkAction("7d2833e4-c5a8-4d79-b936-c735a58f1774").getUsageRules().iterator().next();
-        assertTrue(ur3 instanceof OnFlowConstraint);
-        assertEquals(InstantKind.CURATIVE, ur3.getInstant().getKind());
-        assertEquals(UsageMethod.FORCED, ur3.getUsageMethod());
-        assertEquals("RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative", ((OnFlowConstraint) ur3).getFlowCnec().getId());
+        assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 1 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
 
         assertNetworkActionImported(cracCreationContext, "66979f64-3c52-486c-84f7-b5439cd71765", Set.of("BBE1AA1  BBE4AA1  1"), true, 1, "RTE");
         assertEquals("Topo 1 - PRA", cracCreationContext.getCrac().getRemedialAction("66979f64-3c52-486c-84f7-b5439cd71765").getName());
-        UsageRule ur4 = cracCreationContext.getCrac().getNetworkAction("66979f64-3c52-486c-84f7-b5439cd71765").getUsageRules().iterator().next();
-        assertTrue(ur4 instanceof OnInstant);
-        assertEquals(InstantKind.PREVENTIVE, ur4.getInstant().getKind());
-        assertEquals(UsageMethod.AVAILABLE, ur4.getUsageMethod());
+        assertHasOnInstantUsageRule(cracCreationContext, "66979f64-3c52-486c-84f7-b5439cd71765", PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
     }
 
     @Test
     void importGroupedHvdcRemedialActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/RemedialActionGroups_HVDC.zip", NETWORK);
-        assertNetworkActionImported(cracCreationContext, "hdvc-200-be-de", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 1, "RTE");
+        assertNetworkActionImported(cracCreationContext, "hdvc-200-be-de", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 3, "RTE");
         NetworkAction networkAction1 = cracCreationContext.getCrac().getNetworkAction("hdvc-200-be-de");
         assertEquals("HDVC Action - 200 MW BE to DE", networkAction1.getName());
         assertEquals(6, networkAction1.getElementaryActions().size());
@@ -86,11 +80,11 @@ class GroupRemedialActionTest {
         assertTrue(hasInjectionSetPointAction(networkAction1.getElementaryActions(), "BBE2AA1 _generator", -200));
         assertTrue(hasInjectionSetPointAction(networkAction1.getElementaryActions(), "DDE1AA1 _generator", 200));
         assertTrue(hasInjectionSetPointAction(networkAction1.getElementaryActions(), "DDE2AA1 _generator", 200));
-        UsageRule ur1 = networkAction1.getUsageRules().iterator().next();
-        assertEquals(InstantKind.CURATIVE, ur1.getInstant().getKind());
-        assertEquals(UsageMethod.AVAILABLE, ur1.getUsageMethod());
+        assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-be-de", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-be-de", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-be-de", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
-        assertNetworkActionImported(cracCreationContext, "hdvc-200-de-be", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 1, "RTE");
+        assertNetworkActionImported(cracCreationContext, "hdvc-200-de-be", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 3, "RTE");
         NetworkAction networkAction2 = cracCreationContext.getCrac().getNetworkAction("hdvc-200-de-be");
         assertEquals("HDVC Action - 200 MW DE to BE", networkAction2.getName());
         assertEquals(6, networkAction2.getElementaryActions().size());
@@ -100,11 +94,11 @@ class GroupRemedialActionTest {
         assertTrue(hasInjectionSetPointAction(networkAction2.getElementaryActions(), "BBE2AA1 _generator", 200));
         assertTrue(hasInjectionSetPointAction(networkAction2.getElementaryActions(), "DDE1AA1 _generator", -200));
         assertTrue(hasInjectionSetPointAction(networkAction2.getElementaryActions(), "DDE2AA1 _generator", -200));
-        UsageRule ur2 = networkAction2.getUsageRules().iterator().next();
-        assertEquals(InstantKind.CURATIVE, ur2.getInstant().getKind());
-        assertEquals(UsageMethod.AVAILABLE, ur2.getUsageMethod());
+        assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-de-be", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-de-be", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-de-be", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
-        assertNetworkActionImported(cracCreationContext, "hdvc-0", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 1, "RTE");
+        assertNetworkActionImported(cracCreationContext, "hdvc-0", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 3, "RTE");
         NetworkAction networkAction3 = cracCreationContext.getCrac().getNetworkAction("hdvc-0");
         assertEquals("HDVC Action - 0 MW", networkAction3.getName());
         assertEquals(6, networkAction3.getElementaryActions().size());
@@ -114,9 +108,9 @@ class GroupRemedialActionTest {
         assertTrue(hasInjectionSetPointAction(networkAction3.getElementaryActions(), "BBE2AA1 _generator", 0));
         assertTrue(hasInjectionSetPointAction(networkAction3.getElementaryActions(), "DDE1AA1 _generator", 0));
         assertTrue(hasInjectionSetPointAction(networkAction3.getElementaryActions(), "DDE2AA1 _generator", 0));
-        UsageRule ur3 = networkAction3.getUsageRules().iterator().next();
-        assertEquals(InstantKind.CURATIVE, ur3.getInstant().getKind());
-        assertEquals(UsageMethod.AVAILABLE, ur3.getUsageMethod());
+        assertHasOnInstantUsageRule(cracCreationContext, "hdvc-0", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "hdvc-0", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "hdvc-0", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
     }
 
     private boolean hasInjectionSetPointAction(Set<ElementaryAction> elementaryActions, String elementId, double setpoint) {
@@ -129,6 +123,12 @@ class GroupRemedialActionTest {
         return elementaryActions.stream()
             .filter(TopologicalAction.class::isInstance)
             .anyMatch(action -> ((TopologicalAction) action).getNetworkElement().getId().equals(elementId) && ((TopologicalAction) action).getActionType().equals(actionType));
+    }
+
+    @Test
+    void testImportRemedialActionGroupFromInvalidTopologyAction() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/RemedialActionGroupFromInvalidTopologyAction.zip", NETWORK);
+        assertTrue(cracCreationContext.getCrac().getNetworkActions().isEmpty());
     }
 
 }
