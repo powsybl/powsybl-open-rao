@@ -24,7 +24,9 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
-import com.powsybl.openrao.searchtreerao.searchtree.algorithms.Leaf;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
+import com.powsybl.openrao.searchtreerao.result.impl.SearchTreeResult;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -43,8 +45,7 @@ public final class RaoLogger {
 
     public static void logSensitivityAnalysisResults(String prefix,
                                                      ObjectiveFunction objectiveFunction,
-                                                     RangeActionActivationResult rangeActionActivationResult,
-                                                     PrePerimeterResult sensitivityAnalysisResult,
+                                                     PerimeterResultWithCnecs sensitivityAnalysisResult,
                                                      RaoParameters raoParameters,
                                                      int numberOfLoggedLimitingElements) {
 
@@ -52,8 +53,8 @@ public final class RaoLogger {
             return;
         }
 
-        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
-            sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
+        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult,
+            sensitivityAnalysisResult);
 
         BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
             formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
@@ -67,19 +68,24 @@ public final class RaoLogger {
     }
 
     public static void logRangeActions(OpenRaoLogger logger,
-                                       Leaf leaf,
-                                       OptimizationPerimeter
-                                           optimizationContext, String prefix) {
+                                       SearchTreeResult searchTreeResult,
+                                       OptimizationPerimeter optimizationContext,
+                                       String prefix) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
-        List<String> rangeActionSetpoints = optimizationContext.getRangeActionOptimizationStates().stream().flatMap(state ->
-            leaf.getActivatedRangeActions(state).stream().map(rangeAction -> {
-                double rangeActionValue = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getOptimizedTap(pstRangeAction, state) :
-                    leaf.getOptimizedSetpoint(rangeAction, state);
+        MultiStateRemedialActionResultImpl allStatesRangeActionResult = searchTreeResult.getAllStatesRangeActionResult();
+
+        List<String> rangeActionSetpoints = optimizationContext.getRangeActionOptimizationStates().stream().flatMap(state -> {
+            RangeActionResult stateRangeActionResult = allStatesRangeActionResult.getRangeActionResultOnState(state);
+            return stateRangeActionResult.getActivatedRangeActions().stream().map(rangeAction -> {
+                double rangeActionValue = rangeAction instanceof PstRangeAction pstRangeAction ?
+                    stateRangeActionResult.getOptimizedTap(pstRangeAction) :
+                    stateRangeActionResult.getOptimizedSetpoint(rangeAction);
                 return globalPstOptimization ? format("%s@%s: %.0f", rangeAction.getName(), state.getId(), rangeActionValue) :
                     format("%s: %.0f", rangeAction.getName(), rangeActionValue);
-            })).toList();
+            });
+        }).toList();
 
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
         if (isRangeActionSetPointEmpty) {
@@ -93,11 +99,11 @@ public final class RaoLogger {
         logMostLimitingElementsResults(logger, optimizationResult, optimizationResult, null, objectiveFunction, numberOfLoggedElements);
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, Set<State> states, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PerimeterResultWithCnecs prePerimeterResult, Set<State> states, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, states, objectiveFunction, numberOfLoggedElements);
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PerimeterResultWithCnecs prePerimeterResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, null, objectiveFunction, numberOfLoggedElements);
     }
 
@@ -131,7 +137,7 @@ public final class RaoLogger {
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             Side mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
                 cnecMargin,
@@ -161,7 +167,7 @@ public final class RaoLogger {
                                                       Perimeter preventivePerimeter,
                                                       OptimizationResult basecaseOptimResult,
                                                       Set<ContingencyScenario> contingencyScenarios,
-                                                      Map<State, OptimizationResult> contingencyOptimizationResults,
+                                                      Map<State, PerimeterResultWithCnecs> contingencyOptimizationResults,
                                                       ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                       int numberOfLoggedElements) {
         getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunction, numberOfLoggedElements)
@@ -171,7 +177,7 @@ public final class RaoLogger {
     public static List<String> getMostLimitingElementsResults(Perimeter preventivePerimeter,
                                                               OptimizationResult basecaseOptimResult,
                                                               Set<ContingencyScenario> contingencyScenarios,
-                                                              Map<State, OptimizationResult> contingencyOptimizationResults,
+                                                              Map<State, PerimeterResultWithCnecs> contingencyOptimizationResults,
                                                               ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                               int numberOfLoggedElements) {
         List<String> summary = new ArrayList<>();
@@ -206,7 +212,7 @@ public final class RaoLogger {
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
                 cnecMargin,
@@ -246,13 +252,13 @@ public final class RaoLogger {
         return mostLimitingElementsAndMargins;
     }
 
-    public static void logFailedOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
+    public static void logFailedOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, Double> rangeActions) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
         logger.info("Scenario \"{}\": {}", scenarioName, raResult);
     }
 
-    public static void logOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective) {
+    public static void logOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
         Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalObjective);
@@ -262,16 +268,16 @@ public final class RaoLogger {
         } else {
             Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(preOptimObjectiveFunctionResult);
             if (initialVirtualCostDetailed.isEmpty()) {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
+                initialCostString = format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
             } else {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
+                initialCostString = format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
             }
         }
         logger.info("Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, optimizedState.getInstant(),
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
     }
 
-    public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
+    public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, Double> rangeActions) {
         long activatedNetworkActions = networkActions.size();
         long activatedRangeActions = rangeActions.size();
         String networkActionsNames = StringUtils.join(networkActions.stream().map(Identifiable::getName).collect(Collectors.toSet()), ", ");
@@ -283,11 +289,11 @@ public final class RaoLogger {
         if (activatedNetworkActions + activatedRangeActions == 0) {
             return "no remedial actions activated";
         } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
-            return String.format("%s network action(s) activated : %s", activatedNetworkActions, networkActionsNames);
+            return format("%s network action(s) activated : %s", activatedNetworkActions, networkActionsNames);
         } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
-            return String.format("%s range action(s) activated : %s", activatedRangeActions, rangeActionsNames);
+            return format("%s range action(s) activated : %s", activatedRangeActions, rangeActionsNames);
         } else {
-            return String.format("%s network action(s) and %s range action(s) activated : %s and %s",
+            return format("%s network action(s) and %s range action(s) activated : %s and %s",
                 activatedNetworkActions, activatedRangeActions, networkActionsNames, rangeActionsNames);
         }
     }
@@ -304,7 +310,7 @@ public final class RaoLogger {
         } else if (value <= -Double.MAX_VALUE) {
             return "-infinity";
         } else {
-            return String.format(Locale.ENGLISH, "%.2f", value);
+            return format(Locale.ENGLISH, "%.2f", value);
         }
     }
 

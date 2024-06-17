@@ -20,9 +20,10 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOp
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.SearchTreeResult;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -38,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
+import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsApplied;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -76,7 +77,8 @@ public class SearchTree {
 
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
-    private Leaf previousDepthOptimalLeaf;
+    private SearchTreeResult optimalResult;
+    private SearchTreeResult previousDepthOptimalResult;
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
@@ -93,7 +95,7 @@ public class SearchTree {
         this.bloomer = new SearchTreeBloomer(input, parameters);
     }
 
-    public CompletableFuture<OptimizationResult> run() {
+    public CompletableFuture<SearchTreeResult> run() {
 
         initLeaves(input);
 
@@ -103,58 +105,59 @@ public class SearchTree {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
             logOptimizationSummary(rootLeaf);
             rootLeaf.finalizeOptimization();
-            return CompletableFuture.completedFuture(rootLeaf);
+            return CompletableFuture.completedFuture(rootLeaf.getResult());
         } else if (stopCriterionReached(rootLeaf)) {
             topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
-            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf.getResult().getPerimeterResultWithCnecs(), parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
             logOptimizationSummary(rootLeaf);
             rootLeaf.finalizeOptimization();
-            return CompletableFuture.completedFuture(rootLeaf);
+            return CompletableFuture.completedFuture(rootLeaf.getResult());
         }
 
         TECHNICAL_LOGS.info("{}", rootLeaf);
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf.getResult().getPerimeterResultWithCnecs(), parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         TECHNICAL_LOGS.info("Linear optimization on root leaf");
         optimizeLeaf(rootLeaf);
 
         topLevelLogger.info("{}", rootLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
-        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalResult, input.getOptimizationPerimeter(), null);
+        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalResult.getPerimeterResultWithCnecs(), parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
         logVirtualCostInformation(rootLeaf, "");
 
         if (stopCriterionReached(rootLeaf)) {
             logOptimizationSummary(rootLeaf);
             rootLeaf.finalizeOptimization();
-            return CompletableFuture.completedFuture(rootLeaf);
+            return CompletableFuture.completedFuture(rootLeaf.getResult());
         }
 
         iterateOnTree();
 
-        TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
+        TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalResult.getPerimeterResultWithCnecs().getSensitivityStatus());
 
         TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ");
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalResult, input.getOptimizationPerimeter(), "Best leaf: ");
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf.getResult().getPerimeterResultWithCnecs(), parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
         logOptimizationSummary(optimalLeaf);
         optimalLeaf.finalizeOptimization();
-        return CompletableFuture.completedFuture(optimalLeaf);
+        return CompletableFuture.completedFuture(optimalLeaf.getResult());
     }
 
     void initLeaves(SearchTreeInput input) {
         rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions());
         optimalLeaf = rootLeaf;
-        previousDepthOptimalLeaf = rootLeaf;
+        optimalResult = rootLeaf.getResult();
+        previousDepthOptimalResult = optimalResult;
     }
 
-    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PerimeterResultWithCnecs prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
         return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
     private void logOptimizationSummary(Leaf optimalLeaf) {
         State state = input.getOptimizationPerimeter().getMainOptimizationState();
-        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, state, optimalLeaf.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(optimalLeaf, state), rootLeaf.getPreOptimObjectiveFunctionResult(), optimalLeaf);
+        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, state, optimalLeaf.getResult().getPerimeterResultWithCnecs().getActivatedNetworkActions(), getRangeActionsAndTheirTapsApplied(optimalLeaf.getRangeActionResult()), rootLeaf.getPreOptimObjectiveFunctionResult(), optimalLeaf.getResult().getPerimeterResultWithCnecs());
         logVirtualCostInformation(optimalLeaf, "");
     }
 
@@ -171,15 +174,15 @@ public class SearchTree {
         try (AbstractNetworkPool networkPool = makeOpenRaoNetworkPool(input.getNetwork(), leavesInParallel)) {
             while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
-                previousDepthOptimalLeaf = optimalLeaf;
+                previousDepthOptimalResult = optimalResult;
                 updateOptimalLeafWithNextDepthBestLeaf(networkPool);
-                hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
+                hasImproved = previousDepthOptimalResult != optimalResult; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
                     TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
 
                     topLevelLogger.info("Search depth {} best leaf: {}", depth + 1, optimalLeaf);
-                    RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1));
-                    RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+                    RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalResult, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1));
+                    RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf.getResult().getPerimeterResultWithCnecs(), parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
                 } else {
                     topLevelLogger.info("No better result found in search depth {}, exiting search tree", depth + 1);
                 }
@@ -228,19 +231,19 @@ public class SearchTree {
         Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
         try {
             if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
-                boolean shouldRangeActionBeRemoved = bloomer.shouldRangeActionsBeRemovedToApplyNa(naCombination, optimalLeaf);
+                boolean shouldRangeActionBeRemoved = bloomer.shouldRangeActionsBeRemovedToApplyNa(naCombination, optimalLeaf.getResult().getPerimeterResultWithCnecs());
                 if (shouldRangeActionBeRemoved) {
                     // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
                     input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
-                        ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                        ra.apply(networkClone, input.getPrePerimeterResult().getOptimizedSetpoint(ra))
                     );
                 } else {
                     // Apply range actions that have been changed by the previous leaf on the network to start next depth leaves
                     // from previous optimal leaf starting point
                     // todo : Not sure previousDepthOptimalLeaf.getRangeActions() returns what we expect, this needs to be investigated
-                    previousDepthOptimalLeaf.getRangeActions()
+                    previousDepthOptimalResult.getPerimeterResultWithCnecs().getActivatedRangeActions()
                         .forEach(ra ->
-                            ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
+                            ra.apply(networkClone, previousDepthOptimalResult.getPerimeterResultWithCnecs().getOptimizedSetpoint(ra))
                         );
                 }
                 optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
@@ -312,7 +315,7 @@ public class SearchTree {
             // We get initial range action results from the previous optimal leaf
             leaf = createChildLeaf(network, naCombination, shouldRangeActionBeRemoved);
         } catch (OpenRaoException e) {
-            Set<NetworkAction> networkActions = new HashSet<>(previousDepthOptimalLeaf.getActivatedNetworkActions());
+            Set<NetworkAction> networkActions = new HashSet<>(previousDepthOptimalResult.getPerimeterResultWithCnecs().getActivatedNetworkActions());
             networkActions.addAll(naCombination.getNetworkActionSet());
             topLevelLogger.info("Could not evaluate network action combination \"{}\": {}", printNetworkActions(networkActions), e.getMessage());
             return;
@@ -346,11 +349,11 @@ public class SearchTree {
         return new Leaf(
             input.getOptimizationPerimeter(),
             network,
-            previousDepthOptimalLeaf.getActivatedNetworkActions(),
-            naCombination,
-            shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
             input.getPrePerimeterResult(),
-            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf));
+            previousDepthOptimalResult.getPerimeterResultWithCnecs(),
+            naCombination,
+
+        );
     }
 
     private void optimizeLeaf(Leaf leaf) {
@@ -467,12 +470,12 @@ public class SearchTree {
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
 
-    private AppliedRemedialActions getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(RangeActionActivationResult previousDepthRangeActionActivations) {
+    private AppliedRemedialActions getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(RangeActionResult previousDepthRangeActionActivations) {
         AppliedRemedialActions alreadyAppliedRa = input.getPreOptimizationAppliedRemedialActions().copy();
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             input.getOptimizationPerimeter().getRangeActionsPerState().entrySet().stream()
                     .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState())) // remove preventive state
-                    .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey()))));
+                    .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra))));
         }
         return alreadyAppliedRa;
     }

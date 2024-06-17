@@ -39,7 +39,7 @@ abstract class AbstractOptimizationPerimeterTest {
     protected RemedialAction<?> pNA;
     protected RemedialAction<?> cNA;
     protected RaoParameters raoParameters;
-    protected PrePerimeterResult prePerimeterResult;
+    protected PerimeterResultWithAllCnecs prePerimeterResult;
 
     @BeforeEach
     public void setUp() {
@@ -135,6 +135,6 @@ abstract class AbstractOptimizationPerimeterTest {
         cState1 = crac.getState("outage-1", curativeInstant);
         cState2 = crac.getState("outage-2", curativeInstant);
 
-        prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        prePerimeterResult = Mockito.mock(PerimeterResultWithAllCnecs.class);
     }
 }

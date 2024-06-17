@@ -17,8 +17,8 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,14 +45,14 @@ class BestTapFinderTest {
     private static int pstCounter = 0;
 
     private Network network;
-    private RangeActionActivationResult rangeActionActivationResult;
+    private RangeActionResult rangeActionResult;
     private LinearOptimizationResult linearOptimizationResult;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private PstRangeAction pstRangeAction;
     private State optimizedState;
     private OptimizationPerimeter optimizationPerimeter;
-    private RangeActionSetpointResult rangeActionSetpointResult;
+    private RangeActionResult rangeActionResult;
 
     @BeforeEach
     public void setUp() {
@@ -68,7 +68,7 @@ class BestTapFinderTest {
         when(linearOptimizationResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
         when(linearOptimizationResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
 
-        rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
+        rangeActionResult = Mockito.mock(RangeActionResult.class);
         pstRangeAction = createPst();
         optimizedState = Mockito.mock(State.class);
         when(optimizedState.getContingency()).thenReturn(Optional.empty());
@@ -77,8 +77,8 @@ class BestTapFinderTest {
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
-        rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
-        when(rangeActionActivationResult.getOptimizedSetpointsOnState(optimizedState)).thenReturn(Map.of(pstRangeAction, 0.));
+        rangeActionResult = Mockito.mock(RangeActionResult.class);
+        when(rangeActionResult.getOptimizedSetpointsOnState(optimizedState)).thenReturn(Map.of(pstRangeAction, 0.));
     }
 
     private void setSensitivityValues(PstRangeAction pstRangeAction) {
@@ -125,12 +125,12 @@ class BestTapFinderTest {
         );
     }
 
-    private RangeActionActivationResult computeUpdatedRangeActionResult() {
+    private RangeActionResult computeUpdatedRangeActionResult() {
         return BestTapFinder.round(
-            rangeActionActivationResult,
+            rangeActionResult,
             network,
             optimizationPerimeter,
-            rangeActionSetpointResult,
+            rangeActionResult,
             linearOptimizationResult,
             Unit.MEGAWATT
         );
@@ -288,21 +288,21 @@ class BestTapFinderTest {
         when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
         when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(networkElementOtherThanPst));
 
-        rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(
+        rangeActionResult = new RangeActionResultImpl(Map.of(
             pstRangeAction, startingSetPoint,
             activatedRangeActionOtherThanPst, startingSetPoint
         ));
-        rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
+        ((RangeActionResultImpl) rangeActionResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionResultImpl) rangeActionResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
 
-        RangeActionActivationResult updatedRangeActionActivationResult = computeUpdatedRangeActionResult();
+        RangeActionResult updatedRangeActionResult = computeUpdatedRangeActionResult();
 
-        assertEquals(0.75, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(200., updatedRangeActionActivationResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0.75, updatedRangeActionResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(200., updatedRangeActionResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -319,21 +319,21 @@ class BestTapFinderTest {
         when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
         when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(networkElementOtherThanPst));
 
-        rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(
+        rangeActionResult = new RangeActionResultImpl(Map.of(
             pstRangeAction, startingSetPoint,
             activatedRangeActionOtherThanPst, startingSetPoint
         ));
-        rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
+        ((RangeActionResultImpl) rangeActionResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionResultImpl) rangeActionResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
 
-        RangeActionActivationResult updatedRangeActionActivationResult = computeUpdatedRangeActionResult();
+        RangeActionResult updatedRangeActionResult = computeUpdatedRangeActionResult();
 
-        assertEquals(2.5, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(200., updatedRangeActionActivationResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(2.5, updatedRangeActionResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(200., updatedRangeActionResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -351,21 +351,21 @@ class BestTapFinderTest {
         when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
         when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(networkElementOtherThanPst));
 
-        rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(
+        rangeActionResult = new RangeActionResultImpl(Map.of(
             pstRangeAction, startingSetPoint,
             activatedRangeActionOtherThanPst, startingSetPoint
         ));
-        rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
+        ((RangeActionResultImpl) rangeActionResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionResultImpl) rangeActionResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
 
-        RangeActionActivationResult updatedRangeActionActivationResult = computeUpdatedRangeActionResult();
+        RangeActionResult updatedRangeActionResult = computeUpdatedRangeActionResult();
 
-        assertEquals(0.75, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(200., updatedRangeActionActivationResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0.75, updatedRangeActionResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(200., updatedRangeActionResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -386,23 +386,23 @@ class BestTapFinderTest {
         setMarginsForTap(pstGroup2, -1, 120, 150);
         setMarginsForTap(pstGroup2, 0, 150, 140); // Tap 0 should be selected because min margin is 140
 
-        rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(
+        rangeActionResult = new RangeActionResultImpl(Map.of(
             pstRangeAction, startingSetPoint,
             pstGroup1, startingSetPoint,
             pstGroup2, startingSetPoint
         ));
-        rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstGroup1, optimizedState, groupNotRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstGroup2, optimizedState, groupNotRoundedSetpoint);
+        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
+        ((RangeActionResultImpl) rangeActionResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionResultImpl) rangeActionResult).activate(pstGroup1, optimizedState, groupNotRoundedSetpoint);
+        ((RangeActionResultImpl) rangeActionResult).activate(pstGroup2, optimizedState, groupNotRoundedSetpoint);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, pstGroup1, pstGroup2)
         ));
 
-        RangeActionActivationResult updatedRangeActionActivationResult = computeUpdatedRangeActionResult();
+        RangeActionResult updatedRangeActionResult = computeUpdatedRangeActionResult();
 
-        assertEquals(2.5, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(0, updatedRangeActionActivationResult.getOptimizedSetpoint(pstGroup1, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(0, updatedRangeActionActivationResult.getOptimizedSetpoint(pstGroup2, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(2.5, updatedRangeActionResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0, updatedRangeActionResult.getOptimizedSetpoint(pstGroup1, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0, updatedRangeActionResult.getOptimizedSetpoint(pstGroup2, optimizedState), DOUBLE_TOLERANCE);
     }
 }

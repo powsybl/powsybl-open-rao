@@ -29,20 +29,20 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
 
     private LinearProblemStatus status;
     private int nbOfIteration;
-    private final RangeActionActivationResult rangeActionActivationResult;
+    private final RangeActionResult rangeActionResult;
     private final FlowResult flowResult;
     private final SensitivityResult sensitivityResult;
     private final ObjectiveFunctionResult objectiveFunctionResult;
 
     public IteratingLinearOptimizationResultImpl(LinearProblemStatus status,
                                                  int nbOfIteration,
-                                                 RangeActionActivationResult rangeActionActivationResult,
+                                                 RangeActionResult rangeActionResult,
                                                  FlowResult flowResult,
                                                  ObjectiveFunctionResult objectiveFunctionResult,
                                                  SensitivityResult sensitivityResult) {
         this.status = status;
         this.nbOfIteration = nbOfIteration;
-        this.rangeActionActivationResult = rangeActionActivationResult;
+        this.rangeActionResult = rangeActionResult;
         this.flowResult = flowResult;
         this.objectiveFunctionResult = objectiveFunctionResult;
         this.sensitivityResult = sensitivityResult;
@@ -139,32 +139,32 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        return rangeActionActivationResult.getRangeActions();
+        return rangeActionResult.getRangeActions();
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
-        return rangeActionActivationResult.getActivatedRangeActions(state);
+        return rangeActionResult.getActivatedRangeActions(state);
     }
 
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
-        return rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
+        return rangeActionResult.getOptimizedSetpoint(rangeAction, state);
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
-        return rangeActionActivationResult.getOptimizedSetpointsOnState(state);
+        return rangeActionResult.getOptimizedSetpointsOnState(state);
     }
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
-        return rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
+        return rangeActionResult.getOptimizedTap(pstRangeAction, state);
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return rangeActionActivationResult.getOptimizedTapsOnState(state);
+        return rangeActionResult.getOptimizedTapsOnState(state);
     }
 
     @Override
@@ -193,7 +193,7 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
-    public RangeActionActivationResult getRangeActionActivationResult() {
-        return rangeActionActivationResult;
+    public RangeActionResult getRangeActionResult() {
+        return rangeActionResult;
     }
 }

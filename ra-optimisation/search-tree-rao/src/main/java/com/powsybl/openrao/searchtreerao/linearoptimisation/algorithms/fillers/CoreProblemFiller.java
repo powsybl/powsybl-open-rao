@@ -23,10 +23,10 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -42,8 +42,8 @@ public class CoreProblemFiller implements ProblemFiller {
 
     private final OptimizationPerimeter optimizationContext;
     private final Set<FlowCnec> flowCnecs;
-    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
-    private final RangeActionActivationResult raActivationFromParentLeaf;
+    private final RangeActionResult prePerimeterRangeActionSetpoints;
+    private final MultiStateRemedialActionResultImpl raActivationFromParentLeaf;
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final Unit unit;
     private int iteration = 0;
@@ -51,8 +51,8 @@ public class CoreProblemFiller implements ProblemFiller {
     private final boolean raRangeShrinking;
 
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
-                             RangeActionSetpointResult prePerimeterRangeActionSetpoints,
-                             RangeActionActivationResult raActivationFromParentLeaf,
+                             RangeActionResult prePerimeterRangeActionSetpoints,
+                             MultiStateRemedialActionResultImpl raActivationFromParentLeaf,
                              RangeActionsOptimizationParameters rangeActionParameters,
                              Unit unit,
                              boolean raRangeShrinking) {
@@ -67,15 +67,15 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
+    public void fill(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult) {
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, flowAndSensiResult);
 
         // add variables
         buildFlowVariables(linearProblem, validFlowCnecs);
         buildRangeActionVariables(linearProblem);
 
         // add constraints
-        buildFlowConstraints(linearProblem, validFlowCnecs, flowResult, sensitivityResult);
+        buildFlowConstraints(linearProblem, validFlowCnecs, flowAndSensiResult);
         buildRangeActionConstraints(linearProblem);
 
         // complete objective
@@ -84,17 +84,17 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult) {
         // update reference flow and sensitivities of flow constraints
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
-        updateFlowConstraints(linearProblem, validFlowCnecs, flowResult, sensitivityResult, rangeActionActivationResult);
+        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, flowAndSensiResult);
+        updateFlowConstraints(linearProblem, validFlowCnecs, flowAndSensiResult, rangeActionResult);
         if (raRangeShrinking) {
-            updateRangeActionConstraints(linearProblem, rangeActionActivationResult);
+            updateRangeActionConstraints(linearProblem, rangeActionResult);
         }
     }
 
     @Override
-    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenMipIteration(LinearProblem linearProblem, MultiStateRemedialActionResultImpl rangeActionResult) {
         // nothing to do
     }
 
@@ -137,17 +137,17 @@ public class CoreProblemFiller implements ProblemFiller {
      * on this Cnec.
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void buildFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    private void buildFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, PerimeterResultWithCnecs flowAndSensiResult) {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
-            double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
+            double referenceFlow = flowAndSensiResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
             OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
 
             OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec, side, raActivationFromParentLeaf);
+            addImpactOfRangeActionOnCnec(linearProblem, flowAndSensiResult, cnec, side, raActivationFromParentLeaf);
         }));
     }
 
@@ -155,9 +155,9 @@ public class CoreProblemFiller implements ProblemFiller {
      * Update the flow constraints, with the new reference flows and new sensitivities
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void updateFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    private void updateFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult) {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
+            double referenceFlow = flowAndSensiResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
             OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
             //reset bounds
@@ -165,11 +165,11 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setLb(referenceFlow);
 
             //reset sensitivity coefficients
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec, side, rangeActionActivationResult);
+            addImpactOfRangeActionOnCnec(linearProblem, flowAndSensiResult, cnec, side, rangeActionResult);
         }));
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, Side side, RangeActionActivationResult rangeActionActivationResult) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, Side side, MultiStateRemedialActionResultImpl rangeActionResult) {
         OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
@@ -183,7 +183,7 @@ public class CoreProblemFiller implements ProblemFiller {
             for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
                 // todo: make that cleaner, it is ugly
                 if (!alreadyConsideredAction.contains(rangeAction)) {
-                    addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, side, flowConstraint, rangeActionActivationResult);
+                    addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, side, flowConstraint, rangeActionResult);
                     alreadyConsideredAction.addAll(getAvailableRangeActionsOnSameAction(rangeAction));
                 }
 
@@ -191,14 +191,14 @@ public class CoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, Side side, OpenRaoMPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, Side side, OpenRaoMPConstraint flowConstraint, MultiStateRemedialActionResultImpl rangeActionResult) {
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
 
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, Unit.MEGAWATT);
 
         if (isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
             //TODO: compute this only once somehow
-            double currentSetPoint = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
+            double currentSetPoint = rangeActionResult.getOptimizedSetpointOnState(rangeAction, state);
 
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
@@ -231,14 +231,14 @@ public class CoreProblemFiller implements ProblemFiller {
                 entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())));
     }
 
-    private void updateRangeActionConstraints(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+    private void updateRangeActionConstraints(LinearProblem linearProblem, MultiStateRemedialActionResultImpl rangeActionResult) {
         iteration++;
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration)
+        optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionResult, iteration)
         ));
     }
 
-    private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration) {
-        double previousSetPointValue = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
+    private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, MultiStateRemedialActionResultImpl rangeActionResult, int iteration) {
+        double previousSetPointValue = rangeActionResult.getOptimizedSetpointOnState(rangeAction, state);
         List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
         double minAbsoluteSetpoint = Math.max(minAndMaxAbsoluteAndRelativeSetpoints.get(0), -LinearProblem.infinity());
         double maxAbsoluteSetpoint = Math.min(minAndMaxAbsoluteAndRelativeSetpoints.get(1), LinearProblem.infinity());
@@ -288,7 +288,7 @@ public class CoreProblemFiller implements ProblemFiller {
             // or if rangeAction is not available for a previous state
             // then, rangeAction could not have been activated in a previous instant
 
-            double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+            double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getOptimizedSetpoint(rangeAction);
             double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoint);
             double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoint);
 

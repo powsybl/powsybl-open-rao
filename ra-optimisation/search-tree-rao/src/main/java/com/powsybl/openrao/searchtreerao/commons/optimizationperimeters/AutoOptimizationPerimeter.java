@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +32,7 @@ public class AutoOptimizationPerimeter extends AbstractOptimizationPerimeter {
         }
     }
 
-    public static AutoOptimizationPerimeter build(State automatonState, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static AutoOptimizationPerimeter build(State automatonState, Crac crac, Network network, RaoParameters raoParameters, PerimeterResultWithCnecs prePerimeterResult) {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 

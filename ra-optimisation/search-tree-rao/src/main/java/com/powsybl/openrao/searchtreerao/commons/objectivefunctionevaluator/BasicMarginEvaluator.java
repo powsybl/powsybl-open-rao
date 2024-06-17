@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 /**
@@ -26,12 +26,12 @@ public class BasicMarginEvaluator implements MarginEvaluator {
     }
 
     @Override
-    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
+    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, SensitivityResult sensitivityResult, Unit unit) {
         return flowResult.getMargin(flowCnec, unit);
     }
 
     @Override
-    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
+    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, SensitivityResult sensitivityResult, Unit unit) {
         return flowResult.getMargin(flowCnec, side, unit);
     }
 }

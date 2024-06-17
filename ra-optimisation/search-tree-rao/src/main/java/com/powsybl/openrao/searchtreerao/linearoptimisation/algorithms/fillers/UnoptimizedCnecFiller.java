@@ -24,8 +24,9 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -84,30 +85,30 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void fill(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult) {
         // define UnoptimizedCnecFillerRule
         selectUnoptimizedCnecFillerRule();
 
         // Get list of valid flow CNECs
-        Set<FlowCnec> validFlowCnecs = getValidFlowCnecs(sensitivityResult);
+        Set<FlowCnec> validFlowCnecs = getValidFlowCnecs(flowAndSensiResult);
 
         // build variables
         buildDontOptimizeCnecVariables(linearProblem, validFlowCnecs);
 
         // build constraints
-        buildDontOptimizeCnecConstraints(linearProblem, validFlowCnecs, sensitivityResult);
+        buildDontOptimizeCnecConstraints(linearProblem, validFlowCnecs, flowAndSensiResult);
 
         // update minimum margin objective function constraints
         updateMinimumMarginConstraints(linearProblem, validFlowCnecs);
     }
 
     @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        updateDontOptimizeCnecConstraints(linearProblem, getValidFlowCnecs(sensitivityResult), sensitivityResult);
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult) {
+        updateDontOptimizeCnecConstraints(linearProblem, getValidFlowCnecs(flowAndSensiResult), flowAndSensiResult);
     }
 
     @Override
-    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenMipIteration(LinearProblem linearProblem, MultiStateRemedialActionResultImpl rangeActionResult) {
         // nothing to do
     }
 

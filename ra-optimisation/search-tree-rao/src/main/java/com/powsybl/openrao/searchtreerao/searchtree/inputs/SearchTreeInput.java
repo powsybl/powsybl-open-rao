@@ -12,7 +12,7 @@ import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
@@ -26,7 +26,7 @@ public final class SearchTreeInput {
     private final OptimizationPerimeter optimizationPerimeter;
 
     private final FlowResult initialFlowResult;
-    private final PrePerimeterResult prePerimeterResult;
+    private final PerimeterResultWithCnecs prePerimeterResult;
     private final AppliedRemedialActions preOptimizationAppliedRemedialActions;
 
     private final ObjectiveFunction objectiveFunction;
@@ -36,7 +36,7 @@ public final class SearchTreeInput {
     private SearchTreeInput(Network network,
                             OptimizationPerimeter optimizationPerimeter,
                             FlowResult initialFlowResult,
-                            PrePerimeterResult prePerimeterResult,
+                            PerimeterResultWithCnecs prePerimeterResult,
                             AppliedRemedialActions preOptimizationAppliedRemedialActions,
                             ObjectiveFunction objectiveFunction,
                             ToolProvider toolProvider,
@@ -63,7 +63,7 @@ public final class SearchTreeInput {
         return initialFlowResult;
     }
 
-    public PrePerimeterResult getPrePerimeterResult() {
+    public PerimeterResultWithCnecs getPrePerimeterResult() {
         return prePerimeterResult;
     }
 
@@ -92,7 +92,7 @@ public final class SearchTreeInput {
         private Network network;
         private OptimizationPerimeter optimizationPerimeter;
         private FlowResult initialFlowResult;
-        private PrePerimeterResult prePerimeterResult;
+        private PerimeterResultWithCnecs prePerimeterResult;
         private AppliedRemedialActions preOptimizationAppliedNetworkActions;
         private ObjectiveFunction objectiveFunction;
         private ToolProvider toolProvider;
@@ -113,7 +113,7 @@ public final class SearchTreeInput {
             return this;
         }
 
-        public SearchTreeInputBuilder withPrePerimeterResult(PrePerimeterResult prePerimeterResult) {
+        public SearchTreeInputBuilder withPrePerimeterResult(PerimeterResultWithCnecs prePerimeterResult) {
             this.prePerimeterResult = prePerimeterResult;
             return this;
         }

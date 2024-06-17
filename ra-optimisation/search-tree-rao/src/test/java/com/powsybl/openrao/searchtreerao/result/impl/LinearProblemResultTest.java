@@ -16,7 +16,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,7 +42,7 @@ class LinearProblemResultTest {
     private RangeAction<?> ra3;
     private RangeAction<?> ra4;
     private Map<State, Set<RangeAction<?>>> rangeActionsPerState;
-    private RangeActionSetpointResult prePerimeterRangeActionSetpoints;
+    private RangeActionResult prePerimeterRangeActionSetpoints;
 
     @BeforeEach
     public void setUp() {
@@ -86,7 +86,7 @@ class LinearProblemResultTest {
             preventiveState, Set.of(pst1, pst2, ra4),
             aCurativeState, Set.of(pst1, ra3, ra4));
 
-        prePerimeterRangeActionSetpoints = new RangeActionSetpointResultImpl(Map.of(
+        prePerimeterRangeActionSetpoints = new RangeActionResultImpl(Map.of(
             pst1, 0.8,
             pst2, 5.4,
             ra3, 600.,

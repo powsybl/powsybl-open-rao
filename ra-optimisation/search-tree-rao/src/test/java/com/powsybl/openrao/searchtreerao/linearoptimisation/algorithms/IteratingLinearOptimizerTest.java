@@ -25,8 +25,8 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLine
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.IteratingLinearOptimizationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -59,8 +59,8 @@ class IteratingLinearOptimizerTest {
 
     private LinearProblem linearProblem;
     private Network network;
-    private RangeActionSetpointResult rangeActionSetpointResult;
-    private RangeActionActivationResult rangeActionActivationResult;
+    private RangeActionResult rangeActionResult;
+    private RangeActionResult rangeActionResult;
     private SensitivityComputer sensitivityComputer;
     private State optimizedState;
     private IteratingLinearOptimizerInput input;
@@ -109,10 +109,10 @@ class IteratingLinearOptimizerTest {
         linearProblem = Mockito.mock(LinearProblem.class);
         network = Mockito.mock(Network.class);
         when(input.getNetwork()).thenReturn(network);
-        rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(rangeAction, 0.));
-        when(input.getPrePerimeterSetpoints()).thenReturn(rangeActionSetpointResult);
-        rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        when(input.getRaActivationFromParentLeaf()).thenReturn(rangeActionActivationResult);
+        rangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, 0.));
+        when(input.getPrePerimeterSetpoints()).thenReturn(rangeActionResult);
+        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
+        when(input.getRaActivationFromParentLeaf()).thenReturn(rangeActionResult);
         BranchResultAdapter branchResultAdapter = Mockito.mock(BranchResultAdapter.class);
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
 
@@ -330,10 +330,10 @@ class IteratingLinearOptimizerTest {
             optimizedState, Set.of(rangeAction)
         ));
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
-        rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(rangeAction, 5.));
-        when(input.getPrePerimeterSetpoints()).thenReturn(rangeActionSetpointResult);
-        rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        when(input.getRaActivationFromParentLeaf()).thenReturn(rangeActionActivationResult);
+        rangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, 5.));
+        when(input.getPrePerimeterSetpoints()).thenReturn(rangeActionResult);
+        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
+        when(input.getRaActivationFromParentLeaf()).thenReturn(rangeActionResult);
         prepareLinearProblemBuilder();
 
         IteratingLinearOptimizer.optimize(input, parameters, outageInstant);

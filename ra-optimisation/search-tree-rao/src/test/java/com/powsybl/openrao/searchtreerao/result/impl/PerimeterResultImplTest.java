@@ -17,7 +17,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ class PerimeterResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private PerimeterResultImpl perimeterResultImpl;
-    private RangeActionSetpointResult prePerimeterRangeActionActivationResult;
+    private RangeActionResult prePerimeterRangeActionResult;
     private OptimizationResult optimizationResult;
     private State mainOptimizationState;
     private RangeAction<?> ra1;
@@ -55,13 +55,13 @@ class PerimeterResultImplTest {
 
     @BeforeEach
     public void setUp() {
-        prePerimeterRangeActionActivationResult = mock(RangeActionSetpointResult.class);
+        prePerimeterRangeActionResult = mock(RangeActionResult.class);
         optimizationResult = mock(OptimizationResult.class);
 
         mainOptimizationState = mock(State.class);
         ra1 = mock(RangeAction.class);
         ra2 = mock(RangeAction.class);
-        when(prePerimeterRangeActionActivationResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
+        when(prePerimeterRangeActionResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
         when(optimizationResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
 
         flowCnec1 = mock(FlowCnec.class);
@@ -73,14 +73,14 @@ class PerimeterResultImplTest {
         pst1 = mock(PstRangeAction.class);
         pst2 = mock(PstRangeAction.class);
 
-        perimeterResultImpl = new PerimeterResultImpl(prePerimeterRangeActionActivationResult, optimizationResult);
+        perimeterResultImpl = new PerimeterResultImpl(prePerimeterRangeActionResult, optimizationResult);
     }
 
     @Test
     void testGetActivatedRangeActions() {
-        when(prePerimeterRangeActionActivationResult.getSetpoint(ra1)).thenReturn(5.);
+        when(prePerimeterRangeActionResult.getSetpoint(ra1)).thenReturn(5.);
         when(optimizationResult.getOptimizedSetpoint(ra1, mainOptimizationState)).thenReturn(5.);
-        when(prePerimeterRangeActionActivationResult.getSetpoint(ra2)).thenReturn(15.);
+        when(prePerimeterRangeActionResult.getSetpoint(ra2)).thenReturn(15.);
         when(optimizationResult.getOptimizedSetpoint(ra2, mainOptimizationState)).thenReturn(50.);
         when(optimizationResult.getActivatedRangeActions(mainOptimizationState)).thenReturn(Set.of(ra2));
         assertEquals(Set.of(ra2), perimeterResultImpl.getActivatedRangeActions(mainOptimizationState));
@@ -182,7 +182,7 @@ class PerimeterResultImplTest {
 
         when(optimizationResult.getOptimizedTap(pst1, mainOptimizationState)).thenReturn(10);
         when(optimizationResult.getOptimizedTap(pst2, mainOptimizationState)).thenThrow(new OpenRaoException("absent mock"));
-        when(prePerimeterRangeActionActivationResult.getTap(pst2)).thenReturn(3);
+        when(prePerimeterRangeActionResult.getTap(pst2)).thenReturn(3);
 
         assertEquals(10, perimeterResultImpl.getOptimizedTap(pst1, mainOptimizationState));
         assertEquals(3, perimeterResultImpl.getOptimizedTap(pst2, mainOptimizationState));
@@ -192,7 +192,7 @@ class PerimeterResultImplTest {
     void testGetOptimizedSetPoint() {
         when(optimizationResult.getRangeActions()).thenReturn(Set.of(ra1));
         when(optimizationResult.getOptimizedSetpoint(ra1, mainOptimizationState)).thenReturn(10.7);
-        when(prePerimeterRangeActionActivationResult.getSetpoint(ra2)).thenReturn(3.5);
+        when(prePerimeterRangeActionResult.getSetpoint(ra2)).thenReturn(3.5);
 
         assertEquals(10.7, perimeterResultImpl.getOptimizedSetpoint(ra1, mainOptimizationState), DOUBLE_TOLERANCE);
         assertEquals(3.5, perimeterResultImpl.getOptimizedSetpoint(ra2, mainOptimizationState), DOUBLE_TOLERANCE);

@@ -12,10 +12,9 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import java.util.Map;
 import java.util.Optional;
@@ -37,23 +36,23 @@ public class DiscretePstGroupFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void fill(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult) {
         pstRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
             buildRangeActionGroupConstraint(linearProblem, rangeAction, state)
         ));
     }
 
     @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult) {
         pstRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
-            updateRangeActionGroupConstraint(linearProblem, rangeAction, state, rangeActionActivationResult)
+            updateRangeActionGroupConstraint(linearProblem, rangeAction, state, rangeActionResult)
         ));
     }
 
     @Override
-    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenMipIteration(LinearProblem linearProblem, MultiStateRemedialActionResultImpl rangeActionResult) {
         pstRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
-            updateRangeActionGroupConstraint(linearProblem, rangeAction, state, rangeActionActivationResult)
+            updateRangeActionGroupConstraint(linearProblem, rangeAction, state, rangeActionResult)
         ));
     }
 
@@ -79,10 +78,10 @@ public class DiscretePstGroupFiller implements ProblemFiller {
         groupSetPointConstraint.setCoefficient(linearProblem.getPstGroupTapVariable(groupId, state), 1);
     }
 
-    private void updateRangeActionGroupConstraint(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state, RangeActionActivationResult rangeActionActivationResult) {
+    private void updateRangeActionGroupConstraint(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state, MultiStateRemedialActionResultImpl rangeActionResult) {
         Optional<String> optGroupId = pstRangeAction.getGroupId();
         if (optGroupId.isPresent()) {
-            double newTap = rangeActionActivationResult.getOptimizedTap(pstRangeAction, optimizedState);
+            int newTap = rangeActionResult.getOptimizedTapOnState(pstRangeAction, optimizedState);
             OpenRaoMPConstraint groupSetPointConstraint = linearProblem.getPstGroupTapConstraint(pstRangeAction, state);
             groupSetPointConstraint.setLb(newTap);
             groupSetPointConstraint.setUb(newTap);

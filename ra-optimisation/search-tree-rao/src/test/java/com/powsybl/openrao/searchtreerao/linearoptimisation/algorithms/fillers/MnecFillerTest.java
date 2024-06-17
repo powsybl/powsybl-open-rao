@@ -22,9 +22,9 @@ import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.*;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -89,7 +89,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
                 .add();
 
-        RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Collections.emptyMap());
 
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec1, mnec2, mnec3));
@@ -106,8 +106,8 @@ class MnecFillerTest extends AbstractFillerTest {
 
         coreProblemFiller = new CoreProblemFiller(
                 optimizationPerimeter,
-                initialRangeActionSetpointResult,
-                new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
+                initialRangeActionResult,
+                new RangeActionResultImpl(initialRangeActionResult),
                 rangeActionParameters,
                 Unit.MEGAWATT,
             false);

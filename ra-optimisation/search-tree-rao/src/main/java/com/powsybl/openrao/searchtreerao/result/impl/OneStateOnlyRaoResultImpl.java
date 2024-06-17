@@ -31,12 +31,12 @@ import java.util.stream.Collectors;
 public class OneStateOnlyRaoResultImpl implements RaoResult {
     public static final String WRONG_STATE = "Trying to access perimeter result for the wrong state.";
     private final State optimizedState;
-    private final PrePerimeterResult initialResult;
+    private final PerimeterResultWithCnecs initialResult;
     private final OptimizationResult postOptimizationResult;
     private final Set<FlowCnec> optimizedFlowCnecs;
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
-    public OneStateOnlyRaoResultImpl(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
+    public OneStateOnlyRaoResultImpl(State optimizedState, PerimeterResultWithCnecs initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
         this.optimizedState = optimizedState;
         this.initialResult = initialResult;
         this.postOptimizationResult = postOptimizationResult;
@@ -114,23 +114,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
-    public PerimeterResult getPerimeterResult(State state) {
-        if (!state.equals(optimizedState)) {
-            // TODO : change this when getAppropriateResult will return a PerimeterResult (maybe throw an exception)
-            return null;
-        }
-        return new PerimeterResultImpl(initialResult, postOptimizationResult);
-    }
-
-    public PerimeterResult getPostPreventivePerimeterResult() {
-        if (!optimizedState.getInstant().isPreventive()) {
-            // TODO : review this also
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return new PerimeterResultImpl(initialResult, postOptimizationResult);
-    }
-
-    public PrePerimeterResult getInitialResult() {
+    public PerimeterResultWithCnecs getInitialResult() {
         return initialResult;
     }
 
@@ -229,7 +213,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return postOptimizationResult.getOptimizedSetpoint(rangeAction, state) != initialResult.getSetpoint(rangeAction);
+        return postOptimizationResult.getOptimizedSetpoint(rangeAction) != initialResult.getOptimizedSetpoint(rangeAction);
     }
 
     @Override
@@ -237,7 +221,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return initialResult.getTap(pstRangeAction);
+        return initialResult.getOptimizedTap(pstRangeAction);
     }
 
     @Override
@@ -245,7 +229,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return postOptimizationResult.getOptimizedTap(pstRangeAction, state);
+        return postOptimizationResult.getOptimizedTap(pstRangeAction);
     }
 
     @Override
@@ -253,7 +237,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return initialResult.getSetpoint(rangeAction);
+        return initialResult.getOptimizedSetpoint(rangeAction);
     }
 
     @Override
@@ -261,7 +245,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return postOptimizationResult.getOptimizedSetpoint(rangeAction, state);
+        return postOptimizationResult.getOptimizedSetpoint(rangeAction);
     }
 
     @Override
@@ -277,7 +261,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return postOptimizationResult.getOptimizedTapsOnState(state);
+        return postOptimizationResult.getOptimizedTaps();
 
     }
 
@@ -286,7 +270,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return postOptimizationResult.getOptimizedSetpointsOnState(state);
+        return postOptimizationResult.getOptimizedSetpoints();
     }
 
     @Override

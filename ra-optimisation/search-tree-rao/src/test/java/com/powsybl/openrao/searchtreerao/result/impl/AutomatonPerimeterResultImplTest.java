@@ -47,7 +47,7 @@ class AutomatonPerimeterResultImplTest {
     private RangeAction<?> unshiftedRangeAction;
     private Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private AutomatonPerimeterResultImpl result;
-    private PrePerimeterResult postAutoSensitivity;
+    private PerimeterResultWithCnecs postAutoSensitivity;
 
     @BeforeEach
     public void setUp() {
@@ -59,7 +59,7 @@ class AutomatonPerimeterResultImplTest {
         pstRangeActionShifted = mock(PstRangeAction.class);
         hvdcRangeActionShifted = mock(HvdcRangeAction.class);
         unshiftedRangeAction = mock(RangeAction.class);
-        postAutoSensitivity = mock(PrePerimeterResult.class);
+        postAutoSensitivity = mock(PerimeterResultWithCnecs.class);
         // Define rangeActionsWithSetpoint
         rangeActionsWithSetpoint = new HashMap<>();
         rangeActionsWithSetpoint.put(pstRangeActionShifted, 1.0);
