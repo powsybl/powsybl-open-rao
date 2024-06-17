@@ -50,7 +50,7 @@ class SwitchPairAdderImplTest {
         assertEquals("close-id", switchPair.getSwitchToClose().getId());
         assertEquals("close-name", switchPair.getSwitchToClose().getName());
 
-        assertEquals(Set.of(switchPair.getSwitchToOpen(), switchPair.getSwitchToClose()), switchPair.getNetworkElements());
+        assertEquals(Set.of(switchPair.getSwitchToOpen(), switchPair.getSwitchToClose()), networkAction.getNetworkElements());
 
         // check that network element has been added in CracImpl
         assertEquals(2, ((CracImpl) crac).getNetworkElements().size());

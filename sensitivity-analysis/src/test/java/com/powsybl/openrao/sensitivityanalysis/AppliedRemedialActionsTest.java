@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -18,7 +19,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -48,12 +48,12 @@ class AppliedRemedialActionsTest {
         pstRangeAction = crac.getPstRangeAction("pst");
         networkAction = crac.newNetworkAction()
                 .withId("na-id")
-                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
+                .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
                 .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(CURATIVE_INSTANT_ID).add()
                 .add();
         autoNetworkAction = crac.newNetworkAction()
             .withId("na-auto-id")
-            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
+            .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
             .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(AUTO_INSTANT_ID).add()
             .add();
     }

@@ -6,9 +6,16 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
-import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.networkaction.*;
+import com.powsybl.action.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
+import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
@@ -25,7 +32,6 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActio
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.SchemeRemedialAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
-import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -247,9 +253,7 @@ public class CsaProfileRemedialActionsCreator {
                     List<UsageRule> onContingencyStateUsageRules = refNetworkAction.getUsageRules().stream().filter(OnContingencyState.class::isInstance).toList();
                     List<UsageRule> onInstantUsageRules = refNetworkAction.getUsageRules().stream().filter(OnInstant.class::isInstance).toList();
 
-                    List<ElementaryAction> injectionSetpoints = new ArrayList<>();
-                    List<ElementaryAction> pstSetPoints = new ArrayList<>();
-                    List<ElementaryAction> topologicalActions = new ArrayList<>();
+                    List<Action> elementaryActions = new ArrayList<>();
                     Set<String> operators = new HashSet<>();
 
                     dependingEnabledRemedialActions.forEach(remedialActionDependency -> {
@@ -261,9 +265,7 @@ public class CsaProfileRemedialActionsCreator {
                             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because all depending the remedial actions must have the same usage rules. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                         }
-                        injectionSetpoints.addAll(crac.getNetworkAction(remedialActionDependency.remedialAction()).getElementaryActions().stream().filter(InjectionSetpoint.class::isInstance).toList());
-                        pstSetPoints.addAll(crac.getNetworkAction(remedialActionDependency.remedialAction()).getElementaryActions().stream().filter(PstSetpoint.class::isInstance).toList());
-                        topologicalActions.addAll(crac.getNetworkAction(remedialActionDependency.remedialAction()).getElementaryActions().stream().filter(TopologicalAction.class::isInstance).toList());
+                        elementaryActions.addAll(crac.getNetworkAction(remedialActionDependency.remedialAction()).getElementaryActions());
                         operators.add(crac.getNetworkAction(remedialActionDependency.remedialAction()).getOperator());
                     });
 
@@ -271,8 +273,8 @@ public class CsaProfileRemedialActionsCreator {
                     if (operators.size() == 1) {
                         networkActionAdder.withOperator(operators.iterator().next());
                     }
-                    addUsageRulesToGroup(onConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
-                    addElementaryActionsToGroup(injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
+                    addUsageRulesToGroup(onConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, networkActionAdder);
+                    addElementaryActionsToGroup(elementaryActions, networkActionAdder);
                     networkActionAdder.add();
                     contextByRaId.put(remedialActionGroup.mrid(), CsaProfileElementaryCreationContext.imported(remedialActionGroup.mrid(), remedialActionGroup.mrid(), groupName, "The RemedialActionGroup with mRID " + remedialActionGroup.mrid() + " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions), true));
                     standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
@@ -285,32 +287,33 @@ public class CsaProfileRemedialActionsCreator {
         return standaloneRasImplicatedIntoAGroup;
     }
 
-    private static void addElementaryActionsToGroup(List<ElementaryAction> injectionSetpoints, List<ElementaryAction> pstSetPoints, List<ElementaryAction> topologicalActions, NetworkActionAdder networkActionAdder) {
-        injectionSetpoints.forEach(ea -> {
-            InjectionSetpoint injectionSetPoint = (InjectionSetpoint) ea;
-            networkActionAdder.newInjectionSetPoint()
-                .withNetworkElement(injectionSetPoint.getNetworkElement().getId())
-                .withSetpoint(injectionSetPoint.getSetpoint())
-                .withUnit(injectionSetPoint.getUnit())
-                .add();
-        });
-        pstSetPoints.forEach(ea -> {
-            PstSetpoint pstSetPoint = (PstSetpoint) ea;
-            networkActionAdder.newPstSetPoint()
-                .withNetworkElement(pstSetPoint.getNetworkElement().getId())
-                .withSetpoint(pstSetPoint.getSetpoint())
-                .add();
-        });
-        topologicalActions.forEach(ea -> {
-            TopologicalAction topologicalAction = (TopologicalAction) ea;
-            networkActionAdder.newTopologicalAction()
-                .withNetworkElement(topologicalAction.getNetworkElement().getId())
-                .withActionType(topologicalAction.getActionType())
-                .add();
+    private static void addElementaryActionsToGroup(List<Action> elementaryActions, NetworkActionAdder networkActionAdder) {
+        elementaryActions.forEach(ea -> {
+            if (ea instanceof GeneratorAction generatorAction) {
+                networkActionAdder.newGeneratorAction()
+                    .withNetworkElement(generatorAction.getGeneratorId())
+                    .withActivePowerValue(generatorAction.getActivePowerValue().getAsDouble())
+                    .add();
+            } else if (ea instanceof LoadAction loadAction) {
+                networkActionAdder.newLoadAction()
+                    .withNetworkElement(loadAction.getLoadId())
+                    .withActivePowerValue(loadAction.getActivePowerValue().getAsDouble())
+                    .add();
+            } else if (ea instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
+                networkActionAdder.newShuntCompensatorPositionAction()
+                    .withNetworkElement(shuntCompensatorPositionAction.getShuntCompensatorId())
+                    .withSectionCount(shuntCompensatorPositionAction.getSectionCount())
+                    .add();
+            } else if (ea instanceof SwitchAction switchAction) {
+                networkActionAdder.newSwitchAction()
+                    .withNetworkElement(switchAction.getSwitchId())
+                    .withActionType(switchAction.isOpen() ? ActionType.OPEN : ActionType.CLOSE)
+                    .add();
+            }
         });
     }
 
-    private static void addUsageRulesToGroup(List<UsageRule> onConstraintUsageRules, List<UsageRule> onContingencyStateUsageRules, List<UsageRule> onInstantUsageRules, List<ElementaryAction> injectionSetpoints, List<ElementaryAction> pstSetPoints, List<ElementaryAction> topologicalActions, NetworkActionAdder networkActionAdder) {
+    private static void addUsageRulesToGroup(List<UsageRule> onConstraintUsageRules, List<UsageRule> onContingencyStateUsageRules, List<UsageRule> onInstantUsageRules, NetworkActionAdder networkActionAdder) {
         onConstraintUsageRules.forEach(ur -> {
             OnConstraint<?> onConstraintUsageRule = (OnConstraint<?>) ur;
             networkActionAdder.newOnConstraintUsageRule()

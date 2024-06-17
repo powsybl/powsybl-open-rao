@@ -27,10 +27,10 @@ Feature: US 1.2: Import of simple network actions as preventive remedial action 
       | FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage   | AMPERE | -1500 | 1500 | RIGHT |
       | FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - curative | AMPERE | -1500 | 1500 | RIGHT |
     Then it should have the following network actions:
-      | NetworkActionId      | NetworkActionName    | ElementaryActions | ElementaryActionType | NetworkElementId    | Action/Setpoint |
-      | Open tie-line FR DE  | Open tie-line FR DE  | 1                 | TopologicalAction    | FFR2AA1  DDE3AA1  1 | OPEN            |
-      | Close tie-line FR BE | Close tie-line FR BE | 1                 | TopologicalAction    | BBE2AA1  FFR3AA1  1 | CLOSE           |
-      | PST @1               | PST @1               | 1                 | PstSetpoint          | BBE2AA1  BBE3AA1  1 | -16             |
+      | NetworkActionId      | NetworkActionName    | ElementaryActions | ElementaryActionType             | NetworkElementId    | Action/Setpoint |
+      | Open tie-line FR DE  | Open tie-line FR DE  | 1                 | TerminalsConnectionAction        | FFR2AA1  DDE3AA1  1 | OPEN            |
+      | Close tie-line FR BE | Close tie-line FR BE | 1                 | TerminalsConnectionAction        | BBE2AA1  FFR3AA1  1 | CLOSE           |
+      | PST @1               | PST @1               | 1                 | PhaseTapChangerTapPositionAction | BBE2AA1  BBE3AA1  1 | -16             |
     Then the remedial actions should have the following usage rules:
       | RemedialActionId     | UsageRules | Rule      | Method    | Instant    | ContingencyId | FlowCnecId |
       | Open tie-line FR DE  | 1          | OnInstant | Available | preventive |               |            |

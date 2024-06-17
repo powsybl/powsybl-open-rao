@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.craciojson.serializers;
 
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.action.GeneratorAction;
 
 import java.io.IOException;
 
@@ -18,12 +18,12 @@ import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PstSetpointSerializer extends AbstractJsonSerializer<PstSetpoint> {
+public class GeneratorActionSerializer extends AbstractJsonSerializer<GeneratorAction> {
     @Override
-    public void serialize(PstSetpoint value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(GeneratorAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
-        gen.writeNumberField(SETPOINT, value.getSetpoint());
+        gen.writeStringField(NETWORK_ELEMENT_ID, value.getGeneratorId());
+        gen.writeNumberField(ACTIVE_POWER_VALUE, value.getActivePowerValue().getAsDouble());
         gen.writeEndObject();
     }
 }

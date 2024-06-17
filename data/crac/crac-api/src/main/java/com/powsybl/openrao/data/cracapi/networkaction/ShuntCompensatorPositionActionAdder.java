@@ -9,13 +9,14 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface PstSetpointAdder {
+public interface ShuntCompensatorPositionActionAdder {
 
-    PstSetpointAdder withNetworkElement(String networkElementId, String networkElementName);
+    ShuntCompensatorPositionActionAdder withNetworkElement(String networkElementId);
 
-    PstSetpointAdder withNetworkElement(String networkElementId);
+    ShuntCompensatorPositionActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    PstSetpointAdder withSetpoint(int setPoint);
+    ShuntCompensatorPositionActionAdder withSectionCount(int sectionCount);
 
     NetworkActionAdder add();
+
 }

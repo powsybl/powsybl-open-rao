@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.craciojson.serializers;
 
-import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.action.DanglingLineAction;
 
 import java.io.IOException;
 
@@ -18,12 +18,12 @@ import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class TopologicalActionSerializer extends AbstractJsonSerializer<TopologicalAction> {
+public class DanglingLineActionSerializer extends AbstractJsonSerializer<DanglingLineAction> {
     @Override
-    public void serialize(TopologicalAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(DanglingLineAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
-        gen.writeStringField(ACTION_TYPE, serializeActionType(value.getActionType()));
+        gen.writeStringField(NETWORK_ELEMENT_ID, value.getDanglingLineId());
+        gen.writeNumberField(ACTIVE_POWER_VALUE, value.getActivePowerValue().getAsDouble());
         gen.writeEndObject();
     }
 }

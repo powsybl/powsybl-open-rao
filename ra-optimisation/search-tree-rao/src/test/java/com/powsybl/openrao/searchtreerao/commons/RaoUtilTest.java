@@ -195,7 +195,7 @@ class RaoUtilTest {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
-            .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -203,7 +203,7 @@ class RaoUtilTest {
         assertTrue(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
-            .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(flowCnec.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -225,7 +225,7 @@ class RaoUtilTest {
 
         // asserts that a preventive remedial action with forced usage rule cannot be available
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
-            .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
+            .newTerminalsConnectionAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         assertFalse(isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
@@ -272,17 +272,17 @@ class RaoUtilTest {
         PrePerimeterResult flowResult = mock(PrePerimeterResult.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
-            .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
-            .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
-            .newTopologicalAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.DE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -328,7 +328,7 @@ class RaoUtilTest {
         PrePerimeterResult flowResult = mock(PrePerimeterResult.class);
 
         RemedialAction<?> na = crac.newNetworkAction().withId("na1")
-            .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
