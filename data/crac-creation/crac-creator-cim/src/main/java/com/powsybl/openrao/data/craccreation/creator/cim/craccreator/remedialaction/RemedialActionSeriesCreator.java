@@ -471,16 +471,16 @@ public class RemedialActionSeriesCreator {
         if (flowCnec.getState().getInstant().comesBefore(instant)) {
             return;
         }
-        adder.newOnFlowConstraintUsageRule()
-            .withFlowCnec(flowCnec.getId())
+        adder.newOnConstraintUsageRule()
+            .withCnec(flowCnec.getId())
             .withUsageMethod(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(instant.getId())
             .add();
     }
 
     private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, Instant instant) {
-        adder.newOnAngleConstraintUsageRule()
-            .withAngleCnec(angleCnec.getId())
+        adder.newOnConstraintUsageRule()
+            .withCnec(angleCnec.getId())
             .withUsageMethod(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(instant.getId())
             .add();

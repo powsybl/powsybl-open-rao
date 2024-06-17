@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -277,6 +278,7 @@ class CastorFullOptimizationTest {
                 .withId("ra3")
                 .withNetworkElement("ra3-ne")
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newTapRange().withMaxTap(100).withMinTap(-100).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
                 .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
@@ -300,8 +302,9 @@ class CastorFullOptimizationTest {
         ra6 = crac.newPstRangeAction()
                 .withId("ra6")
                 .withNetworkElement("ra6-ne")
+                .withOperator("FR")
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnConstraintUsageRule().withCnec("cnec").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra7 : auto only
@@ -372,9 +375,9 @@ class CastorFullOptimizationTest {
         // ra4 is preventive, ra5 is available in state2, both have the same network element
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra4, crac.getPreventiveState(), crac));
         assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra4, state1, crac));
-        assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra4, state2, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra4, state2, crac));
 
-        assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra5, crac.getPreventiveState(), crac));
+        assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra5, crac.getPreventiveState(), crac));
         assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra5, state1, crac));
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra5, state2, crac));
 
@@ -395,7 +398,7 @@ class CastorFullOptimizationTest {
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra3, crac));
         // ra4 is preventive, ra5 is available in state2, both have the same network element
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra4, crac));
-        assertTrue(CastorFullOptimization.isRangeActionPreventive(ra5, crac));
+        assertFalse(CastorFullOptimization.isRangeActionPreventive(ra5, crac));
         // ra6 is preventive and curative
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra6, crac));
     }
@@ -410,7 +413,7 @@ class CastorFullOptimizationTest {
         // ra3 is available in preventive and in state1
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra3, crac));
         // ra4 is preventive, ra5 is available in state2, both have the same network element
-        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra4, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAutoOrCurative(ra4, crac));
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra5, crac));
         // ra6 is preventive and curative
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra6, crac));
@@ -424,32 +427,41 @@ class CastorFullOptimizationTest {
         // ra8 is preventive and auto
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra8, crac));
         // ra9 is preventive with same network element as ra8
-        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra9, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAutoOrCurative(ra9, crac));
     }
 
     @Test
     void testGetRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
-        // detect range actions that are preventive and curative
-        Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac);
-        assertEquals(8, rangeActionsExcludedFrom2P.size());
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra2));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra3));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra4));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra5));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra6));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra7));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra8));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra9));
-    }
+        PerimeterResult firstPreventiveResult = Mockito.mock(PerimeterResult.class);
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
+        State preventiveState = crac.getPreventiveState();
+        // ra9 has different taps than ra8.
+        when(firstPreventiveResult.getOptimizedSetpoint(ra9, preventiveState)).thenReturn(2.);
+        crac.newRaUsageLimits(autoInstant.getId()).withMaxRa(0).add();
+        crac.newRaUsageLimits(curativeInstant.getId()).withMaxRaPerTso(new HashMap<>(Map.of("FR", 0))).add();
+        Map<State, OptimizationResult> contingencyResult = new HashMap<>();
+        crac.getStates().forEach(state -> {
+            if (!state.isPreventive()) {
+                contingencyResult.put(state, optimizationResult);
+            }
+        });
 
-    @Test
-    void testRemoveRangeActionsExcludedFromSecondPreventive() {
-        setUpCracWithRAs();
-        Set<RangeAction<?>> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
-        CastorFullOptimization.removeRangeActionsExcludedFromSecondPreventive(rangeActions, crac);
-        assertEquals(1, rangeActions.size());
-        assertTrue(rangeActions.contains(ra1));
+        Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac, firstPreventiveResult, contingencyResult);
+
+        assertEquals(7, rangeActionsExcludedFrom2P.size());
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra1)); // Should not be excluded as it's preventive only.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra2)); // Should be excluded as it's UNAVAILABLE for preventive.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra5)); // Should be excluded as it's not preventive.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra7)); // Should be excluded as it's not preventive.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra3));  // Should be excluded as it has a range limitation RELATIVE_TO_PREVIOUS_INSTANT.
+
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra9)); // It shares the same network elements as ra8 but their tap are different. It should not be excluded.
+
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra6));  // It has the same taps in preventive and in curative. The RA belongs to french TSO and there are ra usage limuts on this TSO : It should be excluded.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra8));  // It has the same taps in preventive and auto. As there are RaUsageLimits for this instant, it should be excluded.
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra4)); // It has the same network elements as ra5 and their taps are the same. As it doesn't belong to frenchTSO : it should not be excluded.
+
     }
 
     private void setUpCracWithRealRAs(boolean curative) {
