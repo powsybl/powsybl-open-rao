@@ -35,11 +35,11 @@ public final class IteratingLinearOptimizer {
 
     }
 
-    public static SearchTreeResult optimize(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, Instant outageInstant) {
+    public static SearchTreeResult optimize(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
 
         SearchTreeResult bestResult = input.getPreOptimizationResult();
 
-        MultiStateRemedialActionResultImpl previousRangeActionResult = new MultiStateRemedialActionResultImpl(input.getPrePerimeterResult(), input.getOptimizationPerimeter());
+        MultiStateRemedialActionResultImpl previousRangeActionResult = bestResult.getAllStatesRemedialActionResult();
 
         SensitivityComputer sensitivityComputer = null;
 
@@ -102,7 +102,7 @@ public final class IteratingLinearOptimizer {
         } else {
             applyRangeActions(currentRangeActionResult, input);
             if (tmpSensitivityComputer == null) { // first iteration, do not need to be updated afterwards
-                tmpSensitivityComputer = createSensitivityComputer(input.getPreOptimizationResult().getAppliedRemedialActions(), input, parameters);
+                tmpSensitivityComputer = createSensitivityComputer(input.getPreOptimizationResult().getAllStatesRemedialActionResult().toAppliedRemedialActions(), input, parameters);
             }
         }
         runSensitivityAnalysis(tmpSensitivityComputer, input.getNetwork(), iteration);
@@ -153,7 +153,7 @@ public final class IteratingLinearOptimizer {
 
         // add RangeAction activated in the following states
         if (optimizationContext instanceof GlobalOptimizationPerimeter) {
-            AppliedRemedialActions appliedRemedialActions = input.getPreOptimizationResult().getAppliedRemedialActions().copyNetworkActionsAndAutomaticRangeActions();
+            AppliedRemedialActions appliedRemedialActions = input.getPreOptimizationResult().getAllStatesRemedialActionResult().toAppliedRemedialActions().copyNetworkActionsAndAutomaticRangeActions();
 
             optimizationContext.getRangeActionsPerState().entrySet().stream()
                     .filter(e -> !e.getKey().equals(optimizationContext.getMainOptimizationState())) // remove preventive state

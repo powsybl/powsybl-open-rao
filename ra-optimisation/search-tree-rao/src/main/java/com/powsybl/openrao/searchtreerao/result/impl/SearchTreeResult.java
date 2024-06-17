@@ -12,18 +12,18 @@ package com.powsybl.openrao.searchtreerao.result.impl;
  */
 public class SearchTreeResult {
     private final PerimeterResultWithCnecs mainStateResultWithCnecs;
-    private final MultiStateRemedialActionResultImpl allStatesRangeActionResult;
+    private final MultiStateRemedialActionResultImpl allStatesRemedialActionResult;
 
-    public SearchTreeResult(PerimeterResultWithCnecs mainStateResultWithCnecs, MultiStateRemedialActionResultImpl allStatesRangeActionResult) {
+    public SearchTreeResult(PerimeterResultWithCnecs mainStateResultWithCnecs, MultiStateRemedialActionResultImpl allStatesRemedialActionResult) {
         this.mainStateResultWithCnecs = mainStateResultWithCnecs;
-        this.allStatesRangeActionResult = allStatesRangeActionResult;
+        this.allStatesRemedialActionResult = allStatesRemedialActionResult;
     }
 
     public PerimeterResultWithCnecs getPerimeterResultWithCnecs() {
         return mainStateResultWithCnecs;
     }
 
-    public MultiStateRemedialActionResultImpl getAllStatesRangeActionResult() {
-        return allStatesRangeActionResult;
+    public MultiStateRemedialActionResultImpl getAllStatesRemedialActionResult() {
+        return allStatesRemedialActionResult;
     }
 }

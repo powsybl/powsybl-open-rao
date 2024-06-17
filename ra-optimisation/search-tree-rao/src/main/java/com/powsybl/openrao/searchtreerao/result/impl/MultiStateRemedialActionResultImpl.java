@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +35,19 @@ public class MultiStateRemedialActionResultImpl {
         optimizationPerimeter.getRangeActionsPerState().keySet().forEach(
             state -> networkActionResultPerState.put(state, new NetworkActionResultImpl(new HashSet<>()))
         );
+    }
+
+    public AppliedRemedialActions toAppliedRemedialActions() {
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        rangeActionResultPerState.forEach((state, rangeActionResult) ->
+            rangeActionResult.getActivatedRangeActions().forEach(rangeAction ->
+                appliedRemedialActions.addAppliedRangeAction(state, rangeAction, rangeActionResult.getOptimizedSetpoint(rangeAction))
+            )
+        );
+        networkActionResultPerState.forEach((state, networkActionResult) ->
+            appliedRemedialActions.addAppliedNetworkActions(state, networkActionResult.getActivatedNetworkActions())
+        );
+        return appliedRemedialActions;
     }
 
     public void activate(RangeAction<?> rangeAction, State state, double setpoint) {
