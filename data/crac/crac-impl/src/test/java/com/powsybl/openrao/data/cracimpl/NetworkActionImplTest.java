@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -19,6 +20,7 @@ import org.mockito.Mockito;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation.createCracWithRemedialActions;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -120,5 +122,21 @@ class NetworkActionImplTest {
 
         Mockito.when(mockedElementaryAction1.hasImpactOnNetwork(Mockito.any())).thenReturn(false);
         assertFalse(networkAction.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void compatibility() {
+        Crac crac = createCracWithRemedialActions();
+
+        assertTrue(crac.getNetworkAction("hvdc-fr-es-200-mw").isCompatibleWith(crac.getNetworkAction("hvdc-fr-es-200-mw")));
+        assertFalse(crac.getNetworkAction("hvdc-fr-es-200-mw").isCompatibleWith(crac.getNetworkAction("hvdc-es-fr-200-mw")));
+        assertTrue(crac.getNetworkAction("hvdc-fr-es-200-mw").isCompatibleWith(crac.getNetworkAction("aligned-psts")));
+        assertTrue(crac.getNetworkAction("hvdc-fr-es-200-mw").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
+        assertTrue(crac.getNetworkAction("hvdc-es-fr-200-mw").isCompatibleWith(crac.getNetworkAction("hvdc-es-fr-200-mw")));
+        assertTrue(crac.getNetworkAction("hvdc-es-fr-200-mw").isCompatibleWith(crac.getNetworkAction("aligned-psts")));
+        assertTrue(crac.getNetworkAction("hvdc-es-fr-200-mw").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
+        assertTrue(crac.getNetworkAction("aligned-psts").isCompatibleWith(crac.getNetworkAction("aligned-psts")));
+        assertFalse(crac.getNetworkAction("aligned-psts").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
+        assertTrue(crac.getNetworkAction("switch-pair-and-pst").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
     }
 }

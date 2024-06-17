@@ -25,4 +25,12 @@ public interface PstSetpoint extends ElementaryAction {
      * Get the Network Element associated to the elementary action
      */
     NetworkElement getNetworkElement();
+
+    @Override
+    default boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
+        if (otherElementaryAction instanceof PstSetpoint pstSetpoint) {
+            return !getNetworkElement().equals(pstSetpoint.getNetworkElement()) || getSetpoint() == pstSetpoint.getSetpoint();
+        }
+        return true;
+    }
 }
