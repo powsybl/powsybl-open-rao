@@ -189,17 +189,6 @@ public class RaoResultImpl implements RaoResult {
         return optimizedInstant == null ? INITIAL_INSTANT_ID : optimizedInstant.getId();
     }
 
-    @Override
-    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction networkAction) {
-            return isActivatedDuringState(state, networkAction);
-        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
-            return isActivatedDuringState(state, rangeAction);
-        } else {
-            throw new OpenRaoException("Unrecognized remedial action type");
-        }
-    }
-
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
         networkActionResults.putIfAbsent(networkAction, new NetworkActionResult());
         return networkActionResults.get(networkAction);

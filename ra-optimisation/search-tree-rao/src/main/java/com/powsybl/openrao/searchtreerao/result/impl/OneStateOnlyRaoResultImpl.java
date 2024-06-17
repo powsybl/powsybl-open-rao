@@ -190,17 +190,6 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction networkAction) {
-            return isActivatedDuringState(state, networkAction);
-        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
-            return isActivatedDuringState(state, rangeAction);
-        } else {
-            throw new OpenRaoException("Unrecognized remedial action type");
-        }
-    }
-
-    @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);

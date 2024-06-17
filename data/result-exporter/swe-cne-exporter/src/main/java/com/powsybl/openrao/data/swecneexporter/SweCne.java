@@ -109,7 +109,16 @@ public class SweCne {
         Reason reason = new Reason();
         RaoResult raoResult = sweCneHelper.getRaoResult();
         boolean isDivergent = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
-        boolean isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
+        boolean isUnsecure;
+        try {
+            isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
+        } catch (OpenRaoException e) {
+            if ("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown".equals(e.getMessage())) {
+                isUnsecure = false; // simply ignore AngleCNECs
+            } else {
+                throw e; // unexpected error
+            }
+        }
         if (isDivergent) {
             reason.setCode(DIVERGENCE_CODE);
             reason.setText(DIVERGENCE_TEXT);
