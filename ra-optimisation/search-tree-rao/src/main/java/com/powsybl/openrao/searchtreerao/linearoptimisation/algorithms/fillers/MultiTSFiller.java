@@ -183,10 +183,16 @@ public class MultiTSFiller implements ProblemFiller {
 
         for (int i = 1; i < pstRangeActionsList.size(); i++) {
             for (PstRangeAction currentRangeAction : pstRangeActionsList.get(i)) {
-                Set<PstRangeAction> previousRangeActionSet = pstRangeActionsList.get(i - 1)
-                    .stream()
-                    .filter(rangeAction -> rangeAction.getNetworkElement().getName().equals(currentRangeAction.getNetworkElement().getName()))
-                    .collect(Collectors.toSet());
+                Set<PstRangeAction> previousRangeActionSet = new HashSet<>();
+                int previousTimeStepIndex = i - 1;
+                while (previousRangeActionSet.size() < 1 && previousTimeStepIndex >= 0) {
+                    previousRangeActionSet = pstRangeActionsList.get(previousTimeStepIndex)
+                        .stream()
+                        .filter(rangeAction -> rangeAction.getNetworkElement().getName().equals(currentRangeAction.getNetworkElement().getName()))
+                        .collect(Collectors.toSet());
+                    --previousTimeStepIndex;
+                }
+
                 if (previousRangeActionSet.size() == 1) {
                     PstRangeAction previousRangeAction = previousRangeActionSet.stream().findAny().orElse(null);
                     if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.CONTINUOUS) {

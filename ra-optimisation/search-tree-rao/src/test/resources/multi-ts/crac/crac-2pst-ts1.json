@@ -52,7 +52,7 @@
           "usageMethod": "available"
         }
       ],
-      "networkElementId": "BBE2AA1  BBE3AA1  1",
+      "networkElementId": "BBE2AA1  BBE3AA1  2",
       "initialTap": 0,
       "tapToAngleConversionMap": {
         "-1": -0.3896097993971608,
@@ -94,6 +94,10 @@
           "min": -16,
           "max": 16,
           "rangeType": "absolute"
+        }, {
+          "min" : -7,
+          "max" : 7,
+          "rangeType" : "relativeToPreviousTimeStep"
         }
       ]
     }

@@ -22,7 +22,7 @@
   "contingencies": [],
   "flowCnecs": [
     {
-      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS1",
+      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS0",
       "name": "BBE2AA1  FFR3AA1  1 - preventive",
       "networkElementId": "BBE2AA1  FFR3AA1  1",
       "operator": "BE",
@@ -43,7 +43,7 @@
   ],
   "pstRangeActions": [
     {
-      "id": "pst_be - TS1",
+      "id": "pst_be - TS0",
       "name": "pst_be",
       "operator": "BE",
       "onInstantUsageRules": [

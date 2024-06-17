@@ -52,16 +52,16 @@ public class NewRAOTest {
     @BeforeEach
     public void setUp() {
         networks = new ArrayList<>();
-        networks.add(Network.read("network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct")));
+        networks.add(Network.read("multi-ts/network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR_2PST.uct")));
 //        networks.add(Network.read("network/12NodesProdNL.uct", getClass().getResourceAsStream("/network/12NodesProdNL.uct")));
-        networks.add(Network.read("network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/network/12NodesProdFR_2PST.uct")));
+        networks.add(Network.read("multi-ts/network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR_2PST.uct")));
 
         cracs = new ArrayList<>();
-        cracs.add(CracImporters.importCrac("crac/crac-with-pst-range-action.json",
-            getClass().getResourceAsStream("/crac/crac-with-pst-range-action.json"),
+        cracs.add(CracImporters.importCrac("multi-ts/crac/crac-case0_0.json",
+            getClass().getResourceAsStream("/multi-ts/crac/crac-case0_0.json"),
             networks.get(0)));
-        cracs.add(CracImporters.importCrac("crac/crac-second_pst.json",
-            getClass().getResourceAsStream("/crac/crac-second_pst.json"),
+        cracs.add(CracImporters.importCrac("multi-ts/crac/crac-2pst-ts1.json",
+            getClass().getResourceAsStream("/multi-ts/crac/crac-2pst-ts1.json"),
             networks.get(1)));
 
         initialSetpoints = computeInitialSetpointsResults();
@@ -233,7 +233,7 @@ public class NewRAOTest {
             .withRaActivationFromParentLeaf(new RangeActionActivationResultImpl(initialSetpoints))
             .withObjectiveFunction(objectiveFunction)
             .withToolProvider(toolProvider)
-            .withOutageInstant(cracs.get(0).getOutageInstant()) //TODO: check if multiple are needed (only useful l:92 SystematicSensitivityAdapter)
+            .withOutageInstant(cracs.get(0).getOutageInstant()) //only useful l:92 SystematicSensitivityAdapter
             .build();
 
         IteratingLinearOptimizerParameters parameters = IteratingLinearOptimizerParameters.create()

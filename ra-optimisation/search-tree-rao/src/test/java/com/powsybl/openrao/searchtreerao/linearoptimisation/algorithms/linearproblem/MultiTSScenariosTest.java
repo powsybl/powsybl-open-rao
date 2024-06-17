@@ -36,8 +36,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MultiTSScenariosTest {
     List<Network> networks;
@@ -45,42 +43,10 @@ public class MultiTSScenariosTest {
     RangeActionSetpointResult initialSetpoints;
     List<OptimizationPerimeter> optimizationPerimeters;
     MultipleSensitivityResult initialSensiResult;
-    RangeActionsOptimizationParameters.PstModel pstModel;
+    RangeActionsOptimizationParameters.PstModel pstModel = RangeActionsOptimizationParameters.PstModel.CONTINUOUS;
 
     @BeforeEach
     public void setUp() {
-        pstModel = RangeActionsOptimizationParameters.PstModel.CONTINUOUS;
-        int caseNumber = 1;
-
-        String path0 = "crac/crac-case" + caseNumber + "_0.json";
-        String path1 = "crac/crac-case" + caseNumber + "_1.json";
-
-        networks = new ArrayList<>();
-        networks.add(Network.read("network/12NodesProdFR.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct")));
-
-        //for test cases number from 0 to 2
-        networks.add(Network.read("network/12NodesProdFR.uct", getClass().getResourceAsStream("/network/12NodesProdFR.uct")));
-        //for test cases number from 3 onwards
-//        networks.add(Network.read("network/12NodesProdNL.uct", getClass().getResourceAsStream("/network/12NodesProdNL.uct")));
-
-        cracs = new ArrayList<>();
-//        cracs.add(CracImporters.importCrac("crac/crac-with-pst-range-action.json",
-//            getClass().getResourceAsStream("/crac/crac-with-pst-range-action.json"),
-//            networks.get(0)));
-//        cracs.add(CracImporters.importCrac("crac/crac-with-pst-range-action_2.json",
-//            getClass().getResourceAsStream("/crac/crac-with-pst-range-action_2.json"),
-//            networks.get(1)));
-
-        cracs.add(CracImporters.importCrac(path0,
-            getClass().getResourceAsStream("/" + path0),
-            networks.get(0)));
-        cracs.add(CracImporters.importCrac(path1,
-            getClass().getResourceAsStream("/" + path1),
-            networks.get(1)));
-
-        initialSetpoints = computeInitialSetpointsResults();
-        optimizationPerimeters = computeOptimizationPerimeters();
-        initialSensiResult = runInitialSensi();
     }
 
     private RangeActionSetpointResult computeInitialSetpointsResults() {
@@ -107,10 +73,12 @@ public class MultiTSScenariosTest {
     }
 
     private MultipleSensitivityResult runInitialSensi() {
-        List<Set<FlowCnec>> cnecsList = List.of(cracs.get(0).getFlowCnecs(), cracs.get(1).getFlowCnecs());
-        Set<RangeAction<?>> rangeActionsSet = Stream.of(cracs.get(0).getRangeActions(), cracs.get(1).getRangeActions())
-            .flatMap(Set::stream)
-            .collect(Collectors.toSet());
+        List<Set<FlowCnec>> cnecsList = new ArrayList<>();
+        cracs.forEach(crac -> cnecsList.add(crac.getFlowCnecs()));
+
+        Set<RangeAction<?>> rangeActionsSet = new HashSet<>();
+        cracs.forEach(crac -> rangeActionsSet.addAll(crac.getRangeActions()));
+
         RaoParameters raoParameters = RaoParameters.load();
         ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
 
@@ -125,13 +93,129 @@ public class MultiTSScenariosTest {
     }
 
     @Test
-    public void testIteratingLinearOptimization() {
+    public void testCase0() {
+        testEasyCasesSameNetwork(0);
+    }
+
+    @Test
+    public void testCase1() {
+        testEasyCasesSameNetwork(1);
+    }
+
+    @Test
+    public void testCase2() {
+        testEasyCasesSameNetwork(2);
+    }
+
+    @Test
+    public void testTwoTimestepsThreePst() {
+        networks = new ArrayList<>();
+        networks.add(Network.read("multi-ts/network/12NodesProdFR_3PST.uct",
+            getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR_3PST.uct")));
+        networks.add(Network.read("multi-ts/network/12NodesProdFR_3PST.uct",
+            getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR_3PST.uct")));
+
+        cracs = new ArrayList<>();
+        cracs.add(CracImporters.importCrac("multi-ts/crac/crac-3pst-ts0.json",
+            getClass().getResourceAsStream("/multi-ts/crac/crac-3pst-ts0.json"),
+            networks.get(0)));
+        cracs.add(CracImporters.importCrac("multi-ts/crac/crac-3pst-ts1.json",
+            getClass().getResourceAsStream("/multi-ts/crac/crac-3pst-ts1.json"),
+            networks.get(1)));
+
+        initialSetpoints = computeInitialSetpointsResults();
+        optimizationPerimeters = computeOptimizationPerimeters();
+        initialSensiResult = runInitialSensi();
+
+        LinearOptimizationResult result = runIteratingLinearOptimization();
+        System.out.println(result.getStatus());
+
+        PstRangeAction pstRa0Ts0 = cracs.get(0).getPstRangeAction("pst_be_0 - TS0");
+        PstRangeAction pstRa1Ts0 = cracs.get(0).getPstRangeAction("pst_be_1 - TS0");
+        PstRangeAction pstRa1Ts1 = cracs.get(1).getPstRangeAction("pst_be_1 - TS1");
+        PstRangeAction pstRa2Ts1 = cracs.get(1).getPstRangeAction("pst_be_2 - TS1");
+
+        State state0 = optimizationPerimeters.get(0).getMainOptimizationState();
+        State state1 = optimizationPerimeters.get(1).getMainOptimizationState();
+        double pstOptimizedSetPoint0Ts0 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0Ts0, state0);
+        double pstOptimizedSetPoint1Ts0 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1Ts0, state0);
+        double pstOptimizedSetPoint1Ts1 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1Ts1, state1);
+        double pstOptimizedSetPoint2Ts1 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa2Ts1, state1);
+
+        System.out.println("---- TS0 ----");
+        System.out.println(pstOptimizedSetPoint0Ts0);
+        System.out.println(pstOptimizedSetPoint1Ts0);
+        System.out.println("---- TS1 ----");
+        System.out.println(pstOptimizedSetPoint1Ts1);
+        System.out.println(pstOptimizedSetPoint2Ts1);
+    }
+
+    @Test
+    public void testThreeTimestepsTwoPst() {
+        List<String> cracsPaths = List.of(
+            "multi-ts/crac/crac-case0_0.json",
+            "multi-ts/crac/crac-2pst-ts1.json",
+            "multi-ts/crac/crac-2pst-ts2.json"
+        );
+        List<String> networksPaths = List.of(
+            "multi-ts/network/12NodesProdFR_2PST.uct",
+            "multi-ts/network/12NodesProdFR_2PST.uct",
+            "multi-ts/network/12NodesProdNL_2PST.uct"
+        );
+
+        cracs = new ArrayList<>();
+        networks = new ArrayList<>();
+
+        for (int i = 0; i < networksPaths.size(); i++) {
+            networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
+            cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
+        }
+
+        initialSetpoints = computeInitialSetpointsResults();
+        optimizationPerimeters = computeOptimizationPerimeters();
+        initialSensiResult = runInitialSensi();
+        LinearOptimizationResult result0 = testProblemAlone(0);
+        LinearOptimizationResult result1 = testProblemAlone(1);
+        LinearOptimizationResult result2 = testProblemAlone(2);
+        LinearOptimizationResult result = runIteratingLinearOptimization();
+        System.out.println(result.getStatus());
+
+        PstRangeAction pstRa0Ts0 = cracs.get(0).getPstRangeActions().stream().toList().get(0);
+        PstRangeAction pstRa1Ts1 = cracs.get(1).getPstRangeActions().stream().toList().get(0);
+        PstRangeAction pstRa0Ts2 = cracs.get(2).getPstRangeActions().stream().toList().get(0);
+
+        State state0 = optimizationPerimeters.get(0).getMainOptimizationState();
+        State state1 = optimizationPerimeters.get(1).getMainOptimizationState();
+        State state2 = optimizationPerimeters.get(2).getMainOptimizationState();
+        double pstOptimizedSetPoint0Ts0 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0Ts0, state0);
+        double pstOptimizedSetPoint1Ts1 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1Ts1, state1);
+        double pstOptimizedSetPoint0Ts2 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0Ts2, state2);
+
+        System.out.println("---- TS0 ----");
+        System.out.println(pstOptimizedSetPoint0Ts0);
+        System.out.println("---- TS1 ----");
+        System.out.println(pstOptimizedSetPoint1Ts1);
+        System.out.println("---- TS2 ----");
+        System.out.println(pstOptimizedSetPoint0Ts2);
+
+        System.out.println("---- Problems alone----");
+        double pstOptimizedSetPointAlonets0 = result0.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0Ts0, state0);
+        System.out.println(pstOptimizedSetPointAlonets0);
+
+        double pstOptimizedSetPointAlonets1 = result1.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1Ts1, state1);
+        System.out.println(pstOptimizedSetPointAlonets1);
+
+        double pstOptimizedSetPointAlonets2 = result2.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0Ts2, state2);
+        System.out.println(pstOptimizedSetPointAlonets2);
+    }
+
+    public LinearOptimizationResult runIteratingLinearOptimization() {
+
         Instant preventiveInstant = Mockito.mock(Instant.class);
         Instant outageInstant = Mockito.mock(Instant.class);
 
         Set<FlowCnec> allCnecs = new HashSet<>();
-        allCnecs.addAll(cracs.get(0).getFlowCnecs());
-        allCnecs.addAll(cracs.get(1).getFlowCnecs());
+        cracs.forEach(crac -> allCnecs.addAll(crac.getFlowCnecs()));
 
         RaoParameters raoParameters = RaoParameters.load();
         raoParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
@@ -177,7 +261,35 @@ public class MultiTSScenariosTest {
             .build();
 
         LinearOptimizationResult result = IteratingLinearOptimizerMultiTS.optimize(input, parameters, outageInstant);
+        return result;
 
+    }
+
+    public void testEasyCasesSameNetwork(int caseNumber) {
+        String pathCrac0 = "multi-ts/crac/crac-case" + caseNumber + "_0.json";
+        String pathCrac1 = "multi-ts/crac/crac-case" + caseNumber + "_1.json";
+
+        Map<String, String> pathsCracsAndNetworks = Map.of(
+            pathCrac0, "multi-ts/network/12NodesProdFR.uct",
+            pathCrac1, "multi-ts/network/12NodesProdFR.uct"
+        );
+
+        cracs = new ArrayList<>();
+        networks = new ArrayList<>();
+        pathsCracsAndNetworks.forEach((cracPath, networkPath) -> {
+                networks.add(Network.read(networkPath, getClass().getResourceAsStream("/" + networkPath)));
+                cracs.add(CracImporters.importCrac(cracPath, getClass().getResourceAsStream("/" + cracPath), networks.iterator().next()));
+            }
+        );
+
+        initialSetpoints = computeInitialSetpointsResults();
+        optimizationPerimeters = computeOptimizationPerimeters();
+        initialSensiResult = runInitialSensi();
+
+        LinearOptimizationResult resultTs0 = testProblemAlone(0);
+        LinearOptimizationResult resultTs1 = testProblemAlone(1);
+
+        LinearOptimizationResult result = runIteratingLinearOptimization();
         System.out.println(result.getStatus());
 
         PstRangeAction pstRa0 = cracs.get(0).getPstRangeActions().iterator().next();
@@ -188,17 +300,23 @@ public class MultiTSScenariosTest {
         double pstOptimizedSetPoint0 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0, state0);
         double pstOptimizedSetPoint1 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1, state1);
 
+        double pstOptimizedSetPointAlone0 = resultTs0.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0, state0);
+        double pstOptimizedSetPointAlone1 = resultTs1.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1, state1);
+
+        System.out.println("---- First problem alone -----");
+        System.out.println(pstOptimizedSetPointAlone0);
+        System.out.println("---- Second problem alone -----");
+        System.out.println(pstOptimizedSetPointAlone1);
+        System.out.println("---- Merged problem -----");
         System.out.println(pstOptimizedSetPoint0);
         System.out.println(pstOptimizedSetPoint1);
-
     }
 
-    @Test
-    public void testLinearFirstProblemsAlone() {
+    public LinearOptimizationResult testProblemAlone(int timeStepIndex) {
         Instant outageInstant = Mockito.mock(Instant.class);
 
         Set<FlowCnec> allCnecs = new HashSet<>();
-        allCnecs.addAll(cracs.get(0).getFlowCnecs());
+        allCnecs.addAll(cracs.get(timeStepIndex).getFlowCnecs());
 
         RaoParameters raoParameters = RaoParameters.load();
         raoParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
@@ -216,8 +334,8 @@ public class MultiTSScenariosTest {
         ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
 
         IteratingLinearOptimizerInput input0 = IteratingLinearOptimizerInput.create()
-            .withNetwork(networks.get(0))
-            .withOptimizationPerimeter(optimizationPerimeters.get(0))
+            .withNetwork(networks.get(timeStepIndex))
+            .withOptimizationPerimeter(optimizationPerimeters.get(timeStepIndex))
             .withInitialFlowResult(initialSensiResult)
             .withPrePerimeterFlowResult(initialSensiResult)
             .withPrePerimeterSetpoints(initialSetpoints)
@@ -227,7 +345,7 @@ public class MultiTSScenariosTest {
             .withRaActivationFromParentLeaf(new RangeActionActivationResultImpl(initialSetpoints))
             .withObjectiveFunction(objectiveFunction)
             .withToolProvider(toolProvider)
-            .withOutageInstant(cracs.get(0).getOutageInstant())
+            .withOutageInstant(cracs.get(timeStepIndex).getOutageInstant())
             .build();
 
         IteratingLinearOptimizerParameters parameters = IteratingLinearOptimizerParameters.create()
@@ -243,79 +361,7 @@ public class MultiTSScenariosTest {
             .withRaRangeShrinking(false)
             .build();
 
-        LinearOptimizationResult result0 = IteratingLinearOptimizer.optimize(input0, parameters, outageInstant);
-
-        PstRangeAction pstRa0 = cracs.get(0).getPstRangeActions().iterator().next();
-
-        State state0 = optimizationPerimeters.get(0).getMainOptimizationState();
-        double pstOptimizedSetPoint0 = result0.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0, state0);
-
-        System.out.println("First TS:");
-        System.out.println(pstOptimizedSetPoint0);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input0, parameters, outageInstant);
+        return result;
     }
-
-    @Test
-    public void testLinearSecondProblemAlone() {
-        Instant outageInstant = Mockito.mock(Instant.class);
-
-        Set<FlowCnec> allCnecs = new HashSet<>();
-        allCnecs.addAll(cracs.get(1).getFlowCnecs());
-
-        RaoParameters raoParameters = RaoParameters.load();
-        raoParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
-
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
-            allCnecs,
-            Collections.emptySet(), // loopflows
-            initialSensiResult,
-            initialSensiResult,
-            initialSetpoints,
-            null, //crac(s), not useful (CNECs secured by PST)
-            Collections.emptySet(), // operators not sharing CRAs
-            raoParameters);
-
-        ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(1)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
-
-        IteratingLinearOptimizerInput input1 = IteratingLinearOptimizerInput.create()
-            .withNetwork(networks.get(1))
-            .withOptimizationPerimeter(optimizationPerimeters.get(1))
-            .withInitialFlowResult(initialSensiResult)
-            .withPrePerimeterFlowResult(initialSensiResult)
-            .withPrePerimeterSetpoints(initialSetpoints)
-            .withPreOptimizationFlowResult(initialSensiResult)
-            .withPreOptimizationSensitivityResult(initialSensiResult)
-            .withPreOptimizationAppliedRemedialActions(new AppliedRemedialActions())
-            .withRaActivationFromParentLeaf(new RangeActionActivationResultImpl(initialSetpoints))
-            .withObjectiveFunction(objectiveFunction)
-            .withToolProvider(toolProvider)
-            .withOutageInstant(cracs.get(1).getOutageInstant())
-            .build();
-
-        IteratingLinearOptimizerParameters parameters = IteratingLinearOptimizerParameters.create()
-            .withObjectiveFunction(raoParameters.getObjectiveFunctionParameters().getType())
-            .withRangeActionParameters(raoParameters.getRangeActionsOptimizationParameters())
-            .withMnecParameters(raoParameters.getExtension(MnecParametersExtension.class))
-            .withMaxMinRelativeMarginParameters(raoParameters.getExtension(RelativeMarginsParametersExtension.class))
-            .withLoopFlowParameters(raoParameters.getExtension(LoopFlowParametersExtension.class))
-            .withUnoptimizedCnecParameters(null)
-            .withRaLimitationParameters(new RangeActionLimitationParameters())
-            .withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver.load(PlatformConfig.defaultConfig()))
-            .withMaxNumberOfIterations(3)
-            .withRaRangeShrinking(false)
-            .build();
-
-        LinearOptimizationResult result1 = IteratingLinearOptimizer.optimize(input1, parameters, outageInstant);
-
-        PstRangeAction pstRa1 = cracs.get(1).getPstRangeActions().iterator().next();
-
-        State state1 = optimizationPerimeters.get(1).getMainOptimizationState();
-        double pstOptimizedSetPoint1 = result1.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1, state1);
-
-        System.out.println("Second TS:");
-        System.out.println(pstOptimizedSetPoint1);
-    }
-
 }
-
-
-
