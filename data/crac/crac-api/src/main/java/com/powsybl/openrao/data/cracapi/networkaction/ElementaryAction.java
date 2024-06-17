@@ -44,4 +44,11 @@ public interface ElementaryAction {
      * Get the Network Elements associated to the elementary action
      */
     Set<NetworkElement> getNetworkElements();
+
+    /**
+     * States if the elementary action can be applied without infringing on elementary network action's scope.
+     * @param otherElementaryAction the other elementary action to check compatibility with
+     * @return true if both elementary actions can be applied without any conflictual behaviour
+     */
+    boolean isCompatibleWith(ElementaryAction otherElementaryAction);
 }
