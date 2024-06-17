@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Country;
 public interface OnFlowConstraintInCountryAdder<T extends RemedialActionAdder<T>> {
     OnFlowConstraintInCountryAdder<T> withInstant(String instantId);
 
+    OnFlowConstraintInCountryAdder<T> withContingency(String contingencyId);
+
     OnFlowConstraintInCountryAdder<T> withCountry(Country country);
 
     OnFlowConstraintInCountryAdder<T> withUsageMethod(UsageMethod usageMethod);
