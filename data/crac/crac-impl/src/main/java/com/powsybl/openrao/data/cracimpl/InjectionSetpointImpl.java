@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.iidm.network.*;
@@ -94,14 +93,6 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return Collections.singleton(networkElement);
-    }
-
-    @Override
-    public boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
-        if (otherElementaryAction instanceof InjectionSetpoint injectionSetpoint) {
-            return !networkElement.equals(injectionSetpoint.getNetworkElement()) || setpoint == injectionSetpoint.getSetpoint();
-        }
-        return true;
     }
 
     @Override

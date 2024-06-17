@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.data.cracapi.NetworkElement;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.iidm.network.Network;
 
@@ -56,14 +55,6 @@ public class SwitchPairImpl implements SwitchPair {
     @Override
     public NetworkElement getSwitchToClose() {
         return switchToClose;
-    }
-
-    @Override
-    public boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
-        if (otherElementaryAction instanceof SwitchPair switchPair) {
-            return !switchToOpen.equals(switchPair.getSwitchToOpen()) && !switchToOpen.equals(switchPair.getSwitchToClose()) && !switchToClose.equals(switchPair.getSwitchToClose()) && !switchToClose.equals(switchPair.getSwitchToOpen());
-        }
-        return true;
     }
 
     @Override

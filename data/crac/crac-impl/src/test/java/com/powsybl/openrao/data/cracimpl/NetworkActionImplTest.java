@@ -137,6 +137,6 @@ class NetworkActionImplTest {
         assertTrue(crac.getNetworkAction("hvdc-es-fr-200-mw").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
         assertTrue(crac.getNetworkAction("aligned-psts").isCompatibleWith(crac.getNetworkAction("aligned-psts")));
         assertFalse(crac.getNetworkAction("aligned-psts").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
-        assertFalse(crac.getNetworkAction("switch-pair-and-pst").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
+        assertTrue(crac.getNetworkAction("switch-pair-and-pst").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
     }
 }

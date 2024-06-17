@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
@@ -103,14 +102,6 @@ public final class TopologicalActionImpl implements TopologicalAction {
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return Collections.singleton(networkElement);
-    }
-
-    @Override
-    public boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
-        if (otherElementaryAction instanceof TopologicalAction topologicalAction) {
-            return !networkElement.equals(topologicalAction.getNetworkElement()) || actionType.equals(topologicalAction.getActionType());
-        }
-        return true;
     }
 
     @Override

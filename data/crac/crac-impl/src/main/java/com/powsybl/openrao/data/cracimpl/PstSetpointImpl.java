@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -96,14 +95,6 @@ public final class PstSetpointImpl implements PstSetpoint {
     @Override
     public boolean canBeApplied(Network network) {
         // TODO : setpoint out of range ?
-        return true;
-    }
-
-    @Override
-    public boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
-        if (otherElementaryAction instanceof PstSetpoint pstSetpoint) {
-            return !networkElement.equals(pstSetpoint.getNetworkElement()) || setpoint == pstSetpoint.getSetpoint();
-        }
         return true;
     }
 

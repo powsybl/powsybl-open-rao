@@ -119,7 +119,7 @@ class SwitchPairImplTest {
         Crac crac = createCracWithRemedialActions();
         SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("open-switch-1-close-switch-2").getElementaryActions().iterator().next();
 
-        assertFalse(switchPair.isCompatibleWith(switchPair));
+        assertTrue(switchPair.isCompatibleWith(switchPair));
         assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-2").getElementaryActions().iterator().next()));
         assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("close-switch-1").getElementaryActions().iterator().next()));
         assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("close-switch-2").getElementaryActions().iterator().next()));
@@ -134,7 +134,7 @@ class SwitchPairImplTest {
         assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-2-tap-3").getElementaryActions().iterator().next()));
         assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-2-tap-8").getElementaryActions().iterator().next()));
 
-        assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-2").getElementaryActions().iterator().next()));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-2").getElementaryActions().iterator().next()));
         assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-2-close-switch-1").getElementaryActions().iterator().next()));
         assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-4").getElementaryActions().iterator().next()));
         assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-3").getElementaryActions().iterator().next()));
