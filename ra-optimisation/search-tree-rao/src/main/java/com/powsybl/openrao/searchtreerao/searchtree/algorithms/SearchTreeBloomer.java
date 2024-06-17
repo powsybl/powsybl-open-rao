@@ -40,6 +40,7 @@ public final class SearchTreeBloomer {
             new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
             new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso()),
             new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions()),
+            new ElementaryActionsCompatibilityFilter(),
             new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso())
         );
         this.input = input;
