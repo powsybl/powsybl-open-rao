@@ -744,17 +744,32 @@ class JsonRetrocompatibilityTest {
         assertEquals("border5", crac.getCnec("voltageCnecId").getBorder());
 
         // check new/modified elementaryActions
+        Iterator<Action> raPstIt = crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator();
+        assertEquals("pst", ((PhaseTapChangerTapPositionAction) raPstIt.next()).getTransformerId());
+
+        Iterator<Action> ra1It = crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator();
+        assertEquals("injection", ((GeneratorAction) ra1It.next()).getGeneratorId());
+
         assertEquals(3, crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().size());
-        Iterator<Action> ra2It = crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().iterator();
-        assertTrue(ra2It.next() instanceof DanglingLineAction);
-        assertTrue(ra2It.next() instanceof LoadAction);
-        assertTrue(ra2It.next() instanceof SwitchAction);
+        List<Action> ra2Actions = crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().stream().toList();
+        assertTrue(ra2Actions.get(0) instanceof DanglingLineAction);
+        assertEquals("DL1", ((DanglingLineAction) ra2Actions.get(0)).getDanglingLineId());
+        assertTrue(ra2Actions.get(1) instanceof LoadAction);
+        assertEquals("LD1", ((LoadAction) ra2Actions.get(1)).getLoadId());
+        assertTrue(ra2Actions.get(2) instanceof SwitchAction);
+        assertEquals("BR1", ((SwitchAction) ra2Actions.get(2)).getSwitchId());
+
         assertEquals(1, crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().iterator().next() instanceof ShuntCompensatorPositionAction);
+        Action ra3 = crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().iterator().next();
+        assertTrue(ra3 instanceof ShuntCompensatorPositionAction);
+        assertEquals("SC1", ((ShuntCompensatorPositionAction) ra3).getShuntCompensatorId());
+
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
-        Iterator<Action> raComplexIt = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().iterator();
-        assertTrue(raComplexIt.next() instanceof PhaseTapChangerTapPositionAction);
-        assertTrue(raComplexIt.next() instanceof TerminalsConnectionAction);
+        List<Action> raCompleActions = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().stream().toList();
+        assertTrue(raCompleActions.get(0) instanceof PhaseTapChangerTapPositionAction);
+        assertEquals("pst", ((PhaseTapChangerTapPositionAction) raCompleActions.get(0)).getTransformerId());
+        assertTrue(raCompleActions.get(1) instanceof TerminalsConnectionAction);
+        assertEquals("ne1Id", ((TerminalsConnectionAction) raCompleActions.get(1)).getElementId());
     }
 
     private void testContentOfV2Point4Crac(Crac crac) {

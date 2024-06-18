@@ -183,20 +183,35 @@ class CracImportExportTest {
 
         // check elementaryActions
         assertEquals(1, crac.getNetworkAction("pstSetpointRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next() instanceof PhaseTapChangerTapPositionAction);
+        Action pstAction = crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next();
+        assertTrue(pstAction instanceof PhaseTapChangerTapPositionAction);
+        assertEquals("pst", ((PhaseTapChangerTapPositionAction) pstAction).getTransformerId());
+
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof GeneratorAction);
-        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
-        Iterator<Action> raComplexIt = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().iterator();
-        assertTrue(raComplexIt.next() instanceof PhaseTapChangerTapPositionAction);
-        assertTrue(raComplexIt.next() instanceof TerminalsConnectionAction);
+        Action ra1Action = crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next();
+        assertTrue(ra1Action instanceof GeneratorAction);
+        assertEquals("injection", ((GeneratorAction) ra1Action).getGeneratorId());
+
         assertEquals(3, crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().size());
-        Iterator<Action> ra2It = crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().iterator();
-        assertTrue(ra2It.next() instanceof DanglingLineAction);
-        assertTrue(ra2It.next() instanceof LoadAction);
-        assertTrue(ra2It.next() instanceof SwitchAction);
+        List<Action> ra2Actions = crac.getNetworkAction("injectionSetpointRa2Id").getElementaryActions().stream().toList();
+        assertTrue(ra2Actions.get(0) instanceof DanglingLineAction);
+        assertEquals("DL1", ((DanglingLineAction) ra2Actions.get(0)).getDanglingLineId());
+        assertTrue(ra2Actions.get(1) instanceof LoadAction);
+        assertEquals("LD1", ((LoadAction) ra2Actions.get(1)).getLoadId());
+        assertTrue(ra2Actions.get(2) instanceof SwitchAction);
+        assertEquals("BR1", ((SwitchAction) ra2Actions.get(2)).getSwitchId());
+
         assertEquals(1, crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().iterator().next() instanceof ShuntCompensatorPositionAction);
+        Action ra3 = crac.getNetworkAction("injectionSetpointRa3Id").getElementaryActions().iterator().next();
+        assertTrue(ra3 instanceof ShuntCompensatorPositionAction);
+        assertEquals("SC1", ((ShuntCompensatorPositionAction) ra3).getShuntCompensatorId());
+
+        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
+        List<Action> raCompleActions = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().stream().toList();
+        assertTrue(raCompleActions.get(0) instanceof PhaseTapChangerTapPositionAction);
+        assertEquals("pst", ((PhaseTapChangerTapPositionAction) raCompleActions.get(0)).getTransformerId());
+        assertTrue(raCompleActions.get(1) instanceof TerminalsConnectionAction);
+        assertEquals("ne1Id", ((TerminalsConnectionAction) raCompleActions.get(1)).getElementId());
 
         // check onInstant usage rule
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
