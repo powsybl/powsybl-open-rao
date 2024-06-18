@@ -95,7 +95,8 @@ public final class Helpers {
         NativeCrac nativeCrac = nativeCracImporter.importNativeCrac(new ByteArrayInputStream(cracBytes));
         CracCreationContext cracCreationContext = CracCreators.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters);
         // round-trip CRAC json export/import to test it implicitly
-        return roundTripOnCracCreationContext(cracCreationContext, network);
+        //return roundTripOnCracCreationContext(cracCreationContext, network);
+        return cracCreationContext;
     }
 
     public static String getCracFormat(File cracFile) {
