@@ -55,8 +55,8 @@
                         <name>Contingency 1 name</name>
                     </Contingency_Series>
                     <RemedialAction_Series>
-                        <mRID>HVDC-direction12@100.0@</mRID>
-                        <name>HVDC-direction12@100.0@</name>
+                        <mRID>HVDC-direction11@100.0@</mRID>
+                        <name>HVDC-direction11@100.0@</name>
                         <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                     <RemedialAction_Series>
@@ -99,8 +99,8 @@
                         <name>Contingency 2 name</name>
                     </Contingency_Series>
                     <RemedialAction_Series>
-                        <mRID>HVDC-direction11@400.0@</mRID>
-                        <name>HVDC-direction11@400.0@</name>
+                        <mRID>HVDC-direction12@400.0@</mRID>
+                        <name>HVDC-direction12@400.0@</name>
                         <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                     <RemedialAction_Series>
@@ -265,8 +265,8 @@
                         <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                     <RemedialAction_Series>
-                        <mRID>HVDC-direction12@100.0@</mRID>
-                        <name>HVDC-direction12@100.0@</name>
+                        <mRID>HVDC-direction11@100.0@</mRID>
+                        <name>HVDC-direction11@100.0@</name>
                         <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                     <RemedialAction_Series>
@@ -375,8 +375,8 @@
                         <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                     <RemedialAction_Series>
-                        <mRID>HVDC-direction11@400.0@</mRID>
-                        <name>HVDC-direction11@400.0@</name>
+                        <mRID>HVDC-direction12@400.0@</mRID>
+                        <name>HVDC-direction12@400.0@</name>
                         <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                     <RemedialAction_Series>
