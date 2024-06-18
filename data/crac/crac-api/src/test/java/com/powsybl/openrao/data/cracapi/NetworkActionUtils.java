@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 
@@ -231,6 +232,11 @@ public final class NetworkActionUtils {
 
         @Override
         public Set<UsageRule> getUsageRules() {
+            return null;
+        }
+
+        @Override
+        public Set<TriggerCondition> getTriggerConditions() {
             return null;
         }
 

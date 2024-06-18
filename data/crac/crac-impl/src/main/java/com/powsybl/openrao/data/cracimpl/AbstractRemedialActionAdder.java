@@ -10,6 +10,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 
 import java.util.*;
@@ -23,6 +25,7 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     protected String operator;
     protected Integer speed;
     protected Set<UsageRule> usageRules = new HashSet<>();
+    protected Set<TriggerCondition> triggerConditions = new HashSet<>();
     private final CracImpl crac;
 
     AbstractRemedialActionAdder(CracImpl crac) {
@@ -64,6 +67,15 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
 
     void addUsageRule(UsageRule usageRule) {
         this.usageRules.add(usageRule);
+    }
+
+    void addTriggerCondition(TriggerCondition triggerCondition) {
+        this.triggerConditions.add(triggerCondition);
+    }
+
+    @Override
+    public TriggerConditionAdder<T> newTriggerCondition() {
+        return new TriggerConditionAdderImpl(this);
     }
 
     CracImpl getCrac() {

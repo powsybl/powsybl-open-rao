@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -28,21 +29,18 @@ import java.util.stream.Collectors;
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;
     protected Set<UsageRule> usageRules;
+    protected Set<TriggerCondition> triggerConditions;
     protected Integer speed;
     private boolean computedUsageMethods = false;
     private Map<State, UsageMethod> usageMethodPerState;
     private Map<Instant, UsageMethod> usageMethodPerInstant;
 
-    protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed) {
+    protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed, Set<TriggerCondition> triggerConditions) {
         super(id, name);
         this.operator = operator;
         this.usageRules = usageRules;
+        this.triggerConditions = triggerConditions;
         this.speed = speed;
-    }
-
-    void addUsageRule(UsageRule usageRule) {
-        computedUsageMethods = false;
-        this.usageRules.add(usageRule);
     }
 
     @Override
@@ -53,6 +51,11 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     @Override
     public final Set<UsageRule> getUsageRules() {
         return usageRules;
+    }
+
+    @Override
+    public Set<TriggerCondition> getTriggerConditions() {
+        return triggerConditions;
     }
 
     @Override

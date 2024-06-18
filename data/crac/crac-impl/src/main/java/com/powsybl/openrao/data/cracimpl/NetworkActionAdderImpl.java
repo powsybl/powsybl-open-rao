@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkActionAdder> implements NetworkActionAdder {
 
-    private Set<ElementaryAction> elementaryActions;
+    private final Set<ElementaryAction> elementaryActions;
 
     NetworkActionAdderImpl(CracImpl owner) {
         super(owner);
@@ -67,7 +67,7 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
             throw new OpenRaoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));
         }
 
-        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed);
+        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed, triggerConditions);
         getCrac().addNetworkAction(networkAction);
         return networkAction;
     }

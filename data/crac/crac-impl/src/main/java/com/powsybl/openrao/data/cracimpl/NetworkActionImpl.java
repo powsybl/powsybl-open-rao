@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.cracimpl;
 import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 import com.powsybl.iidm.network.Network;
 
@@ -27,8 +28,8 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     private final Set<ElementaryAction> elementaryActions;
 
     NetworkActionImpl(String id, String name, String operator, Set<UsageRule> usageRules,
-                             Set<ElementaryAction> elementaryNetworkActions, Integer speed) {
-        super(id, name, operator, usageRules, speed);
+                      Set<ElementaryAction> elementaryNetworkActions, Integer speed, Set<TriggerCondition> triggerConditions) {
+        super(id, name, operator, usageRules, speed, triggerConditions);
         this.elementaryActions = new HashSet<>(elementaryNetworkActions);
     }
 

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracapi;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 import com.powsybl.iidm.network.Country;
@@ -42,6 +43,8 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
      * Get the list of {@link UsageRule} of the Remedial Action
      */
     Set<UsageRule> getUsageRules();
+
+    Set<TriggerCondition> getTriggerConditions();
 
     /**
      * Get the {@link UsageMethod} of the Remedial Action in a given state, deduced from the

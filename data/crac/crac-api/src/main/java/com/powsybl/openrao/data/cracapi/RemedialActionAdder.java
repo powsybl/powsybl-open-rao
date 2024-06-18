@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracapi;
 
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 
 /**
@@ -27,4 +28,6 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
     OnConstraintAdder<T, ?> newOnConstraintUsageRule();
 
     OnFlowConstraintInCountryAdder<T> newOnFlowConstraintInCountryUsageRule();
+
+    TriggerConditionAdder<T> newTriggerCondition();
 }
