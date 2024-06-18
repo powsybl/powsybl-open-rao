@@ -68,23 +68,26 @@ public class CsaProfileRemedialActionsCreator {
                     remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid(), elementaryActionsAggregatorId, alterations);
                     fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
                 } else {
-                    if (elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).containsKey(elementaryActionsAggregatorId)) {
-                        if (elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).size() > 1) {
-                            // group TapPositionAction's
-                            for (TapPositionAction nativeTapPositionAction : elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId)) {
-                                try {
-                                    remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(true, elementaryActionsAggregatorId, nativeTapPositionAction, elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeTapPositionAction.mrid());
-                                    fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, createNameFromTapPositionAction(nativeTapPositionAction.mrid(), nativeRemedialAction.operator()));
-                                } catch (NotEnabledException e) {
+                    if (elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).size() > 1) {
+                        // group TapPositionAction's
+                        for (TapPositionAction nativeTapPositionAction : elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId)) {
+                            try {
+                                remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(true, elementaryActionsAggregatorId, nativeTapPositionAction, elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeTapPositionAction.mrid());
+                                fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, createNameFromTapPositionAction(nativeTapPositionAction.mrid(), nativeRemedialAction.operator()));
+                            } catch (OpenRaoImportException e) {
+                                if (e.getImportStatus().equals(ImportStatus.NOT_FOR_RAO)) {
                                     contextByRaId.put(nativeTapPositionAction.mrid(), CsaProfileElementaryCreationContext.notImported(nativeTapPositionAction.mrid(), e.getImportStatus(), e.getMessage()));
+                                } else {
+                                    throw e;
                                 }
                             }
-                        } else {
-                            remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(false, elementaryActionsAggregatorId, elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).iterator().next(), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid());
-                            fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
                         }
+                    } else {
+                        remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(false, elementaryActionsAggregatorId, elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).iterator().next(), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid());
+                        fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
                     }
                 }
+
             } catch (OpenRaoImportException e) {
                 contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.notImported(nativeRemedialAction.mrid(), e.getImportStatus(), e.getMessage()));
             }
