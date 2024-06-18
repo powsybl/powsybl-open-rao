@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.cracapi;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyStateAdderToRemedialAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 import com.powsybl.iidm.network.Country;
@@ -74,6 +73,4 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
         return getNetworkElements().stream().map(networkElement -> networkElement.getLocation(network))
                 .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
     }
-
-    OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule();
 }

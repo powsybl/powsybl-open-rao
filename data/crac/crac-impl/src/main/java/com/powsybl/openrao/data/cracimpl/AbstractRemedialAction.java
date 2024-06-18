@@ -46,11 +46,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     @Override
-    public OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule() {
-        return new OnStateAdderToRemedialActionImpl(this);
-    }
-
-    @Override
     public String getOperator() {
         return operator;
     }

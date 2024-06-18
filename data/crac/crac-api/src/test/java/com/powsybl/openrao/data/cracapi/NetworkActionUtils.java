@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyStateAdderToRemedialAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 
@@ -257,11 +256,6 @@ public final class NetworkActionUtils {
 
         @Override
         public Set<NetworkElement> getNetworkElements() {
-            return null;
-        }
-
-        @Override
-        public OnContingencyStateAdderToRemedialAction<NetworkAction> newOnStateUsageRule() {
             return null;
         }
 
