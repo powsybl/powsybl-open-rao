@@ -174,7 +174,7 @@ public class NetworkActionCreator {
     }
 
     private double getSetPointValue(StaticPropertyRange nativeStaticPropertyRange, String remedialActionId, boolean mustValueBePositiveInteger, float initialSetPoint) {
-        checkCompatibility(remedialActionId, nativeStaticPropertyRange);
+        checkStaticPropertyRangeAdequacy(remedialActionId, nativeStaticPropertyRange);
 
         double setPointValue;
         if (ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
@@ -200,8 +200,7 @@ public class NetworkActionCreator {
         return setPointValue;
     }
 
-    // TODO: rename this method to make it more explicit what it does
-    private static void checkCompatibility(String remedialActionId, StaticPropertyRange nativeStaticPropertyRange) {
+    private static void checkStaticPropertyRangeAdequacy(String remedialActionId, StaticPropertyRange nativeStaticPropertyRange) {
         if (ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && !RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
             || !ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
             || RelativeDirectionKind.UP_AND_DOWN.toString().equals(nativeStaticPropertyRange.direction())) {
