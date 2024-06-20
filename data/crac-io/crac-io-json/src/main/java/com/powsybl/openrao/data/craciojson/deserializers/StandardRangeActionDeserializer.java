@@ -43,6 +43,7 @@ public final class StandardRangeActionDeserializer {
                 TriggerConditionDeserializer.deserialize(jsonParser, standardRangeActionAdder);
                 break;
             case ON_INSTANT_USAGE_RULES:
+                checkVersionForUsageRules(version);
                 jsonParser.nextToken();
                 OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
                 break;
@@ -50,11 +51,13 @@ public final class StandardRangeActionDeserializer {
                 if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                     throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
                 } else {
+                    checkVersionForUsageRules(version);
                     jsonParser.nextToken();
                     OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
                 }
                 break;
             case ON_CONTINGENCY_STATE_USAGE_RULES:
+                checkVersionForUsageRules(version);
                 jsonParser.nextToken();
                 OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
                 break;
@@ -62,27 +65,33 @@ public final class StandardRangeActionDeserializer {
                 if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                     throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
                 } else {
+                    checkVersionForUsageRules(version);
                     jsonParser.nextToken();
                     OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
                 }
                 break;
             case ON_CONSTRAINT_USAGE_RULES:
+                checkVersionForUsageRules(version);
                 jsonParser.nextToken();
                 OnConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 break;
             case ON_FLOW_CONSTRAINT_USAGE_RULES:
+                checkVersionForUsageRules(version);
                 jsonParser.nextToken();
                 deserializeOlderOnConstraintUsageRules(jsonParser, ON_FLOW_CONSTRAINT_USAGE_RULES, version, standardRangeActionAdder);
                 break;
             case ON_ANGLE_CONSTRAINT_USAGE_RULES:
+                checkVersionForUsageRules(version);
                 jsonParser.nextToken();
                 deserializeOlderOnConstraintUsageRules(jsonParser, ON_ANGLE_CONSTRAINT_USAGE_RULES, version, standardRangeActionAdder);
                 break;
             case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
+                checkVersionForUsageRules(version);
                 jsonParser.nextToken();
                 deserializeOlderOnConstraintUsageRules(jsonParser, ON_VOLTAGE_CONSTRAINT_USAGE_RULES, version, standardRangeActionAdder);
                 break;
             case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
+                checkVersionForUsageRules(version);
                 jsonParser.nextToken();
                 OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 break;

@@ -456,6 +456,12 @@ public final class JsonSerializationConstants {
         }
     }
 
+    public static void checkVersionForUsageRules(String version) {
+        if (getPrimaryVersionNumber(version) > 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) >= 5) {
+            throw new OpenRaoException("Usage Rules have been discarded as of version 2.5 and replaced by Trigger Conditions.");
+        }
+    }
+
     public static class TriggerConditionComparator implements Comparator<TriggerCondition> {
         @Override
         public int compare(TriggerCondition tc1, TriggerCondition tc2) {

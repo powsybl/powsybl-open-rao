@@ -49,36 +49,45 @@ public final class PstRangeActionArrayDeserializer {
                         TriggerConditionDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case ON_INSTANT_USAGE_RULES:
+                        checkVersionForUsageRules(version);
                         jsonParser.nextToken();
                         OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case FREE_TO_USE_USAGE_RULES:
+                        checkVersionForUsageRules(version);
                         deserializeFreeToUseUsageRules(jsonParser, version, pstRangeActionAdder);
                         break;
                     case ON_CONTINGENCY_STATE_USAGE_RULES:
+                        checkVersionForUsageRules(version);
                         jsonParser.nextToken();
                         OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
+                        checkVersionForUsageRules(version);
                         deserializeOnStateUsageRules(jsonParser, version, pstRangeActionAdder);
                         break;
                     case ON_CONSTRAINT_USAGE_RULES:
+                        checkVersionForUsageRules(version);
                         jsonParser.nextToken();
                         OnConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
+                        checkVersionForUsageRules(version);
                         jsonParser.nextToken();
                         deserializeOlderOnConstraintUsageRules(jsonParser, ON_FLOW_CONSTRAINT_USAGE_RULES, version, pstRangeActionAdder);
                         break;
                     case ON_ANGLE_CONSTRAINT_USAGE_RULES:
+                        checkVersionForUsageRules(version);
                         jsonParser.nextToken();
                         deserializeOlderOnConstraintUsageRules(jsonParser, ON_ANGLE_CONSTRAINT_USAGE_RULES, version, pstRangeActionAdder);
                         break;
                     case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
+                        checkVersionForUsageRules(version);
                         jsonParser.nextToken();
                         deserializeOlderOnConstraintUsageRules(jsonParser, ON_VOLTAGE_CONSTRAINT_USAGE_RULES, version, pstRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
+                        checkVersionForUsageRules(version);
                         jsonParser.nextToken();
                         OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
                         break;
