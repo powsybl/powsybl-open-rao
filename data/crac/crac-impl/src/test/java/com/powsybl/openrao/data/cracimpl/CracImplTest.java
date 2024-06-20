@@ -714,7 +714,7 @@ class CracImplTest {
     }
 
     @Test
-    void testFilterPstRangeActionUsageRules() {
+    void testFilterPstRangeActionTriggerConditions() {
         crac.newContingency().withId("co1").withContingencyElement("neCo", getRandomTypeContingency()).add();
         crac.newContingency().withId("co2").withContingencyElement("neCo", getRandomTypeContingency()).add();
 
@@ -759,7 +759,7 @@ class CracImplTest {
     }
 
     @Test
-    void testFilterHvdcRangeActionUsageRules() {
+    void testFilterHvdcRangeActionTriggerConditions() {
         crac.newContingency().withId("co1").withContingencyElement("neCo", getRandomTypeContingency()).add();
         crac.newContingency().withId("co2").withContingencyElement("neCo", getRandomTypeContingency()).add();
 
@@ -860,7 +860,7 @@ class CracImplTest {
     }
 
     @Test
-    void testFilterNetworkActionUsageRules() {
+    void testFilterNetworkActionTriggerConditions() {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
         Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(getRandomTypeContingencyElement("neCo")));
         crac.addContingency(contingency1);

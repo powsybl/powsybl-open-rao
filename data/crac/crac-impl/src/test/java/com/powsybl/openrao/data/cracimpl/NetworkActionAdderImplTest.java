@@ -95,7 +95,7 @@ class NetworkActionAdderImplTest {
     }
 
     @Test
-    void testOkWithTwoUsageRules() {
+    void testOkWithTwoTriggerConditions() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")

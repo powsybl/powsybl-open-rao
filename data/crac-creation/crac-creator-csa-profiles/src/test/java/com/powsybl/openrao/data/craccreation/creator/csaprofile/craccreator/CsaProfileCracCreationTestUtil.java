@@ -133,7 +133,7 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(expectedOperator, voltageCnec.getOperator());
     }
 
-    public static void assertPstRangeActionImported(CsaProfileCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfUsageRules, String expectedOperator) {
+    public static void assertPstRangeActionImported(CsaProfileCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfTriggerConditions, String expectedOperator) {
         CsaProfileElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(csaProfileElementaryCreationContext);
         assertTrue(csaProfileElementaryCreationContext.isImported());
@@ -141,7 +141,7 @@ public final class CsaProfileCracCreationTestUtil {
         assertNotNull(cracCreationContext.getCrac().getPstRangeAction(id));
         String actualNetworkElement = cracCreationContext.getCrac().getPstRangeAction(id).getNetworkElement().toString();
         assertEquals(networkElement, actualNetworkElement);
-        assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getPstRangeAction(id).getTriggerConditions().size());
+        assertEquals(numberOfTriggerConditions, cracCreationContext.getCrac().getPstRangeAction(id).getTriggerConditions().size());
         assertEquals(expectedOperator, cracCreationContext.getCrac().getPstRangeAction(id).getOperator());
     }
 

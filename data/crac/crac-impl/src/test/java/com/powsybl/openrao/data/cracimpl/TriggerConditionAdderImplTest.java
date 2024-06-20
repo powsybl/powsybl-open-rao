@@ -319,7 +319,7 @@ class TriggerConditionAdderImplTest {
     }
 
     @Test
-    void testNoUsageRule() {
+    void testNoTriggerCondition() {
         TriggerConditionAdder<NetworkActionAdder> adder = remedialActionAdder.newTriggerCondition()
             .withInstant(PREVENTIVE_INSTANT_ID);
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);

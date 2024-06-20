@@ -223,18 +223,18 @@ class RaoUtilTest {
         assertFalse(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
         assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
-        // asserts that a preventive remedial action with forced usage rule cannot be available
+        // asserts that a preventive remedial action with forced trigger condition cannot be available
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
             .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         assertFalse(isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
-        // asserts that a remedial action with no usage rule cannot be available
-        NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
-        when(networkActionWhithoutUsageRule.getName()).thenReturn("ra without usage rule");
-        when(networkActionWhithoutUsageRule.getTriggerConditions()).thenReturn(Set.of());
-        assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        // asserts that a remedial action with no trigger condition cannot be available
+        NetworkAction networkActionWhithoutTriggerCondition = Mockito.mock(NetworkAction.class);
+        when(networkActionWhithoutTriggerCondition.getName()).thenReturn("ra without trigger condition");
+        when(networkActionWhithoutTriggerCondition.getTriggerConditions()).thenReturn(Set.of());
+        assertFalse(isRemedialActionAvailable(networkActionWhithoutTriggerCondition, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // mock AUTO state for the next assertions
         NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
@@ -340,7 +340,7 @@ class RaoUtilTest {
             .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        // cnecCont1 is after same contingency as usage rule, not cnecCont2
+        // cnecCont1 is after same contingency as trigger condition, not cnecCont2
         // So the RA should only be available when cnecCont1 has a negative margin
         when(flowResult.getMargin(any(), any())).thenReturn(100.);
 

@@ -54,7 +54,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     @Override
     public HvdcRangeAction add() {
         checkId();
-        checkAutoUsageRules();
+        checkAutoTriggerConditions();
         assertAttributeNotNull(networkElementId, HVDC_RANGE_ACTION, "network element", "withNetworkElement()");
         assertAttributeNotEmpty(ranges, HVDC_RANGE_ACTION, "range", "newRange()");
 
@@ -63,7 +63,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         }
 
         if (triggerConditions.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any trigger condition, by default it will never be available", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);

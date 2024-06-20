@@ -81,7 +81,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     @Override
     public PstRangeAction add() {
         checkId();
-        checkAutoUsageRules();
+        checkAutoTriggerConditions();
         assertAttributeNotNull(networkElementId, PST_RANGE_ACTION, "network element", "withNetworkElement()");
         assertAttributeNotNull(initialTap, PST_RANGE_ACTION, "initial tap", "withInitialTap()");
         assertAttributeNotNull(tapToAngleConversionMap, PST_RANGE_ACTION, "tap to angle conversion map", "withTapToAngleConversionMap()");
@@ -94,7 +94,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         checkTapToAngleConversionMap();
 
         if (triggerConditions.isEmpty()) {
-            BUSINESS_WARNS.warn("PstRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            BUSINESS_WARNS.warn("PstRangeAction {} does not contain any trigger condition, by default it will never be available", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
@@ -165,7 +165,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         }
     }
 
-    void checkAutoUsageRules() {
+    void checkAutoTriggerConditions() {
         triggerConditions.forEach(triggerCondition -> {
             if (triggerCondition.getInstant().isAuto() && Objects.isNull(speed)) {
                 throw new OpenRaoException("Cannot create an AUTO Pst range action without speed defined");

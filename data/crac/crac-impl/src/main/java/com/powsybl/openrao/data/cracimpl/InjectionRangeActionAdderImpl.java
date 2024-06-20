@@ -49,7 +49,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeAction add() {
         checkId();
-        checkAutoUsageRules();
+        checkAutoTriggerConditions();
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
@@ -61,7 +61,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         // check ranges
         assertAttributeNotEmpty(ranges, INJECTION_RANGE_ACTION, "range", "newRange()");
 
-        // check usage rules
+        // check trigger conditions
         if (triggerConditions.isEmpty()) {
             BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any trigger condition, by default it will never be available", id);
         }

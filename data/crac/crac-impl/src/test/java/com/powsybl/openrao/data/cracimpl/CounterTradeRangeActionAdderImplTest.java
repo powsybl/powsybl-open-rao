@@ -80,7 +80,7 @@ class CounterTradeRangeActionAdderImplTest {
     void testAddWithoutUsageRule() {
         /*
         This behaviour is considered admissible:
-            - without usage rule, the remedial action will never be available
+            - without trigger condition, the remedial action will never be available
 
         This test should however issue a warning
          */

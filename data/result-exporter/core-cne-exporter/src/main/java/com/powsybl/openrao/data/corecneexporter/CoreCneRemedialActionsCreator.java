@@ -221,8 +221,8 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     public void createPostOptimNetworkRemedialActionSeries(NetworkAction networkAction, InstantKind optimizedInstantKind, State state, ConstraintSeries constraintSeriesB56) {
-        if (networkAction.getTriggerConditions().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
+        if (networkAction.getTriggerConditions().stream().noneMatch(triggerCondition ->
+                triggerCondition.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || triggerCondition.getUsageMethod(state).equals(UsageMethod.FORCED))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception

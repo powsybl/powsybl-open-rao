@@ -108,7 +108,7 @@ public final class RaoUtil {
 
     /**
      * Evaluates if a remedial action is available.
-     * 1) The remedial action has no usage rule:
+     * 1) The remedial action has no trigger condition:
      * It will not be available.
      * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
      * 3) It computes the "strongest" usage method.
@@ -121,7 +121,7 @@ public final class RaoUtil {
 
     /**
      * Evaluates if a remedial action is forced.
-     * 1) The remedial action has no usage rule:
+     * 1) The remedial action has no trigger condition:
      * It will not be forced.
      * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
      * 3) It computes the "strongest" usage method.
@@ -155,8 +155,8 @@ public final class RaoUtil {
      * Returns a set of usageMethods corresponding to a remedialAction.
      * It filters out every OnFlowConstraint(InCountry) that is not applicable due to positive margins.
      */
-    private static Set<UsageMethod> getAllTriggerConditions(Set<TriggerCondition> usageRules, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        return usageRules.stream()
+    private static Set<UsageMethod> getAllTriggerConditions(Set<TriggerCondition> triggerConditions, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+        return triggerConditions.stream()
             .filter(triggerCondition ->
                 triggerCondition.getCnec().isEmpty() && triggerCondition.getCountry().isEmpty()
                     || (

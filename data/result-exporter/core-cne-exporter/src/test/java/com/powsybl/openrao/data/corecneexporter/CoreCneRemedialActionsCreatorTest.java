@@ -162,7 +162,7 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    void testIgnorePstWithNoUsageRule() {
+    void testIgnorePstWithNoTriggerCondition() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("ra-id")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -292,7 +292,7 @@ class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    void testIgnoreNetworkActionWithNoUsageRule() {
+    void testIgnoreNetworkActionWithNoTriggerCondition() {
         NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
                 .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()

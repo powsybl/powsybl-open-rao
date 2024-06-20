@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * a network situation (e.g. increase the margin on the critical network elements).
  *
  * A Remedial Action contains {@link TriggerCondition} which defines conditions under which it can be used.
- * For instance, most remedial actions cannot be used in all {@link State}, and the usage rules of the
+ * For instance, most remedial actions cannot be used in all {@link State}, and the trigger conditions of the
  * remedial action specify on which state it is available.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -45,7 +45,7 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
 
     /**
      * Get the {@link UsageMethod} of the Remedial Action in a given state, deduced from the
-     * usage rules of the remedial action
+     * trigger conditions of the remedial action
      */
     UsageMethod getUsageMethod(State state);
 

@@ -279,9 +279,9 @@ public class RemedialActionSeriesCreator {
                     pstRangeActionCreator.createPstRangeActionAdder(cimCracCreationParameters);
                     pstRangeActionCreators.put(createdRemedialActionId, pstRangeActionCreator);
                 } else {
-                    // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
-                    // In this case, only import extra usage rules
-                    addExtraUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder());
+                    // Some remedial actions can be defined in multiple Series in order to define multiple trigger conditions (eg on flow constraint on different CNECs)
+                    // In this case, only import extra trigger conditions
+                    addExtraTriggerConditions(applicationModeMarketObjectStatus, createdRemedialActionId, pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder());
                 }
                 return true;
 
@@ -290,13 +290,13 @@ public class RemedialActionSeriesCreator {
         return false;
     }
 
-    private void addExtraUsageRules(String applicationModeMarketObjectStatus, String remedialActionId, RemedialActionAdder<?> adder) {
+    private void addExtraTriggerConditions(String applicationModeMarketObjectStatus, String remedialActionId, RemedialActionAdder<?> adder) {
         try {
-            RemedialActionSeriesCreator.addUsageRules(
+            RemedialActionSeriesCreator.addTriggerConditions(
                 crac, applicationModeMarketObjectStatus, adder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain
             );
         } catch (OpenRaoImportException e) {
-            cracCreationContext.getCreationReport().warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()));
+            cracCreationContext.getCreationReport().warn(String.format("Extra trigger conditions for RA %s could not be imported: %s", remedialActionId, e.getMessage()));
         }
     }
 
@@ -333,9 +333,9 @@ public class RemedialActionSeriesCreator {
             networkActionCreator.createNetworkActionAdder();
             networkActionCreators.put(createdRemedialActionId, networkActionCreator);
         } else {
-            // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
-            // In this case, only import extra usage rules
-            addExtraUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
+            // Some remedial actions can be defined in multiple Series in order to define multiple trigger conditions (eg on flow constraint on different CNECs)
+            // In this case, only import extra trigger conditions
+            addExtraTriggerConditions(applicationModeMarketObjectStatus, createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
         }
     }
 
@@ -367,7 +367,7 @@ public class RemedialActionSeriesCreator {
         }
     }
 
-    public static void addUsageRules(Crac crac, String applicationModeMarketObjectStatus,
+    public static void addTriggerConditions(Crac crac, String applicationModeMarketObjectStatus,
                                      RemedialActionAdder<?> remedialActionAdder,
                                      List<Contingency> contingencies,
                                      List<String> invalidContingencies,
@@ -434,16 +434,16 @@ public class RemedialActionSeriesCreator {
                     throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a free-to-use remedial action at instant '%s'", instant));
                 }
                 if (contingencies.isEmpty()) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and trigger condition is on instant '%s'", instant));
                 }
                 break;
             case CURATIVE:
                 if (contingencies.isEmpty() && !invalidContingencies.isEmpty()) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and trigger condition is on instant '%s'", instant));
                 }
                 break;
             default:
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant '%s'", instant));
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add trigger condition on instant '%s'", instant));
         }
     }
 

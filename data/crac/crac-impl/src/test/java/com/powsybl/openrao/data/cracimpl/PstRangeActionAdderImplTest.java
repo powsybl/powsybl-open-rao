@@ -147,11 +147,11 @@ class PstRangeActionAdderImplTest {
     }
 
     @Test
-    void testAddWithoutRangeAndUsageRule() {
+    void testAddWithoutRangeAndTriggerCondition() {
         /*
         This behaviour is considered admissible:
             - without range, the default range will be defined by the min/max value of the network
-            - without usage rule, the remedial action will never be available
+            - without trigger condition, the remedial action will never be available
 
         This test should however return two warnings
          */

@@ -459,14 +459,14 @@ class FbConstraintCracCreatorTest {
         assertComplexVariantNotImported("RA_BE_0003", INCONSISTENCY_IN_DATA); //two PST actions
         assertComplexVariantNotImported("RA_BE_0004", INCOMPLETE_DATA); //two action set
         assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0001").isImported());
-        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0002").isImported()); //same network element/action/usage rule as RA_FR_0005, prioritized due to alphabetical order
+        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0002").isImported()); //same network element/action/trigger condition as RA_FR_0005, prioritized due to alphabetical order
         assertComplexVariantNotImported("RA_FR_0003", INCOMPLETE_DATA); //no CO list
         assertComplexVariantNotImported("RA_FR_0004", INCONSISTENCY_IN_DATA); //preventive and curative
-        assertComplexVariantNotImported("RA_FR_0005", INCONSISTENCY_IN_DATA); //same network element/usage rule as RA_FR_0002
+        assertComplexVariantNotImported("RA_FR_0005", INCONSISTENCY_IN_DATA); //same network element/trigger condition as RA_FR_0002
         assertComplexVariantNotImported("RA_FR_0006", INCONSISTENCY_IN_DATA); //all outage in CO list not ok
         assertComplexVariantNotImported("RA_FR_0007", ELEMENT_NOT_FOUND_IN_NETWORK); //unknown branch
-        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0008").isImported()); //same network element/action as RA_FR_0002, but not same usage rule
-        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0009").isImported()); //same network element/usage rule as RA_FR_0002, but not same action
+        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0008").isImported()); //same network element/action as RA_FR_0002, but not same trigger condition
+        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0009").isImported()); //same network element/trigger condition as RA_FR_0002, but not same action
 
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(4, crac.getNetworkActions().size());

@@ -6,10 +6,7 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
 
@@ -54,15 +51,5 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
 
     CracImpl getCrac() {
         return this.crac;
-    }
-
-    static void checkOnConstraintUsageRules(Instant instant, Cnec<?> cnec) {
-        // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
-        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant AUTO
-        // Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant CURATIVE
-
-        if (cnec.getState().getInstant().comesBefore(instant)) {
-            throw new OpenRaoException(String.format("Remedial actions available at instant '%s' on a CNEC constraint at instant '%s' are not allowed.", instant, cnec.getState().getInstant()));
-        }
     }
 }

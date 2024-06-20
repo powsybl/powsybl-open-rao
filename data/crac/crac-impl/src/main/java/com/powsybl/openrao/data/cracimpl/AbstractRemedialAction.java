@@ -117,7 +117,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     /**
-     * Retrieves cnecs associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
+     * Retrieves cnecs associated to the remedial action's trigger conditions.
      */
     // TODO: move this method to RaoUtil
     public Set<FlowCnec> getFlowCnecsConstrainingTriggerConditions(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {

@@ -38,7 +38,7 @@ class AbsRemedialActionTest {
     }
 
     @Test
-    void testGetFlowCnecsConstrainingForOneUsageRule() {
+    void testGetFlowCnecsConstrainingForOneTriggerCondition() {
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()

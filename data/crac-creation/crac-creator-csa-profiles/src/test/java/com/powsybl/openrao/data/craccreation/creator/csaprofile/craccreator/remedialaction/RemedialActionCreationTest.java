@@ -79,8 +79,8 @@ class RemedialActionCreationTest {
     }
 
     @Test
-    void testUsageRulesCreation() {
-        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/UsageRules.zip", NETWORK);
+    void testTriggerConditionsCreation() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/TriggerConditions.zip", NETWORK);
 
         List<RemedialAction<?>> importedRemedialActions = cracCreationContext.getCrac().getRemedialActions().stream().sorted(Comparator.comparing(RemedialAction::getId)).toList();
         assertEquals(10, importedRemedialActions.size());

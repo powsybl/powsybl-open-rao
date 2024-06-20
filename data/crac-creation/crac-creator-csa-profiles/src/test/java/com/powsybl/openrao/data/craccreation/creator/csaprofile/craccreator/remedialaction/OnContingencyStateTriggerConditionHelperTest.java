@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
  */
-class OnContingencyStateUsageRuleHelperTest {
+class OnContingencyStateTriggerConditionHelperTest {
 
     @Test
     void processContingenciesLinkedToRemedialAction() {

@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
  */
-class OnConstraintUsageRuleHelperTest {
+class OnConstraintTriggerConditionHelperTest {
     private Crac crac;
     private Set<CsaProfileElementaryCreationContext> cnecCreationContexts;
     private Set<AssessedElement> assessedElements;

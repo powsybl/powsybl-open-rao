@@ -279,7 +279,7 @@ class CimCracCreatorTest {
         assertEquals(networkElements, actualNetworkElements);
     }
 
-    private void assertHasOnFlowConstraintUsageRule(RemedialAction<?> ra, Instant instant, String flowCnecId) {
+    private void assertHasOnFlowConstraintTriggerCondition(RemedialAction<?> ra, Instant instant, String flowCnecId) {
         assertTrue(
             ra.getTriggerConditions().stream()
                 .filter(tc -> tc.getContingency().isEmpty() && tc.getCnec().isPresent() && tc.getCountry().isEmpty())
@@ -291,7 +291,7 @@ class CimCracCreatorTest {
                 ));
     }
 
-    private void assertHasOnAngleUsageRule(String raId, String angleCnecId) {
+    private void assertHasOnAngleTriggerCondition(String raId, String angleCnecId) {
         RemedialAction<?> ra = importedCrac.getRemedialAction(raId);
         assertTrue(
             ra.getTriggerConditions().stream()
@@ -584,23 +584,23 @@ class CimCracCreatorTest {
     }
 
     @Test
-    void testImportOnFlowConstraintUsageRules() {
+    void testImportOnFlowConstraintTriggerConditions() {
         setUpWithSpeed("/cracs/CIM_21_5_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("AUTO_1", 1)));
 
         // PRA_1
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         PstRangeAction pra1 = importedCrac.getPstRangeAction("PRA_1");
         assertEquals(10, pra1.getTriggerConditions().size());
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - preventive");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - auto");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - curative");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - preventive");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - outage");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - auto");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - curative");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
+        assertHasOnFlowConstraintTriggerCondition(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, pra1.getRanges().size());
         assertEquals(RangeType.ABSOLUTE, pra1.getRanges().get(0).getRangeType());
         assertEquals(1, pra1.getRanges().get(0).getMinTap());
@@ -611,14 +611,14 @@ class CimCracCreatorTest {
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
         assertEquals(8, praCra1.getTriggerConditions().size());
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, praCra1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, praCra1.getRanges().get(0).getRangeType());
         assertEquals(-10, praCra1.getRanges().get(0).getMinTap());
@@ -629,10 +629,10 @@ class CimCracCreatorTest {
         assertPstRangeActionImported("AUTO_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction auto1 = importedCrac.getPstRangeAction("AUTO_1");
         assertEquals(4, auto1.getTriggerConditions().size());
-        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
-        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintTriggerCondition(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
+        assertHasOnFlowConstraintTriggerCondition(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintTriggerCondition(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
+        assertHasOnFlowConstraintTriggerCondition(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, auto1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, auto1.getRanges().get(0).getRangeType());
         assertEquals(-10, auto1.getRanges().get(0).getMinTap());
@@ -776,14 +776,14 @@ class CimCracCreatorTest {
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
         assertEquals(8, praCra1.getTriggerConditions().size());
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
+        assertHasOnFlowConstraintTriggerCondition(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, praCra1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, praCra1.getRanges().get(0).getRangeType());
         assertEquals(-10, praCra1.getRanges().get(0).getMinTap());
@@ -798,7 +798,7 @@ class CimCracCreatorTest {
         // Angle cnec and associated RA imported :
         assertAngleCnecImportedWithContingency("AngleCnec1", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"), 30.);
         assertNetworkActionImported("RA1", Set.of("_1dc9afba-23b5-41a0-8540-b479ed8baf4b", "_2844585c-0d35-488d-a449-685bcd57afbf"), false);
-        assertHasOnAngleUsageRule("RA1", "AngleCnec1");
+        assertHasOnAngleTriggerCondition("RA1", "AngleCnec1");
         assertEquals(1, importedCrac.getRemedialAction("RA1").getTriggerConditions().size());
         // -- Partially imported
         // Angle cnec without an associated RA :

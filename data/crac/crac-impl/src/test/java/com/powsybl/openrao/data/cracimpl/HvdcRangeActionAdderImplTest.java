@@ -126,10 +126,10 @@ class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    void testAddWithoutUsageRule() {
+    void testAddWithoutTriggerCondition() {
         /*
         This behaviour is considered admissible:
-            - without usage rule, the remedial action will never be available
+            - without trigger condition, the remedial action will never be available
 
         This test should however return two warnings
          */

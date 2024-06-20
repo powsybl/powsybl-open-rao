@@ -48,10 +48,10 @@ public final class OnConstraintTriggerConditionHelper {
         Map<String, AssociationStatus> contingencyStatusMap = OnContingencyStateTriggerConditionHelper.processContingenciesLinkedToRemedialAction(crac, remedialActionId, linkedContingencyWithRemedialActions);
         Map<String, AssociationStatus> cnecStatusMap = new HashMap<>();
         Set<Cnec> cnecsCombinableWithRemedialAction = getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(crac, cnecCreationContexts, nativeAssessedElements);
-        Map<String, ElementCombinationConstraintKind> validContingenciesUsageRules = contingencyStatusMap.entrySet().stream().filter(entry -> entry.getValue().isValid()).collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().elementCombinationConstraintKind()));
+        Map<String, ElementCombinationConstraintKind> validContingenciesTriggerConditions = contingencyStatusMap.entrySet().stream().filter(entry -> entry.getValue().isValid()).collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().elementCombinationConstraintKind()));
 
         for (AssessedElementWithRemedialAction nativeAssessedElementWithRemedialAction : linkedAssessedElementWithRemedialActions) {
-            Set<Cnec> cnecs = contingencyStatusMap.isEmpty() ? getImportedCnecFromAssessedElementId(nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts) : filterCnecsThatHaveGivenContingencies(getImportedCnecFromAssessedElementId(nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts), validContingenciesUsageRules.keySet());
+            Set<Cnec> cnecs = contingencyStatusMap.isEmpty() ? getImportedCnecFromAssessedElementId(nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts) : filterCnecsThatHaveGivenContingencies(getImportedCnecFromAssessedElementId(nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts), validContingenciesTriggerConditions.keySet());
 
             if (cnecStatusMap.containsKey(nativeAssessedElementWithRemedialAction.assessedElement()) || cnecs.stream().anyMatch(cnec -> cnecStatusMap.containsKey(cnec.getId()))) {
                 cnecStatusMap.put(nativeAssessedElementWithRemedialAction.assessedElement(), new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action %s with assessed element %s ignored because this assessed element has several conflictual links to the remedial action.".formatted(remedialActionId, nativeAssessedElementWithRemedialAction.assessedElement())));
@@ -82,7 +82,7 @@ public final class OnConstraintTriggerConditionHelper {
                 cnec -> {
                     if (cnec.getState().getContingency().isPresent()) {
                         Contingency contingency = cnec.getState().getContingency().get();
-                        if (validContingenciesUsageRules.containsKey(contingency.getId()) && combinationConstraintKind != validContingenciesUsageRules.get(contingency.getId())) {
+                        if (validContingenciesTriggerConditions.containsKey(contingency.getId()) && combinationConstraintKind != validContingenciesTriggerConditions.get(contingency.getId())) {
                             cnecStatusMap.put(cnec.getId(), new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action %s with CNEC %s ignored because the combinationConstraintKinds between of the AssessedElementWithRemedialAction for assessed element %s and the ContingencyWithRemedialAction for contingency %s are different.".formatted(remedialActionId, cnec.getId(), nativeAssessedElementWithRemedialAction.assessedElement(), contingency.getId())));
                             return;
                         }
@@ -98,7 +98,7 @@ public final class OnConstraintTriggerConditionHelper {
             cnecsCombinableWithRemedialAction.forEach(cnec -> cnecStatusMap.put(cnec.getId(), new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, "")));
         } else {
             // The remedial action is associated to contingencies (valid or not)
-            filterCnecsThatHaveGivenContingencies(cnecsCombinableWithRemedialAction, validContingenciesUsageRules.keySet()).forEach(cnec -> cnecStatusMap.put(cnec.getId(), new AssociationStatus(true, validContingenciesUsageRules.get(cnec.getState().getContingency().orElseThrow().getId()), "")));
+            filterCnecsThatHaveGivenContingencies(cnecsCombinableWithRemedialAction, validContingenciesTriggerConditions.keySet()).forEach(cnec -> cnecStatusMap.put(cnec.getId(), new AssociationStatus(true, validContingenciesTriggerConditions.get(cnec.getState().getContingency().orElseThrow().getId()), "")));
         }
 
         return cnecStatusMap;
