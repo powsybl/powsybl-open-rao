@@ -10,7 +10,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
 import com.powsybl.openrao.data.cracapi.rangeaction.CounterTradeRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
@@ -28,9 +28,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     private final List<StandardRange> ranges;
     private final double initialSetpoint;
 
-    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
+    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<TriggerCondition> triggerConditions,
                              List<StandardRange> ranges, double initialSetpoint, Integer speed, Country exportingCountry, Country importingCountry) {
-        super(id, name, operator, usageRules, groupId, speed);
+        super(id, name, operator, triggerConditions, groupId, speed);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
         this.exportingCountry = exportingCountry;

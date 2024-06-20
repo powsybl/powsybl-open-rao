@@ -20,7 +20,7 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.PstRangeActionCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
@@ -160,8 +160,8 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     public void createPostOptimPstRangeActionSeries(PstRangeAction rangeAction, InstantKind optimizedInstantKind, State state, ConstraintSeries constraintSeriesB56) {
-        if (rangeAction.getUsageRules().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
+        if (rangeAction.getTriggerConditions().stream().noneMatch(triggerCondition ->
+                triggerCondition.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || triggerCondition.getUsageMethod(state).equals(UsageMethod.FORCED))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
@@ -221,7 +221,7 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     public void createPostOptimNetworkRemedialActionSeries(NetworkAction networkAction, InstantKind optimizedInstantKind, State state, ConstraintSeries constraintSeriesB56) {
-        if (networkAction.getUsageRules().stream().noneMatch(usageRule ->
+        if (networkAction.getTriggerConditions().stream().noneMatch(usageRule ->
                 usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
             return;
         }

@@ -8,9 +8,10 @@
 package com.powsybl.openrao.data.cracapi.triggercondition;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
 import java.util.Optional;
 
@@ -18,20 +19,33 @@ import java.util.Optional;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface TriggerCondition {
+    /**
+     * Get the {@link Instant} of the trigger condition
+     */
     Instant getInstant();
 
+    /**
+     * Get the {@link Contingency} of the trigger condition
+     */
     Optional<Contingency> getContingency();
 
+    /**
+     * Get the {@link Cnec} of the trigger condition
+     */
     Optional<Cnec<?>> getCnec();
 
-    Optional<String> getCountry();
+    /**
+     * Get the {@link Country} of the trigger condition
+     */
+    Optional<Country> getCountry();
 
+    /**
+     * Get the {@link UsageMethod} of the trigger condition
+     */
     UsageMethod getUsageMethod();
 
-    default boolean isAvailable(Instant instant, Contingency contingency, Cnec<?> cnec, String country) {
-        return this.getInstant().equals(instant)
-            && getContingency().equals(Optional.of(contingency))
-            && getCnec().equals(Optional.of(cnec))
-            && getCountry().equals(Optional.of(country));
-    }
+    /**
+     * Get the {@link UsageMethod} of the trigger condition on a given state
+     */
+    UsageMethod getUsageMethod(State state);
 }

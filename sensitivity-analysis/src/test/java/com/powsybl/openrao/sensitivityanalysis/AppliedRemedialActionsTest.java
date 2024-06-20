@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
@@ -49,12 +49,12 @@ class AppliedRemedialActionsTest {
         networkAction = crac.newNetworkAction()
                 .withId("na-id")
                 .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(CURATIVE_INSTANT_ID).add()
                 .add();
         autoNetworkAction = crac.newNetworkAction()
             .withId("na-auto-id")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(AUTO_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(AUTO_INSTANT_ID).add()
             .add();
     }
 

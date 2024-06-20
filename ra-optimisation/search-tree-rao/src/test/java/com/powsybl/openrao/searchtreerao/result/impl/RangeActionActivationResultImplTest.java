@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,8 +64,8 @@ class RangeActionActivationResultImplTest {
         pstRangeAction1 = crac.newPstRangeAction()
             .withId("pst1")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-3, -3.1, -2, -2.1, -1, -1.1, 0, 0., 1, 1.1, 2, 2.1, 3, 3.1))
             .add();
@@ -73,8 +73,8 @@ class RangeActionActivationResultImplTest {
         pstRangeAction2 = crac.newPstRangeAction()
             .withId("pst2")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-3, -3.1, -2, -2.1, -1, -1.1, 0, 0., 1, 1.1, 2, 2.1, 3, 3.1))
             .add();
@@ -82,8 +82,8 @@ class RangeActionActivationResultImplTest {
         pstRangeAction3 = crac.newPstRangeAction()
             .withId("pst3")
             .withNetworkElement("anotherPst")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-3, -3.1, -2, -2.1, -1, -1.1, 0, 0., 1, 1.1, 2, 2.1, 3, 3.1))
             .add();

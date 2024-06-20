@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.CracImplFactory;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import org.junit.jupiter.api.Test;
@@ -185,7 +185,7 @@ class StateTreeTest {
             .withNetworkElement("pst1")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withContingency("contingency-1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         stateTree = new StateTree(crac);
         assertEquals(6, stateTree.getBasecaseScenario().getAllStates().size());
@@ -207,14 +207,14 @@ class StateTreeTest {
             .withNetworkElement("pst1")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withContingency("contingency-1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         crac.newPstRangeAction()
             .withId("pst-ra-2")
             .withNetworkElement("pst2")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withContingency("contingency-2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         stateTree = new StateTree(crac);
         assertEquals(5, stateTree.getBasecaseScenario().getAllStates().size());
@@ -229,14 +229,14 @@ class StateTreeTest {
             .withNetworkElement("pst1")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withContingency("contingency-2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         crac.newPstRangeAction()
             .withId("pst-ra-2")
             .withNetworkElement("pst2")
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-            .newOnContingencyStateUsageRule().withContingency("contingency-2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withContingency("contingency-2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         stateTree = new StateTree(crac);
         assertEquals(6, stateTree.getBasecaseScenario().getAllStates().size());
@@ -298,7 +298,7 @@ class StateTreeTest {
                     .withSpeed(1)
                     .withInitialTap(1)
                     .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-                    .newOnContingencyStateUsageRule().withContingency("contingency").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+                    .newTriggerCondition().withContingency("contingency").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
                     .add();
             }
         }
@@ -318,7 +318,7 @@ class StateTreeTest {
                     .withNetworkElement("pst")
                     .withInitialTap(1)
                     .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
-                    .newOnContingencyStateUsageRule().withContingency("contingency").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                    .newTriggerCondition().withContingency("contingency").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                     .add();
             }
         }
@@ -1255,7 +1255,7 @@ class StateTreeTest {
                 .withActionType(ActionType.OPEN)
                 .withNetworkElement("switch")
                 .add()
-            .newOnContingencyStateUsageRule()
+            .newTriggerCondition()
                 .withInstant(instantId)
                 .withContingency(contingencyId)
                 .withUsageMethod(UsageMethod.AVAILABLE)

@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.craciojson.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.OnInstantAdder;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -26,7 +26,7 @@ public final class OnInstantArrayDeserializer {
 
     public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            OnInstantAdder<?> adder = ownerAdder.newOnInstantUsageRule();
+            TriggerConditionAdder<?> adder = ownerAdder.newTriggerCondition();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:

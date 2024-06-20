@@ -16,7 +16,8 @@ import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -53,7 +54,7 @@ public final class RaoUtil {
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
         if (raoParameters.getObjectiveFunctionParameters().getType().getUnit().equals(Unit.AMPERE)
-                && raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
+            && raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
             throw new OpenRaoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getType().toString()));
         }
 
@@ -67,16 +68,16 @@ public final class RaoUtil {
         }
 
         if ((raoParameters.hasExtension(LoopFlowParametersExtension.class)
-                || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
-                && (Objects.isNull(raoInput.getReferenceProgram()))) {
+            || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
+            && (Objects.isNull(raoInput.getReferenceProgram()))) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters()));
         }
 
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class) && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
             String msg = format(
-                    "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                    raoInput.getCrac().getId());
+                "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
+                raoInput.getCrac().getId());
             OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new OpenRaoException(msg);
         }
@@ -140,13 +141,13 @@ public final class RaoUtil {
     }
 
     private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        Set<UsageRule> usageRules = remedialAction.getUsageRules();
-        if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
+        Set<TriggerCondition> triggerConditions = remedialAction.getTriggerConditions();
+        if (triggerConditions.isEmpty()) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no trigger condition and therefore will not be available.", remedialAction.getName()));
             return null;
         }
 
-        Set<UsageMethod> usageMethods = getAllUsageMethods(usageRules, remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+        Set<UsageMethod> usageMethods = getAllTriggerConditions(triggerConditions, remedialAction, state, flowResult, flowCnecs, network, raoParameters);
         return UsageMethod.getStrongestUsageMethod(usageMethods);
     }
 
@@ -154,12 +155,16 @@ public final class RaoUtil {
      * Returns a set of usageMethods corresponding to a remedialAction.
      * It filters out every OnFlowConstraint(InCountry) that is not applicable due to positive margins.
      */
-    private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+    private static Set<UsageMethod> getAllTriggerConditions(Set<TriggerCondition> usageRules, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         return usageRules.stream()
-            .filter(ur -> ur instanceof OnContingencyState || ur instanceof OnInstant
-                || (ur instanceof OnFlowConstraintInCountry || ur instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec)
-                && isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(ur, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
-            .map(ur -> ur.getUsageMethod(state))
+            .filter(triggerCondition ->
+                triggerCondition.getCnec().isEmpty() && triggerCondition.getCountry().isEmpty()
+                    || (
+                    triggerCondition.getCnec().isPresent()
+                        && triggerCondition.getCnec().get() instanceof FlowCnec
+                        || triggerCondition.getCountry().isPresent())
+                    && isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneTriggerCondition(triggerCondition, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
+            .map(triggerCondition -> triggerCondition.getUsageMethod(state))
             .collect(Collectors.toSet());
     }
 
@@ -179,8 +184,8 @@ public final class RaoUtil {
 
             if (preventiveState.isPreventive()) {
                 Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(preventiveState).stream()
-                        .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
-                        .findAny();
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
+                    .findAny();
 
                 if (correspondingRa.isPresent()) {
                     return Pair.of(correspondingRa.get(), preventiveState);

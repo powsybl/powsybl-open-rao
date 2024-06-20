@@ -7,21 +7,31 @@
 
 package com.powsybl.openrao.data.craciojson;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.RemedialAction;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -45,6 +55,8 @@ public final class JsonSerializationConstants {
     v2.1: addition of ra-usage-limits
     v2.2: addition of contingency id in on-flow-constraint-in-country
     v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
+    v2.4: addition of onConstraintUsageRules to unify and replace onAngleConstraintUsageRules, onFlowConstraintUsageRules and onVoltageConstraintUsageRules
+    v2.5: addition of triggerConditions to replace onInstantUsageRules, onContingencyStateUsageRules, onConstraintUsageRules and onFlowConstraintInCountryUsageRules
      */
 
     // headers
@@ -106,15 +118,16 @@ public final class JsonSerializationConstants {
     public static final String SWITCH_PAIRS = "switchPairs";
 
     public static final String USAGE_METHOD = "usageMethod";
-    public static final String ON_INSTANT_USAGE_RULES = "onInstantUsageRules";
+    public static final String TRIGGER_CONDITIONS = "triggerConditions";
+    public static final String ON_INSTANT_USAGE_RULES = "onInstantUsageRules"; // retro-compatibility only
     public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules"; // retro-compatibility only
-    public static final String ON_CONTINGENCY_STATE_USAGE_RULES = "onContingencyStateUsageRules";
+    public static final String ON_CONTINGENCY_STATE_USAGE_RULES = "onContingencyStateUsageRules"; // retro-compatibility only
     public static final String ON_STATE_USAGE_RULES = "onStateUsageRules"; // retro-compatibility only
-    public static final String ON_CONSTRAINT_USAGE_RULES = "onConstraintUsageRules";
-    public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
-    public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules";
-    public static final String ON_VOLTAGE_CONSTRAINT_USAGE_RULES = "onVoltageConstraintUsageRules";
-    public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES = "onFlowConstraintInCountryUsageRules";
+    public static final String ON_CONSTRAINT_USAGE_RULES = "onConstraintUsageRules"; // retro-compatibility only
+    public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules"; // retro-compatibility only
+    public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules"; // retro-compatibility only
+    public static final String ON_VOLTAGE_CONSTRAINT_USAGE_RULES = "onVoltageConstraintUsageRules"; // retro-compatibility only
+    public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES = "onFlowConstraintInCountryUsageRules"; // retro-compatibility only
 
     public static final String ID = "id";
     public static final String NAME = "name";
@@ -437,31 +450,97 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static class UsageRuleComparator implements Comparator<UsageRule> {
+    public static void serializeTriggerConditions(RemedialAction<?> remedialAction, String arrayName, JsonGenerator gen) throws IOException {
+        List<TriggerCondition> triggerConditions = remedialAction.getTriggerConditions().stream().sorted(new TriggerConditionComparator()).toList();
+        if (!triggerConditions.isEmpty()) {
+            gen.writeArrayFieldStart(arrayName);
+            for (TriggerCondition triggerCondition : triggerConditions) {
+                gen.writeObject(triggerCondition);
+            }
+            gen.writeEndArray();
+        }
+    }
+
+    public static class TriggerConditionComparator implements Comparator<TriggerCondition> {
         @Override
-        public int compare(UsageRule o1, UsageRule o2) {
-            if (!o1.getClass().equals(o2.getClass())) {
-                return o1.getClass().toString().compareTo(o2.getClass().toString());
+        public int compare(TriggerCondition tc1, TriggerCondition tc2) {
+            // if different instants, sorted on instants' order
+            int compareInstants = compareInstants(tc1.getInstant(), tc2.getInstant());
+            if (compareInstants != 0) {
+                return compareInstants;
             }
-            if (!o1.getInstant().equals(o2.getInstant())) {
-                return o1.getInstant().comesBefore(o2.getInstant()) ? -1 : 1;
+
+            // same instant
+
+            int compareUsageMethods = compareUsageMethods(tc1.getUsageMethod(), tc2.getUsageMethod());
+            int compareContingencies = compareContingencies(tc1.getContingency(), tc2.getContingency());
+
+            if (tc1.getCnec().isEmpty() && tc1.getCountry().isEmpty() && tc2.getCnec().isEmpty() && tc2.getCountry().isEmpty()) {
+                // if different contingencies, sorted on contingency id; if same contingency, sorted on usage method
+                return compareContingencies == 0 ? compareUsageMethods : compareContingencies;
             }
-            if (!o1.getUsageMethod().equals(o2.getUsageMethod())) {
-                return serializeUsageMethod(o1.getUsageMethod()).compareTo(serializeUsageMethod(o2.getUsageMethod()));
+
+            if (tc1.getCnec().isEmpty() && tc2.getCnec().isEmpty()) {
+                int compareCountries = compareCountries(tc1.getCountry(), tc2.getCountry());
+                if (tc1.getContingency().isEmpty() && tc2.getContingency().isEmpty()) {
+                    // no contingencies => sorted on country
+                    return compareCountries == 0 ? compareUsageMethods : compareCountries;
+                } else if (tc1.getContingency().isPresent() && tc2.getContingency().isPresent()) {
+                    if (compareContingencies == 0) {
+                        // if same contingency and same country, sorted on usage method; if only same contingency, sorted on countries
+                        return compareCountries == 0 ? compareUsageMethods : compareCountries;
+                    }
+                    // if different contingencies, sorted on contingency id
+                    return compareContingencies;
+                } else {
+                    return tc1.getContingency().isPresent() ? 1 : -1;
+                }
             }
-            if (o1 instanceof OnInstant) {
+
+            // if different cnecs, sorted on cnecs id; if cnec contingency, sorted on usage method
+            int compareCnecs = compareCnecs(tc1.getCnec(), tc2.getCnec());
+            return compareCnecs == 0 ? compareUsageMethods : compareCnecs;
+        }
+
+        private static int compareUsageMethods(UsageMethod usageMethod1, UsageMethod usageMethod2) {
+            return serializeUsageMethod(usageMethod1).compareTo(serializeUsageMethod(usageMethod2));
+        }
+
+        private static int compareInstants(Instant instant1, Instant instant2) {
+            if (instant1.equals(instant2)) {
                 return 0;
             }
-            if (o1 instanceof OnContingencyState ocs1) {
-                return ocs1.getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
+            return instant1.comesBefore(instant2) ? -1 : 1;
+        }
+
+        private static int compareContingencies(Optional<Contingency> contingency1, Optional<Contingency> contingency2) {
+            if (contingency1.isEmpty() && contingency2.isEmpty()) {
+                return 0;
             }
-            if (o1 instanceof OnFlowConstraintInCountry ofcic1) {
-                return ofcic1.getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
+            if (contingency1.isPresent() && contingency2.isEmpty()) {
+                return 1;
             }
-            if (o1 instanceof OnConstraint<?> oc1) {
-                return oc1.getCnec().getId().compareTo(((OnConstraint<?>) o2).getCnec().getId());
+            return contingency1.map(country -> country.getId().compareTo(contingency2.get().getId())).orElse(-1);
+        }
+
+        private static int compareCnecs(Optional<Cnec<?>> cnec1, Optional<Cnec<?>> cnec2) {
+            if (cnec1.isEmpty() && cnec2.isEmpty()) {
+                return 0;
             }
-            throw new OpenRaoException(String.format("Unknown usage rule type: %s", o1.getClass()));
+            if (cnec1.isPresent() && cnec2.isEmpty()) {
+                return 1;
+            }
+            return cnec1.map(country -> country.getId().compareTo(cnec2.get().getId())).orElse(-1);
+        }
+
+        private static int compareCountries(Optional<Country> country1, Optional<Country> country2) {
+            if (country1.isEmpty() && country2.isEmpty()) {
+                return 0;
+            }
+            if (country1.isPresent() && country2.isEmpty()) {
+                return 1;
+            }
+            return country1.map(country -> country.getName().compareTo(country2.get().getName())).orElse(-1);
         }
     }
 }

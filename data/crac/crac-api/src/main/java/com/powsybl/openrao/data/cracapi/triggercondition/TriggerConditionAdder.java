@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.cracapi.triggercondition;
 
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -18,7 +18,7 @@ public interface TriggerConditionAdder<T extends RemedialActionAdder<T>> {
 
     TriggerConditionAdder<T> withContingency(String contingencyId);
 
-    TriggerConditionAdder<T> withCountry(String country);
+    TriggerConditionAdder<T> withCountry(Country country);
 
     TriggerConditionAdder<T> withInstant(String instantId);
 

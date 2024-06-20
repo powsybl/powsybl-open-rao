@@ -51,8 +51,8 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     }
 
     protected void checkAutoUsageRules() {
-        usageRules.forEach(usageRule -> {
-            if (usageRule.getInstant().isAuto() && Objects.isNull(speed)) {
+        triggerConditions.forEach(triggerCondition -> {
+            if (triggerCondition.getInstant().isAuto() && Objects.isNull(speed)) {
                 throw new OpenRaoException("Cannot create an AUTO standard range action without speed defined");
             }
         });

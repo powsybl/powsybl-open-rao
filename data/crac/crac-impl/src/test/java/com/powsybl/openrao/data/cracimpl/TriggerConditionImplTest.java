@@ -8,11 +8,12 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -30,7 +31,7 @@ class TriggerConditionImplTest {
     private final Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, preventiveInstant);
     private final Contingency contingency = new Contingency("contingency", "contingency", List.of());
     private final FlowCnec flowCnec = new FlowCnecImpl("flowCnec", "flowCnec", null, null, null, null, true, false, null, 0d, null, null, null, null);
-    private final String country = "country";
+    private final Country country = Country.FR;
 
     @Test
     void testInitTriggerCondition() {
@@ -50,7 +51,7 @@ class TriggerConditionImplTest {
         assertTrue(triggerCondition2.getCountry().isEmpty());
         assertEquals(UsageMethod.FORCED, triggerCondition2.getUsageMethod());
 
-        TriggerCondition triggerCondition3 = new TriggerConditionImpl(curativeInstant, contingency, null, country, UsageMethod.UNAVAILABLE);
+        TriggerCondition triggerCondition3 = new TriggerConditionImpl(curativeInstant, contingency, null, Country.FR, UsageMethod.UNAVAILABLE);
         assertEquals(curativeInstant, triggerCondition3.getInstant());
         assertTrue(triggerCondition3.getContingency().isPresent());
         assertEquals(contingency, triggerCondition3.getContingency().get());
@@ -66,7 +67,7 @@ class TriggerConditionImplTest {
         TriggerCondition preventiveForcedTriggerCondition = new TriggerConditionImpl(preventiveInstant, null, null, null, UsageMethod.FORCED);
         TriggerCondition curativeTriggerCondition = new TriggerConditionImpl(curativeInstant, contingency, null, null, UsageMethod.AVAILABLE);
         TriggerCondition curativeTriggerConditionWithCnec = new TriggerConditionImpl(curativeInstant, contingency, flowCnec, null, UsageMethod.AVAILABLE);
-        TriggerCondition curativeTriggerConditionWithCountry = new TriggerConditionImpl(curativeInstant, contingency, null, country, UsageMethod.UNAVAILABLE);
+        TriggerCondition curativeTriggerConditionWithCountry = new TriggerConditionImpl(curativeInstant, contingency, null, Country.FR, UsageMethod.UNAVAILABLE);
 
         assertEquals(preventiveAvailableTriggerCondition, preventiveAvailableTriggerCondition);
         assertNotEquals(preventiveAvailableTriggerCondition, preventiveForcedTriggerCondition);
@@ -75,5 +76,6 @@ class TriggerConditionImplTest {
         assertNotEquals(preventiveAvailableTriggerCondition, curativeTriggerConditionWithCountry);
         assertNotEquals(null, preventiveAvailableTriggerCondition);
         assertNotEquals("Hello world!", preventiveAvailableTriggerCondition);
+        assertEquals(curativeTriggerConditionWithCnec, new TriggerConditionImpl(curativeInstant, contingency, flowCnec, null, UsageMethod.AVAILABLE));
     }
 }

@@ -60,14 +60,14 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
-        if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("NetworkAction {} does not contain any usage rule, by default it will never be available", id);
+        if (triggerConditions.isEmpty()) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("NetworkAction {} does not contain any trigger condition, by default it will never be available", id);
         }
         if (elementaryActions.isEmpty()) {
             throw new OpenRaoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));
         }
 
-        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed, triggerConditions);
+        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, triggerConditions, elementaryActions, speed);
         getCrac().addNetworkAction(networkAction);
         return networkAction;
     }

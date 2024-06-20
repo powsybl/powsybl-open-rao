@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
@@ -14,9 +15,10 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import org.jgrapht.alg.util.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,17 +30,15 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;
-    protected Set<UsageRule> usageRules;
     protected Set<TriggerCondition> triggerConditions;
     protected Integer speed;
     private boolean computedUsageMethods = false;
-    private Map<State, UsageMethod> usageMethodPerState;
+    private Map<Pair<Instant, Contingency>, UsageMethod> usageMethodPerState;
     private Map<Instant, UsageMethod> usageMethodPerInstant;
 
-    protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed, Set<TriggerCondition> triggerConditions) {
+    protected AbstractRemedialAction(String id, String name, Set<TriggerCondition> triggerConditions, String operator, Integer speed) {
         super(id, name);
         this.operator = operator;
-        this.usageRules = usageRules;
         this.triggerConditions = triggerConditions;
         this.speed = speed;
     }
@@ -46,11 +46,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     @Override
     public String getOperator() {
         return operator;
-    }
-
-    @Override
-    public final Set<UsageRule> getUsageRules() {
-        return usageRules;
     }
 
     @Override
@@ -69,33 +64,38 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
             computeUsageMethodPerStateAndInstant();
             computedUsageMethods = true;
         }
-        if (usageMethodPerState.getOrDefault(state, UsageMethod.UNDEFINED).equals(usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED))) {
+        Instant instant = state.getInstant();
+        Optional<Contingency> contingencyOpt = state.getContingency();
+        if (contingencyOpt.isEmpty()) {
             return usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED);
         }
+        Contingency contingency = contingencyOpt.get();
+        if (usageMethodPerState.getOrDefault(Pair.of(instant, contingency), UsageMethod.UNDEFINED).equals(usageMethodPerInstant.getOrDefault(instant, UsageMethod.UNDEFINED))) {
+            return usageMethodPerInstant.getOrDefault(instant, UsageMethod.UNDEFINED);
+        }
         return UsageMethod.getStrongestUsageMethod(Set.of(
-            usageMethodPerState.getOrDefault(state, UsageMethod.UNDEFINED),
-            usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED)));
+            usageMethodPerState.getOrDefault(Pair.of(instant, contingency), UsageMethod.UNDEFINED),
+            usageMethodPerInstant.getOrDefault(instant, UsageMethod.UNDEFINED)));
     }
 
     private void computeUsageMethodPerStateAndInstant() {
         usageMethodPerState = new HashMap<>();
         usageMethodPerInstant = new HashMap<>();
 
-        for (UsageRule usageRule : usageRules) {
-            if (usageRule.getInstant().isPreventive()) {
-                updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
-            } else if (usageRule instanceof OnConstraint<?> oc) {
-                State state = oc.getCnec().getState();
-                if (usageRule.getInstant().equals(state.getInstant())) {
-                    updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
-                }
-            } else if (usageRule instanceof OnContingencyState ocs) {
-                State state = ocs.getState();
-                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
-            } else if (usageRule instanceof OnFlowConstraintInCountry || usageRule instanceof OnInstant) {
-                updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
+        for (TriggerCondition triggerCondition : triggerConditions) {
+            if (triggerCondition.getInstant().isPreventive()) {
+                updateMapWithValue(usageMethodPerInstant, triggerCondition.getInstant(), triggerCondition.getUsageMethod());
             } else {
-                throw new OpenRaoException(String.format("Usage rule of type %s is not implemented yet.", usageRule.getClass().getName()));
+                if (triggerCondition.getCnec().isPresent()) {
+                    State state = triggerCondition.getCnec().get().getState();
+                    if (triggerCondition.getInstant().equals(state.getInstant()) && state.getContingency().isPresent()) {
+                        updateMapWithValue(usageMethodPerState, Pair.of(state.getInstant(), state.getContingency().get()), triggerCondition.getUsageMethod());
+                    }
+                } else if (triggerCondition.getContingency().isPresent()) {
+                    updateMapWithValue(usageMethodPerState, Pair.of(triggerCondition.getInstant(), triggerCondition.getContingency().get()), triggerCondition.getUsageMethod());
+                } else {
+                    updateMapWithValue(usageMethodPerInstant, triggerCondition.getInstant(), triggerCondition.getUsageMethod());
+                }
             }
         }
     }
@@ -108,7 +108,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
     }
 
-    private void updateMapWithValue(Map<State, UsageMethod> map, State key, UsageMethod value) {
+    private void updateMapWithValue(Map<Pair<Instant, Contingency>, UsageMethod> map, Pair<Instant, Contingency> key, UsageMethod value) {
         if (!map.containsKey(key)) {
             map.put(key, value);
         } else if (!value.equals(map.get(key))) {
@@ -120,34 +120,43 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
      * Retrieves cnecs associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
      */
     // TODO: move this method to RaoUtil
-    public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
-        Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
-        Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>();
-        usageRulesOnFlowConstraint.addAll(getUsageRules(OnConstraint.class, optimizedState).stream().filter(onConstraint -> onConstraint.getCnec() instanceof FlowCnec).toList());
-        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraintInCountry.class, optimizedState));
-        usageRulesOnFlowConstraint.forEach(usageRule -> toBeConsideredCnecs.addAll(getFlowCnecsConstrainingForOneUsageRule(usageRule, perimeterCnecs, network)));
-        return toBeConsideredCnecs;
+    public Set<FlowCnec> getFlowCnecsConstrainingTriggerConditions(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
+        Set<FlowCnec> flowCnecs = new HashSet<>();
+        triggerConditions.stream()
+            .filter(triggerCondition -> triggerCondition.getCnec().isPresent()
+                && triggerCondition.getCnec().get() instanceof FlowCnec
+                && triggerCondition.getCnec().get().getState().equals(optimizedState)
+                || triggerCondition.getCountry().isPresent()
+                && triggerCondition.getContingency().equals(optimizedState.getContingency()))
+            .filter(triggerCondition -> optimizedState.getInstant().isAuto() ?
+                triggerCondition.getUsageMethod().equals(UsageMethod.FORCED) :
+                triggerCondition.getUsageMethod().equals(UsageMethod.AVAILABLE) || triggerCondition.getUsageMethod().equals(UsageMethod.FORCED))
+            .forEach(triggerCondition -> flowCnecs.addAll(getFlowCnecsConstrainingForOneTriggerCondition(triggerCondition, perimeterCnecs, network)));
+        return flowCnecs;
     }
 
     // TODO: move this method to RaoUtil
-    public Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network) {
-        if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec flowCnec) {
+    public Set<FlowCnec> getFlowCnecsConstrainingForOneTriggerCondition(TriggerCondition triggerCondition, Set<FlowCnec> perimeterCnecs, Network network) {
+        if (triggerCondition.getCnec().isPresent() && triggerCondition.getCnec().get() instanceof FlowCnec flowCnec) {
             return Set.of(flowCnec);
-        } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
+        } else if (triggerCondition.getCountry().isPresent()) {
             return perimeterCnecs.stream()
-                .filter(cnec -> !cnec.getState().getInstant().comesBefore(usageRule.getInstant()))
-                .filter(cnec -> onFlowConstraintInCountry.getContingency().isEmpty() || onFlowConstraintInCountry.getContingency().equals(cnec.getState().getContingency()))
-                .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network)).collect(Collectors.toSet());
+                .filter(cnec -> !cnec.getState().getInstant().comesBefore(triggerCondition.getInstant()))
+                .filter(cnec -> triggerCondition.getContingency().isEmpty() || triggerCondition.getContingency().equals(cnec.getState().getContingency()))
+                .filter(cnec -> isCnecInCountry(cnec, triggerCondition.getCountry().get(), network)).collect(Collectors.toSet());
         } else {
-            throw new OpenRaoException(String.format("This method should only be used for Ofc Usage rules not for this type of UsageRule: %s", usageRule.getClass().getName()));
+            throw new OpenRaoException("This method should only be used for trigger conditions having a CNEC or a country defined");
         }
     }
 
-    private <T extends UsageRule> List<T> getUsageRules(Class<T> usageRuleClass, State state) {
-        return getUsageRules().stream().filter(usageRuleClass::isInstance).map(usageRuleClass::cast)
-            .filter(ofc -> state.getInstant().isAuto() ?
-                ofc.getUsageMethod(state).equals(UsageMethod.FORCED) :
-                ofc.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || ofc.getUsageMethod(state).equals(UsageMethod.FORCED))
+    private List<TriggerCondition> getTriggerConditions(State state) {
+        return getTriggerConditions()
+            .stream()
+            .filter(triggerCondition -> triggerCondition.getInstant().equals(state.getInstant()))
+            .filter(triggerCondition -> triggerCondition.getContingency().equals(state.getContingency()))
+            .filter(triggerCondition -> state.getInstant().isAuto() ?
+                triggerCondition.getUsageMethod().equals(UsageMethod.FORCED) :
+                triggerCondition.getUsageMethod().equals(UsageMethod.AVAILABLE) || triggerCondition.getUsageMethod().equals(UsageMethod.FORCED))
             .toList();
     }
 
@@ -168,7 +177,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
         AbstractRemedialAction<?> remedialAction = (AbstractRemedialAction<?>) o;
         return super.equals(remedialAction)
-            && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
+            && new HashSet<>(triggerConditions).equals(new HashSet<>(remedialAction.getTriggerConditions()))
             && (operator != null && operator.equals(remedialAction.operator) || operator == null && remedialAction.operator == null);
     }
 

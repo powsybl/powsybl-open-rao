@@ -21,7 +21,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
@@ -42,10 +42,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(HvdcRangeAction.class, new HvdcRangeActionSerializer());
         this.addSerializer(InjectionRangeAction.class, new InjectionRangeActionSerializer());
         this.addSerializer(CounterTradeRangeAction.class, new CounterTradeRangeActionSerializer());
-        this.addSerializer(OnInstant.class, new OnInstantSerializer());
-        this.addSerializer(OnContingencyState.class, new OnStateSerializer());
-        this.addSerializer(OnConstraint.class, new OnConstraintSerializer());
-        this.addSerializer(OnFlowConstraintInCountry.class, new OnFlowConstraintInCountrySerializer());
+        this.addSerializer(TriggerCondition.class, new TriggerConditionSerializer());
         this.addSerializer(TapRange.class, new TapRangeSerializer());
         this.addSerializer(StandardRange.class, new StandardRangeSerializer());
         this.addSerializer(NetworkAction.class, new NetworkActionSerializer());

@@ -9,9 +9,9 @@ package com.powsybl.openrao.data.craciojson.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyStateAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ public final class OnStateArrayDeserializer {
 
     public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            OnContingencyStateAdder<?> adder = ownerAdder.newOnContingencyStateUsageRule();
+            TriggerConditionAdder<?> adder = ownerAdder.newTriggerCondition();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:

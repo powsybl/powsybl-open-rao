@@ -44,6 +44,10 @@ public final class PstRangeActionArrayDeserializer {
                     case OPERATOR:
                         pstRangeActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
+                    case TRIGGER_CONDITIONS:
+                        jsonParser.nextToken();
+                        TriggerConditionDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        break;
                     case ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
                         OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);

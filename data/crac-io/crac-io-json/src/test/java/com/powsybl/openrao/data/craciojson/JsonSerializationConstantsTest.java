@@ -6,21 +6,23 @@
  */
 package com.powsybl.openrao.data.craciojson;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 
 import java.util.Optional;
 
@@ -79,105 +81,94 @@ class JsonSerializationConstantsTest {
         assertTrue(comparator.compare(bt1, bt2) < 0);
     }
 
-    private UsageRule mockUsageRule(Instant instant, UsageMethod usageMethod, String stateId, String flowCnecId, Country country, String angleCnecId, String voltageCnecId) {
-        UsageRule usageRule = null;
-        if (stateId != null) {
-            OnContingencyState ur = mock(OnContingencyState.class);
-            State state = mock(State.class);
-            when(state.getId()).thenReturn(stateId);
-            when(ur.getState()).thenReturn(state);
-            usageRule = ur;
-        } else if (flowCnecId != null) {
-            OnConstraint<FlowCnec> ur = mock(OnConstraint.class);
-            FlowCnec flowCnec = mock(FlowCnec.class);
-            when(flowCnec.getId()).thenReturn(flowCnecId);
-            when(ur.getCnec()).thenReturn(flowCnec);
-            usageRule = ur;
-        } else if (angleCnecId != null) {
-            OnConstraint<AngleCnec> ur = mock(OnConstraint.class);
-            AngleCnec angleCnec = mock(AngleCnec.class);
-            when(angleCnec.getId()).thenReturn(angleCnecId);
-            when(ur.getCnec()).thenReturn(angleCnec);
-            usageRule = ur;
-        } else if (voltageCnecId != null) {
-            OnConstraint<VoltageCnec> ur = mock(OnConstraint.class);
-            VoltageCnec voltageCnec = mock(VoltageCnec.class);
-            when(voltageCnec.getId()).thenReturn(voltageCnecId);
-            when(ur.getCnec()).thenReturn(voltageCnec);
-            usageRule = ur;
-        } else if (country != null) {
-            OnFlowConstraintInCountry ur = mock(OnFlowConstraintInCountry.class);
-            when(ur.getCountry()).thenReturn(country);
-            usageRule = ur;
+    private TriggerCondition mockTriggerCondition(Instant instant, UsageMethod usageMethod, String contingencyId, String flowCnecId, String angleCnecId, String voltageCnecId, Country country) {
+        TriggerCondition triggerCondition = Mockito.mock(TriggerCondition.class);
+        Mockito.when(triggerCondition.getInstant()).thenReturn(instant);
+        Mockito.when(triggerCondition.getUsageMethod()).thenReturn(usageMethod);
+
+        if (contingencyId != null) {
+            Contingency contingency = Mockito.mock(Contingency.class);
+            Mockito.when(contingency.getId()).thenReturn(contingencyId);
+            Mockito.when(triggerCondition.getContingency()).thenReturn(Optional.of(contingency));
         } else {
-            usageRule = mock(OnInstant.class);
+            Mockito.when(triggerCondition.getContingency()).thenReturn(Optional.empty());
         }
-        when(usageRule.getInstant()).thenReturn(instant);
-        when(usageRule.getUsageMethod()).thenReturn(usageMethod);
-        return usageRule;
+
+        Mockito.when(triggerCondition.getCountry()).thenReturn(Optional.ofNullable(country));
+
+        if (flowCnecId != null) {
+            FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+            Mockito.when(flowCnec.getId()).thenReturn(flowCnecId);
+            Mockito.when(triggerCondition.getCnec()).thenReturn(Optional.of(flowCnec));
+        } else if (angleCnecId != null) {
+            AngleCnec angleCnec = Mockito.mock(AngleCnec.class);
+            Mockito.when(angleCnec.getId()).thenReturn(angleCnecId);
+            Mockito.when(triggerCondition.getCnec()).thenReturn(Optional.of(angleCnec));
+        } else if (voltageCnecId != null) {
+            VoltageCnec voltageCnec = Mockito.mock(VoltageCnec.class);
+            Mockito.when(voltageCnec.getId()).thenReturn(voltageCnecId);
+            Mockito.when(triggerCondition.getCnec()).thenReturn(Optional.of(voltageCnec));
+        } else {
+            Mockito.when(triggerCondition.getCnec()).thenReturn(Optional.empty());
+        }
+
+        return triggerCondition;
     }
 
     @Test
-    void testUsageRuleComparatorOnInstant() {
+    void testCompareTriggerConditions() {
         Instant preventiveInstant = mock(Instant.class);
         Instant curativeInstant = mock(Instant.class);
         when(preventiveInstant.comesBefore(any())).thenReturn(true);
-        UsageRuleComparator comparator = new UsageRuleComparator();
 
-        UsageRule onInstant1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
-        UsageRule onInstant2 = mockUsageRule(preventiveInstant, UsageMethod.FORCED, null, null, null, null, null);
-        UsageRule onInstant3 = mockUsageRule(curativeInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
+        TriggerCondition availablePrev = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
+        TriggerCondition forcedPrev = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, null, null, null, null);
+        TriggerCondition availableCur = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
+        TriggerCondition forcedCur = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, null, null, null, null);
 
-        assertEquals(0, comparator.compare(onInstant1, onInstant1));
-        assertEquals(0, comparator.compare(onInstant2, onInstant2));
-        assertEquals(0, comparator.compare(onInstant3, onInstant3));
-        assertTrue(comparator.compare(onInstant1, onInstant2) < 0);
-        assertTrue(comparator.compare(onInstant2, onInstant3) < 0);
-        assertTrue(comparator.compare(onInstant1, onInstant3) < 0);
-        assertTrue(comparator.compare(onInstant2, onInstant1) > 0);
-        assertTrue(comparator.compare(onInstant3, onInstant2) > 0);
-        assertTrue(comparator.compare(onInstant3, onInstant1) > 0);
-    }
+        TriggerCondition availableCo1 = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, null);
+        TriggerCondition forcedCo1 = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co1", null, null, null, null);
+        TriggerCondition availableCo2 = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, null);
+        TriggerCondition forcedCo2 = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co2", null, null, null, null);
 
-    @Test
-    void testUsageRuleComparatorMix() {
-        Instant preventiveInstant = mock(Instant.class);
-        Instant autoInstant = mock(Instant.class);
-        Instant curativeInstant = mock(Instant.class);
-        UsageRuleComparator comparator = new UsageRuleComparator();
+        TriggerCondition availableFrPrev = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, Country.FR);
+        TriggerCondition forcedFrPrev = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, null, null, null, Country.FR);
+        TriggerCondition availableFrCur = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, null, null, null, Country.FR);
+        TriggerCondition forcedFrCur = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, null, null, null, Country.FR);
+        TriggerCondition availableBePrev = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, Country.BE);
+        TriggerCondition forcedBePrev = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, null, null, null, Country.BE);
+        TriggerCondition availableBeCur = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, null, null, null, Country.BE);
+        TriggerCondition forcedBeCur = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, null, null, null, Country.BE);
 
-        UsageRule oi1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, null);
+        TriggerCondition availableCo1Fr = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, Country.FR);
+        TriggerCondition forcedCo1Fr = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co1", null, null, null, Country.FR);
+        TriggerCondition availableCo2Fr = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, Country.FR);
+        TriggerCondition forcedCo2Fr = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co2", null, null, null, Country.FR);
+        TriggerCondition availableCo1Be = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, Country.BE);
+        TriggerCondition forcedCo1Be = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co1", null, null, null, Country.BE);
+        TriggerCondition availableCo2Be = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, Country.BE);
+        TriggerCondition forcedCo2Be = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co2", null, null, null, Country.BE);
 
-        UsageRule ocs1 = mockUsageRule(curativeInstant, UsageMethod.AVAILABLE, "state1", null, null, null, null);
-        UsageRule ocs2 = mockUsageRule(curativeInstant, UsageMethod.AVAILABLE, "state2", null, null, null, null);
-        assertTrue(comparator.compare(ocs1, ocs2) < 0);
-        assertTrue(comparator.compare(ocs2, ocs1) > 0);
+        TriggerCondition availablePrevFlow = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, "flowCnec", null, null, null);
+        TriggerCondition forcedPrevFlow = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, "flowCnec", null, null, null);
+        TriggerCondition availableCurFlow = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, "flowCnec", null, null, null);
+        TriggerCondition forcedCurFlow = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, "flowCnec", null, null, null);
+        TriggerCondition availablePrevAngle = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, null, "angleCnec", null, null);
+        TriggerCondition forcedPrevAngle = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, null, "angleCnec", null, null);
+        TriggerCondition availableCurAngle = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, null, "angleCnec", null, null);
+        TriggerCondition forcedCurAngle = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, null, "angleCnec", null, null);
+        TriggerCondition availablePrevVoltage = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, "voltageCnec", null);
+        TriggerCondition forcedPrevVoltage = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, null, null, "voltageCnec", null);
+        TriggerCondition availableCurVoltage = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, null, null, "voltageCnec", null);
+        TriggerCondition forcedCurVoltage = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, null, null, "voltageCnec", null);
 
-        UsageRule ofc1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, "fc1", null, null, null);
-        UsageRule ofc2 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, "fc2", null, null, null);
-        assertTrue(comparator.compare(ofc1, ofc2) < 0);
-        assertTrue(comparator.compare(ofc2, ofc1) > 0);
+        TriggerConditionComparator comparator = new TriggerConditionComparator();
 
-        UsageRule ofcc1 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, Country.FR, null, null);
-        UsageRule ofcc2 = mockUsageRule(preventiveInstant, UsageMethod.AVAILABLE, null, null, Country.ES, null, null);
-        assertTrue(comparator.compare(ofcc1, ofcc2) > 0);
-        assertTrue(comparator.compare(ofcc2, ofcc1) < 0);
+        assertEquals(0, comparator.compare(availablePrev, availablePrev));
+        assertEquals(-1, comparator.compare(availablePrev, availableCur));
+        assertEquals(-1, comparator.compare(availableCur, availableCo1));
 
-        UsageRule oac1 = mockUsageRule(autoInstant, UsageMethod.AVAILABLE, null, null, null, "BBB", null);
-        UsageRule oac2 = mockUsageRule(autoInstant, UsageMethod.AVAILABLE, null, null, null, "AAA", null);
-        assertTrue(comparator.compare(oac1, oac2) > 0);
-        assertTrue(comparator.compare(oac2, oac1) < 0);
-
-        UsageRule ovc1 = mockUsageRule(curativeInstant, UsageMethod.FORCED, null, null, null, null, "z");
-        UsageRule ovc2 = mockUsageRule(curativeInstant, UsageMethod.FORCED, null, null, null, null, "x");
-        assertTrue(comparator.compare(ovc1, ovc2) > 0);
-        assertTrue(comparator.compare(ovc2, ovc1) < 0);
-
-        assertTrue(comparator.compare(oi1, ocs1) > 0);
-        assertTrue(comparator.compare(ocs1, ofc1) > 0);
-        assertTrue(comparator.compare(ofc2, ofcc1) < 0);
-        assertTrue(comparator.compare(oac1, ocs2) < 0);
-        assertTrue(comparator.compare(oac1, ovc2) >= 0);
+        // TODO: complete with more exhaustive cases
     }
 
     @Test

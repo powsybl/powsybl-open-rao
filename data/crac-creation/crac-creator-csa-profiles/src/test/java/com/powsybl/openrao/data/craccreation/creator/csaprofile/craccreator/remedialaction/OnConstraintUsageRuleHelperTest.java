@@ -139,7 +139,7 @@ class OnConstraintUsageRuleHelperTest {
     void getImportedCnecFromAssessedElementId() {
         assertEquals(
             Set.of(crac.getFlowCnec("Line 2 - preventive"), crac.getFlowCnec("Line 2 - curative - CO1"), crac.getFlowCnec("Line 2 - curative - CO2"), crac.getFlowCnec("Line 2 - curative - CO3"), crac.getFlowCnec("Line 2 - curative - CO4"), crac.getFlowCnec("Line 2 - curative - CO5"), crac.getFlowCnec("Line 2 - curative - CO6")),
-            OnConstraintUsageRuleHelper.getImportedCnecFromAssessedElementId("assessed-element-2", crac, cnecCreationContexts)
+            OnConstraintTriggerConditionHelper.getImportedCnecFromAssessedElementId("assessed-element-2", crac, cnecCreationContexts)
         );
     }
 
@@ -147,7 +147,7 @@ class OnConstraintUsageRuleHelperTest {
     void getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions() {
         assertEquals(
             Set.of(crac.getFlowCnec("Line 2 - preventive"), crac.getFlowCnec("Line 2 - curative - CO1"), crac.getFlowCnec("Line 2 - curative - CO2"), crac.getFlowCnec("Line 2 - curative - CO3"), crac.getFlowCnec("Line 2 - curative - CO4"), crac.getFlowCnec("Line 2 - curative - CO5"), crac.getFlowCnec("Line 2 - curative - CO6"), crac.getFlowCnec("Line 3 - preventive"), crac.getFlowCnec("Line 3 - curative - CO1"), crac.getFlowCnec("Line 3 - curative - CO2"), crac.getFlowCnec("Line 3 - curative - CO3"), crac.getFlowCnec("Line 3 - curative - CO4"), crac.getFlowCnec("Line 3 - curative - CO5"), crac.getFlowCnec("Line 3 - curative - CO6")),
-            OnConstraintUsageRuleHelper.getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(crac, cnecCreationContexts, assessedElements)
+            OnConstraintTriggerConditionHelper.getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(crac, cnecCreationContexts, assessedElements)
         );
     }
 
@@ -155,7 +155,7 @@ class OnConstraintUsageRuleHelperTest {
     void filterCnecsThatHaveGivenContingencies() {
         assertEquals(
             Set.of(crac.getFlowCnec("Line 2 - curative - CO3"), crac.getFlowCnec("Line 3 - curative - CO3"), crac.getFlowCnec("Line 2 - curative - CO5"), crac.getFlowCnec("Line 3 - curative - CO5")),
-            OnConstraintUsageRuleHelper.filterCnecsThatHaveGivenContingencies(crac.getCnecs(), Set.of("contingency-3", "contingency-5"))
+            OnConstraintTriggerConditionHelper.filterCnecsThatHaveGivenContingencies(crac.getCnecs(), Set.of("contingency-3", "contingency-5"))
         );
     }
 
@@ -164,20 +164,20 @@ class OnConstraintUsageRuleHelperTest {
         Map<String, AssociationStatus> expectedResult = new HashMap<>();
         expectedResult.put("Line 1 - curative - CO1", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
         expectedResult.put("Line 2 - curative - CO1", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
-        expectedResult.put("Line 2 - curative - CO2", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with CNEC Line 2 - curative - CO2 ignored because the combinationConstraintKinds between of the AssessedElementWithRemedialAction for assessed element assessed-element-2 and the ContingencyWithRemedialAction for contingency contingency-2 are different."));
+        expectedResult.put("Line 2 - curative - CO2", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with CNEC Line 2 - curative - CO2 ignored because the combinationConstraintKinds between of the AssessedElementWithRemedialAction for assessed element assessed-element-2 and the ContingencyWithRemedialAction for contingency contingency-2 are different."));
         expectedResult.put("Line 2 - curative - CO3", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
-        expectedResult.put("Line 2 - curative - CO4", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with CNEC Line 2 - curative - CO4 ignored because the combinationConstraintKinds between of the AssessedElementWithRemedialAction for assessed element assessed-element-2 and the ContingencyWithRemedialAction for contingency contingency-4 are different."));
+        expectedResult.put("Line 2 - curative - CO4", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with CNEC Line 2 - curative - CO4 ignored because the combinationConstraintKinds between of the AssessedElementWithRemedialAction for assessed element assessed-element-2 and the ContingencyWithRemedialAction for contingency contingency-4 are different."));
         expectedResult.put("Line 3 - curative - CO1", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
         expectedResult.put("Line 3 - curative - CO2", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
         expectedResult.put("Line 3 - curative - CO3", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
         expectedResult.put("Line 3 - curative - CO4", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
-        expectedResult.put("assessed-element-4", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-4 ignored because the association is disabled."));
-        expectedResult.put("assessed-element-5", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-5 ignored because this assessed element has several conflictual links to the remedial action."));
-        expectedResult.put("assessed-element-6", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-6 ignored because of an illegal combinationConstraintKind."));
-        expectedResult.put("assessed-element-7", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-7 ignored because no CNEC was imported by Open RAO from this assessed element."));
-        expectedResult.put("assessed-element-8", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-8 ignored because this assessed element has several conflictual links to the remedial action."));
+        expectedResult.put("assessed-element-4", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-4 ignored because the association is disabled."));
+        expectedResult.put("assessed-element-5", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-5 ignored because this assessed element has several conflictual links to the remedial action."));
+        expectedResult.put("assessed-element-6", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-6 ignored because of an illegal combinationConstraintKind."));
+        expectedResult.put("assessed-element-7", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-7 ignored because no CNEC was imported by Open RAO from this assessed element."));
+        expectedResult.put("assessed-element-8", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-8 ignored because this assessed element has several conflictual links to the remedial action."));
 
-        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElements, assessedElementWithRemedialActions, contingencyWithRemedialActions, cnecCreationContexts));
+        assertEquals(expectedResult, OnConstraintTriggerConditionHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElements, assessedElementWithRemedialActions, contingencyWithRemedialActions, cnecCreationContexts));
     }
 
     @Test
@@ -198,12 +198,12 @@ class OnConstraintUsageRuleHelperTest {
         expectedResult.put("Line 3 - curative - CO4", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
         expectedResult.put("Line 3 - curative - CO5", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
         expectedResult.put("Line 3 - curative - CO6", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
-        expectedResult.put("assessed-element-4", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-4 ignored because the association is disabled."));
-        expectedResult.put("assessed-element-5", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-5 ignored because this assessed element has several conflictual links to the remedial action."));
-        expectedResult.put("assessed-element-6", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-6 ignored because of an illegal combinationConstraintKind."));
-        expectedResult.put("assessed-element-7", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-7 ignored because no CNEC was imported by Open RAO from this assessed element."));
-        expectedResult.put("assessed-element-8", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-8 ignored because this assessed element has several conflictual links to the remedial action."));
+        expectedResult.put("assessed-element-4", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-4 ignored because the association is disabled."));
+        expectedResult.put("assessed-element-5", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-5 ignored because this assessed element has several conflictual links to the remedial action."));
+        expectedResult.put("assessed-element-6", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-6 ignored because of an illegal combinationConstraintKind."));
+        expectedResult.put("assessed-element-7", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-7 ignored because no CNEC was imported by Open RAO from this assessed element."));
+        expectedResult.put("assessed-element-8", new AssociationStatus(false, null, "TriggerCondition with CNEC for remedial action remedial-action with assessed element assessed-element-8 ignored because this assessed element has several conflictual links to the remedial action."));
 
-        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElements, assessedElementWithRemedialActions, Set.of(), cnecCreationContexts));
+        assertEquals(expectedResult, OnConstraintTriggerConditionHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElements, assessedElementWithRemedialActions, Set.of(), cnecCreationContexts));
     }
 }

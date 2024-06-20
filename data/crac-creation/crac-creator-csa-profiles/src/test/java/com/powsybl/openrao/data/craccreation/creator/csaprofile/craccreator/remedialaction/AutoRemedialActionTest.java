@@ -12,11 +12,11 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.cracimpl.InjectionSetpointImpl;
-import com.powsybl.openrao.data.cracimpl.OnContingencyStateImpl;
 import com.powsybl.openrao.data.cracimpl.TopologicalActionImpl;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +27,7 @@ import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreat
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AutoRemedialActionTest {
 
@@ -34,21 +35,24 @@ class AutoRemedialActionTest {
     void importAutoRemedialActions() {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/remedialactions/AutoRemedialActions.zip", NETWORK);
 
-        List<RemedialAction<?>> importedSps = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getUsageRules().size() == 1 && ra.getUsageRules().stream().toList().get(0).getInstant().isAuto()).toList();
+        List<RemedialAction<?>> importedSps = cracCreationContext.getCrac().getRemedialActions().stream().filter(ra -> ra.getTriggerConditions().size() == 1 && ra.getTriggerConditions().stream().toList().get(0).getInstant().isAuto()).toList();
         assertEquals(2, importedSps.size());
 
         PstRangeAction pstSps = cracCreationContext.getCrac().getPstRangeAction("pst-sps");
-        OnContingencyStateImpl pstSpsUsageRule = (OnContingencyStateImpl) pstSps.getUsageRules().iterator().next();
+        TriggerCondition pstSpsTriggerCondition = pstSps.getTriggerConditions().iterator().next();
         assertEquals("PST SPS", pstSps.getName());
         assertEquals("BBE2AA1  BBE3AA1  1", pstSps.getNetworkElement().getId());
         assertEquals(-5, pstSps.getRanges().get(0).getMinTap());
         assertEquals(7, pstSps.getRanges().get(0).getMaxTap());
-        assertEquals("contingency", pstSpsUsageRule.getContingency().getId());
-        assertEquals(InstantKind.AUTO, pstSpsUsageRule.getInstant().getKind());
-        assertEquals(UsageMethod.FORCED, pstSpsUsageRule.getUsageMethod());
+        assertTrue(pstSpsTriggerCondition.getContingency().isPresent());
+        assertEquals("contingency", pstSpsTriggerCondition.getContingency().get().getId());
+        assertEquals(InstantKind.AUTO, pstSpsTriggerCondition.getInstant().getKind());
+        assertEquals(UsageMethod.FORCED, pstSpsTriggerCondition.getUsageMethod());
+        assertTrue(pstSpsTriggerCondition.getCnec().isEmpty());
+        assertTrue(pstSpsTriggerCondition.getCountry().isEmpty());
 
         NetworkAction networkSps = cracCreationContext.getCrac().getNetworkAction("network-sps");
-        OnContingencyStateImpl networkSpsUsageRule = (OnContingencyStateImpl) networkSps.getUsageRules().iterator().next();
+        TriggerCondition networkSpsTriggerCondition = networkSps.getTriggerConditions().iterator().next();
         List<ElementaryAction> elementaryActions = networkSps.getElementaryActions().stream().sorted(Comparator.comparing(ElementaryAction::toString)).toList();
         InjectionSetpointImpl injectionSetpoint = (InjectionSetpointImpl) elementaryActions.get(0);
         TopologicalActionImpl topologicalAction = (TopologicalActionImpl) elementaryActions.get(1);
@@ -58,9 +62,12 @@ class AutoRemedialActionTest {
         assertEquals(ActionType.OPEN, topologicalAction.getActionType());
         assertEquals("FFR1AA1 _generator", injectionSetpoint.getNetworkElement().getId());
         assertEquals(75.0, injectionSetpoint.getSetpoint());
-        assertEquals("contingency", networkSpsUsageRule.getContingency().getId());
-        assertEquals(InstantKind.AUTO, networkSpsUsageRule.getInstant().getKind());
-        assertEquals(UsageMethod.FORCED, networkSpsUsageRule.getUsageMethod());
+        assertTrue(networkSpsTriggerCondition.getContingency().isPresent());
+        assertEquals("contingency", networkSpsTriggerCondition.getContingency().get().getId());
+        assertEquals(InstantKind.AUTO, networkSpsTriggerCondition.getInstant().getKind());
+        assertEquals(UsageMethod.FORCED, networkSpsTriggerCondition.getUsageMethod());
+        assertTrue(networkSpsTriggerCondition.getCnec().isEmpty());
+        assertTrue(networkSpsTriggerCondition.getCountry().isEmpty());
 
         assertEquals(11, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> !ra.isImported()).toList().size());
 

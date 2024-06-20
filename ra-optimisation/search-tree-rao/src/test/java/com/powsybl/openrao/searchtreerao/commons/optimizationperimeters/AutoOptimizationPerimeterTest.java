@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.CracImplFactory;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.Test;
@@ -134,7 +134,7 @@ class AutoOptimizationPerimeterTest {
             .withNetworkElement("switch-1")
             .withActionType(ActionType.OPEN)
             .add()
-            .newOnContingencyStateUsageRule()
+            .newTriggerCondition()
             .withContingency("contingency")
             .withInstant("auto")
             .withUsageMethod(UsageMethod.FORCED)
@@ -148,7 +148,7 @@ class AutoOptimizationPerimeterTest {
             .withNetworkElement("switch-2")
             .withActionType(ActionType.OPEN)
             .add()
-            .newOnContingencyStateUsageRule()
+            .newTriggerCondition()
             .withContingency("contingency")
             .withInstant("auto")
             .withUsageMethod(UsageMethod.AVAILABLE)
@@ -162,7 +162,7 @@ class AutoOptimizationPerimeterTest {
             .withSpeed(1)
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(0, 0d, 1, 2.34))
-            .newOnContingencyStateUsageRule()
+            .newTriggerCondition()
             .withContingency("contingency")
             .withInstant("auto")
             .withUsageMethod(UsageMethod.FORCED)
@@ -176,7 +176,7 @@ class AutoOptimizationPerimeterTest {
             .withSpeed(2)
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(0, 0d, 1, 2.34))
-            .newOnContingencyStateUsageRule()
+            .newTriggerCondition()
             .withContingency("contingency")
             .withInstant("auto")
             .withUsageMethod(UsageMethod.AVAILABLE)

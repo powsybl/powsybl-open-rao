@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -185,8 +185,8 @@ public final class ExhaustiveCracCreation {
             .withName("pstSetpointRaName")
             .withOperator("RTE")
             .newPstSetPoint().withSetpoint(15).withNetworkElement("pst").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
-            .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(CURATIVE_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
         // complex network action with one pst set point and one topology
@@ -195,8 +195,7 @@ public final class ExhaustiveCracCreation {
             .withOperator("RTE")
             .newPstSetPoint().withSetpoint(5).withNetworkElement("pst").add()
             .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("ne1Id").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
-            .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         // network action with one injection set point
@@ -204,7 +203,7 @@ public final class ExhaustiveCracCreation {
             .withName("injectionSetpointRaName")
             .withOperator("RTE")
             .newInjectionSetPoint().withSetpoint(260).withNetworkElement("injection").withUnit(Unit.SECTION_COUNT).add()
-            .newOnConstraintUsageRule().withCnec("cnec3autoId").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withCnec("cnec3autoId").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
         // network action with one switch pair
@@ -212,7 +211,7 @@ public final class ExhaustiveCracCreation {
             .withName("switchPairRaName")
             .withOperator("RTE")
             .newSwitchPair().withSwitchToOpen("to-open").withSwitchToClose("to-close", "to-close-name").add()
-            .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency(contingency2Id).withInstant(CURATIVE_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency(contingency2Id).withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
         // range actions
@@ -224,7 +223,7 @@ public final class ExhaustiveCracCreation {
             .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         crac.newPstRangeAction().withId("pstRange2Id")
@@ -237,7 +236,7 @@ public final class ExhaustiveCracCreation {
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-4).withMaxTap(3).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-5).withMaxTap(1).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP).withMinTap(-2).withMaxTap(5).add()
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec3prevId").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec3prevId").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         crac.newPstRangeAction().withId("pstRange3Id")
@@ -249,7 +248,7 @@ public final class ExhaustiveCracCreation {
             .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec("angleCnecId").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCnec("angleCnecId").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         crac.newPstRangeAction().withId("pstRange4Id")
@@ -261,7 +260,7 @@ public final class ExhaustiveCracCreation {
             .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec("voltageCnecId").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCnec("voltageCnecId").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         crac.newPstRangeAction().withId("pstRange5Id").withName("pstRange5Name").withOperator("RTE").withNetworkElement("pst3")
@@ -270,8 +269,8 @@ public final class ExhaustiveCracCreation {
             .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5))
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(PREVENTIVE_INSTANT_ID).add()
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec3curId").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec3curId").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         crac.newHvdcRangeAction().withId("hvdcRange1Id")
@@ -279,7 +278,7 @@ public final class ExhaustiveCracCreation {
             .withOperator("RTE")
             .withNetworkElement("hvdc")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         crac.newHvdcRangeAction().withId("hvdcRange2Id")
@@ -288,9 +287,9 @@ public final class ExhaustiveCracCreation {
             .withNetworkElement("hvdc2")
             .withGroupId("group-1-hvdc")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency2Id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec3curId").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withContingency("contingency2Id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec3curId").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         crac.newInjectionRangeAction().withId("injectionRange1Id")
@@ -299,8 +298,8 @@ public final class ExhaustiveCracCreation {
             .withNetworkElementAndKey(-1., "generator2Id", "generator2Name")
             .newRange().withMin(-500).withMax(500).add()
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("contingency2Id").withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withContingency("contingency2Id").withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         crac.newCounterTradeRangeAction().withId("counterTradeRange1Id")
@@ -309,8 +308,8 @@ public final class ExhaustiveCracCreation {
             .withImportingCountry(Country.DE)
             .newRange().withMin(-500).withMax(500).add()
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         return crac;

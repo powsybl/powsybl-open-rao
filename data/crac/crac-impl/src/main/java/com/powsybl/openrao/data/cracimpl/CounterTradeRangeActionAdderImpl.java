@@ -63,11 +63,11 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
 
         // check usage rules
-        if (usageRules.isEmpty()) {
-            BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any usage rule, by default it will never be available", id);
+        if (triggerConditions.isEmpty()) {
+            BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any trigger condition, by default it will never be available", id);
         }
 
-        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, this.exportingCountry, this.importingCountry);
+        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.triggerConditions, this.ranges, this.initialSetpoint, speed, this.exportingCountry, this.importingCountry);
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;
 

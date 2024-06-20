@@ -2,7 +2,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cne
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil;
@@ -18,8 +18,8 @@ import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreat
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.OUTAGE_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertCnecNotImported;
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnConstraintUsageRule;
-import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnInstantUsageRule;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnConstraintTriggerCondition;
+import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertHasOnInstantTriggerCondition;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -758,43 +758,43 @@ class FlowCnecCreationTest {
         assertCnecNotImported(cracCreationContext, "assessed-element-13", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-13 ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found");
         assertCnecNotImported(cracCreationContext, "assessed-element-14", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-14 ignored because the network element FFR1AA1 _generator is not a branch");
 
-        assertEquals(15, cracCreationContext.getCrac().getRemedialAction("remedial-action-1").getUsageRules().size());
+        assertEquals(15, cracCreationContext.getCrac().getRemedialAction("remedial-action-1").getTriggerConditions().size());
 
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
 
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
 
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
 
-        assertEquals(13, cracCreationContext.getCrac().getRemedialAction("remedial-action-2").getUsageRules().size());
+        assertEquals(13, cracCreationContext.getCrac().getRemedialAction("remedial-action-2").getTriggerConditions().size());
 
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantTriggerCondition(cracCreationContext, "remedial-action-2", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantTriggerCondition(cracCreationContext, "remedial-action-2", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertHasOnInstantTriggerCondition(cracCreationContext, "remedial-action-2", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO1 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
 
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 2 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE4 (assessed-element-4) - RTE_CO2 - curative 3 - RIGHT", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
     }
 
     @Test

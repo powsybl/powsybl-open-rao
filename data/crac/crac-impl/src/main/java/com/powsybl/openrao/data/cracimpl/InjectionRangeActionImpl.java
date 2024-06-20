@@ -10,7 +10,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -30,9 +30,9 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     private final List<StandardRange> ranges;
     private final double initialSetpoint;
 
-    InjectionRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
+    InjectionRangeActionImpl(String id, String name, String operator, String groupId, Set<TriggerCondition> triggerConditions,
                              List<StandardRange> ranges, double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys, Integer speed) {
-        super(id, name, operator, usageRules, groupId, speed);
+        super(id, name, operator, triggerConditions, groupId, speed);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
         this.injectionDistributionKeys = injectionDistributionKeys;

@@ -8,10 +8,12 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.util.Optional;
 
@@ -22,10 +24,10 @@ public class TriggerConditionImpl implements TriggerCondition {
     private final Instant instant;
     private final Contingency contingency;
     private final Cnec<?> cnec;
-    private final String country;
+    private final Country country;
     private final UsageMethod usageMethod;
 
-    public TriggerConditionImpl(Instant instant, Contingency contingency, Cnec<?> cnec, String country, UsageMethod usageMethod) {
+    public TriggerConditionImpl(Instant instant, Contingency contingency, Cnec<?> cnec, Country country, UsageMethod usageMethod) {
         this.instant = instant;
         this.contingency = contingency;
         this.cnec = cnec;
@@ -49,13 +51,28 @@ public class TriggerConditionImpl implements TriggerCondition {
     }
 
     @Override
-    public Optional<String> getCountry() {
+    public Optional<Country> getCountry() {
         return country == null ? Optional.empty() : Optional.of(country);
     }
 
     @Override
     public UsageMethod getUsageMethod() {
         return usageMethod;
+    }
+
+    @Override
+    public UsageMethod getUsageMethod(State state) {
+        if (state.isPreventive()) {
+            return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
+        } else {
+            if (cnec == null) {
+                if (contingency == null) {
+                    return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
+                }
+                return state.getInstant().equals(instant) && state.getContingency().equals(Optional.ofNullable(contingency)) ? usageMethod : UsageMethod.UNDEFINED;
+            }
+            return state.getInstant().equals(instant) && state.equals(cnec.getState()) ? usageMethod : UsageMethod.UNDEFINED;
+        }
     }
 
     @Override
@@ -76,6 +93,10 @@ public class TriggerConditionImpl implements TriggerCondition {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return instant.hashCode() * 47
+            + (contingency == null ? 0 : contingency.hashCode() * 59)
+            + (cnec == null ? 0 : cnec.hashCode() * 19)
+            + (country == null ? 0 : country.hashCode() * 19)
+            + usageMethod.hashCode() * 19;
     }
 }

@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.OnConstraintAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public final class OnConstraintArrayDeserializer {
 
     public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, String version) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            OnConstraintAdder<?, ?> adder = ownerAdder.newOnConstraintUsageRule();
+            TriggerConditionAdder<?> adder = ownerAdder.newTriggerCondition();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
@@ -69,11 +69,11 @@ public final class OnConstraintArrayDeserializer {
         }
     }
 
-    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, OnConstraintAdder<?, ?> adder) throws IOException {
+    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, TriggerConditionAdder<?> adder) throws IOException {
         if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 4) {
             adder.withCnec(jsonParser.nextTextValue());
         } else {
-            throw new OpenRaoException("Unsupported field %s for OnConstraint usage rule in CRAC version >= 2.4".formatted(keyword));
+            throw new OpenRaoException("Unsupported field %s for TriggerCondition with CNEC in CRAC version >= 2.4".formatted(keyword));
         }
     }
 }

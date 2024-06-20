@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +57,7 @@ class PstRangeActionAdderImplTest {
                 .withMaxTap(10)
                 .withRangeType(RangeType.ABSOLUTE)
                 .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
                 .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
@@ -69,7 +69,7 @@ class PstRangeActionAdderImplTest {
         assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
-        assertEquals(1, pstRangeAction.getUsageRules().size());
+        assertEquals(1, pstRangeAction.getTriggerConditions().size());
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(networkElementId));
     }
@@ -86,7 +86,7 @@ class PstRangeActionAdderImplTest {
             .withMaxTap(10)
             .withRangeType(RangeType.ABSOLUTE)
             .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
             .withInstant(AUTO_INSTANT_ID)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -109,7 +109,7 @@ class PstRangeActionAdderImplTest {
                 .withMaxTap(10)
                 .withRangeType(RangeType.ABSOLUTE)
                 .add()
-                .newOnInstantUsageRule()
+                .newTriggerCondition()
                 .withInstant(AUTO_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
@@ -131,7 +131,7 @@ class PstRangeActionAdderImplTest {
                 .withMaxTap(10)
                 .withRangeType(RangeType.ABSOLUTE)
                 .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
                 .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
@@ -143,7 +143,7 @@ class PstRangeActionAdderImplTest {
         assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
-        assertEquals(1, pstRangeAction.getUsageRules().size());
+        assertEquals(1, pstRangeAction.getTriggerConditions().size());
     }
 
     @Test
@@ -167,7 +167,7 @@ class PstRangeActionAdderImplTest {
         assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(0, pstRangeAction.getRanges().size());
-        assertEquals(0, pstRangeAction.getUsageRules().size());
+        assertEquals(0, pstRangeAction.getTriggerConditions().size());
     }
 
     @Test
@@ -180,7 +180,7 @@ class PstRangeActionAdderImplTest {
                 .withMaxTap(10)
                 .withRangeType(RangeType.ABSOLUTE)
                 .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
                 .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
@@ -192,7 +192,7 @@ class PstRangeActionAdderImplTest {
         assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertNull(pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
-        assertEquals(1, pstRangeAction.getUsageRules().size());
+        assertEquals(1, pstRangeAction.getTriggerConditions().size());
     }
 
     @Test
@@ -312,7 +312,7 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .newTapRange()
             .withMinTap(-10).withMaxTap(10).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(-2)
             .withTapToAngleConversionMap(validTapToAngleConversionMap)
             .add();

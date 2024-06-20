@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -132,21 +132,21 @@ class AutomatonSimulatorTest {
             .withId("ra2")
             .withNetworkElement("ra2-ne")
             .withSpeed(2)
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ra3 = crac.newPstRangeAction()
             .withId("ra3")
             .withNetworkElement("ra3-ne")
             .withSpeed(4)
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ra4 = crac.newPstRangeAction()
             .withId("ra4")
             .withNetworkElement("ra4-ne")
             .withSpeed(4)
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 
@@ -156,7 +156,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group1")
             .withNetworkElement("BBE2AA11 BBE3AA11 1")
             .withSpeed(3)
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, 0.1, 1, 1.1, 2, 2.1, 3, 3.1, -1, -1.1, -2, -2.1, -3, -3.1))
             .add();
         ara2 = crac.newPstRangeAction()
@@ -164,7 +164,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group1")
             .withNetworkElement("FFR2AA11 FFR4AA11 1")
             .withSpeed(3)
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, 0.1, 1, 1.1, 2, 2.1, 3, 3.1, -1, -1.1, -2, -2.1, -3, -3.1))
             .add();
 
@@ -174,7 +174,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group2")
             .withNetworkElement("ra2-ne")
             .withSpeed(5)
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ara4 = crac.newHvdcRangeAction()
@@ -191,7 +191,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group3")
             .withNetworkElement("ra2-ne")
             .withSpeed(6)
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ara6 = crac.newPstRangeAction()
@@ -199,7 +199,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group3")
             .withNetworkElement("ra3-ne")
             .withSpeed(6)
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 
@@ -207,7 +207,7 @@ class AutomatonSimulatorTest {
         na = crac.newNetworkAction()
             .withId("na")
             .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("DDE3AA11 DDE4AA11 1").add()
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec2").withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withCnec("cnec2").withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
         // Add HVDC range actions
@@ -217,7 +217,7 @@ class AutomatonSimulatorTest {
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .withSpeed(1)
             .newRange().withMax(3000).withMin(-3000).add()
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         hvdcRa2 = crac.newHvdcRangeAction()
             .withId("hvdc-ra2")
@@ -225,7 +225,7 @@ class AutomatonSimulatorTest {
             .withNetworkElement("BBE2AA12 FFR3AA12 1")
             .withSpeed(1)
             .newRange().withMax(3000).withMin(-3000).add()
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
         autoState = crac.getState(contingency1, autoInstant);
@@ -388,7 +388,7 @@ class AutomatonSimulatorTest {
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .withSpeed(1)
             .newRange().withMax(1000).withMin(-1000).add()
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);

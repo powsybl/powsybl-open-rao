@@ -17,7 +17,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cse.*;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.*;
@@ -367,7 +367,7 @@ public class TRemedialActionAdder {
         }
 
         // RA is available for specific UCTE country
-        remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
+        remedialActionAdder.newTriggerCondition()
             .withInstant(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .withCountry(country)
@@ -376,7 +376,7 @@ public class TRemedialActionAdder {
 
     private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {
         // RA is available for all countries
-        remedialActionAdder.newOnInstantUsageRule()
+        remedialActionAdder.newTriggerCondition()
             .withInstant(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
@@ -387,7 +387,7 @@ public class TRemedialActionAdder {
             for (String flowCnecId : remedialActionsForCnecsMap.get(tRemedialAction.getName().getV())) {
                 // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
                 if (!crac.getFlowCnec(flowCnecId).getState().getInstant().comesBefore(raApplicationInstant)) {
-                    remedialActionAdder.newOnConstraintUsageRule()
+                    remedialActionAdder.newTriggerCondition()
                         .withInstant(raApplicationInstant.getId())
                         .withUsageMethod(UsageMethod.AVAILABLE)
                         .withCnec(flowCnecId)

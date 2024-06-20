@@ -15,8 +15,8 @@ import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.cracapi.range.*;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.BranchCnecCreationContext;
@@ -610,56 +610,65 @@ public class CracImportSteps {
             RemedialAction<?> remedialAction = crac.getRemedialAction(raId);
             assertNotNull(remedialAction);
             int number = Integer.parseInt(expectedUsageRule.get("UsageRules"));
-            assertEquals(number, remedialAction.getUsageRules().size());
+            assertEquals(number, remedialAction.getTriggerConditions().size());
             Instant instant = crac.getInstant(expectedUsageRule.get("Instant").toLowerCase());
             UsageMethod usageMethod = UsageMethod.valueOf(expectedUsageRule.get("Method").toUpperCase());
             switch (expectedUsageRule.get("Rule")) {
                 case "OnInstant":
-                    assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnInstant onInstant
-                            && onInstant.getUsageMethod().equals(usageMethod)
-                            && onInstant.getInstant().equals(instant)
+                    assertTrue(remedialAction.getTriggerConditions().stream().anyMatch(triggerCondition ->
+                        triggerCondition.getContingency().isEmpty()
+                            && triggerCondition.getCnec().isEmpty()
+                            && triggerCondition.getCountry().isEmpty()
+                            && triggerCondition.getUsageMethod().equals(usageMethod)
+                            && triggerCondition.getInstant().equals(instant)
                     ));
                     break;
                 case "OnContingencyState":
                     Contingency contingency = crac.getContingency(expectedUsageRule.get("ContingencyId"));
                     assertNotNull(contingency);
-                    assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnContingencyState onContingencyState
-                            && onContingencyState.getUsageMethod().equals(usageMethod)
-                            && onContingencyState.getInstant().equals(instant)
-                            && onContingencyState.getContingency().equals(contingency)
+                    assertTrue(remedialAction.getTriggerConditions().stream().anyMatch(triggerCondition ->
+                        triggerCondition.getContingency().isPresent()
+                            && triggerCondition.getCnec().isEmpty()
+                            && triggerCondition.getCountry().isEmpty()
+                            && triggerCondition.getContingency().get().equals(contingency)
+                            && triggerCondition.getUsageMethod().equals(usageMethod)
+                            && triggerCondition.getInstant().equals(instant)
                     ));
                     break;
                 case "OnFlowConstraint":
                     FlowCnec flowCnec = crac.getFlowCnec(expectedUsageRule.get("FlowCnecId"));
                     assertNotNull(flowCnec);
-                    assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnConstraint<?> onFlowConstraint
-                            && onFlowConstraint.getUsageMethod().equals(usageMethod)
-                            && onFlowConstraint.getInstant().equals(instant)
-                            && onFlowConstraint.getCnec().equals(flowCnec)
+                    assertTrue(remedialAction.getTriggerConditions().stream().anyMatch(triggerCondition ->
+                        triggerCondition.getContingency().isEmpty()
+                            && triggerCondition.getCnec().isPresent()
+                            && triggerCondition.getCountry().isEmpty()
+                            && triggerCondition.getCnec().get().equals(flowCnec)
+                            && triggerCondition.getUsageMethod().equals(usageMethod)
+                            && triggerCondition.getInstant().equals(instant)
                     ));
                     break;
                 case "OnFlowConstraintInCountry":
                     Country country = Country.valueOf(expectedUsageRule.get("Country"));
                     Optional<Contingency> optionalContingency = Optional.ofNullable(crac.getContingency(expectedUsageRule.get("ContingencyId")));
-                    assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
-                            && onFlowConstraintInCountry.getUsageMethod().equals(usageMethod)
-                            && onFlowConstraintInCountry.getInstant().equals(instant)
-                            && onFlowConstraintInCountry.getCountry().equals(country)
-                            && onFlowConstraintInCountry.getContingency().equals(optionalContingency)
+                    assertTrue(remedialAction.getTriggerConditions().stream().anyMatch(triggerCondition ->
+                        triggerCondition.getCnec().isEmpty()
+                            && triggerCondition.getCountry().isPresent()
+                            && triggerCondition.getContingency().equals(optionalContingency)
+                            && triggerCondition.getCountry().get().equals(country)
+                            && triggerCondition.getUsageMethod().equals(usageMethod)
+                            && triggerCondition.getInstant().equals(instant)
                     ));
                     break;
                 case "OnAngleConstraint":
                     AngleCnec angleCnec = crac.getAngleCnec(expectedUsageRule.get("AngleCnecId"));
                     assertNotNull(angleCnec);
-                    assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnConstraint<?> onAngleConstraint
-                            && onAngleConstraint.getUsageMethod().equals(usageMethod)
-                            && onAngleConstraint.getInstant().equals(instant)
-                            && onAngleConstraint.getCnec().equals(angleCnec)
+                    assertTrue(remedialAction.getTriggerConditions().stream().anyMatch(triggerCondition ->
+                        triggerCondition.getContingency().isEmpty()
+                            && triggerCondition.getCnec().isPresent()
+                            && triggerCondition.getCountry().isEmpty()
+                            && triggerCondition.getCnec().get().equals(angleCnec)
+                            && triggerCondition.getUsageMethod().equals(usageMethod)
+                            && triggerCondition.getInstant().equals(instant)
                     ));
                     break;
                 default:

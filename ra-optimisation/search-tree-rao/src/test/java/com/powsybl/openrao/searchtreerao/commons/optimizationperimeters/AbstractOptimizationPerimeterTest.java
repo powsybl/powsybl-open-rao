@@ -7,7 +7,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -108,25 +108,25 @@ abstract class AbstractOptimizationPerimeterTest {
         pRA = crac.newInjectionRangeAction().withId("preventive-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         cRA = crac.newInjectionRangeAction().withId("curative-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         // one preventive network action and one curative
         pNA = crac.newNetworkAction().withId("preventive-na")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
             .add();
 
         cNA = crac.newNetworkAction().withId("curative-na")
             .withName("complexNetworkActionName")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         pState = crac.getPreventiveState();

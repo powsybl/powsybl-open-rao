@@ -12,13 +12,13 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -93,12 +93,12 @@ public final class CracValidator {
     }
 
     private static boolean hasGlobalRemedialActions(State state, Crac crac) {
-        return hasOnInstantOrOnStateUsageRules(crac.getRangeActions(state, UsageMethod.FORCED)) ||
-            hasOnInstantOrOnStateUsageRules(crac.getNetworkActions(state, UsageMethod.FORCED));
+        return hasTriggerConditionOnInstantOrContingencyOnly(crac.getRangeActions(state, UsageMethod.FORCED)) ||
+            hasTriggerConditionOnInstantOrContingencyOnly(crac.getNetworkActions(state, UsageMethod.FORCED));
     }
 
-    private static <T extends RemedialAction<?>> boolean hasOnInstantOrOnStateUsageRules(Set<T> remedialActionSet) {
-        return remedialActionSet.stream().anyMatch(rangeAction -> rangeAction.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState));
+    private static <T extends RemedialAction<?>> boolean hasTriggerConditionOnInstantOrContingencyOnly(Set<T> remedialActionSet) {
+        return remedialActionSet.stream().anyMatch(rangeAction -> rangeAction.getTriggerConditions().stream().anyMatch(triggerCondition -> triggerCondition.getCnec().isEmpty() && triggerCondition.getCountry().isEmpty()));
     }
 
     private static void copyThresholds(FlowCnec cnec, FlowCnecAdder adder) {
@@ -136,21 +136,29 @@ public final class CracValidator {
     private static boolean shouldDuplicateAutoCnecInOutageState(Set<RemedialAction<?>> remedialActions, FlowCnec flowCnec, Network network) {
         boolean raForOtherCnecs = false;
         for (RemedialAction<?> remedialAction : remedialActions) {
-            for (UsageRule usageRule : remedialAction.getUsageRules()) {
-                if (usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(flowCnec.getState().getInstant())) {
+            // TODO: try to refactor this in a more elegant way
+            for (TriggerCondition triggerCondition : remedialAction.getTriggerConditions()) {
+                if (triggerCondition.getInstant().equals(flowCnec.getState().getInstant())
+                    && triggerCondition.getContingency().isEmpty()
+                    && triggerCondition.getCnec().isEmpty()
+                    && triggerCondition.getCountry().isEmpty()) {
                     return false;
-                } else if (usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getState().equals(flowCnec.getState())) {
+                } else if (triggerCondition.getInstant().equals(flowCnec.getState().getInstant())
+                    && triggerCondition.getContingency().isPresent()
+                    && triggerCondition.getContingency().equals(flowCnec.getState().getContingency())
+                    && triggerCondition.getCnec().isEmpty()
+                    && triggerCondition.getCountry().isEmpty()) {
                     return false;
-                } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec && onConstraint.getCnec().getState().equals(flowCnec.getState())) {
-                    if (onConstraint.getCnec().equals(flowCnec)) {
+                } else if (triggerCondition.getCnec().isPresent() && triggerCondition.getCnec().get() instanceof FlowCnec && triggerCondition.getCnec().get().getState().equals(flowCnec.getState())) {
+                    if (triggerCondition.getCnec().get().equals(flowCnec)) {
                         return false;
                     } else {
                         raForOtherCnecs = true;
                     }
-                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
-                    && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
-                    && (onFlowConstraintInCountry.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(onFlowConstraintInCountry.getContingency()))) {
-                    if (flowCnec.getLocation(network).contains(Optional.of(onFlowConstraintInCountry.getCountry()))) {
+                } else if (triggerCondition.getCountry().isPresent()
+                    && triggerCondition.getInstant().equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
+                    && (triggerCondition.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(triggerCondition.getContingency()))) {
+                    if (flowCnec.getLocation(network).contains(triggerCondition.getCountry())) {
                         return false;
                     } else {
                         raForOtherCnecs = true;

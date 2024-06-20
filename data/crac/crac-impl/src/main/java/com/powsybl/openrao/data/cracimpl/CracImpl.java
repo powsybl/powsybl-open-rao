@@ -14,8 +14,7 @@ import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -265,6 +264,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the Contingency is referenced in a Cnec
      */
     private boolean isContingencyUsedForCnecs(String contingencyId) {
+        // TODO: Previously looked for OnContingencyState urs, hence the cnec/country.isEmpty()
+        // TODO: would it make sense to only look at the contingency?
         return getCnecs().stream().anyMatch(cnec ->
             cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingencyId));
     }
@@ -275,8 +276,15 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the Contingency is referenced in a RemedialAction's UsageRule
      */
     private boolean isContingencyUsedForRemedialActions(String contingencyId) {
-        return getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).anyMatch(usageRule ->
-            usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getContingency().getId().equals(contingencyId));
+        return getRemedialActions().stream()
+            .map(RemedialAction::getTriggerConditions)
+            .flatMap(Set::stream)
+            // TODO: Previously looked for OnContingencyState urs, hence the cnec/country.isEmpty()
+            // TODO: would it make sense to only look at the contingency?
+            .anyMatch(triggerCondition -> triggerCondition.getContingency().isPresent()
+                && triggerCondition.getContingency().get().getId().equals(contingencyId)
+                && triggerCondition.getCnec().isEmpty()
+                && triggerCondition.getCountry().isEmpty());
     }
 
     //endregion
@@ -366,12 +374,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the State is referenced in a Cnec or a RemedialAction's UsageRule
      */
     private boolean isStateUsedWithinCrac(String stateId) {
+        // TODO: Previously looked for OnContingencyState urs, hence the cnec/country.isEmpty()
+        // TODO: would it make sense to only look at the contingency?
         return getCnecs().stream()
             .anyMatch(cnec -> cnec.getState().getId().equals(stateId))
                 || getRemedialActions().stream()
-                .map(RemedialAction::getUsageRules)
+                .map(RemedialAction::getTriggerConditions)
                 .flatMap(Set::stream)
-                .anyMatch(ur -> ur instanceof OnContingencyState onContingencyState && onContingencyState.getState().getId().equals(stateId));
+                .anyMatch(triggerCondition -> triggerCondition.getContingency().isPresent()
+                    && stateId.equals(getState(triggerCondition.getContingency().get(), triggerCondition.getInstant()).getId())
+                    && triggerCondition.getCnec().isEmpty()
+                    && triggerCondition.getCountry().isEmpty());
     }
 
     //endregion
@@ -613,9 +626,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     private Set<State> getAssociatedStates(RemedialAction<?> remedialAction) {
-        return remedialAction.getUsageRules().stream()
-                .filter(OnContingencyState.class::isInstance)
-                .map(ur -> ((OnContingencyState) ur).getState())
+        return remedialAction.getTriggerConditions().stream()
+                .filter(triggerCondition -> triggerCondition.getContingency().isPresent())
+                .filter(triggerCondition -> triggerCondition.getCnec().isEmpty())
+                .filter(triggerCondition -> triggerCondition.getCountry().isEmpty())
+                .map(triggerCondition -> getState(triggerCondition.getContingency().get(), triggerCondition.getInstant()))
                 .collect(Collectors.toSet());
     }
 

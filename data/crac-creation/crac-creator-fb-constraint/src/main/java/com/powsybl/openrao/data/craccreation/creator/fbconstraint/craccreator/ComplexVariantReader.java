@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 
 import java.util.*;
 
-import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.AVAILABLE;
+import static com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod.AVAILABLE;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
@@ -166,7 +166,7 @@ class ComplexVariantReader {
         ActionsSetType actionsSetType = complexVariant.getActionsSet().get(0);
 
         if (actionsSetType.isPreventive()) {
-            remedialActionAdder.newOnInstantUsageRule()
+            remedialActionAdder.newTriggerCondition()
                     .withInstant(crac.getPreventiveInstant().getId())
                     .withUsageMethod(AVAILABLE)
                     .add();
@@ -174,7 +174,7 @@ class ComplexVariantReader {
 
         if (actionsSetType.isCurative() && !Objects.isNull(afterCoList)) {
             for (String co : afterCoList) {
-                remedialActionAdder.newOnContingencyStateUsageRule()
+                remedialActionAdder.newTriggerCondition()
                         .withContingency(co)
                         .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
                         .withUsageMethod(AVAILABLE)

@@ -8,12 +8,13 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.util.Optional;
 
@@ -27,7 +28,7 @@ public class TriggerConditionAdderImpl<T extends AbstractRemedialActionAdder<T>>
     private String instantId;
     private String contingencyId;
     private String cnecId;
-    private String country;
+    private Country country;
     private UsageMethod usageMethod;
     private static final String TRIGGER_CONDITION = "TriggerCondition";
 
@@ -48,7 +49,7 @@ public class TriggerConditionAdderImpl<T extends AbstractRemedialActionAdder<T>>
     }
 
     @Override
-    public TriggerConditionAdder<T> withCountry(String country) {
+    public TriggerConditionAdder<T> withCountry(Country country) {
         this.country = country;
         return this;
     }
@@ -74,8 +75,10 @@ public class TriggerConditionAdderImpl<T extends AbstractRemedialActionAdder<T>>
         Contingency contingency = getContingencyInCrac();
         Cnec<?> cnec = getCnecInCrac();
 
-        checkInstantCoherence(instant, contingency);
+        checkInstantCoherence(instant, contingency, cnec);
         checkCnecCoherence(cnec, contingency, country);
+
+        addState(instant, contingency, cnec);
 
         TriggerCondition triggerCondition = new TriggerConditionImpl(instant, contingency, cnec, country, usageMethod);
         owner.addTriggerCondition(triggerCondition);
@@ -104,19 +107,20 @@ public class TriggerConditionAdderImpl<T extends AbstractRemedialActionAdder<T>>
         return cnec;
     }
 
-    private void checkInstantCoherence(Instant instant, Contingency contingency) {
+    private void checkInstantCoherence(Instant instant, Contingency contingency, Cnec<?> cnec) {
         if (instant.isOutage()) {
             throw new OpenRaoException("TriggerConditions are not allowed for OUTAGE instant.");
         }
-        if (instant.isPreventive()) {
-            if (contingency != null) {
-                throw new OpenRaoException("Preventive TriggerConditions are not allowed after a contingency.");
-            }
-            owner.getCrac().addPreventiveState();
+        if (instant.isPreventive() && contingency != null && usageMethod != UsageMethod.FORCED && country == null) {
+            throw new OpenRaoException("Preventive TriggerConditions are not allowed after a contingency, except when FORCED.");
+
+        }
+        if (cnec != null && cnec.getState().getInstant().comesBefore(instant)) {
+            throw new OpenRaoException(String.format("Remedial actions available at instant '%s' on a CNEC constraint at instant '%s' are not allowed.", instant, cnec.getState().getInstant()));
         }
     }
 
-    private void checkCnecCoherence(Cnec<?> cnec, Contingency contingency, String country) {
+    private void checkCnecCoherence(Cnec<?> cnec, Contingency contingency, Country country) {
         if (cnec == null) {
             return;
         }
@@ -125,6 +129,14 @@ public class TriggerConditionAdderImpl<T extends AbstractRemedialActionAdder<T>>
         }
         if (country != null) {
             throw new OpenRaoException("A country and a cnec cannot be provided simultaneously.");
+        }
+    }
+
+    private void addState(Instant instant, Contingency contingency, Cnec<?> cnec) {
+        if (instant.isPreventive()) {
+            owner.getCrac().addPreventiveState();
+        } else if (contingency != null && cnec == null && country == null) {
+            owner.getCrac().addState(contingency, instant);
         }
     }
 }

@@ -11,7 +11,7 @@ import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,27 +41,27 @@ class NetworkActionCombinationTest {
             .withId("topological-action-1")
             .withOperator("operator-1")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         networkAction2 = crac.newNetworkAction()
             .withId("topological-action-2")
             .withOperator("operator-2")
             .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         networkAction3 = crac.newNetworkAction()
             .withId("pst-setpoint")
             .withOperator("operator-2")
             .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         networkAction4 = crac.newNetworkAction()
             .withId("no-operator")
             .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
     }
 

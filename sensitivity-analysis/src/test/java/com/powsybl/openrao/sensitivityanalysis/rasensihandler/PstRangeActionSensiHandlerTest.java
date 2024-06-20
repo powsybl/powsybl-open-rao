@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
@@ -58,7 +58,7 @@ class PstRangeActionSensiHandlerTest {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("pstOnBranch")
                 .withNetworkElement("BBE1AA1  BB23AA1  1")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newTriggerCondition().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
@@ -76,7 +76,7 @@ class PstRangeActionSensiHandlerTest {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("pstOnNonExistingElement")
                 .withNetworkElement("unknown")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newTriggerCondition().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())

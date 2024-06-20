@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -23,7 +24,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -215,7 +216,7 @@ class TriggerConditionAdderImplTest {
     void testCountry() {
         RemedialAction<?> remedialAction = remedialActionAdder.newTriggerCondition()
             .withInstant(CURATIVE_INSTANT_ID)
-            .withCountry("country")
+            .withCountry(Country.FR)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -225,7 +226,7 @@ class TriggerConditionAdderImplTest {
         assertTrue(triggerCondition.getContingency().isEmpty());
         assertTrue(triggerCondition.getCnec().isEmpty());
         assertTrue(triggerCondition.getCountry().isPresent());
-        assertEquals("country", triggerCondition.getCountry().get());
+        assertEquals(Country.FR, triggerCondition.getCountry().get());
         assertEquals(UsageMethod.AVAILABLE, triggerCondition.getUsageMethod());
     }
 
@@ -294,7 +295,7 @@ class TriggerConditionAdderImplTest {
         RemedialAction<?> remedialAction = remedialActionAdder.newTriggerCondition()
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("Contingency FR1 FR3")
-            .withCountry("country")
+            .withCountry(Country.FR)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -305,7 +306,7 @@ class TriggerConditionAdderImplTest {
         assertEquals(contingencyFr1Fr3, triggerCondition.getContingency().get());
         assertTrue(triggerCondition.getCnec().isEmpty());
         assertTrue(triggerCondition.getCountry().isPresent());
-        assertEquals("country", triggerCondition.getCountry().get());
+        assertEquals(Country.FR, triggerCondition.getCountry().get());
         assertEquals(UsageMethod.AVAILABLE, triggerCondition.getUsageMethod());
     }
 
@@ -330,9 +331,9 @@ class TriggerConditionAdderImplTest {
         TriggerConditionAdder<NetworkActionAdder> adder = remedialActionAdder.newTriggerCondition()
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withContingency("Contingency FR1 FR3")
-            .withUsageMethod(UsageMethod.FORCED);
+            .withUsageMethod(UsageMethod.AVAILABLE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("Preventive TriggerConditions are not allowed after a contingency.", exception.getMessage());
+        assertEquals("Preventive TriggerConditions are not allowed after a contingency, except when FORCED.", exception.getMessage());
     }
 
     @Test
@@ -360,7 +361,7 @@ class TriggerConditionAdderImplTest {
         TriggerConditionAdder<NetworkActionAdder> adder = remedialActionAdder.newTriggerCondition()
             .withInstant(CURATIVE_INSTANT_ID)
             .withCnec("flowCnec2stateCurativeContingency1")
-            .withCountry("country")
+            .withCountry(Country.FR)
             .withUsageMethod(UsageMethod.AVAILABLE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("A country and a cnec cannot be provided simultaneously.", exception.getMessage());

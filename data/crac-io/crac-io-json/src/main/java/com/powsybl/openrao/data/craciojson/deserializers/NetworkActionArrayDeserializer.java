@@ -42,6 +42,10 @@ public final class NetworkActionArrayDeserializer {
                     case OPERATOR:
                         networkActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
+                    case TRIGGER_CONDITIONS:
+                        jsonParser.nextToken();
+                        TriggerConditionDeserializer.deserialize(jsonParser, networkActionAdder);
+                        break;
                     case ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
                         OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);

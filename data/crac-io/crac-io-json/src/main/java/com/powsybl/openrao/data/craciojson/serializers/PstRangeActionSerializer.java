@@ -28,7 +28,7 @@ public class PstRangeActionSerializer extends AbstractJsonSerializer<PstRangeAct
         gen.writeStringField(ID, value.getId());
         gen.writeStringField(NAME, value.getName());
         gen.writeStringField(OPERATOR, value.getOperator());
-        UsageRulesSerializer.serializeUsageRules(value, gen);
+        serializeTriggerConditions(value, TRIGGER_CONDITIONS, gen);
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
         Optional<String> groupId = value.getGroupId();
         if (groupId.isPresent()) {

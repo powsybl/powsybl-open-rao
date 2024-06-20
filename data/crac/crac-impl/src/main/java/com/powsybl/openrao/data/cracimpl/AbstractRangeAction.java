@@ -7,9 +7,8 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,8 +19,8 @@ public abstract class AbstractRangeAction<T extends RangeAction<T>> extends Abst
 
     protected String groupId = null;
 
-    AbstractRangeAction(String id, String name, String operator, Set<UsageRule> usageRules, String groupId, Integer speed) {
-        super(id, name, operator, usageRules, speed, new HashSet<>());
+    AbstractRangeAction(String id, String name, String operator, Set<TriggerCondition> triggerConditions, String groupId, Integer speed) {
+        super(id, name, triggerConditions, operator, speed);
         this.groupId = groupId;
     }
 

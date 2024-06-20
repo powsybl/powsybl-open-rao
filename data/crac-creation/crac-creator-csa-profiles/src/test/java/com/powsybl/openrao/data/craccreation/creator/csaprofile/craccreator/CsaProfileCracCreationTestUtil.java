@@ -21,7 +21,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
@@ -141,11 +141,11 @@ public final class CsaProfileCracCreationTestUtil {
         assertNotNull(cracCreationContext.getCrac().getPstRangeAction(id));
         String actualNetworkElement = cracCreationContext.getCrac().getPstRangeAction(id).getNetworkElement().toString();
         assertEquals(networkElement, actualNetworkElement);
-        assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getPstRangeAction(id).getUsageRules().size());
+        assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getPstRangeAction(id).getTriggerConditions().size());
         assertEquals(expectedOperator, cracCreationContext.getCrac().getPstRangeAction(id).getOperator());
     }
 
-    public static void assertNetworkActionImported(CsaProfileCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfUsageRules, String expectedOperator) {
+    public static void assertNetworkActionImported(CsaProfileCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfTriggerConditions, String expectedOperator) {
         CsaProfileElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(csaProfileElementaryCreationContext);
         assertTrue(csaProfileElementaryCreationContext.isImported());
@@ -153,44 +153,42 @@ public final class CsaProfileCracCreationTestUtil {
         assertNotNull(cracCreationContext.getCrac().getNetworkAction(id));
         Set<String> actualNetworkElements = cracCreationContext.getCrac().getNetworkAction(id).getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
         assertEquals(networkElements, actualNetworkElements);
-        assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getNetworkAction(id).getUsageRules().size());
+        assertEquals(numberOfTriggerConditions, cracCreationContext.getCrac().getNetworkAction(id).getTriggerConditions().size());
         assertEquals(expectedOperator, cracCreationContext.getCrac().getNetworkAction(id).getOperator());
     }
 
-    public static void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, Instant instant, UsageMethod usageMethod) {
+    // TODO: mutualize methods
+    public static void assertHasOnInstantTriggerCondition(CsaProfileCracCreationContext cracCreationContext, String raId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnInstant.class::isInstance)
-                .map(OnInstant.class::cast)
-                .anyMatch(ur -> ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getTriggerConditions().stream().filter(tc -> tc.getContingency().isEmpty() && tc.getCnec().isEmpty() && tc.getCountry().isEmpty())
+                .anyMatch(tc -> tc.getInstant().equals(instant) && tc.getUsageMethod().equals(usageMethod))
         );
     }
 
-    public static void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String instant, UsageMethod usageMethod) {
-        assertHasOnInstantUsageRule(cracCreationContext, raId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
+    public static void assertHasOnInstantTriggerCondition(CsaProfileCracCreationContext cracCreationContext, String raId, String instant, UsageMethod usageMethod) {
+        assertHasOnInstantTriggerCondition(cracCreationContext, raId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
     }
 
-    public static void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, Instant instant, UsageMethod usageMethod) {
+    public static void assertHasOnContingencyStateTriggerCondition(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, Instant instant, UsageMethod usageMethod) {
         assertTrue(
-            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnContingencyState.class::isInstance)
-                .map(OnContingencyState.class::cast)
-                .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getTriggerConditions().stream().filter(tc -> tc.getContingency().isPresent() && tc.getCnec().isEmpty() && tc.getCountry().isEmpty())
+                .anyMatch(tc -> tc.getContingency().get().getId().equals(contingencyId) && tc.getInstant().equals(instant) && tc.getUsageMethod().equals(usageMethod))
         );
     }
 
-    public static void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, String instant, UsageMethod usageMethod) {
-        assertHasOnContingencyStateUsageRule(cracCreationContext, raId, contingencyId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
+    public static void assertHasOnContingencyStateTriggerCondition(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, String instant, UsageMethod usageMethod) {
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, raId, contingencyId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
     }
 
-    public static void assertHasOnConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String cnecId, Instant instant, UsageMethod usageMethod, Class<? extends Cnec<?>> cnecType) {
+    public static void assertHasOnConstraintTriggerCondition(CsaProfileCracCreationContext cracCreationContext, String raId, String cnecId, Instant instant, UsageMethod usageMethod, Class<? extends Cnec<?>> cnecType) {
         assertTrue(
-            cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnConstraint.class::isInstance)
-                .map(OnConstraint.class::cast)
-                .anyMatch(ur -> ur.getCnec().getId().equals(cnecId) && cnecType.isInstance(ur.getCnec()) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+            cracCreationContext.getCrac().getRemedialAction(raId).getTriggerConditions().stream().filter(tc -> tc.getContingency().isEmpty() && tc.getCnec().isPresent() && tc.getCountry().isEmpty())
+                .anyMatch(tc -> tc.getCnec().get().getId().equals(cnecId) && cnecType.isInstance(tc.getCnec().get()) && tc.getInstant().equals(instant) && tc.getUsageMethod().equals(usageMethod))
         );
     }
 
-    public static void assertHasOnConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, String instant, UsageMethod usageMethod, Class<? extends Cnec<?>> cnecType) {
-        assertHasOnConstraintUsageRule(cracCreationContext, raId, flowCnecId, cracCreationContext.getCrac().getInstant(instant), usageMethod, cnecType);
+    public static void assertHasOnConstraintTriggerCondition(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, String instant, UsageMethod usageMethod, Class<? extends Cnec<?>> cnecType) {
+        assertHasOnConstraintTriggerCondition(cracCreationContext, raId, flowCnecId, cracCreationContext.getCrac().getInstant(instant), usageMethod, cnecType);
     }
 
     public static void assertRaNotImported(CsaProfileCracCreationContext cracCreationContext, String raId, ImportStatus importStatus, String importStatusDetail) {

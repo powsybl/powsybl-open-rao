@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -19,9 +20,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
-import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -196,7 +196,7 @@ class RaoUtilTest {
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         // Asserts that the method returns True when given an empty set
@@ -204,7 +204,7 @@ class RaoUtilTest {
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(flowCnec.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCnec(flowCnec.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
@@ -226,34 +226,42 @@ class RaoUtilTest {
         // asserts that a preventive remedial action with forced usage rule cannot be available
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         assertFalse(isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // asserts that a remedial action with no usage rule cannot be available
         NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
         when(networkActionWhithoutUsageRule.getName()).thenReturn("ra without usage rule");
-        when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(Set.of());
+        when(networkActionWhithoutUsageRule.getTriggerConditions()).thenReturn(Set.of());
         assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // mock AUTO state for the next assertions
         NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
         when(automatonRa.getName()).thenReturn("fake automaton");
-        OnInstant onInstant = Mockito.mock(OnInstant.class);
-        OnConstraint<FlowCnec> onFlowConstraint = Mockito.mock(OnConstraint.class);
+        TriggerCondition onInstant = Mockito.mock(TriggerCondition.class);
+        TriggerCondition onFlowConstraint = Mockito.mock(TriggerCondition.class);
+        when(onFlowConstraint.getInstant()).thenReturn(crac.getInstant(AUTO_INSTANT_ID));
+        Contingency contingency = Mockito.mock(Contingency.class);
+        when(onFlowConstraint.getContingency()).thenReturn(Optional.of(contingency));
         State automatonState = Mockito.mock(State.class);
         when(automatonState.getInstant()).thenReturn(crac.getInstant(AUTO_INSTANT_ID));
         when(automatonState.getId()).thenReturn("fake automaton state");
+        when(automatonState.getContingency()).thenReturn(Optional.of(contingency));
+        FlowCnec autoFlowCnec = Mockito.mock(FlowCnec.class);
+        when(autoFlowCnec.getState()).thenReturn(automatonState);
+        when(onFlowConstraint.getCnec()).thenReturn(Optional.of(autoFlowCnec));
 
         // remedial action with OnInstant Usage Rule
-        when(automatonRa.getUsageRules()).thenReturn(Set.of(onInstant));
+        when(automatonRa.getTriggerConditions()).thenReturn(Set.of(onInstant));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
         assertTrue(isRemedialActionForced(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
         assertTrue(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // remedial action with OnFlowConstraint Usage Rule
-        when(automatonRa.getUsageRules()).thenReturn(Set.of(onFlowConstraint));
+        // todo: mock content of trigger condition
+        when(automatonRa.getTriggerConditions()).thenReturn(Set.of(onFlowConstraint));
         when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
         assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
         when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
@@ -273,17 +281,17 @@ class RaoUtilTest {
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.DE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.DE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         when(flowResult.getMargin(any(), any())).thenReturn(100.);
@@ -329,7 +337,7 @@ class RaoUtilTest {
 
         RemedialAction<?> na = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         // cnecCont1 is after same contingency as usage rule, not cnecCont2
@@ -346,7 +354,7 @@ class RaoUtilTest {
     }
 
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
-        assertEquals(available, isRemedialActionAvailable(ra, optimizedState, flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
+        assertEquals(available, isRemedialActionAvailable(ra, optimizedState, flowResult, ra.getFlowCnecsConstrainingTriggerConditions(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
     }
 
     @Test

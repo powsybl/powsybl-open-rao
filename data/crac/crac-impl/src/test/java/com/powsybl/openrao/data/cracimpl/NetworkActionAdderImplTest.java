@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +56,7 @@ class NetworkActionAdderImplTest {
                 .withNetworkElement("pstNetworkElementId")
                 .withSetpoint(6)
                 .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
                 .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
@@ -66,7 +66,7 @@ class NetworkActionAdderImplTest {
         assertEquals("networkActionName", networkAction.getName());
         assertEquals("operator", networkAction.getOperator());
         assertEquals(1, networkAction.getElementaryActions().size());
-        assertEquals(1, networkAction.getUsageRules().size());
+        assertEquals(1, networkAction.getTriggerConditions().size());
         assertEquals(1, crac.getNetworkActions().size());
     }
 
@@ -90,7 +90,7 @@ class NetworkActionAdderImplTest {
         assertEquals("networkActionName", networkAction.getName());
         assertEquals("operator", networkAction.getOperator());
         assertEquals(2, networkAction.getElementaryActions().size());
-        assertEquals(0, networkAction.getUsageRules().size());
+        assertEquals(0, networkAction.getTriggerConditions().size());
         assertEquals(1, crac.getNetworkActions().size());
     }
 
@@ -104,11 +104,11 @@ class NetworkActionAdderImplTest {
                 .withNetworkElement("pstNetworkElementId")
                 .withSetpoint(6)
                 .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
                 .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
-            .newOnContingencyStateUsageRule()
+            .newTriggerCondition()
                 .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("contingencyId")
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -119,7 +119,7 @@ class NetworkActionAdderImplTest {
         assertEquals("networkActionName", networkAction.getName());
         assertEquals("operator", networkAction.getOperator());
         assertEquals(1, networkAction.getElementaryActions().size());
-        assertEquals(2, networkAction.getUsageRules().size());
+        assertEquals(2, networkAction.getTriggerConditions().size());
         assertEquals(1, crac.getNetworkActions().size());
     }
 

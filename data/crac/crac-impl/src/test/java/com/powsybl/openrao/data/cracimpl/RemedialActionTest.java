@@ -7,19 +7,19 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,8 +32,8 @@ class RemedialActionTest {
     @Test
     void testNoUsageRulesShouldReturnUndefined() {
         State state = Mockito.mock(State.class);
-        Set<UsageRule> usageRules = Collections.emptySet();
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, new HashSet<>());
+        Set<TriggerCondition> usageRules = Collections.emptySet();
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(state));
     }
 
@@ -42,8 +42,8 @@ class RemedialActionTest {
         State state = Mockito.mock(State.class);
         Instant instant = Mockito.mock(Instant.class);
         Mockito.doReturn(instant).when(state).getInstant();
-        Set<UsageRule> usageRules = Set.of(new OnInstantImpl(UsageMethod.AVAILABLE, instant));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, new HashSet<>());
+        Set<TriggerCondition> usageRules = Set.of(new TriggerConditionImpl(instant, null, null, null, UsageMethod.AVAILABLE));
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.AVAILABLE, ra.getUsageMethod(state));
     }
 
@@ -52,10 +52,10 @@ class RemedialActionTest {
         State state = Mockito.mock(State.class);
         Instant instant = Mockito.mock(Instant.class);
         Mockito.doReturn(instant).when(state).getInstant();
-        Set<UsageRule> usageRules = Set.of(
-            new OnInstantImpl(UsageMethod.AVAILABLE, instant),
-            new OnFlowConstraintInCountryImpl(UsageMethod.FORCED, instant, Optional.empty(), Country.FR));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, new HashSet<>());
+        Set<TriggerCondition> usageRules = Set.of(
+            new TriggerConditionImpl(instant, null, null, null, UsageMethod.AVAILABLE),
+            new TriggerConditionImpl(instant, null, null, Country.FR, UsageMethod.FORCED));
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
     }
 
@@ -65,8 +65,10 @@ class RemedialActionTest {
         Instant instant = Mockito.mock(Instant.class);
         Mockito.doReturn(false).when(instant).isPreventive();
         Mockito.doReturn(instant).when(state).getInstant();
-        Set<UsageRule> usageRules = Set.of(new OnContingencyStateImpl(UsageMethod.AVAILABLE, state));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, new HashSet<>());
+        Contingency contingency = Mockito.mock(Contingency.class);
+        Mockito.when(state.getContingency()).thenReturn(Optional.of(contingency));
+        Set<TriggerCondition> usageRules = Set.of(new TriggerConditionImpl(state.getInstant(), state.getContingency().get(), null, null, UsageMethod.AVAILABLE));
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.AVAILABLE, ra.getUsageMethod(state));
     }
 
@@ -76,14 +78,16 @@ class RemedialActionTest {
         Instant instant = Mockito.mock(Instant.class);
         Mockito.doReturn(false).when(instant).isPreventive();
         Mockito.doReturn(instant).when(state).getInstant();
+        Contingency contingency = Mockito.mock(Contingency.class);
+        Mockito.when(state.getContingency()).thenReturn(Optional.of(contingency));
 
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         Mockito.doReturn(state).when(flowCnec).getState();
 
-        Set<UsageRule> usageRules = Set.of(
-            new OnContingencyStateImpl(UsageMethod.AVAILABLE, state),
-            new OnConstraintImpl<>(UsageMethod.FORCED, instant, flowCnec));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, new HashSet<>());
+        Set<TriggerCondition> usageRules = Set.of(
+            new TriggerConditionImpl(state.getInstant(), state.getContingency().get(), null, null, UsageMethod.AVAILABLE),
+            new TriggerConditionImpl(instant, null, flowCnec, null, UsageMethod.FORCED));
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
     }
 
@@ -93,16 +97,19 @@ class RemedialActionTest {
         Instant instant = Mockito.mock(Instant.class);
         Mockito.doReturn(false).when(instant).isPreventive();
         Mockito.doReturn(instant).when(state).getInstant();
+        Contingency contingency = Mockito.mock(Contingency.class);
+        Mockito.when(state.getContingency()).thenReturn(Optional.of(contingency));
 
-        Set<UsageRule> usageRules = Set.of(
-            new OnContingencyStateImpl(UsageMethod.AVAILABLE, state),
-            new OnInstantImpl(UsageMethod.FORCED, instant));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, new HashSet<>());
+        Set<TriggerCondition> usageRules = Set.of(
+            new TriggerConditionImpl(state.getInstant(), state.getContingency().get(), null, null, UsageMethod.AVAILABLE),
+            new TriggerConditionImpl(instant, null, null, null, UsageMethod.FORCED));
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
     }
 
     @Test
     void testDifferentInstantsBetweenOnFlowConstraintUsageRuleAndCnec() {
+        Contingency contingency = Mockito.mock(Contingency.class);
         Instant autoInstant = Mockito.mock(Instant.class);
         Mockito.when(autoInstant.isPreventive()).thenReturn(false);
         Instant curativeInstant = Mockito.mock(Instant.class);
@@ -110,26 +117,29 @@ class RemedialActionTest {
 
         State autoState = Mockito.mock(State.class);
         Mockito.when(autoState.getInstant()).thenReturn(autoInstant);
+        Mockito.when(autoState.getContingency()).thenReturn(Optional.of(contingency));
         State curativeState = Mockito.mock(State.class);
         Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
+        Mockito.when(curativeState.getContingency()).thenReturn(Optional.of(contingency));
 
         FlowCnec autoFlowCnec = Mockito.mock(FlowCnec.class);
         Mockito.when(autoFlowCnec.getState()).thenReturn(autoState);
         FlowCnec curativeFlowCnec = Mockito.mock(FlowCnec.class);
         Mockito.when(curativeFlowCnec.getState()).thenReturn(curativeState);
 
-        Set<UsageRule> usageRules = Set.of(
-            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, autoFlowCnec),
-            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, curativeFlowCnec)
+        Set<TriggerCondition> usageRules = Set.of(
+            new TriggerConditionImpl(autoInstant, null, autoFlowCnec, null, UsageMethod.FORCED),
+            new TriggerConditionImpl(autoInstant, null, curativeFlowCnec, null, UsageMethod.FORCED)
         );
 
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, new HashSet<>());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
         assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
     }
 
     @Test
     void testDifferentInstantsBetweenOnAngleConstraintUsageRuleAndCnec() {
+        Contingency contingency = Mockito.mock(Contingency.class);
         Instant autoInstant = Mockito.mock(Instant.class);
         Mockito.when(autoInstant.isPreventive()).thenReturn(false);
         Instant curativeInstant = Mockito.mock(Instant.class);
@@ -137,26 +147,29 @@ class RemedialActionTest {
 
         State autoState = Mockito.mock(State.class);
         Mockito.when(autoState.getInstant()).thenReturn(autoInstant);
+        Mockito.when(autoState.getContingency()).thenReturn(Optional.of(contingency));
         State curativeState = Mockito.mock(State.class);
         Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
+        Mockito.when(curativeState.getContingency()).thenReturn(Optional.of(contingency));
 
         AngleCnec autoAngleCnec = Mockito.mock(AngleCnec.class);
         Mockito.when(autoAngleCnec.getState()).thenReturn(autoState);
         AngleCnec curativeAngleCnec = Mockito.mock(AngleCnec.class);
         Mockito.when(curativeAngleCnec.getState()).thenReturn(curativeState);
 
-        Set<UsageRule> usageRules = Set.of(
-            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, autoAngleCnec),
-            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, curativeAngleCnec)
+        Set<TriggerCondition> usageRules = Set.of(
+            new TriggerConditionImpl(autoInstant, null, autoAngleCnec, null, UsageMethod.FORCED),
+            new TriggerConditionImpl(autoInstant, null, curativeAngleCnec, null, UsageMethod.FORCED)
         );
 
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, new HashSet<>());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
         assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
     }
 
     @Test
     void testDifferentInstantsBetweenOnVoltageConstraintUsageRuleAndCnec() {
+        Contingency contingency = Mockito.mock(Contingency.class);
         Instant autoInstant = Mockito.mock(Instant.class);
         Mockito.when(autoInstant.isPreventive()).thenReturn(false);
         Instant curativeInstant = Mockito.mock(Instant.class);
@@ -164,20 +177,22 @@ class RemedialActionTest {
 
         State autoState = Mockito.mock(State.class);
         Mockito.when(autoState.getInstant()).thenReturn(autoInstant);
+        Mockito.when(autoState.getContingency()).thenReturn(Optional.of(contingency));
         State curativeState = Mockito.mock(State.class);
         Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
+        Mockito.when(curativeState.getContingency()).thenReturn(Optional.of(contingency));
 
         VoltageCnec autoVoltageCnec = Mockito.mock(VoltageCnec.class);
         Mockito.when(autoVoltageCnec.getState()).thenReturn(autoState);
         VoltageCnec curativeVoltageCnec = Mockito.mock(VoltageCnec.class);
         Mockito.when(curativeVoltageCnec.getState()).thenReturn(curativeState);
 
-        Set<UsageRule> usageRules = Set.of(
-            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, autoVoltageCnec),
-            new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, curativeVoltageCnec)
+        Set<TriggerCondition> usageRules = Set.of(
+            new TriggerConditionImpl(autoInstant, null, autoVoltageCnec, null, UsageMethod.FORCED),
+            new TriggerConditionImpl(autoInstant, null, curativeVoltageCnec, null, UsageMethod.FORCED)
         );
 
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, new HashSet<>());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0);
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
         assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
     }

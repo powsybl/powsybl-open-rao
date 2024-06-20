@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
 
 import java.util.*;
 
@@ -24,7 +23,6 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
 
     protected String operator;
     protected Integer speed;
-    protected Set<UsageRule> usageRules = new HashSet<>();
     protected Set<TriggerCondition> triggerConditions = new HashSet<>();
     private final CracImpl crac;
 
@@ -43,30 +41,6 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     public T withSpeed(Integer speed) {
         this.speed = speed;
         return (T) this;
-    }
-
-    @Override
-    public OnInstantAdder<T> newOnInstantUsageRule() {
-        return new OnInstantAdderImpl(this);
-    }
-
-    @Override
-    public OnContingencyStateAdder<T> newOnContingencyStateUsageRule() {
-        return new OnContingencyStateAdderImpl(this);
-    }
-
-    @Override
-    public OnConstraintAdder<T, ?> newOnConstraintUsageRule() {
-        return new OnConstraintAdderImpl(this);
-    }
-
-    @Override
-    public OnFlowConstraintInCountryAdder<T> newOnFlowConstraintInCountryUsageRule() {
-        return new OnFlowConstraintInCountryAdderImpl(this);
-    }
-
-    void addUsageRule(UsageRule usageRule) {
-        this.usageRules.add(usageRule);
     }
 
     void addTriggerCondition(TriggerCondition triggerCondition) {

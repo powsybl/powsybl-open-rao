@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitr at rte-france.com>}
  */
-public class AbsRemedialActionTest {
+class AbsRemedialActionTest {
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Network network;
@@ -38,21 +38,21 @@ public class AbsRemedialActionTest {
     }
 
     @Test
-    public void testGetFlowCnecsConstrainingForOneUsageRule() {
+    void testGetFlowCnecsConstrainingForOneUsageRule() {
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         assertEquals(Set.of(crac.getCnec("cnec1stateCurativeContingency1"), crac.getCnec("cnec1stateCurativeContingency2")),
-            na1.getFlowCnecsConstrainingForOneUsageRule(na1.getUsageRules().iterator().next(), crac.getFlowCnecs(), network));
+            na1.getFlowCnecsConstrainingForOneTriggerCondition(na1.getTriggerConditions().iterator().next(), crac.getFlowCnecs(), network));
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         assertEquals(Set.of(crac.getCnec("cnec1stateCurativeContingency1"), crac.getCnec("cnec2stateCurativeContingency1")),
-            na2.getFlowCnecsConstrainingForOneUsageRule(na2.getUsageRules().iterator().next(), crac.getFlowCnecs(), network));
+            na2.getFlowCnecsConstrainingForOneTriggerCondition(na2.getTriggerConditions().iterator().next(), crac.getFlowCnecs(), network));
     }
 }

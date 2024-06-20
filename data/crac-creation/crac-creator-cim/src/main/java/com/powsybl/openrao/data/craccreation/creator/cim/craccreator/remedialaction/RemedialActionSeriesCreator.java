@@ -11,8 +11,8 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraintInCountryAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
@@ -448,7 +448,7 @@ public class RemedialActionSeriesCreator {
     }
 
     private static void addOnInstantUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
-        adder.newOnInstantUsageRule()
+        adder.newTriggerCondition()
             .withInstant(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
@@ -456,7 +456,7 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
         contingencies.forEach(contingency ->
-            adder.newOnContingencyStateUsageRule()
+            adder.newTriggerCondition()
                 .withInstant(raApplicationInstant.getId())
                 .withUsageMethod(usageMethod)
                 .withContingency(contingency.getId())
@@ -471,7 +471,7 @@ public class RemedialActionSeriesCreator {
         if (flowCnec.getState().getInstant().comesBefore(instant)) {
             return;
         }
-        adder.newOnConstraintUsageRule()
+        adder.newTriggerCondition()
             .withCnec(flowCnec.getId())
             .withUsageMethod(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(instant.getId())
@@ -479,7 +479,7 @@ public class RemedialActionSeriesCreator {
     }
 
     private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, Instant instant) {
-        adder.newOnConstraintUsageRule()
+        adder.newTriggerCondition()
             .withCnec(angleCnec.getId())
             .withUsageMethod(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(instant.getId())
@@ -487,8 +487,8 @@ public class RemedialActionSeriesCreator {
     }
 
     private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, Country sharedDomain, Instant instant, UsageMethod usageMethod) {
-        OnFlowConstraintInCountryAdder<?> onFlowConstraintInCountryAdder = remedialActionAdder
-            .newOnFlowConstraintInCountryUsageRule()
+        TriggerConditionAdder<?> onFlowConstraintInCountryAdder = remedialActionAdder
+            .newTriggerCondition()
             .withInstant(instant.getId())
             .withCountry(sharedDomain)
             .withUsageMethod(usageMethod);

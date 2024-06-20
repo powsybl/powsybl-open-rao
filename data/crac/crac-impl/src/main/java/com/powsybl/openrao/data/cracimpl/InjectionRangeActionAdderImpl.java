@@ -62,12 +62,12 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         assertAttributeNotEmpty(ranges, INJECTION_RANGE_ACTION, "range", "newRange()");
 
         // check usage rules
-        if (usageRules.isEmpty()) {
-            BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
+        if (triggerConditions.isEmpty()) {
+            BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any trigger condition, by default it will never be available", id);
         }
 
         Map<NetworkElement, Double> neAndDk = addNetworkElements();
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed);
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.triggerConditions, this.ranges, this.initialSetpoint, neAndDk, speed);
         this.getCrac().addInjectionRangeAction(injectionRangeAction);
         return injectionRangeAction;
     }

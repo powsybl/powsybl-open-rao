@@ -28,7 +28,7 @@ public final class StandardRangeActionSerializer {
         gen.writeStringField(ID, value.getId());
         gen.writeStringField(NAME, value.getName());
         gen.writeStringField(OPERATOR, value.getOperator());
-        UsageRulesSerializer.serializeUsageRules(value, gen);
+        serializeTriggerConditions(value, TRIGGER_CONDITIONS, gen);
         serializeGroupId(value, gen);
         gen.writeNumberField(INITIAL_SETPOINT, value.getInitialSetpoint());
         serializeRanges(value, gen);

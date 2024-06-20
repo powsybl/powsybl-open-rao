@@ -14,7 +14,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCreationParameters;
@@ -167,7 +168,7 @@ class CseCracCreatorTest {
         //range from network
         assertEquals(-500, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMin(), 1e-1);
         assertEquals(800, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMax(), 1e-1);
-        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().iterator().next().getUsageMethod().toString());
+        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getTriggerConditions().iterator().next().getUsageMethod().toString());
         assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().size());
         assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("BBE2AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
         assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("FFR3AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
@@ -184,7 +185,7 @@ class CseCracCreatorTest {
         assertEquals("FR", importedCrac.getInjectionRangeAction("PRA_HVDC").getOperator());
         assertEquals(2000, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMax(), 1e-1);
         assertEquals(-100, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
-        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().iterator().next().getUsageMethod().toString());
+        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getTriggerConditions().iterator().next().getUsageMethod().toString());
     }
 
     @Test
@@ -328,36 +329,36 @@ class CseCracCreatorTest {
 
         // PRA
         RemedialAction<?> ra = importedCrac.getRangeAction("PST_pra_3_BBE2AA1  BBE3AA1  1");
-        assertEquals(2, ra.getUsageRules().size());
-        List<UsageRule> usageRuleList = ra.getUsageRules().stream().toList();
+        assertEquals(2, ra.getTriggerConditions().size());
+        List<TriggerCondition> triggerConditionList = ra.getTriggerConditions().stream().toList();
 
-        UsageRule usageRule1 = usageRuleList.get(0);
-        UsageRule usageRule2 = usageRuleList.get(1);
-        assertTrue(usageRule1 instanceof OnConstraint<?>);
-        assertTrue(usageRule2 instanceof OnConstraint<?>);
-        assertEquals(preventiveInstant, usageRule1.getInstant());
-        assertEquals(preventiveInstant, usageRule2.getInstant());
-        assertTrue(((OnConstraint<?>) usageRule1).getCnec().equals(outageCnec) || ((OnConstraint<?>) usageRule2).getCnec().equals(outageCnec));
-        assertTrue(((OnConstraint<?>) usageRule1).getCnec().equals(curativeCnec) || ((OnConstraint<?>) usageRule2).getCnec().equals(curativeCnec));
-        System.out.println(usageRule1.getUsageMethod(preventiveState));
-        System.out.println(usageRule2.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.AVAILABLE, usageRule2.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule2.getUsageMethod(outageState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(curativeState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule2.getUsageMethod(curativeState));
+        TriggerCondition triggerCondition1 = triggerConditionList.get(0);
+        TriggerCondition triggerCondition2 = triggerConditionList.get(1);
+        assertTrue(triggerCondition1.getContingency().isEmpty() && triggerCondition1.getCnec().isPresent() && triggerCondition1.getCountry().isEmpty());
+        assertTrue(triggerCondition2.getContingency().isEmpty() && triggerCondition2.getCnec().isPresent() && triggerCondition2.getCountry().isEmpty());
+        assertEquals(preventiveInstant, triggerCondition1.getInstant());
+        assertEquals(preventiveInstant, triggerCondition2.getInstant());
+        assertTrue(triggerCondition1.getCnec().get().equals(outageCnec) || triggerCondition2.getCnec().get().equals(outageCnec));
+        assertTrue(triggerCondition1.getCnec().get().equals(curativeCnec) || triggerCondition2.getCnec().get().equals(curativeCnec));
+        System.out.println(triggerCondition1.getUsageMethod(preventiveState));
+        System.out.println(triggerCondition2.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, triggerCondition1.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, triggerCondition2.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.UNDEFINED, triggerCondition1.getUsageMethod(outageState));
+        assertEquals(UsageMethod.UNDEFINED, triggerCondition2.getUsageMethod(outageState));
+        assertEquals(UsageMethod.UNDEFINED, triggerCondition1.getUsageMethod(curativeState));
+        assertEquals(UsageMethod.UNDEFINED, triggerCondition2.getUsageMethod(curativeState));
 
         // CRA
         ra = importedCrac.getNetworkAction("cra_1");
-        assertEquals(1, ra.getUsageRules().size());
-        usageRule1 = ra.getUsageRules().iterator().next();
-        assertTrue(usageRule1 instanceof OnConstraint<?>);
-        assertSame(curativeCnec, ((OnConstraint<?>) usageRule1).getCnec());
-        assertEquals(curativeInstant, usageRule1.getInstant());
-        assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));
-        assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod(curativeState));
+        assertEquals(1, ra.getTriggerConditions().size());
+        triggerCondition1 = ra.getTriggerConditions().iterator().next();
+        assertTrue(triggerCondition1.getContingency().isEmpty() && triggerCondition1.getCnec().isPresent() && triggerCondition1.getCountry().isEmpty());
+        assertSame(curativeCnec, triggerCondition1.getCnec().get());
+        assertEquals(curativeInstant, triggerCondition1.getInstant());
+        assertEquals(UsageMethod.UNDEFINED, triggerCondition1.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.UNDEFINED, triggerCondition1.getUsageMethod(outageState));
+        assertEquals(UsageMethod.AVAILABLE, triggerCondition1.getUsageMethod(curativeState));
     }
 
     @Test
@@ -439,41 +440,41 @@ class CseCracCreatorTest {
 
         // cra_1
         RemedialAction<?> cra1 = importedCrac.getNetworkAction("cra_1");
-        assertEquals(1, cra1.getUsageRules().size()); // one OnConstraint on CNEC 1
-        Iterator<UsageRule> iterator1 = cra1.getUsageRules().iterator();
-        UsageRule crac1UsageRule0 = iterator1.next();
-        assertTrue(crac1UsageRule0 instanceof OnConstraint<?>);
+        assertEquals(1, cra1.getTriggerConditions().size()); // one OnConstraint on CNEC 1
+        Iterator<TriggerCondition> iterator1 = cra1.getTriggerConditions().iterator();
+        TriggerCondition crac1TriggerCondition0 = iterator1.next();
+        assertTrue(crac1TriggerCondition0.getContingency().isEmpty() && crac1TriggerCondition0.getCnec().isPresent() && crac1TriggerCondition0.getCountry().isEmpty());
         // cra_2
         RemedialAction<?> cra2 = importedCrac.getNetworkAction("cra_2");
-        assertEquals(2, cra2.getUsageRules().size()); // one OnInstant, one OnConstraint on CNEC 1
-        List<UsageRule> usageRules2List = cra2.getUsageRules().stream().sorted(Comparator.comparing(ur -> ur.getClass().getName())).toList();
-        assertTrue(usageRules2List.get(0) instanceof OnConstraint<?>);
-        assertTrue(usageRules2List.get(1) instanceof OnInstant);
+        assertEquals(2, cra2.getTriggerConditions().size()); // one OnInstant, one OnConstraint on CNEC 1
+        List<TriggerCondition> triggerConditions2List = cra2.getTriggerConditions().stream().sorted(Comparator.comparing(tc -> tc.getCnec().isPresent() ? tc.getCnec().get().getId() : "")).toList();
+        assertTrue(triggerConditions2List.get(0).getContingency().isEmpty() && triggerConditions2List.get(0).getCnec().isEmpty() && triggerConditions2List.get(0).getCountry().isEmpty());
+        assertTrue(triggerConditions2List.get(1).getContingency().isEmpty() && triggerConditions2List.get(1).getCnec().isPresent() && triggerConditions2List.get(1).getCountry().isEmpty());
         // cra_3
         RemedialAction<?> cra3 = importedCrac.getNetworkAction("cra_3");
-        assertEquals(2, cra3.getUsageRules().size()); // 1 OnConstraint on CNEC 1 and 1 on country FR
-        List<UsageRule> usageRules3List = cra3.getUsageRules().stream().sorted(Comparator.comparing(ur -> ur.getClass().getName())).toList();
-        assertTrue(usageRules3List.get(0) instanceof OnConstraint<?>);
-        assertTrue(usageRules3List.get(1) instanceof OnFlowConstraintInCountry);
-        assertEquals(Country.FR, ((OnFlowConstraintInCountry) usageRules3List.get(1)).getCountry());
+        assertEquals(2, cra3.getTriggerConditions().size()); // 1 OnConstraint on CNEC 1 and 1 on country FR
+        List<TriggerCondition> triggerConditions3List = cra3.getTriggerConditions().stream().sorted(Comparator.comparing(tc -> tc.getCountry().isPresent() ? tc.getCountry().get().toString() : "")).toList();
+        assertTrue(triggerConditions3List.get(0).getContingency().isEmpty() && triggerConditions3List.get(0).getCnec().isPresent() && triggerConditions3List.get(0).getCountry().isEmpty());
+        assertTrue(triggerConditions3List.get(1).getCountry().isPresent());
+        assertEquals(Country.FR, triggerConditions3List.get(1).getCountry().get());
         // cra_4
         RemedialAction<?> cra4 = importedCrac.getNetworkAction("cra_4");
-        assertEquals(1, cra4.getUsageRules().size()); // on country NL
-        Iterator<UsageRule> iterator4 = cra4.getUsageRules().iterator();
-        UsageRule crac4UsageRule0 = iterator4.next();
-        assertTrue(crac4UsageRule0 instanceof OnFlowConstraintInCountry);
-        assertEquals(curativeInstant, crac4UsageRule0.getInstant());
-        assertEquals(Country.NL, ((OnFlowConstraintInCountry) crac4UsageRule0).getCountry());
+        assertEquals(1, cra4.getTriggerConditions().size()); // on country NL
+        Iterator<TriggerCondition> iterator4 = cra4.getTriggerConditions().iterator();
+        TriggerCondition crac4TriggerCondition0 = iterator4.next();
+        assertTrue(crac4TriggerCondition0.getCountry().isPresent());
+        assertEquals(curativeInstant, crac4TriggerCondition0.getInstant());
+        assertEquals(Country.NL, crac4TriggerCondition0.getCountry().get());
         // cra_5
         RemedialAction<?> cra5 = importedCrac.getNetworkAction("cra_5");
-        assertEquals(1, cra5.getUsageRules().size()); // on country FR
-        Iterator<UsageRule> iterator5 = cra5.getUsageRules().iterator();
-        UsageRule crac5UsageRule0 = iterator5.next();
-        assertTrue(crac5UsageRule0 instanceof OnFlowConstraintInCountry);
-        assertEquals(curativeInstant, crac5UsageRule0.getInstant());
-        assertEquals(Country.FR, ((OnFlowConstraintInCountry) crac5UsageRule0).getCountry());
+        assertEquals(1, cra5.getTriggerConditions().size()); // on country FR
+        Iterator<TriggerCondition> iterator5 = cra5.getTriggerConditions().iterator();
+        TriggerCondition crac5TriggerCondition0 = iterator5.next();
+        assertTrue(crac5TriggerCondition0.getCountry().isPresent());
+        assertEquals(curativeInstant, crac5TriggerCondition0.getInstant());
+        assertEquals(Country.FR, crac5TriggerCondition0.getCountry().get());
         // cra_6
-        assertTrue(importedCrac.getNetworkAction("cra_6").getUsageRules().isEmpty());
+        assertTrue(importedCrac.getNetworkAction("cra_6").getTriggerConditions().isEmpty());
     }
 
     @Test

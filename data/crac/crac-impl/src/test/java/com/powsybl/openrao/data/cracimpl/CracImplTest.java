@@ -25,15 +25,14 @@ import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -267,15 +266,15 @@ class CracImplTest {
                 .withId("ra")
                 .withOperator("operator")
                 .newPstSetPoint().withNetworkElement("anyPst").withSetpoint(8).add()
-                .newOnContingencyStateUsageRule()
+                .newTriggerCondition()
                 .withContingency("co1")
                 .withInstant(AUTO_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
-                .newOnContingencyStateUsageRule()
+                .newTriggerCondition()
                 .withContingency("co2")
                 .withInstant(CURATIVE_INSTANT_ID)
-                .withUsageMethod(FORCED)
+                .withUsageMethod(UsageMethod.FORCED)
                 .add()
                 .add();
 
@@ -352,7 +351,7 @@ class CracImplTest {
                 .withId("na")
                 .withOperator("operator")
                 .newTopologicalAction().withNetworkElement("anyNetworkElement").withActionType(ActionType.CLOSE).add()
-                .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("co1").withUsageMethod(AVAILABLE).add()
+                .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withContingency("co1").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         assertEquals(1, crac.getContingencies().size());
@@ -575,28 +574,28 @@ class CracImplTest {
         RemedialAction<?> ra1 = crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         RemedialAction<?> ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         RemedialAction<?> ra3 = crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         RemedialAction<?> ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -604,11 +603,11 @@ class CracImplTest {
         State state1 = crac.getState("co1", curativeInstant);
         State state2 = crac.getState("co2", curativeInstant);
 
-        assertEquals(0, crac.getRangeActions(state1, FORCED).size());
+        assertEquals(0, crac.getRangeActions(state1, UsageMethod.FORCED).size());
         assertEquals(2, crac.getRangeActions(state1, UsageMethod.AVAILABLE).size());
         assertTrue(crac.getRangeActions(state1, UsageMethod.AVAILABLE).containsAll(Set.of(ra1, ra3)));
-        assertEquals(2, crac.getRangeActions(state2, FORCED).size());
-        assertTrue(crac.getRangeActions(state2, FORCED).containsAll(Set.of(ra2, ra4)));
+        assertEquals(2, crac.getRangeActions(state2, UsageMethod.FORCED).size());
+        assertTrue(crac.getRangeActions(state2, UsageMethod.FORCED).containsAll(Set.of(ra2, ra4)));
 
         assertEquals(4, crac.getPstRangeActions().size());
         assertEquals(4, crac.getRangeActions().size());
@@ -651,36 +650,36 @@ class CracImplTest {
         RemedialAction<?> ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         RemedialAction<?> ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         RemedialAction<?> ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         RemedialAction<?> ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
         State state1 = crac.getState("co1", curativeInstant);
         State state2 = crac.getState("co2", curativeInstant);
 
-        assertEquals(0, crac.getRangeActions(state1, FORCED).size());
+        assertEquals(0, crac.getRangeActions(state1, UsageMethod.FORCED).size());
         assertEquals(2, crac.getRangeActions(state1, UsageMethod.AVAILABLE).size());
         assertTrue(crac.getRangeActions(state1, UsageMethod.AVAILABLE).containsAll(Set.of(ra1, ra3)));
-        assertEquals(2, crac.getRangeActions(state2, FORCED).size());
-        assertTrue(crac.getRangeActions(state2, FORCED).containsAll(Set.of(ra2, ra4)));
+        assertEquals(2, crac.getRangeActions(state2, UsageMethod.FORCED).size());
+        assertTrue(crac.getRangeActions(state2, UsageMethod.FORCED).containsAll(Set.of(ra2, ra4)));
 
         assertEquals(4, crac.getHvdcRangeActions().size());
         assertEquals(4, crac.getRangeActions().size());
@@ -722,28 +721,28 @@ class CracImplTest {
         RemedialAction<?> ra1 = crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         RemedialAction<?> ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         RemedialAction<?> ra3 = crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         RemedialAction<?> ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -751,12 +750,12 @@ class CracImplTest {
         State state1 = crac.getState("co1", curativeInstant);
         State state2 = crac.getState("co2", curativeInstant);
 
-        assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
-        assertEquals(Set.of(ra3), crac.getRangeActions(state2, AVAILABLE));
-        assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED));
-        assertEquals(Set.of(ra4), crac.getRangeActions(state2, FORCED));
-        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, AVAILABLE, FORCED));
-        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, AVAILABLE, FORCED));
+        assertEquals(Set.of(ra1), crac.getRangeActions(state1, UsageMethod.AVAILABLE));
+        assertEquals(Set.of(ra3), crac.getRangeActions(state2, UsageMethod.AVAILABLE));
+        assertEquals(Set.of(ra2), crac.getRangeActions(state1, UsageMethod.FORCED));
+        assertEquals(Set.of(ra4), crac.getRangeActions(state2, UsageMethod.FORCED));
+        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, UsageMethod.AVAILABLE, UsageMethod.FORCED));
+        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, UsageMethod.AVAILABLE, UsageMethod.FORCED));
     }
 
     @Test
@@ -767,37 +766,37 @@ class CracImplTest {
         RemedialAction<?> ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         RemedialAction<?> ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         RemedialAction<?> ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         RemedialAction<?> ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newTriggerCondition().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
         State state1 = crac.getState("co1", curativeInstant);
         State state2 = crac.getState("co2", curativeInstant);
 
-        assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
-        assertEquals(Set.of(ra3), crac.getRangeActions(state2, AVAILABLE));
-        assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED));
-        assertEquals(Set.of(ra4), crac.getRangeActions(state2, FORCED));
-        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, AVAILABLE, FORCED));
-        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, AVAILABLE, FORCED));
+        assertEquals(Set.of(ra1), crac.getRangeActions(state1, UsageMethod.AVAILABLE));
+        assertEquals(Set.of(ra3), crac.getRangeActions(state2, UsageMethod.AVAILABLE));
+        assertEquals(Set.of(ra2), crac.getRangeActions(state1, UsageMethod.FORCED));
+        assertEquals(Set.of(ra4), crac.getRangeActions(state2, UsageMethod.FORCED));
+        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, UsageMethod.AVAILABLE, UsageMethod.FORCED));
+        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, UsageMethod.AVAILABLE, UsageMethod.FORCED));
     }
 
     @Test
@@ -806,9 +805,9 @@ class CracImplTest {
         Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(getRandomTypeContingencyElement("neCo")));
         crac.addContingency(contingency1);
         State state1 = crac.addState(contingency1, curativeInstant);
-        UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
+        TriggerCondition tc1 = new TriggerConditionImpl(state1.getInstant(), state1.getContingency().get(), null, null, UsageMethod.AVAILABLE);
         State state2 = crac.addState(contingency1, outageInstant);
-        UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
+        TriggerCondition tc2 = new TriggerConditionImpl(state2.getInstant(), state2.getContingency().get(), null, null, UsageMethod.FORCED);
 
         NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
         NetworkElement ne2 = crac.addNetworkElement("ne2", "ne2");
@@ -816,19 +815,19 @@ class CracImplTest {
         ElementaryAction ea1 = new TopologicalActionImpl(ne1, ActionType.OPEN);
         ElementaryAction ea2 = new TopologicalActionImpl(ne2, ActionType.CLOSE);
 
-        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(ur1), Collections.singleton(ea1), 10, new HashSet<>());
+        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(tc1), Collections.singleton(ea1), 10);
         crac.addNetworkAction(ra1);
-        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(ur2), Collections.singleton(ea1), 10, new HashSet<>());
+        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(tc2), Collections.singleton(ea1), 10);
         crac.addNetworkAction(ra2);
-        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(ur1), Collections.singleton(ea2), 10, new HashSet<>());
+        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(tc1), Collections.singleton(ea2), 10);
         crac.addNetworkAction(ra3);
-        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(ur2), Collections.singleton(ea2), 10, new HashSet<>());
+        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(tc2), Collections.singleton(ea2), 10);
         crac.addNetworkAction(ra4);
 
-        assertTrue(crac.getNetworkActions(state1, FORCED).isEmpty());
-        assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, AVAILABLE));
-        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED));
-        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED, AVAILABLE));
+        assertTrue(crac.getNetworkActions(state1, UsageMethod.FORCED).isEmpty());
+        assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, UsageMethod.AVAILABLE));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, UsageMethod.FORCED));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, UsageMethod.FORCED, UsageMethod.AVAILABLE));
 
         assertEquals(4, crac.getNetworkActions().size());
         assertEquals(4, crac.getRemedialActions().size());
@@ -866,10 +865,10 @@ class CracImplTest {
         Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(getRandomTypeContingencyElement("neCo")));
         crac.addContingency(contingency1);
         State state1 = crac.addState(contingency1, curativeInstant);
-        UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
+        TriggerCondition tc1 = new TriggerConditionImpl(state1.getInstant(), state1.getContingency().get(), null, null, UsageMethod.AVAILABLE);
         State state2 = crac.addState(contingency1, outageInstant);
-        UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
-        UsageRule ur3 = new OnContingencyStateImpl(FORCED, state1);
+        TriggerCondition tc2 = new TriggerConditionImpl(state2.getInstant(), state2.getContingency().get(), null, null, UsageMethod.FORCED);
+        TriggerCondition tc3 = new TriggerConditionImpl(state1.getInstant(), state1.getContingency().get(), null, null, UsageMethod.FORCED);
 
         NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
         NetworkElement ne2 = crac.addNetworkElement("ne2", "ne2");
@@ -877,21 +876,21 @@ class CracImplTest {
         ElementaryAction ea1 = new TopologicalActionImpl(ne1, ActionType.OPEN);
         ElementaryAction ea2 = new TopologicalActionImpl(ne2, ActionType.CLOSE);
 
-        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(ur1), Collections.singleton(ea1), 10, new HashSet<>());
+        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", Set.of(tc1), Collections.singleton(ea1), 10);
         crac.addNetworkAction(ra1);
-        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(ur2), Collections.singleton(ea1), 10, new HashSet<>());
+        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", Set.of(tc2), Collections.singleton(ea1), 10);
         crac.addNetworkAction(ra2);
-        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(ur3), Collections.singleton(ea2), 10, new HashSet<>());
+        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", Set.of(tc3), Collections.singleton(ea2), 10);
         crac.addNetworkAction(ra3);
-        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(ur2), Collections.singleton(ea2), 10, new HashSet<>());
+        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", Set.of(tc2), Collections.singleton(ea2), 10);
         crac.addNetworkAction(ra4);
 
-        assertEquals(Set.of(ra1), crac.getNetworkActions(state1, AVAILABLE));
-        assertEquals(Set.of(), crac.getNetworkActions(state2, AVAILABLE));
-        assertEquals(Set.of(ra3), crac.getNetworkActions(state1, FORCED));
-        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED));
-        assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, AVAILABLE, FORCED));
-        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, AVAILABLE, FORCED));
+        assertEquals(Set.of(ra1), crac.getNetworkActions(state1, UsageMethod.AVAILABLE));
+        assertEquals(Set.of(), crac.getNetworkActions(state2, UsageMethod.AVAILABLE));
+        assertEquals(Set.of(ra3), crac.getNetworkActions(state1, UsageMethod.FORCED));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, UsageMethod.FORCED));
+        assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, UsageMethod.AVAILABLE, UsageMethod.FORCED));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, UsageMethod.AVAILABLE, UsageMethod.FORCED));
     }
 
     @Test
