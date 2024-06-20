@@ -105,7 +105,7 @@ public class CastorOneStateOnly {
             SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
                     .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
                     .withTreeParameters(treeParameters)
-                    .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
+                    .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
                     .build();
             SearchTreeInput searchTreeInput = SearchTreeInput.create()
                     .withNetwork(raoInput.getNetwork())

@@ -37,7 +37,6 @@ rao-second-preventive-rao:
 
 rao-not-optimized-cnecs:
   do-not-optimize-curative-cnecs-for-tsos-without-cras: false
-  do-not-optimize-cnec-secured-by-its-pst: [ "{cnecId1}:{pstId1}", "{cnecId2}:{pstId2}" ]
 
 rao-load-flow-and-sensitivity-computation:
   load-flow-provider: LOADFLOW_PROVIDER
