@@ -62,6 +62,9 @@ public class TriggerConditionImpl implements TriggerCondition {
 
     @Override
     public UsageMethod getUsageMethod(State state) {
+        if (state == null) {
+            return UsageMethod.UNDEFINED;
+        }
         if (state.isPreventive()) {
             return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
         } else {

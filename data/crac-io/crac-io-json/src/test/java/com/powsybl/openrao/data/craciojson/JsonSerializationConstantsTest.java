@@ -128,47 +128,47 @@ class JsonSerializationConstantsTest {
 
         TriggerCondition availableCo1 = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, null);
         TriggerCondition forcedCo1 = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co1", null, null, null, null);
-        TriggerCondition availableCo2 = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, null);
+        TriggerCondition availableCo2 = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co2", null, null, null, null);
         TriggerCondition forcedCo2 = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co2", null, null, null, null);
-
-        TriggerCondition availableFrPrev = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, Country.FR);
-        TriggerCondition forcedFrPrev = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, null, null, null, Country.FR);
-        TriggerCondition availableFrCur = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, null, null, null, Country.FR);
-        TriggerCondition forcedFrCur = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, null, null, null, Country.FR);
-        TriggerCondition availableBePrev = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, null, Country.BE);
-        TriggerCondition forcedBePrev = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, null, null, null, Country.BE);
-        TriggerCondition availableBeCur = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, null, null, null, Country.BE);
-        TriggerCondition forcedBeCur = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, null, null, null, Country.BE);
 
         TriggerCondition availableCo1Fr = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, Country.FR);
         TriggerCondition forcedCo1Fr = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co1", null, null, null, Country.FR);
-        TriggerCondition availableCo2Fr = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, Country.FR);
-        TriggerCondition forcedCo2Fr = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co2", null, null, null, Country.FR);
         TriggerCondition availableCo1Be = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, Country.BE);
-        TriggerCondition forcedCo1Be = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co1", null, null, null, Country.BE);
-        TriggerCondition availableCo2Be = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co1", null, null, null, Country.BE);
+        TriggerCondition availableCo2Be = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, "co2", null, null, null, Country.BE);
         TriggerCondition forcedCo2Be = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, "co2", null, null, null, Country.BE);
 
-        TriggerCondition availablePrevFlow = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, "flowCnec", null, null, null);
-        TriggerCondition forcedPrevFlow = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, "flowCnec", null, null, null);
         TriggerCondition availableCurFlow = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, "flowCnec", null, null, null);
         TriggerCondition forcedCurFlow = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, "flowCnec", null, null, null);
         TriggerCondition availablePrevAngle = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, null, "angleCnec", null, null);
         TriggerCondition forcedPrevAngle = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, null, "angleCnec", null, null);
         TriggerCondition availableCurAngle = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, null, "angleCnec", null, null);
-        TriggerCondition forcedCurAngle = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, null, "angleCnec", null, null);
         TriggerCondition availablePrevVoltage = mockTriggerCondition(preventiveInstant, UsageMethod.AVAILABLE, null, null, null, "voltageCnec", null);
-        TriggerCondition forcedPrevVoltage = mockTriggerCondition(preventiveInstant, UsageMethod.FORCED, null, null, null, "voltageCnec", null);
-        TriggerCondition availableCurVoltage = mockTriggerCondition(curativeInstant, UsageMethod.AVAILABLE, null, null, null, "voltageCnec", null);
         TriggerCondition forcedCurVoltage = mockTriggerCondition(curativeInstant, UsageMethod.FORCED, null, null, null, "voltageCnec", null);
 
         TriggerConditionComparator comparator = new TriggerConditionComparator();
 
+        // instant only trigger conditions
         assertEquals(0, comparator.compare(availablePrev, availablePrev));
+        assertEquals(1, comparator.compare(forcedPrev, availablePrev));
         assertEquals(-1, comparator.compare(availablePrev, availableCur));
-        assertEquals(-1, comparator.compare(availableCur, availableCo1));
+        assertEquals(-1, comparator.compare(forcedPrev, forcedCur));
 
-        // TODO: complete with more exhaustive cases
+        // trigger conditions with contingencies
+        assertEquals(-1, comparator.compare(availableCur, availableCo1));
+        assertEquals(1, comparator.compare(forcedCo1, availableCo1));
+        assertEquals(1, comparator.compare(availableCo2, availableCo1));
+        assertEquals(0, comparator.compare(forcedCo2, forcedCo2));
+
+        // trigger conditions with countries
+        assertEquals(1, comparator.compare(availableCo1Fr, availableCo1Be));
+        assertEquals(-1, comparator.compare(availableCo2Be, forcedCo2Be));
+        assertEquals(0, comparator.compare(forcedCo1Fr, forcedCo1Fr));
+
+        // trigger conditions with CNECs
+        assertEquals(1, comparator.compare(availableCurFlow, availableCurAngle));
+        assertEquals(-1, comparator.compare(availablePrevVoltage, forcedCurFlow));
+        assertEquals(0, comparator.compare(forcedCurVoltage, forcedCurVoltage));
+        assertEquals(-1, comparator.compare(availablePrevAngle, forcedPrevAngle));
     }
 
     @Test

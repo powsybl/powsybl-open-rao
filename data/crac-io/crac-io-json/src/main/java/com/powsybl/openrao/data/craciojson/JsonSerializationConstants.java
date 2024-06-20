@@ -8,14 +8,10 @@
 package com.powsybl.openrao.data.craciojson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -31,7 +27,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -464,83 +459,25 @@ public final class JsonSerializationConstants {
     public static class TriggerConditionComparator implements Comparator<TriggerCondition> {
         @Override
         public int compare(TriggerCondition tc1, TriggerCondition tc2) {
-            // if different instants, sorted on instants' order
-            int compareInstants = compareInstants(tc1.getInstant(), tc2.getInstant());
-            if (compareInstants != 0) {
-                return compareInstants;
-            }
-
-            // same instant
-
-            int compareUsageMethods = compareUsageMethods(tc1.getUsageMethod(), tc2.getUsageMethod());
-            int compareContingencies = compareContingencies(tc1.getContingency(), tc2.getContingency());
-
-            if (tc1.getCnec().isEmpty() && tc1.getCountry().isEmpty() && tc2.getCnec().isEmpty() && tc2.getCountry().isEmpty()) {
-                // if different contingencies, sorted on contingency id; if same contingency, sorted on usage method
-                return compareContingencies == 0 ? compareUsageMethods : compareContingencies;
-            }
-
-            if (tc1.getCnec().isEmpty() && tc2.getCnec().isEmpty()) {
-                int compareCountries = compareCountries(tc1.getCountry(), tc2.getCountry());
-                if (tc1.getContingency().isEmpty() && tc2.getContingency().isEmpty()) {
-                    // no contingencies => sorted on country
-                    return compareCountries == 0 ? compareUsageMethods : compareCountries;
-                } else if (tc1.getContingency().isPresent() && tc2.getContingency().isPresent()) {
-                    if (compareContingencies == 0) {
-                        // if same contingency and same country, sorted on usage method; if only same contingency, sorted on countries
-                        return compareCountries == 0 ? compareUsageMethods : compareCountries;
+            if (tc1.getInstant().equals(tc2.getInstant())) {
+                if (tc1.getContingency().isEmpty() && tc2.getContingency().isEmpty() || tc1.getContingency().isPresent() && tc2.getContingency().isPresent() && tc1.getContingency().get().getId().equals(tc2.getContingency().get().getId())) {
+                    if (tc1.getCountry().equals(tc2.getCountry())) {
+                        if (tc1.getCnec().isEmpty() && tc2.getCnec().isEmpty() || tc1.getCnec().isPresent() && tc2.getCnec().isPresent() && tc1.getCnec().get().getId().equals(tc2.getCnec().get().getId())) {
+                            return (int) Math.signum(tc1.getUsageMethod().toString().compareTo(tc2.getUsageMethod().toString()));
+                        }
+                        String cnec1Id = tc1.getCnec().isPresent() ? tc1.getCnec().get().getId() : "";
+                        String cnec2Id = tc2.getCnec().isPresent() ? tc2.getCnec().get().getId() : "";
+                        return (int) Math.signum(cnec1Id.compareTo(cnec2Id));
                     }
-                    // if different contingencies, sorted on contingency id
-                    return compareContingencies;
-                } else {
-                    return tc1.getContingency().isPresent() ? 1 : -1;
+                    String country1 = tc1.getCountry().isPresent() ? tc1.getCountry().get().toString() : "";
+                    String country2 = tc2.getCountry().isPresent() ? tc2.getCountry().get().toString() : "";
+                    return (int) Math.signum(country1.compareTo(country2));
                 }
+                String contingency1Id = tc1.getContingency().isPresent() ? tc1.getContingency().get().getId() : "";
+                String contingency2Id = tc2.getContingency().isPresent() ? tc2.getContingency().get().getId() : "";
+                return (int) Math.signum(contingency1Id.compareTo(contingency2Id));
             }
-
-            // if different cnecs, sorted on cnecs id; if cnec contingency, sorted on usage method
-            int compareCnecs = compareCnecs(tc1.getCnec(), tc2.getCnec());
-            return compareCnecs == 0 ? compareUsageMethods : compareCnecs;
-        }
-
-        private static int compareUsageMethods(UsageMethod usageMethod1, UsageMethod usageMethod2) {
-            return serializeUsageMethod(usageMethod1).compareTo(serializeUsageMethod(usageMethod2));
-        }
-
-        private static int compareInstants(Instant instant1, Instant instant2) {
-            if (instant1.equals(instant2)) {
-                return 0;
-            }
-            return instant1.comesBefore(instant2) ? -1 : 1;
-        }
-
-        private static int compareContingencies(Optional<Contingency> contingency1, Optional<Contingency> contingency2) {
-            if (contingency1.isEmpty() && contingency2.isEmpty()) {
-                return 0;
-            }
-            if (contingency1.isPresent() && contingency2.isEmpty()) {
-                return 1;
-            }
-            return contingency1.map(country -> country.getId().compareTo(contingency2.get().getId())).orElse(-1);
-        }
-
-        private static int compareCnecs(Optional<Cnec<?>> cnec1, Optional<Cnec<?>> cnec2) {
-            if (cnec1.isEmpty() && cnec2.isEmpty()) {
-                return 0;
-            }
-            if (cnec1.isPresent() && cnec2.isEmpty()) {
-                return 1;
-            }
-            return cnec1.map(country -> country.getId().compareTo(cnec2.get().getId())).orElse(-1);
-        }
-
-        private static int compareCountries(Optional<Country> country1, Optional<Country> country2) {
-            if (country1.isEmpty() && country2.isEmpty()) {
-                return 0;
-            }
-            if (country1.isPresent() && country2.isEmpty()) {
-                return 1;
-            }
-            return country1.map(country -> country.getName().compareTo(country2.get().getName())).orElse(-1);
+            return tc1.getInstant().comesBefore(tc2.getInstant()) ? -1 : 1;
         }
     }
 }
