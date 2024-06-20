@@ -77,7 +77,7 @@ class CounterTradeRangeActionAdderImplTest {
     }
 
     @Test
-    void testAddWithoutUsageRule() {
+    void testAddWithoutTriggerCondition() {
         /*
         This behaviour is considered admissible:
             - without trigger condition, the remedial action will never be available
