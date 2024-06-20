@@ -90,7 +90,6 @@ public final class RaoParametersCommons {
     public static final String NOT_OPTIMIZED_CNECS = "not-optimized-cnecs";
     public static final String NOT_OPTIMIZED_CNECS_SECTION = "rao-not-optimized-cnecs";
     public static final String DO_NOT_OPTIMIZE_CURATIVE_CNECS = "do-not-optimize-curative-cnecs-for-tsos-without-cras";
-    public static final String DO_NOT_OPTIMIZE_CNECS_SECURED_BY_ITS_PST = "do-not-optimize-cnec-secured-by-its-pst";
 
     // Not optimized cnecs parameters
     public static final String LOAD_FLOW_AND_SENSITIVITY_COMPUTATION = "load-flow-and-sensitivity-computation";
