@@ -32,9 +32,6 @@ rao-second-preventive-rao:
     re-optimize-curative-range-actions: true
     hint-from-first-preventive-rao: true
 
-rao-not-optimized-cnecs:
-    do-not-optimize-cnec-secured-by-its-pst: [ "{cnecId1}:{pstId1}", "{cnecId2}:{pstId2}" ]
-
 rao-load-flow-and-sensitivity-computation:
     sensitivity-provider: SENSI_PROVIDER
     sensitivity-failure-overcost: 2
