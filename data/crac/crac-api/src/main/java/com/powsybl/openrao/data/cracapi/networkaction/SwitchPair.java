@@ -19,10 +19,19 @@ public interface SwitchPair extends ElementaryAction {
     /**
      * Get the switch that should be opened by the elementary action
      */
-    public NetworkElement getSwitchToOpen();
+    NetworkElement getSwitchToOpen();
 
     /**
      * Get the switch that should be closed by the elementary action
      */
-    public NetworkElement getSwitchToClose();
+    NetworkElement getSwitchToClose();
+
+    @Override
+    default boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
+        if (otherElementaryAction instanceof SwitchPair switchPair) {
+            return getSwitchToOpen().equals(switchPair.getSwitchToOpen()) && getSwitchToClose().equals(switchPair.getSwitchToClose())
+                || !getSwitchToOpen().equals(switchPair.getSwitchToOpen()) && !getSwitchToOpen().equals(switchPair.getSwitchToClose()) && !getSwitchToClose().equals(switchPair.getSwitchToClose()) && !getSwitchToClose().equals(switchPair.getSwitchToOpen());
+        }
+        return true;
+    }
 }
