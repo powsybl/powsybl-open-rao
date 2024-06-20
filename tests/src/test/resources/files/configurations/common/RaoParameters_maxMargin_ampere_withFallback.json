@@ -17,7 +17,7 @@
     "injection-ra-penalty-cost" : 0.001,
     "injection-ra-sensitivity-threshold" : 1.0E-6,
     "linear-optimization-solver" : {
-      "solver" : "CBC",
+      "solver" : "SCIP",
       "relative-mip-gap" : 1.0E-4,
       "solver-specific-parameters" : null
     }

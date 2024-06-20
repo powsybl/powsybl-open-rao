@@ -56,7 +56,7 @@ public class RangeActionsOptimizationParameters {
     }
 
     public static class LinearOptimizationSolver {
-        private static final Solver DEFAULT_SOLVER = Solver.CBC;
+        private static final Solver DEFAULT_SOLVER = Solver.SCIP;
         public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;
         public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
         private Solver solver = DEFAULT_SOLVER;
@@ -101,7 +101,6 @@ public class RangeActionsOptimizationParameters {
     }
 
     public enum Solver {
-        CBC,
         SCIP,
         XPRESS
     }

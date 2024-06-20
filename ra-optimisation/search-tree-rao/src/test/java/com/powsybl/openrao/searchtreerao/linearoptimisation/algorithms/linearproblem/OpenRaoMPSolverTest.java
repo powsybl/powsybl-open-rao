@@ -38,10 +38,6 @@ class OpenRaoMPSolverTest {
         assertNotNull(openRaoMPSolver.getObjective());
         assertEquals(RangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
         assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
-
-        openRaoMPSolver = new OpenRaoMPSolver("rao_test_prob", RangeActionsOptimizationParameters.Solver.CBC);
-        assertEquals(RangeActionsOptimizationParameters.Solver.CBC, openRaoMPSolver.getSolver());
-        assertEquals(MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
     }
 
     @Test

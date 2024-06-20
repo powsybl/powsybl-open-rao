@@ -213,13 +213,12 @@ These are parameters that tune the solver used to solve the MIP problem.
 
 ##### solver
 - **Expected value**: one of the following:
-  - "CBC"
   - "SCIP"
   - "XPRESS"
-- **Default value**: "CBC"
+- **Default value**: "SCIP"
 - **Usage**: the solver called for optimising the linear problem.  
-  Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
-  (open-source), SCIP (commercial) and XPRESS (commercial) for the moment.  
+  Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows SCIP
+  and XPRESS for the moment.  
   If needed, other solvers can be easily added.
 
 ##### relative-mip-gap
@@ -600,7 +599,7 @@ Zones are seperated by + or -.
     "injection-ra-penalty-cost" : 0.001,
     "injection-ra-sensitivity-threshold" : 0.0,
     "linear-optimization-solver" : {
-      "solver" : "CBC",
+      "solver" : "SCIP",
       "relative-mip-gap" : 0.001,
       "solver-specific-parameters" : "THREADS 10 MAXTIME 3000"
     }
@@ -714,7 +713,7 @@ rao-range-actions-optimization:
   pst-model: APPROXIMATED_INTEGERS
 
 rao-linear-optimization-solver:
-  solver: CBC
+  solver: SCIP
 
 rao-topological-actions-optimization:
   max-preventive-search-tree-depth: 3

@@ -212,7 +212,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(0.2, rangeActionsOptimizationParameters.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);
         assertEquals(0.3, rangeActionsOptimizationParameters.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.Solver.CBC, rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolver());
+        assertEquals(RangeActionsOptimizationParameters.Solver.SCIP, rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolver());
         assertEquals(0.004, rangeActionsOptimizationParameters.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
         assertEquals("BLABLABLA", rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolverSpecificParameters());
 
