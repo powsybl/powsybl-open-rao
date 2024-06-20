@@ -181,7 +181,7 @@ public class HvdcRangeActionCreator {
             }
         }
 
-        // Usage rules
+        // Trigger conditions
         RemedialActionSeriesCreator.addTriggerConditions(crac, CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
 
         return hvdcRangeActionAdder;

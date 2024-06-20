@@ -252,14 +252,14 @@ class RaoUtilTest {
         when(autoFlowCnec.getState()).thenReturn(automatonState);
         when(onFlowConstraint.getCnec()).thenReturn(Optional.of(autoFlowCnec));
 
-        // remedial action with OnInstant Usage Rule
+        // remedial action with instant-only trigger condition
         when(automatonRa.getTriggerConditions()).thenReturn(Set.of(onInstant));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
         assertTrue(isRemedialActionForced(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
         assertTrue(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
-        // remedial action with OnFlowConstraint Usage Rule
+        // remedial action with trigger condition with FlowCNEC
         // todo: mock content of trigger condition
         when(automatonRa.getTriggerConditions()).thenReturn(Set.of(onFlowConstraint));
         when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);

@@ -14,10 +14,10 @@ Feature: US 15.12.3: Import HVDC range action from CSE CRAC
       | RangeActionId | RangeActionName | MinRange | MaxRange | GroupId |
       | PRA_HVDC      | PRA_HVDC        | -100.0   | 2000.0   | null    |
       | CRA_HVDC      | CRA_HVDC        | -100.0   | 2000.0   | null    |
-    And the remedial actions should have the following usage rules:
-      | RemedialActionId | UsageRules | Instant    | Method    | Rule      |
-      | PRA_HVDC         | 1          | PREVENTIVE | AVAILABLE | OnInstant |
-      | CRA_HVDC         | 1          | CURATIVE   | AVAILABLE | OnInstant |
+    And the remedial actions should have the following trigger condition:
+      | RemedialActionId | Instant    | Method    |
+      | PRA_HVDC         | PREVENTIVE | AVAILABLE |
+      | CRA_HVDC         | CURATIVE   | AVAILABLE |
     And the injection range action "CRA_HVDC" should have the following injection distribution keys:
       | InjectionId        | Key  |
       | FFR3AA12_generator | -1.0 |
