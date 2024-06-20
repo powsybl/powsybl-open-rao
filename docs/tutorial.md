@@ -243,7 +243,7 @@ crac.newPstRangeAction()
       .withMaxTap(16)
       .withRangeType(RangeType.ABSOLUTE)
       .add()
-   .newOnInstantUsageRule()
+   .newTriggerCondition()
       .withInstant("preventive")
       .withUsageMethod(UsageMethod.AVAILABLE)
       .add()
@@ -266,7 +266,7 @@ crac.newNetworkAction()
          .withNetworkElement("NNL2AA1  BBE3AA1  3")
          .withActionType(ActionType.CLOSE)
          .add()
-      .newOnContingencyStateUsageRule()
+      .newTriggerCondition()
          .withInstant("curative")
          .withContingency("contingency")
          .withUsageMethod(UsageMethod.AVAILABLE)
@@ -449,7 +449,7 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.util.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.Rao;
@@ -536,7 +536,7 @@ public class Main {
             .withMaxTap(16)
             .withRangeType(RangeType.ABSOLUTE)
             .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
             .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -553,7 +553,7 @@ public class Main {
             .withNetworkElement("NNL2AA1  BBE3AA1  3")
             .withActionType(ActionType.CLOSE)
             .add()
-            .newOnContingencyStateUsageRule()
+            .newTriggerCondition()
             .withInstant("curative")
             .withContingency("contingency")
             .withUsageMethod(UsageMethod.AVAILABLE)

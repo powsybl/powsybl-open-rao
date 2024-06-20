@@ -255,7 +255,7 @@ INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimizing scenario post-continge
 
 ### Automatons simulation
 
-Automatons are triggered with regard to their usage rules.
+Automatons are triggered with regard to their trigger conditions.
 
 ~~~
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimizing automaton state Contingency_FR1_FR3 - auto.

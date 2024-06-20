@@ -78,7 +78,7 @@ for more information on the behavior of OpenRAO according to the different direc
 - **Status** : Must be OPEN or CLOSE for a branch involved in a topological action. Default value is OPEN. See an example in the [topological actions](#network-actions) section of this page.
 - **Sensitivity** : OpenRAO does not interact with this tag
 - **PTDFListRef** : OpenRAO does not interact with this tag
-- **Remedial actions** : These remedial actions will be available with OnConstraint usage rule for the branches they are associated to
+- **Remedial actions** : These remedial actions will be available with a trigger condition with CNEC for the branches they are associated to
 
 ## Outages
 ```xml
@@ -140,11 +140,11 @@ A remedial action can be of different types, but they will always have :
 
 **The SharedWith tag**
 
-This tag defines the usage rule of the remedial action. You can refer to [this section](json.md#remedial-actions-and-usages-rules) for further explanation on the usage rule behavior.
+This tag defines the trigger condition of the remedial action. You can refer to [this section](json.md#remedial-actions-and-trigger-conditions) for further explanation on the trigger condition behavior.
 
-If SharedWith is "CSE" : FreeToUse  
-If SharedWith is a UCTE country code : OnFlowConstraintInCountry in the country filled in     
-If SharedWith is "None" : OnConstraint only for its associated CNECs (c.f. the Branch section above)
+If SharedWith is "CSE" : instant-only trigger condition
+If SharedWith is a UCTE country code : trigger condition with country   
+If SharedWith is "None" : trigger condition with CNEC only for its associated CNECs (c.f. the Branch section above)
 
 ### Range Actions
 

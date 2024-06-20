@@ -4,7 +4,7 @@
 
 To be able to face the combinatorial complexity of the problem, without having to simplify / linearize the impact of the
 available remedial actions available, the problem is divided into preventive and curative perimeters.  
-The definition of CNEC and associated usage rules allows to distinguish four temporal situations or instants in the
+The definition of CNEC and associated trigger conditions allows to distinguish four temporal situations or instants in the
 problem:
 
 - “Before outage situation”: immediately before the occurrence of a fault.
