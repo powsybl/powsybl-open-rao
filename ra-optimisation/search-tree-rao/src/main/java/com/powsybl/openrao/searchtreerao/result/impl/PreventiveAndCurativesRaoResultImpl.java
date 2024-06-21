@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
@@ -32,7 +31,7 @@ import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
+public class PreventiveAndCurativesRaoResultImpl implements FlowRaoResult {
     private final State preventiveState;
     private final PrePerimeterResult initialResult;
     private final PerimeterResult firstPreventivePerimeterResult;
@@ -602,23 +601,6 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         } else {
             throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
         }
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
-            return false;
-        }
-        if (Arrays.stream(u).noneMatch(PhysicalParameter.FLOW::equals)) {
-            throw new OpenRaoException("This is a flow RaoResult, isSecure is available for FLOW physical parameter");
-        }
-        if (getFunctionalCost(optimizedInstant) >= 0) {
-            return false;
-        }
-        if (Arrays.stream(u).anyMatch(physicalParameter -> !PhysicalParameter.FLOW.equals(physicalParameter))) {
-            throw new OpenRaoException("This is a flow RaoResult, flows are secure but other physical parameters' security status is unknown");
-        }
-        return true;
     }
 
     @Override

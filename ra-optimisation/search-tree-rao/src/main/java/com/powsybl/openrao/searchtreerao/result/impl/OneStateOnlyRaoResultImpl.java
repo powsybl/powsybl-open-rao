@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 
 import java.util.*;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class OneStateOnlyRaoResultImpl implements RaoResult {
+public class OneStateOnlyRaoResultImpl implements FlowRaoResult {
     public static final String WRONG_STATE = "Trying to access perimeter result for the wrong state.";
     private final State optimizedState;
     private final PrePerimeterResult initialResult;
@@ -285,23 +284,6 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         } else {
             throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
         }
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
-            return false;
-        }
-        if (Arrays.stream(u).noneMatch(PhysicalParameter.FLOW::equals)) {
-            throw new OpenRaoException("This is a flow RaoResult, isSecure is available for FLOW physical parameter");
-        }
-        if (getFunctionalCost(optimizedInstant) >= 0) {
-            return false;
-        }
-        if (Arrays.stream(u).anyMatch(physicalParameter -> !PhysicalParameter.FLOW.equals(physicalParameter))) {
-            throw new OpenRaoException("This is a flow RaoResult, flows are secure but other physical parameters' security status is unknown");
-        }
-        return true;
     }
 
     @Override
