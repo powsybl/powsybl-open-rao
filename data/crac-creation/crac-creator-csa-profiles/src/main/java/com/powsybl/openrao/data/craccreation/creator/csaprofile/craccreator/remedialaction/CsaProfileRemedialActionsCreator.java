@@ -13,18 +13,11 @@ import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.*;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.RemedialActionKind;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.*;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.SchemeRemedialAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.iidm.network.Network;
 
@@ -71,31 +64,67 @@ public class CsaProfileRemedialActionsCreator {
                 }
                 String elementaryActionsAggregatorId = isSchemeRemedialAction ? elementaryActionsHelper.getGridStateAlterationCollection(nativeRemedialAction.mrid()) : nativeRemedialAction.mrid(); // collectionIdIfAutoOrElseRemedialActionId
                 RemedialActionType remedialActionType = getRemedialActionType(nativeRemedialAction.mrid(), elementaryActionsAggregatorId, isSchemeRemedialAction);
-                RemedialActionAdder<?> remedialActionAdder = getRemedialActionAdder(nativeRemedialAction.mrid(), elementaryActionsAggregatorId, remedialActionType, isSchemeRemedialAction, alterations);
-
-                remedialActionAdder.withName(nativeRemedialAction.getUniqueName());
-                if (nativeRemedialAction.operator() != null) {
-                    remedialActionAdder.withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
-                }
-                if (nativeRemedialAction.getTimeToImplementInSeconds() != null) {
-                    remedialActionAdder.withSpeed(nativeRemedialAction.getTimeToImplementInSeconds());
-                } else if (isSchemeRemedialAction && remedialActionType == RemedialActionType.PST_RANGE_ACTION) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because an auto PST range action must have a speed defined");
-                }
-
-                InstantKind instantKind = getInstantKind(isSchemeRemedialAction, nativeRemedialAction, spsMaxTimeToImplementThreshold);
-                crac.getInstants(instantKind).forEach(instant -> addTriggerConditions(nativeRemedialAction.mrid(), nativeAssessedElements, linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
-                remedialActionAdder.add();
-
-                if (alterations.isEmpty()) {
-                    contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), "", false));
+                RemedialActionAdder<?> remedialActionAdder;
+                if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid(), elementaryActionsAggregatorId, alterations);
+                    fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
                 } else {
-                    contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), String.join(". ", alterations), true));
+                    if (elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).size() > 1) {
+                        // group TapPositionAction's
+                        for (TapPositionAction nativeTapPositionAction : elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId)) {
+                            try {
+                                remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(true, elementaryActionsAggregatorId, nativeTapPositionAction, elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeTapPositionAction.mrid());
+                                fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, createNameFromTapPositionAction(nativeTapPositionAction.mrid(), nativeRemedialAction.operator()));
+                            } catch (OpenRaoImportException e) {
+                                if (e.getImportStatus().equals(ImportStatus.NOT_FOR_RAO)) {
+                                    contextByRaId.put(nativeTapPositionAction.mrid(), CsaProfileElementaryCreationContext.notImported(nativeTapPositionAction.mrid(), e.getImportStatus(), e.getMessage()));
+                                } else {
+                                    throw e;
+                                }
+                            }
+                        }
+                    } else {
+                        remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(false, elementaryActionsAggregatorId, elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).iterator().next(), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid());
+                        fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
+                    }
                 }
 
             } catch (OpenRaoImportException e) {
                 contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.notImported(nativeRemedialAction.mrid(), e.getImportStatus(), e.getMessage()));
             }
+        }
+    }
+
+    private String createNameFromTapPositionAction(String tapPositionId, String operator) {
+        if (operator != null) {
+            return CsaProfileCracUtils.getTsoNameFromUrl(operator) + "-" + tapPositionId;
+        } else {
+            return tapPositionId;
+        }
+    }
+
+    private void fillAndSaveRemedialActionAdderAndContext(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
+                                                          int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, RemedialAction nativeRemedialAction, List<String> alterations,
+                                                          boolean isSchemeRemedialAction, RemedialActionType remedialActionType, RemedialActionAdder<?> remedialActionAdder, String remedialActionName) {
+
+        remedialActionAdder.withName(remedialActionName);
+        if (nativeRemedialAction.operator() != null) {
+            remedialActionAdder.withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
+        }
+        if (nativeRemedialAction.getTimeToImplementInSeconds() != null) {
+            remedialActionAdder.withSpeed(nativeRemedialAction.getTimeToImplementInSeconds());
+        } else if (isSchemeRemedialAction && remedialActionType == RemedialActionType.PST_RANGE_ACTION) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because an auto PST range action must have a speed defined");
+        }
+
+                InstantKind instantKind = getInstantKind(isSchemeRemedialAction, nativeRemedialAction, spsMaxTimeToImplementThreshold);
+                crac.getInstants(instantKind).forEach(instant -> addTriggerConditions(nativeRemedialAction.mrid(), nativeAssessedElements, linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
+                remedialActionAdder.add();
+
+        if (alterations.isEmpty()) {
+            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), "", false));
+        } else {
+            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), String.join(". ", alterations), true));
         }
     }
 
@@ -155,22 +184,12 @@ public class CsaProfileRemedialActionsCreator {
         remedialActionAdder.newTriggerCondition().withInstant(instant.getId()).withUsageMethod(UsageMethod.AVAILABLE).add();
     }
 
-    private RemedialActionAdder<?> getRemedialActionAdder(String remedialActionId, String elementaryActionsAggregatorId, RemedialActionType remedialActionType, boolean isSchemeRemedialAction, List<String> alterations) {
-        RemedialActionAdder<?> remedialActionAdder;
-        if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-            remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), remedialActionId, elementaryActionsAggregatorId, alterations);
-        } else {
-            remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), remedialActionId, elementaryActionsAggregatorId, alterations);
-        }
-        return remedialActionAdder;
-    }
-
     private static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
-        // TODO: add test to cover all the possible cases
         return remedialInstant.isAuto() ? cnecInstant.isAuto() : !cnecInstant.comesBefore(remedialInstant);
     }
 
-    private InstantKind getInstantKind(boolean isSchemeRemedialAction, RemedialAction nativeRemedialAction, int durationLimit) {
+    private InstantKind getInstantKind(boolean isSchemeRemedialAction, RemedialAction nativeRemedialAction,
+                                       int durationLimit) {
         if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
             return InstantKind.PREVENTIVE;
         }
@@ -184,7 +203,8 @@ public class CsaProfileRemedialActionsCreator {
         return timeToImplement <= durationLimit ? InstantKind.AUTO : InstantKind.CURATIVE;
     }
 
-    private UsageMethod getUsageMethod(ElementCombinationConstraintKind elementCombinationConstraintKind, boolean isSchemeRemedialAction, Instant instant, RemedialActionType remedialActionType) {
+    private UsageMethod getUsageMethod(ElementCombinationConstraintKind elementCombinationConstraintKind,
+                                       boolean isSchemeRemedialAction, Instant instant, RemedialActionType remedialActionType) {
         boolean isPstRangeAuto = instant.isAuto() && remedialActionType == RemedialActionType.PST_RANGE_ACTION;
         return isSchemeRemedialAction || ElementCombinationConstraintKind.INCLUDED.equals(elementCombinationConstraintKind) || isPstRangeAuto ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
     }
@@ -201,7 +221,8 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private RemedialActionType getRemedialActionType(String remedialActionId, String elementaryActionsAggregatorId, boolean isSchemeRemedialAction) {
+    private RemedialActionType getRemedialActionType(String remedialActionId, String elementaryActionsAggregatorId,
+                                                     boolean isSchemeRemedialAction) {
         RemedialActionType remedialActionType;
         if (elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction).containsKey(elementaryActionsAggregatorId)) {
             remedialActionType = RemedialActionType.NETWORK_ACTION;
@@ -254,7 +275,7 @@ public class CsaProfileRemedialActionsCreator {
                             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because the remedial action " + remedialActionDependency.remedialAction() + " does not exist or not imported. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                         }
-                        if (!refNetworkAction.getTriggerConditions().equals(crac.getNetworkAction(remedialActionDependency.remedialAction()).getTriggerConditions())) {
+                        if (!refNetworkAction.getTriggerConditions().equals(crac.getNetworkAction(remedialActionDependency.remedialAction()).getUsageRules())) {
                             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because all depending the remedial actions must have the same trigger conditions. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                         }
