@@ -25,17 +25,29 @@ public interface Instant extends Identifiable<Instant>, Comparable<Instant> {
     @Override
     String toString();
 
-    boolean comesBefore(Instant otherInstant);
+    default boolean comesBefore(Instant otherInstant) {
+        return getOrder() < otherInstant.getOrder();
+    }
 
-    boolean comesAfter(Instant otherInstant);
+    default boolean comesAfter(Instant otherInstant) {
+        return getOrder() > otherInstant.getOrder();
+    }
 
-    boolean isPreventive();
+    default boolean isPreventive() {
+        return InstantKind.PREVENTIVE.equals(getKind());
+    }
 
-    boolean isOutage();
+    default boolean isOutage() {
+        return InstantKind.OUTAGE.equals(getKind());
+    }
 
-    boolean isAuto();
+    default boolean isAuto() {
+        return InstantKind.AUTO.equals(getKind());
+    }
 
-    boolean isCurative();
+    default boolean isCurative() {
+        return InstantKind.CURATIVE.equals(getKind());
+    }
 
     @Override
     default int compareTo(Instant otherInstant) {
