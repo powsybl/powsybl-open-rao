@@ -11,12 +11,16 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.ejml.UtilEjml.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,8 +34,24 @@ class TriggerConditionImplTest {
     private final Instant preventiveInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
     private final Instant curativeInstant = new InstantImpl("curative", InstantKind.CURATIVE, preventiveInstant);
     private final Contingency contingency = new Contingency("contingency", "contingency", List.of());
-    private final FlowCnec flowCnec = new FlowCnecImpl("flowCnec", "flowCnec", null, null, null, null, true, false, null, 0d, null, null, null, null);
+    private FlowCnec flowCnec;
     private final Country country = Country.FR;
+    private State preventiveState;
+    private State curativeState;
+
+    @BeforeEach
+    void setUp() {
+        preventiveState = Mockito.mock(State.class);
+        Mockito.when(preventiveState.getInstant()).thenReturn(preventiveInstant);
+        Mockito.when(preventiveState.getContingency()).thenReturn(Optional.empty());
+
+        curativeState = Mockito.mock(State.class);
+        Mockito.when(curativeState.getInstant()).thenReturn(curativeInstant);
+        Mockito.when(curativeState.getContingency()).thenReturn(Optional.of(contingency));
+
+        flowCnec = Mockito.mock(FlowCnec.class);
+        Mockito.when(flowCnec.getState()).thenReturn(curativeState);
+    }
 
     @Test
     void testInitTriggerCondition() {
@@ -77,5 +97,34 @@ class TriggerConditionImplTest {
         assertNotEquals(null, preventiveAvailableTriggerCondition);
         assertNotEquals("Hello world!", preventiveAvailableTriggerCondition);
         assertEquals(curativeTriggerConditionWithCnec, new TriggerConditionImpl(curativeInstant, contingency, flowCnec, null, UsageMethod.AVAILABLE));
+    }
+
+    @Test
+    void testGetUsageMethod() {
+        TriggerCondition preventiveAvailableTriggerCondition = new TriggerConditionImpl(preventiveInstant, null, null, null, UsageMethod.AVAILABLE);
+        TriggerCondition preventiveForcedTriggerCondition = new TriggerConditionImpl(preventiveInstant, null, null, null, UsageMethod.FORCED);
+        TriggerCondition curativeTriggerCondition = new TriggerConditionImpl(curativeInstant, null, null, null, UsageMethod.AVAILABLE);
+        TriggerCondition curativeTriggerConditionWithContingency = new TriggerConditionImpl(curativeInstant, contingency, null, null, UsageMethod.FORCED);
+        TriggerCondition curativeTriggerConditionWithCnec = new TriggerConditionImpl(curativeInstant, contingency, flowCnec, null, UsageMethod.AVAILABLE);
+        TriggerCondition curativeTriggerConditionWithCountry = new TriggerConditionImpl(curativeInstant, contingency, null, Country.FR, UsageMethod.UNAVAILABLE);
+
+        assertEquals(UsageMethod.UNDEFINED, preventiveAvailableTriggerCondition.getUsageMethod(null));
+        assertEquals(UsageMethod.AVAILABLE, preventiveAvailableTriggerCondition.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.UNDEFINED, preventiveAvailableTriggerCondition.getUsageMethod(curativeState));
+
+        assertEquals(UsageMethod.FORCED, preventiveForcedTriggerCondition.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.UNDEFINED, preventiveForcedTriggerCondition.getUsageMethod(curativeState));
+
+        assertEquals(UsageMethod.UNDEFINED, curativeTriggerCondition.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, curativeTriggerCondition.getUsageMethod(curativeState));
+
+        assertEquals(UsageMethod.UNDEFINED, curativeTriggerConditionWithContingency.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.FORCED, curativeTriggerConditionWithContingency.getUsageMethod(curativeState));
+
+        assertEquals(UsageMethod.UNDEFINED, curativeTriggerConditionWithCnec.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, curativeTriggerConditionWithCnec.getUsageMethod(curativeState));
+
+        assertEquals(UsageMethod.UNDEFINED, curativeTriggerConditionWithCountry.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.UNAVAILABLE, curativeTriggerConditionWithCountry.getUsageMethod(curativeState));
     }
 }

@@ -72,7 +72,7 @@ public class TriggerConditionImpl implements TriggerCondition {
                 if (contingency == null) {
                     return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
                 }
-                return state.getInstant().equals(instant) && state.getContingency().equals(Optional.ofNullable(contingency)) ? usageMethod : UsageMethod.UNDEFINED;
+                return state.getInstant().equals(instant) && state.getContingency().equals(Optional.of(contingency)) ? usageMethod : UsageMethod.UNDEFINED;
             }
             return state.getInstant().equals(instant) && state.equals(cnec.getState()) ? usageMethod : UsageMethod.UNDEFINED;
         }

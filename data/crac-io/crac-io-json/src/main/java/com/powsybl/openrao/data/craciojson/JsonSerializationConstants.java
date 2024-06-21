@@ -470,13 +470,15 @@ public final class JsonSerializationConstants {
         @Override
         public int compare(TriggerCondition tc1, TriggerCondition tc2) {
             if (tc1.getInstant().equals(tc2.getInstant())) {
-                if (tc1.getContingency().isEmpty() && tc2.getContingency().isEmpty() || tc1.getContingency().isPresent() && tc2.getContingency().isPresent() && tc1.getContingency().get().getId().equals(tc2.getContingency().get().getId())) {
+                Optional<Contingency> contingency1 = tc1.getContingency();
+                Optional<Contingency> contingency2 = tc2.getContingency();
+                if (contingency1.isEmpty() && contingency2.isEmpty() || contingency1.isPresent() && contingency2.isPresent() && contingency1.get().getId().equals(contingency2.get().getId())) {
                     if (tc1.getCountry().equals(tc2.getCountry())) {
-                        if (tc1.getCnec().isEmpty() && tc2.getCnec().isEmpty() || tc1.getCnec().isPresent() && tc2.getCnec().isPresent() && tc1.getCnec().get().getId().equals(tc2.getCnec().get().getId())) {
-                            return (int) Math.signum(tc1.getUsageMethod().toString().compareTo(tc2.getUsageMethod().toString()));
-                        }
                         Optional<Cnec<?>> cnec1 = tc1.getCnec();
                         Optional<Cnec<?>> cnec2 = tc2.getCnec();
+                        if (cnec1.isEmpty() && cnec2.isEmpty() || cnec1.isPresent() && cnec2.isPresent() && cnec1.get().getId().equals(cnec2.get().getId())) {
+                            return (int) Math.signum(tc1.getUsageMethod().toString().compareTo(tc2.getUsageMethod().toString()));
+                        }
                         String cnec1Id = cnec1.isPresent() ? cnec1.get().getId() : "";
                         String cnec2Id = cnec2.isPresent() ? cnec2.get().getId() : "";
                         return (int) Math.signum(cnec1Id.compareTo(cnec2Id));
@@ -487,8 +489,6 @@ public final class JsonSerializationConstants {
                     String country2Code = country2.isPresent() ? country2.get().toString() : "";
                     return (int) Math.signum(country1Code.compareTo(country2Code));
                 }
-                Optional<Contingency> contingency1 = tc1.getContingency();
-                Optional<Contingency> contingency2 = tc2.getContingency();
                 String contingency1Id = contingency1.isPresent() ? contingency1.get().getId() : "";
                 String contingency2Id = contingency2.isPresent() ? contingency2.get().getId() : "";
                 return (int) Math.signum(contingency1Id.compareTo(contingency2Id));
