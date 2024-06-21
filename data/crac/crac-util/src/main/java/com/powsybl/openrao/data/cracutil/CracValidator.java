@@ -7,7 +7,10 @@
 
 package com.powsybl.openrao.data.cracutil;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -19,6 +22,7 @@ import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -128,9 +132,10 @@ public final class CracValidator {
      * If no auto remedial action affects the CNEC and the CNEC does not trigger any auto remedial action, there is no
      * need to duplicate it because this means that no auto remedial action is available for this auto state at all.
      * In this case, the StateTree algorithm will automatically include all the CNECs from the state to the preventive perimeter.
+     *
      * @param remedialActions The set of remedial actions that may affect the CNEC
-     * @param flowCnec The FlowCNEC to possibly duplicate
-     * @param network The network
+     * @param flowCnec        The FlowCNEC to possibly duplicate
+     * @param network         The network
      * @return Boolean value that indicates whether the CNEC should be duplicate in the outage state or not
      */
     private static boolean shouldDuplicateAutoCnecInOutageState(Set<RemedialAction<?>> remedialActions, FlowCnec flowCnec, Network network) {
@@ -138,27 +143,31 @@ public final class CracValidator {
         for (RemedialAction<?> remedialAction : remedialActions) {
             // TODO: try to refactor this in a more elegant way
             for (TriggerCondition triggerCondition : remedialAction.getTriggerConditions()) {
-                if (triggerCondition.getInstant().equals(flowCnec.getState().getInstant())
-                    && triggerCondition.getContingency().isEmpty()
-                    && triggerCondition.getCnec().isEmpty()
+                Instant instant = triggerCondition.getInstant();
+                Optional<Contingency> contingency = triggerCondition.getContingency();
+                Optional<Cnec<?>> cnec = triggerCondition.getCnec();
+                Optional<Country> country = triggerCondition.getCountry();
+                if (instant.equals(flowCnec.getState().getInstant())
+                    && contingency.isEmpty()
+                    && cnec.isEmpty()
                     && triggerCondition.getCountry().isEmpty()) {
                     return false;
-                } else if (triggerCondition.getInstant().equals(flowCnec.getState().getInstant())
-                    && triggerCondition.getContingency().isPresent()
-                    && triggerCondition.getContingency().equals(flowCnec.getState().getContingency())
-                    && triggerCondition.getCnec().isEmpty()
-                    && triggerCondition.getCountry().isEmpty()) {
+                } else if (instant.equals(flowCnec.getState().getInstant())
+                    && contingency.isPresent()
+                    && contingency.equals(flowCnec.getState().getContingency())
+                    && cnec.isEmpty()
+                    && country.isEmpty()) {
                     return false;
-                } else if (triggerCondition.getCnec().isPresent() && triggerCondition.getCnec().get() instanceof FlowCnec && triggerCondition.getCnec().get().getState().equals(flowCnec.getState())) {
-                    if (triggerCondition.getCnec().get().equals(flowCnec)) {
+                } else if (cnec.isPresent() && cnec.get() instanceof FlowCnec && cnec.get().getState().equals(flowCnec.getState())) {
+                    if (cnec.get().equals(flowCnec)) {
                         return false;
                     } else {
                         raForOtherCnecs = true;
                     }
-                } else if (triggerCondition.getCountry().isPresent()
-                    && triggerCondition.getInstant().equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
-                    && (triggerCondition.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(triggerCondition.getContingency()))) {
-                    if (flowCnec.getLocation(network).contains(triggerCondition.getCountry())) {
+                } else if (country.isPresent()
+                    && instant.equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
+                    && (contingency.isEmpty() || flowCnec.getState().getContingency().equals(contingency))) {
+                    if (flowCnec.getLocation(network).contains(country)) {
                         return false;
                     } else {
                         raForOtherCnecs = true;

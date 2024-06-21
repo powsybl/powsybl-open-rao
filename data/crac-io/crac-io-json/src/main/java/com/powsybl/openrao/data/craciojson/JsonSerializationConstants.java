@@ -8,10 +8,13 @@
 package com.powsybl.openrao.data.craciojson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -27,6 +30,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -471,16 +475,22 @@ public final class JsonSerializationConstants {
                         if (tc1.getCnec().isEmpty() && tc2.getCnec().isEmpty() || tc1.getCnec().isPresent() && tc2.getCnec().isPresent() && tc1.getCnec().get().getId().equals(tc2.getCnec().get().getId())) {
                             return (int) Math.signum(tc1.getUsageMethod().toString().compareTo(tc2.getUsageMethod().toString()));
                         }
-                        String cnec1Id = tc1.getCnec().isPresent() ? tc1.getCnec().get().getId() : "";
-                        String cnec2Id = tc2.getCnec().isPresent() ? tc2.getCnec().get().getId() : "";
+                        Optional<Cnec<?>> cnec1 = tc1.getCnec();
+                        Optional<Cnec<?>> cnec2 = tc2.getCnec();
+                        String cnec1Id = cnec1.isPresent() ? cnec1.get().getId() : "";
+                        String cnec2Id = cnec2.isPresent() ? cnec2.get().getId() : "";
                         return (int) Math.signum(cnec1Id.compareTo(cnec2Id));
                     }
-                    String country1 = tc1.getCountry().isPresent() ? tc1.getCountry().get().toString() : "";
-                    String country2 = tc2.getCountry().isPresent() ? tc2.getCountry().get().toString() : "";
-                    return (int) Math.signum(country1.compareTo(country2));
+                    Optional<Country> country1 = tc1.getCountry();
+                    Optional<Country> country2 = tc2.getCountry();
+                    String country1Code = country1.isPresent() ? country1.get().toString() : "";
+                    String country2Code = country2.isPresent() ? country2.get().toString() : "";
+                    return (int) Math.signum(country1Code.compareTo(country2Code));
                 }
-                String contingency1Id = tc1.getContingency().isPresent() ? tc1.getContingency().get().getId() : "";
-                String contingency2Id = tc2.getContingency().isPresent() ? tc2.getContingency().get().getId() : "";
+                Optional<Contingency> contingency1 = tc1.getContingency();
+                Optional<Contingency> contingency2 = tc2.getContingency();
+                String contingency1Id = contingency1.isPresent() ? contingency1.get().getId() : "";
+                String contingency2Id = contingency2.isPresent() ? contingency2.get().getId() : "";
                 return (int) Math.signum(contingency1Id.compareTo(contingency2Id));
             }
             return tc1.getInstant().comesBefore(tc2.getInstant()) ? -1 : 1;

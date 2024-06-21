@@ -9,9 +9,13 @@ package com.powsybl.openrao.data.craciojson.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.CNEC_ID;
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.CONTINGENCY_ID;
@@ -28,14 +32,17 @@ public class TriggerConditionSerializer extends AbstractJsonSerializer<TriggerCo
     public void serialize(TriggerCondition triggerCondition, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(INSTANT, triggerCondition.getInstant().getId());
-        if (triggerCondition.getContingency().isPresent()) {
-            jsonGenerator.writeStringField(CONTINGENCY_ID, triggerCondition.getContingency().get().getId());
+        Optional<Contingency> contingency = triggerCondition.getContingency();
+        if (contingency.isPresent()) {
+            jsonGenerator.writeStringField(CONTINGENCY_ID, contingency.get().getId());
         }
-        if (triggerCondition.getCnec().isPresent()) {
-            jsonGenerator.writeStringField(CNEC_ID, triggerCondition.getCnec().get().getId());
+        Optional<Cnec<?>> cnec = triggerCondition.getCnec();
+        if (cnec.isPresent()) {
+            jsonGenerator.writeStringField(CNEC_ID, cnec.get().getId());
         }
-        if (triggerCondition.getCountry().isPresent()) {
-            jsonGenerator.writeStringField(COUNTRY, triggerCondition.getCountry().get().toString());
+        Optional<Country> country = triggerCondition.getCountry();
+        if (country.isPresent()) {
+            jsonGenerator.writeStringField(COUNTRY, country.get().toString());
         }
         jsonGenerator.writeStringField(USAGE_METHOD, serializeUsageMethod(triggerCondition.getUsageMethod()));
         jsonGenerator.writeEndObject();
