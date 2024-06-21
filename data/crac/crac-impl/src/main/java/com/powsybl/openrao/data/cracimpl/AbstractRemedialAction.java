@@ -86,13 +86,16 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
             if (triggerCondition.getInstant().isPreventive()) {
                 updateMapWithValue(usageMethodPerInstant, triggerCondition.getInstant(), triggerCondition.getUsageMethod());
             } else {
-                if (triggerCondition.getCnec().isPresent()) {
-                    State state = triggerCondition.getCnec().get().getState();
-                    if (triggerCondition.getInstant().equals(state.getInstant()) && state.getContingency().isPresent()) {
-                        updateMapWithValue(usageMethodPerState, Pair.of(state.getInstant(), state.getContingency().get()), triggerCondition.getUsageMethod());
+                Optional<Contingency> contingency = triggerCondition.getContingency();
+                Optional<Cnec<?>> cnec = triggerCondition.getCnec();
+                if (cnec.isPresent()) {
+                    State state = cnec.get().getState();
+                    Optional<Contingency> stateContingency = state.getContingency();
+                    if (triggerCondition.getInstant().equals(state.getInstant()) && stateContingency.isPresent()) {
+                        updateMapWithValue(usageMethodPerState, Pair.of(state.getInstant(), stateContingency.get()), triggerCondition.getUsageMethod());
                     }
-                } else if (triggerCondition.getContingency().isPresent()) {
-                    updateMapWithValue(usageMethodPerState, Pair.of(triggerCondition.getInstant(), triggerCondition.getContingency().get()), triggerCondition.getUsageMethod());
+                } else if (contingency.isPresent()) {
+                    updateMapWithValue(usageMethodPerState, Pair.of(triggerCondition.getInstant(), contingency.get()), triggerCondition.getUsageMethod());
                 } else {
                     updateMapWithValue(usageMethodPerInstant, triggerCondition.getInstant(), triggerCondition.getUsageMethod());
                 }
@@ -137,27 +140,17 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     // TODO: move this method to RaoUtil
     public Set<FlowCnec> getFlowCnecsConstrainingForOneTriggerCondition(TriggerCondition triggerCondition, Set<FlowCnec> perimeterCnecs, Network network) {
-        if (triggerCondition.getCnec().isPresent() && triggerCondition.getCnec().get() instanceof FlowCnec flowCnec) {
+        Optional<Cnec<?>> cnec = triggerCondition.getCnec();
+        if (cnec.isPresent() && cnec.get() instanceof FlowCnec flowCnec) {
             return Set.of(flowCnec);
         } else if (triggerCondition.getCountry().isPresent()) {
             return perimeterCnecs.stream()
-                .filter(cnec -> !cnec.getState().getInstant().comesBefore(triggerCondition.getInstant()))
-                .filter(cnec -> triggerCondition.getContingency().isEmpty() || triggerCondition.getContingency().equals(cnec.getState().getContingency()))
-                .filter(cnec -> isCnecInCountry(cnec, triggerCondition.getCountry().get(), network)).collect(Collectors.toSet());
+                .filter(flowCnec -> !flowCnec.getState().getInstant().comesBefore(triggerCondition.getInstant()))
+                .filter(flowCnec -> triggerCondition.getContingency().isEmpty() || triggerCondition.getContingency().equals(flowCnec.getState().getContingency()))
+                .filter(flowCnec -> isCnecInCountry(flowCnec, triggerCondition.getCountry().get(), network)).collect(Collectors.toSet());
         } else {
             throw new OpenRaoException("This method should only be used for trigger conditions having a CNEC or a country defined");
         }
-    }
-
-    private List<TriggerCondition> getTriggerConditions(State state) {
-        return getTriggerConditions()
-            .stream()
-            .filter(triggerCondition -> triggerCondition.getInstant().equals(state.getInstant()))
-            .filter(triggerCondition -> triggerCondition.getContingency().equals(state.getContingency()))
-            .filter(triggerCondition -> state.getInstant().isAuto() ?
-                triggerCondition.getUsageMethod().equals(UsageMethod.FORCED) :
-                triggerCondition.getUsageMethod().equals(UsageMethod.AVAILABLE) || triggerCondition.getUsageMethod().equals(UsageMethod.FORCED))
-            .toList();
     }
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
