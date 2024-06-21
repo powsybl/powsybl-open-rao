@@ -113,11 +113,8 @@ public class SweCne {
         try {
             isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
         } catch (OpenRaoException e) {
-            if ("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown".equals(e.getMessage())) {
-                isUnsecure = false; // simply ignore AngleCNECs
-            } else {
-                throw e; // unexpected error
-            }
+            // Sometimes we run this method before without running angle monitoring. In that case, simply ignore AngleCnecs
+             isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW);
         }
         if (isDivergent) {
             reason.setCode(DIVERGENCE_CODE);
