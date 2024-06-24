@@ -590,7 +590,7 @@ public interface Crac extends Identifiable<Crac> {
     default void write(List<Exporter> exporters, String format, OutputStream outputStream) {
         exporters.stream()
             .filter(ex -> format.equals(ex.getFormat()))
-            .findFirst()
+            .findAny()
             .orElseThrow(() -> new OpenRaoException("Export format " + format + " not supported"))
             .exportData(this, outputStream);
     }
