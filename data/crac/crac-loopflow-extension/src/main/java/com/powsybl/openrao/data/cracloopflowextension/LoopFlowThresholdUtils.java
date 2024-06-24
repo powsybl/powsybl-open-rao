@@ -31,7 +31,7 @@ public final class LoopFlowThresholdUtils {
         if (thresholdValue < 0) {
             throw new OpenRaoException("LoopFlowThresholds must have a positive threshold.");
         }
-        if (thresholdUnit.equals(Unit.PERCENT_IMAX) && (thresholdValue > 1)) {
+        if (thresholdUnit.equals(Unit.PERCENT_IMAX) && thresholdValue > 1) {
             throw new OpenRaoException("LoopFlowThresholds in Unit.PERCENT_IMAX must be defined between 0 and 1, where 1 = 100%.");
         }
         if (thresholdUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
