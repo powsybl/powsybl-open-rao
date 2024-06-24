@@ -76,7 +76,6 @@ public final class AutomatonSimulator {
     private final PrePerimeterResult prePerimeterSensitivityOutput;
     private final Set<String> operatorsNotSharingCras;
     private final int numberLoggedElementsDuringRao;
-    private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap;
 
     public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, RangeActionSetpointResult prePerimeterRangeActionSetpointResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao) {
         this.crac = crac;
@@ -88,7 +87,6 @@ public final class AutomatonSimulator {
         this.prePerimeterSensitivityOutput = prePerimeterSensitivityOutput;
         this.operatorsNotSharingCras = operatorsNotSharingCras;
         this.numberLoggedElementsDuringRao = numberLoggedElementsDuringRao;
-        this.flowCnecRangeActionMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
     }
 
     /**
@@ -151,12 +149,14 @@ public final class AutomatonSimulator {
         }
         // Build and return optimization result
         PrePerimeterResult prePerimeterResultForOptimizedState = buildPrePerimeterResultForOptimizedState(rangeAutomatonSimulationResult.getPerimeterResult(), automatonState);
+        Map<RangeAction<?>, Double> rangeActionsWithSetpoint = rangeAutomatonSimulationResult.getRangeActionsWithSetpoint();
+        prePerimeterResultForOptimizedState.getRangeActionSetpointResult().getRangeActions().forEach(ra -> rangeActionsWithSetpoint.putIfAbsent(ra, prePerimeterResultForOptimizedState.getSetpoint(ra)));
         AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
             prePerimeterResultForOptimizedState,
             topoSimulationResult.getActivatedNetworkActions(),
             autoSearchTreeResult == null ? new HashSet<>() : new HashSet<>(autoSearchTreeResult.getActivatedNetworkActions()),
             rangeAutomatonSimulationResult.getActivatedRangeActions(),
-            rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
+            rangeActionsWithSetpoint,
             automatonState);
         TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
         RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(automatonPerimeterResultImpl, automatonState), null, automatonPerimeterResultImpl);
@@ -167,7 +167,7 @@ public final class AutomatonSimulator {
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(automatonTreeParameters)
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
             .build();
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
@@ -746,8 +746,7 @@ public final class AutomatonSimulator {
         Map<Pair<FlowCnec, Side>, Double> cnecsAndMargins = new HashMap<>();
         flowCnecs.forEach(flowCnec -> flowCnec.getMonitoredSides().forEach(side -> {
             double margin = prePerimeterSensitivityOutput.getMargin(flowCnec, side, flowUnit);
-            boolean cnecShouldBeOptimized = RaoUtil.cnecShouldBeOptimized(flowCnecRangeActionMap, prePerimeterSensitivityOutput, flowCnec, side, activatedRangeActionsWithSetpoint, prePerimeterRangeActionSetpointResult, prePerimeterSensitivityOutput, flowUnit);
-            if (cnecShouldBeOptimized && !cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
+            if (!cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
                 cnecsAndMargins.put(Pair.of(flowCnec, side), margin);
             }
         }));

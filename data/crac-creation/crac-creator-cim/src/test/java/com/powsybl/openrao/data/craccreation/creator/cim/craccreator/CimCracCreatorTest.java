@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
@@ -206,7 +207,7 @@ class CimCracCreatorTest {
         assertEquals(expectedCnecIds, importedCnecIds);
     }
 
-    private void assertAngleCnecImportedWithContingency(String id, String contingencyId, Set<String> networkElementIds) {
+    private void assertAngleCnecImportedWithContingency(String id, String contingencyId, Set<String> networkElementIds, double max) {
         AngleCnecCreationContext angleCnecCreationContext = cracCreationContext.getAngleCnecCreationContext(id);
         assertNotNull(angleCnecCreationContext);
         assertTrue(angleCnecCreationContext.isImported());
@@ -216,6 +217,9 @@ class CimCracCreatorTest {
         importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getExportingNetworkElement().toString());
         assertEquals(networkElementIds, importedAngleCnecNetworkElements);
         assertEquals(contingencyId, angleCnecCreationContext.getContingencyId());
+        assertEquals(1, importedCrac.getAngleCnec(id).getThresholds().size());
+        assertEquals(max, importedCrac.getAngleCnec(id).getThresholds().iterator().next().max().orElseThrow());
+        assertTrue(importedCrac.getAngleCnec(id).getThresholds().iterator().next().min().isEmpty());
     }
 
     private void assertAngleCnecNotImported(String id, ImportStatus importStatus) {
@@ -277,24 +281,27 @@ class CimCracCreatorTest {
     private void assertHasOnFlowConstraintUsageRule(RemedialAction<?> ra, Instant instant, String flowCnecId) {
         assertTrue(
                 ra.getUsageRules().stream()
-                        .filter(OnFlowConstraint.class::isInstance)
-                        .map(OnFlowConstraint.class::cast)
+                        .filter(OnConstraint.class::isInstance)
+                        .map(OnConstraint.class::cast)
                         .anyMatch(
                                 ur -> ur.getInstant().equals(instant)
-                                        && ur.getFlowCnec().getId().equals(flowCnecId)
+                                        && ur.getCnec() instanceof FlowCnec
+                                        && ur.getCnec().getId().equals(flowCnecId)
                                         && ur.getUsageMethod().equals(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
                         ));
     }
 
     private void assertHasOnAngleUsageRule(String raId, String angleCnecId) {
-        RemedialAction ra = importedCrac.getRemedialAction(raId);
+        RemedialAction<?> ra = importedCrac.getRemedialAction(raId);
         assertTrue(
                 ra.getUsageRules().stream()
-                        .filter(OnAngleConstraint.class::isInstance)
+                        .filter(OnConstraint.class::isInstance)
+                        .map(OnConstraint.class::cast)
                         .anyMatch(
-                                ur -> ((OnAngleConstraint) ur).getInstant().isCurative()
-                                        && ((OnAngleConstraint) ur).getAngleCnec().getId().equals(angleCnecId)
-                                        && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.AVAILABLE)
+                                ur -> ur.getInstant().isCurative()
+                                        && ur.getCnec() instanceof AngleCnec
+                                        && ur.getCnec().getId().equals(angleCnecId)
+                                        && ur.getUsageMethod().equals(UsageMethod.AVAILABLE)
                         ));
     }
 
@@ -530,8 +537,8 @@ class CimCracCreatorTest {
 
         Set<String> createdIds1 = Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
         Set<String> createdIds2 = Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
-        assertHvdcRangeActionImported("HVDC-direction11", createdIds1, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), true);
-        assertHvdcRangeActionImported("HVDC-direction12", createdIds2, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), false);
+        assertHvdcRangeActionImported("HVDC-direction11", createdIds1, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), false);
+        assertHvdcRangeActionImported("HVDC-direction12", createdIds2, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), true);
         assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1").getGroupId().get());
         assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1").getGroupId().get());
     }
@@ -703,6 +710,68 @@ class CimCracCreatorTest {
             .map(InjectionSetpoint.class::cast)
             .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
         );
+
+        // RA_4
+        assertNetworkActionImported("RA_4", Set.of("_b94318f6-6d24-4f56-96b9-df2531ad6543", "_1dc9afba-23b5-41a0-8540-b479ed8baf4b"), false);
+        NetworkAction ra4 = importedCrac.getNetworkAction("RA_4");
+        assertEquals(2, ra4.getUsageRules().size());
+        assertTrue(
+            ra4.getUsageRules().stream()
+                .filter(OnFlowConstraintInCountry.class::isInstance)
+                .map(OnFlowConstraintInCountry.class::cast)
+                .anyMatch(ur -> ur.getInstant().isPreventive() && ur.getContingency().isEmpty() && ur.getCountry().equals(Country.FR))
+        );
+        assertTrue(
+            ra4.getUsageRules().stream()
+                .filter(OnFlowConstraintInCountry.class::isInstance)
+                .map(OnFlowConstraintInCountry.class::cast)
+                .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().orElseThrow().getId().equals("CO_1") && ur.getCountry().equals(Country.FR))
+        );
+        assertEquals(2, ra4.getElementaryActions().size());
+        assertTrue(ra4.getElementaryActions().stream()
+            .filter(PstSetpoint.class::isInstance)
+            .map(PstSetpoint.class::cast)
+            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
+        );
+        assertTrue(ra4.getElementaryActions().stream()
+            .filter(InjectionSetpoint.class::isInstance)
+            .map(InjectionSetpoint.class::cast)
+            .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
+        );
+
+        // RA_5
+        assertNetworkActionImported("RA_4", Set.of("_b94318f6-6d24-4f56-96b9-df2531ad6543", "_1dc9afba-23b5-41a0-8540-b479ed8baf4b"), false);
+        NetworkAction ra5 = importedCrac.getNetworkAction("RA_5");
+        assertEquals(3, ra5.getUsageRules().size());
+        assertTrue(
+            ra5.getUsageRules().stream()
+                .filter(OnFlowConstraintInCountry.class::isInstance)
+                .map(OnFlowConstraintInCountry.class::cast)
+                .anyMatch(ur -> ur.getInstant().isPreventive() && ur.getContingency().isEmpty() && ur.getCountry().equals(Country.FR))
+        );
+        assertTrue(
+            ra5.getUsageRules().stream()
+                .filter(OnFlowConstraintInCountry.class::isInstance)
+                .map(OnFlowConstraintInCountry.class::cast)
+                .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().orElseThrow().getId().equals("CO_1") && ur.getCountry().equals(Country.FR))
+        );
+        assertTrue(
+            ra5.getUsageRules().stream()
+                .filter(OnFlowConstraintInCountry.class::isInstance)
+                .map(OnFlowConstraintInCountry.class::cast)
+                .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().orElseThrow().getId().equals("CO_2") && ur.getCountry().equals(Country.FR))
+        );
+        assertEquals(2, ra5.getElementaryActions().size());
+        assertTrue(ra5.getElementaryActions().stream()
+            .filter(PstSetpoint.class::isInstance)
+            .map(PstSetpoint.class::cast)
+            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
+        );
+        assertTrue(ra5.getElementaryActions().stream()
+            .filter(InjectionSetpoint.class::isInstance)
+            .map(InjectionSetpoint.class::cast)
+            .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
+        );
     }
 
     @Test
@@ -733,15 +802,15 @@ class CimCracCreatorTest {
         setUp("/cracs/CIM_21_7_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         // -- Imported
         // Angle cnec and associated RA imported :
-        assertAngleCnecImportedWithContingency("AngleCnec1", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"));
+        assertAngleCnecImportedWithContingency("AngleCnec1", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"), 30.);
         assertNetworkActionImported("RA1", Set.of("_1dc9afba-23b5-41a0-8540-b479ed8baf4b", "_2844585c-0d35-488d-a449-685bcd57afbf"), false);
         assertHasOnAngleUsageRule("RA1", "AngleCnec1");
         assertEquals(1, importedCrac.getRemedialAction("RA1").getUsageRules().size());
         // -- Partially imported
         // Angle cnec without an associated RA :
-        assertAngleCnecImportedWithContingency("AngleCnec3", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"));
+        assertAngleCnecImportedWithContingency("AngleCnec3", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"), 40.);
         // Angle cnec with ill defined RA :
-        assertAngleCnecImportedWithContingency("AngleCnec11", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"));
+        assertAngleCnecImportedWithContingency("AngleCnec11", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"), 60.);
         assertRemedialActionNotImported("RA11", ELEMENT_NOT_FOUND_IN_NETWORK);
 
         // -- Not imported

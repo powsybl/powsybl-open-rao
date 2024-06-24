@@ -58,7 +58,7 @@ public class AngleMonitoringSteps {
         Network network = CommonTestData.getNetwork();
         RaoResult raoResult = CommonTestData.getRaoResult();
         CimGlskDocument cimGlskDocument = CommonTestData.getCimGlskDocument();
-        AngleMonitoringResult result = roundTripOnAngleMonitoringResult(new AngleMonitoring(CommonTestData.getCrac(), network, raoResult, cimGlskDocument).run("OpenLoadFlow", loadFlowParameters, numberOfLoadFlowsInParallel, glskOffsetDateTime), CommonTestData.getCrac());
+        AngleMonitoringResult result = roundTripOnAngleMonitoringResult(new AngleMonitoring(CommonTestData.getCrac(), network, raoResult, cimGlskDocument, glskOffsetDateTime).run("OpenLoadFlow", loadFlowParameters, numberOfLoadFlowsInParallel), CommonTestData.getCrac());
         CommonTestData.setAngleMonitoringResult(result);
     }
 

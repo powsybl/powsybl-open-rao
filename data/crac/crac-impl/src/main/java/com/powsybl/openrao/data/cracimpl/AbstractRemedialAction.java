@@ -86,15 +86,11 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         for (UsageRule usageRule : usageRules) {
             if (usageRule.getInstant().isPreventive()) {
                 updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
-            } else if (usageRule instanceof OnFlowConstraint ofc) {
-                State state = ofc.getFlowCnec().getState();
-                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
-            } else if (usageRule instanceof OnAngleConstraint oac) {
-                State state = oac.getAngleCnec().getState();
-                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
-            } else if (usageRule instanceof OnVoltageConstraint ovc) {
-                State state = ovc.getVoltageCnec().getState();
-                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+            } else if (usageRule instanceof OnConstraint<?> oc) {
+                State state = oc.getCnec().getState();
+                if (usageRule.getInstant().equals(state.getInstant())) {
+                    updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+                }
             } else if (usageRule instanceof OnContingencyState ocs) {
                 State state = ocs.getState();
                 updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
@@ -129,7 +125,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>();
-        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraint.class, optimizedState));
+        usageRulesOnFlowConstraint.addAll(getUsageRules(OnConstraint.class, optimizedState).stream().filter(onConstraint -> onConstraint.getCnec() instanceof FlowCnec).toList());
         usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraintInCountry.class, optimizedState));
         usageRulesOnFlowConstraint.forEach(usageRule -> toBeConsideredCnecs.addAll(getFlowCnecsConstrainingForOneUsageRule(usageRule, perimeterCnecs, network)));
         return toBeConsideredCnecs;
@@ -137,11 +133,12 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     // TODO: move this method to RaoUtil
     public Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network) {
-        if (usageRule instanceof OnFlowConstraint onFlowConstraint) {
-            return Set.of(onFlowConstraint.getFlowCnec());
+        if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec flowCnec) {
+            return Set.of(flowCnec);
         } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
             return perimeterCnecs.stream()
                 .filter(cnec -> !cnec.getState().getInstant().comesBefore(usageRule.getInstant()))
+                .filter(cnec -> onFlowConstraintInCountry.getContingency().isEmpty() || onFlowConstraintInCountry.getContingency().equals(cnec.getState().getContingency()))
                 .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network)).collect(Collectors.toSet());
         } else {
             throw new OpenRaoException(String.format("This method should only be used for Ofc Usage rules not for this type of UsageRule: %s", usageRule.getClass().getName()));

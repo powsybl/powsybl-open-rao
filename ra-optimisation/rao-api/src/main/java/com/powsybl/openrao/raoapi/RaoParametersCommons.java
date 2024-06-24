@@ -16,7 +16,7 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "2.3";
+    public static final String RAO_PARAMETERS_VERSION = "2.4";
 
     // header
     public static final String VERSION = "version";
@@ -29,6 +29,7 @@ public final class RaoParametersCommons {
     public static final String CURATIVE_MIN_OBJ_IMPROVEMENT = "curative-min-obj-improvement";
     public static final String PREVENTIVE_STOP_CRITERION = "preventive-stop-criterion";
     public static final String CURATIVE_STOP_CRITERION = "curative-stop-criterion";
+    public static final String OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE = "optimize-curative-if-preventive-unsecure";
 
     // range actions optimization parameters
     public static final String RANGE_ACTIONS_OPTIMIZATION = "range-actions-optimization";
@@ -89,7 +90,6 @@ public final class RaoParametersCommons {
     public static final String NOT_OPTIMIZED_CNECS = "not-optimized-cnecs";
     public static final String NOT_OPTIMIZED_CNECS_SECTION = "rao-not-optimized-cnecs";
     public static final String DO_NOT_OPTIMIZE_CURATIVE_CNECS = "do-not-optimize-curative-cnecs-for-tsos-without-cras";
-    public static final String DO_NOT_OPTIMIZE_CNECS_SECURED_BY_ITS_PST = "do-not-optimize-cnec-secured-by-its-pst";
 
     // Not optimized cnecs parameters
     public static final String LOAD_FLOW_AND_SENSITIVITY_COMPUTATION = "load-flow-and-sensitivity-computation";
