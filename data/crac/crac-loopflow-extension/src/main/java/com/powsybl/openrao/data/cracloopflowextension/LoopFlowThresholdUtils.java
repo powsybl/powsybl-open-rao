@@ -11,8 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 
-import java.util.Objects;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -21,11 +19,11 @@ public final class LoopFlowThresholdUtils {
         // should not be used
     }
 
-    static void checkAttributes(double thresholdValue, Unit thresholdUnit) {
-        if (Double.isNaN(thresholdValue)) {
+    static void checkAttributes(Double thresholdValue, Unit thresholdUnit) {
+        if (thresholdValue == null || Double.isNaN(thresholdValue)) {
             throw new OpenRaoException("Cannot add LoopFlowThreshold without a threshold value. Please use withValue() with a non null value");
         }
-        if (Objects.isNull(thresholdUnit)) {
+        if (thresholdUnit == null) {
             throw new OpenRaoException("Cannot add LoopFlowThreshold without a threshold unit. Please use withUnit() with a non null value");
         }
         if (thresholdValue < 0) {
