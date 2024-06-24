@@ -23,9 +23,6 @@ import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
 import java.util.*;
 
-/**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
- */
 public final class SensitivityComputerMultiTS {
     private List<SystematicSensitivityInterface> systematicSensitivityInterfaces;
     private List<BranchResultAdapter> branchResultAdapters;

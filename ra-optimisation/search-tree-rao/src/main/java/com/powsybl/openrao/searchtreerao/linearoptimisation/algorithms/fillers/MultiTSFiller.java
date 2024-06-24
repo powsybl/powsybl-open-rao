@@ -76,7 +76,6 @@ public class MultiTSFiller implements ProblemFiller {
 
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        //run?
         if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
             for (int i = 1; i < rangeActionsList.size(); i++) {
                 for (RangeAction<?> currentRangeAction : rangeActionsList.get(i)) {
@@ -106,7 +105,7 @@ public class MultiTSFiller implements ProblemFiller {
     private void updateFlowConstraints(LinearProblem linearProblem, SensitivityResult sensitivityResult, List<Set<PstRangeAction>> pstRangeActionsList) {
         for (int i = 1; i < pstRangeActionsList.size(); i++) {
             for (PstRangeAction previousRangeAction : pstRangeActionsList.get(i - 1)) {
-                if (!pstRangeActionsList.get(i).contains(previousRangeAction)) {
+                if (pstRangeActionsList.get(i).stream().filter(pstRangeAction -> pstRangeAction.getNetworkElement().getId().equals(previousRangeAction.getNetworkElement().getId())).collect(Collectors.toSet()).isEmpty()) {
                     addImpactOfRangeActionOnLaterTimeSteps(linearProblem, sensitivityResult, previousRangeAction, i);
                 }
             }
@@ -184,13 +183,15 @@ public class MultiTSFiller implements ProblemFiller {
         for (int i = 1; i < pstRangeActionsList.size(); i++) {
             for (PstRangeAction currentRangeAction : pstRangeActionsList.get(i)) {
                 Set<PstRangeAction> previousRangeActionSet = new HashSet<>();
-                int previousTimeStepIndex = i - 1;
-                while (previousRangeActionSet.size() < 1 && previousTimeStepIndex >= 0) {
-                    previousRangeActionSet = pstRangeActionsList.get(previousTimeStepIndex)
+                int timeStepIndex = i - 1;
+                // currentRangeAction may be only defined several time steps before the current one
+                // so we need to check every time step until we find it
+                while (previousRangeActionSet.isEmpty() && timeStepIndex >= 0) {
+                    previousRangeActionSet = pstRangeActionsList.get(timeStepIndex)
                         .stream()
-                        .filter(rangeAction -> rangeAction.getNetworkElement().getName().equals(currentRangeAction.getNetworkElement().getName()))
+                        .filter(rangeAction -> rangeAction.getNetworkElement().getId().equals(currentRangeAction.getNetworkElement().getId()))
                         .collect(Collectors.toSet());
-                    --previousTimeStepIndex;
+                    --timeStepIndex;
                 }
 
                 if (previousRangeActionSet.size() == 1) {

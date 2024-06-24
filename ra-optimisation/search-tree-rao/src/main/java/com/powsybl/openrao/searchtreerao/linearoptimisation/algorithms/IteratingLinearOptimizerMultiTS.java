@@ -30,9 +30,6 @@ import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
-/**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
- */
 public final class IteratingLinearOptimizerMultiTS {
 
     private IteratingLinearOptimizerMultiTS() {

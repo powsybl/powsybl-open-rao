@@ -1,14 +1,16 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
@@ -48,21 +50,24 @@ public class NewRAOTest {
     List<Map<State, Set<PstRangeAction>>> rangeActionsPerStatePerTimestamp;
     MultipleSensitivityResult initialSensiResult;
     RangeActionsOptimizationParameters.PstModel pstModel;
+    RaoParameters raoParameters;
 
     @BeforeEach
     public void setUp() {
         networks = new ArrayList<>();
-        networks.add(Network.read("multi-ts/network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR_2PST.uct")));
-//        networks.add(Network.read("network/12NodesProdNL.uct", getClass().getResourceAsStream("/network/12NodesProdNL.uct")));
-        networks.add(Network.read("multi-ts/network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR_2PST.uct")));
+        networks.add(Network.read("multi-ts/network/12NodesProdFR.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR.uct")));
+//        networks.add(Network.read("multi-ts/network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR_2PST.uct")));
+        networks.add(Network.read("multi-ts/network/12NodesProdNL.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdNL.uct")));
 
         cracs = new ArrayList<>();
-        cracs.add(CracImporters.importCrac("multi-ts/crac/crac-case0_0.json",
-            getClass().getResourceAsStream("/multi-ts/crac/crac-case0_0.json"),
+        cracs.add(CracImporters.importCrac("multi-ts/crac/crac-network-action-0.json",
+            getClass().getResourceAsStream("/multi-ts/crac/crac-network-action-0.json"),
             networks.get(0)));
-        cracs.add(CracImporters.importCrac("multi-ts/crac/crac-2pst-ts1.json",
-            getClass().getResourceAsStream("/multi-ts/crac/crac-2pst-ts1.json"),
+        cracs.add(CracImporters.importCrac("multi-ts/crac/crac-network-action-1.json",
+            getClass().getResourceAsStream("/multi-ts/crac/crac-network-action-1.json"),
             networks.get(1)));
+
+        raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
 
         initialSetpoints = computeInitialSetpointsResults();
         optimizationPerimeters = computeOptimizationPerimeters();
@@ -95,6 +100,25 @@ public class NewRAOTest {
         return perimeters;
     }
 
+    private MultipleSensitivityResult runInitialSensi() {
+        List<Set<FlowCnec>> cnecsList = new ArrayList<>();
+        cracs.forEach(crac -> cnecsList.add(crac.getFlowCnecs()));
+
+        Set<RangeAction<?>> rangeActionsSet = new HashSet<>();
+        cracs.forEach(crac -> rangeActionsSet.addAll(crac.getRangeActions()));
+
+        ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
+
+        SensitivityComputerMultiTS sensitivityComputerMultiTS = SensitivityComputerMultiTS.create()
+            .withCnecs(cnecsList)
+            .withRangeActions(rangeActionsSet)
+            .withOutageInstant(cracs.get(0).getOutageInstant())
+            .withToolProvider(toolProvider)
+            .build();
+        sensitivityComputerMultiTS.compute(networks);
+        return sensitivityComputerMultiTS.getSensitivityResults();
+    }
+
     private List<Map<State, Set<PstRangeAction>>> computeRangeActionsPerStatePerTimestamp() {
         List<Map<State, Set<PstRangeAction>>> rangeActionsPerStatePerTimestamp = new ArrayList<>();
         for (Crac crac : cracs) {
@@ -109,27 +133,9 @@ public class NewRAOTest {
         return rangeActionsPerStatePerTimestamp;
     }
 
-    private MultipleSensitivityResult runInitialSensi() {
-        List<Set<FlowCnec>> cnecsList = List.of(cracs.get(0).getFlowCnecs(), cracs.get(1).getFlowCnecs());
-        Set<RangeAction<?>> rangeActionsSet = new HashSet<>();
-        rangeActionsSet.addAll(cracs.get(0).getRangeActions());
-        rangeActionsSet.addAll(cracs.get(1).getRangeActions());
-        RaoParameters raoParameters = RaoParameters.load();
-        ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
-
-        SensitivityComputerMultiTS sensitivityComputerMultiTS = SensitivityComputerMultiTS.create()
-            .withCnecs(cnecsList)
-            .withRangeActions(rangeActionsSet)
-            .withOutageInstant(cracs.get(0).getOutageInstant())
-            .withToolProvider(toolProvider)
-            .build();
-        sensitivityComputerMultiTS.compute(networks);
-        return sensitivityComputerMultiTS.getSensitivityResults();
-    }
-
     @Test
     public void testLinearProblemMerge() {
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
+        RangeActionsOptimizationParameters rangeActionParameters = raoParameters.getRangeActionsOptimizationParameters();
         rangeActionParameters.setPstModel(pstModel);
         OpenRaoMPSolver orMpSolver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.SCIP);
 
@@ -206,7 +212,6 @@ public class NewRAOTest {
         allCnecs.addAll(cracs.get(0).getFlowCnecs());
         allCnecs.addAll(cracs.get(1).getFlowCnecs());
 
-        RaoParameters raoParameters = RaoParameters.load();
         raoParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
@@ -244,9 +249,9 @@ public class NewRAOTest {
             .withLoopFlowParameters(raoParameters.getExtension(LoopFlowParametersExtension.class))
             .withUnoptimizedCnecParameters(null)
             .withRaLimitationParameters(new RangeActionLimitationParameters())
-            .withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver.load(PlatformConfig.defaultConfig()))
-            .withMaxNumberOfIterations(3)
-            .withRaRangeShrinking(false) //TODO: maybe set to true
+            .withSolverParameters(raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
+            .withMaxNumberOfIterations(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations())
+            .withRaRangeShrinking(!raoParameters.getRangeActionsOptimizationParameters().getRaRangeShrinking().equals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED))
             .build();
 
         LinearOptimizationResult result = IteratingLinearOptimizerMultiTS.optimize(input, parameters, cracs.get(0).getOutageInstant());
@@ -317,5 +322,47 @@ public class NewRAOTest {
 
         System.out.println(setpointMerge0);
         System.out.println(setpointMerge1);
+    }
+
+    @Test
+    void findBestTap() {
+
+        Map<Integer, Double> marginsMap0 = computeMargins(0);
+        Map<Integer, Double> marginsMap1 = computeMargins(1);
+
+        double objFctValMax = -Double.MAX_VALUE;
+        int bestTapTs0 = 0;
+        int bestTapTs1 = 0;
+        for (int tapTs0 = -16; tapTs0 <= 16; tapTs0++) {
+            for (int tapTs1 = Math.max(-16, tapTs0 - 3); tapTs1 <= Math.min(16, tapTs0 + 3); tapTs1++) {
+                double objFctVal = Math.min(marginsMap0.get(tapTs0), marginsMap1.get(tapTs1));
+                if (objFctVal > objFctValMax) {
+                    objFctValMax = objFctVal;
+                    bestTapTs0 = tapTs0;
+                    bestTapTs1 = tapTs1;
+                }
+            }
+        }
+        System.out.println(bestTapTs0);
+        System.out.println(bestTapTs1);
+    }
+
+    private Map<Integer, Double> computeMargins(int i) {
+        Network network = networks.get(i);
+        Crac crac = cracs.get(i);
+
+//        crac.getNetworkAction("close-fr3-be2-2 - TS" + i).apply(network);
+//        crac.getNetworkAction("close-fr3-be2-3 - TS" + i).apply(network);
+        Map<Integer, Double> marginsMap = new HashMap<>();
+
+        for (int tap = -16; tap <= 16; tap++) {
+            PstRangeAction pstRangeAction0 = crac.getPstRangeAction("pst_be - TS" + i);
+            pstRangeAction0.apply(network, pstRangeAction0.convertTapToAngle(tap));
+            LoadFlow.find("OpenLoadFlow").run(network, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+            double p = network.getLine("BBE2AA1  FFR3AA1  1").getTerminal1().getP();
+            double margin = crac.getFlowCnec("BBE2AA1  FFR3AA1  1 - preventive - TS" + i).computeMargin(p, Side.LEFT, Unit.MEGAWATT);
+            marginsMap.put(tap, margin);
+        }
+        return marginsMap;
     }
 }

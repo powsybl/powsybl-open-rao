@@ -1,6 +1,5 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -37,13 +36,17 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class MultiTSScenariosTest {
+    static final double DOUBLE_TOLERANCE = 1e-4;
+    static final double SET_POINT_MAX_TAP = 6.2276423729910535;
     List<Network> networks;
     List<Crac> cracs;
     RangeActionSetpointResult initialSetpoints;
     List<OptimizationPerimeter> optimizationPerimeters;
     MultipleSensitivityResult initialSensiResult;
-    RangeActionsOptimizationParameters.PstModel pstModel = RangeActionsOptimizationParameters.PstModel.CONTINUOUS;
+    RangeActionsOptimizationParameters.PstModel pstModel = RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS;
 
     @BeforeEach
     public void setUp() {
@@ -211,7 +214,6 @@ public class MultiTSScenariosTest {
 
     public LinearOptimizationResult runIteratingLinearOptimization() {
 
-        Instant preventiveInstant = Mockito.mock(Instant.class);
         Instant outageInstant = Mockito.mock(Instant.class);
 
         Set<FlowCnec> allCnecs = new HashSet<>();
@@ -255,37 +257,40 @@ public class MultiTSScenariosTest {
             .withLoopFlowParameters(raoParameters.getExtension(LoopFlowParametersExtension.class))
             .withUnoptimizedCnecParameters(null)
             .withRaLimitationParameters(new RangeActionLimitationParameters())
-            .withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver.load(PlatformConfig.defaultConfig()))
-            .withMaxNumberOfIterations(3)
-            .withRaRangeShrinking(false)
+            .withSolverParameters(raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
+            .withMaxNumberOfIterations(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations())
+            .withRaRangeShrinking(!raoParameters.getRangeActionsOptimizationParameters().getRaRangeShrinking().equals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED))
             .build();
 
-        LinearOptimizationResult result = IteratingLinearOptimizerMultiTS.optimize(input, parameters, outageInstant);
-        return result;
+//        OutputStream os = new ByteArrayOutputStream();
+//        JsonRaoParameters.write(raoParameters, os);
+
+        return IteratingLinearOptimizerMultiTS.optimize(input, parameters, outageInstant);
 
     }
 
     public void testEasyCasesSameNetwork(int caseNumber) {
-        String pathCrac0 = "multi-ts/crac/crac-case" + caseNumber + "_0.json";
-        String pathCrac1 = "multi-ts/crac/crac-case" + caseNumber + "_1.json";
-
-        Map<String, String> pathsCracsAndNetworks = Map.of(
-            pathCrac0, "multi-ts/network/12NodesProdFR.uct",
-            pathCrac1, "multi-ts/network/12NodesProdFR.uct"
+        List<String> cracsPaths = List.of(
+            "multi-ts/crac/crac-case" + caseNumber + "_0.json",
+            "multi-ts/crac/crac-case" + caseNumber + "_1.json"
+        );
+        List<String> networksPaths = List.of(
+            "multi-ts/network/12NodesProdFR_2PST.uct",
+            "multi-ts/network/12NodesProdFR_2PST.uct"
         );
 
         cracs = new ArrayList<>();
         networks = new ArrayList<>();
-        pathsCracsAndNetworks.forEach((cracPath, networkPath) -> {
-                networks.add(Network.read(networkPath, getClass().getResourceAsStream("/" + networkPath)));
-                cracs.add(CracImporters.importCrac(cracPath, getClass().getResourceAsStream("/" + cracPath), networks.iterator().next()));
-            }
-        );
+
+        for (int i = 0; i < networksPaths.size(); i++) {
+            networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
+            cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
+        }
 
         initialSetpoints = computeInitialSetpointsResults();
         optimizationPerimeters = computeOptimizationPerimeters();
         initialSensiResult = runInitialSensi();
-
+//
         LinearOptimizationResult resultTs0 = testProblemAlone(0);
         LinearOptimizationResult resultTs1 = testProblemAlone(1);
 
@@ -310,13 +315,15 @@ public class MultiTSScenariosTest {
         System.out.println("---- Merged problem -----");
         System.out.println(pstOptimizedSetPoint0);
         System.out.println(pstOptimizedSetPoint1);
+
+        assertEquals(pstOptimizedSetPoint0, SET_POINT_MAX_TAP, DOUBLE_TOLERANCE);
+        assertEquals(pstOptimizedSetPoint1, SET_POINT_MAX_TAP, DOUBLE_TOLERANCE);
     }
 
     public LinearOptimizationResult testProblemAlone(int timeStepIndex) {
         Instant outageInstant = Mockito.mock(Instant.class);
 
-        Set<FlowCnec> allCnecs = new HashSet<>();
-        allCnecs.addAll(cracs.get(timeStepIndex).getFlowCnecs());
+        Set<FlowCnec> allCnecs = new HashSet<>(cracs.get(timeStepIndex).getFlowCnecs());
 
         RaoParameters raoParameters = RaoParameters.load();
         raoParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
@@ -356,12 +363,11 @@ public class MultiTSScenariosTest {
             .withLoopFlowParameters(raoParameters.getExtension(LoopFlowParametersExtension.class))
             .withUnoptimizedCnecParameters(null)
             .withRaLimitationParameters(new RangeActionLimitationParameters())
-            .withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver.load(PlatformConfig.defaultConfig()))
-            .withMaxNumberOfIterations(3)
-            .withRaRangeShrinking(false)
+            .withSolverParameters(raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
+            .withMaxNumberOfIterations(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations())
+            .withRaRangeShrinking(!raoParameters.getRangeActionsOptimizationParameters().getRaRangeShrinking().equals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED))
             .build();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input0, parameters, outageInstant);
-        return result;
+        return IteratingLinearOptimizer.optimize(input0, parameters, outageInstant);
     }
 }
