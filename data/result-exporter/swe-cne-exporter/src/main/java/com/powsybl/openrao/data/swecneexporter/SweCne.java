@@ -113,7 +113,7 @@ public class SweCne {
         try {
             isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
         } catch (OpenRaoException e) {
-            // Sometimes we run this method before without running angle monitoring. In that case, simply ignore AngleCnecs
+            // Sometimes we run this method without running angle monitoring. In that case, simply ignore AngleCnecs
             isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW);
         }
         if (isDivergent) {
