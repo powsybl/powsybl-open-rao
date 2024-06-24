@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
-import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -199,15 +198,15 @@ public final class IteratingLinearOptimizer {
     private static SearchTreeResult createResult(IteratingLinearOptimizerInput input,
                                                  FlowResult flowResult,
                                                  SensitivityResult sensitivityResult,
-                                                 MultiStateRemedialActionResultImpl rangeActionResult) {
+                                                 MultiStateRemedialActionResultImpl allStatesRemedialActionResult) {
 
         NetworkActionsResult networkActionsResult = new NetworkActionResultImpl(input.getPreOptimizationResult().getPerimeterResultWithCnecs().getActivatedNetworkActions());
-        RangeActionResultImpl mainStateRangeActionResult = rangeActionResult.getRangeActionResultOnState(input.getOptimizationPerimeter().getMainOptimizationState());
+        RangeActionResultImpl mainStateRangeActionResult = allStatesRemedialActionResult.getRangeActionResultOnState(input.getOptimizationPerimeter().getMainOptimizationState());
         ObjectiveFunctionResult objectiveFunctionResult = input.getObjectiveFunction().evaluate(flowResult, sensitivityResult);
         OptimizationResultImpl optimizationResult = new OptimizationResultImpl(flowResult, sensitivityResult, networkActionsResult, mainStateRangeActionResult, objectiveFunctionResult);
 
         PerimeterResultWithCnecs perimeterResultWithCnecs = new PerimeterResultWithCnecs(input.getPrePerimeterResult(), optimizationResult);
-        return new SearchTreeResult(perimeterResultWithCnecs, applyRangeActions(rangeActionResult, input));
+        return new SearchTreeResult(perimeterResultWithCnecs, allStatesRemedialActionResult);
     }
 
     private static MultiStateRemedialActionResultImpl roundResult(LinearProblemResult linearProblemResult, SearchTreeResult previousResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {

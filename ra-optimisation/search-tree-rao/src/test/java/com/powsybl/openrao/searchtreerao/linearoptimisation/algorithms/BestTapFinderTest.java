@@ -17,8 +17,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,13 +45,14 @@ class BestTapFinderTest {
 
     private Network network;
     private RangeActionResult rangeActionResult;
-    private LinearOptimizationResult linearOptimizationResult;
+    private PerimeterResultWithCnecs previousPerimeterResult;
+    private PerimeterResultWithCnecs previousBestResult;
+    private LinearProblemResult linearProblemResult;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private PstRangeAction pstRangeAction;
     private State optimizedState;
     private OptimizationPerimeter optimizationPerimeter;
-    private RangeActionResult rangeActionResult;
 
     @BeforeEach
     public void setUp() {
@@ -62,11 +62,10 @@ class BestTapFinderTest {
         when(cnec2.getMonitoredSides()).thenReturn(Collections.singleton(Side.RIGHT));
         network = Mockito.mock(Network.class);
 
-        linearOptimizationResult = mock(LinearOptimizationResult.class);
-        when(linearOptimizationResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2));
-
-        when(linearOptimizationResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
-        when(linearOptimizationResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
+        previousBestResult = mock(PerimeterResultWithCnecs.class);
+        when(previousBestResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2));
+        when(previousBestResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
+        when(previousBestResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
 
         rangeActionResult = Mockito.mock(RangeActionResult.class);
         pstRangeAction = createPst();
@@ -78,12 +77,12 @@ class BestTapFinderTest {
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
         rangeActionResult = Mockito.mock(RangeActionResult.class);
-        when(rangeActionResult.getOptimizedSetpointsOnState(optimizedState)).thenReturn(Map.of(pstRangeAction, 0.));
+        when(rangeActionResult.getOptimizedSetpoints()).thenReturn(Map.of(pstRangeAction, 0.));
     }
 
     private void setSensitivityValues(PstRangeAction pstRangeAction) {
-        when(linearOptimizationResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
-        when(linearOptimizationResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
+        when(previousBestResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
+        when(previousBestResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
     }
 
     private void mockPstRangeAction(PstRangeAction pstRangeAction) {
@@ -120,18 +119,18 @@ class BestTapFinderTest {
             network,
             pstRangeAction,
             startingSetPoint,
-            linearOptimizationResult,
+            previousBestResult,
             Unit.MEGAWATT
         );
     }
 
-    private RangeActionResult computeUpdatedRangeActionResult() {
+    private MultiStateRemedialActionResultImpl computeUpdatedRangeActionResult() {
         return BestTapFinder.round(
-            rangeActionResult,
+            linearProblemResult,
             network,
             optimizationPerimeter,
-            rangeActionResult,
-            linearOptimizationResult,
+            previousPerimeterResult,
+            previousBestResult,
             Unit.MEGAWATT
         );
     }
@@ -288,21 +287,18 @@ class BestTapFinderTest {
         when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
         when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(networkElementOtherThanPst));
 
-        rangeActionResult = new RangeActionResultImpl(Map.of(
-            pstRangeAction, startingSetPoint,
-            activatedRangeActionOtherThanPst, startingSetPoint
-        ));
-        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
-        ((RangeActionResultImpl) rangeActionResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionResultImpl) rangeActionResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        linearProblemResult = Mockito.mock(LinearProblemResult.class);
+        Mockito.when(linearProblemResult.getSetpointOnState(pstRangeAction, optimizedState)).thenReturn(notRoundedSetpoint);
+        Mockito.when(linearProblemResult.getSetpointOnState(activatedRangeActionOtherThanPst, optimizedState)).thenReturn(200.);
+
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
 
-        RangeActionResult updatedRangeActionResult = computeUpdatedRangeActionResult();
+        MultiStateRemedialActionResultImpl updatedRangeActionResult = computeUpdatedRangeActionResult();
 
-        assertEquals(0.75, updatedRangeActionResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(200., updatedRangeActionResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0.75, updatedRangeActionResult.getOptimizedSetpointOnState(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(200., updatedRangeActionResult.getOptimizedSetpointOnState(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -319,26 +315,22 @@ class BestTapFinderTest {
         when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
         when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(networkElementOtherThanPst));
 
-        rangeActionResult = new RangeActionResultImpl(Map.of(
-            pstRangeAction, startingSetPoint,
-            activatedRangeActionOtherThanPst, startingSetPoint
-        ));
-        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
-        ((RangeActionResultImpl) rangeActionResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionResultImpl) rangeActionResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        linearProblemResult = Mockito.mock(LinearProblemResult.class);
+        Mockito.when(linearProblemResult.getSetpointOnState(pstRangeAction, optimizedState)).thenReturn(notRoundedSetpoint);
+        Mockito.when(linearProblemResult.getSetpointOnState(activatedRangeActionOtherThanPst, optimizedState)).thenReturn(200.);
+
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
 
-        RangeActionResult updatedRangeActionResult = computeUpdatedRangeActionResult();
+        MultiStateRemedialActionResultImpl updatedRangeActionResult = computeUpdatedRangeActionResult();
 
-        assertEquals(2.5, updatedRangeActionResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(200., updatedRangeActionResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(2.5, updatedRangeActionResult.getOptimizedSetpointOnState(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(200., updatedRangeActionResult.getOptimizedSetpointOnState(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testUpdatedRangeActionResultNoOptimizationOfTheTap() {
-        double startingSetPoint = 0.;
         double notRoundedSetpoint = 0.8;
         // Starting point is really close to set point of tap 1 so it will be set to tap 1
         setClosestTapPosition(pstRangeAction, notRoundedSetpoint, 1);
@@ -351,21 +343,18 @@ class BestTapFinderTest {
         when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
         when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(networkElementOtherThanPst));
 
-        rangeActionResult = new RangeActionResultImpl(Map.of(
-            pstRangeAction, startingSetPoint,
-            activatedRangeActionOtherThanPst, startingSetPoint
-        ));
-        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
-        ((RangeActionResultImpl) rangeActionResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionResultImpl) rangeActionResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        linearProblemResult = Mockito.mock(LinearProblemResult.class);
+        Mockito.when(linearProblemResult.getSetpointOnState(pstRangeAction, optimizedState)).thenReturn(notRoundedSetpoint);
+        Mockito.when(linearProblemResult.getSetpointOnState(activatedRangeActionOtherThanPst, optimizedState)).thenReturn(200.);
+
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
 
-        RangeActionResult updatedRangeActionResult = computeUpdatedRangeActionResult();
+        MultiStateRemedialActionResultImpl updatedRangeActionResult = computeUpdatedRangeActionResult();
 
-        assertEquals(0.75, updatedRangeActionResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(200., updatedRangeActionResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0.75, updatedRangeActionResult.getOptimizedSetpointOnState(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(200., updatedRangeActionResult.getOptimizedSetpointOnState(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -386,23 +375,19 @@ class BestTapFinderTest {
         setMarginsForTap(pstGroup2, -1, 120, 150);
         setMarginsForTap(pstGroup2, 0, 150, 140); // Tap 0 should be selected because min margin is 140
 
-        rangeActionResult = new RangeActionResultImpl(Map.of(
-            pstRangeAction, startingSetPoint,
-            pstGroup1, startingSetPoint,
-            pstGroup2, startingSetPoint
-        ));
-        rangeActionResult = new RangeActionResultImpl(rangeActionResult);
-        ((RangeActionResultImpl) rangeActionResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionResultImpl) rangeActionResult).activate(pstGroup1, optimizedState, groupNotRoundedSetpoint);
-        ((RangeActionResultImpl) rangeActionResult).activate(pstGroup2, optimizedState, groupNotRoundedSetpoint);
+        linearProblemResult = Mockito.mock(LinearProblemResult.class);
+        Mockito.when(linearProblemResult.getSetpointOnState(pstRangeAction, optimizedState)).thenReturn(notRoundedSetpoint);
+        Mockito.when(linearProblemResult.getSetpointOnState(pstGroup1, optimizedState)).thenReturn(groupNotRoundedSetpoint);
+        Mockito.when(linearProblemResult.getSetpointOnState(pstGroup2, optimizedState)).thenReturn(groupNotRoundedSetpoint);
+
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, pstGroup1, pstGroup2)
         ));
 
-        RangeActionResult updatedRangeActionResult = computeUpdatedRangeActionResult();
+        MultiStateRemedialActionResultImpl updatedRangeActionResult = computeUpdatedRangeActionResult();
 
-        assertEquals(2.5, updatedRangeActionResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(0, updatedRangeActionResult.getOptimizedSetpoint(pstGroup1, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(0, updatedRangeActionResult.getOptimizedSetpoint(pstGroup2, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(2.5, updatedRangeActionResult.getOptimizedSetpointOnState(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0, updatedRangeActionResult.getOptimizedSetpointOnState(pstGroup1, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0, updatedRangeActionResult.getOptimizedSetpointOnState(pstGroup2, optimizedState), DOUBLE_TOLERANCE);
     }
 }

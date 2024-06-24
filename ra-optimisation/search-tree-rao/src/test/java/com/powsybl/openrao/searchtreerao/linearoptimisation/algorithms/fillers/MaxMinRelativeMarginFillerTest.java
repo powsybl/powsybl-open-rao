@@ -23,7 +23,8 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,15 +52,15 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private RelativeMarginsParametersExtension parameters;
     private RangeActionResult initialRangeActionResult;
+    private OptimizationPerimeter optimizationPerimeter;
 
     @BeforeEach
     public void setUp() {
         init();
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
+        RangeActionResult initialRangeActionResult = RangeActionResultImpl.buildWithSetpointsFromNetwork(network, Set.of(pstRangeAction));
 
-        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec1));
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
@@ -79,7 +80,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionResult,
-            new RangeActionResultImpl(initialRangeActionResult),
+            new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter),
             rangeActionParameters,
             MEGAWATT,
             false);
@@ -102,7 +103,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
     }
 
     @Test
@@ -159,8 +160,8 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertEquals(9, linearProblem.numConstraints());
     }
 
-    private FlowResult mockFlowResult(double cnecAbsolutePtdfSum) {
-        FlowResult mockedFlowResult = Mockito.mock(FlowResult.class);
+    private PerimeterResultWithCnecs mockFlowResult(double cnecAbsolutePtdfSum) {
+        PerimeterResultWithCnecs mockedFlowResult = flowAndSensiResult;
         when(mockedFlowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(cnecAbsolutePtdfSum);
         return mockedFlowResult;
     }
@@ -169,7 +170,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     void testMustNotUpdatePtdf() {
         createMaxMinRelativeMarginFiller(MEGAWATT, 0.9);
         buildLinearProblem();
-        linearProblem.updateBetweenSensiIteration(mockFlowResult(0.6), sensitivityResult, new RangeActionResultImpl(initialRangeActionResult));
+        linearProblem.updateBetweenSensiIteration(mockFlowResult(0.6), new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter));
         checkFillerContentMw(0.9);
     }
 
@@ -185,7 +186,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             parameters
         );
         buildLinearProblem();
-        linearProblem.updateBetweenSensiIteration(mockFlowResult(0.6), sensitivityResult, new RangeActionResultImpl(initialRangeActionResult));
+        linearProblem.updateBetweenSensiIteration(mockFlowResult(0.6), new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter));
         checkFillerContentMw(0.6);
     }
 
@@ -240,7 +241,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         );
         buildLinearProblem();
         checkFillerContentMw(0.1234);
-        linearProblem.updateBetweenSensiIteration(mockFlowResult(Double.NaN), sensitivityResult, new RangeActionResultImpl(initialRangeActionResult));
+        linearProblem.updateBetweenSensiIteration(mockFlowResult(Double.NaN), new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter));
         checkFillerContentMw(0.1234);
     }
 }

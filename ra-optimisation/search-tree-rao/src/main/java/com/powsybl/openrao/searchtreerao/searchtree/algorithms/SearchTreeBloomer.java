@@ -79,7 +79,7 @@ public final class SearchTreeBloomer {
 
         // filters
         for (NetworkActionCombinationFilter networkActionCombinationFilter : networkActionCombinationFilters) {
-            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf);
+            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf.getResult().getPerimeterResultWithCnecs());
         }
 
         return networkActionCombinations;
@@ -101,7 +101,7 @@ public final class SearchTreeBloomer {
         // maxRa
         int naCombinationSize = naCombination.getNetworkActionSet().size();
         Set<NetworkAction> alreadyActivatedNetworkActions = optimizationResult.getActivatedNetworkActions();
-        Set<RangeAction<?>> alreadyActivatedRangeActions = optimizationResult.getActivatedRangeActions(optimizationState);
+        Set<RangeAction<?>> alreadyActivatedRangeActions = optimizationResult.getActivatedRangeActions();
         if (alreadyActivatedNetworkActions.size() + alreadyActivatedRangeActions.size() + naCombinationSize > raUsageLimits.getMaxRa()) {
             return true;
         }

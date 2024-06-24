@@ -19,7 +19,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,8 +45,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
     public void setUp() {
         init();
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
+        RangeActionResult initialRangeActionResult = RangeActionResultImpl.buildWithSetpointsFromNetwork(network, Set.of(pstRangeAction));
 
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec1));
@@ -64,7 +63,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionResult,
-            new RangeActionResultImpl(initialRangeActionResult),
+            new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter),
             rangeActionParameters,
             Unit.MEGAWATT,
             false);
@@ -80,7 +79,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
             .withProblemFiller(maxMinMarginFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
     }
 
     @Test
@@ -172,7 +171,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
 
         // AbsoluteRangeActionVariables present, but no the FlowVariables
         linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, pstRangeAction, cnec1.getState());
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.fill(flowResult, sensitivityResult));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.fill(flowAndSensiResult));
         assertEquals("Variable Tieline BE FR - N - preventive_left_flow_variable has not been created yet", e.getMessage());
     }
 
@@ -190,7 +189,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
             // exceeds the max-pst-per-tso parameter
             linearProblem.addFlowVariable(0.0, 0.0, cnec1, Side.LEFT);
             linearProblem.addFlowVariable(0.0, 0.0, cnec2, Side.RIGHT);
-            linearProblem.fill(flowResult, sensitivityResult);
+            linearProblem.fill(flowAndSensiResult);
         } catch (Exception e) {
             fail();
         }

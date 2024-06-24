@@ -7,15 +7,9 @@
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -27,19 +21,14 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.Iterating
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.SearchTreeResult;
+import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -71,16 +60,16 @@ public class Leaf {
     private final AppliedRemedialActions appliedRemedialActionsInSecondaryStates; // for 2nd prev
     private Network network;
     private final PerimeterResultWithCnecs previousPerimeterResult;
-    private final PerimeterResultWithCnecs previousLeafResult;
+    private final SearchTreeResult previousDepthResult;
+    private final boolean shouldPreviousDepthMainStateRangeActionBeRemoved;
     private final Set<NetworkAction> networkActionsApplied = new HashSet<>();
 
     /**
      * Status of the leaf's Network Action evaluation
      */
     private Status status;
-    private SearchTreeResult searchTreeResult;
-    private ObjectiveFunctionResult objectiveFunctionResult;
     private SearchTreeResult preOptimResult;
+    private SearchTreeResult postOptimResult;
 
     /**
      * Flag indicating whether the data needed for optimization is present
@@ -91,14 +80,16 @@ public class Leaf {
     Leaf(OptimizationPerimeter optimizationPerimeter,
          Network network,
          PerimeterResultWithCnecs previousPerimeterResult,
-         PerimeterResultWithCnecs previousLeafResult,
+         SearchTreeResult previousDepthResult,
          NetworkActionCombination newCombinationToApply,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
+         boolean shouldPreviousDepthMainStateRangeActionBeRemoved) {
         this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
         this.previousPerimeterResult = previousPerimeterResult;
         this.appliedRemedialActionsInSecondaryStates = appliedRemedialActionsInSecondaryStates;
-        this.previousLeafResult = previousLeafResult;
+        this.previousDepthResult = previousDepthResult;
+        this.shouldPreviousDepthMainStateRangeActionBeRemoved = shouldPreviousDepthMainStateRangeActionBeRemoved;
 
         // apply Network Actions on initial network
         for (NetworkAction na : newCombinationToApply.getNetworkActionSet()) {
@@ -115,10 +106,16 @@ public class Leaf {
          Network network,
          PerimeterResultWithCnecs previousPerimeterResult,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, network, previousPerimeterResult, null, new NetworkActionCombination(Collections.emptySet()), appliedRemedialActionsInSecondaryStates);
+        this.optimizationPerimeter = optimizationPerimeter;
+        this.network = network;
+        this.previousPerimeterResult = previousPerimeterResult;
+        this.appliedRemedialActionsInSecondaryStates = appliedRemedialActionsInSecondaryStates;
+        this.previousDepthResult = null;
+        this.shouldPreviousDepthMainStateRangeActionBeRemoved = true;
+
+        this.preOptimResult = new SearchTreeResult(PerimeterResultWithCnecs.buildFromPreviousResult(previousPerimeterResult), new MultiStateRemedialActionResultImpl(previousPerimeterResult, appliedRemedialActionsInSecondaryStates, optimizationPerimeter));
+        this.postOptimResult = preOptimResult;
         this.status = Status.EVALUATED;
-        this.searchTreeResult = new SearchTreeResult(PerimeterResultWithCnecs.buildFromPreviousResult(previousPerimeterResult), appliedRemedialActionsInSecondaryStates);
-        this.preOptimResult = searchTreeResult;
     }
 
     public FlowResult getPreOptimBranchResult() {
@@ -144,8 +141,6 @@ public class Leaf {
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            PerimeterResultWithCnecs preOptimSensiResult = preOptimResult.getPerimeterResultWithCnecs();
-            objectiveFunctionResult = objectiveFunction.evaluate(preOptimSensiResult, preOptimSensiResult);
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
@@ -157,8 +152,27 @@ public class Leaf {
         }
         SensitivityResult preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
         FlowResult preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        objectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, preOptimSensitivityResult);
+        NetworkActionsResult networkActionsResult = new NetworkActionResultImpl(networkActionsApplied);
+        RangeActionResult rangeActionResult = computePreOptimRangeActionResult();
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, preOptimSensitivityResult);
+        OptimizationResultImpl optimizationResult = new OptimizationResultImpl(preOptimFlowResult, preOptimSensitivityResult, networkActionsResult, rangeActionResult, objectiveFunctionResult);
+        PerimeterResultWithCnecs perimeterResultWithCnecs = new PerimeterResultWithCnecs(previousPerimeterResult, optimizationResult);
+        MultiStateRemedialActionResultImpl multiStateRemedialActionResult = Objects.isNull(previousDepthResult) ?
+            new MultiStateRemedialActionResultImpl(previousPerimeterResult, appliedRemedialActionsInSecondaryStates, optimizationPerimeter) :
+            previousDepthResult.getAllStatesRemedialActionResult();
+
+        this.preOptimResult = new SearchTreeResult(perimeterResultWithCnecs, multiStateRemedialActionResult);
+        this.postOptimResult = preOptimResult;
         status = Status.EVALUATED;
+    }
+
+    private RangeActionResult computePreOptimRangeActionResult() {
+        if (shouldPreviousDepthMainStateRangeActionBeRemoved || Objects.isNull(previousDepthResult)) {
+            return RangeActionResultImpl.buildFromPreviousPerimeterResult(previousPerimeterResult, optimizationPerimeter.getRangeActionsPerState().get(optimizationPerimeter.getMainOptimizationState()));
+        } else {
+            return previousDepthResult.getPerimeterResultWithCnecs().getRangeActionResult();
+
+        }
     }
 
     /**
@@ -175,12 +189,7 @@ public class Leaf {
         if (!optimizationDataPresent) {
             throw new OpenRaoException("Cannot optimize leaf, because optimization data has been deleted");
         }
-        if (status.equals(Status.OPTIMIZED)) {
-            // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
-            TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
-            resetPreOptimRangeActionsSetpoints(searchTreeInput.getOptimizationPerimeter());
-        }
-        if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
+        if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
 
             // build input
@@ -209,7 +218,7 @@ public class Leaf {
                     .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
                     .build();
 
-            searchTreeResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant());
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
@@ -217,11 +226,6 @@ public class Leaf {
         } else if (status.equals(Status.CREATED)) {
             BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", this);
         }
-    }
-
-    private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-                rangeActions.forEach(ra -> ra.apply(network, preOptimResult.getPerimeterResultWithCnecs().getOptimizedSetpoint(ra))));
     }
 
     RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
@@ -273,9 +277,9 @@ public class Leaf {
 
     public RangeActionResult getRangeActionResult() {
         if (status == Status.EVALUATED) {
-            return previousLeafResult.getRangeActionResult();
+            return preOptimResult.getPerimeterResultWithCnecs().getRangeActionResult();
         } else if (status == Status.OPTIMIZED) {
-            return searchTreeResult.getPerimeterResultWithCnecs().getRangeActionResult();
+            return postOptimResult.getPerimeterResultWithCnecs().getRangeActionResult();
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }
@@ -296,7 +300,7 @@ public class Leaf {
             long nRangeActions = getNumberOfActivatedRangeActions();
             info += String.format(", %s range action(s) activated", nRangeActions > 0 ? nRangeActions : "no");
         }
-        PerimeterResultWithCnecs perimeterResultWithCnecs = searchTreeResult.getPerimeterResultWithCnecs();
+        PerimeterResultWithCnecs perimeterResultWithCnecs = postOptimResult.getPerimeterResultWithCnecs();
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(perimeterResultWithCnecs);
             info += String.format(Locale.ENGLISH, ", cost: %.2f", perimeterResultWithCnecs.getCost());
@@ -310,11 +314,11 @@ public class Leaf {
     long getNumberOfActivatedRangeActions() {
         if (status == Status.EVALUATED) {
             return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-                    .mapToDouble(s -> preOptimResult.getAllStatesRangeActionResult().getRangeActionResultOnState(s).getActivatedRangeActions().size())
+                    .mapToDouble(s -> preOptimResult.getAllStatesRemedialActionResult().getRangeActionResultOnState(s).getActivatedRangeActions().size())
                     .sum();
         } else if (status == Status.OPTIMIZED) {
             return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-                    .mapToDouble(s -> searchTreeResult.getAllStatesRangeActionResult().getRangeActionResultOnState(s).getActivatedRangeActions().size())
+                    .mapToDouble(s -> postOptimResult.getAllStatesRemedialActionResult().getRangeActionResultOnState(s).getActivatedRangeActions().size())
                     .sum();
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
@@ -322,7 +326,7 @@ public class Leaf {
     }
 
     public SearchTreeResult getResult() {
-        return searchTreeResult;
+        return postOptimResult;
     }
 
     /**

@@ -18,7 +18,7 @@ public interface ProblemFiller {
 
     void fill(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult);
 
-    void updateBetweenSensiIteration(LinearProblem linearProblem,  PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult);
+    void updateBetweenSensiIteration(LinearProblem linearProblem, PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult);
 
     void updateBetweenMipIteration(LinearProblem linearProblem, MultiStateRemedialActionResultImpl rangeActionResult);
 }

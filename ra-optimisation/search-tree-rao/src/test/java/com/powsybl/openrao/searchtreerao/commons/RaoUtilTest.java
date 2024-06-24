@@ -27,13 +27,11 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -190,7 +188,7 @@ class RaoUtilTest {
 
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowResult flowResult = mock(FlowResult.class);
-        PerimeterResultWithAllCnecs prePerimeterResult = mock(PerimeterResultWithAllCnecs.class);
+        PerimeterResultWithCnecs prePerimeterResult = mock(PerimeterResultWithCnecs.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
@@ -267,7 +265,7 @@ class RaoUtilTest {
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
-        PerimeterResultWithAllCnecs flowResult = mock(PerimeterResultWithAllCnecs.class);
+        PerimeterResultWithCnecs flowResult = mock(PerimeterResultWithCnecs.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
@@ -323,7 +321,7 @@ class RaoUtilTest {
 
         FlowCnec cnecCont1 = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecCont2 = crac.getFlowCnec("cnec2stateCurativeContingency2");
-        PerimeterResultWithAllCnecs flowResult = mock(PerimeterResultWithAllCnecs.class);
+        PerimeterResultWithCnecs flowResult = mock(PerimeterResultWithCnecs.class);
 
         RemedialAction<?> na = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()

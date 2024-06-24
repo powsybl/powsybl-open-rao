@@ -17,8 +17,7 @@ import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import org.mockito.Mockito;
 
 import java.util.Map;
@@ -62,8 +61,7 @@ abstract class AbstractFillerTest {
     FlowCnec cnec1;
     FlowCnec cnec2;
     PstRangeAction pstRangeAction;
-    FlowResult flowResult;
-    SensitivityResult sensitivityResult;
+    PerimeterResultWithCnecs flowAndSensiResult;
     Crac crac;
     Network network;
 
@@ -78,14 +76,13 @@ abstract class AbstractFillerTest {
         cnec2 = crac.getFlowCnec(CNEC_2_ID);
         pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
 
-        flowResult = Mockito.mock(FlowResult.class);
-        when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
+        flowAndSensiResult = Mockito.mock(PerimeterResultWithCnecs.class);
+        when(flowAndSensiResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
+        when(flowAndSensiResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
 
-        sensitivityResult = Mockito.mock(SensitivityResult.class);
-        when(sensitivityResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
-        when(sensitivityResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
-        when(sensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
+        when(flowAndSensiResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
+        when(flowAndSensiResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
+        when(flowAndSensiResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
     }
 
     protected void addPstGroupInCrac() {

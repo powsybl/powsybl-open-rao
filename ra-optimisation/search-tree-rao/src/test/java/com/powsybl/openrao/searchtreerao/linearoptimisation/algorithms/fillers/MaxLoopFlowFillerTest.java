@@ -25,7 +25,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,8 +63,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnecOn2sides.newExtension(LoopFlowThresholdAdder.class).withValue(100.).withUnit(Unit.MEGAWATT).add();
 
         State state = crac.getPreventiveState();
-        double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
+        RangeActionResult initialRangeActionResult = RangeActionResultImpl.buildWithSetpointsFromNetwork(network, Set.of(pstRangeAction));
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec1, cnecOn2sides));
 
@@ -76,7 +75,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionResult,
-            new RangeActionResultImpl(initialRangeActionResult),
+            new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter),
             rangeActionParameters,
             Unit.MEGAWATT,
             false
@@ -95,7 +94,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     }
 
     private void setCommercialFlowValue(double commercialFlowValue) {
-        when(flowResult.getCommercialFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(commercialFlowValue);
+        when(flowAndSensiResult.getCommercialFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(commercialFlowValue);
     }
 
     private void buildLinearProblem() {
@@ -104,11 +103,11 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             .withProblemFiller(maxLoopFlowFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
     }
 
     private void updateLinearProblem() {
-        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, Mockito.mock(RangeActionResultImpl.class));
+        linearProblem.updateBetweenSensiIteration(flowAndSensiResult, Mockito.mock(MultiStateRemedialActionResultImpl.class));
     }
 
     @Test
@@ -213,8 +212,8 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             loopFlowParameters
         );
 
-        when(flowResult.getCommercialFlow(cnecOn2sides, Side.LEFT, Unit.MEGAWATT)).thenReturn(49.);
-        when(flowResult.getCommercialFlow(cnecOn2sides, Side.RIGHT, Unit.MEGAWATT)).thenReturn(69.);
+        when(flowAndSensiResult.getCommercialFlow(cnecOn2sides, Side.LEFT, Unit.MEGAWATT)).thenReturn(49.);
+        when(flowAndSensiResult.getCommercialFlow(cnecOn2sides, Side.RIGHT, Unit.MEGAWATT)).thenReturn(69.);
 
         buildLinearProblem();
 

@@ -29,7 +29,7 @@ public class RangeActionResultImpl implements RangeActionResult {
     private static final double EPSILON_FOR_ACTIVATION = 1e-6;
 
     private static class ElementaryResult {
-         double refSetpoint;
+        double refSetpoint;
         private double optimizedSetpoint;
 
         ElementaryResult(double refSetpoint) {
@@ -75,13 +75,13 @@ public class RangeActionResultImpl implements RangeActionResult {
         return new RangeActionResultImpl(elementaryResultMapFromNetwork);
     }
 
-    public static RangeActionResultImpl buildFromPreviousResult(RangeActionResult rangeActionResult) {
+    public static RangeActionResultImpl buildFromPreviousPerimeterResult(RangeActionResult rangeActionResult) {
         Map<RangeAction<?>, ElementaryResult> elementaryResultMapFromResult = new HashMap<>();
         rangeActionResult.getOptimizedSetpoints().forEach((ra, setpoint) -> elementaryResultMapFromResult.put(ra, new ElementaryResult(setpoint)));
         return new RangeActionResultImpl(elementaryResultMapFromResult);
     }
 
-    public static RangeActionResultImpl buildFromPreviousResult(RangeActionResult rangeActionResult, Set<RangeAction<?>> rangeActions) {
+    public static RangeActionResultImpl buildFromPreviousPerimeterResult(RangeActionResult rangeActionResult, Set<RangeAction<?>> rangeActions) {
         Map<RangeAction<?>, ElementaryResult> elementaryResultMapFromResult = new HashMap<>();
         rangeActions.forEach(ra -> elementaryResultMapFromResult.put(ra, new ElementaryResult(rangeActionResult.getOptimizedSetpoint(ra))));
         return new RangeActionResultImpl(elementaryResultMapFromResult);

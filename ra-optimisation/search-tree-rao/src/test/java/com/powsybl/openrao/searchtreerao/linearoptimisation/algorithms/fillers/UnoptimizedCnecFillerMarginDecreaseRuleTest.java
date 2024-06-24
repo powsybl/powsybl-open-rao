@@ -25,7 +25,7 @@ import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,7 +69,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         // Set initial margins on both preventive CNECs
         cnecFr = crac.getFlowCnec("Tieline BE FR - N - preventive");
 
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Collections.emptyMap());
+
+        RangeActionResult initialRangeActionResult = RangeActionResultImpl.buildWithSetpointsFromNetwork(network, Set.of(pstRangeAction));
 
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnecNl, cnecFr));
@@ -87,7 +88,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionResult,
-            new RangeActionResultImpl(initialRangeActionResult),
+            new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter),
             rangeActionParameters,
             MEGAWATT,
             false);
@@ -118,7 +119,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             .withProblemFiller(unoptimizedCnecFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
     }
 
     private void buildLinearProblemWithMaxMinRelativeMargin() {
@@ -151,7 +152,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             .withProblemFiller(unoptimizedCnecFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
     }
 
     @Test

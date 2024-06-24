@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static java.lang.String.format;
-
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
  */
@@ -30,10 +28,27 @@ public class MultiStateRemedialActionResultImpl {
 
     public MultiStateRemedialActionResultImpl(PerimeterResultWithCnecs previousPerimeterResult, OptimizationPerimeter optimizationPerimeter) {
         optimizationPerimeter.getRangeActionsPerState().keySet().forEach(
-            state -> rangeActionResultPerState.put(state, RangeActionResultImpl.buildFromPreviousResult(previousPerimeterResult, optimizationPerimeter.getRangeActionsPerState().get(state)))
+            state -> rangeActionResultPerState.put(state, RangeActionResultImpl.buildFromPreviousPerimeterResult(previousPerimeterResult, optimizationPerimeter.getRangeActionsPerState().get(state)))
         );
         optimizationPerimeter.getRangeActionsPerState().keySet().forEach(
             state -> networkActionResultPerState.put(state, new NetworkActionResultImpl(new HashSet<>()))
+        );
+    }
+
+    public MultiStateRemedialActionResultImpl(PerimeterResultWithCnecs previousPerimeterResult, AppliedRemedialActions appliedRemedialActions, OptimizationPerimeter optimizationPerimeter) {
+        optimizationPerimeter.getRangeActionsPerState().keySet().forEach(
+            state -> {
+                RangeActionResultImpl rangeActionResult = RangeActionResultImpl.buildFromPreviousPerimeterResult(previousPerimeterResult, optimizationPerimeter.getRangeActionsPerState().get(state));
+                appliedRemedialActions.getAppliedRangeActions(state).forEach(rangeActionResult::activate);
+                rangeActionResultPerState.put(state, rangeActionResult);
+            }
+        );
+        optimizationPerimeter.getRangeActionsPerState().keySet().forEach(
+            state -> {
+                NetworkActionResultImpl networkActionResult = new NetworkActionResultImpl(new HashSet<>());
+                appliedRemedialActions.getAppliedNetworkActions(state).forEach(networkActionResult::activate);
+                networkActionResultPerState.put(state, networkActionResult);
+            }
         );
     }
 

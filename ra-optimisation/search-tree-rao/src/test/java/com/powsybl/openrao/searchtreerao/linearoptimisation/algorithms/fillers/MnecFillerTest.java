@@ -23,8 +23,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.*;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -89,7 +88,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
                 .add();
 
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Collections.emptyMap());
+        RangeActionResult initialRangeActionResult = Mockito.mock(RangeActionResult.class);
 
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec1, mnec2, mnec3));
@@ -107,7 +106,7 @@ class MnecFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
                 optimizationPerimeter,
                 initialRangeActionResult,
-                new RangeActionResultImpl(initialRangeActionResult),
+                new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter),
                 rangeActionParameters,
                 Unit.MEGAWATT,
             false);
@@ -133,7 +132,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 .withProblemFiller(mnecFiller)
                 .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
                 .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
     }
 
     @Test
@@ -218,14 +217,13 @@ class MnecFillerTest extends AbstractFillerTest {
         parameters.setAcceptableMarginDecrease(50);
         parameters.setViolationCost(10);
         parameters.setConstraintAdjustmentCoefficient(3.5);
-        FlowResult flowResult = Mockito.mock(FlowResult.class);
-        when(flowResult.getFlow(mnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(900.);
-        when(flowResult.getFlow(mnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
-        when(flowResult.getFlow(mnec3, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
-        when(flowResult.getFlow(mnec3, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
-        when(sensitivityResult.getSensitivityStatus(crac.getState("N-1 NL1-NL3", crac.getInstant(InstantKind.CURATIVE)))).thenReturn(ComputationStatus.FAILURE);
+        when(flowAndSensiResult.getFlow(mnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(900.);
+        when(flowAndSensiResult.getFlow(mnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
+        when(flowAndSensiResult.getFlow(mnec3, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
+        when(flowAndSensiResult.getFlow(mnec3, Side.RIGHT, Unit.MEGAWATT)).thenReturn(Double.NaN);
+        when(flowAndSensiResult.getSensitivityStatus(crac.getState("N-1 NL1-NL3", crac.getInstant(InstantKind.CURATIVE)))).thenReturn(ComputationStatus.FAILURE);
         MnecFiller mnecFiller = new MnecFiller(
-            flowResult,
+            flowAndSensiResult,
             Set.of(mnec1, mnec2, mnec3),
             Unit.MEGAWATT,
             parameters);
@@ -234,7 +232,7 @@ class MnecFillerTest extends AbstractFillerTest {
             .withProblemFiller(mnecFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecFlowConstraint(mnec3, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
         assertEquals("Constraint MNEC3 - curative_left_mnecflow_above_threshold_constraint has not been created yet", e.getMessage());

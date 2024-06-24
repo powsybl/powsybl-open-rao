@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -227,7 +226,7 @@ class UnoptimizedRaoResultImplTest {
     @Test
     void testGetPreOptimizationTapOnState() {
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        when(initialResult.getTap(pstRangeAction)).thenReturn(6);
+        when(initialResult.getOptimizedTap(pstRangeAction)).thenReturn(6);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         assertEquals(6, output.getPreOptimizationTapOnState(state1, pstRangeAction));
@@ -237,7 +236,7 @@ class UnoptimizedRaoResultImplTest {
     @Test
     void testGetOptimizedTapOnState() {
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        when(initialResult.getTap(pstRangeAction)).thenReturn(6);
+        when(initialResult.getOptimizedTap(pstRangeAction)).thenReturn(6);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         assertEquals(6, output.getOptimizedTapOnState(state1, pstRangeAction));
@@ -247,7 +246,7 @@ class UnoptimizedRaoResultImplTest {
     @Test
     void testGetPreOptimizationSetPointOnState() {
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
-        when(initialResult.getSetpoint(rangeAction)).thenReturn(60.);
+        when(initialResult.getOptimizedSetpoint(rangeAction)).thenReturn(60.);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         assertEquals(60., output.getPreOptimizationSetPointOnState(state1, rangeAction), DOUBLE_TOLERANCE);
@@ -257,7 +256,7 @@ class UnoptimizedRaoResultImplTest {
     @Test
     void testGetOptimizedSetPointOnState() {
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
-        when(initialResult.getSetpoint(rangeAction)).thenReturn(60.);
+        when(initialResult.getOptimizedSetpoint(rangeAction)).thenReturn(60.);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         assertEquals(60., output.getOptimizedSetPointOnState(state1, rangeAction), DOUBLE_TOLERANCE);

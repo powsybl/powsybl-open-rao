@@ -229,7 +229,7 @@ public final class AutomatonSimulator {
         TECHNICAL_LOGS.info("Running sensitivity analysis post application of auto network actions for automaton state {}.", automatonState.getId());
         PerimeterResultWithCnecs autoPostTopoSimulationResult = sensitivityAnalysisRunner.runBasedOnInitialResults(
             network, crac, initialFlowResult, operatorsNotSharingCras, null, previousPerimeterResult,
-            new NetworkActionResultImpl(appliedNetworkActions), RangeActionResultImpl.buildFromPreviousResult(previousPerimeterResult)
+            new NetworkActionResultImpl(appliedNetworkActions), RangeActionResultImpl.buildFromPreviousPerimeterResult(previousPerimeterResult)
         );
 
         if (autoPostTopoSimulationResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
@@ -604,7 +604,7 @@ public final class AutomatonSimulator {
             applyAllRangeActions(alignedRangeActions, network, optimalSetpoint, autoRangeActionResult);
 
             autoRangeActionResult = sensitivityAnalysisRunner.runBasedOnInitialResults(
-                network, crac, initialFlowResult,  operatorsNotSharingCras, null, previousPerimeterResult, autoRangeActionResult, autoRangeActionResult
+                network, crac, initialFlowResult, operatorsNotSharingCras, null, previousPerimeterResult, autoRangeActionResult, autoRangeActionResult
             );
             // If sensitivity analysis fails, stop shifting and return all applied range actions
             if (autoRangeActionResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {

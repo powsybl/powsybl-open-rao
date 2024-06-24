@@ -21,7 +21,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +42,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private RangeActionResult initialRangeActionResult;
+    private OptimizationPerimeter optimizationPerimeter;
     // some additional data
     private double minAlpha;
     private double maxAlpha;
@@ -56,7 +57,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxAdmissibleSetpoint(0);
         initialAlpha = pstRangeAction.convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
-        initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
+        initialRangeActionResult = RangeActionResultImpl.buildWithSetpointsFromNetwork(network, Set.of(pstRangeAction));
     }
 
     private void buildLinearProblem() {
@@ -64,7 +65,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
     }
 
     private void initializeForPreventive(double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold) {
@@ -76,7 +77,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     private void initialize(Set<FlowCnec> cnecs, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold, State mainState, boolean raRangeShrinking) {
-        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
         Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(mainState);
 
@@ -93,7 +94,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionResult,
-            new RangeActionResultImpl(initialRangeActionResult),
+            new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter),
             rangeActionParameters,
             Unit.MEGAWATT, raRangeShrinking);
         buildLinearProblem();
@@ -378,14 +379,14 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
         initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
-        when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT2);
-        when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT2);
-        when(sensitivityResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT2);
-        when(sensitivityResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
+        when(flowAndSensiResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT2);
+        when(flowAndSensiResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT2);
+        when(flowAndSensiResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT2);
+        when(flowAndSensiResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
 
         // update the problem
-        RangeActionResult rangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
-        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, new RangeActionResultImpl(rangeActionResult));
+        RangeActionResult rangeActionResult = RangeActionResultImpl.buildWithSetpointsFromNetwork(network, Set.of(pstRangeAction));
+        linearProblem.updateBetweenSensiIteration(flowAndSensiResult, new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter));
     }
 
     @Test
@@ -488,10 +489,10 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     void testSensitivityFilter1() {
         OpenRaoMPConstraint flowConstraint;
         OpenRaoMPVariable rangeActionSetpoint;
-        when(flowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(0.5);
+        when(flowAndSensiResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(0.5);
 
         // (sensi = 2) < 2.5 should be filtered
-        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
+        when(flowAndSensiResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
         initialize(Set.of(cnec1), 2.5, 2.5, 2.5, crac.getPreventiveState(), false);
         flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
@@ -504,11 +505,11 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     void testSensitivityFilter2() {
         OpenRaoMPConstraint flowConstraint;
         OpenRaoMPVariable rangeActionSetpoint;
-        when(flowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(0.5);
+        when(flowAndSensiResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(0.5);
         Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
 
         // (sensi = 2) > 1/.5 should not be filtered
-        when(flowResult.getMargin(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(-1.0);
+        when(flowAndSensiResult.getMargin(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(-1.0);
         initialize(Set.of(cnec1), 1.5, 1.5, 1.5, crac.getPreventiveState(), false);
         flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
@@ -521,8 +522,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     void testFilterCnecWithSensiFailure() {
         // cnec1 has a failed state, cnec2 has a succeeded state
         // only cnec2's flow variables & constraints must be added to MIP
-        when(sensitivityResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.FAILURE);
-        when(sensitivityResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
+        when(flowAndSensiResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.FAILURE);
+        when(flowAndSensiResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
         initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false);
 
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec2.getState());
@@ -554,8 +555,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     void testFilterCnecWithSensiFailureAndUpdateWithoutChange() {
         // cnec1 has a failed state, cnec2 has a succeeded state
         // only cnec2's flow variables & constraints must be added to MIP
-        when(sensitivityResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.FAILURE);
-        when(sensitivityResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
+        when(flowAndSensiResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.FAILURE);
+        when(flowAndSensiResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
         initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false);
 
         updateLinearProblem();
@@ -589,14 +590,14 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     void testFilterCnecWithSensiFailureAndUpdateWithChange() {
         // cnec1 has a failed state, cnec2 has a succeeded state
         // only cnec2's flow variables & constraints must be added to MIP
-        when(sensitivityResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.FAILURE);
-        when(sensitivityResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
+        when(flowAndSensiResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.FAILURE);
+        when(flowAndSensiResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
         initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false);
 
         // invert sensitivity failure statuses & update
         // only cnec1's flow variables & constraints must be added to MIP
-        when(sensitivityResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.DEFAULT);
-        when(sensitivityResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.FAILURE);
+        when(flowAndSensiResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.DEFAULT);
+        when(flowAndSensiResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.FAILURE);
         updateLinearProblem();
 
         // check flow variable for cnec2 does not exist

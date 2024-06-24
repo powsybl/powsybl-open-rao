@@ -351,7 +351,6 @@ public class CastorFullOptimization {
             preCurativeResult = automatonResult;
         }
 
-
         // Do not simulate curative instant if last sensitivity analysis failed
         // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
         // -- or if there was an automaton state that failed

@@ -38,12 +38,12 @@ public class PerimeterResultWithCnecs implements OptimizationResult {
 
     public static PerimeterResultWithCnecs buildFromPreviousResult(PerimeterResultWithCnecs previousResult) {
         return new PerimeterResultWithCnecs(previousResult,
-            new OptimizationResultImpl(previousResult, previousResult, new NetworkActionResultImpl(Collections.emptySet()), RangeActionResultImpl.buildFromPreviousResult(previousResult), previousResult)
+            new OptimizationResultImpl(previousResult, previousResult, new NetworkActionResultImpl(Collections.emptySet()), RangeActionResultImpl.buildFromPreviousPerimeterResult(previousResult), previousResult)
         );
     }
 
     public static PerimeterResultWithCnecs buildFromSensiResultAndAppliedRas(PerimeterResultWithCnecs sensiResult, AppliedRemedialActions appliedArasAndCras, State state, PerimeterResultWithCnecs previousResult) {
-        RangeActionResultImpl rangeActionResult = RangeActionResultImpl.buildFromPreviousResult(previousResult);
+        RangeActionResultImpl rangeActionResult = RangeActionResultImpl.buildFromPreviousPerimeterResult(previousResult);
         appliedArasAndCras.getAppliedRangeActions(state).forEach(rangeActionResult::activate);
 
         return new PerimeterResultWithCnecs(previousResult,

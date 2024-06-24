@@ -11,8 +11,8 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
@@ -39,7 +39,7 @@ abstract class AbstractOptimizationPerimeterTest {
     protected RemedialAction<?> pNA;
     protected RemedialAction<?> cNA;
     protected RaoParameters raoParameters;
-    protected PerimeterResultWithAllCnecs prePerimeterResult;
+    protected PerimeterResultWithCnecs prePerimeterResult;
 
     @BeforeEach
     public void setUp() {
@@ -135,6 +135,6 @@ abstract class AbstractOptimizationPerimeterTest {
         cState1 = crac.getState("outage-1", curativeInstant);
         cState2 = crac.getState("outage-2", curativeInstant);
 
-        prePerimeterResult = Mockito.mock(PerimeterResultWithAllCnecs.class);
+        prePerimeterResult = Mockito.mock(PerimeterResultWithCnecs.class);
     }
 }
