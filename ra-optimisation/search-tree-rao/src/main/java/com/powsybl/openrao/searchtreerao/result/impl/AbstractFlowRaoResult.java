@@ -18,9 +18,9 @@ import java.util.Arrays;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public interface FlowRaoResult extends RaoResult {
+public abstract class AbstractFlowRaoResult implements RaoResult {
     @Override
-    default boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
