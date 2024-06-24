@@ -476,7 +476,7 @@ public interface RaoResult {
     default void write(List<Exporter> exporters, String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
         exporters.stream()
             .filter(ex -> format.equals(ex.getFormat()))
-            .findFirst()
+            .findAny()
             .orElseThrow(() -> new OpenRaoException("Export format " + format + " not supported"))
             .exportData(this, crac, flowUnits, outputStream);
     }
