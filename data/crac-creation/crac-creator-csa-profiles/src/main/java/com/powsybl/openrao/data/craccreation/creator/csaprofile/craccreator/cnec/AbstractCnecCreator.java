@@ -10,11 +10,8 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
-<<<<<<< HEAD
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-=======
 import com.powsybl.openrao.data.cracapi.cnec.Side;
->>>>>>> 4ae5201aa4a968f2ca6ebc6b268bf7a410d0279b
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
@@ -103,18 +100,12 @@ public abstract class AbstractCnecCreator {
             .withId(cnecName)
             .withName(cnecName)
             .withInstant(instantId)
-<<<<<<< HEAD
-            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(assessedElementOperator));
+            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()));
         if (cnecAdder instanceof FlowCnecAdder) {
             // The following 2 lines mustn't be called for angle & voltage CNECs
             cnecAdder.withOptimized(aeSecuredForRegion)
                 .withMonitored(aeScannedForRegion);
         }
-=======
-            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()))
-            .withOptimized(aeSecuredForRegion)
-            .withMonitored(aeScannedForRegion);
->>>>>>> 4ae5201aa4a968f2ca6ebc6b268bf7a410d0279b
     }
 
     protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
