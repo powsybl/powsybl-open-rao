@@ -1,10 +1,5 @@
 # Modelling un-optimised CNECs (CRAs)
 
-> ⚠️  **NOTE**  
-> These constraints are not compatible with [Modelling un-optimised CNECs (PSTs)](unoptimized-cnec-filler-pst.md).  
-> Only one of both features can be activated
-> through [RAO parameters](/parameters/parameters.md#cnecs-that-should-not-be-optimised).
-
 ## Used input data
 
 | Name                   | Symbol                  | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
