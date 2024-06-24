@@ -10,7 +10,9 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
+import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -19,6 +21,7 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
+import static com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation.createCracWithRemedialActions;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -164,6 +167,39 @@ class InjectionSetpointImplTest {
     }
 
     @Test
+    void canNotBeAppliedOnShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("SC1"),
+            3, Unit.SECTION_COUNT);
+        assertEquals(2, network.getShuntCompensator("SC1").getMaximumSectionCount());
+        assertFalse(shuntCompensatorSetpoint.canBeApplied(network)); // max is 2 while setpoint is 3
+    }
+
+    @Test
+    void canBeAppliedOnShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("SC1"),
+            1, Unit.SECTION_COUNT);
+        assertEquals(2, network.getShuntCompensator("SC1").getMaximumSectionCount());
+        assertTrue(shuntCompensatorSetpoint.canBeApplied(network)); // max is 2 while setpoint is 1
+    }
+
+    @Test
+    void canMaxBeAppliedOnShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("SC1"),
+            2, Unit.SECTION_COUNT);
+        assertEquals(2, network.getShuntCompensator("SC1").getMaximumSectionCount());
+        assertTrue(shuntCompensatorSetpoint.canBeApplied(network)); // max is 2 while setpoint is 2
+    }
+
+    @Test
     void getUnit() {
         InjectionSetpointImpl dummy = new InjectionSetpointImpl(
                 new NetworkElementImpl("wrong_name"),
@@ -197,5 +233,32 @@ class InjectionSetpointImplTest {
             mockedNetworkElement,
             12., Unit.MEGAWATT);
         assertNotEquals(injectionSetpoint, differentInjectionSetpoint);
+    }
+
+    @Test
+    void compatibility() {
+        Crac crac = createCracWithRemedialActions();
+        InjectionSetpoint injectionSetpoint = (InjectionSetpoint) crac.getNetworkAction("generator-1-75-mw").getElementaryActions().iterator().next();
+
+        assertTrue(injectionSetpoint.isCompatibleWith(injectionSetpoint));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-2").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("close-switch-1").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("close-switch-2").getElementaryActions().iterator().next()));
+
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("generator-1-75-mw").getElementaryActions().iterator().next()));
+        assertFalse(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("generator-1-100-mw").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("generator-2-75-mw").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("generator-2-100-mw").getElementaryActions().iterator().next()));
+
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("pst-1-tap-3").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("pst-1-tap-8").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("pst-2-tap-3").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("pst-2-tap-8").getElementaryActions().iterator().next()));
+
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-2").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-2-close-switch-1").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-4").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-3").getElementaryActions().iterator().next()));
+        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-2").getElementaryActions().iterator().next()));
     }
 }

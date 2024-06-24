@@ -32,8 +32,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RAO_PARAMETERS_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -57,6 +57,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
+        parameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
         // RangeActionsOptimization parameters
         parameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
         parameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(10);
@@ -88,7 +89,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getSecondPreventiveRaoParameters().setHintFromFirstPreventiveRao(true);
         // Not optimized cnecs parameters
         parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
-        parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1", "cnec2", "pst2"));
         // LoadFlow and sensitivity parameters
         parameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider("OpenLoadFlowProvider");
         parameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenSensitivityAnalysis");
@@ -135,7 +135,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertTrue(parameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
         assertEquals(2, parameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
         assertTrue(parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-        assertTrue(parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty());
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE, parameters.getSecondPreventiveRaoParameters().getExecutionCondition());
         assertTrue(parameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao());
         // Extensions
@@ -174,7 +173,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void testFailOnOldVersion() {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParameters_oldVersion.json");
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
-        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.3'.", e.getMessage());
+        assertEquals(String.format("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '%s'.", RAO_PARAMETERS_VERSION), e.getMessage());
     }
 
     @ParameterizedTest

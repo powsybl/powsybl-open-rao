@@ -6,10 +6,12 @@
  */
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.cracioapi.CracImporters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -17,12 +19,16 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtens
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -144,5 +150,55 @@ class SearchTreeParametersTest {
         Map<String, Integer> maxPstPerTso = updatedRaUsageLimits.getMaxPstPerTso();
         assertEquals(10, maxPstPerTso.get("BE"));
         assertEquals(0, maxPstPerTso.get("FR"));
+    }
+
+    @Test
+    void testDecreaseRemedialActionUsageLimits() {
+        Crac crac = CracImporters.importCrac(
+            Paths.get(new File(Objects.requireNonNull(SearchTreeParametersTest.class.getResource("/crac/small-crac-with-comprehensive-usage-limits.json")).getFile()).toString()),
+            Network.read(Paths.get(new File(Objects.requireNonNull(SearchTreeParametersTest.class.getResource("/network/small-network-2P.uct")).getFile()).toString()))
+        );
+
+        SearchTreeParameters parameters = SearchTreeParameters.create()
+            .withGlobalRemedialActionLimitationParameters(
+                Map.of(
+                    crac.getInstant("preventive"), crac.getRaUsageLimits(crac.getInstant("preventive")),
+                    crac.getInstant("curative1"), crac.getRaUsageLimits(crac.getInstant("curative1")),
+                    crac.getInstant("curative2"), crac.getRaUsageLimits(crac.getInstant("curative2"))
+                )
+            )
+            .build();
+
+        OptimizationResult preventiveOptimizationResult = Mockito.mock(OptimizationResult.class);
+        when(preventiveOptimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(crac.getNetworkAction("prev-open-be-1"), crac.getNetworkAction("prev-close-be-2")));
+        when(preventiveOptimizationResult.getActivatedRangeActions(crac.getPreventiveState())).thenReturn(Set.of(crac.getPstRangeAction("prev-pst-fr")));
+
+        OptimizationResult curative1OptimizationResult = Mockito.mock(OptimizationResult.class);
+        when(curative1OptimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(crac.getNetworkAction("cur1-open-fr-1")));
+        when(curative1OptimizationResult.getActivatedRangeActions(crac.getState("contingency", crac.getInstant("curative1")))).thenReturn(Set.of(crac.getPstRangeAction("cur1-pst-be")));
+
+        parameters.decreaseRemedialActionUsageLimits(Map.of(crac.getPreventiveState(), preventiveOptimizationResult, crac.getState("contingency", crac.getInstant("curative1")), curative1OptimizationResult));
+
+        RaUsageLimits preventiveRaUsageLimits = parameters.getRaLimitationParameters().get(crac.getInstant("preventive"));
+        assertEquals(0, preventiveRaUsageLimits.getMaxRa());
+        assertEquals(Map.of("FR", 2, "BE", 1), preventiveRaUsageLimits.getMaxTopoPerTso());
+        assertEquals(Map.of("FR", 4, "BE", 1), preventiveRaUsageLimits.getMaxPstPerTso());
+        assertEquals(Map.of("FR", 4, "BE", 1), preventiveRaUsageLimits.getMaxRaPerTso());
+        assertEquals(0, preventiveRaUsageLimits.getMaxTso());
+
+        RaUsageLimits curative1RaUsageLimits = parameters.getRaLimitationParameters().get(crac.getInstant("curative1"));
+        assertEquals(0, curative1RaUsageLimits.getMaxRa());
+        assertEquals(Map.of("FR", 0, "BE", 0), curative1RaUsageLimits.getMaxTopoPerTso());
+        assertEquals(Map.of("FR", 1, "BE", 0), curative1RaUsageLimits.getMaxPstPerTso());
+        assertEquals(Map.of("FR", 1, "BE", 0), curative1RaUsageLimits.getMaxRaPerTso());
+        assertEquals(0, curative1RaUsageLimits.getMaxTso());
+
+        // results from curative1 should impact limits for curative2
+        RaUsageLimits curative2RaUsageLimits = parameters.getRaLimitationParameters().get(crac.getInstant("curative2"));
+        assertEquals(3, curative2RaUsageLimits.getMaxRa());
+        assertEquals(Map.of("FR", 2, "BE", 2), curative2RaUsageLimits.getMaxTopoPerTso());
+        assertEquals(Map.of("FR", 4, "BE", 4), curative2RaUsageLimits.getMaxPstPerTso());
+        assertEquals(Map.of("FR", 5, "BE", 4), curative2RaUsageLimits.getMaxRaPerTso());
+        assertEquals(1, curative2RaUsageLimits.getMaxTso());
     }
 }

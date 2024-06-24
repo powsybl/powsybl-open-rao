@@ -84,9 +84,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertTrue(secondPreventiveRaoParameters.getHintFromFirstPreventiveRao());
 
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
-        Map<String, String> expectedCnecPstMap = Map.of("cnecId1", "pstId1", "cnecId2", "pstId2");
         assertFalse(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-        assertEquals(expectedCnecPstMap, notOptimizedCnecsParameters.getDoNotOptimizeCnecsSecuredByTheirPst());
 
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
         assertEquals("LOADFLOW_PROVIDER", loadFlowAndSensitivityParameters.getLoadFlowProvider());
@@ -132,6 +130,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(3, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
         assertEquals(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE, objectiveFunctionParameters.getCurativeStopCriterion());
+        assertTrue(objectiveFunctionParameters.getOptimizeCurativeIfPreventiveUnsecure());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
         assertEquals(2, rangeActionsOptimizationParameters.getMaxMipIterations(), DOUBLE_TOLERANCE);
@@ -169,9 +168,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertTrue(secondPreventiveRaoParameters.getHintFromFirstPreventiveRao());
 
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
-        Map<String, String> expectedCnecPstMap = Map.of("cnecId1", "pstId1", "cnecId2", "pstId2");
         assertFalse(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-        assertEquals(expectedCnecPstMap, notOptimizedCnecsParameters.getDoNotOptimizeCnecsSecuredByTheirPst());
 
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
         assertEquals("LOADFLOW_PROVIDER", loadFlowAndSensitivityParameters.getLoadFlowProvider());
@@ -241,9 +238,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertTrue(secondPreventiveRaoParameters.getHintFromFirstPreventiveRao());
 
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
-        Map<String, String> expectedCnecPstMap = Map.of("cnecId1", "pstId1", "cnecId2", "pstId2");
         assertFalse(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-        assertEquals(expectedCnecPstMap, notOptimizedCnecsParameters.getDoNotOptimizeCnecsSecuredByTheirPst());
 
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
         assertEquals("OpenLoadFlow", loadFlowAndSensitivityParameters.getLoadFlowProvider());

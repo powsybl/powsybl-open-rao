@@ -9,7 +9,8 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.importer;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileKeyword;
 import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
 import com.google.auto.service.AutoService;
 import com.powsybl.triplestore.api.TripleStore;
@@ -113,7 +114,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                 }
             }
             if (!isKeywordInFile) {
-                String keyword = CsaProfileConstants.CGMES;
+                String keyword = CsaProfileKeyword.CGMES.toString();
                 Set<String> newFilesSet = addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
                 keywordMap.put(keyword, newFilesSet);
             }

@@ -63,6 +63,10 @@ fields read by OpenRAO are displayed in the following chart.
 
 ![CSA profiles usage overview](/_static/img/CSA-profiles.png)
 
+## Instants
+
+The CSA CRAC is systematically created with 6 instants: preventive, outage, auto and 3 curative instants (named "curative 1", "curative 2" and "curative 3").
+
 ## Contingencies
 
 The [contingencies](json.md#contingencies) are described in the **CO** profile. They can be represented by three types of
@@ -222,6 +226,8 @@ case, the contingency's name is added to the CNEC's name.
 </rdf:RDF>
 ```
 
+Finally, the created CNEC can be optimized (resp. monitored) if the `AssessedElement` has a `SecuredForRegion` (resp. `ScannedForRegion`) attribute pointing to the [EI Code of the CCR](creation-parameters.md#capacity-calculation-region-eic-code) declared in the CSA parameters extension (default is `10Y1001C--00095L`, i.e. SWE CCR).
+
 The distinction between the types of CNEC (FlowCNEC, AngleCNEC or VoltageCNEC) comes from the type of `OperationalLimit`
 of the Assessed Element (or the use of a `ConductingEquipment` for FlowCNECs).
 
@@ -297,13 +303,7 @@ existing line in the network and which also defines the CNEC's network element:
 - if the line is a `CGMES.Terminal2` or a `CGMES.Terminal_Boundary_2` in PowSyBl, the threshold of the CNEC is on the
   **right** side
 
-If the `OperationalLimitType`'s `kind` is `tatl`, the `OperationalLimitType`'s `acceptableDuration` field must be
-present and sets the FlowCNEC's instant:
-
-- if `acceptableDuration` = 0, the FlowCNEC is **preventive** or **curative** (if linked to a contingency)
-- if 0 < `acceptableDuration` ≤ 60, the FlowCNEC is monitored at the **outage** instant
-- if 60 < `acceptableDuration` ≤ 900, the FlowCNEC is monitored at the **auto** instant
-- if `acceptableDuration` > 900, the FlowCNEC is **curative**
+Depending on the `OperationalLimitType`'s `kind` (PATL or TATL) and its `acceptableDuration` (if TATL), the FlowCNEC's instant can be deduced (see [this section](#tatl-to-flowcnec-instant-association) for more information).
 
 If the `AssessedElement` is `inBaseCase` and the limit is a PATL, a preventive FlowCNEC is added as well.
 
@@ -332,18 +332,69 @@ FlowCNECs can also be defined with a `ConductingEquipement` that points to a lin
 ```
 
 In that case, several FlowCNECs can be defined at once depending on the number of TATLs defined for the line (given that
-the `AssessedElement` is linked to a contingency). Thus, for each associated contingency and each TATL:
+the `AssessedElement` is linked to a contingency).
 
-- a curative FlowCNEC is created if the TATL duration is null
-- an outage FlowCNEC is created if the TATL duration is below 60 seconds
-- an auto FlowCNEC is created if the TATL duration is between 60 (excluded) and 900 (included) seconds
-- a curative FlowCNEC is created if the TATL duration is greater than 900 seconds
+The whole set of limits of the line is use to determine which limit is associated to which instant (see [this section](#tatl-to-flowcnec-instant-association) for more information).
 
 For each contingency, a curative FlowCNEC is also created using the PATL. Finally, if the `AssessedElement`
 is `inBaseCase` a preventive FlowCNEC is added using the PATL as well. In all case, the limit's threshold is used for
 both the maximum (positive) and minimum (negative) FlowCNEC's thresholds.
 :::
 ::::
+
+#### TATL to FlowCNEC instant association
+
+Because of the three curative instants used in the CSA process, the definition of instants for FlowCNECs is based on an algorithm that requires to know the acceptable duration of all the TATLs of a line.
+
+This association is more complex, as the set of TATLs used is not fixed from one line to the next, but the RAO must be able to map each of these limits at all 5 post-contingency instants (outage, auto and curative 1, 2 and 3).
+
+Below are some examples of cases using different sets of TATLs:
+
+::::{tabs}
+:::{group-tab} General Case
+![Association TATL-instant](/_static/img/tatl-instant.png){.forced-white-background}
+:::
+:::{group-tab} No TATL 300
+![Association TATL-instant](/_static/img/tatl-instant-no-tatl-300.png){.forced-white-background}
+:::
+:::{group-tab} No TATL 600
+![Association TATL-instant](/_static/img/tatl-instant-no-tatl-600.png){.forced-white-background}
+:::
+::::
+
+The mapping between the different limits and the instants can be done with an algorithm described below. For this to work, the [CSA extension](creation-parameters.md#csa-specific-parameters) of the CracCreationParameters must have been set in the first place to associate each curative instant to its [application time](creation-parameters.md#cra-application-window) and to indicate which TSOs [use the PATL as the final state's limit](creation-parameters.md#use-patl-in-final-state) and which do not.
+
+By default, the first curative instant is associated to 300 seconds, the second curative to 600 seconds and the third curative to 1200 seconds.
+
+> **Vocabulary**
+>
+> In the following, we define the highest (resp. lowest) limit as the limit with the highest (resp. lowest) threshold.
+> We also define the longest (resp. shortest) limit as the limit with the longest (resp. shortest) duration. We assume the PATL to have an infinite duration.
+
+For a given AssessedElement, no matter if it is defined using a `ConductingEquipment` or just an `OperationalLimit`, all of the line's limits must be fetched. Then, in order to know to which instant a given limit (PATL/TATL) belongs, the following algorithm must be run:
+
+- _Preventive_: PATL
+- _Outage_:
+  - if TATLs with duration in [0, 300[ exist: lowest of these limits
+  - otherwise, highest limit with a duration >= 0
+- _Auto_: highest limit with a duration >= 300
+- _First curative (aka "curative 300")_: highest limit with a duration >= 600
+- _Second curative (aka "curative 600")_: highest limit with a duration >= 1200
+- _Third curative (aka "curative 1200")_:
+  - If the TSO uses the PATL for the final state: PATL or longest TATL if the TSO does not use the PATL for the final state
+  - If the TSO does **not** use the PATL for the final state: longest TATL if the TSO does not use the PATL for the final state
+
+> **Remarks**
+> 1. For each instant, if no TATL meets the condition "highest limit with a duration >= X", the PATL is used instead (or the longest TATL if the TSO does not use the PATL for the final state)
+> 2. If the TSO does not use the PATL for the final state but the line has no TATL, the PATL is used by default for all the instants
+
+Then given a limit (PATL or TATL), the FlowCNEC's instant is retrieved as followed:
+- if the limit is associated to one or several instants by the previous algorithm, one FlowCNEC is created per such instant
+- if not, the instants associated to the closest limit with a longer duration (and which was mapped to instants by the algorithm) are used instead
+
+> **Remark about interconnections**
+> 
+> Note that to avoid potential interconnection lines that may have different limits on both sides, one FlowCNEC is created for each side
 
 ### AngleCNEC
 
@@ -415,15 +466,14 @@ found in the **EQ** profile (CGMES file).
         <cim:IdentifiedObject.mRID>operational-limit-set</cim:IdentifiedObject.mRID>
         <cim:IdentifiedObject.name>Operational limit set</cim:IdentifiedObject.name>
         <cim:IdentifiedObject.description>Example of operational limit set</cim:IdentifiedObject.description>
-        <cim:OperationalLimitSet.Terminal rdf:resource="#_terminal"/>
+        <cim:OperationalLimitSet.Equipment rdf:resource="#_equipment"/>
     </cim:OperationalLimitSet>
     <cim:OperationalLimitType rdf:ID="_operational-limit-type">
         <cim:IdentifiedObject.mRID>operational-limit-type</cim:IdentifiedObject.mRID>
         <cim:IdentifiedObject.name>Operational limit type</cim:IdentifiedObject.name>
         <cim:IdentifiedObject.description>Example of operational limit type</cim:IdentifiedObject.description>
         <cim:OperationalLimitType.isInfiniteDuration>true</cim:OperationalLimitType.isInfiniteDuration>
-        <cim:OperationalLimitType.direction
-                rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.high"/>
+        <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.highVoltage" />
     </cim:OperationalLimitType>
     <nc:VoltageLimit rdf:ID="voltage-limit">
         <cim:IdentifiedObject.mRID>voltage-limit</cim:IdentifiedObject.mRID>
@@ -437,16 +487,16 @@ found in the **EQ** profile (CGMES file).
 </rdf:RDF>
 ```
 
-To be valid, the VoltageCNEC's `isInfiniteDuration` field must be set to `true`. It is missing or set to `false` it will
+To be valid, the VoltageCNEC's `isInfiniteDuration` field must be set to `true`. If it is missing or set to `false` it will
 be ignored.
 
 The CNEC's threshold value (in KILOVOLTS) is determined by the `value` field of the `VoltageLimit` and must be positive.
-Whether this is the maximum or minimum threshold of the CNEC depends on the `OperationalLimitType`'s `direction`:
+Whether this is the maximum or minimum threshold of the CNEC depends on the `OperationalLimitType`'s `limitType`:
 
-- if the `direction` is `high`, the maximum value of the threshold is `+ normalValue`
-- if the `direction` is `low`, the minimum value of the threshold is `- normalValue`
+- if the `limitType` is `highVoltage`, the maximum value of the threshold is `+ normalValue`
+- if the `limitType` is `lowVoltage`, the minimum value of the threshold is `- normalValue`
 
-The VoltageCNEC's network element is determined by the `OperationalLimitSet`'s `Terminal`. The latter must reference an
+The VoltageCNEC's network element is determined by the `OperationalLimitSet`'s `Equipment`. The latter must reference an
 existing BusBarSection in the network.
 
 ## Remedial Actions
@@ -480,8 +530,13 @@ The remedial action is imported only if the `normalAvailable` field is set to `t
 
 As for the [contingencies](#contingencies), the `mRID` is used as the remedial action's identifier and
 the `RemedialActionSystemOperator` and `name` are concatenated together to create the remedial action's name. The
-instant of the remedial action is determined by the `kind` which can be either `preventive` or `curative`. Finally,
-the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
+instant of the remedial action is determined by the `kind` which can be either `preventive` or `curative`.
+
+> If the remedial action has its `kind` field set to `curative`, the remedial action will be imported for all 3 curative instants at once.
+
+Finally, the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
+
+> This `timeToImplement` may also be used to convert a curative remedial action to an auto remedial action (see [this section](#using-gridstatealterationremedialaction-and-timetoimplement)).
 
 In the following, we describe the different types of remedial actions that can be imported in OpenRAO from the CSA
 profiles. The general pattern is to link a `GridStateAlteration` object which references the parent remedial
@@ -820,6 +875,16 @@ of sections.
 :::
 ::::
 
+### Auto remedial actions
+
+#### Using SchemeRemedialActions
+
+![CSA SPS](/_static/img/sps-csa.png){.forced-white-background}
+
+#### Using GridStateAlterationRemedialAction and timeToImplement
+
+An auto remedial action can also be defined in a more concise way using a `GridStateAlterationRemedialAction` with a `timeToImplement`. If this time, converted to a number of seconds, is below the [sps-max-time-to-implement-threshold-in-seconds](creation-parameters.md#sps-max-time-to-implement-threshold-in-seconds) threshold defined in the CSA CRAC creation parameters, the remedial action will be imported as an ARA instead of a CRA.
+
 ### Usage Rules
 
 #### OnInstant
@@ -863,12 +928,6 @@ The usage method depends on the value of the `combinationConstraintKind` field:
 If the remedial action is linked to an assessed element (a CNEC), its usage method is no longer onInstant and is now
 **onConstraint**. This link is created with a `AssessedElementWithRemedialAction` object that bounds together the
 assessed element and the contingency.
-
-The type of onConstraint usage rule depends on the type of the CNEC the remedial action is bounded to:
-
-- if it is a FlowCNEC, the usage rule is **onFlowConstraint**
-- if it is an AngleCNEC, the usage rule is **onAngleConstraint**
-- if it is a VoltageCNEC, the usage rule is **onVoltageConstraint**
 
 ```xml
 <!-- AE Profile -->

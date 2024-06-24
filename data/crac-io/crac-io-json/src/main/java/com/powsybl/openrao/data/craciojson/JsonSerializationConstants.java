@@ -31,7 +31,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.1";
+    public static final String CRAC_IO_VERSION = "2.4";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -43,6 +43,8 @@ public final class JsonSerializationConstants {
     v1.9: addition of counterTradeRangeAction
     v2.0: addition of instants and change in usage method logic
     v2.1: addition of ra-usage-limits
+    v2.2: addition of contingency id in on-flow-constraint-in-country
+    v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
      */
 
     // headers
@@ -71,6 +73,8 @@ public final class JsonSerializationConstants {
     public static final String INSTANTS = "instants";
     public static final String INSTANT = "instant";
     public static final String INSTANT_KIND = "kind";
+
+    public static final String CNEC_ID = "cnecId";
 
     public static final String FLOW_CNECS = "flowCnecs";
     public static final String FLOW_CNEC_ID = "flowCnecId";
@@ -106,6 +110,7 @@ public final class JsonSerializationConstants {
     public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules"; // retro-compatibility only
     public static final String ON_CONTINGENCY_STATE_USAGE_RULES = "onContingencyStateUsageRules";
     public static final String ON_STATE_USAGE_RULES = "onStateUsageRules"; // retro-compatibility only
+    public static final String ON_CONSTRAINT_USAGE_RULES = "onConstraintUsageRules";
     public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
     public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules";
     public static final String ON_VOLTAGE_CONSTRAINT_USAGE_RULES = "onVoltageConstraintUsageRules";
@@ -118,6 +123,7 @@ public final class JsonSerializationConstants {
     public static final String RANGES = "ranges";
     public static final String SETPOINT = "setpoint";
     public static final String OPERATOR = "operator";
+    public static final String BORDER = "border";
     public static final String ACTION_TYPE = "actionType";
     public static final String RANGE_TYPE = "rangeType";
     public static final String INITIAL_SETPOINT = "initialSetpoint";
@@ -177,6 +183,7 @@ public final class JsonSerializationConstants {
     public static final String ABSOLUTE_RANGE = "absolute";
     public static final String RELATIVE_TO_PREVIOUS_INSTANT_RANGE = "relativeToPreviousInstant";
     public static final String RELATIVE_TO_INITIAL_NETWORK_RANGE = "relativeToInitialNetwork";
+    public static final String RELATIVE_TO_PREVIOUS_TIME_STEP = "relativeToPreviousTimeStep";
 
     // action types
     public static final String OPEN_ACTION = "open";
@@ -366,6 +373,8 @@ public final class JsonSerializationConstants {
                 return RELATIVE_TO_PREVIOUS_INSTANT_RANGE;
             case RELATIVE_TO_INITIAL_NETWORK:
                 return RELATIVE_TO_INITIAL_NETWORK_RANGE;
+            case RELATIVE_TO_PREVIOUS_TIME_STEP:
+                return RELATIVE_TO_PREVIOUS_TIME_STEP;
             default:
                 throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
         }
@@ -379,6 +388,8 @@ public final class JsonSerializationConstants {
                 return RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
             case RELATIVE_TO_INITIAL_NETWORK_RANGE:
                 return RangeType.RELATIVE_TO_INITIAL_NETWORK;
+            case RELATIVE_TO_PREVIOUS_TIME_STEP:
+                return RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP;
             default:
                 throw new OpenRaoException(String.format("Unrecognized range type %s", stringValue));
         }
@@ -444,17 +455,11 @@ public final class JsonSerializationConstants {
             if (o1 instanceof OnContingencyState ocs1) {
                 return ocs1.getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
             }
-            if (o1 instanceof OnFlowConstraint ofc1) {
-                return ofc1.getFlowCnec().getId().compareTo(((OnFlowConstraint) o2).getFlowCnec().getId());
-            }
             if (o1 instanceof OnFlowConstraintInCountry ofcic1) {
                 return ofcic1.getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
             }
-            if (o1 instanceof OnAngleConstraint oac1) {
-                return oac1.getAngleCnec().getId().compareTo(((OnAngleConstraint) o2).getAngleCnec().getId());
-            }
-            if (o1 instanceof OnVoltageConstraint ovc1) {
-                return ovc1.getVoltageCnec().getId().compareTo(((OnVoltageConstraint) o2).getVoltageCnec().getId());
+            if (o1 instanceof OnConstraint<?> oc1) {
+                return oc1.getCnec().getId().compareTo(((OnConstraint<?>) o2).getCnec().getId());
             }
             throw new OpenRaoException(String.format("Unknown usage rule type: %s", o1.getClass()));
         }

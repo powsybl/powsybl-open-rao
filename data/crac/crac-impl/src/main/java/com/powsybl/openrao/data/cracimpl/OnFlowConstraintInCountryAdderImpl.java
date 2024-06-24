@@ -6,12 +6,15 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraintInCountryAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
+
+import java.util.Optional;
 
 import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNull;
 
@@ -23,6 +26,7 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY = "OnFlowConstraintInCountry";
     private T owner;
     private String instantId;
+    private String contingencyId;
     private Country country;
     private UsageMethod usageMethod;
 
@@ -33,6 +37,12 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     @Override
     public OnFlowConstraintInCountryAdder<T> withInstant(String instantId) {
         this.instantId = instantId;
+        return this;
+    }
+
+    @Override
+    public OnFlowConstraintInCountryAdder<T> withContingency(String contingencyId) {
+        this.contingencyId = contingencyId;
         return this;
     }
 
@@ -62,7 +72,16 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
             owner.getCrac().addPreventiveState();
         }
 
-        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(usageMethod, instant, country);
+        Optional<Contingency> optionalContingency = Optional.empty();
+        if (contingencyId != null) {
+            Contingency contingency = owner.getCrac().getContingency(contingencyId);
+            if (contingency == null) {
+                throw new OpenRaoException(String.format("Contingency %s of OnFlowConstraintInCountry usage rule does not exist in the crac. Use crac.newContingency() first.", contingencyId));
+            }
+            optionalContingency = Optional.of(contingency);
+        }
+
+        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(usageMethod, instant, optionalContingency, country);
         owner.addUsageRule(onFlowConstraint);
         return owner;
     }

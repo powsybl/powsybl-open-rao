@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -30,7 +29,6 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.AutomatonPerimeterResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -139,14 +137,14 @@ class AutomatonSimulatorTest {
             .withId("ra3")
             .withNetworkElement("ra3-ne")
             .withSpeed(4)
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ra4 = crac.newPstRangeAction()
             .withId("ra4")
             .withNetworkElement("ra4-ne")
             .withSpeed(4)
-            .newOnFlowConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withFlowCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 
@@ -156,7 +154,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group1")
             .withNetworkElement("BBE2AA11 BBE3AA11 1")
             .withSpeed(3)
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, 0.1, 1, 1.1, 2, 2.1, 3, 3.1, -1, -1.1, -2, -2.1, -3, -3.1))
             .add();
         ara2 = crac.newPstRangeAction()
@@ -164,7 +162,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group1")
             .withNetworkElement("FFR2AA11 FFR4AA11 1")
             .withSpeed(3)
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, 0.1, 1, 1.1, 2, 2.1, 3, 3.1, -1, -1.1, -2, -2.1, -3, -3.1))
             .add();
 
@@ -199,7 +197,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group3")
             .withNetworkElement("ra3-ne")
             .withSpeed(6)
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 
@@ -207,7 +205,7 @@ class AutomatonSimulatorTest {
         na = crac.newNetworkAction()
             .withId("na")
             .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("DDE3AA11 DDE4AA11 1").add()
-            .newOnFlowConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withFlowCnec("cnec2").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec2").withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
         // Add HVDC range actions
@@ -695,56 +693,5 @@ class AutomatonSimulatorTest {
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getConvertersMode());
         assertEquals(46.61, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getConvertersMode());
-    }
-
-    @Test
-    void testIgnoreNotOptimizedCnec() {
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
-        NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
-        notOptimizedCnecsParameters.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec-ne", "BBE2AA11 BBE3AA11 1")); // cnec is coupled with ara1
-        raoParameters.setNotOptimizedCnecsParameters(notOptimizedCnecsParameters);
-
-        RangeActionSetpointResultImpl prePerimeterRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(ara1, 0.1, ara2, 0.1));
-        automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, null, prePerimeterRangeActionSetpointResult, mockedPrePerimeterResult, null, 0);
-
-        // only one CNEC monitored, with a flow of 481 MW, 100 MW over its upper threshold (381 MW)
-        // associated ara1 is initially at tap position 0.1 with a sensitivity of +50MW/° and a min position of -3.1
-        // So it has enough set-points left to remove the overload => no RA should be used
-        when(mockedPrePerimeterResult.getFlow(eq(cnec1), any(), eq(Unit.MEGAWATT))).thenReturn(481.1);
-        when(mockedPrePerimeterResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-100.);
-        when(mockedPrePerimeterResult.getMargin(eq(cnec1), any(), eq(Unit.MEGAWATT))).thenReturn(-100.);
-        when(mockedPrePerimeterResult.getSensitivityValue(eq(cnec1), any(), eq(ara1), eq(Unit.MEGAWATT))).thenReturn(50.);
-        when(mockedPrePerimeterResult.getSensitivityValue(eq(cnec1), any(), eq(ara2), eq(Unit.MEGAWATT))).thenReturn(50.);
-
-        AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
-            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec1), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
-        assertTrue(shiftResult.getActivatedRangeActions().isEmpty());
-    }
-
-    @Test
-    void testDontIgnoreNotOptimizedCnec() {
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
-        NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
-        notOptimizedCnecsParameters.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec-ne", "BBE2AA11 BBE3AA11 1")); // cnec is coupled with ara1
-        raoParameters.setNotOptimizedCnecsParameters(notOptimizedCnecsParameters);
-
-        // only one CNEC monitored, with a flow of 481 MW, 100 MW over its upper threshold (381 MW)
-        // associated ara1 is initially at tap position -2.1 with a sensitivity of +50MW/° and a min position of -3.1
-        // So it doesn't have enough set-points left to remove the overload => ara1 and aligned ara2 should be used to reduce the flow
-        when(mockedPrePerimeterResult.getFlow(eq(cnec1), any(), eq(Unit.MEGAWATT))).thenReturn(481.1);
-        when(mockedPrePerimeterResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-100.);
-        when(mockedPrePerimeterResult.getMargin(eq(cnec1), any(), eq(Unit.MEGAWATT))).thenReturn(-100.);
-        when(mockedPrePerimeterResult.getSensitivityValue(eq(cnec1), any(), eq(ara1), eq(Unit.MEGAWATT))).thenReturn(50.);
-        when(mockedPrePerimeterResult.getSensitivityValue(eq(cnec1), any(), eq(ara2), eq(Unit.MEGAWATT))).thenReturn(50.);
-
-        RangeActionSetpointResultImpl prePerimeterRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(ara1, -2.1, ara2, 0.1));
-        automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, null, prePerimeterRangeActionSetpointResult, mockedPrePerimeterResult, null, 0);
-
-        AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
-            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec1), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
-        assertEquals(-3.1, shiftResult.getRangeActionsWithSetpoint().get(ara1), DOUBLE_TOLERANCE);
-        assertEquals(-3.1, shiftResult.getRangeActionsWithSetpoint().get(ara2), DOUBLE_TOLERANCE);
     }
 }

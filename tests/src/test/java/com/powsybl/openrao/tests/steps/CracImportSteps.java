@@ -81,8 +81,8 @@ public class CracImportSteps {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
         } else if (cracCreationContext instanceof FbConstraintCreationContext) {
             throw new NotImplementedException(NOT_IMPLEMENTED_FB);
-        } else if (cracCreationContext instanceof CseCracCreationContext) {
-            assertTrue(((CseCracCreationContext) cracCreationContext).getOutageCreationContexts().stream().allMatch(CseOutageCreationContext::isImported));
+        } else if (cracCreationContext instanceof CseCracCreationContext cseCracCreationContext) {
+            assertTrue(cseCracCreationContext.getOutageCreationContexts().stream().allMatch(CseOutageCreationContext::isImported));
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -94,8 +94,8 @@ public class CracImportSteps {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
         } else if (cracCreationContext instanceof FbConstraintCreationContext) {
             throw new NotImplementedException(NOT_IMPLEMENTED_FB);
-        } else if (cracCreationContext instanceof CseCracCreationContext) {
-            CseOutageCreationContext creationContext = ((CseCracCreationContext) cracCreationContext).getOutageCreationContext(nativeContingencyId);
+        } else if (cracCreationContext instanceof CseCracCreationContext cseCracCreationContext) {
+            CseOutageCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
             assertNotNull(creationContext);
             assertTrue(creationContext.isImported());
             assertEquals(createdContingencyId, creationContext.getName());
@@ -110,8 +110,8 @@ public class CracImportSteps {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
         } else if (cracCreationContext instanceof FbConstraintCreationContext) {
             throw new NotImplementedException(NOT_IMPLEMENTED_FB);
-        } else if (cracCreationContext instanceof CseCracCreationContext) {
-            CseOutageCreationContext creationContext = ((CseCracCreationContext) cracCreationContext).getOutageCreationContext(nativeContingencyId);
+        } else if (cracCreationContext instanceof CseCracCreationContext cseCracCreationContext) {
+            CseOutageCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
             assertNotNull(creationContext);
             assertFalse(creationContext.isImported());
             assertNull(creationContext.getCreatedContingencyId());
@@ -143,8 +143,8 @@ public class CracImportSteps {
     public void allCnecsMustBeImported() {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
-        } else if (cracCreationContext instanceof UcteCracCreationContext) {
-            assertTrue(((UcteCracCreationContext) cracCreationContext).getBranchCnecCreationContexts().stream().allMatch(BranchCnecCreationContext::isImported));
+        } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
+            assertTrue(ucteCracCreationContext.getBranchCnecCreationContexts().stream().allMatch(BranchCnecCreationContext::isImported));
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -154,8 +154,8 @@ public class CracImportSteps {
     public void mapNativeCnec(String nativeCnecId, String nativeFrom, String nativeTo, String nativeSuffix, String createdCnecId, String instantId) {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
-        } else if (cracCreationContext instanceof UcteCracCreationContext) {
-            BranchCnecCreationContext branchCnecCreationContext = ((UcteCracCreationContext) cracCreationContext).getBranchCnecCreationContext(nativeCnecId);
+        } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
+            BranchCnecCreationContext branchCnecCreationContext = ucteCracCreationContext.getBranchCnecCreationContext(nativeCnecId);
             assertNotNull(branchCnecCreationContext);
             assertTrue(branchCnecCreationContext.isImported());
             assertEquals(nativeFrom, branchCnecCreationContext.getNativeBranch().getFrom());
@@ -171,8 +171,8 @@ public class CracImportSteps {
     public void mapNativeCnec(String nativeCnecId, String createdCnecId, String instantId) {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
-        } else if (cracCreationContext instanceof UcteCracCreationContext) {
-            BranchCnecCreationContext branchCnecCreationContext = ((UcteCracCreationContext) cracCreationContext).getBranchCnecCreationContext(nativeCnecId);
+        } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
+            BranchCnecCreationContext branchCnecCreationContext = ucteCracCreationContext.getBranchCnecCreationContext(nativeCnecId);
             assertNotNull(branchCnecCreationContext);
             assertTrue(branchCnecCreationContext.isImported());
             assertEquals(createdCnecId, branchCnecCreationContext.getCreatedCnecsIds().get(instantId.toLowerCase()));
@@ -185,8 +185,8 @@ public class CracImportSteps {
     public void cnecShouldNotBeImported(String nativeCnecId) {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
-        } else if (cracCreationContext instanceof UcteCracCreationContext) {
-            BranchCnecCreationContext branchCnecCreationContext = ((UcteCracCreationContext) cracCreationContext).getBranchCnecCreationContext(nativeCnecId);
+        } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
+            BranchCnecCreationContext branchCnecCreationContext = ucteCracCreationContext.getBranchCnecCreationContext(nativeCnecId);
             assertNotNull(branchCnecCreationContext);
             assertFalse(branchCnecCreationContext.isImported());
             assertTrue(branchCnecCreationContext.getCreatedCnecsIds().isEmpty());
@@ -375,8 +375,8 @@ public class CracImportSteps {
     public void allRasMustBeImported() {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
-        } else if (cracCreationContext instanceof UcteCracCreationContext) {
-            assertTrue(((UcteCracCreationContext) cracCreationContext).getRemedialActionCreationContexts().stream().allMatch(RemedialActionCreationContext::isImported));
+        } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
+            assertTrue(ucteCracCreationContext.getRemedialActionCreationContexts().stream().allMatch(RemedialActionCreationContext::isImported));
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -386,8 +386,8 @@ public class CracImportSteps {
     public void mapRemedialAction(String nativeRaId, String createdRaId) {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
-        } else if (cracCreationContext instanceof UcteCracCreationContext) {
-            RemedialActionCreationContext remedialActionCreationContext = ((UcteCracCreationContext) cracCreationContext).getRemedialActionCreationContext(nativeRaId);
+        } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
+            RemedialActionCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
             assertNotNull(remedialActionCreationContext);
             assertTrue(remedialActionCreationContext.isImported());
             assertEquals(createdRaId, remedialActionCreationContext.getCreatedRAId());
@@ -400,8 +400,8 @@ public class CracImportSteps {
     public void raShouldNotBeImported(String nativeRaId, String importStatus) {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
-        } else if (cracCreationContext instanceof UcteCracCreationContext) {
-            RemedialActionCreationContext remedialActionCreationContext = ((UcteCracCreationContext) cracCreationContext).getRemedialActionCreationContext(nativeRaId);
+        } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
+            RemedialActionCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
             assertNotNull(remedialActionCreationContext);
             assertFalse(remedialActionCreationContext.isImported());
             assertNull(remedialActionCreationContext.getCreatedRAId());
@@ -569,32 +569,32 @@ public class CracImportSteps {
                 case "PstSetpoint":
                     int intSetpoint = Integer.parseInt(action);
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof PstSetpoint
-                            && elementaryAction.getNetworkElements().iterator().next().getId().equals(networkElementId)
-                            && ((PstSetpoint) elementaryAction).getSetpoint() == intSetpoint));
+                        elementaryAction instanceof PstSetpoint pstSetpoint
+                            && pstSetpoint.getNetworkElements().iterator().next().getId().equals(networkElementId)
+                            && pstSetpoint.getSetpoint() == intSetpoint));
                     break;
                 case "TopologicalAction":
                     ActionType actionType = ActionType.valueOf(action.toUpperCase());
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof TopologicalAction
-                            && elementaryAction.getNetworkElements().iterator().next().getId().equals(networkElementId)
-                            && ((TopologicalAction) elementaryAction).getActionType() == actionType));
+                        elementaryAction instanceof TopologicalAction topologicalAction
+                            && topologicalAction.getNetworkElements().iterator().next().getId().equals(networkElementId)
+                            && topologicalAction.getActionType() == actionType));
                     break;
                 case "InjectionSetpoint":
                     double doubleSetpoint = Double.parseDouble(action);
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof InjectionSetpoint
-                            && elementaryAction.getNetworkElements().iterator().next().getId().equals(networkElementId)
-                            && ((InjectionSetpoint) elementaryAction).getSetpoint() == doubleSetpoint));
+                        elementaryAction instanceof InjectionSetpoint injectionSetpoint
+                            && injectionSetpoint.getNetworkElements().iterator().next().getId().equals(networkElementId)
+                            && injectionSetpoint.getSetpoint() == doubleSetpoint));
                     break;
                 case "SwitchPair":
                     assertEquals("OPEN/CLOSE", action);
                     String open = networkElementId.split("/")[0];
                     String close = networkElementId.split("/")[1];
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof SwitchPair
-                            && ((SwitchPair) elementaryAction).getSwitchToOpen().getId().equals(open)
-                            && ((SwitchPair) elementaryAction).getSwitchToClose().getId().equals(close)));
+                        elementaryAction instanceof SwitchPair switchPair
+                            && switchPair.getSwitchToOpen().getId().equals(open)
+                            && switchPair.getSwitchToClose().getId().equals(close)));
                     break;
                 default:
                     throw new IllegalArgumentException(String.format("Unknown elementary network action type: %s", expectedNetworkAction.get("ElementaryActionType")));
@@ -616,48 +616,50 @@ public class CracImportSteps {
             switch (expectedUsageRule.get("Rule")) {
                 case "OnInstant":
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnInstant
-                            && usageRule.getUsageMethod().equals(usageMethod)
-                            && usageRule.getInstant().equals(instant)
+                        usageRule instanceof OnInstant onInstant
+                            && onInstant.getUsageMethod().equals(usageMethod)
+                            && onInstant.getInstant().equals(instant)
                     ));
                     break;
                 case "OnContingencyState":
                     Contingency contingency = crac.getContingency(expectedUsageRule.get("ContingencyId"));
                     assertNotNull(contingency);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnContingencyState
-                            && usageRule.getUsageMethod().equals(usageMethod)
-                            && usageRule.getInstant().equals(instant)
-                            && ((OnContingencyState) usageRule).getContingency().equals(contingency)
+                        usageRule instanceof OnContingencyState onContingencyState
+                            && onContingencyState.getUsageMethod().equals(usageMethod)
+                            && onContingencyState.getInstant().equals(instant)
+                            && onContingencyState.getContingency().equals(contingency)
                     ));
                     break;
                 case "OnFlowConstraint":
                     FlowCnec flowCnec = crac.getFlowCnec(expectedUsageRule.get("FlowCnecId"));
                     assertNotNull(flowCnec);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnFlowConstraint
-                            && usageRule.getUsageMethod().equals(usageMethod)
-                            && usageRule.getInstant().equals(instant)
-                            && ((OnFlowConstraint) usageRule).getFlowCnec().equals(flowCnec)
+                        usageRule instanceof OnConstraint<?> onFlowConstraint
+                            && onFlowConstraint.getUsageMethod().equals(usageMethod)
+                            && onFlowConstraint.getInstant().equals(instant)
+                            && onFlowConstraint.getCnec().equals(flowCnec)
                     ));
                     break;
                 case "OnFlowConstraintInCountry":
                     Country country = Country.valueOf(expectedUsageRule.get("Country"));
+                    Optional<Contingency> optionalContingency = Optional.ofNullable(crac.getContingency(expectedUsageRule.get("ContingencyId")));
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnFlowConstraintInCountry
-                            && usageRule.getUsageMethod().equals(usageMethod)
-                            && usageRule.getInstant().equals(instant)
-                            && ((OnFlowConstraintInCountry) usageRule).getCountry().equals(country)
+                        usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
+                            && onFlowConstraintInCountry.getUsageMethod().equals(usageMethod)
+                            && onFlowConstraintInCountry.getInstant().equals(instant)
+                            && onFlowConstraintInCountry.getCountry().equals(country)
+                            && onFlowConstraintInCountry.getContingency().equals(optionalContingency)
                     ));
                     break;
                 case "OnAngleConstraint":
                     AngleCnec angleCnec = crac.getAngleCnec(expectedUsageRule.get("AngleCnecId"));
                     assertNotNull(angleCnec);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
-                        usageRule instanceof OnAngleConstraint
-                            && usageRule.getUsageMethod().equals(usageMethod)
-                            && usageRule.getInstant().equals(instant)
-                            && ((OnAngleConstraint) usageRule).getAngleCnec().equals(angleCnec)
+                        usageRule instanceof OnConstraint<?> onAngleConstraint
+                            && onAngleConstraint.getUsageMethod().equals(usageMethod)
+                            && onAngleConstraint.getInstant().equals(instant)
+                            && onAngleConstraint.getCnec().equals(angleCnec)
                     ));
                     break;
                 default:

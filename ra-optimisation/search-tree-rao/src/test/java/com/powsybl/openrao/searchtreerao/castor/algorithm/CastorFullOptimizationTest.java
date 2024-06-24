@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -41,9 +42,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -145,6 +149,8 @@ class CastorFullOptimizationTest {
 
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(10.);
+        parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
+        when(preventiveResult.getCost()).thenReturn(-500.);
 
         // CurativeStopCriterion.PREVENTIVE_OBJECTIVE
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE);
@@ -170,8 +176,8 @@ class CastorFullOptimizationTest {
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-110.);
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         // case 2 : all curatives are better than preventive (cost < preventive cost - minObjImprovement), UNSECURE
-        setCost(preventiveResult, 1000.);
-        setCost(optimizationResult1, 0.);
+        setCost(preventiveResult, -500.);
+        setCost(optimizationResult1, -200.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(0.);
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
         setCost(optimizationResult1, 10.);
@@ -272,6 +278,7 @@ class CastorFullOptimizationTest {
                 .withId("ra3")
                 .withNetworkElement("ra3-ne")
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newTapRange().withMaxTap(100).withMinTap(-100).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
                 .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
@@ -295,8 +302,9 @@ class CastorFullOptimizationTest {
         ra6 = crac.newPstRangeAction()
                 .withId("ra6")
                 .withNetworkElement("ra6-ne")
+                .withOperator("FR")
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnConstraintUsageRule().withCnec("cnec").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra7 : auto only
@@ -367,9 +375,9 @@ class CastorFullOptimizationTest {
         // ra4 is preventive, ra5 is available in state2, both have the same network element
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra4, crac.getPreventiveState(), crac));
         assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra4, state1, crac));
-        assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra4, state2, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra4, state2, crac));
 
-        assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra5, crac.getPreventiveState(), crac));
+        assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra5, crac.getPreventiveState(), crac));
         assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra5, state1, crac));
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra5, state2, crac));
 
@@ -390,7 +398,7 @@ class CastorFullOptimizationTest {
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra3, crac));
         // ra4 is preventive, ra5 is available in state2, both have the same network element
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra4, crac));
-        assertTrue(CastorFullOptimization.isRangeActionPreventive(ra5, crac));
+        assertFalse(CastorFullOptimization.isRangeActionPreventive(ra5, crac));
         // ra6 is preventive and curative
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra6, crac));
     }
@@ -405,7 +413,7 @@ class CastorFullOptimizationTest {
         // ra3 is available in preventive and in state1
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra3, crac));
         // ra4 is preventive, ra5 is available in state2, both have the same network element
-        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra4, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAutoOrCurative(ra4, crac));
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra5, crac));
         // ra6 is preventive and curative
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra6, crac));
@@ -419,32 +427,41 @@ class CastorFullOptimizationTest {
         // ra8 is preventive and auto
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra8, crac));
         // ra9 is preventive with same network element as ra8
-        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra9, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAutoOrCurative(ra9, crac));
     }
 
     @Test
     void testGetRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
-        // detect range actions that are preventive and curative
-        Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac);
-        assertEquals(8, rangeActionsExcludedFrom2P.size());
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra2));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra3));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra4));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra5));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra6));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra7));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra8));
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra9));
-    }
+        PerimeterResult firstPreventiveResult = Mockito.mock(PerimeterResult.class);
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
+        State preventiveState = crac.getPreventiveState();
+        // ra9 has different taps than ra8.
+        when(firstPreventiveResult.getOptimizedSetpoint(ra9, preventiveState)).thenReturn(2.);
+        crac.newRaUsageLimits(autoInstant.getId()).withMaxRa(0).add();
+        crac.newRaUsageLimits(curativeInstant.getId()).withMaxRaPerTso(new HashMap<>(Map.of("FR", 0))).add();
+        Map<State, OptimizationResult> contingencyResult = new HashMap<>();
+        crac.getStates().forEach(state -> {
+            if (!state.isPreventive()) {
+                contingencyResult.put(state, optimizationResult);
+            }
+        });
 
-    @Test
-    void testRemoveRangeActionsExcludedFromSecondPreventive() {
-        setUpCracWithRAs();
-        Set<RangeAction<?>> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
-        CastorFullOptimization.removeRangeActionsExcludedFromSecondPreventive(rangeActions, crac);
-        assertEquals(1, rangeActions.size());
-        assertTrue(rangeActions.contains(ra1));
+        Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac, firstPreventiveResult, contingencyResult);
+
+        assertEquals(7, rangeActionsExcludedFrom2P.size());
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra1)); // Should not be excluded as it's preventive only.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra2)); // Should be excluded as it's UNAVAILABLE for preventive.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra5)); // Should be excluded as it's not preventive.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra7)); // Should be excluded as it's not preventive.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra3));  // Should be excluded as it has a range limitation RELATIVE_TO_PREVIOUS_INSTANT.
+
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra9)); // It shares the same network elements as ra8 but their tap are different. It should not be excluded.
+
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra6));  // It has the same taps in preventive and in curative. The RA belongs to french TSO and there are ra usage limuts on this TSO : It should be excluded.
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra8));  // It has the same taps in preventive and auto. As there are RaUsageLimits for this instant, it should be excluded.
+        assertFalse(rangeActionsExcludedFrom2P.contains(ra4)); // It has the same network elements as ra5 and their taps are the same. As it doesn't belong to frenchTSO : it should not be excluded.
+
     }
 
     private void setUpCracWithRealRAs(boolean curative) {
@@ -587,7 +604,7 @@ class CastorFullOptimizationTest {
         assertEquals(256.78, raoResult.getFunctionalCost(curativeInstant), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, raoResult.getOptimizationStepsExecuted());
+        assertEquals(FIRST_PREVENTIVE_ONLY, raoResult.getOptimizationStepsExecuted());
     }
 
     @Test
@@ -610,7 +627,7 @@ class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(FIRST_PREVENTIVE_ONLY));
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
     }
 
@@ -657,7 +674,7 @@ class CastorFullOptimizationTest {
 
         // Test Optimization steps executed
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(FIRST_PREVENTIVE_ONLY));
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
 
         // Test final log after RAO fallbacks
@@ -913,5 +930,132 @@ class CastorFullOptimizationTest {
         assertEquals(-1000.0, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"), Side.LEFT, Unit.MEGAWATT), 1.);
         assertEquals(-131.0, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"), Side.LEFT, Unit.MEGAWATT), 1.);
         assertEquals(-131.0, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"), Side.LEFT, Unit.MEGAWATT), 1.);
+    }
+
+    @Test
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() {
+        Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
+        Crac crac = CracImporters.importCrac(
+            Paths.get(new File(Objects.requireNonNull(CastorFullOptimizationTest.class.getResource("/crac/small-crac-ra-limits-per-instant.json")).getFile()).toString()),
+            network
+        );
+
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+
+        // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied during the first curative instant
+        // Yet, the number of RAs that can be applied is restricted to 1 (resp. 2) in total for curative1 (resp. curative2)
+        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative1"))).size());
+        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative2"))).size());
+    }
+
+    @Test
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() {
+        Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
+        Crac crac = CracImporters.importCrac(
+            Paths.get(new File(Objects.requireNonNull(CastorFullOptimizationTest.class.getResource("/crac/small-crac-ra-limits-per-instant-3-tsos.json")).getFile()).toString()),
+            network
+        );
+
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+
+        // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied during the first curative instant
+        // Yet, the number of RAs that can be applied is restricted to 2 (resp. 1) in total for curative1 (resp. curative2)
+        assertEquals(2, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative1"))).size());
+        assertEquals(0, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative2"))).size());
+        assertEquals(1, raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency", crac.getInstant("curative3"))).size());
+    }
+
+    @Test
+    void curativeOptimizationShouldNotBeDoneIfPreventiveUnsecure() {
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
+        raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(false);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(Collections.emptySet(), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
+    }
+
+    @Test
+    void curativeOptimizationShouldBeDoneIfPreventiveSecure() {
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-secure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
+        raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(false);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
+    }
+
+    @Test
+    void curativeOptimizationShouldBeDoneIfPreventiveMinMarginNegative() {
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
+        raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(false);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
+    }
+
+    @Test
+    void curativeOptimizationShouldBeDoneIfPreventiveUnsecureAndAssociatedParameterSet() {
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
+        raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
+    }
+
+    @Test
+    void curativeOptimizationShouldBeDoneIfPreventiveSecureAndAssociatedParameterSet() {
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-secure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
+        raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
+    }
+
+    @Test
+    void curativeOptimizationShouldBeDoneIfPreventiveMinMarginNegativeAndAssociatedParameterSet() {
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json", getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
+        raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 }

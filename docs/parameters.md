@@ -89,6 +89,17 @@ These parameters (objective-function) configure the remedial action optimisation
 - **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO stop criterion,
   when it is set to PREVENTIVE_OBJECTIVE or PREVENTIVE_OBJECTIVE_AND_SECURE.
 
+#### optimize-curative-if-preventive-unsecure
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: if this parameter is set to true, OpenRAO will continue optimizing curative states even if preventive state
+  is unsecure.
+  If this parameter is set to false, OpenRAO will stop after preventive if preventive state is unsecure and won't try to 
+  improve curative states.
+  
+  *Note: Only applied when ["preventive-stop-criterion"](#preventive-stop-criterion) is set to SECURE. In this case, if preventive was unsecure,
+second preventive won't be run, even if curative cost is higher, in order to save computation time* 
+
 ### Range actions optimisation parameters
 These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem/linear-rao.md) used to optimise range actions.  
 (See [Modelling CNECs and range actions](/castor/linear-problem/core-problem-filler.md))
@@ -351,21 +362,6 @@ optimisation of specific CNECs in specific conditions.
   If it is set to false, all CNECs are treated equally in the curative RAO.  
   This parameter has no effect on the preventive RAO.  
   This parameter should be set to true for CORE CC.
-  This parameter is not compatible with [do-not-optimize-cnec-secured-by-its-pst](#do-not-optimize-cnec-secured-by-its-pst) 
-  for technical reasons.
-
-#### do-not-optimize-cnec-secured-by-its-pst
-- **Expected value**: a map with string keys and values. The keys should represent critical network element IDs, and the
-  values should represent PST network element IDs.
-- **Default value**: empty map
-- **Usage**: when a critical network element (identified by its PowSyBl ID) is associated to a PST (identified by its
-  PowSyBl ID) in this parameter, CNECs defined on the critical element will not be taken into account in the minimum
-  margin objective function, as long as they can be secured by the associated PST. In other words, they will only be
-  taken into account if the PST has too few tap positions left to reduce the flow constraints on these CNECs.  
-  This parameter affects both preventive and curative RAOs.  
-  It is actually used for the SWE CC process.
-  This parameter is not compatible with [do-not-optimize-curative-cnecs-for-tsos-without-cras](#do-not-optimize-curative-cnecs-for-tsos-without-cras)
-  for technical reasons.
 
 ### Load-flow and sensitivity computation parameters
 These parameters (load-flow-and-sensitivity-computation) configure the load-flow and sensitivity computations providers 
@@ -585,13 +581,14 @@ Zones are seperated by + or -.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "2.3",
+  "version" : "2.4",
   "objective-function" : {
     "type" : "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE",
     "forbid-cost-increase" : false,
     "curative-min-obj-improvement" : 0.0,
     "preventive-stop-criterion" : "SECURE",
-    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE"
+    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE",
+    "optimize-curative-if-preventive-unsecure" : true
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 5,
@@ -629,11 +626,7 @@ Zones are seperated by + or -.
     "hint-from-first-preventive-rao" : true
   },
   "not-optimized-cnecs" : {
-    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false,
-    "do-not-optimize-cnec-secured-by-its-pst" : {
-      "NE1" : "PST1",
-      "NE2" : "PST2"
-    }
+    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "load-flow-and-sensitivity-computation" : {
     "load-flow-provider" : "OpenLoadFlow",

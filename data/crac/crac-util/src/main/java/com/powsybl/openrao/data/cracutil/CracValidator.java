@@ -141,13 +141,15 @@ public final class CracValidator {
                     return false;
                 } else if (usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getState().equals(flowCnec.getState())) {
                     return false;
-                } else if (usageRule instanceof OnFlowConstraint onFlowConstraint && onFlowConstraint.getFlowCnec().getState().equals(flowCnec.getState())) {
-                    if (onFlowConstraint.getFlowCnec().equals(flowCnec)) {
+                } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec && onConstraint.getCnec().getState().equals(flowCnec.getState())) {
+                    if (onConstraint.getCnec().equals(flowCnec)) {
                         return false;
                     } else {
                         raForOtherCnecs = true;
                     }
-                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant())) {
+                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
+                    && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
+                    && (onFlowConstraintInCountry.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(onFlowConstraintInCountry.getContingency()))) {
                     if (flowCnec.getLocation(network).contains(Optional.of(onFlowConstraintInCountry.getCountry()))) {
                         return false;
                     } else {

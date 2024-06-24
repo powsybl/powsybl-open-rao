@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnAngleConstraint;
+import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.powsybl.glsk.api.GlskPoint;
@@ -49,24 +49,41 @@ public class AngleMonitoring {
     private final Network inputNetwork;
     private final RaoResult raoResult;
     private final CimGlskDocument cimGlskDocument;
+    private final OffsetDateTime glskOffsetDateTime;
 
     private List<AngleMonitoringResult> stateSpecificResults;
-    private Set<Country> glskCountries;
-    private OffsetDateTime glskOffsetDateTime;
+    private final Set<Country> glskCountries;
 
-    public AngleMonitoring(Crac crac, Network inputNetwork, RaoResult raoResult, CimGlskDocument cimGlskDocument) {
+    /**
+     * Use this constructor if you want to run angle monitoring with your specific CimGlskDocument
+     */
+    public AngleMonitoring(Crac crac, Network inputNetwork, RaoResult raoResult, CimGlskDocument cimGlskDocument, OffsetDateTime glskOffsetDateTime) {
         this.crac = Objects.requireNonNull(crac);
         this.inputNetwork = Objects.requireNonNull(inputNetwork);
         this.raoResult = Objects.requireNonNull(raoResult);
         this.cimGlskDocument = Objects.requireNonNull(cimGlskDocument);
+        this.glskOffsetDateTime = Objects.requireNonNull(glskOffsetDateTime);
+        this.glskCountries = loadGlskCountries(cimGlskDocument);
+    }
+
+    /**
+     * Use this constructor if you want to run angle monitoring with automatically-generated proportional GLSK
+     */
+    public AngleMonitoring(Crac crac, Network inputNetwork, RaoResult raoResult, Set<Country> glskCountries) {
+        this.crac = Objects.requireNonNull(crac);
+        this.inputNetwork = Objects.requireNonNull(inputNetwork);
+        this.raoResult = Objects.requireNonNull(raoResult);
+        this.cimGlskDocument = null;
+        this.glskOffsetDateTime = null;
+        this.glskCountries = Objects.requireNonNull(glskCountries);
     }
 
     /**
      * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with AngleMonitoringResult
      */
-    public RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, OffsetDateTime glskOffsetDateTime) throws OpenRaoException {
-        return new RaoResultWithAngleMonitoring(raoResult, run(loadFlowProvider, loadFlowParameters, numberOfLoadFlowsInParallel, glskOffsetDateTime));
+    public RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel) throws OpenRaoException {
+        return new RaoResultWithAngleMonitoring(raoResult, run(loadFlowProvider, loadFlowParameters, numberOfLoadFlowsInParallel));
     }
 
     /**
@@ -75,11 +92,9 @@ public class AngleMonitoring {
      */
 
     @Deprecated
-    public AngleMonitoringResult run(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, OffsetDateTime glskOffsetDateTime) throws OpenRaoException {
+    public AngleMonitoringResult run(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel) throws OpenRaoException {
         BUSINESS_LOGS.info("----- Angle monitoring [start]");
-        this.glskOffsetDateTime = glskOffsetDateTime;
         stateSpecificResults = new ArrayList<>();
-        loadGlskCountries();
 
         if (crac.getAngleCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No AngleCnecs defined.");
@@ -262,9 +277,9 @@ public class AngleMonitoring {
         Set<RemedialAction<?>> availableRemedialActions =
             crac.getRemedialActions().stream()
                 .filter(remedialAction ->
-                    remedialAction.getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
-                        .map(OnAngleConstraint.class::cast)
-                        .anyMatch(onAngleConstraint -> onAngleConstraint.getAngleCnec().equals(angleCnec)))
+                    remedialAction.getUsageRules().stream().filter(OnConstraint.class::isInstance)
+                        .map(OnConstraint.class::cast)
+                        .anyMatch(onAngleConstraint -> onAngleConstraint.getCnec().equals(angleCnec)))
                 .collect(Collectors.toSet());
         if (availableRemedialActions.isEmpty()) {
             BUSINESS_WARNS.warn("AngleCnec {} in state {} has no associated RA. Angle constraint cannot be secured.", angleCnec.getId(), state.getId());
@@ -366,15 +381,21 @@ public class AngleMonitoring {
         // Apply one redispatch action per country
         for (Map.Entry<Country, Double> redispatchPower : powerToBeRedispatched.entrySet()) {
             BUSINESS_LOGS.info("Redispatching {} MW in {} [start]", redispatchPower.getValue(), redispatchPower.getKey());
-            Set<CimGlskPoint> countryGlskPoints = cimGlskDocument.getGlskPoints().stream()
-                .filter(glskPoint -> redispatchPower.getKey().equals(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry())
-                    && isInTimeInterval(glskOffsetDateTime, glskPoint.getPointInterval().getStart().toString(), glskPoint.getPointInterval().getEnd().toString()))
-                .map(CimGlskPoint.class::cast)
-                .collect(Collectors.toSet());
-            if (countryGlskPoints.size() > 1) {
-                throw new OpenRaoException(String.format("> 1 (%s) glskPoints defined for country %s", countryGlskPoints.size(), redispatchPower.getKey().getName()));
+            RedispatchAction redispatchAction;
+            if (cimGlskDocument != null) {
+                Set<CimGlskPoint> countryGlskPoints = cimGlskDocument.getGlskPoints().stream()
+                    .filter(glskPoint -> redispatchPower.getKey().equals(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry())
+                        && isInTimeInterval(glskOffsetDateTime, glskPoint.getPointInterval().getStart().toString(), glskPoint.getPointInterval().getEnd().toString()))
+                    .map(CimGlskPoint.class::cast)
+                    .collect(Collectors.toSet());
+                if (countryGlskPoints.size() > 1) {
+                    throw new OpenRaoException(String.format("> 1 (%s) glskPoints defined for country %s", countryGlskPoints.size(), redispatchPower.getKey().getName()));
+                }
+                redispatchAction = new RedispatchActionWithGlskPoint(networkElementsToBeExcluded, countryGlskPoints.iterator().next());
+            } else {
+                redispatchAction = new RedispatchActionWithAutoGlsk(networkElementsToBeExcluded, redispatchPower.getKey());
             }
-            new RedispatchAction(redispatchPower.getValue(), networkElementsToBeExcluded, countryGlskPoints.iterator().next()).apply(networkClone);
+            redispatchAction.apply(networkClone, redispatchPower.getValue());
             BUSINESS_LOGS.info("Redispatching {} MW in {} [end]", redispatchPower.getValue(), redispatchPower.getKey());
         }
     }
@@ -439,11 +460,12 @@ public class AngleMonitoring {
         return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), status);
     }
 
-    private void loadGlskCountries() {
-        glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
+    private static Set<Country> loadGlskCountries(CimGlskDocument cimGlskDocument) {
+        TreeSet<Country> countries = new TreeSet<>(Comparator.comparing(Country::getName));
         for (GlskPoint glskPoint : cimGlskDocument.getGlskPoints()) {
-            glskCountries.add(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry());
+            countries.add(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry());
         }
+        return countries;
     }
 
     private boolean isInTimeInterval(OffsetDateTime offsetDateTime, String startTime, String endTime) {
