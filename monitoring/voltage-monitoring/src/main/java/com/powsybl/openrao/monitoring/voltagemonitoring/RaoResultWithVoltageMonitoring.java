@@ -18,8 +18,11 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +54,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         if (!unit.equals(Unit.KILOVOLT)) {
             throw new OpenRaoException("Unexpected unit for voltage monitoring result :  " + unit);
         }
-        if (!optimizationInstant.isCurative()) {
+        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
         double upperBound = voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE);
@@ -67,7 +70,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public double getMargin(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
-        if (!optimizationInstant.isCurative()) {
+        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
         }
         return Math.min(voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - voltageMonitoringResult.getMaxVoltage(voltageCnec),
@@ -95,8 +98,9 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
-        if (Set.of(u).contains(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(instant, u) && voltageMonitoringResult.isSecure();
+        List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
+        if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
+            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.isSecure();
         } else {
             return raoResult.isSecure(instant, u);
         }
@@ -104,8 +108,9 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(PhysicalParameter... u) {
-        if (Set.of(u).contains(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(u) && voltageMonitoringResult.isSecure();
+        List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
+        if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
+            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.isSecure();
         } else {
             return raoResult.isSecure(u);
         }
