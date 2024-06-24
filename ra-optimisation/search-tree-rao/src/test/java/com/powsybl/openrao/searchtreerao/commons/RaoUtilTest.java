@@ -17,8 +17,6 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -347,77 +345,5 @@ class RaoUtilTest {
 
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
         assertEquals(available, isRemedialActionAvailable(ra, optimizedState, flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
-    }
-
-    @Test
-    void testCnecShouldBeOptimizedBasic() {
-        FlowCnec cnec = crac.getFlowCnec("cnec1basecase");
-        PstRangeAction pst = crac.getPstRangeAction("pst");
-        FlowResult flowResult = mock(FlowResult.class);
-        RangeActionResult prePerimeterRangeActionResult = mock(PerimeterResultWithAllCnecs.class);
-        SensitivityResult sensitivityResult = mock(SensitivityResult.class);
-
-        // Cnec not in map
-        assertTrue(RaoUtil.cnecShouldBeOptimized(Map.of(), flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionResult, sensitivityResult, Unit.MEGAWATT));
-
-        // Margins > 0
-        when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(0.);
-        assertFalse(RaoUtil.cnecShouldBeOptimized(Map.of(cnec, pst), flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionResult, sensitivityResult, Unit.MEGAWATT));
-    }
-
-    @Test
-    void testCnecShouldBeOptimizedUpper() {
-        FlowCnec cnec = crac.getFlowCnec("cnec1basecase");
-        PstRangeAction pst = crac.getPstRangeAction("pst");
-        FlowResult flowResult = mock(FlowResult.class);
-        RangeActionResult prePerimeterRangeActionResult = mock(PerimeterResultWithAllCnecs.class);
-        SensitivityResult sensitivityResult = mock(SensitivityResult.class);
-        Map<FlowCnec, RangeAction<?>> map = Map.of(cnec, pst);
-
-        // Upper margin < 0 (max threshold is 2279 A)
-        when(flowResult.getFlow(cnec, Side.LEFT, Unit.AMPERE)).thenReturn(2379.);
-
-        // Sensi > 0
-        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(33.); // = 50 A
-        // Some taps left (PST at set-point -4.22, can go down to -6.2)
-        assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, -4.22), prePerimeterRangeActionResult, sensitivityResult, Unit.AMPERE));
-        // Not enough taps left
-        assertTrue(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, -5.22), prePerimeterRangeActionResult, sensitivityResult, Unit.AMPERE));
-        // Sensi < 0
-        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(-33.); // = -50 A
-        // Some taps left (PST at set-point 4.22, can go up to 6.2)
-        assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, 4.22), prePerimeterRangeActionResult, sensitivityResult, Unit.AMPERE));
-        // Not enough taps left
-        assertTrue(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, 5.22), prePerimeterRangeActionResult, sensitivityResult, Unit.AMPERE));
-    }
-
-    @Test
-    void testCnecShouldBeOptimizedLower() {
-        FlowCnec cnec = crac.getFlowCnec("cnec1basecase");
-        PstRangeAction pst = crac.getPstRangeAction("pst");
-        FlowResult flowResult = mock(FlowResult.class);
-        RangeActionResult prePerimeterRangeActionResult = mock(PerimeterResultWithAllCnecs.class);
-        SensitivityResult sensitivityResult = mock(SensitivityResult.class);
-        Map<FlowCnec, RangeAction<?>> map = Map.of(cnec, pst);
-
-        // Lower margin < 0 (min threshold is -1500 MW)
-        when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-1700.);
-
-        // Sensi > 0
-        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(50.);
-        // Some taps left (PST at set-point 2.22, can go up to 6.2)
-        when(prePerimeterRangeActionResult.getSetpoint(pst)).thenReturn(2.22);
-        assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionResult, sensitivityResult, Unit.MEGAWATT));
-        // Not enough taps left
-        when(prePerimeterRangeActionResult.getSetpoint(pst)).thenReturn(3.22);
-        assertTrue(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionResult, sensitivityResult, Unit.MEGAWATT));
-        // Sensi < 0
-        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(-50.);
-        // Some taps left (PST at set-point -2.22, can go down to -6.2)
-        when(prePerimeterRangeActionResult.getSetpoint(pst)).thenReturn(-2.22);
-        assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionResult, sensitivityResult, Unit.MEGAWATT));
-        // Not enough taps left
-        when(prePerimeterRangeActionResult.getSetpoint(pst)).thenReturn(-3.22);
-        assertTrue(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionResult, sensitivityResult, Unit.MEGAWATT));
     }
 }
