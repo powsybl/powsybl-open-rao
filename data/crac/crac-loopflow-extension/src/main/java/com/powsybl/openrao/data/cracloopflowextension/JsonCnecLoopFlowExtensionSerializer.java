@@ -58,24 +58,7 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
                     throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
-
-        // TODO : when constructor is replaced with adder, remove these checks
-        if (Double.isNaN(inputThreshold)) {
-            throw new OpenRaoException("Cannot add LoopFlowThreshold without a threshold value. Please use withValue() with a non null value");
-        }
-        if (Objects.isNull(unit)) {
-            throw new OpenRaoException("Cannot add LoopFlowThreshold without a threshold unit. Please use withUnit() with a non null value");
-        }
-        if (inputThreshold < 0) {
-            throw new OpenRaoException("LoopFlowThresholds must have a positive threshold.");
-        }
-        if (unit.equals(Unit.PERCENT_IMAX) && (inputThreshold > 1 || inputThreshold < 0)) {
-            throw new OpenRaoException("LoopFlowThresholds in Unit.PERCENT_IMAX must be defined between 0 and 1, where 1 = 100%.");
-        }
-        if (unit.getPhysicalParameter() != PhysicalParameter.FLOW) {
-            throw new OpenRaoException("LoopFlowThresholds can only be defined in AMPERE, MEGAWATT or PERCENT_IMAX");
-        }
-
+        LoopFlowThresholdUtils.checkAttributes(inputThreshold, unit);
         return new LoopFlowThresholdImpl(inputThreshold, unit);
     }
 
