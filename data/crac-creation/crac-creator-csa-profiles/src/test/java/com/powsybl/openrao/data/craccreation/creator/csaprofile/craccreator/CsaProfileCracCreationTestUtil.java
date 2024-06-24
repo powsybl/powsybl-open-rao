@@ -280,7 +280,7 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static Network getNetworkFromResource(String filename) {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, true);
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, false);
         return Network.read(Paths.get(new File(CsaProfileCracCreationTestUtil.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 }
