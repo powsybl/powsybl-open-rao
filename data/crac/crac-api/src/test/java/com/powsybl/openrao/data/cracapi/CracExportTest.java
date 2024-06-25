@@ -11,8 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,13 +26,6 @@ class CracExportTest {
     @BeforeEach
     void setUp() {
         crac = new MockCrac("crac");
-    }
-
-    @Test
-    void testExportWithNoExporters() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.write(List.of(), "expectedFormat", null));
-        assertEquals("Export format expectedFormat not supported", exception.getMessage());
-        assertFalse(crac.wasExportSuccessful());
     }
 
     @Test

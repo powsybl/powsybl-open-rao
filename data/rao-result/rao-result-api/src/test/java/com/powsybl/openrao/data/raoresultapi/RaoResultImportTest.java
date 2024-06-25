@@ -7,24 +7,14 @@
 
 package com.powsybl.openrao.data.raoresultapi;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class RaoResultImportTest {
-    @Test
-    void testImportWithNoSuitableImporter() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoResult.read(List.of(), null, null));
-        assertEquals("No suitable RaoResult importer found.", exception.getMessage());
-    }
 
     @Test
     void testImportFromInputStream() {

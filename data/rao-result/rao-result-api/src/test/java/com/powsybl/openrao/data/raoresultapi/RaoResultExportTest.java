@@ -11,7 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,13 +28,6 @@ class RaoResultExportTest {
     @BeforeEach
     void setUp() {
         raoResult = new MockRaoResult();
-    }
-
-    @Test
-    void testExportWithNoExporters() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.write(List.of(), "expectedFormat", null, Set.of(), null));
-        assertEquals("Export format expectedFormat not supported", exception.getMessage());
-        assertFalse(raoResult.wasExportSuccessful());
     }
 
     @Test

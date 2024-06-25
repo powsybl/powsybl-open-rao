@@ -7,23 +7,14 @@
 
 package com.powsybl.openrao.data.cracapi;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class CracImportTest {
-    @Test
-    void testImportWithNoSuitableImporter() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(List.of(), null, null, null));
-        assertEquals("No suitable CRAC importer found.", exception.getMessage());
-    }
 
     @Test
     void testImportFromInputStream() {
