@@ -144,11 +144,7 @@ public class SearchTreeRaoSteps {
 
     @Then("its security status should be {string}")
     public void statusShouldBe(String status) {
-        if (status.equalsIgnoreCase("secured")) {
-            assertTrue(raoResult.isSecure(PhysicalParameter.FLOW));
-        } else {
-            assertFalse(raoResult.isSecure(PhysicalParameter.FLOW));
-        }
+        assertEquals(status.equalsIgnoreCase("secured"), raoResult.isSecure(PhysicalParameter.FLOW));
     }
 
     @Then("the value of the objective function initially should be {double}")
