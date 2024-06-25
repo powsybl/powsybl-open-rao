@@ -7,7 +7,6 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
@@ -25,7 +24,6 @@ import com.powsybl.iidm.network.TieLine;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -114,13 +112,5 @@ public abstract class AbstractCnecCreator {
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
         }
-    }
-
-    protected boolean incompatibleLocationsBetweenCnecNetworkElementsAndContingency(Set<String> cnecElementsIds, Contingency contingency) {
-        return contingency != null && !GeographicalFilter.networkElementsShareCommonCountry(cnecElementsIds, contingency.getElements().stream().map(ContingencyElement::getId).collect(Collectors.toSet()), network);
-    }
-
-    protected boolean incompatibleLocationsBetweenCnecNetworkElementsAndContingency(String cnecElementId, Contingency contingency) {
-        return incompatibleLocationsBetweenCnecNetworkElementsAndContingency(Set.of(cnecElementId), contingency);
     }
 }

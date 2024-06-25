@@ -221,10 +221,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                     && (networkElement.getCurrentLimits(twoSides).isEmpty() || networkElement.getCurrentLimits(twoSides).isPresent() && networkElement.getCurrentLimits(twoSides).get().getTemporaryLimits().isEmpty())));
 
             for (Contingency contingency : linkedContingencies) {
-                if (incompatibleLocationsBetweenCnecNetworkElementsAndContingency(networkElement.getId(), contingency)) {
-                    // csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("AssessedElement and Contingency " + contingency.getId()) + " do not belong to a common country. FlowCNEC will not be imported."));
-                    continue;
-                }
                 thresholds.forEach((acceptableDuration, limitThresholds) ->
                     limitThresholds.forEach((twoSides, threshold) -> addCurativeFlowCnec(networkElement, useMaxAndMinThresholds, instantToDurationMaps, forceUseOfPatl, contingency, acceptableDuration, twoSides, threshold)));
             }
