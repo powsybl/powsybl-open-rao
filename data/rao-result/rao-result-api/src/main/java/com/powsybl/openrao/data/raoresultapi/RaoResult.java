@@ -454,13 +454,11 @@ public interface RaoResult {
      * @return RaoResult object
      */
     private static RaoResult read(List<Importer> importers, InputStream inputStream, Crac crac) {
-        for (Importer importer : importers) {
-            try {
-                return importer.importData(inputStream, crac);
-            } catch (Exception ignored) {
-            }
-        }
-        throw new OpenRaoException("No suitable RaoResult importer found.");
+        return importers.stream()
+            .filter(importer -> importer.exists(inputStream))
+            .findAny()
+            .orElseThrow(() -> new OpenRaoException("No suitable RaoResult importer found."))
+            .importData(inputStream, crac);
     }
 
     /**

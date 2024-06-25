@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 class CracImportExportTest {
+
+    @Test
+    void testExists() {
+        assertTrue(new JsonImport().exists(getClass().getResourceAsStream("/cracHeader.json")));
+        assertFalse(new JsonImport().exists(getClass().getResourceAsStream("/invalidCrac.json")));
+        assertFalse(new JsonImport().exists(getClass().getResourceAsStream("/invalidCrac.txt")));
+    }
 
     @Test
     void explicitJsonRoundTripTest() {

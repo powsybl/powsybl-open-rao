@@ -548,13 +548,11 @@ public interface Crac extends Identifiable<Crac> {
      * @return CRAC object
      */
     private static Crac read(List<Importer> importers, InputStream inputStream, CracFactory cracFactory, Network network) {
-        for (Importer importer : importers) {
-            try {
-                return importer.importData(inputStream, cracFactory, network);
-            } catch (Exception ignored) {
-            }
-        }
-        throw new OpenRaoException("No suitable CRAC importer found.");
+        return importers.stream()
+            .filter(importer -> importer.exists(inputStream))
+            .findAny()
+            .orElseThrow(() -> new OpenRaoException("No suitable CRAC importer found."))
+            .importData(inputStream, cracFactory, network);
     }
 
     /**

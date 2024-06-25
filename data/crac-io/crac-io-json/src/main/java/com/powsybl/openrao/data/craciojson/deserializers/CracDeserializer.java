@@ -41,30 +41,26 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
     private Network network;
 
-    private CracDeserializer() {
+    private boolean headerCheckOnly;
+
+    public CracDeserializer() {
+        headerCheckOnly = true;
     }
 
     public CracDeserializer(CracFactory cracFactory, Network network) {
         this.cracFactory = cracFactory;
         this.network = network;
+        headerCheckOnly = false;
     }
 
     @Override
     public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
         // check header
-        if (!jsonParser.nextFieldName().equals(TYPE)) {
-            throw new OpenRaoException(String.format("json CRAC must start with field %s", TYPE));
+        String version = checkHeader(jsonParser);
+        if (headerCheckOnly) {
+            return null;
         }
-        if (!jsonParser.nextTextValue().equals(CRAC_TYPE)) {
-            throw new OpenRaoException(String.format("type of document must be %s", CRAC_TYPE));
-        }
-        if (!jsonParser.nextFieldName().equals(VERSION)) {
-            throw new OpenRaoException(String.format("%s must contain a %s in its second field", CRAC_TYPE, VERSION));
-        }
-        String version = jsonParser.nextTextValue();
-        checkVersion(version);
-        jsonParser.nextToken();
 
         // get id and name
         scrollJsonUntilField(jsonParser, ID);
@@ -159,6 +155,22 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         return crac;
     }
 
+    private static String checkHeader(JsonParser jsonParser) throws IOException {
+        if (!jsonParser.nextFieldName().equals(TYPE)) {
+            throw new OpenRaoException(String.format("json CRAC must start with field %s", TYPE));
+        }
+        if (!jsonParser.nextTextValue().equals(CRAC_TYPE)) {
+            throw new OpenRaoException(String.format("type of document must be %s", CRAC_TYPE));
+        }
+        if (!jsonParser.nextFieldName().equals(VERSION)) {
+            throw new OpenRaoException(String.format("%s must contain a %s in its second field", CRAC_TYPE, VERSION));
+        }
+        String version = jsonParser.nextTextValue();
+        checkVersion(version);
+        jsonParser.nextToken();
+        return version;
+    }
+
     private void scrollJsonUntilField(JsonParser jsonParser, String field) throws IOException {
         while (!jsonParser.getCurrentName().equals(field)) {
             if (jsonParser.nextToken() == JsonToken.END_OBJECT) {
@@ -168,7 +180,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         }
     }
 
-    private void checkVersion(String cracVersion) {
+    private static void checkVersion(String cracVersion) {
 
         if (getPrimaryVersionNumber(CRAC_IO_VERSION) > getPrimaryVersionNumber(cracVersion)) {
             LOGGER.warn("CRAC importer {} might not be longer compatible with json CRAC version {}, consider updating your json CRAC file", CRAC_IO_VERSION, cracVersion);

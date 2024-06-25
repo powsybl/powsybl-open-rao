@@ -25,6 +25,11 @@ public class MockCracImporter implements Importer {
     }
 
     @Override
+    public boolean exists(InputStream inputStream) {
+        return true;
+    }
+
+    @Override
     public Crac importData(InputStream inputStream, CracFactory cracFactory, Network network) {
         return new MockCrac("crac");
     }

@@ -24,6 +24,11 @@ public class MockRaoResultImporter implements Importer {
     }
 
     @Override
+    public boolean exists(InputStream inputStream) {
+        return true;
+    }
+
+    @Override
     public RaoResult importData(InputStream inputStream, Crac crac) {
         return new MockRaoResult();
     }

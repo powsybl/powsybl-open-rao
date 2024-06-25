@@ -31,6 +31,12 @@ public class RaoResultJsonImporter implements Importer {
     }
 
     @Override
+    public boolean exists(InputStream inputStream) {
+        // TODO: update this
+        return true;
+    }
+
+    @Override
     public RaoResult importData(InputStream inputStream, Crac crac) {
         try {
             ObjectMapper objectMapper = createObjectMapper();

@@ -23,6 +23,8 @@ public interface Importer {
      */
     String getFormat();
 
+    boolean exists(InputStream inputStream);
+
     /**
      * Create a model.
      *
