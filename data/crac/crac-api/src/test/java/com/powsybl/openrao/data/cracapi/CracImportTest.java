@@ -28,6 +28,6 @@ class CracImportTest {
     @Test
     void testImportFromInputStream() {
         assertEquals("crac", Crac.read(getClass().getResourceAsStream("/crac.txt"), null).getId());
-        assertEquals("crac", Crac.read("crac.txt", getClass().getResourceAsStream("/crac.txt"), null).getId());
+        assertEquals("crac", Crac.read(getClass().getResourceAsStream("/crac.txt"), null).getId());
     }
 }

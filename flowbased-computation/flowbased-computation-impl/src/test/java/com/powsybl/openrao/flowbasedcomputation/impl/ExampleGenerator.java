@@ -258,7 +258,7 @@ final class ExampleGenerator {
     }
 
     static Crac crac(String fileName, Network network) {
-        return Crac.read(fileName, ExampleGenerator.class.getResourceAsStream("/" + fileName), network);
+        return Crac.read(ExampleGenerator.class.getResourceAsStream("/" + fileName), network);
     }
 
     static ZonalData<SensitivityVariableSet> glskProvider() {

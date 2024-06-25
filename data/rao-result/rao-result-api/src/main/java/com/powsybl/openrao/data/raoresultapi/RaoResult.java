@@ -445,7 +445,7 @@ public interface RaoResult {
      * @param crac        the crac on which the RaoResult data is based
      * @return RaoResult object
      */
-    static RaoResult read(List<Importer> importers, InputStream inputStream, Crac crac) {
+    private static RaoResult read(List<Importer> importers, InputStream inputStream, Crac crac) {
         for (Importer importer : importers) {
             try {
                 return importer.importData(inputStream, crac);
@@ -473,7 +473,7 @@ public interface RaoResult {
      * @param format       desired output CRAC data type
      * @param outputStream file where to write the CRAC data
      */
-    default void write(List<Exporter> exporters, String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
+    private void write(List<Exporter> exporters, String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
         exporters.stream()
             .filter(ex -> format.equals(ex.getFormat()))
             .findAny()

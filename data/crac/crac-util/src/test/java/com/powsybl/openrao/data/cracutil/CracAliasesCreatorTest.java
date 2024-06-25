@@ -26,7 +26,7 @@ class CracAliasesCreatorTest {
     void testDeprecatedCracExtensions1() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-1.json");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read("deprecated-crac-for-aliases-1.json", inputStream, null));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(inputStream, null));
         assertEquals("No suitable CRAC importer found.", exception.getMessage());
     }
 
@@ -34,7 +34,7 @@ class CracAliasesCreatorTest {
     void testDeprecatedCracExtensions2() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-2.json");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read("deprecated-crac-for-aliases-2.json", inputStream, null));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(inputStream, null));
         assertEquals("No suitable CRAC importer found.", exception.getMessage());
     }
 
@@ -42,7 +42,7 @@ class CracAliasesCreatorTest {
     void testDeprecatedCracExtensions3() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-3.json");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read("deprecated-crac-for-aliases-3.json", inputStream, null));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(inputStream, null));
         assertEquals("No suitable CRAC importer found.", exception.getMessage());
     }
 
@@ -50,7 +50,7 @@ class CracAliasesCreatorTest {
     void testDeprecatedCracExtensions4() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-4.json");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read("deprecated-crac-for-aliases-4.json", inputStream, null));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(inputStream, null));
         assertEquals("No suitable CRAC importer found.", exception.getMessage());
     }
 }

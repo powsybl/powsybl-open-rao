@@ -547,7 +547,7 @@ public interface Crac extends Identifiable<Crac> {
      * @param network     the network on which the CRAC data is based
      * @return CRAC object
      */
-    static Crac read(List<Importer> importers, InputStream inputStream, CracFactory cracFactory, Network network) {
+    private static Crac read(List<Importer> importers, InputStream inputStream, CracFactory cracFactory, Network network) {
         for (Importer importer : importers) {
             try {
                 return importer.importData(inputStream, cracFactory, network);
@@ -561,23 +561,23 @@ public interface Crac extends Identifiable<Crac> {
      * Import CRAC from a file
      *
      * @param inputStream CRAC data
+     * @param cracFactory CRAC factory
      * @param network     the network on which the CRAC data is based
      * @return CRAC object
      */
-    static Crac read(InputStream inputStream, Network network) {
-        return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, CracFactory.findDefault(), network);
+    static Crac read(InputStream inputStream, CracFactory cracFactory, Network network) {
+        return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, cracFactory, network);
     }
 
     /**
      * Import CRAC from a file
      *
-     * @param filename    name of the CRAC data file
      * @param inputStream CRAC data
      * @param network     the network on which the CRAC data is based
      * @return CRAC object
      */
-    static Crac read(String filename, InputStream inputStream, Network network) {
-        return read(inputStream, network);
+    static Crac read(InputStream inputStream, Network network) {
+        return read(inputStream, CracFactory.findDefault(), network);
     }
 
     /**
@@ -587,7 +587,7 @@ public interface Crac extends Identifiable<Crac> {
      * @param format       desired output CRAC data type
      * @param outputStream file where to write the CRAC data
      */
-    default void write(List<Exporter> exporters, String format, OutputStream outputStream) {
+    private void write(List<Exporter> exporters, String format, OutputStream outputStream) {
         exporters.stream()
             .filter(ex -> format.equals(ex.getFormat()))
             .findAny()

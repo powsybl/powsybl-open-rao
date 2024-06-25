@@ -84,7 +84,7 @@ When creating a CRAC from one of these formats, the chain presented above can be
 
 ~~~java
 // use the crac-creator-api to import a Crac in one go
-Crac crac = Crac.read(Paths.get("/complexCrac.xml"), network, null).getCrac();
+Crac crac = CracCreators.importAndCreateCrac(Paths.get("/complexCrac.xml"), network, null).getCrac();
 
 
 // use the crac-creator-api to import a Crac in two steps, with one timestamp
