@@ -235,7 +235,15 @@ public interface RaoResult {
      * @param remedialAction: The remedial action to be studied.
      * @return True if the remedial action is chosen by the optimizer during the specified state.
      */
-    boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction);
+    default boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
+        if (remedialAction instanceof NetworkAction networkAction) {
+            return isActivatedDuringState(state, networkAction);
+        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
+            return isActivatedDuringState(state, rangeAction);
+        } else {
+            throw new OpenRaoException("Unrecognized remedial action type");
+        }
+    }
 
     /**
      * It states if the {@link NetworkAction} was already activated when a specific {@link State} is studied. Meaning

@@ -11,7 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -104,17 +103,6 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
         return initialResult.getVirtualCost(virtualCostName);
-    }
-
-    @Override
-    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction networkAction) {
-            return isActivatedDuringState(state, networkAction);
-        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
-            return isActivatedDuringState(state, rangeAction);
-        } else {
-            throw new OpenRaoException("Unrecognized remedial action type");
-        }
     }
 
     @Override
