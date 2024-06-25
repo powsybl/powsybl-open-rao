@@ -18,8 +18,11 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +57,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         if (!unit.equals(Unit.DEGREE)) {
             throw new OpenRaoException("Unexpected unit for angle monitoring result : " + unit);
         }
-        if (!optimizationInstant.isCurative()) {
+        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
         return angleMonitoringResult.getAngle(angleCnec, unit);
@@ -87,8 +90,9 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
-        if (Set.of(u).contains(PhysicalParameter.ANGLE)) {
-            return raoResult.isSecure(instant, u) && angleMonitoringResult.isSecure();
+        List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
+        if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
+            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.isSecure();
         } else {
             return raoResult.isSecure(instant, u);
         }
@@ -96,8 +100,9 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure(PhysicalParameter... u) {
-        if (Set.of(u).contains(PhysicalParameter.ANGLE)) {
-            return raoResult.isSecure(u) && angleMonitoringResult.isSecure();
+        List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
+        if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
+            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.isSecure();
         } else {
             return raoResult.isSecure(u);
         }
