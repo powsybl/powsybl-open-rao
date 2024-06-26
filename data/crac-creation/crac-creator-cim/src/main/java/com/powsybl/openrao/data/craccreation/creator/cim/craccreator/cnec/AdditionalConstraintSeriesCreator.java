@@ -49,14 +49,13 @@ public class AdditionalConstraintSeriesCreator {
         }
 
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
-                .withId(additionalConstraintSerieId)
-                .withName(additionalConstraintSerie.getName())
-                .withMonitored()
-                .withOptimized(false)
-                .newThreshold().withUnit(Unit.DEGREE).withMax(additionalConstraintSerie.getQuantityQuantity().doubleValue())
-                .withMin(-additionalConstraintSerie.getQuantityQuantity().doubleValue()).add()
-                .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
-                .withContingency(contingencyId);
+            .withId(additionalConstraintSerieId)
+            .withName(additionalConstraintSerie.getName())
+            .withMonitored()
+            .withOptimized(false)
+            .newThreshold().withUnit(Unit.DEGREE).withMax(additionalConstraintSerie.getQuantityQuantity().doubleValue()).add()
+            .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
+            .withContingency(contingencyId);
 
         for (AdditionalConstraintRegisteredResource rr : additionalConstraintSerie.getRegisteredResource()) {
             String networkElement = rr.getMRID().getValue();

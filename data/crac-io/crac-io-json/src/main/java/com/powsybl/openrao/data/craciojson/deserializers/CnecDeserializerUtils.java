@@ -22,7 +22,7 @@ public final class CnecDeserializerUtils {
         //"frm" renamed to "reliabilityMargin" in 1.4 and abandoned in 1.5
         int primaryVersionNumber = getPrimaryVersionNumber(version);
         int subVersionNumber = getSubVersionNumber(version);
-        if (primaryVersionNumber <= 1 && subVersionNumber <= 3 || primaryVersionNumber >= 2 && subVersionNumber >= 3) {
+        if (primaryVersionNumber <= 1 && subVersionNumber <= 3 || primaryVersionNumber >= 2 && subVersionNumber >= 5) {
             throw new OpenRaoException(String.format("Unexpected field for version %s : %s", version, RELIABILITY_MARGIN));
         }
     }
