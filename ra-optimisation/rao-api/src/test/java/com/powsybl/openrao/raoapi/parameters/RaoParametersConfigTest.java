@@ -15,14 +15,10 @@ import com.powsybl.commons.config.*;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -153,13 +149,10 @@ class RaoParametersConfigTest {
     void checkNotOptimizedCnecsConfig() {
         MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringProperty("do-not-optimize-curative-cnecs-for-tsos-without-cras", Objects.toString(false));
-        notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1}:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         RaoParameters.load(parameters, platformCfg, ReportNode.NO_OP);
         NotOptimizedCnecsParameters params = parameters.getNotOptimizedCnecsParameters();
-        Map<String, String> expectedCnecPstMap = Map.of("cnec1", "pst1", "halfline1Cnec2 + halfline2Cnec2", "pst2");
         assertFalse(params.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-        assertEquals(expectedCnecPstMap, params.getDoNotOptimizeCnecsSecuredByTheirPst());
     }
 
     @Test
@@ -253,25 +246,6 @@ class RaoParametersConfigTest {
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} - {na22}", "{na41} + {na5} + {na6}"));
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         assertThrows(OpenRaoException.class, () -> RaoParameters.load(parameters, platformCfg, ReportNode.NO_OP));
-    }
-
-    @ParameterizedTest
-    @MethodSource("generateStringStringMap")
-    void inconsistentStringStringMap(List<String> source) {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
-        notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", source);
-        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
-        assertThrows(OpenRaoException.class, () -> RaoParameters.load(parameters, platformCfg, ReportNode.NO_OP));
-    }
-
-    static Stream<Arguments> generateStringStringMap() {
-        return Stream.of(
-            Arguments.of(List.of("{cnec1:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
-            Arguments.of(List.of("{cnec1}:pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
-            Arguments.of(List.of("{cnec1}:", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
-            Arguments.of(List.of(":{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
-            Arguments.of(List.of("{cnec1}{blabla}:{pst1}"))
-        );
     }
 
     @Test

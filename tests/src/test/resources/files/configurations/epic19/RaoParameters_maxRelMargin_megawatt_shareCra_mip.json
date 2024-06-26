@@ -43,8 +43,7 @@
     "hint-from-first-preventive-rao" : false
   },
   "not-optimized-cnecs" : {
-    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true,
-    "do-not-optimize-cnec-secured-by-its-pst" : { }
+    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
   },
   "load-flow-and-sensitivity-computation" : {
     "load-flow-provider" : "OpenLoadFlow",
