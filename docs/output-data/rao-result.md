@@ -32,7 +32,7 @@ A RaoResult JSON file can be imported into a [RaoResultImpl](https://github.com/
 Example:
 
 ~~~java
-new RaoResultExporter().export(raoResult, crac, flowUnits, outputStream);
+raoResult.write("JSON", crac, flowUnits, outputStream);
 ~~~
 
 Where:
@@ -46,7 +46,7 @@ Where:
 Example:
 
 ~~~java
-RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 ~~~
 
 Where:
