@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -467,7 +468,13 @@ class OneStateOnlyRaoResultImplTest {
     void testIsSecureOnSecureCase() {
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getFunctionalCost(curativeInstant)).thenReturn(-10.);
-        assertTrue(output.isSecure());
+        assertTrue(output.isSecure(PhysicalParameter.FLOW));
+
+        String expectedErrorMessage = "This is a flow RaoResult, flows are secure but other physical parameters' security status is unknown";
+        OpenRaoException angleException = assertThrows(OpenRaoException.class, () -> output.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertEquals(expectedErrorMessage, angleException.getMessage());
+        OpenRaoException voltageException = assertThrows(OpenRaoException.class, () -> output.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertEquals(expectedErrorMessage, voltageException.getMessage());
     }
 
     @Test
