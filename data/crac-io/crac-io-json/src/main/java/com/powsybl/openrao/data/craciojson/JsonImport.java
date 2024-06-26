@@ -41,6 +41,7 @@ public class JsonImport implements Importer {
             SimpleModule module = new SimpleModule();
             module.addDeserializer(Crac.class, new CracDeserializer(true));
             objectMapper.registerModule(module);
+            // TODO: replace this by a call to CracDeserializer.isValid
             objectMapper.readValue(inputStream, Crac.class);
             return true;
         } catch (OpenRaoException | IOException e) {
