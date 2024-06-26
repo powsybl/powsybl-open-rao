@@ -8,24 +8,15 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcAggregator;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.*;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.RemedialActionKind;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.*;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.SchemeRemedialAction;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.iidm.network.Network;
 
@@ -72,26 +63,29 @@ public class CsaProfileRemedialActionsCreator {
                 }
                 String elementaryActionsAggregatorId = isSchemeRemedialAction ? elementaryActionsHelper.getGridStateAlterationCollection(nativeRemedialAction.mrid()) : nativeRemedialAction.mrid(); // collectionIdIfAutoOrElseRemedialActionId
                 RemedialActionType remedialActionType = getRemedialActionType(nativeRemedialAction.mrid(), elementaryActionsAggregatorId, isSchemeRemedialAction);
-                RemedialActionAdder<?> remedialActionAdder = getRemedialActionAdder(nativeRemedialAction.mrid(), elementaryActionsAggregatorId, remedialActionType, isSchemeRemedialAction, alterations);
-
-                remedialActionAdder.withName(nativeRemedialAction.getUniqueName());
-                if (nativeRemedialAction.operator() != null) {
-                    remedialActionAdder.withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
-                }
-                if (nativeRemedialAction.getTimeToImplementInSeconds() != null) {
-                    remedialActionAdder.withSpeed(nativeRemedialAction.getTimeToImplementInSeconds());
-                } else if (isSchemeRemedialAction && remedialActionType == RemedialActionType.PST_RANGE_ACTION) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because an auto PST range action must have a speed defined");
-                }
-
-                InstantKind instantKind = getInstantKind(isSchemeRemedialAction, nativeRemedialAction, spsMaxTimeToImplementThreshold);
-                crac.getInstants(instantKind).forEach(instant -> addUsageRules(nativeRemedialAction.mrid(), nativeAssessedElements, linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
-                remedialActionAdder.add();
-
-                if (alterations.isEmpty()) {
-                    contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), "", false));
+                RemedialActionAdder<?> remedialActionAdder;
+                if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid(), elementaryActionsAggregatorId, alterations);
+                    fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
                 } else {
-                    contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), String.join(". ", alterations), true));
+                    if (elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).size() > 1) {
+                        // group TapPositionAction's
+                        for (TapPositionAction nativeTapPositionAction : elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId)) {
+                            try {
+                                remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(true, elementaryActionsAggregatorId, nativeTapPositionAction, elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeTapPositionAction.mrid());
+                                fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, createNameFromTapPositionAction(nativeTapPositionAction.mrid(), nativeRemedialAction.operator()));
+                            } catch (OpenRaoImportException e) {
+                                if (e.getImportStatus().equals(ImportStatus.NOT_FOR_RAO)) {
+                                    contextByRaId.put(nativeTapPositionAction.mrid(), CsaProfileElementaryCreationContext.notImported(nativeTapPositionAction.mrid(), e.getImportStatus(), e.getMessage()));
+                                } else {
+                                    throw e;
+                                }
+                            }
+                        }
+                    } else {
+                        remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(false, elementaryActionsAggregatorId, elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).iterator().next(), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid());
+                        fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
+                    }
                 }
 
             } catch (OpenRaoImportException e) {
@@ -100,7 +94,43 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private void addUsageRules(String remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?> remedialActionAdder, List<String> alterations, Instant instant, boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
+    private String createNameFromTapPositionAction(String tapPositionId, String operator) {
+        if (operator != null) {
+            return CsaProfileCracUtils.getTsoNameFromUrl(operator) + "-" + tapPositionId;
+        } else {
+            return tapPositionId;
+        }
+    }
+
+    private void fillAndSaveRemedialActionAdderAndContext(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
+                                                          int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, RemedialAction nativeRemedialAction, List<String> alterations,
+                                                          boolean isSchemeRemedialAction, RemedialActionType remedialActionType, RemedialActionAdder<?> remedialActionAdder, String remedialActionName) {
+
+        remedialActionAdder.withName(remedialActionName);
+        if (nativeRemedialAction.operator() != null) {
+            remedialActionAdder.withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
+        }
+        if (nativeRemedialAction.getTimeToImplementInSeconds() != null) {
+            remedialActionAdder.withSpeed(nativeRemedialAction.getTimeToImplementInSeconds());
+        } else if (isSchemeRemedialAction && remedialActionType == RemedialActionType.PST_RANGE_ACTION) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because an auto PST range action must have a speed defined");
+        }
+
+        InstantKind instantKind = getInstantKind(isSchemeRemedialAction, nativeRemedialAction, spsMaxTimeToImplementThreshold);
+        crac.getInstants(instantKind).forEach(instant -> addUsageRules(nativeRemedialAction.mrid(), nativeAssessedElements, linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
+        remedialActionAdder.add();
+
+        if (alterations.isEmpty()) {
+            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), "", false));
+        } else {
+            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), String.join(". ", alterations), true));
+        }
+    }
+
+    private void addUsageRules(String
+                                   remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
+                                   remedialActionAdder, List<String> alterations, Instant instant,
+                               boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
         if (addOnConstraintUsageRules(remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType)) {
             return;
         }
@@ -110,32 +140,21 @@ public class CsaProfileRemedialActionsCreator {
         addOnInstantUsageRules(remedialActionId, remedialActionAdder, instant);
     }
 
-    private boolean addOnConstraintUsageRules(String remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?> remedialActionAdder, List<String> alterations, Instant instant, boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
+    private boolean addOnConstraintUsageRules(String
+                                                  remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
+                                                  remedialActionAdder, List<String> alterations, Instant instant,
+                                              boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
         Map<String, AssociationStatus> cnecStatusMap = OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts);
         cnecStatusMap.forEach((cnecId, cnecStatus) -> {
             if (cnecStatus.isValid()) {
                 Cnec<?> cnec = crac.getCnec(cnecId);
                 UsageMethod usageMethod = getUsageMethod(cnecStatus.elementCombinationConstraintKind(), isSchemeRemedialAction, instant, remedialActionType);
                 if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), instant)) {
-                    if (cnec instanceof FlowCnec) {
-                        remedialActionAdder.newOnFlowConstraintUsageRule()
-                            .withInstant(instant.getId())
-                            .withFlowCnec(cnecId)
-                            .withUsageMethod(usageMethod)
-                            .add();
-                    } else if (cnec instanceof VoltageCnec) {
-                        remedialActionAdder.newOnVoltageConstraintUsageRule()
-                            .withInstant(instant.getId())
-                            .withVoltageCnec(cnecId)
-                            .withUsageMethod(usageMethod)
-                            .add();
-                    } else {
-                        remedialActionAdder.newOnAngleConstraintUsageRule()
-                            .withInstant(instant.getId())
-                            .withAngleCnec(cnecId)
-                            .withUsageMethod(usageMethod)
-                            .add();
-                    }
+                    remedialActionAdder.newOnConstraintUsageRule()
+                        .withInstant(instant.getId())
+                        .withCnec(cnecId)
+                        .withUsageMethod(usageMethod)
+                        .add();
                 }
             } else {
                 alterations.add(cnecStatus.statusDetails());
@@ -144,7 +163,10 @@ public class CsaProfileRemedialActionsCreator {
         return !linkedAssessedElementWithRemedialActions.isEmpty();
     }
 
-    private boolean addOnContingencyStateUsageRules(String remedialActionId, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, RemedialActionAdder<?> remedialActionAdder, List<String> alterations, Instant instant, boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
+    private boolean addOnContingencyStateUsageRules(String
+                                                        remedialActionId, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, RemedialActionAdder<?>
+                                                        remedialActionAdder, List<String> alterations, Instant instant,
+                                                    boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
         Map<String, AssociationStatus> contingencyStatusMap = OnContingencyStateUsageRuleHelper.processContingenciesLinkedToRemedialAction(crac, remedialActionId, linkedContingencyWithRemedialActions);
         if (instant.isPreventive() && !linkedContingencyWithRemedialActions.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action %s will not be imported because it is linked to a contingency but is not curative".formatted(remedialActionId));
@@ -163,29 +185,20 @@ public class CsaProfileRemedialActionsCreator {
         return !linkedContingencyWithRemedialActions.isEmpty();
     }
 
-    private void addOnInstantUsageRules(String remedialActionId, RemedialActionAdder<?> remedialActionAdder, Instant instant) {
+    private void addOnInstantUsageRules(String remedialActionId, RemedialActionAdder<?>
+        remedialActionAdder, Instant instant) {
         if (instant.isAuto()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action %s will not be imported because no contingency or assessed element is linked to the remedial action and this is nor supported for ARAs".formatted(remedialActionId));
         }
         remedialActionAdder.newOnInstantUsageRule().withInstant(instant.getId()).withUsageMethod(UsageMethod.AVAILABLE).add();
     }
 
-    private RemedialActionAdder<?> getRemedialActionAdder(String remedialActionId, String elementaryActionsAggregatorId, RemedialActionType remedialActionType, boolean isSchemeRemedialAction, List<String> alterations) {
-        RemedialActionAdder<?> remedialActionAdder;
-        if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-            remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), remedialActionId, elementaryActionsAggregatorId, alterations);
-        } else {
-            remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), remedialActionId, elementaryActionsAggregatorId, alterations);
-        }
-        return remedialActionAdder;
-    }
-
     private static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
-        // TODO: add test to cover all the possible cases
         return remedialInstant.isAuto() ? cnecInstant.isAuto() : !cnecInstant.comesBefore(remedialInstant);
     }
 
-    private InstantKind getInstantKind(boolean isSchemeRemedialAction, RemedialAction nativeRemedialAction, int durationLimit) {
+    private InstantKind getInstantKind(boolean isSchemeRemedialAction, RemedialAction nativeRemedialAction,
+                                       int durationLimit) {
         if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
             return InstantKind.PREVENTIVE;
         }
@@ -199,7 +212,8 @@ public class CsaProfileRemedialActionsCreator {
         return timeToImplement <= durationLimit ? InstantKind.AUTO : InstantKind.CURATIVE;
     }
 
-    private UsageMethod getUsageMethod(ElementCombinationConstraintKind elementCombinationConstraintKind, boolean isSchemeRemedialAction, Instant instant, RemedialActionType remedialActionType) {
+    private UsageMethod getUsageMethod(ElementCombinationConstraintKind elementCombinationConstraintKind,
+                                       boolean isSchemeRemedialAction, Instant instant, RemedialActionType remedialActionType) {
         boolean isPstRangeAuto = instant.isAuto() && remedialActionType == RemedialActionType.PST_RANGE_ACTION;
         return isSchemeRemedialAction || ElementCombinationConstraintKind.INCLUDED.equals(elementCombinationConstraintKind) || isPstRangeAuto ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
     }
@@ -216,7 +230,8 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private RemedialActionType getRemedialActionType(String remedialActionId, String elementaryActionsAggregatorId, boolean isSchemeRemedialAction) {
+    private RemedialActionType getRemedialActionType(String remedialActionId, String elementaryActionsAggregatorId,
+                                                     boolean isSchemeRemedialAction) {
         RemedialActionType remedialActionType;
         if (elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction).containsKey(elementaryActionsAggregatorId)) {
             remedialActionType = RemedialActionType.NETWORK_ACTION;
@@ -259,9 +274,7 @@ public class CsaProfileRemedialActionsCreator {
                         standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                         throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because the remedial action " + refRemedialActionDependency.remedialAction() + " does not exist or not imported. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
                     }
-                    List<UsageRule> onAngleConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnAngleConstraint.class::isInstance).toList();
-                    List<UsageRule> onFlowConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).toList();
-                    List<UsageRule> onVoltageConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance).toList();
+                    List<UsageRule> onConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnConstraint.class::isInstance).toList();
                     List<UsageRule> onContingencyStateUsageRules = refNetworkAction.getUsageRules().stream().filter(OnContingencyState.class::isInstance).toList();
                     List<UsageRule> onInstantUsageRules = refNetworkAction.getUsageRules().stream().filter(OnInstant.class::isInstance).toList();
 
@@ -289,7 +302,7 @@ public class CsaProfileRemedialActionsCreator {
                     if (operators.size() == 1) {
                         networkActionAdder.withOperator(operators.iterator().next());
                     }
-                    addUsageRulesToGroup(onAngleConstraintUsageRules, onFlowConstraintUsageRules, onVoltageConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
+                    addUsageRulesToGroup(onConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, networkActionAdder);
                     addElementaryActionsToGroup(injectionSetpoints, pstSetPoints, topologicalActions, networkActionAdder);
                     networkActionAdder.add();
                     contextByRaId.put(remedialActionGroup.mrid(), CsaProfileElementaryCreationContext.imported(remedialActionGroup.mrid(), remedialActionGroup.mrid(), groupName, "The RemedialActionGroup with mRID " + remedialActionGroup.mrid() + " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions), true));
@@ -328,29 +341,13 @@ public class CsaProfileRemedialActionsCreator {
         });
     }
 
-    private static void addUsageRulesToGroup(List<UsageRule> onAngleConstraintUsageRules, List<UsageRule> onFlowConstraintUsageRules, List<UsageRule> onVoltageConstraintUsageRules, List<UsageRule> onContingencyStateUsageRules, List<UsageRule> onInstantUsageRules, List<ElementaryAction> injectionSetpoints, List<ElementaryAction> pstSetPoints, List<ElementaryAction> topologicalActions, NetworkActionAdder networkActionAdder) {
-        onAngleConstraintUsageRules.forEach(ur -> {
-            OnAngleConstraint onAngleConstraintUsageRule = (OnAngleConstraint) ur;
-            networkActionAdder.newOnAngleConstraintUsageRule()
-                .withInstant(onAngleConstraintUsageRule.getInstant().getId())
-                .withUsageMethod(onAngleConstraintUsageRule.getUsageMethod())
-                .withAngleCnec(onAngleConstraintUsageRule.getAngleCnec().getId())
-                .add();
-        });
-        onFlowConstraintUsageRules.forEach(ur -> {
-            OnFlowConstraint onFlowConstraintUsageRule = (OnFlowConstraint) ur;
-            networkActionAdder.newOnFlowConstraintUsageRule()
-                .withInstant(onFlowConstraintUsageRule.getInstant().getId())
-                .withUsageMethod(onFlowConstraintUsageRule.getUsageMethod())
-                .withFlowCnec(onFlowConstraintUsageRule.getFlowCnec().getId())
-                .add();
-        });
-        onVoltageConstraintUsageRules.forEach(ur -> {
-            OnVoltageConstraint onVoltageConstraintUsageRule = (OnVoltageConstraint) ur;
-            networkActionAdder.newOnVoltageConstraintUsageRule()
-                .withInstant(onVoltageConstraintUsageRule.getInstant().getId())
-                .withUsageMethod(onVoltageConstraintUsageRule.getUsageMethod())
-                .withVoltageCnec(onVoltageConstraintUsageRule.getVoltageCnec().getId())
+    private static void addUsageRulesToGroup(List<UsageRule> onConstraintUsageRules, List<UsageRule> onContingencyStateUsageRules, List<UsageRule> onInstantUsageRules, NetworkActionAdder networkActionAdder) {
+        onConstraintUsageRules.forEach(ur -> {
+            OnConstraint<?> onConstraintUsageRule = (OnConstraint<?>) ur;
+            networkActionAdder.newOnConstraintUsageRule()
+                .withInstant(onConstraintUsageRule.getInstant().getId())
+                .withUsageMethod(onConstraintUsageRule.getUsageMethod())
+                .withCnec(onConstraintUsageRule.getCnec().getId())
                 .add();
         });
         onContingencyStateUsageRules.forEach(ur -> {

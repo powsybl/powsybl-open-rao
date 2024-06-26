@@ -24,11 +24,7 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
 
     OnContingencyStateAdder<T> newOnContingencyStateUsageRule();
 
-    OnFlowConstraintAdder<T> newOnFlowConstraintUsageRule();
-
-    OnAngleConstraintAdder<T> newOnAngleConstraintUsageRule();
-
-    OnVoltageConstraintAdder<T> newOnVoltageConstraintUsageRule();
+    OnConstraintAdder<T, ?> newOnConstraintUsageRule();
 
     OnFlowConstraintInCountryAdder<T> newOnFlowConstraintInCountryUsageRule();
 }

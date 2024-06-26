@@ -55,34 +55,6 @@ public class InstantImpl extends AbstractIdentifiable<Instant> implements Instan
         return name;
     }
 
-    public boolean comesBefore(Instant otherInstant) {
-        return this.order < otherInstant.getOrder();
-    }
-
-    public boolean comesAfter(Instant otherInstant) {
-        return this.order > otherInstant.getOrder();
-    }
-
-    @Override
-    public boolean isPreventive() {
-        return instantKind == InstantKind.PREVENTIVE;
-    }
-
-    @Override
-    public boolean isOutage() {
-        return instantKind == InstantKind.OUTAGE;
-    }
-
-    @Override
-    public boolean isAuto() {
-        return instantKind == InstantKind.AUTO;
-    }
-
-    @Override
-    public boolean isCurative() {
-        return instantKind == InstantKind.CURATIVE;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -105,10 +77,5 @@ public class InstantImpl extends AbstractIdentifiable<Instant> implements Instan
 
     Instant getInstantBefore() {
         return previous;
-    }
-
-    @Override
-    public int compareTo(Instant otherInstant) {
-        return Integer.compare(getOrder(), otherInstant.getOrder());
     }
 }

@@ -27,7 +27,6 @@ import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -157,7 +156,7 @@ public final class RaoUtil {
     private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         return usageRules.stream()
             .filter(ur -> ur instanceof OnContingencyState || ur instanceof OnInstant
-                || (ur instanceof OnFlowConstraint || ur instanceof OnFlowConstraintInCountry)
+                || (ur instanceof OnFlowConstraintInCountry || ur instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec)
                 && isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(ur, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
             .map(ur -> ur.getUsageMethod(state))
             .collect(Collectors.toSet());
@@ -199,46 +198,6 @@ public final class RaoUtil {
                     Math.max(Math.abs(flowCnec.getUpperBound(side, unit).orElse(0.)), Math.abs(flowCnec.getLowerBound(side, unit).orElse(0.)))).max(Double::compare).orElse(0.))
             .max(Double::compare)
             .orElse(0.);
-    }
-
-    public static boolean cnecShouldBeOptimized(Map<FlowCnec, RangeAction<?>> flowCnecPstRangeActionMap,
-                                                FlowResult flowResult,
-                                                FlowCnec flowCnec,
-                                                Side side,
-                                                RangeActionActivationResult rangeActionActivationResult,
-                                                RangeActionSetpointResult prePerimeterRangeActionSetpointResult,
-                                                SensitivityResult sensitivityResult,
-                                                Unit unit) {
-        return cnecShouldBeOptimized(flowCnecPstRangeActionMap, flowResult, flowCnec, side, rangeActionActivationResult.getOptimizedSetpointsOnState(flowCnec.getState()), prePerimeterRangeActionSetpointResult, sensitivityResult, unit);
-    }
-
-    public static boolean cnecShouldBeOptimized(Map<FlowCnec, RangeAction<?>> flowCnecPstRangeActionMap,
-                                                FlowResult flowResult,
-                                                FlowCnec flowCnec,
-                                                Side side,
-                                                Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint,
-                                                RangeActionSetpointResult prePerimeterRangeActionSetpointResult,
-                                                SensitivityResult sensitivityResult,
-                                                Unit unit) {
-        if (!flowCnecPstRangeActionMap.containsKey(flowCnec)) {
-            return true;
-        }
-
-        RangeAction<?> ra = flowCnecPstRangeActionMap.get(flowCnec);
-        double cnecMarginToUpperBound = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
-        double cnecMarginToLowerBound = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
-        if (cnecMarginToUpperBound >= 0 && cnecMarginToLowerBound >= 0) {
-            return false;
-        }
-
-        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, ra, Unit.MEGAWATT) * getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, unit);
-        double raCurrentSetpoint = activatedRangeActionsWithSetpoint.getOrDefault(ra, prePerimeterRangeActionSetpointResult.getSetpoint(ra));
-        double raMaxDecrease = raCurrentSetpoint - ra.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(ra));
-        double raMaxIncrease = ra.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(ra)) - raCurrentSetpoint;
-        double maxFlowDecrease = sensitivity >= 0 ? sensitivity * raMaxDecrease : -sensitivity * raMaxIncrease;
-        double maxFlowIncrease = sensitivity >= 0 ? sensitivity * raMaxIncrease : -sensitivity * raMaxDecrease;
-
-        return cnecMarginToUpperBound + maxFlowDecrease < 0 || cnecMarginToLowerBound + maxFlowIncrease < 0;
     }
 
     public static void applyRemedialActions(Network network, OptimizationResult optResult, State state) {
