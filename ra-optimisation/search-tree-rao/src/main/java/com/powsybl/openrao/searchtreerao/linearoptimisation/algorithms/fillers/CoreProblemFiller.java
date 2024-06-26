@@ -384,6 +384,8 @@ public class CoreProblemFiller implements ProblemFiller {
                         minRelativeTap = Math.max(minRelativeTap, range.getMinTap());
                         maxRelativeTap = Math.min(maxRelativeTap, range.getMaxTap());
                         break;
+                    default:
+                        throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
                 }
             }
             // The taps are not necessarily in order of increasing angle.
@@ -412,6 +414,8 @@ public class CoreProblemFiller implements ProblemFiller {
                         minRelativeSetpoint = Math.max(minRelativeSetpoint, range.getMin());
                         maxRelativeSetpoint = Math.min(maxRelativeSetpoint, range.getMax());
                         break;
+                    default:
+                        throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
                 }
             }
         } else {

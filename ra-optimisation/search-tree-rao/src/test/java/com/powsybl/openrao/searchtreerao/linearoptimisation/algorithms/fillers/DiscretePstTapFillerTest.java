@@ -66,7 +66,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         pstRangeActions.put(state, Set.of(pstRangeAction));
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
             network,
-            state,
+            optimizationPerimeter,
             pstRangeActions,
             initialRangeActionSetpointResult);
 

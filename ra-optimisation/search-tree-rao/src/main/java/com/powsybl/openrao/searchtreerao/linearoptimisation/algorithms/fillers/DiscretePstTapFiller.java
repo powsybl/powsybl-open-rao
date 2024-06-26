@@ -9,6 +9,9 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -17,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
 import java.util.Set;
@@ -27,16 +31,16 @@ import java.util.Set;
 public class DiscretePstTapFiller implements ProblemFiller {
 
     private final Network network;
-    private final State optimizedState;
+    private final OptimizationPerimeter optimizationPerimeter;
     private final Map<State, Set<PstRangeAction>> rangeActions;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
 
     public DiscretePstTapFiller(Network network,
-                                State optimizedState,
+                                OptimizationPerimeter optimizationPerimeter,
                                 Map<State, Set<PstRangeAction>> rangeActions,
                                 RangeActionSetpointResult prePerimeterRangeActionSetpoints) {
         this.network = network;
-        this.optimizedState = optimizedState;
+        this.optimizationPerimeter = optimizationPerimeter;
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
     }
@@ -65,12 +69,12 @@ public class DiscretePstTapFiller implements ProblemFiller {
     private void buildPstTapVariablesAndConstraints(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state) {
 
         // compute a few values on PST taps and angle
-        double prePerimeterAngle = prePerimeterRangeActionSetpoints.getSetpoint(pstRangeAction);
         double currentAngle = pstRangeAction.getCurrentSetpoint(network);
         int currentTap = pstRangeAction.getCurrentTapPosition(network);
 
-        int minAdmissibleTap = Math.min(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
-        int maxAdmissibleTap = Math.max(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
+        Pair<Integer, Integer> admissibleTaps = getMinAndMaxAdmissibleTaps(pstRangeAction, state);
+        int minAdmissibleTap = admissibleTaps.getLeft();
+        int maxAdmissibleTap = admissibleTaps.getRight();
 
         int maxDownwardTapVariation = Math.max(0, currentTap - minAdmissibleTap);
         int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - currentTap);
@@ -129,14 +133,12 @@ public class DiscretePstTapFiller implements ProblemFiller {
         double newAngle = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, state);
         int newTapPosition = rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
 
-        double prePerimeterAngle = prePerimeterRangeActionSetpoints.getSetpoint(pstRangeAction);
-        int minAdmissibleTap = Math.min(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
-        int maxAdmissibleTap = Math.max(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
+        Pair<Integer, Integer> admissibleTaps = getMinAndMaxAdmissibleTaps(pstRangeAction, state);
+        int minAdmissibleTap = admissibleTaps.getLeft();
+        int maxAdmissibleTap = admissibleTaps.getRight();
 
         int maxDownwardTapVariation = Math.max(0, newTapPosition - minAdmissibleTap);
         int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - newTapPosition);
-
-        Map<Integer, Double> tapToAngleConversionMap = pstRangeAction.getTapToAngleConversionMap();
 
         // get variables and constraints
         OpenRaoMPConstraint tapToAngleConversionConstraint = linearProblem.getTapToAngleConversionConstraint(pstRangeAction, state);
@@ -153,6 +155,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
 
         // update coefficients of the constraint with newly calculated ones, except if the tap is already at the limit of the PST range
         // when updating the MIP, the factors are calibrated on a change of one tap
+        Map<Integer, Double> tapToAngleConversionMap = pstRangeAction.getTapToAngleConversionMap();
         if (tapToAngleConversionMap.containsKey(newTapPosition + 1)) {
             double angleToTapUpwardConversionFactor = tapToAngleConversionMap.get(newTapPosition + 1) - tapToAngleConversionMap.get(newTapPosition);
             tapToAngleConversionConstraint.setCoefficient(pstTapUpwardVariationVariable, -angleToTapUpwardConversionFactor);
@@ -166,5 +169,20 @@ public class DiscretePstTapFiller implements ProblemFiller {
         // update the coefficient on the min/max tap variations of the isVariationInDirectionConstraints
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationBinary, -maxDownwardTapVariation);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
+    }
+
+    private Pair<Integer, Integer> getMinAndMaxAdmissibleTaps(PstRangeAction pstRangeAction, State state) {
+        double prePerimeterAngle = prePerimeterRangeActionSetpoints.getSetpoint(pstRangeAction);
+        int minAdmissibleTap = Math.min(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
+        int maxAdmissibleTap = Math.max(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
+
+        Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationPerimeter, pstRangeAction, state);
+        if (lastAvailableRangeAction != null) {
+            Map<Integer, Double> tapToAngleConversionMap = pstRangeAction.getTapToAngleConversionMap();
+            minAdmissibleTap = tapToAngleConversionMap.keySet().stream().mapToInt(k -> k).min().orElseThrow();
+            maxAdmissibleTap = tapToAngleConversionMap.keySet().stream().mapToInt(k -> k).max().orElseThrow();
+
+        }
+        return Pair.of(minAdmissibleTap, maxAdmissibleTap);
     }
 }
