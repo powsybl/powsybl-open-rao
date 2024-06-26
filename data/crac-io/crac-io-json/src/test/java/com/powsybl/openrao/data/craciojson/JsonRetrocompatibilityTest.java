@@ -296,6 +296,16 @@ class JsonRetrocompatibilityTest {
         testContentOfV2Point4Crac(crac);
     }
 
+    @Test
+    void importV2Point5Test() {
+        // Remove reliability margin for cnecs
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile, network);
+        assertEquals(6, crac.getNetworkActions().size());
+        testContentOfV2Point4Crac(crac);
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
@@ -714,6 +724,8 @@ class JsonRetrocompatibilityTest {
         assertTrue(ur.getContingency().isEmpty());
         assertEquals(Country.FR, ur.getCountry());
     }
+
+    // TODO: add test with reliability margin to check import for older versions
 
     private void testContentOfV2Point3Crac(Crac crac) {
         testContentOfV2Point2Crac(crac);

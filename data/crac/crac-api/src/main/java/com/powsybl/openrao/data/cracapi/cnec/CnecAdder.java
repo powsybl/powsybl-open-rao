@@ -22,8 +22,6 @@ public interface CnecAdder<J extends CnecAdder<J>> extends IdentifiableAdder<J> 
 
     J withContingency(String contingencyId);
 
-    J withReliabilityMargin(double reliabilityMargin);
-
     J withOperator(String operator);
 
     J withBorder(String border);

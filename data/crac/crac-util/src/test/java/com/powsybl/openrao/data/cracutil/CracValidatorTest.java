@@ -63,10 +63,9 @@ class CracValidatorTest {
             .withNominalVoltage(200., Side.RIGHT)
             .withIMax(2000., Side.LEFT)
             .withIMax(4000., Side.RIGHT)
-            .withReliabilityMargin(15.)
             .withOptimized()
-            .newThreshold().withMin(-100.).withMax(100.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
-            .newThreshold().withMin(-100.).withMax(100.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
+            .newThreshold().withMin(-85.).withMax(85.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+            .newThreshold().withMin(-85.).withMax(85.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .newThreshold().withMin(-1.).withMax(1.).withUnit(Unit.PERCENT_IMAX).withSide(Side.LEFT).add()
             .add();
 
@@ -78,7 +77,6 @@ class CracValidatorTest {
             .withNominalVoltage(900., Side.RIGHT)
             .withIMax(40, Side.LEFT)
             .withIMax(40., Side.RIGHT)
-            .withReliabilityMargin(0.)
             .newThreshold().withMax(1000.).withUnit(Unit.AMPERE).withSide(Side.LEFT).add()
             .add();
 
@@ -90,9 +88,8 @@ class CracValidatorTest {
             .withNominalVoltage(700., Side.RIGHT)
             .withIMax(200., Side.LEFT)
             .withIMax(400., Side.RIGHT)
-            .withReliabilityMargin(1.)
             .withMonitored()
-            .newThreshold().withMin(-1.).withUnit(Unit.PERCENT_IMAX).withSide(Side.RIGHT).add()
+            .newThreshold().withMin(-0.79).withUnit(Unit.PERCENT_IMAX).withSide(Side.RIGHT).add()
             .add();
     }
 

@@ -31,7 +31,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.4";
+    public static final String CRAC_IO_VERSION = "2.5";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -45,6 +45,8 @@ public final class JsonSerializationConstants {
     v2.1: addition of ra-usage-limits
     v2.2: addition of contingency id in on-flow-constraint-in-country
     v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
+    v2.4: addition of onContraint usage rules to unify and replace onAngleConstraint, onFlowConstraint and onVoltageConstraint usage rules
+    v2.5: deletion of reliabilityMargin for cnecs
      */
 
     // headers

@@ -8,12 +8,15 @@
 package com.powsybl.openrao.data.craciojson.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.cracapi.threshold.AngleThresholdAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 
@@ -25,27 +28,39 @@ public final class AngleThresholdArrayDeserializer {
     private AngleThresholdArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, AngleCnecAdder ownerAdder) throws IOException {
+    public record AngleThreshold(Unit unit, Double min, Double max) {
+    }
+
+    public static Set<AngleThreshold> deserialize(JsonParser jsonParser, AngleCnecAdder ownerAdder) throws IOException {
+        Set<AngleThreshold> angleThresholds = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleThresholdAdder angleThresholdAdder = ownerAdder.newThreshold();
+            Unit unit = null;
+            Double min = null;
+            Double max = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case UNIT:
-                        angleThresholdAdder.withUnit(deserializeUnit(jsonParser.nextTextValue()));
+                        unit = deserializeUnit(jsonParser.nextTextValue());
+                        angleThresholdAdder.withUnit(unit);
                         break;
                     case MIN:
                         jsonParser.nextToken();
-                        angleThresholdAdder.withMin(jsonParser.getDoubleValue());
+                        min = jsonParser.getDoubleValue();
+                        angleThresholdAdder.withMin(min);
                         break;
                     case MAX:
                         jsonParser.nextToken();
-                        angleThresholdAdder.withMax(jsonParser.getDoubleValue());
+                        max = jsonParser.getDoubleValue();
+                        angleThresholdAdder.withMax(max);
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in Threshold: " + jsonParser.getCurrentName());
                 }
             }
             angleThresholdAdder.add();
+            angleThresholds.add(new AngleThreshold(unit, min, max));
         }
+        return angleThresholds;
     }
 }
