@@ -24,6 +24,7 @@ import com.powsybl.openrao.tests.steps.CommonTestData;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -60,7 +61,7 @@ public final class RaoUtils {
     }
 
     public static RaoResult runRao(String contingencyId, InstantKind instantKind, String raoType, Double loopflowAsPmaxPercentage,
-                                   Integer timeLimitInSeconds) {
+                                   Integer timeLimitInSeconds) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getGlsks();
         // Rao with loop-flows
@@ -74,7 +75,7 @@ public final class RaoUtils {
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac, String contingencyId, InstantKind instantKind,
                                             ZonalData<SensitivityVariableSet> glsks, ReferenceProgram referenceProgram, RaoParameters config,
-                                            Integer timeLimitInSeconds) {
+                                            Integer timeLimitInSeconds) throws IOException {
 
         RaoInput.RaoInputBuilder raoInputBuilder;
         if (contingencyId == null) {
@@ -111,7 +112,7 @@ public final class RaoUtils {
         return roundTripOnRaoResult(raoResult, crac);
     }
 
-    private static RaoResult roundTripOnRaoResult(RaoResult raoResult, Crac crac) {
+    private static RaoResult roundTripOnRaoResult(RaoResult raoResult, Crac crac) throws IOException {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -25,6 +25,9 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.io.Exporter;
 import com.powsybl.openrao.data.raoresultapi.io.Importer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -453,12 +456,13 @@ public interface RaoResult {
      * @param crac        the crac on which the RaoResult data is based
      * @return RaoResult object
      */
-    private static RaoResult read(List<Importer> importers, InputStream inputStream, Crac crac) {
+    private static RaoResult read(List<Importer> importers, InputStream inputStream, Crac crac) throws IOException {
+        byte[] bytes = getBytesFromInputStream(inputStream);
         return importers.stream()
-            .filter(importer -> importer.exists(inputStream))
+            .filter(importer -> importer.exists(new ByteArrayInputStream(bytes)))
             .findAny()
             .orElseThrow(() -> new OpenRaoException("No suitable RaoResult importer found."))
-            .importData(inputStream, crac);
+            .importData(new ByteArrayInputStream(bytes), crac);
     }
 
     /**
@@ -468,8 +472,14 @@ public interface RaoResult {
      * @param crac        the crac on which the RaoResult data is based
      * @return RaoResult object
      */
-    static RaoResult read(InputStream inputStream, Crac crac) {
+    static RaoResult read(InputStream inputStream, Crac crac) throws IOException {
         return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, crac);
+    }
+
+    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        org.apache.commons.io.IOUtils.copy(inputStream, baos);
+        return baos.toByteArray();
     }
 
     /**

@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.raoresultapi;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -17,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RaoResultImportTest {
 
     @Test
-    void testImportFromInputStream() {
+    void testImportFromInputStream() throws IOException {
         assertTrue(RaoResult.read(getClass().getResourceAsStream("/raoResult.txt"), null) instanceof MockRaoResult);
     }
 }

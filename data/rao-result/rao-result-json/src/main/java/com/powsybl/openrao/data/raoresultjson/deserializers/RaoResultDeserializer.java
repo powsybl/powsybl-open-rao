@@ -33,11 +33,15 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
     private Crac crac;
 
-    private RaoResultDeserializer() {
+    private final boolean checkHeaderOnly;
+
+    public RaoResultDeserializer() {
+        checkHeaderOnly = true;
     }
 
     public RaoResultDeserializer(Crac crac) {
         this.crac = crac;
+        this.checkHeaderOnly = false;
     }
 
     @Override
@@ -45,27 +49,10 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
         RaoResultImpl raoResult = new RaoResultImpl(crac);
 
-        String firstFieldName = jsonParser.nextFieldName();
-        String jsonFileVersion;
-
-        if (firstFieldName.equals(COMPUTATION_STATUS)) {
-            /*
-             it is assumed that the document version is 1.0
-             at this time, there were not the headers with TYPE, VERSION and INFO of the document
-             */
-            jsonFileVersion = "1.0";
-            raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
-        } else {
-            if (!jsonParser.nextTextValue().equals(RAO_RESULT_TYPE)) {
-                throw new OpenRaoException(String.format("type of document must be %s", RAO_RESULT_TYPE));
-            }
-            if (!jsonParser.nextFieldName().equals(VERSION)) {
-                throw new OpenRaoException(String.format("%s must contain a version in its second field", RAO_RESULT_TYPE));
-            }
-            jsonFileVersion = jsonParser.nextTextValue();
+        String jsonFileVersion = isValid(jsonParser, raoResult);
+        if (checkHeaderOnly) {
+            return null;
         }
-
-        checkVersion(jsonFileVersion);
 
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
@@ -134,12 +121,37 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
         return raoResult;
     }
 
+    public static String isValid(JsonParser jsonParser, RaoResultImpl raoResult) throws IOException {
+        String firstFieldName = jsonParser.nextFieldName();
+        String jsonFileVersion;
+
+        if (firstFieldName.equals(COMPUTATION_STATUS)) {
+            /*
+             it is assumed that the document version is 1.0
+             at this time, there were not the headers with TYPE, VERSION and INFO of the document
+             */
+            jsonFileVersion = "1.0";
+            raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
+        } else {
+            if (!jsonParser.nextTextValue().equals(RAO_RESULT_TYPE)) {
+                throw new OpenRaoException(String.format("type of document must be %s", RAO_RESULT_TYPE));
+            }
+            if (!jsonParser.nextFieldName().equals(VERSION)) {
+                throw new OpenRaoException(String.format("%s must contain a version in its second field", RAO_RESULT_TYPE));
+            }
+            jsonFileVersion = jsonParser.nextTextValue();
+        }
+
+        checkVersion(jsonFileVersion);
+        return jsonFileVersion;
+    }
+
     private void importRangeAction(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
         jsonParser.nextToken();
         RangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
     }
 
-    private void checkVersion(String raoResultVersion) {
+    private static void checkVersion(String raoResultVersion) {
 
         if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) > getPrimaryVersionNumber(raoResultVersion)) {
             throw new OpenRaoException(String.format("RAO-result importer %s is no longer compatible with json RAO-result version %s", RAO_RESULT_IO_VERSION, raoResultVersion));

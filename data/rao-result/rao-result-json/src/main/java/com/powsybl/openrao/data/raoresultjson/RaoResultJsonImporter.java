@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.raoresultjson;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.raoresultapi.io.Importer;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -32,8 +33,16 @@ public class RaoResultJsonImporter implements Importer {
 
     @Override
     public boolean exists(InputStream inputStream) {
-        // TODO: update this
-        return true;
+        try {
+            ObjectMapper objectMapper = createObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(RaoResult.class, new RaoResultDeserializer());
+            objectMapper.registerModule(module);
+            objectMapper.readValue(inputStream, RaoResult.class);
+            return true;
+        } catch (OpenRaoException | IOException e) {
+            return false;
+        }
     }
 
     @Override

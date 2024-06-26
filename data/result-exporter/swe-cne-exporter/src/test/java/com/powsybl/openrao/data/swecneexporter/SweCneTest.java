@@ -52,7 +52,7 @@ class SweCneTest {
     private RaoResultWithAngleMonitoring raoResultFailureWithAngle;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
         CimCracImporter cracImporter = new CimCracImporter();

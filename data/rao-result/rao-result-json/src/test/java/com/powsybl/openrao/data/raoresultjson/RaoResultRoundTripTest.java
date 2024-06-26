@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +70,7 @@ class RaoResultRoundTripTest {
     }
 
     @Test
-    void implicitJsonRoundTripTest() {
+    void implicitJsonRoundTripTest() throws IOException {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
@@ -426,7 +427,7 @@ class RaoResultRoundTripTest {
     }
 
     @Test
-    void testImplicitRoundTripRangeActionsCrossResults() {
+    void testImplicitRoundTripRangeActionsCrossResults() throws IOException {
         Crac crac = initCrac();
         RaoResult raoResult = initRaoResult(crac);
 
@@ -608,7 +609,7 @@ class RaoResultRoundTripTest {
     }
 
     @Test
-    void testExplicitRoundTripWithUnits() {
+    void testExplicitRoundTripWithUnits() throws IOException {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
@@ -632,7 +633,7 @@ class RaoResultRoundTripTest {
     }
 
     @Test
-    void testImplicitRoundTripWithUnits() {
+    void testImplicitRoundTripWithUnits() throws IOException {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
