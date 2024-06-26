@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.cracapi;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -17,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CracImportTest {
 
     @Test
-    void testImportFromInputStream() {
+    void testImportFromInputStream() throws IOException {
         assertEquals("crac", Crac.read(getClass().getResourceAsStream("/crac.txt"), null).getId());
     }
 }

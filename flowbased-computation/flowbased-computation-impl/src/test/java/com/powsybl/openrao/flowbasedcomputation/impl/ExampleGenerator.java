@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -257,7 +258,7 @@ final class ExampleGenerator {
         return network;
     }
 
-    static Crac crac(String fileName, Network network) {
+    static Crac crac(String fileName, Network network) throws IOException {
         return Crac.read(ExampleGenerator.class.getResourceAsStream("/" + fileName), network);
     }
 

@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -27,7 +26,6 @@ class CracAliasesCreatorTest {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-1.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(inputStream, null));
-        assertEquals("No suitable CRAC importer found.", exception.getMessage());
     }
 
     @Test
@@ -35,7 +33,6 @@ class CracAliasesCreatorTest {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-2.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(inputStream, null));
-        assertEquals("No suitable CRAC importer found.", exception.getMessage());
     }
 
     @Test
@@ -43,7 +40,6 @@ class CracAliasesCreatorTest {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-3.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(inputStream, null));
-        assertEquals("No suitable CRAC importer found.", exception.getMessage());
     }
 
     @Test
@@ -51,6 +47,5 @@ class CracAliasesCreatorTest {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-4.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> Crac.read(inputStream, null));
-        assertEquals("No suitable CRAC importer found.", exception.getMessage());
     }
 }

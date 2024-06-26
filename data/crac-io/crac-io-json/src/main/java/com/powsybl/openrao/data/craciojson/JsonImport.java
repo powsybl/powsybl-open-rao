@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -31,12 +29,6 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
  */
 @AutoService(Importer.class)
 public class JsonImport implements Importer {
-    private byte[] data;
-
-    public JsonImport() {
-        data = null;
-    }
-
     @Override
     public String getFormat() {
         return "JSON";
@@ -45,12 +37,11 @@ public class JsonImport implements Importer {
     @Override
     public boolean exists(InputStream inputStream) {
         try {
-            memoizeData(inputStream);
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
             module.addDeserializer(Crac.class, new CracDeserializer());
             objectMapper.registerModule(module);
-            objectMapper.readValue(new ByteArrayInputStream(data), Crac.class);
+            objectMapper.readValue(inputStream, Crac.class);
             return true;
         } catch (OpenRaoException | IOException e) {
             return false;
@@ -63,23 +54,13 @@ public class JsonImport implements Importer {
             throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
         }
         try {
-            memoizeData(inputStream);
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
             module.addDeserializer(Crac.class, new CracDeserializer(cracFactory, network));
             objectMapper.registerModule(module);
-            return objectMapper.readValue(new ByteArrayInputStream(data), Crac.class);
+            return objectMapper.readValue(inputStream, Crac.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-    }
-
-    private void memoizeData(InputStream inputStream) throws IOException {
-        // /!\ the same importer cannot be used with different input streams
-        if (data == null) {
-            ByteArrayOutputStream auxiliaryStream = new ByteArrayOutputStream();
-            inputStream.transferTo(auxiliaryStream);
-            data = auxiliaryStream.toByteArray();
         }
     }
 }

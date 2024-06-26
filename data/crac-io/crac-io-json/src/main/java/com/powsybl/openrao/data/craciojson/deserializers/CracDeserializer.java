@@ -41,7 +41,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
     private Network network;
 
-    private boolean headerCheckOnly;
+    private final boolean headerCheckOnly;
 
     public CracDeserializer() {
         headerCheckOnly = true;
@@ -50,14 +50,14 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
     public CracDeserializer(CracFactory cracFactory, Network network) {
         this.cracFactory = cracFactory;
         this.network = network;
-        headerCheckOnly = false;
+        this.headerCheckOnly = false;
     }
 
     @Override
     public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
         // check header
-        String version = checkHeader(jsonParser);
+        String version = isValid(jsonParser);
         if (headerCheckOnly) {
             return null;
         }
@@ -155,7 +155,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         return crac;
     }
 
-    private static String checkHeader(JsonParser jsonParser) throws IOException {
+    public static String isValid(JsonParser jsonParser) throws IOException {
         if (!jsonParser.nextFieldName().equals(TYPE)) {
             throw new OpenRaoException(String.format("json CRAC must start with field %s", TYPE));
         }

@@ -18,6 +18,9 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
@@ -547,12 +550,13 @@ public interface Crac extends Identifiable<Crac> {
      * @param network     the network on which the CRAC data is based
      * @return CRAC object
      */
-    private static Crac read(List<Importer> importers, InputStream inputStream, CracFactory cracFactory, Network network) {
+    private static Crac read(List<Importer> importers, InputStream inputStream, CracFactory cracFactory, Network network) throws IOException {
+        byte[] bytes = getBytesFromInputStream(inputStream);
         return importers.stream()
-            .filter(importer -> importer.exists(inputStream))
+            .filter(importer -> importer.exists(new ByteArrayInputStream(bytes)))
             .findAny()
             .orElseThrow(() -> new OpenRaoException("No suitable CRAC importer found."))
-            .importData(inputStream, cracFactory, network);
+            .importData(new ByteArrayInputStream(bytes), cracFactory, network);
     }
 
     /**
@@ -563,7 +567,7 @@ public interface Crac extends Identifiable<Crac> {
      * @param network     the network on which the CRAC data is based
      * @return CRAC object
      */
-    static Crac read(InputStream inputStream, CracFactory cracFactory, Network network) {
+    static Crac read(InputStream inputStream, CracFactory cracFactory, Network network) throws IOException {
         return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, cracFactory, network);
     }
 
@@ -574,8 +578,14 @@ public interface Crac extends Identifiable<Crac> {
      * @param network     the network on which the CRAC data is based
      * @return CRAC object
      */
-    static Crac read(InputStream inputStream, Network network) {
+    static Crac read(InputStream inputStream, Network network) throws IOException {
         return read(inputStream, CracFactory.findDefault(), network);
+    }
+
+    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        org.apache.commons.io.IOUtils.copy(inputStream, baos);
+        return baos.toByteArray();
     }
 
     /**

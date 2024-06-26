@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -152,7 +153,7 @@ class SearchTreeParametersTest {
     }
 
     @Test
-    void testDecreaseRemedialActionUsageLimits() {
+    void testDecreaseRemedialActionUsageLimits() throws IOException {
         Crac crac = Crac.read(
             SearchTreeParametersTest.class.getResourceAsStream("/crac/small-crac-with-comprehensive-usage-limits.json"),
             Network.read(Paths.get(new File(Objects.requireNonNull(SearchTreeParametersTest.class.getResource("/network/small-network-2P.uct")).getFile()).toString()))

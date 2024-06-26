@@ -59,7 +59,7 @@ public final class Helpers {
         return Network.read(Paths.get(networkFile.toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
-    public static Pair<Crac, CracCreationContext> importCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) {
+    public static Pair<Crac, CracCreationContext> importCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) throws IOException {
         if (cracFile.getName().endsWith(".json")) {
             // for now, the only JSON format is the farao internal format
             return Pair.of(importCracFromInternalFormat(cracFile, network), null);
@@ -77,7 +77,7 @@ public final class Helpers {
         }
     }
 
-    public static CracCreationContext importCracFromNativeCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) {
+    public static CracCreationContext importCracFromNativeCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) throws IOException {
         byte[] cracBytes = null;
         try (InputStream cracInputStream = new BufferedInputStream(new FileInputStream(cracFile))) {
             cracBytes = getBytesFromInputStream(cracInputStream);
@@ -108,7 +108,7 @@ public final class Helpers {
         return NativeCracImporters.findImporter(cracFile.getName(), new ByteArrayInputStream(cracBytes)).getFormat();
     }
 
-    private static CracCreationContext roundTripOnCracCreationContext(CracCreationContext cracCreationContext, Network network) {
+    private static CracCreationContext roundTripOnCracCreationContext(CracCreationContext cracCreationContext, Network network) throws IOException {
         Crac crac = roundTripOnCrac(cracCreationContext.getCrac(), network);
         if (cracCreationContext instanceof FbConstraintCreationContext) {
             return new RoundTripFbConstraintCreationContext((FbConstraintCreationContext) cracCreationContext, crac);
@@ -123,7 +123,7 @@ public final class Helpers {
         }
     }
 
-    private static Crac roundTripOnCrac(Crac crac, Network network) {
+    private static Crac roundTripOnCrac(Crac crac, Network network) throws IOException {
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         crac.write("JSON", outputStream);

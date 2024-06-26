@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,7 +79,7 @@ class CastorFullOptimizationTest {
     private Instant curativeInstant;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws IOException {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac.json"), network);
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
@@ -570,7 +571,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void smallRaoWithDivergingInitialSensi() {
+    void smallRaoWithDivergingInitialSensi() throws IOException {
         // Small RAO with diverging initial sensi
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
@@ -585,7 +586,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void smallRaoWithout2P() {
+    void smallRaoWithout2P() throws IOException {
         // Small RAO without second preventive optimization and only topological actions
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
@@ -605,7 +606,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void smallRaoWith2P() {
+    void smallRaoWith2P() throws IOException {
         // Same RAO as before but activating 2P => results should be better
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
@@ -629,7 +630,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void smallRaoWithGlobal2P() {
+    void smallRaoWithGlobal2P() throws IOException {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
@@ -654,7 +655,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void testOptimizationStepsExecutedAndLogsWhenFallbackOnFirstPrev() {
+    void testOptimizationStepsExecutedAndLogsWhenFallbackOnFirstPrev() throws IOException {
         // Catch future logs
         Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessLogs.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
@@ -876,7 +877,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void optimizationWithAutoSearchTree() {
+    void optimizationWithAutoSearchTree() throws IOException {
         Network network = Network.read("12Nodes_2_twin_lines.uct", getClass().getResourceAsStream("/network/12Nodes_2_twin_lines.uct"));
         Crac crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-available-aras.json"), network);
 
@@ -903,7 +904,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void optimizationWithAutoSearchTreeAndAutoPsts() {
+    void optimizationWithAutoSearchTreeAndAutoPsts() throws IOException {
         Network network = Network.read("12Nodes_2_twin_lines.uct", getClass().getResourceAsStream("/network/12Nodes_2_twin_lines.uct"));
         Crac crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-available-aras-low-limits-thresholds.json"), network);
 
@@ -930,7 +931,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() {
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() throws IOException {
         Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
         Crac crac = Crac.read(
             CastorFullOptimizationTest.class.getResourceAsStream("/crac/small-crac-ra-limits-per-instant.json"),
@@ -949,7 +950,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() {
+    void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() throws IOException {
         Network network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
         Crac crac = Crac.read(
             CastorFullOptimizationTest.class.getResourceAsStream("/crac/small-crac-ra-limits-per-instant-3-tsos.json"),
@@ -969,7 +970,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void curativeOptimizationShouldNotBeDoneIfPreventiveUnsecure() {
+    void curativeOptimizationShouldNotBeDoneIfPreventiveUnsecure() throws IOException {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
@@ -984,7 +985,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void curativeOptimizationShouldBeDoneIfPreventiveSecure() {
+    void curativeOptimizationShouldBeDoneIfPreventiveSecure() throws IOException {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
@@ -999,7 +1000,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void curativeOptimizationShouldBeDoneIfPreventiveMinMarginNegative() {
+    void curativeOptimizationShouldBeDoneIfPreventiveMinMarginNegative() throws IOException {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
@@ -1013,7 +1014,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void curativeOptimizationShouldBeDoneIfPreventiveUnsecureAndAssociatedParameterSet() {
+    void curativeOptimizationShouldBeDoneIfPreventiveUnsecureAndAssociatedParameterSet() throws IOException {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
@@ -1028,7 +1029,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void curativeOptimizationShouldBeDoneIfPreventiveSecureAndAssociatedParameterSet() {
+    void curativeOptimizationShouldBeDoneIfPreventiveSecureAndAssociatedParameterSet() throws IOException {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
@@ -1043,7 +1044,7 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void curativeOptimizationShouldBeDoneIfPreventiveMinMarginNegativeAndAssociatedParameterSet() {
+    void curativeOptimizationShouldBeDoneIfPreventiveMinMarginNegativeAndAssociatedParameterSet() throws IOException {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();

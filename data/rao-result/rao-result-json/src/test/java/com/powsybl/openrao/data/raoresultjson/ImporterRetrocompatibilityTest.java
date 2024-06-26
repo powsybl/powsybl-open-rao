@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
@@ -76,7 +77,7 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point0Test() {
+    void importV1Point0Test() throws IOException {
 
         // JSON file of open-rao v3.4.3
         /*
@@ -93,7 +94,7 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point1Test() {
+    void importV1Point1Test() throws IOException {
 
         // JSON file of open-rao v3.5.0
         /*
@@ -112,7 +113,7 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importAfterV1Point1FieldDeprecationTest() {
+    void importAfterV1Point1FieldDeprecationTest() throws IOException {
 
         // unused field should throw an exception
 
@@ -126,7 +127,7 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point2Test() {
+    void importV1Point2Test() throws IOException {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/rao-result-v1.2.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/crac-for-rao-result-v1.2.json");
 
@@ -137,7 +138,7 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point2FieldDeprecationTest() {
+    void importV1Point2FieldDeprecationTest() throws IOException {
         // RaoResult copied from v1.1 but version set to v1.2
         // Should not be imported because CNEC side is not defined properly
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/rao-result-v1.2-error.json");
@@ -150,7 +151,7 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point3Test() {
+    void importV1Point3Test() throws IOException {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/rao-result-v1.3.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
 
@@ -161,7 +162,7 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point4Test() {
+    void importV1Point4Test() throws IOException {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.4/rao-result-v1.4.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.4/crac-for-rao-result-v1.4.json");
 
@@ -172,7 +173,7 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point3TestFieldDeprecationTest() {
+    void importV1Point3TestFieldDeprecationTest() throws IOException {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
         Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
         RaoResultJsonImporter importer = new RaoResultJsonImporter();

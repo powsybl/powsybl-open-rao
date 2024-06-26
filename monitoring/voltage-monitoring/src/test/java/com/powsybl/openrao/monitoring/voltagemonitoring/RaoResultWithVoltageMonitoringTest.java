@@ -20,6 +20,7 @@ import com.powsybl.openrao.monitoring.voltagemonitoring.json.VoltageMonitoringRe
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ class RaoResultWithVoltageMonitoringTest {
     }
 
     @Test
-    void testRaoResultWithVoltageMonitoring() {
+    void testRaoResultWithVoltageMonitoring() throws IOException {
         InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
         InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
 

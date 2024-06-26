@@ -20,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -66,7 +67,7 @@ abstract class AbstractFillerTest {
     Crac crac;
     Network network;
 
-    void init() {
+    void init() throws IOException {
         // arrange some data for all fillers test
         // crac and network
         network = NetworkImportsUtil.import12NodesNetwork();
