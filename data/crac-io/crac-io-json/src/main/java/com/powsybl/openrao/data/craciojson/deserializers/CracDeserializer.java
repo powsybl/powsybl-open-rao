@@ -38,9 +38,9 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CracDeserializer.class);
 
-    private final CracFactory cracFactory;
-    private final Network network;
-    private final ReportNode reportNode;
+    private CracFactory cracFactory;
+    private Network network;
+    private ReportNode reportNode;
     private final boolean headerCheckOnly;
 
     public CracDeserializer(boolean headerCheckOnly) {
