@@ -8,14 +8,13 @@
 package com.powsybl.openrao.data.craciojson;
 
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracioapi.CracExporter;
+import com.powsybl.openrao.data.cracapi.io.Exporter;
 import com.powsybl.openrao.data.craciojson.serializers.CracJsonSerializerModule;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,10 +27,10 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@AutoService(CracExporter.class)
-public class JsonExport implements CracExporter {
+@AutoService(Exporter.class)
+public class JsonExport implements Exporter {
 
-    private static final String JSON_FORMAT = "Json";
+    private static final String JSON_FORMAT = "JSON";
 
     @Override
     public String getFormat() {
@@ -39,7 +38,7 @@ public class JsonExport implements CracExporter {
     }
 
     @Override
-    public void exportCrac(Crac crac, OutputStream outputStream) {
+    public void exportData(Crac crac, OutputStream outputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -50,10 +49,5 @@ public class JsonExport implements CracExporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @Override
-    public void exportCrac(Crac crac, Network network, OutputStream outputStream) {
-        exportCrac(crac, outputStream);
     }
 }

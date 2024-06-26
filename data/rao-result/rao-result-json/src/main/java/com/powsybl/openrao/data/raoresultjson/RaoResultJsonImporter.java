@@ -6,7 +6,10 @@
  */
 package com.powsybl.openrao.data.raoresultjson;
 
+import com.google.auto.service.AutoService;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.raoresultapi.io.Importer;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultjson.deserializers.RaoResultDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,9 +24,30 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RaoResultImporter {
+@AutoService(Importer.class)
+public class RaoResultJsonImporter implements Importer {
+    @Override
+    public String getFormat() {
+        return "JSON";
+    }
 
-    public RaoResult importRaoResult(InputStream inputStream, Crac crac) {
+    @Override
+    public boolean exists(InputStream inputStream) {
+        try {
+            ObjectMapper objectMapper = createObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(RaoResult.class, new RaoResultDeserializer(true));
+            objectMapper.registerModule(module);
+            // TODO: replace this by a call to RaoResultDeserializer.isValid
+            objectMapper.readValue(inputStream, RaoResult.class);
+            return true;
+        } catch (OpenRaoException | IOException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public RaoResult importData(InputStream inputStream, Crac crac) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
@@ -34,5 +58,4 @@ public class RaoResultImporter {
             throw new UncheckedIOException(e);
         }
     }
-
 }

@@ -11,14 +11,12 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
-import com.powsybl.openrao.data.cracioapi.CracImporter;
+import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.craciojson.deserializers.CracDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
-import org.apache.commons.io.FilenameUtils;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -29,41 +27,41 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@AutoService(CracImporter.class)
-public class JsonImport implements CracImporter {
-    private static final String JSON_EXTENSION = "json";
+@AutoService(Importer.class)
+public class JsonImport implements Importer {
+    @Override
+    public String getFormat() {
+        return "JSON";
+    }
 
-    private Crac importCrac(InputStream inputStream, CracDeserializer cracDeserializer) {
+    @Override
+    public boolean exists(InputStream inputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
-            module.addDeserializer(Crac.class, cracDeserializer);
+            module.addDeserializer(Crac.class, new CracDeserializer(true));
+            objectMapper.registerModule(module);
+            // TODO: replace this by a call to CracDeserializer.isValid
+            objectMapper.readValue(inputStream, Crac.class);
+            return true;
+        } catch (OpenRaoException | IOException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public Crac importData(InputStream inputStream, CracFactory cracFactory, Network network) {
+        if (network == null) {
+            throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
+        }
+        try {
+            ObjectMapper objectMapper = createObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(Crac.class, new CracDeserializer(cracFactory, network));
             objectMapper.registerModule(module);
             return objectMapper.readValue(inputStream, Crac.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @Override
-    public Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, Network network) {
-        if (network == null) {
-            throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
-        }
-        return importCrac(inputStream, new CracDeserializer(cracFactory, network));
-    }
-
-    @Override
-    public Crac importCrac(InputStream inputStream, Network network) {
-        return importCrac(inputStream, CracFactory.findDefault(), network);
-    }
-
-    @Override
-    public boolean exists(String fileName, InputStream inputStream) {
-        return validCracFile(fileName);
-    }
-
-    private boolean validCracFile(String fileName) {
-        return FilenameUtils.getExtension(fileName).equals(JSON_EXTENSION);
     }
 }

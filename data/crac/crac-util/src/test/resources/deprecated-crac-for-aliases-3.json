@@ -5,17 +5,17 @@
   "name" : "LS_parade_pst_direct",
   "networkElementsNamePerId": { },
   "contingencies" : [ {
-    "id" : "Contingency FR1 FR3",
-    "networkElementsIds" : [ "FFR3AA1  FFR1AA1  1" ]
+    "id" : "Contingency 1",
+    "networkElementsIds" : [ "FFR1AA1G FFR2AA1H 1" ]
   }, {
       "id" : "Contingency Interco",
-      "networkElementsIds" : [ "DDE3AA1  FFR2AA1  HFSK JDV" ]
+      "networkElementsIds" : [ "FFR2AA1H DDE3AA1F 1" ]
     }],
   "flowCnecs" : [ {
-    "id" : "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3",
+    "id" : "FFR2AA1  DDE3AA1  1 - Curatif - Contingency 1",
     "name" : "Tie-line FR DE",
     "networkElementId" : "FFR2AA1  DDE3AA1  1",
-    "contingencyId" : "Contingency FR1 FR3",
+    "contingencyId" : "Contingency 1",
     "instant": "curative",
     "frm" : 0.0,
     "nominalV" : [ 380.0 ],
@@ -49,10 +49,10 @@
       }
     }
   }, {
-    "id" : "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3",
+    "id" : "DDE1AA1  DDE2AA1  1 - Défaut - Contingency 1",
     "name" : "Line DE1 DE2",
     "networkElementId" : "DDE1AA1  DDE2AA1  1",
-    "contingencyId" : "Contingency FR1 FR3",
+    "contingencyId" : "Contingency 1",
     "instant": "outage",
     "frm" : -1.0,
     "nominalV" : [ 380.0 ],
@@ -87,10 +87,10 @@
       }
     }
   }, {
-    "id" : "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3",
+    "id" : "DDE1AA1  DDE2AA1  1 - Curatif - Contingency 1",
     "name" : "Line DE1 DE2",
     "networkElementId" : "DDE1AA1  DDE2AA1  1",
-    "contingencyId" : "Contingency FR1 FR3",
+    "contingencyId" : "Contingency 1",
     "instant": "curative",
     "frm" : 2.0,
     "nominalV" : [ 380.0 ],
@@ -162,10 +162,10 @@
       }
     }
   }, {
-    "id" : "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3",
+    "id" : "FFR2AA1  DDE3AA1  1 - Défaut - Contingency 1",
     "name" : "Tie-line FR DE",
     "networkElementId" : "FFR2AA1  DDE3AA1  1",
-    "contingencyId" : "Contingency FR1 FR3",
+    "contingencyId" : "Contingency 1",
     "instant": "outage",
     "frm" : 4.0,
     "nominalV" : [ 380.0 ],
@@ -279,7 +279,7 @@
     "operator" : "RTE",
     "onFlowConstraintUsageRules" : [ {
       "instant" : "preventive",
-      "flowCnecId" : "cnec3curId"
+      "flowCnecId" : "FFR2AA1  DDE3AA1  1 - Curatif - Contingency 1"
     } ],
     "networkElementId" : "hvdc2",
     "groupId" : "group-1-hvdc",

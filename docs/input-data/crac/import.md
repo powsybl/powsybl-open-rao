@@ -2,28 +2,24 @@
 
 ## CRAC import/export
 
-The [OpenRAO CRAC object model](json) can be directly imported and exported using the open-rao-crac-io-api.  
+The [OpenRAO CRAC object model](json) can be directly imported and exported using the CRAC API.  
 
 The JSON format - also called OpenRAO internal format - is a raw image of the CRAC object model of OpenRAO. It is particularly suited to exchange a CRAC java object through files, for instance to exchange CRAC data between microservices or Kubernetes pods of an application. It has an importer and an exporter. The complete round-trip (java object → export → json file → import → java object) has been designed so that the CRAC at the beginning of the chain is exactly the same as the one at the end of the chain.  
 
 Examples of JSON formats are given on this [page](json).  
 
-Examples of uses of the OPEN-RAO-crac-io-api are given below:  
+Examples of uses of CRAC import/export are given below:  
 
 ~~~java
 // import a CRAC from a PATH
 // (a network is required to reconstruct the contingency elements from the network elements id) 
-Crac crac = CracImporters.importCrac(Paths.get("/tmp/crac.json"), network);
+Crac crac = Crac.read(Paths.get("/tmp/crac.json"), network);
 
 // import a CRAC from an input stream
-Crac crac = CracImporters.importCrac("crac.json", new FileInputStream(new File("/tmp/crac.json")), network);
+Crac crac = Crac.read("crac.json", new FileInputStream(new File("/tmp/crac.json")), network);
 
 // export a CRAC in JSON in a file
-CracExporters.exportCrac(crac, "Json", Paths.get("/tmp/crac.json"));
-
-// export a CRAC in security limit format in an output stream
-// (a network is required for this exporter)
-CracExporters.exportCrac(crac, network, "SecurityLimit", outputStream);
+crac.write("JSON", Paths.get("/tmp/crac.json"));
 ~~~
 
 ## Versioning of internal JSON CRAC files

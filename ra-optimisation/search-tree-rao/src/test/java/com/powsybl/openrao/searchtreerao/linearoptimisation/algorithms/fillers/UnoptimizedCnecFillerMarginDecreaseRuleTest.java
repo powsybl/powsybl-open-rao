@@ -31,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.*;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
@@ -53,7 +54,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     private RangeActionsOptimizationParameters rangeActionParameters;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         init();
 
         // Add a cnec
