@@ -10,6 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -77,6 +78,7 @@ public class AngleMonitoringSteps {
     @Then("the angle monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
         assertEquals(CommonTestData.getAngleMonitoringResult().getStatus().toString(), expectedStatus);
+        assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(PhysicalParameter.ANGLE));
     }
 
     @Then("the applied remedial actions should be:")

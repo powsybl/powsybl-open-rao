@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +50,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     private double initialAlpha;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         init();
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);

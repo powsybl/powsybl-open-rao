@@ -8,6 +8,7 @@ package com.powsybl.openrao.data.craciojson;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.craciojson.serializers.CracJsonSerializerModule;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +38,18 @@ public final class RoundTripUtil {
      * @param object: object to export/import
      * @return the object exported and re-imported
      */
-    static Crac roundTrip(Crac object, Network network) {
+    static Crac implicitJsonRoundTrip(Crac object, Network network) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        object.write("JSON", outputStream);
+
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+            return Crac.read(inputStream, network);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    static Crac explicitJsonRoundTrip(Crac object, Network network) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = createObjectMapper();
@@ -51,7 +63,7 @@ public final class RoundTripUtil {
         }
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            return (new JsonImport()).importCrac(inputStream, network);
+            return new JsonImport().importData(inputStream, CracFactory.findDefault(), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

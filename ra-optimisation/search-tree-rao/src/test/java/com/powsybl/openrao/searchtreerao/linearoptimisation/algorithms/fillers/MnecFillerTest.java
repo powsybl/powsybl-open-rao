@@ -30,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,7 +47,7 @@ class MnecFillerTest extends AbstractFillerTest {
     private FlowCnec mnec3;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         init();
         mnec1 = crac.newFlowCnec()
                 .withId("MNEC1 - N - preventive")
