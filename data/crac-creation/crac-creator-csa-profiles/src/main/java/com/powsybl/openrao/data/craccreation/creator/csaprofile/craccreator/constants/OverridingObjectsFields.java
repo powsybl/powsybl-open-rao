@@ -18,7 +18,7 @@ public enum OverridingObjectsFields {
     ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION("assessedElementWithRemedialActionOverriding", CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, CsaProfileConstants.NORMAL_ENABLED, CsaProfileConstants.OVERRIDE_ENABLED, HeaderType.START_END_DATE),
     CONTINGENCY_WITH_REMEDIAL_ACTION("contingencyWithRemedialActionOverriding", CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION, CsaProfileConstants.NORMAL_ENABLED, CsaProfileConstants.OVERRIDE_ENABLED, HeaderType.START_END_DATE),
     GRID_STATE_ALTERATION_REMEDIAL_ACTION("gridStateAlterationRemedialActionOverriding", CsaProfileConstants.REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION, CsaProfileConstants.NORMAL_AVAILABLE, CsaProfileConstants.OVERRIDE_AVAILABLE, HeaderType.START_END_DATE),
-    GRID_STATE_ALTERATION("gridStateAlterationOverriding", "gridStateAlteration", CsaProfileConstants.NORMAL_ENABLED, CsaProfileConstants.OVERRIDE_ENABLED, HeaderType.START_END_DATE),
+    GRID_STATE_ALTERATION("gridStateAlterationOverriding", CsaProfileConstants.GRID_STATE_ALTERATION, CsaProfileConstants.NORMAL_ENABLED, CsaProfileConstants.OVERRIDE_ENABLED, HeaderType.START_END_DATE),
     STATIC_PROPERTY_RANGE("staticPropertyRangeOverriding", CsaProfileConstants.STATIC_PROPERTY_RANGE, CsaProfileConstants.NORMAL_VALUE, CsaProfileConstants.OVERRIDE_VALUE, HeaderType.START_END_DATE),
     REMEDIAL_ACTION_SCHEME("remedialActionSchemeOverriding", CsaProfileConstants.REMEDIAL_ACTION_SCHEME, CsaProfileConstants.NORMAL_ARMED, CsaProfileConstants.OVERRIDE_ARMED, HeaderType.START_END_DATE),
     VOLTAGE_ANGLE_LIMIT("voltageAngleLimitOverriding", "voltageAngleLimit", CsaProfileConstants.NORMAL_VALUE, CsaProfileConstants.OVERRIDE_VALUE, HeaderType.START_END_DATE),

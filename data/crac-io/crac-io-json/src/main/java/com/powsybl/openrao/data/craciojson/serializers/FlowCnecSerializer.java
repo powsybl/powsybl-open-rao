@@ -34,6 +34,7 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         gen.writeStringField(NAME, flowCnec.getName());
         gen.writeStringField(NETWORK_ELEMENT_ID, flowCnec.getNetworkElement().getId());
         gen.writeStringField(OPERATOR, flowCnec.getOperator());
+        gen.writeStringField(BORDER, flowCnec.getBorder());
         gen.writeStringField(INSTANT, flowCnec.getState().getInstant().getId());
         Optional<Contingency> optContingency = flowCnec.getState().getContingency();
         if (optContingency.isPresent()) {

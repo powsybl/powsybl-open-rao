@@ -58,6 +58,9 @@ public final class VoltageCnecArrayDeserializer {
                     case OPERATOR:
                         voltageCnecAdder.withOperator(jsonParser.nextTextValue());
                         break;
+                    case BORDER:
+                        voltageCnecAdder.withBorder(jsonParser.nextTextValue());
+                        break;
                     case INSTANT:
                         voltageCnecAdder.withInstant(jsonParser.nextTextValue());
                         break;

@@ -14,6 +14,13 @@ import java.util.List;
  */
 public final class CsaProfileConstants {
 
+    public static final String PREVENTIVE_INSTANT = "preventive";
+    public static final String OUTAGE_INSTANT = "outage";
+    public static final String AUTO_INSTANT = "auto";
+    public static final String CURATIVE_1_INSTANT = "curative 1";
+    public static final String CURATIVE_2_INSTANT = "curative 2";
+    public static final String CURATIVE_3_INSTANT = "curative 3";
+
     private CsaProfileConstants() {
     }
 
@@ -87,6 +94,7 @@ public final class CsaProfileConstants {
     public static final String DEPENDING_REMEDIAL_ACTION_GROUP = "dependingRemedialActionGroup";
     public static final String GRID_STATE_ALTERATION_COLLECTION = "gridStateAlterationCollection";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
+    public static final String GRID_STATE_ALTERATION = "gridStateAlteration";
     public static final String TOPOLOGY_ACTION = "topologyAction";
     public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
     public static final String TAP_POSITION_ACTION = "tapPositionAction";

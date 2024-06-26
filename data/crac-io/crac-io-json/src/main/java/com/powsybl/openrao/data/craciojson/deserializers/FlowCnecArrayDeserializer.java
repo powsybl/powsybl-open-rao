@@ -60,6 +60,9 @@ public final class FlowCnecArrayDeserializer {
                     case OPERATOR:
                         flowCnecAdder.withOperator(jsonParser.nextTextValue());
                         break;
+                    case BORDER:
+                        flowCnecAdder.withBorder(jsonParser.nextTextValue());
+                        break;
                     case INSTANT:
                         flowCnecAdder.withInstant(jsonParser.nextTextValue());
                         break;

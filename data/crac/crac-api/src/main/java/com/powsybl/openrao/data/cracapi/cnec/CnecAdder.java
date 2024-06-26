@@ -24,6 +24,8 @@ public interface CnecAdder<J extends CnecAdder<J>> extends IdentifiableAdder<J> 
 
     J withOperator(String operator);
 
+    J withBorder(String border);
+
     J withOptimized();
 
     J withMonitored();
