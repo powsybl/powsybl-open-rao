@@ -9,6 +9,7 @@ package com.powsybl.openrao.tests.steps;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -143,11 +144,7 @@ public class SearchTreeRaoSteps {
 
     @Then("its security status should be {string}")
     public void statusShouldBe(String status) {
-        if (status.equalsIgnoreCase("secured")) {
-            assertTrue(raoResult.isSecure());
-        } else {
-            assertFalse(raoResult.isSecure());
-        }
+        assertEquals(status.equalsIgnoreCase("secured"), raoResult.isSecure(PhysicalParameter.FLOW));
     }
 
     @Then("the value of the objective function initially should be {double}")
