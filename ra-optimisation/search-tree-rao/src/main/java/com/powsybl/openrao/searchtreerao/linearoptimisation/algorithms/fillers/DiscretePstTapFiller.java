@@ -22,6 +22,7 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.IntSummaryStatistics;
 import java.util.Map;
 import java.util.Set;
 
@@ -171,17 +172,26 @@ public class DiscretePstTapFiller implements ProblemFiller {
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
     }
 
+    /**
+     * Returns min and max admissible taps for a given PST in a given state.
+     * In the nominal case, it computes these values with the PST ranges and its pre-perimeter setpoint.
+     * However, in Second Preventive with Global Optimization, we can optimize a PST in both preventive and curative.
+     * If so, we can't predict the curative limits as they depend on the preventive ones.
+     * In such a case, we return the network limits.
+     */
     private Pair<Integer, Integer> getMinAndMaxAdmissibleTaps(PstRangeAction pstRangeAction, State state) {
         double prePerimeterAngle = prePerimeterRangeActionSetpoints.getSetpoint(pstRangeAction);
-        int minAdmissibleTap = Math.min(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
-        int maxAdmissibleTap = Math.max(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
+        int minAdmissibleTap = pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle));
+        int maxAdmissibleTap = pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle));
+        minAdmissibleTap = Math.min(maxAdmissibleTap, minAdmissibleTap);
+        maxAdmissibleTap = Math.max(maxAdmissibleTap, minAdmissibleTap);
 
         Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationPerimeter, pstRangeAction, state);
         if (lastAvailableRangeAction != null) {
-            Map<Integer, Double> tapToAngleConversionMap = pstRangeAction.getTapToAngleConversionMap();
-            minAdmissibleTap = tapToAngleConversionMap.keySet().stream().mapToInt(k -> k).min().orElseThrow();
-            maxAdmissibleTap = tapToAngleConversionMap.keySet().stream().mapToInt(k -> k).max().orElseThrow();
-
+            Set<Integer> pstTapsSet = pstRangeAction.getTapToAngleConversionMap().keySet();
+            IntSummaryStatistics tapStats = pstTapsSet.stream().mapToInt(k -> k).summaryStatistics();
+            minAdmissibleTap = tapStats.getMin();
+            maxAdmissibleTap = tapStats.getMax();
         }
         return Pair.of(minAdmissibleTap, maxAdmissibleTap);
     }
