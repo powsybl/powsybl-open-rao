@@ -43,8 +43,8 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
     private final boolean headerCheckOnly;
 
-    public CracDeserializer() {
-        headerCheckOnly = true;
+    public CracDeserializer(boolean headerCheckOnly) {
+        this.headerCheckOnly = headerCheckOnly;
     }
 
     public CracDeserializer(CracFactory cracFactory, Network network) {

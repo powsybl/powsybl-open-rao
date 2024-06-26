@@ -35,8 +35,8 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
     private final boolean checkHeaderOnly;
 
-    public RaoResultDeserializer() {
-        checkHeaderOnly = true;
+    public RaoResultDeserializer(boolean checkHeaderOnly) {
+        this.checkHeaderOnly = checkHeaderOnly;
     }
 
     public RaoResultDeserializer(Crac crac) {

@@ -36,7 +36,7 @@ public class RaoResultJsonImporter implements Importer {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
-            module.addDeserializer(RaoResult.class, new RaoResultDeserializer());
+            module.addDeserializer(RaoResult.class, new RaoResultDeserializer(true));
             objectMapper.registerModule(module);
             objectMapper.readValue(inputStream, RaoResult.class);
             return true;

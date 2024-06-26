@@ -39,7 +39,7 @@ public class JsonImport implements Importer {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
-            module.addDeserializer(Crac.class, new CracDeserializer());
+            module.addDeserializer(Crac.class, new CracDeserializer(true));
             objectMapper.registerModule(module);
             objectMapper.readValue(inputStream, Crac.class);
             return true;
