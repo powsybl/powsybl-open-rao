@@ -18,20 +18,48 @@ import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
 import java.util.Map;
 
+import static java.lang.String.format;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class FlowResultImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
+    private final Map<FlowCnec, Map<Side, Double>> commercialFlows;
+    private final Map<FlowCnec, Map<Side, Double>> ptdfZonalSums;
     private final FlowResult fixedCommercialFlows;
-    private final FlowResult fixedPtdfs;
+    private final FlowResult fixedPtdfZonalSums;
+
+    public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
+                          Map<FlowCnec, Map<Side, Double>> commercialFlows,
+                          Map<FlowCnec, Map<Side, Double>> ptdfZonalSums) {
+        this(systematicSensitivityResult, commercialFlows, null, ptdfZonalSums, null);
+    }
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
                           FlowResult fixedCommercialFlows,
-                          FlowResult fixedPtdfs) {
+                          FlowResult fixedPtdfZonalSums) {
+        this(systematicSensitivityResult, null, fixedCommercialFlows, null, fixedPtdfZonalSums);
+    }
+
+    public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
+                           Map<FlowCnec, Map<Side, Double>> commercialFlows,
+                           FlowResult fixedCommercialFlows,
+                           Map<FlowCnec, Map<Side, Double>> ptdfZonalSums,
+                           FlowResult fixedPtdfZonalSums) {
         this.systematicSensitivityResult = systematicSensitivityResult;
+        if (commercialFlows == null && fixedCommercialFlows == null
+            || commercialFlows != null && fixedCommercialFlows != null) {
+            throw new OpenRaoException("Either commercialFlows or fixedCommercialFlows should be non null");
+        }
+        if (ptdfZonalSums == null && fixedPtdfZonalSums == null
+            || ptdfZonalSums != null && fixedPtdfZonalSums != null) {
+            throw new OpenRaoException("Either ptdfZonalSums or fixedPtdfZonalSums should be non null");
+        }
+        this.commercialFlows = commercialFlows;
+        this.ptdfZonalSums = ptdfZonalSums;
         this.fixedCommercialFlows = fixedCommercialFlows;
-        this.fixedPtdfs = fixedPtdfs;
+        this.fixedPtdfZonalSums = fixedPtdfZonalSums;
     }
 
     @Override
@@ -50,6 +78,7 @@ public class FlowResultImpl implements FlowResult {
         }
     }
 
+    @Override
     public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant);
@@ -67,21 +96,38 @@ public class FlowResultImpl implements FlowResult {
 
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
-        if (unit == Unit.MEGAWATT) {
+        if (unit != Unit.MEGAWATT) {
+            throw new OpenRaoException("Commercial flows only in MW.");
+        }
+        if (fixedCommercialFlows != null) {
             return fixedCommercialFlows.getCommercialFlow(flowCnec, side, unit);
         } else {
-            throw new OpenRaoException("Commercial flows only in MW.");
+            if (!commercialFlows.containsKey(flowCnec) || !commercialFlows.get(flowCnec).containsKey(side)) {
+                throw new OpenRaoException(format("No commercial flow on the CNEC %s on side %s", flowCnec.getName(), side));
+            }
+            return commercialFlows.get(flowCnec).get(side);
         }
     }
 
     @Override
     public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
-        return fixedPtdfs.getPtdfZonalSum(flowCnec, side);
+        if (fixedPtdfZonalSums != null) {
+            return fixedPtdfZonalSums.getPtdfZonalSum(flowCnec, side);
+        } else {
+            if (!ptdfZonalSums.containsKey(flowCnec) || !ptdfZonalSums.get(flowCnec).containsKey(side)) {
+                throw new OpenRaoException(format("No PTDF computed on the CNEC %s on side %s", flowCnec.getName(), side));
+            }
+            return ptdfZonalSums.get(flowCnec).get(side);
+        }
     }
 
     @Override
     public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
-        return fixedPtdfs.getPtdfZonalSums();
+        if (fixedPtdfZonalSums != null) {
+            return fixedPtdfZonalSums.getPtdfZonalSums();
+        } else {
+            return ptdfZonalSums;
+        }
     }
 
 }

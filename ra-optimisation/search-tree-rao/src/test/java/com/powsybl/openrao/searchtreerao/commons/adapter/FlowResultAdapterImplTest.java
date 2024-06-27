@@ -15,7 +15,7 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.searchtreerao.commons.AbsolutePtdfSumsComputation;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.impl.FlowResultFromMapImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.FlowResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +76,7 @@ class FlowResultAdapterImplTest {
 
     @Test
     void testWithFixedPtdfs() {
-        FlowResult fixedPtdfFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
+        FlowResult fixedPtdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
             .withPtdfsResults(fixedPtdfFlowResult)
             .build();
@@ -88,8 +88,8 @@ class FlowResultAdapterImplTest {
 
     @Test
     void testWithFixedPtdfsAndCommercialFlows() {
-        FlowResult ptdfFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
-        FlowResult commercialFlowFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(RIGHT, 300.)), new HashMap<>());
+        FlowResult ptdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
+        FlowResult commercialFlowFlowResult = new FlowResultImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(RIGHT, 300.)), new HashMap<>());
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
                 .withPtdfsResults(ptdfFlowResult)
                 .withCommercialFlowsResults(commercialFlowFlowResult)
@@ -104,7 +104,7 @@ class FlowResultAdapterImplTest {
     @Test
     void testWithFixedPtdfsAndUpdatedCommercialFlows() {
         LoopFlowComputation loopFlowComputation = Mockito.mock(LoopFlowComputation.class);
-        FlowResult ptdfFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
+        FlowResult ptdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder.withPtdfsResults(ptdfFlowResult)
                 .withCommercialFlowsResults(loopFlowComputation, Set.of(cnec2))
                 .build();

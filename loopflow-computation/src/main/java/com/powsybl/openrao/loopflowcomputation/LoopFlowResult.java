@@ -8,6 +8,7 @@ package com.powsybl.openrao.loopflowcomputation;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.cnec.BranchCnec;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 
 import java.util.EnumMap;
@@ -72,5 +73,20 @@ public class LoopFlowResult {
             throw new OpenRaoException(String.format("No reference flow value found for cnec %s on side %s", cnec.getId(), side));
         }
         return loopFlowMap.get(cnec).get(side).getTotalFlow();
+    }
+
+    public Map<FlowCnec, Map<Side, Double>> getCommercialFlowsMap() {
+        Map<FlowCnec, Map<Side, Double>> map = new HashMap<>();
+        loopFlowMap.keySet().stream()
+            .filter(FlowCnec.class::isInstance)
+            .map(FlowCnec.class::cast)
+            .forEach(cnec -> {
+                Map<Side, Double> cnecMap = new HashMap<>();
+                loopFlowMap.get(cnec).keySet().forEach(side ->
+                    cnecMap.put(side, this.getCommercialFlow(cnec, side))
+                );
+                map.put(cnec, cnecMap);
+            });
+        return map;
     }
 }
