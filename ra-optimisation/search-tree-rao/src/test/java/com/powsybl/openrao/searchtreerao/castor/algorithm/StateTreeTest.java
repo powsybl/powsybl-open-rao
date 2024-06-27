@@ -11,7 +11,7 @@ import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -56,7 +56,7 @@ class StateTreeTest {
         if (withCra) {
             crac = CommonCracCreation.createWithCurativePstRange();
         } else {
-            crac = CommonCracCreation.create(new CracImplFactory(), Set.of(Side.LEFT));
+            crac = CommonCracCreation.create(new CracImplFactory(), Set.of(TwoSides.ONE));
         }
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
@@ -113,7 +113,7 @@ class StateTreeTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withId("cnec1-preventive")
             .withNetworkElement("ne1")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
@@ -121,7 +121,7 @@ class StateTreeTest {
             .withContingency("contingency-1")
             .withId("cnec1-outage1")
             .withNetworkElement("ne1")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(400.).withMin(-400.).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(400.).withMin(-400.).add()
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
@@ -129,7 +129,7 @@ class StateTreeTest {
             .withContingency("contingency-1")
             .withId("cnec1-curative1")
             .withNetworkElement("ne1")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
@@ -137,7 +137,7 @@ class StateTreeTest {
             .withContingency("contingency-2")
             .withId("cnec1-outage2")
             .withNetworkElement("ne1")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(500.).withMin(-500.).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(500.).withMin(-500.).add()
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
@@ -145,7 +145,7 @@ class StateTreeTest {
             .withContingency("contingency-2")
             .withId("cnec1-curative2")
             .withNetworkElement("ne1")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
@@ -153,7 +153,7 @@ class StateTreeTest {
             .withContingency("contingency-3")
             .withId("cnec1-outage3")
             .withNetworkElement("ne1")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
             .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
@@ -161,7 +161,7 @@ class StateTreeTest {
             .withContingency("contingency-3")
             .withId("cnec1-curative3")
             .withNetworkElement("ne1")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
             .withNominalVoltage(400.)
             .add();
     }
@@ -269,7 +269,7 @@ class StateTreeTest {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withId("cnec-preventive")
             .withNetworkElement("ne1")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
             .withNominalVoltage(400.)
             .add();
         preventiveState = crac.getPreventiveState();
@@ -278,7 +278,7 @@ class StateTreeTest {
             .withContingency("contingency")
             .withId("cnec-outage")
             .withNetworkElement("ne1")
-            .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(400.).withMin(-400.).add()
+            .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(400.).withMin(-400.).add()
             .withNominalVoltage(400.)
             .add();
         outageState = crac.getState("contingency", outageInstant);
@@ -288,7 +288,7 @@ class StateTreeTest {
                 .withContingency("contingency")
                 .withId("cnec-auto")
                 .withNetworkElement("ne1")
-                .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+                .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
                 .withNominalVoltage(400.)
                 .add();
             if (withAutoRa) {
@@ -309,7 +309,7 @@ class StateTreeTest {
                 .withContingency("contingency")
                 .withId("cnec-curative")
                 .withNetworkElement("ne1")
-                .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMax(400.).withMin(-400.).add()
+                .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMax(400.).withMin(-400.).add()
                 .withNominalVoltage(400.)
                 .add();
             if (withCurativeRa) {
@@ -1240,7 +1240,7 @@ class StateTreeTest {
             .withNetworkElement("line")
             .withNominalVoltage(400)
             .newThreshold()
-                .withSide(Side.LEFT)
+                .withSide(TwoSides.ONE)
                 .withUnit(Unit.AMPERE)
                 .withMax(500d)
                 .withMin(-500d)

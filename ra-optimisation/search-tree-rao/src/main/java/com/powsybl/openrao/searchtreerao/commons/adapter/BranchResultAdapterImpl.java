@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons.adapter;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.searchtreerao.commons.AbsolutePtdfSumsComputation;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -42,7 +42,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
     @Override
     public FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult, Network network) {
         FlowResult ptdfs = null;
-        Map<FlowCnec, Map<Side, Double>> ptdfsMap = null;
+        Map<FlowCnec, Map<TwoSides, Double>> ptdfsMap = null;
         if (absolutePtdfSumsComputation != null) {
             ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
         } else {
@@ -50,7 +50,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         }
 
         FlowResult commercialFlows = null;
-        Map<FlowCnec, Map<Side, Double>> commercialFlowsMap = null;
+        Map<FlowCnec, Map<TwoSides, Double>> commercialFlowsMap = null;
         if (loopFlowComputation != null) {
             commercialFlowsMap = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(
                     systematicSensitivityResult,

@@ -1,5 +1,6 @@
 package com.powsybl.openrao.data.cracapi.cnec;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.iidm.network.Network;
 
@@ -10,12 +11,12 @@ import com.powsybl.iidm.network.Network;
 public interface FlowCnec extends BranchCnec<FlowCnec> {
 
     /**
-     * Getter of the Imax on each {@link Side} of the {@code FlowCnec}.
+     * Getter of the Imax on each {@link TwoSides} of the {@code FlowCnec}.
      *
-     * @param side: The {@link Side} on which the Imax is queried.
+     * @param side: The {@link TwoSides} on which the Imax is queried.
      * @return The value of the iMax, given in Unit.AMPERE.
      */
-    Double getIMax(Side side);
+    Double getIMax(TwoSides side);
 
     /**
      * Says if a FlowCnec's NetworkElement is connected in a Network

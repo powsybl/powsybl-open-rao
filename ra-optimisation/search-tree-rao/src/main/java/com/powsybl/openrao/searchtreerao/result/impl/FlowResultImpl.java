@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
@@ -25,14 +25,14 @@ import static java.lang.String.format;
  */
 public class FlowResultImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
-    private final Map<FlowCnec, Map<Side, Double>> commercialFlows;
-    private final Map<FlowCnec, Map<Side, Double>> ptdfZonalSums;
+    private final Map<FlowCnec, Map<TwoSides, Double>> commercialFlows;
+    private final Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums;
     private final FlowResult fixedCommercialFlows;
     private final FlowResult fixedPtdfZonalSums;
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
-                          Map<FlowCnec, Map<Side, Double>> commercialFlows,
-                          Map<FlowCnec, Map<Side, Double>> ptdfZonalSums) {
+                          Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
+                          Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums) {
         this(systematicSensitivityResult, commercialFlows, null, ptdfZonalSums, null);
     }
 
@@ -43,9 +43,9 @@ public class FlowResultImpl implements FlowResult {
     }
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
-                           Map<FlowCnec, Map<Side, Double>> commercialFlows,
+                           Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
                            FlowResult fixedCommercialFlows,
-                           Map<FlowCnec, Map<Side, Double>> ptdfZonalSums,
+                           Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums,
                            FlowResult fixedPtdfZonalSums) {
         this.systematicSensitivityResult = systematicSensitivityResult;
         if (commercialFlows == null && fixedCommercialFlows == null
@@ -63,7 +63,7 @@ public class FlowResultImpl implements FlowResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getReferenceFlow(flowCnec, side);
         } else if (unit == Unit.AMPERE) {
@@ -79,7 +79,7 @@ public class FlowResultImpl implements FlowResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant);
         } else if (unit == Unit.AMPERE) {
@@ -95,7 +95,7 @@ public class FlowResultImpl implements FlowResult {
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (unit != Unit.MEGAWATT) {
             throw new OpenRaoException("Commercial flows only in MW.");
         }
@@ -110,7 +110,7 @@ public class FlowResultImpl implements FlowResult {
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
         if (fixedPtdfZonalSums != null) {
             return fixedPtdfZonalSums.getPtdfZonalSum(flowCnec, side);
         } else {
@@ -122,7 +122,7 @@ public class FlowResultImpl implements FlowResult {
     }
 
     @Override
-    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
         if (fixedPtdfZonalSums != null) {
             return fixedPtdfZonalSums.getPtdfZonalSums();
         } else {

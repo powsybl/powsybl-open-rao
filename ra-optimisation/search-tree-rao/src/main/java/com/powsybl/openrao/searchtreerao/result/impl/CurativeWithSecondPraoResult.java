@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -73,31 +73,31 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         checkCnec(flowCnec);
         return postCraSensitivityFlowResult.getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
         checkCnec(flowCnec);
         return postCraSensitivityFlowResult.getFlow(flowCnec, side, unit, instant);
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         checkCnec(flowCnec);
         return postCraSensitivityFlowResult.getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
         checkCnec(flowCnec);
         return postCraSensitivityFlowResult.getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
-    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
         return postCraSensitivityFlowResult.getPtdfZonalSums();
     }
 
@@ -233,7 +233,7 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
         checkCnec(flowCnec);
         if (!firstCraoResult.getRangeActions().contains(rangeAction)) {
             throw new OpenRaoException(String.format("RangeAction %s does not belong to this result's state (%s)", rangeAction.getId(), state));
@@ -242,7 +242,7 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         checkCnec(flowCnec);
         return postCraSensitivitySensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
