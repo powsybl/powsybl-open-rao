@@ -184,7 +184,7 @@
                            Network has 12 buses and 18 branches
                            Network balance: active generation=0.0 MW, active load=0.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
                   End of systematic sensitivity analysis
-               Shifting set-point from 4.67 to 6.23 on range action(s) "ARA_PST_BE" to secure CNEC ARA_PST_BE on side LEFT (current margin: -17.56 MW).
+               Shifting set-point from 4.67 to 6.23 on range action(s) "ARA_PST_BE" to secure CNEC ARA_PST_BE on side ONE (current margin: -17.56 MW).
                + New systematic sensitivity interface
                   + New range action sensitivity provider
                      New systematic sensitivity load flow provider
