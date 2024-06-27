@@ -21,7 +21,7 @@ import java.util.Map;
 public interface FlowResult {
 
     /**
-     * It gives the flow on a {@link FlowCnec}, at a given {@link com.powsybl.openrao.data.cracapi.Instant} and in a given {@link Unit}.
+     * It gives the flow on a {@link FlowCnec}, at a given {@link Instant} and in a given {@link Unit}.
      *
      * @param flowCnec: The branch to be studied.
      * @param side: The side of the branch to be queried.
@@ -29,7 +29,7 @@ public interface FlowResult {
      * @param instant: The optimization instant for which the flow is queried.
      * @return The flow on the branch in the given unit.
      */
-    double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant);
+    double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant optimizedInstant);
 
     /**
      * It gives the margin on a {@link FlowCnec} in a given {@link Unit}. It is basically the difference between the
