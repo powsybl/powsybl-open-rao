@@ -13,7 +13,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.CnecCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MeasurementCreationContext;
@@ -89,7 +89,7 @@ public class SweMonitoredSeriesCreator {
     private double getCnecFlowClosestToThreshold(Instant optimizedInstant, FlowCnec cnec) {
         double flow = 0.0;
         double margin = Double.POSITIVE_INFINITY;
-        for (Side side : cnec.getMonitoredSides()) {
+        for (TwoSides side : cnec.getMonitoredSides()) {
             double flowOnSide = sweCneHelper.getRaoResult().getFlow(optimizedInstant, cnec, side, Unit.AMPERE);
             if (Double.isNaN(flowOnSide)) {
                 continue;
@@ -122,7 +122,7 @@ public class SweMonitoredSeriesCreator {
         Analog threshold = new Analog();
         threshold.setMeasurementType(getThresholdMeasurementType(cnec));
         threshold.setUnitSymbol(AMP_UNIT_SYMBOL);
-        Side side = cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : cnec.getMonitoredSides().iterator().next();
+        TwoSides side = cnec.getMonitoredSides().contains(TwoSides.ONE) ? TwoSides.ONE : cnec.getMonitoredSides().iterator().next();
         float roundedThreshold = Math.round(Math.min(
             Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
             Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
@@ -156,7 +156,7 @@ public class SweMonitoredSeriesCreator {
             Analog threshold = new Analog();
             threshold.setMeasurementType(getThresholdMeasurementType(cnec));
             threshold.setUnitSymbol(AMP_UNIT_SYMBOL);
-            Side side = cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : cnec.getMonitoredSides().iterator().next();
+            TwoSides side = cnec.getMonitoredSides().contains(TwoSides.ONE) ? TwoSides.ONE : cnec.getMonitoredSides().iterator().next();
             float roundedThreshold = Math.round(Math.min(
                     Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
                     Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));

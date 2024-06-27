@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.rem
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
@@ -58,24 +58,24 @@ class OnConstraintUsageRuleHelperTest {
 
         // Add FlowCNECs
 
-        crac.newFlowCnec().withId("Line 1 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 1").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 2 - preventive").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("preventive").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 2 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 2 - curative - CO2").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-2").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 2 - curative - CO3").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-3").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 2 - curative - CO4").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-4").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 2 - curative - CO5").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-5").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 2 - curative - CO6").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-6").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 3 - preventive").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("preventive").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 3 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 3 - curative - CO2").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-2").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 3 - curative - CO3").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-3").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 3 - curative - CO4").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-4").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 3 - curative - CO5").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-5").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 3 - curative - CO6").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-6").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 4 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 4").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 6 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 6").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
-        crac.newFlowCnec().withId("Line 8 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 8").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(Side.LEFT).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 1 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 1").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 2 - preventive").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("preventive").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 2 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 2 - curative - CO2").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-2").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 2 - curative - CO3").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-3").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 2 - curative - CO4").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-4").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 2 - curative - CO5").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-5").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 2 - curative - CO6").withNominalVoltage(400d).withNetworkElement("Line 2").withInstant("curative").withContingency("contingency-6").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 3 - preventive").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("preventive").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 3 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 3 - curative - CO2").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-2").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 3 - curative - CO3").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-3").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 3 - curative - CO4").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-4").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 3 - curative - CO5").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-5").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 3 - curative - CO6").withNominalVoltage(400d).withNetworkElement("Line 3").withInstant("curative").withContingency("contingency-6").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 4 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 4").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 6 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 6").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
+        crac.newFlowCnec().withId("Line 8 - curative - CO1").withNominalVoltage(400d).withNetworkElement("Line 8").withInstant("curative").withContingency("contingency-1").newThreshold().withSide(TwoSides.ONE).withMax(1000d).withUnit(Unit.AMPERE).add().add();
 
         // Add CNEC creation contexts
 

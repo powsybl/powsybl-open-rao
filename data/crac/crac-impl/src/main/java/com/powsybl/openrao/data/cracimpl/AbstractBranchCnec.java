@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.BranchCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 
 import java.util.Collections;
@@ -52,7 +52,7 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
     }
 
     @Override
-    public double computeMargin(double actualValue, Side side, Unit unit) {
+    public double computeMargin(double actualValue, TwoSides side, Unit unit) {
         double marginOnLowerBound = actualValue - getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
         double marginOnUpperBound = getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
         return Math.min(marginOnLowerBound, marginOnUpperBound);
@@ -64,8 +64,8 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
     }
 
     @Override
-    public Double getNominalVoltage(Side side) {
-        return nominalVoltages[side.equals(Side.LEFT) ? 0 : 1];
+    public Double getNominalVoltage(TwoSides side) {
+        return nominalVoltages[side.equals(TwoSides.ONE) ? 0 : 1];
     }
 
     @Override

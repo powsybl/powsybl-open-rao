@@ -28,7 +28,7 @@ public final class Utils {
 
     static void checkDeprecatedField(String fieldName, String parentName, String jsonFileVersion, String lastSupportedVersion) {
         if (getPrimaryVersionNumber(jsonFileVersion) > getPrimaryVersionNumber(lastSupportedVersion)
-                || getSubVersionNumber(jsonFileVersion) > getSubVersionNumber(lastSupportedVersion)) {
+                || getPrimaryVersionNumber(jsonFileVersion) == getPrimaryVersionNumber(lastSupportedVersion) && getSubVersionNumber(jsonFileVersion) > getSubVersionNumber(lastSupportedVersion)) {
             throw new OpenRaoException(String.format("Cannot deserialize RaoResult: field %s in %s in not supported in file version %s (last supported in version %s)", fieldName, parentName, jsonFileVersion, lastSupportedVersion));
         }
     }

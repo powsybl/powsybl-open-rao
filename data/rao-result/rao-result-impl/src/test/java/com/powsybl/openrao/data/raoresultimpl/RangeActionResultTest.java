@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.raoresultimpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class RangeActionResultTest {
                 .withNetworkElement("anyNetworkElement")
                 .withContingency("Contingency FR1 FR2")
                 .withInstant(OUTAGE_INSTANT_ID)
-                .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+                .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
                 .add();
 
         crac.newFlowCnec()
@@ -50,7 +50,7 @@ class RangeActionResultTest {
                 .withNetworkElement("anyNetworkElement")
                 .withContingency("Contingency FR1 FR3")
                 .withInstant(OUTAGE_INSTANT_ID)
-                .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+                .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
                 .add();
     }
 
@@ -154,7 +154,7 @@ class RangeActionResultTest {
 
         // Add dummy flow cnec to create auto state
         crac.newFlowCnec().withId("dummy").withContingency("Contingency FR1 FR2").withInstant(AUTO_INSTANT_ID).withNetworkElement("ne")
-                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .newThreshold().withMax(1.).withSide(TwoSides.ONE).withUnit(Unit.MEGAWATT).add()
                 .add();
 
         rangeActionResult.setInitialSetpoint(0.3);

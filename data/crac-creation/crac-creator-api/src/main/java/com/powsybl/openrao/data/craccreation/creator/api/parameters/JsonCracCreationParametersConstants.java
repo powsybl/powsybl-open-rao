@@ -27,7 +27,9 @@ public final class JsonCracCreationParametersConstants {
 
     static final String DEFAULT_MONITORED_LINE_SIDE = "default-monitored-line-side";
     private static final String MONITOR_LINES_ON_LEFT_SIDE_TEXT = "monitor-lines-on-left-side";
+    private static final String MONITOR_LINES_ON_SIDE_ONE_TEXT = "monitor-lines-on-side-one";
     private static final String MONITOR_LINES_ON_RIGHT_SIDE_TEXT = "monitor-lines-on-right-side";
+    private static final String MONITOR_LINES_ON_SIDE_TWO_TEXT = "monitor-lines-on-side-two";
     private static final String MONITOR_LINES_ON_BOTH_SIDES_TEXT = "monitor-lines-on-both-sides";
     public static final String RA_USAGE_LIMITS_PER_INSTANT = "ra-usage-limits-per-instant";
     public static final String INSTANT = "instant";
@@ -42,29 +44,23 @@ public final class JsonCracCreationParametersConstants {
     }
 
     static String serializeMonitoredLineSide(CracCreationParameters.MonitoredLineSide monitoredLineSide) {
-        switch (monitoredLineSide) {
-            case MONITOR_LINES_ON_LEFT_SIDE:
-                return MONITOR_LINES_ON_LEFT_SIDE_TEXT;
-            case MONITOR_LINES_ON_RIGHT_SIDE:
-                return MONITOR_LINES_ON_RIGHT_SIDE_TEXT;
-            case MONITOR_LINES_ON_BOTH_SIDES:
-                return MONITOR_LINES_ON_BOTH_SIDES_TEXT;
-            default:
-                throw new OpenRaoException(String.format("Unknown monitored line side: %s", monitoredLineSide));
-        }
+        return switch (monitoredLineSide) {
+            case MONITOR_LINES_ON_SIDE_ONE -> MONITOR_LINES_ON_SIDE_ONE_TEXT;
+            case MONITOR_LINES_ON_SIDE_TWO -> MONITOR_LINES_ON_SIDE_TWO_TEXT;
+            case MONITOR_LINES_ON_BOTH_SIDES -> MONITOR_LINES_ON_BOTH_SIDES_TEXT;
+        };
     }
 
     static CracCreationParameters.MonitoredLineSide deserializeMonitoredLineSide(String monitoredLineSide) {
-        switch (monitoredLineSide) {
-            case MONITOR_LINES_ON_LEFT_SIDE_TEXT:
-                return CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE;
-            case MONITOR_LINES_ON_RIGHT_SIDE_TEXT:
-                return CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE;
-            case MONITOR_LINES_ON_BOTH_SIDES_TEXT:
-                return CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES;
-            default:
-                throw new OpenRaoException(String.format("Unknown monitored line side: %s", monitoredLineSide));
-        }
+        return switch (monitoredLineSide) {
+            case MONITOR_LINES_ON_SIDE_ONE_TEXT, MONITOR_LINES_ON_LEFT_SIDE_TEXT ->
+                CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE;
+            case MONITOR_LINES_ON_SIDE_TWO_TEXT, MONITOR_LINES_ON_RIGHT_SIDE_TEXT ->
+                CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO;
+            case MONITOR_LINES_ON_BOTH_SIDES_TEXT ->
+                CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES;
+            default -> throw new OpenRaoException(String.format("Unknown monitored line side: %s", monitoredLineSide));
+        };
     }
 
     static void serializeRaUsageLimits(CracCreationParameters parameters, JsonGenerator jsonGenerator) throws IOException {

@@ -19,10 +19,10 @@ Feature: US 90.7: Handle Xnodes
       | Cnec DE-FR | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000     | 5000      | 400                | 400                 |
     And the flow cnecs should have the following thresholds:
       | CnecId                                                         | Unit   | Min   | Max  | Side  |
-      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -1500 | 1500 | LEFT  |
-      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -5000 | 5000 | LEFT  |
-      | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - preventive         | AMPERE | -1500 | 1500 | RIGHT |
-      | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - N-1 DE-NL - outage | AMPERE | -5000 | 5000 | RIGHT |
+      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -1500 | 1500 | ONE  |
+      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -5000 | 5000 | ONE  |
+      | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - preventive         | AMPERE | -1500 | 1500 | TWO |
+      | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - N-1 DE-NL - outage | AMPERE | -5000 | 5000 | TWO |
     And it should have 1 network actions
 
   @fast @rao @mock @ac @preventive-only

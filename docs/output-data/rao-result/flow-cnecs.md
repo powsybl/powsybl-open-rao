@@ -1,7 +1,7 @@
 These results contain important RAO information about flow CNECs.  
 Note that you have to use [FlowCnec](/input-data/crac/json.md#flow-cnecs) objects from the CRAC in order to query the RaoResult Java API.
 Most results are power flow results (like flows & margins), and can be queried in two [units](https://github.com/powsybl/powsybl-open-rao/blob/main/commons/src/main/java/com/powsybl/openrao/commons/Unit.java)
-(AMPERE & MEGAWATT) and on one or two sides (LEFT & RIGHT).
+(AMPERE & MEGAWATT) and on one or two sides (ONE & TWO).
 
 #### Flow
 
@@ -12,7 +12,7 @@ The actual power flow on the branch.
 
 ~~~java
 // get the flow on a given flow cnec, at a given side, in a given unit, after optimisation of a given instant
-double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
+double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 ~~~
 
 :::
@@ -26,22 +26,22 @@ Example:
     "initial" : {
       "megawatt" : {
         ...
-        "rightSide" : {
+        "side2" : {
             "flow": 1110.0,
             ...
         },
-        "leftSide" : {
+        "side1" : {
             "flow": 1105.0,
             ...
         }
       },
       "ampere" : {
         ...
-        "rightSide" : {
+        "side2" : {
             "flow": 2220.0,
             ...
         },
-        "leftSide" : {
+        "side1" : {
             "flow": 2210.0,
             ...
         }        
@@ -51,14 +51,14 @@ Example:
     "preventive" : {
       "megawatt" : {
         ...
-        "leftSide" : {
+        "side1" : {
             "flow": 1210.0,
             ...
         }
       },
       "ampere" : {
         ...
-        "leftSide" : {
+        "side1" : {
             "flow": 505.0,
             ...
         }
@@ -200,7 +200,7 @@ The loop-flow value on a CNEC.
 
 ~~~java
 // get the loop-flow on a given flow cnec, at a given side, in a given unit, after optimisation of a given instant
-double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
+double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 ~~~
 
 :::
@@ -214,7 +214,7 @@ Example:
     "initial" : {
       "megawatt" : {
         ...
-        "leftSide" : {
+        "side1" : {
             ...
             "loopFlow": 1113.0,
             ...
@@ -223,7 +223,7 @@ Example:
       },
       "ampere" : {
         ...
-        "leftSide" : {
+        "side1" : {
             ...
             "loopFlow": 1123.0,
             ...
@@ -235,7 +235,7 @@ Example:
     "preventive" : {
       "megawatt" : {
         ...
-        "rightSide" : {
+        "side2" : {
             ...
             "loopFlow": 1213.0,
             ...
@@ -244,7 +244,7 @@ Example:
       },
       "ampere" : {
         ...
-        "rightSide" : {
+        "side2" : {
             ...
             "loopFlow": 1223.0,
             ...
@@ -272,7 +272,7 @@ The commercial flow on a CNEC.
 
 ~~~java
 // get the commercial flow on a given flow cnec, at a given side, in a given unit, after optimisation of a given instant
-double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
+double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 ~~~
 
 :::
@@ -286,7 +286,7 @@ Example:
     "initial" : {
       "megawatt" : {
         ...
-        "leftSide" : {
+        "side1" : {
             ...
             "commercialFlow": 1114.0,
             ...
@@ -295,7 +295,7 @@ Example:
       },
       "ampere" : {
         ...
-        "leftSide" : {
+        "side1" : {
             ...
             "commercialFlow": 1124.0,
             ...
@@ -307,7 +307,7 @@ Example:
     "preventive" : {
       "megawatt" : {
         ...
-        "rightSide" : {
+        "side2" : {
             ...
             "commercialFlow": 1214.0,
             ...
@@ -316,7 +316,7 @@ Example:
       },
       "ampere" : {
         ...
-        "rightSide" : {
+        "side2" : {
             ...
             "commercialFlow": 1224.0,
             ...
@@ -344,7 +344,7 @@ The absolute sum of zonal PTDFs (influence factors) on a given CNEC. Reflects th
 
 ~~~java
 // get the absolute sum of zonal PTDFs for a given flow cnec, at a given side, after optimisation of a given instant
-double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side);
+double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
 ~~~
 
 :::
@@ -359,7 +359,7 @@ Example:
     "initial" : {
         "megawatt" : {
             ...
-            "rightSide" : {
+            "side2" : {
                 ...
                 "zonalPtdfSum" : 0.1
                 ...
@@ -386,7 +386,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "megawatt" : {
         "margin" : 1111.0,
         "relativeMargin" : 1112.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1110.5,
           "loopFlow" : 1113.5,
           "commercialFlow" : 1114.5,
@@ -396,7 +396,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "ampere" : {
         "margin" : 1121.0,
         "relativeMargin" : 1122.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1120.5,
           "loopFlow" : 1123.5,
           "commercialFlow" : 1124.5
@@ -407,7 +407,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "megawatt" : {
         "margin" : 1211.0,
         "relativeMargin" : 1212.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1210.5,
           "loopFlow" : 1213.5,
           "commercialFlow" : 1214.5,
@@ -417,7 +417,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "ampere" : {
         "margin" : 1221.0,
         "relativeMargin" : 1222.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1220.5,
           "loopFlow" : 1223.5,
           "commercialFlow" : 1224.5
@@ -428,7 +428,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "megawatt" : {
         "margin" : 1311.0,
         "relativeMargin" : 1312.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1310.5,
           "loopFlow" : 1313.5,
           "commercialFlow" : 1314.5,
@@ -438,7 +438,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "ampere" : {
         "margin" : 1321.0,
         "relativeMargin" : 1322.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1320.5,
           "loopFlow" : 1323.5,
           "commercialFlow" : 1324.5
@@ -449,7 +449,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "megawatt" : {
         "margin" : 1411.0,
         "relativeMargin" : 1412.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1410.5,
           "loopFlow" : 1413.5,
           "commercialFlow" : 1414.5,
@@ -459,7 +459,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "ampere" : {
         "margin" : 1421.0,
         "relativeMargin" : 1422.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1420.5,
           "loopFlow" : 1423.5,
           "commercialFlow" : 1424.5
@@ -472,7 +472,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "megawatt" : {
         "margin" : 1111.0,
         "relativeMargin" : 1112.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1110.5,
           "loopFlow" : 1113.5,
           "commercialFlow" : 1114.5,
@@ -482,7 +482,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "ampere" : {
         "margin" : 1121.0,
         "relativeMargin" : 1122.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1120.5,
           "loopFlow" : 1123.5,
           "commercialFlow" : 1124.5
@@ -493,7 +493,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "megawatt" : {
         "margin" : 1211.0,
         "relativeMargin" : 1212.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1210.5,
           "loopFlow" : 1213.5,
           "commercialFlow" : 1214.5,
@@ -503,7 +503,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "ampere" : {
         "margin" : 1221.0,
         "relativeMargin" : 1222.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1220.5,
           "loopFlow" : 1223.5,
           "commercialFlow" : 1224.5
@@ -514,7 +514,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "megawatt" : {
         "margin" : 1311.0,
         "relativeMargin" : 1312.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1310.5,
           "loopFlow" : 1313.5,
           "commercialFlow" : 1314.5,
@@ -524,7 +524,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "ampere" : {
         "margin" : 1321.0,
         "relativeMargin" : 1322.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1320.5,
           "loopFlow" : 1323.5,
           "commercialFlow" : 1324.5
@@ -535,7 +535,7 @@ This complete example was also enriched with two curative instants: `curative1` 
       "megawatt" : {
         "margin" : 1411.0,
         "relativeMargin" : 1412.0,
-        "rightSide" : {
+        "side2" : {
           "flow" : 1410.5,
           "loopFlow" : 1413.5,
           "commercialFlow" : 1414.5,
@@ -545,7 +545,7 @@ This complete example was also enriched with two curative instants: `curative1` 
         "ampere" : {
           "margin" : 1421.0,
           "relativeMargin" : 1422.0,
-          "rightSide" : {
+          "side2" : {
             "flow" : 1420.5,
             "loopFlow" : 1423.5,
             "commercialFlow" : 1424.5

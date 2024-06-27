@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -18,7 +19,6 @@ import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
@@ -87,13 +87,13 @@ class OnConstraintAdderImplTest {
             .withOperator("operator2")
             .newThreshold()
             .withUnit(Unit.MEGAWATT)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-1500.)
             .withMax(1500.)
             .add()
             .newThreshold()
             .withUnit(Unit.PERCENT_IMAX)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-0.3)
             .withMax(0.3)
             .add()
@@ -286,8 +286,8 @@ class OnConstraintAdderImplTest {
             .withInstant(instantId)
             .withOptimized(true)
             .withOperator("operator2")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add()
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(Side.LEFT).withMin(-0.3).withMax(0.3).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(TwoSides.ONE).withMin(-0.3).withMax(0.3).add()
             .withNominalVoltage(380.)
             .withIMax(5000.);
         if (!crac.getInstant(instantId).isPreventive()) {

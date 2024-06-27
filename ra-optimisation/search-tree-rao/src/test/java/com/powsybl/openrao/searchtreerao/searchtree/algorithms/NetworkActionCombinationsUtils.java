@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -78,7 +78,7 @@ public final class NetworkActionCombinationsUtils {
             .withInstant(PREVENTIVE_INSTANT_ID).withOptimized(true)
             .withOperator("operator1").newThreshold()
             .withUnit(Unit.MEGAWATT)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-1500.)
             .withMax(1500.)
             .add()

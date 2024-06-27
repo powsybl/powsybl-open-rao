@@ -13,12 +13,12 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.openrao.data.cracapi.cnec.Side.LEFT;
+import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -46,10 +46,10 @@ class BranchThresholdAdderImplTest {
         FlowCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant("outage").withContingency(contingency.getId())
             .withNetworkElement("neID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-250.0).withMax(1000.0).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-250.0).withMax(1000.0).withSide(TwoSides.ONE).add()
             .add();
-        assertEquals(1000.0, cnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-250.0, cnec.getLowerBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(1000.0, cnec.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-250.0, cnec.getLowerBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -57,11 +57,11 @@ class BranchThresholdAdderImplTest {
         FlowCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant("outage").withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
-            .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withMax(1000.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withMax(1000.).withSide(TwoSides.ONE).add()
             .withNominalVoltage(220.)
             .add();
-        assertEquals(1000.0, cnec.getUpperBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-1000.0, cnec.getLowerBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(1000.0, cnec.getUpperBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-1000.0, cnec.getLowerBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -69,13 +69,13 @@ class BranchThresholdAdderImplTest {
         FlowCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant("curative").withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.8).withMax(0.5).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.8).withMax(0.5).withSide(TwoSides.ONE).add()
             .withNominalVoltage(220.)
             .withIMax(5000.)
             .add();
 
-        assertEquals(0.5 * 5000., cnec.getUpperBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-0.8 * 5000., cnec.getLowerBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(0.5 * 5000., cnec.getUpperBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-0.8 * 5000., cnec.getLowerBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -94,7 +94,7 @@ class BranchThresholdAdderImplTest {
     void testNoUnitFail() {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
             .withMax(1000.0)
-            .withSide(Side.LEFT);
+            .withSide(TwoSides.ONE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, branchThresholdAdder::add);
         assertEquals("Cannot add Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
     }
@@ -103,7 +103,7 @@ class BranchThresholdAdderImplTest {
     void testNoValueFail() {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
             .withUnit(Unit.AMPERE)
-            .withSide(Side.LEFT);
+            .withSide(TwoSides.ONE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, branchThresholdAdder::add);
         assertEquals("Cannot add a threshold without min nor max values. Please use withMin() or withMax().", exception.getMessage());
     }

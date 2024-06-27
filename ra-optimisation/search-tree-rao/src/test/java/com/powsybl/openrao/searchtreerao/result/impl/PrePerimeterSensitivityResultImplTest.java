@@ -25,8 +25,8 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.LEFT;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.RIGHT;
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -53,46 +53,46 @@ class PrePerimeterSensitivityResultImplTest {
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getSensitivityStatus());
 
-        when(sensitivityResult.getSensitivityValue(cnec1, RIGHT, ra1, Unit.MEGAWATT)).thenReturn(0.5);
-        when(sensitivityResult.getSensitivityValue(cnec2, LEFT, ra1, Unit.AMPERE)).thenReturn(0.1);
-        assertEquals(0.5, output.getSensitivityValue(cnec1, RIGHT, ra1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(0.1, output.getSensitivityValue(cnec2, LEFT, ra1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        when(sensitivityResult.getSensitivityValue(cnec1, TWO, ra1, Unit.MEGAWATT)).thenReturn(0.5);
+        when(sensitivityResult.getSensitivityValue(cnec2, ONE, ra1, Unit.AMPERE)).thenReturn(0.1);
+        assertEquals(0.5, output.getSensitivityValue(cnec1, TWO, ra1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0.1, output.getSensitivityValue(cnec2, ONE, ra1, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        when(sensitivityResult.getSensitivityValue(cnec2, LEFT, linearGlsk, Unit.MEGAWATT)).thenReturn(51.);
-        assertEquals(51., output.getSensitivityValue(cnec2, LEFT, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        when(sensitivityResult.getSensitivityValue(cnec2, ONE, linearGlsk, Unit.MEGAWATT)).thenReturn(51.);
+        assertEquals(51., output.getSensitivityValue(cnec2, ONE, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
-        when(flowResult.getFlow(cnec1, RIGHT, Unit.MEGAWATT)).thenReturn(10.);
-        when(flowResult.getFlow(cnec2, LEFT, Unit.AMPERE)).thenReturn(117.);
-        assertEquals(10., output.getFlow(cnec1, RIGHT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(117., output.getFlow(cnec2, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        when(flowResult.getFlow(cnec1, TWO, Unit.MEGAWATT)).thenReturn(10.);
+        when(flowResult.getFlow(cnec2, ONE, Unit.AMPERE)).thenReturn(117.);
+        assertEquals(10., output.getFlow(cnec1, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(117., output.getFlow(cnec2, ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        when(flowResult.getRelativeMargin(cnec1, RIGHT, Unit.MEGAWATT)).thenReturn(564.);
-        when(flowResult.getRelativeMargin(cnec2, LEFT, Unit.AMPERE)).thenReturn(-451.);
-        assertEquals(564., output.getRelativeMargin(cnec1, RIGHT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-451., output.getRelativeMargin(cnec2, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        when(flowResult.getRelativeMargin(cnec1, TWO, Unit.MEGAWATT)).thenReturn(564.);
+        when(flowResult.getRelativeMargin(cnec2, ONE, Unit.AMPERE)).thenReturn(-451.);
+        assertEquals(564., output.getRelativeMargin(cnec1, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-451., output.getRelativeMargin(cnec2, ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
 
         when(flowResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(564.);
         when(flowResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(-451.);
         assertEquals(564., output.getRelativeMargin(cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-451., output.getRelativeMargin(cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        when(flowResult.getLoopFlow(cnec1, RIGHT, Unit.MEGAWATT)).thenReturn(5064.);
-        when(flowResult.getLoopFlow(cnec2, LEFT, Unit.AMPERE)).thenReturn(-4510.);
-        assertEquals(5064., output.getLoopFlow(cnec1, RIGHT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-4510., output.getLoopFlow(cnec2, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        when(flowResult.getLoopFlow(cnec1, TWO, Unit.MEGAWATT)).thenReturn(5064.);
+        when(flowResult.getLoopFlow(cnec2, ONE, Unit.AMPERE)).thenReturn(-4510.);
+        assertEquals(5064., output.getLoopFlow(cnec1, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-4510., output.getLoopFlow(cnec2, ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        when(flowResult.getCommercialFlow(cnec1, RIGHT, Unit.MEGAWATT)).thenReturn(50464.);
-        when(flowResult.getCommercialFlow(cnec2, LEFT, Unit.AMPERE)).thenReturn(-45104.);
-        assertEquals(50464., output.getCommercialFlow(cnec1, RIGHT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-45104., output.getCommercialFlow(cnec2, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        when(flowResult.getCommercialFlow(cnec1, TWO, Unit.MEGAWATT)).thenReturn(50464.);
+        when(flowResult.getCommercialFlow(cnec2, ONE, Unit.AMPERE)).thenReturn(-45104.);
+        assertEquals(50464., output.getCommercialFlow(cnec1, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-45104., output.getCommercialFlow(cnec2, ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        when(flowResult.getPtdfZonalSum(cnec1, RIGHT)).thenReturn(0.4);
-        when(flowResult.getPtdfZonalSum(cnec2, LEFT)).thenReturn(0.75);
-        assertEquals(0.4, output.getPtdfZonalSum(cnec1, RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(0.75, output.getPtdfZonalSum(cnec2, LEFT), DOUBLE_TOLERANCE);
+        when(flowResult.getPtdfZonalSum(cnec1, TWO)).thenReturn(0.4);
+        when(flowResult.getPtdfZonalSum(cnec2, ONE)).thenReturn(0.75);
+        assertEquals(0.4, output.getPtdfZonalSum(cnec1, TWO), DOUBLE_TOLERANCE);
+        assertEquals(0.75, output.getPtdfZonalSum(cnec2, ONE), DOUBLE_TOLERANCE);
 
-        when(flowResult.getPtdfZonalSums()).thenReturn(Map.of(cnec1, Map.of(RIGHT, 0.1), cnec2, Map.of(LEFT, 0.2)));
-        assertEquals(Map.of(cnec1, Map.of(RIGHT, 0.1), cnec2, Map.of(LEFT, 0.2)), output.getPtdfZonalSums());
+        when(flowResult.getPtdfZonalSums()).thenReturn(Map.of(cnec1, Map.of(TWO, 0.1), cnec2, Map.of(ONE, 0.2)));
+        assertEquals(Map.of(cnec1, Map.of(TWO, 0.1), cnec2, Map.of(ONE, 0.2)), output.getPtdfZonalSums());
 
         when(rangeActionSetpointResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
         assertEquals(Set.of(ra1, ra2), output.getRangeActions());

@@ -26,7 +26,7 @@ Feature: US 15.3: Handle transformers
     And the margin on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" after PRA should be 543 MW
 
   @fast @rao @mock @ac @preventive-only
-  Scenario: US 15.3.2: Handle transformers on a small test case in AC - On LEFT side
+  Scenario: US 15.3.2: Handle transformers on a small test case in AC - On side 1
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2.uct"
     Given crac file is "epic15/SL_ep15us3case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -54,7 +54,7 @@ Feature: US 15.3: Handle transformers
     And the "upper" threshold on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" should be 970 A
 
   @fast @rao @mock @ac @preventive-only
-  Scenario: US 15.3.2: Handle transformers on a small test case in AC - On RIGHT side
+  Scenario: US 15.3.2: Handle transformers on a small test case in AC - On side 2
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2.uct"
     Given crac file is "epic15/SL_ep15us3case2_RIGHT.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"

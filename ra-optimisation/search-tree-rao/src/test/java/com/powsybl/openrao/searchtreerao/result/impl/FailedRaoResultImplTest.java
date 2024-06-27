@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -83,11 +83,11 @@ class FailedRaoResultImplTest {
         Instant optInstant = mock(Instant.class);
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
         FlowCnec flowCnec = mock(FlowCnec.class);
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getCommercialFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getLoopFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getPtdfZonalSum(optInstant, flowCnec, Side.LEFT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
+        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, TwoSides.ONE, MEGAWATT));
+        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getCommercialFlow(optInstant, flowCnec, TwoSides.ONE, MEGAWATT));
+        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getLoopFlow(optInstant, flowCnec, TwoSides.ONE, MEGAWATT));
+        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getPtdfZonalSum(optInstant, flowCnec, TwoSides.ONE));
+        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, TwoSides.ONE, MEGAWATT));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMargin(optInstant, flowCnec, MEGAWATT));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getRelativeMargin(optInstant, flowCnec, MEGAWATT));
     }

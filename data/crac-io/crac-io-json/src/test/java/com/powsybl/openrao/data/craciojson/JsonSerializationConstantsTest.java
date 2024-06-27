@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
@@ -50,7 +50,7 @@ class JsonSerializationConstantsTest {
         assertEquals("json CRAC version number must be of the form vX.Y", exception.getMessage());
     }
 
-    private BranchThreshold mockBranchThreshold(Unit unit, Side side, Double min) {
+    private BranchThreshold mockBranchThreshold(Unit unit, TwoSides side, Double min) {
         BranchThreshold branchThreshold = mock(BranchThreshold.class);
         when(branchThreshold.getUnit()).thenReturn(unit);
         when(branchThreshold.getSide()).thenReturn(side);
@@ -61,21 +61,21 @@ class JsonSerializationConstantsTest {
     @Test
     void testThresholdComparator() {
         ThresholdComparator comparator = new ThresholdComparator();
-        BranchThreshold bt1 = mockBranchThreshold(Unit.AMPERE, Side.LEFT, -10.);
-        BranchThreshold bt2 = mockBranchThreshold(Unit.AMPERE, Side.LEFT, null);
+        BranchThreshold bt1 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, -10.);
+        BranchThreshold bt2 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, null);
 
         assertTrue(comparator.compare(bt1, bt2) < 0);
 
-        bt1 = mockBranchThreshold(Unit.AMPERE, Side.LEFT, null);
-        bt2 = mockBranchThreshold(Unit.AMPERE, Side.LEFT, null);
+        bt1 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, null);
+        bt2 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, null);
         assertTrue(comparator.compare(bt1, bt2) > 0);
 
-        bt1 = mockBranchThreshold(Unit.AMPERE, Side.RIGHT, -10.);
-        bt2 = mockBranchThreshold(Unit.AMPERE, Side.LEFT, null);
+        bt1 = mockBranchThreshold(Unit.AMPERE, TwoSides.TWO, -10.);
+        bt2 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, null);
         assertTrue(comparator.compare(bt1, bt2) > 0);
 
-        bt1 = mockBranchThreshold(Unit.AMPERE, Side.RIGHT, -10.);
-        bt2 = mockBranchThreshold(Unit.MEGAWATT, Side.LEFT, null);
+        bt1 = mockBranchThreshold(Unit.AMPERE, TwoSides.TWO, -10.);
+        bt2 = mockBranchThreshold(Unit.MEGAWATT, TwoSides.ONE, null);
         assertTrue(comparator.compare(bt1, bt2) < 0);
     }
 

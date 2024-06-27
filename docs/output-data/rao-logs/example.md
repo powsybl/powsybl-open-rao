@@ -262,7 +262,7 @@ INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimizing automaton state Contin
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Initial situation:
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -32.49 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Topological automaton state Contingency_FR1_FR3 - auto has been skipped as no topological automatons were activated.
-DEBUG c.p.openrao.commons.logs.TechnicalLogs - Shifting setpoint from 0.0 to 1.5583491300758083 on range action(s) ARA_PST_DE to improve margin on cnec NL2-BE3-O - auto on side LEFT (initial margin : -32.489056200328605 MW).
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Shifting setpoint from 0.0 to 1.5583491300758083 on range action(s) ARA_PST_DE to improve margin on cnec NL2-BE3-O - auto on side ONE (initial margin : -32.489056200328605 MW).
 DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
 DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - auto, CNEC ID = "NL2-BE3-O - auto"
@@ -457,7 +457,7 @@ INFO  c.p.openrao.commons.logs.TechnicalLogs - Optimizing automaton state Contin
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Initial situation:
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -32.49 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Topological automaton state Contingency_FR1_FR3 - auto has been skipped as no topological automatons were activated.
-DEBUG c.p.openrao.commons.logs.TechnicalLogs - Shifting setpoint from 0.0 to 1.5583491300758083 on range action(s) ARA_PST_DE to improve margin on cnec NL2-BE3-O - auto on side LEFT} (initial margin : -32.489056200328605 MW).
+DEBUG c.p.openrao.commons.logs.TechnicalLogs - Shifting setpoint from 0.0 to 1.5583491300758083 on range action(s) ARA_PST_DE to improve margin on cnec NL2-BE3-O - auto on side ONE} (initial margin : -32.489056200328605 MW).
 DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [start]
 DEBUG c.p.openrao.commons.logs.TechnicalLogs - Systematic sensitivity analysis [end]
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = 6.96 MW, element NNL2AA1  BBE3AA1  1 at state Contingency_FR1_FR3 - curative, CNEC ID = "NL2-BE3-O - curative"

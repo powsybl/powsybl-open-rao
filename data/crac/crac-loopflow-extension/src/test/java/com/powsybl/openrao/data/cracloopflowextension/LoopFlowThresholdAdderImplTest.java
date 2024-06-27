@@ -6,7 +6,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +29,7 @@ class LoopFlowThresholdAdderImplTest {
             .withOperator("operator")
             .withOptimized(true)
             .newThreshold()
-                .withSide(Side.LEFT)
+                .withSide(TwoSides.ONE)
                 .withUnit(Unit.MEGAWATT)
                 .withMax(1000.0)
                 .withMin(-1000.0)

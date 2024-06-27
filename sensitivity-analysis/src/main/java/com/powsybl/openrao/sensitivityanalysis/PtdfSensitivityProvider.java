@@ -10,7 +10,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -78,7 +78,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     private List<SensitivityFactor> getFactors(ContingencyContext contingencyContext, Stream<FlowCnec> flowCnecsStream) {
         Map<String, SensitivityVariableSet> mapCountryLinearGlsk = glsk.getDataPerZone();
         List<SensitivityFactor> factors = new ArrayList<>();
-        Map<NetworkElement, Set<Side>> networkElementsAndSides = new HashMap<>();
+        Map<NetworkElement, Set<TwoSides>> networkElementsAndSides = new HashMap<>();
         flowCnecsStream.forEach(cnec -> networkElementsAndSides.computeIfAbsent(cnec.getNetworkElement(), k -> new HashSet<>()).addAll(cnec.getMonitoredSides()));
         networkElementsAndSides
             .forEach((ne, sides) ->
@@ -100,8 +100,8 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
         return new HashMap<>();
     }
 
-    private SensitivityFunctionType sideToActivePowerFunctionType(Side side) {
-        if (side.equals(Side.LEFT)) {
+    private SensitivityFunctionType sideToActivePowerFunctionType(TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
             return SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
         } else {
             return SensitivityFunctionType.BRANCH_ACTIVE_POWER_2;

@@ -18,7 +18,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -253,7 +253,7 @@ class CastorFullOptimizationTest {
                 .withContingency("contingency1")
                 .withInstant(CURATIVE_INSTANT_ID)
                 .withNominalVoltage(220.)
-                .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
+                .newThreshold().withSide(TwoSides.TWO).withMax(1000.).withUnit(Unit.AMPERE).add()
                 .add();
         // ra1 : preventive only
         ra1 = crac.newPstRangeAction()
@@ -696,16 +696,16 @@ class CastorFullOptimizationTest {
         Contingency co = crac.newContingency().withId("co1").withContingencyElement("FFR2AA1  FFR3AA1  1", ContingencyElementType.LINE).add();
 
         crac.newFlowCnec().withId("c1-prev").withInstant("preventive").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(Side.LEFT).withMax(2000.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.ONE).withMax(2000.).withUnit(Unit.AMPERE).add()
             .withOptimized().add();
         crac.newFlowCnec().withId("c1-out").withInstant("auto").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(Side.LEFT).withMax(2500.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.ONE).withMax(2500.).withUnit(Unit.AMPERE).add()
             .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur1").withInstant("curative1").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(Side.LEFT).withMax(2400.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.ONE).withMax(2400.).withUnit(Unit.AMPERE).add()
             .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur3").withInstant("curative3").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(Side.LEFT).withMax(1700.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.ONE).withMax(1700.).withUnit(Unit.AMPERE).add()
             .withOptimized().add();
 
         NetworkAction pstPrev = crac.newNetworkAction().withId("pst_fr@10-prev")
@@ -733,30 +733,30 @@ class CastorFullOptimizationTest {
 
         FlowCnec cnec;
         cnec = crac.getFlowCnec("c1-prev");
-        assertEquals(2228.9, raoResult.getFlow(null, cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(1979.7, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2228.9, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1979.7, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
         assertEquals(-228.9, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
         assertEquals(20.3, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-out");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
         assertEquals(128.12, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
         assertEquals(370.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur1");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
         assertEquals(28.12, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
         assertEquals(270.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
         assertEquals(850.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur3");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(432.73, raoResult.getFlow(crac.getInstant("curative3"), cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(432.73, raoResult.getFlow(crac.getInstant("curative3"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
         assertEquals(-671.88, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
         assertEquals(-429.22, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
         assertEquals(150.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
@@ -783,19 +783,19 @@ class CastorFullOptimizationTest {
         Contingency co = crac.newContingency().withId("co1").withContingencyElement("FFR2AA1  FFR3AA1  1", ContingencyElementType.LINE).add();
 
         crac.newFlowCnec().withId("c1-prev").withInstant("preventive").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(Side.LEFT).withMax(2000.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.ONE).withMax(2000.).withUnit(Unit.AMPERE).add()
             .withOptimized().add();
         crac.newFlowCnec().withId("c1-out").withInstant("auto").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(Side.LEFT).withMax(2500.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.ONE).withMax(2500.).withUnit(Unit.AMPERE).add()
             .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur1").withInstant("curative1").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(Side.LEFT).withMax(2400.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.ONE).withMax(2400.).withUnit(Unit.AMPERE).add()
             .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur2").withInstant("curative2").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(Side.LEFT).withMax(2300.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.ONE).withMax(2300.).withUnit(Unit.AMPERE).add()
             .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur3").withInstant("curative3").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(Side.LEFT).withMax(1700.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.ONE).withMax(1700.).withUnit(Unit.AMPERE).add()
             .withOptimized().add();
 
         NetworkAction pstPrev = crac.newNetworkAction().withId("pst_fr@10-prev")
@@ -828,41 +828,41 @@ class CastorFullOptimizationTest {
 
         FlowCnec cnec;
         cnec = crac.getFlowCnec("c1-prev");
-        assertEquals(2228.9, raoResult.getFlow(null, cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(1979.7, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2228.9, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1979.7, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
         assertEquals(-228.9, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
         assertEquals(20.3, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-out");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
         assertEquals(128.12, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
         assertEquals(370.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur1");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
         assertEquals(28.12, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
         assertEquals(270.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
         assertEquals(850.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur2");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(990.32, raoResult.getFlow(crac.getInstant("curative2"), cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(990.32, raoResult.getFlow(crac.getInstant("curative2"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
         assertEquals(-71.88, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
         assertEquals(170.78, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
         assertEquals(750.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
         assertEquals(1309.68, raoResult.getMargin(crac.getInstant("curative2"), cnec, Unit.AMPERE), 1.);
 
         cnec = crac.getFlowCnec("c1-cur3");
-        assertEquals(2371.88, raoResult.getFlow(null, cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(990.32, raoResult.getFlow(crac.getInstant("curative2"), cnec, Side.LEFT, Unit.AMPERE), 1.);
-        assertEquals(432.73, raoResult.getFlow(crac.getInstant("curative3"), cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2371.88, raoResult.getFlow(null, cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(crac.getInstant(InstantKind.PREVENTIVE), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(1549.18, raoResult.getFlow(crac.getInstant("curative1"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(990.32, raoResult.getFlow(crac.getInstant("curative2"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
+        assertEquals(432.73, raoResult.getFlow(crac.getInstant("curative3"), cnec, TwoSides.ONE, Unit.AMPERE), 1.);
         assertEquals(-671.88, raoResult.getMargin(null, cnec, Unit.AMPERE), 1.);
         assertEquals(-429.22, raoResult.getMargin(crac.getInstant(InstantKind.PREVENTIVE), cnec, Unit.AMPERE), 1.);
         assertEquals(150.82, raoResult.getMargin(crac.getInstant("curative1"), cnec, Unit.AMPERE), 1.);
@@ -897,10 +897,10 @@ class CastorFullOptimizationTest {
         assertEquals(Set.of("ARA_CLOSE_DE2_NL3_2", "ARA_CLOSE_NL2_BE3_2"), raoResult.getActivatedNetworkActionsDuringState(automatonState).stream().map(NetworkAction::getId).collect(Collectors.toSet()));
         assertTrue(appliedPstAras.isEmpty());
 
-        assertEquals(-382.0, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), Side.LEFT, Unit.MEGAWATT), 1.);
-        assertEquals(-1000.0, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"), Side.LEFT, Unit.MEGAWATT), 1.);
-        assertEquals(-207.0, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"), Side.LEFT, Unit.MEGAWATT), 1.);
-        assertEquals(-207.0, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"), Side.LEFT, Unit.MEGAWATT), 1.);
+        assertEquals(-382.0, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), TwoSides.ONE, Unit.MEGAWATT), 1.);
+        assertEquals(-1000.0, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"), TwoSides.ONE, Unit.MEGAWATT), 1.);
+        assertEquals(-207.0, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"), TwoSides.ONE, Unit.MEGAWATT), 1.);
+        assertEquals(-207.0, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"), TwoSides.ONE, Unit.MEGAWATT), 1.);
     }
 
     @Test
@@ -924,10 +924,10 @@ class CastorFullOptimizationTest {
         assertEquals(1, appliedPstAras.size());
         assertEquals("ARA_PST_BE", appliedPstAras.iterator().next().getId());
 
-        assertEquals(-382.0, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), Side.LEFT, Unit.MEGAWATT), 1.);
-        assertEquals(-1000.0, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"), Side.LEFT, Unit.MEGAWATT), 1.);
-        assertEquals(-131.0, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"), Side.LEFT, Unit.MEGAWATT), 1.);
-        assertEquals(-131.0, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"), Side.LEFT, Unit.MEGAWATT), 1.);
+        assertEquals(-382.0, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), TwoSides.ONE, Unit.MEGAWATT), 1.);
+        assertEquals(-1000.0, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"), TwoSides.ONE, Unit.MEGAWATT), 1.);
+        assertEquals(-131.0, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"), TwoSides.ONE, Unit.MEGAWATT), 1.);
+        assertEquals(-131.0, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"), TwoSides.ONE, Unit.MEGAWATT), 1.);
     }
 
     @Test

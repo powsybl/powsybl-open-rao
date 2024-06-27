@@ -7,7 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch;
 
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.craccreation.creator.cse.*;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.*;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
@@ -23,9 +23,9 @@ public class TCriticalBranchesAdder {
     private final UcteNetworkAnalyzer ucteNetworkAnalyzer;
     private final CseCracCreationContext cseCracCreationContext;
     private final Map<String, Set<String>> remedialActionsForCnecsMap = new HashMap<>(); // contains for each RA the set of CNEC IDs for which it can be activated
-    private final Set<Side> defaultMonitoredSides;
+    private final Set<TwoSides> defaultMonitoredSides;
 
-    public TCriticalBranchesAdder(TCRACSeries tcracSeries, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, CseCracCreationContext cseCracCreationContext, Set<Side> defaultMonitoredSides) {
+    public TCriticalBranchesAdder(TCRACSeries tcracSeries, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, CseCracCreationContext cseCracCreationContext, Set<TwoSides> defaultMonitoredSides) {
         this.tcracSeries = tcracSeries;
         this.crac = crac;
         this.ucteNetworkAnalyzer = ucteNetworkAnalyzer;

@@ -10,7 +10,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
@@ -255,12 +255,12 @@ public final class ExhaustiveRaoResultCreation {
         }
     }
 
-    private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec, Set<Side> sides) {
+    private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec, Set<TwoSides> sides) {
         sides.forEach(side -> fillElementaryResult(elementaryFlowCnecResult, x, y, hasLoopFlow, isPureMnec, side));
     }
 
-    private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec, Side side) {
-        double perturb = side.equals(Side.LEFT) ? 0 : 0.5;
+    private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec, TwoSides side) {
+        double perturb = side.equals(TwoSides.ONE) ? 0 : 0.5;
 
         elementaryFlowCnecResult.setFlow(side, perturb + x + y + 10, MEGAWATT);
         elementaryFlowCnecResult.setFlow(side, perturb + x + y + 20, AMPERE);

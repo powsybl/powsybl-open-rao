@@ -13,7 +13,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 
@@ -54,10 +54,10 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     }
 
     @Override
-    public FlowCnecAdder withIMax(double iMaxInAmpere, Side side) {
-        if (side.equals(Side.LEFT)) {
+    public FlowCnecAdder withIMax(double iMaxInAmpere, TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
             this.iMaxLeft = iMaxInAmpere;
-        } else if (side.equals(Side.RIGHT)) {
+        } else if (side.equals(TwoSides.TWO)) {
             this.iMaxRight = iMaxInAmpere;
         }
         return this;
@@ -71,10 +71,10 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     }
 
     @Override
-    public FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt, Side side) {
-        if (side.equals(Side.LEFT)) {
+    public FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt, TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
             this.nominalVLeft = nominalVoltageInKiloVolt;
-        } else if (side.equals(Side.RIGHT)) {
+        } else if (side.equals(TwoSides.TWO)) {
             this.nominalVRight = nominalVoltageInKiloVolt;
         }
         return this;
@@ -149,13 +149,13 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     private void checkImax(BranchThresholdImpl branchThreshold) {
 
         if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
-            && branchThreshold.getSide().equals(Side.LEFT)
+            && branchThreshold.getSide().equals(TwoSides.ONE)
             && (iMaxLeft == null || Double.isNaN(iMaxLeft))) {
             throw new OpenRaoException(String.format("iMax on left side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()", id));
         }
 
         if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
-            && branchThreshold.getSide().equals(Side.RIGHT)
+            && branchThreshold.getSide().equals(TwoSides.TWO)
             && (iMaxRight == null || Double.isNaN(iMaxRight))) {
             throw new OpenRaoException(String.format("iMax on right side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the right side. Please use withIMax()", id));
         }

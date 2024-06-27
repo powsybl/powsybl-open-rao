@@ -17,7 +17,7 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -104,7 +104,7 @@ class RaoLoggerTest {
         when(cnec.getId()).thenReturn(cnecId);
         mockCnecFlowResult(flowResult, cnec, marginMw, relMarginMw, marginA, relMarginA, ptdf);
         mockCnecFlowResult(basecaseOptimResult, cnec, marginMw, relMarginMw, marginA, relMarginA, ptdf);
-        when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
+        when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
         return cnec;
     }
 
@@ -113,7 +113,7 @@ class RaoLoggerTest {
         when(flowResult.getRelativeMargin(cnec, Unit.MEGAWATT)).thenReturn(relMarginMw);
         when(flowResult.getMargin(cnec, Unit.AMPERE)).thenReturn(marginA);
         when(flowResult.getRelativeMargin(cnec, Unit.AMPERE)).thenReturn(relMarginA);
-        when(flowResult.getPtdfZonalSum(cnec, Side.LEFT)).thenReturn(ptdf);
+        when(flowResult.getPtdfZonalSum(cnec, TwoSides.ONE)).thenReturn(ptdf);
     }
 
     private String absoluteMarginLog(int order, double margin, Unit unit, FlowCnec cnec) {

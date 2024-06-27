@@ -10,7 +10,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
@@ -35,7 +35,7 @@ import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreat
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class FlowCnecCreator extends AbstractCnecCreator {
-    private final Set<Side> defaultMonitoredSides;
+    private final Set<TwoSides> defaultMonitoredSides;
     private final FlowCnecInstantHelper instantHelper;
     private final CurrentLimit nativeCurrentLimit;
 
@@ -95,7 +95,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return networkElement;
     }
 
-    private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
+    private TwoSides getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
         if (networkElement instanceof TieLine tieLine) {
             return getSideFromTieLine(tieLine, terminalId);
         } else {
@@ -103,39 +103,39 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
     }
 
-    private Side getSideFromTieLine(TieLine tieLine, String terminalId) {
+    private TwoSides getSideFromTieLine(TieLine tieLine, String terminalId) {
         for (String key : CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE) {
             Optional<String> oAlias = tieLine.getDanglingLine1().getAliasFromType(key);
             if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                return Side.LEFT;
+                return TwoSides.ONE;
             }
             oAlias = tieLine.getDanglingLine2().getAliasFromType(key);
             if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                return Side.RIGHT;
+                return TwoSides.TWO;
             }
         }
         return null;
     }
 
-    private Side getSideFromNonTieLine(Identifiable<?> networkElement, String terminalId) {
+    private TwoSides getSideFromNonTieLine(Identifiable<?> networkElement, String terminalId) {
         for (String key : CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT) {
             Optional<String> oAlias = networkElement.getAliasFromType(key);
             if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                return Side.LEFT;
+                return TwoSides.ONE;
             }
         }
 
         for (String key : CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT) {
             Optional<String> oAlias = networkElement.getAliasFromType(key);
             if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                return Side.RIGHT;
+                return TwoSides.TWO;
             }
         }
 
         return null;
     }
 
-    private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, Side side, double threshold, boolean useMaxAndMinThresholds) {
+    private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, TwoSides side, double threshold, boolean useMaxAndMinThresholds) {
         if (nativeAssessedElement.flowReliabilityMargin() < 0 || nativeAssessedElement.flowReliabilityMargin() > 100) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an invalid flow reliability margin (expected a value between 0 and 100)"));
         }
@@ -153,8 +153,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         double voltageLevelLeft = branch.getTerminal1().getVoltageLevel().getNominalV();
         double voltageLevelRight = branch.getTerminal2().getVoltageLevel().getNominalV();
         if (voltageLevelLeft > 1e-6 && voltageLevelRight > 1e-6) {
-            flowCnecAdder.withNominalVoltage(voltageLevelLeft, Side.LEFT);
-            flowCnecAdder.withNominalVoltage(voltageLevelRight, Side.RIGHT);
+            flowCnecAdder.withNominalVoltage(voltageLevelLeft, TwoSides.ONE);
+            flowCnecAdder.withNominalVoltage(voltageLevelRight, TwoSides.TWO);
         } else {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Voltage level for branch " + branch.getId() + " is 0 in network");
         }
@@ -164,8 +164,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         Double currentLimitLeft = getCurrentLimitFromBranch(branch, TwoSides.ONE);
         Double currentLimitRight = getCurrentLimitFromBranch(branch, TwoSides.TWO);
         if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
-            flowCnecAdder.withIMax(currentLimitLeft, Side.LEFT);
-            flowCnecAdder.withIMax(currentLimitRight, Side.RIGHT);
+            flowCnecAdder.withIMax(currentLimitLeft, TwoSides.ONE);
+            flowCnecAdder.withIMax(currentLimitRight, TwoSides.TWO);
         } else {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("RAO was unable to retrieve the current limits of branch %s from the network".formatted(branch.getId())));
         }
@@ -188,7 +188,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return null;
     }
 
-    private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, Side side, double threshold, int limitDuration, boolean useMaxAndMinThresholds) {
+    private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, TwoSides side, double threshold, int limitDuration, boolean useMaxAndMinThresholds) {
         FlowCnecAdder cnecAdder = initFlowCnec();
         addCnecBaseInformation(cnecAdder, contingency, instantId, side, limitDuration);
         addFlowCnecThreshold(cnecAdder, side, threshold, useMaxAndMinThresholds);
@@ -202,8 +202,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         // Preventive CNEC
         if (nativeAssessedElement.inBaseCase()) {
             thresholds.getOrDefault(Integer.MAX_VALUE, Map.of()).forEach((twoSides, threshold) -> {
-                String cnecName = getCnecName(crac.getPreventiveInstant().getId(), null, Side.fromIidmSide(twoSides), Integer.MAX_VALUE);
-                addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), Side.fromIidmSide(twoSides), threshold, Integer.MAX_VALUE, useMaxAndMinThresholds);
+                String cnecName = getCnecName(crac.getPreventiveInstant().getId(), null, twoSides, Integer.MAX_VALUE);
+                addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), twoSides, threshold, Integer.MAX_VALUE, useMaxAndMinThresholds);
                 csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "", false));
             });
         }
@@ -230,10 +230,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private void addCurativeFlowCnec(Branch<?> networkElement, boolean useMaxAndMinThresholds, Map<TwoSides, Map<String, Integer>> instantToDurationMaps, Map<TwoSides, Boolean> forceUseOfPatl, Contingency contingency, Integer acceptableDuration, TwoSides twoSides, Double threshold) {
         instantHelper.getPostContingencyInstantsAssociatedToLimitDuration(instantToDurationMaps.get(twoSides), acceptableDuration).forEach(
             instant -> {
-                String cnecName = getCnecName(instant, contingency, Side.fromIidmSide(twoSides), acceptableDuration);
-                addFlowCnec(networkElement, contingency, instant, Side.fromIidmSide(twoSides), threshold, acceptableDuration, useMaxAndMinThresholds);
+                String cnecName = getCnecName(instant, contingency, twoSides, acceptableDuration);
+                addFlowCnec(networkElement, contingency, instant, twoSides, threshold, acceptableDuration, useMaxAndMinThresholds);
                 if (acceptableDuration == Integer.MAX_VALUE && Boolean.TRUE.equals(forceUseOfPatl.get(twoSides))) {
-                    csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId(), Side.fromIidmSide(twoSides)), true));
+                    csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId(), twoSides), true));
                 } else {
                     csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "", false));
                 }
@@ -244,7 +244,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private Map<Integer, Map<TwoSides, Double>> getPermanentAndTemporaryLimitsOfOperationalLimit(Identifiable<?> branch, String terminalId) {
         Map<Integer, Map<TwoSides, Double>> thresholds = new HashMap<>();
 
-        Side side = getSideFromNetworkElement(branch, terminalId);
+        TwoSides side = getSideFromNetworkElement(branch, terminalId);
 
         if (side != null) {
             int acceptableDuration;
@@ -255,19 +255,19 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             } else {
                 return thresholds;
             }
-            thresholds.put(acceptableDuration, Map.of(side.iidmSide(), nativeCurrentLimit.value()));
+            thresholds.put(acceptableDuration, Map.of(side, nativeCurrentLimit.value()));
         }
 
         return thresholds;
     }
 
     private Map<Integer, Map<TwoSides, Double>> getPermanentAndTemporaryLimitsOfBranch(Branch<?> branch) {
-        Set<Side> sidesToCheck = getSidesToCheck(branch);
+        Set<TwoSides> sidesToCheck = getSidesToCheck(branch);
 
         Map<Integer, Map<TwoSides, Double>> thresholds = new HashMap<>();
 
-        for (Side side : sidesToCheck) {
-            Optional<CurrentLimits> currentLimits = branch.getCurrentLimits(side.iidmSide());
+        for (TwoSides side : sidesToCheck) {
+            Optional<CurrentLimits> currentLimits = branch.getCurrentLimits(side);
             if (currentLimits.isPresent()) {
                 // Retrieve PATL
                 double permanentThreshold = currentLimits.get().getPermanentLimit();
@@ -284,26 +284,26 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         return thresholds;
     }
 
-    private static void addLimitThreshold(Map<Integer, Map<TwoSides, Double>> thresholds, int acceptableDuration, double threshold, Side side) {
+    private static void addLimitThreshold(Map<Integer, Map<TwoSides, Double>> thresholds, int acceptableDuration, double threshold, TwoSides side) {
         if (thresholds.containsKey(acceptableDuration)) {
-            thresholds.get(acceptableDuration).put(side.iidmSide(), threshold);
+            thresholds.get(acceptableDuration).put(side, threshold);
         } else {
-            thresholds.put(acceptableDuration, new EnumMap<>(Map.of(side.iidmSide(), threshold)));
+            thresholds.put(acceptableDuration, new EnumMap<>(Map.of(side, threshold)));
         }
     }
 
-    private Set<Side> getSidesToCheck(Branch<?> branch) {
-        Set<Side> sidesToCheck = new HashSet<>();
+    private Set<TwoSides> getSidesToCheck(Branch<?> branch) {
+        Set<TwoSides> sidesToCheck = new HashSet<>();
         if (defaultMonitoredSides.size() == 2) {
             // TODO: if TieLine, only put relevant side? ask TSOs what is the expected behavior
-            sidesToCheck.add(Side.LEFT);
-            sidesToCheck.add(Side.RIGHT);
+            sidesToCheck.add(TwoSides.ONE);
+            sidesToCheck.add(TwoSides.TWO);
         } else {
             // Only one side in the set -> check the default side.
             // If no limit for the default side, check the other side.
-            Side defaultSide = defaultMonitoredSides.stream().toList().get(0);
-            Side otherSide = defaultSide == Side.LEFT ? Side.RIGHT : Side.LEFT;
-            sidesToCheck.add(branch.getCurrentLimits(defaultSide.iidmSide()).isPresent() ? defaultSide : otherSide);
+            TwoSides defaultSide = defaultMonitoredSides.stream().toList().get(0);
+            TwoSides otherSide = defaultSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
+            sidesToCheck.add(branch.getCurrentLimits(defaultSide).isPresent() ? defaultSide : otherSide);
         }
         return sidesToCheck;
     }

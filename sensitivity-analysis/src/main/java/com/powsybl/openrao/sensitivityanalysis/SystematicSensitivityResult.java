@@ -10,7 +10,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.sensitivityanalysis.rasensihandler.RangeActionSensiHandler;
@@ -29,28 +29,28 @@ public class SystematicSensitivityResult {
 
     private static class StateResult {
         private SensitivityComputationStatus status;
-        private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
-        private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
-        private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
-        private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
+        private final Map<String, Map<TwoSides, Double>> referenceFlows = new HashMap<>();
+        private final Map<String, Map<TwoSides, Double>> referenceIntensities = new HashMap<>();
+        private final Map<String, Map<String, Map<TwoSides, Double>>> flowSensitivities = new HashMap<>();
+        private final Map<String, Map<String, Map<TwoSides, Double>>> intensitySensitivities = new HashMap<>();
 
         private SensitivityComputationStatus getSensitivityComputationStatus() {
             return status;
         }
 
-        private Map<String, Map<Side, Double>> getReferenceFlows() {
+        private Map<String, Map<TwoSides, Double>> getReferenceFlows() {
             return referenceFlows;
         }
 
-        private Map<String, Map<Side, Double>> getReferenceIntensities() {
+        private Map<String, Map<TwoSides, Double>> getReferenceIntensities() {
             return referenceIntensities;
         }
 
-        private Map<String, Map<String, Map<Side, Double>>> getFlowSensitivities() {
+        private Map<String, Map<String, Map<TwoSides, Double>>> getFlowSensitivities() {
             return flowSensitivities;
         }
 
-        private Map<String, Map<String, Map<Side, Double>>> getIntensitySensitivities() {
+        private Map<String, Map<String, Map<TwoSides, Double>>> getIntensitySensitivities() {
             return intensitySensitivities;
         }
     }
@@ -120,7 +120,7 @@ public class SystematicSensitivityResult {
                 if (stateResult.getIntensitySensitivities().containsKey(neId)) {
                     sideAndFlow.forEach((side, flow) -> {
                         if (flow < 0) {
-                            Map<String, Map<Side, Double>> sensitivities = stateResult.getIntensitySensitivities().get(neId);
+                            Map<String, Map<TwoSides, Double>> sensitivities = stateResult.getIntensitySensitivities().get(neId);
                             sensitivities.forEach((actionId, sideToSensi) -> sensitivities.get(actionId).put(side, -sideToSensi.get(side)));
                         }
                     });
@@ -154,8 +154,8 @@ public class SystematicSensitivityResult {
         });
     }
 
-    private Map<Side, Double> invertMapValues(Map<Side, Double> map) {
-        Map<Side, Double> invertedMap = new EnumMap<>(Side.class);
+    private Map<TwoSides, Double> invertMapValues(Map<TwoSides, Double> map) {
+        Map<TwoSides, Double> invertedMap = new EnumMap<>(TwoSides.class);
         map.forEach((key, value) -> invertedMap.put(key, -value));
         return invertedMap;
     }
@@ -173,27 +173,27 @@ public class SystematicSensitivityResult {
             sensitivity = 0;
         }
 
-        Side side = null;
+        TwoSides side = null;
         double activePowerCoefficient = 0;
         if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1)) {
-            side = Side.LEFT;
+            side = TwoSides.ONE;
             activePowerCoefficient = 1;
         } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
-            side = Side.RIGHT;
+            side = TwoSides.TWO;
             activePowerCoefficient = -1; // Open RAO always considers flows as seen from Side 1. Sensitivity providers invert side flows.
         }
 
         if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)) {
             stateResult.getReferenceFlows()
-                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
+                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(TwoSides.class))
                 .putIfAbsent(side, reference * activePowerCoefficient);
             stateResult.getFlowSensitivities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
-                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(Side.class))
+                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(TwoSides.class))
                 .putIfAbsent(side, sensitivity * activePowerCoefficient);
         } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
             stateResult.getReferenceIntensities()
-                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
+                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(TwoSides.class))
                 .putIfAbsent(side, reference);
         }
     }
@@ -233,7 +233,7 @@ public class SystematicSensitivityResult {
         return postContingencyResults.values().stream().flatMap(contingencyResult -> contingencyResult.keySet().stream()).collect(Collectors.toSet());
     }
 
-    public double getReferenceFlow(FlowCnec cnec, Side side) {
+    public double getReferenceFlow(FlowCnec cnec, TwoSides side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
                 !stateResult.getReferenceFlows().containsKey(cnec.getNetworkElement().getId()) ||
@@ -243,7 +243,7 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).get(side);
     }
 
-    public double getReferenceIntensity(FlowCnec cnec, Side side) {
+    public double getReferenceIntensity(FlowCnec cnec, TwoSides side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
                 !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId()) ||
@@ -253,15 +253,15 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).get(side);
     }
 
-    public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec, Side side) {
+    public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec, TwoSides side) {
         return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, side, this);
     }
 
-    public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec, Side side) {
+    public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {
         return getSensitivityOnFlow(glsk.getId(), cnec, side);
     }
 
-    public double getSensitivityOnFlow(String variableId, FlowCnec cnec, Side side) {
+    public double getSensitivityOnFlow(String variableId, FlowCnec cnec, TwoSides side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
                 !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||

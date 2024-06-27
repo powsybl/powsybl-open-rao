@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.craccreation.creator.cim.xsd.*;
 import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -41,9 +40,9 @@ public class MonitoredSeriesCreator {
     private final List<TimeSeries> cimTimeSeries;
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
     private final CimCracCreationContext cracCreationContext;
-    private final Set<Side> defaultMonitoredSides;
+    private final Set<TwoSides> defaultMonitoredSides;
 
-    public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Network network, CimCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides) {
+    public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Network network, CimCracCreationContext cracCreationContext, Set<TwoSides> defaultMonitoredSides) {
         this.cimTimeSeries = cimTimeSeries;
         this.crac = cracCreationContext.getCrac();
         this.network = network;
@@ -301,7 +300,7 @@ public class MonitoredSeriesCreator {
             // If a CNEC with the same ID has already been created, we assume that the 2 CNECs are the same
             // (we know network element and state are the same, we assume that thresholds are the same.
             // This is true if the TSO is consistent in the definition of its CNECs; and two different TSOs can only
-            // share tielines, but those are distinguished by the RIGHT/LEFT label)
+            // share tielines, but those are distinguished by the TWO/ONE label)
             cracCreationContext.getCreationReport().warn(
                 String.format("Multiple CNECs on same network element (%s) and same state (%s%s%s) have been detected. Only one CNEC will be created.", branchHelper.getBranch().getId(), contingencyId, Objects.isNull(contingency) ? "" : " - ", instant)
             );
@@ -312,18 +311,18 @@ public class MonitoredSeriesCreator {
     private String addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, CgmesBranchHelper branchHelper, String cnecId, String direction, double threshold) {
         String modifiedCnecId = cnecId;
 
-        Set<Side> monitoredSides = defaultMonitoredSides;
+        Set<TwoSides> monitoredSides = defaultMonitoredSides;
         if (branchHelper.isHalfLine()) {
-            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == TwoSides.ONE ? "LEFT" : "RIGHT");
-            monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getTieLineSide()));
+            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == TwoSides.ONE ? "ONE" : "TWO");
+            monitoredSides = Set.of(branchHelper.getTieLineSide());
         } else if (unit.equals(Unit.AMPERE) &&
             Math.abs(branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() - branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV()) > 1.) {
             // If unit is absolute amperes, monitor low voltage side
             monitoredSides = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() <= branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV() ?
-                Set.of(Side.LEFT) : Set.of(Side.RIGHT);
+                Set.of(TwoSides.ONE) : Set.of(TwoSides.TWO);
         } else if (unit.equals(Unit.PERCENT_IMAX)) {
             // If unit is %Imax, check that Imax exists
-            monitoredSides = monitoredSides.stream().filter(side -> hasCurrentLimit(branchHelper.getBranch(), side.iidmSide())).collect(Collectors.toSet());
+            monitoredSides = monitoredSides.stream().filter(side -> hasCurrentLimit(branchHelper.getBranch(), side)).collect(Collectors.toSet());
             if (monitoredSides.isEmpty()) {
                 throw new OpenRaoException(String.format("Cannot create any PERCENT_IMAX threshold on branch %s, as it holds no current limit at the wanted side", branchHelper.getIdInNetwork()));
             }
@@ -343,7 +342,7 @@ public class MonitoredSeriesCreator {
         return modifiedCnecId;
     }
 
-    private void addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, Double min, Double max, Set<Side> sides) {
+    private void addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, Double min, Double max, Set<TwoSides> sides) {
         sides.forEach(side ->
             flowCnecAdder.newThreshold()
                 .withUnit(unit)
@@ -358,8 +357,8 @@ public class MonitoredSeriesCreator {
         double voltageLevelLeft = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV();
         double voltageLevelRight = branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV();
         if (voltageLevelLeft > 1e-6 && voltageLevelRight > 1e-6) {
-            flowCnecAdder.withNominalVoltage(voltageLevelLeft, Side.LEFT);
-            flowCnecAdder.withNominalVoltage(voltageLevelRight, Side.RIGHT);
+            flowCnecAdder.withNominalVoltage(voltageLevelLeft, TwoSides.ONE);
+            flowCnecAdder.withNominalVoltage(voltageLevelRight, TwoSides.TWO);
         } else {
             throw new OpenRaoException(String.format("Voltage level for branch %s is 0 in network.", branchHelper.getBranch().getId()));
         }
@@ -369,8 +368,8 @@ public class MonitoredSeriesCreator {
         Double currentLimitLeft = getCurrentLimit(branchHelper.getBranch(), TwoSides.ONE);
         Double currentLimitRight = getCurrentLimit(branchHelper.getBranch(), TwoSides.TWO);
         if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
-            flowCnecAdder.withIMax(currentLimitLeft, Side.LEFT);
-            flowCnecAdder.withIMax(currentLimitRight, Side.RIGHT);
+            flowCnecAdder.withIMax(currentLimitLeft, TwoSides.ONE);
+            flowCnecAdder.withIMax(currentLimitRight, TwoSides.TWO);
         } else {
             throw new OpenRaoException(String.format("Unable to get branch current limits from network for branch %s", branchHelper.getBranch().getId()));
         }

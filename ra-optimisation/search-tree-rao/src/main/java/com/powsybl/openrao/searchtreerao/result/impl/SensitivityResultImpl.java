@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -59,7 +59,7 @@ public class SensitivityResultImpl implements SensitivityResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getSensitivityOnFlow(rangeAction, flowCnec, side);
         } else {
@@ -68,7 +68,7 @@ public class SensitivityResultImpl implements SensitivityResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec, side);
         } else {

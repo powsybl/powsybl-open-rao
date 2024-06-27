@@ -9,10 +9,10 @@ package com.powsybl.openrao.data.craciojson.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.craciojson.ExtensionsHandler;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -108,8 +108,8 @@ public final class FlowCnecArrayDeserializer {
             flowCnecAdder.withNominalVoltage(nominalV[0]);
             return Pair.of(nominalV[0], nominalV[0]);
         } else if (nominalV.length == 2) {
-            flowCnecAdder.withNominalVoltage(nominalV[0], Side.LEFT);
-            flowCnecAdder.withNominalVoltage(nominalV[1], Side.RIGHT);
+            flowCnecAdder.withNominalVoltage(nominalV[0], TwoSides.ONE);
+            flowCnecAdder.withNominalVoltage(nominalV[1], TwoSides.TWO);
             return Pair.of(nominalV[0], nominalV[1]);
         } else if (nominalV.length > 2) {
             throw new OpenRaoException("nominalVoltage array of a flowCnec cannot contain more than 2 values");
@@ -123,8 +123,8 @@ public final class FlowCnecArrayDeserializer {
         if (iMax.length == 1) {
             flowCnecAdder.withIMax(iMax[0]);
         } else if (iMax.length == 2) {
-            flowCnecAdder.withIMax(iMax[0], Side.LEFT);
-            flowCnecAdder.withIMax(iMax[1], Side.RIGHT);
+            flowCnecAdder.withIMax(iMax[0], TwoSides.ONE);
+            flowCnecAdder.withIMax(iMax[1], TwoSides.TWO);
         } else if (iMax.length > 2) {
             throw new OpenRaoException("iMax array of a flowCnec cannot contain more than 2 values");
         }

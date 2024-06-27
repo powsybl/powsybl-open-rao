@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.raoresultimpl.ElementaryFlowCnecResult;
 import com.powsybl.openrao.data.raoresultimpl.FlowCnecResult;
 import com.powsybl.openrao.data.raoresultimpl.RaoResultImpl;
@@ -76,8 +76,8 @@ final class FlowCnecResultArrayDeserializer {
                     checkSideHandlingVersion(jsonFileVersion, ZONAL_PTDF_SUM);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    eFlowCnecResult.setPtdfZonalSum(Side.LEFT, jsonParser.getDoubleValue());
-                    eFlowCnecResult.setPtdfZonalSum(Side.RIGHT, jsonParser.getDoubleValue());
+                    eFlowCnecResult.setPtdfZonalSum(TwoSides.ONE, jsonParser.getDoubleValue());
+                    eFlowCnecResult.setPtdfZonalSum(TwoSides.TWO, jsonParser.getDoubleValue());
                     break;
                 default:
                     throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
@@ -96,34 +96,44 @@ final class FlowCnecResultArrayDeserializer {
                     jsonParser.nextToken();
                     eFlowCnecResult.setRelativeMargin(jsonParser.getDoubleValue(), unit);
                     break;
-                case LEFT_SIDE:
+                case SIDE_ONE:
                     jsonParser.nextToken();
-                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, eFlowCnecResult, unit, Side.LEFT);
+                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, eFlowCnecResult, unit, TwoSides.ONE);
+                    break;
+                case SIDE_TWO:
+                    jsonParser.nextToken();
+                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, eFlowCnecResult, unit, TwoSides.TWO);
+                    break;
+                case LEFT_SIDE:
+                    Utils.checkDeprecatedField(LEFT_SIDE, FLOWCNEC_RESULTS, jsonFileVersion, "1.4");
+                    jsonParser.nextToken();
+                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, eFlowCnecResult, unit, TwoSides.ONE);
                     break;
                 case RIGHT_SIDE:
+                    Utils.checkDeprecatedField(RIGHT_SIDE, FLOWCNEC_RESULTS, jsonFileVersion, "1.4");
                     jsonParser.nextToken();
-                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, eFlowCnecResult, unit, Side.RIGHT);
+                    deserializeElementaryFlowCnecResultForUnitAndSide(jsonParser, eFlowCnecResult, unit, TwoSides.TWO);
                     break;
                 case FLOW:
                     checkSideHandlingVersion(jsonFileVersion, FLOW);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    eFlowCnecResult.setFlow(Side.LEFT, jsonParser.getDoubleValue(), unit);
-                    eFlowCnecResult.setFlow(Side.RIGHT, jsonParser.getDoubleValue(), unit);
+                    eFlowCnecResult.setFlow(TwoSides.ONE, jsonParser.getDoubleValue(), unit);
+                    eFlowCnecResult.setFlow(TwoSides.TWO, jsonParser.getDoubleValue(), unit);
                     break;
                 case COMMERCIAL_FLOW:
                     checkSideHandlingVersion(jsonFileVersion, COMMERCIAL_FLOW);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    eFlowCnecResult.setCommercialFlow(Side.LEFT, jsonParser.getDoubleValue(), unit);
-                    eFlowCnecResult.setCommercialFlow(Side.RIGHT, jsonParser.getDoubleValue(), unit);
+                    eFlowCnecResult.setCommercialFlow(TwoSides.ONE, jsonParser.getDoubleValue(), unit);
+                    eFlowCnecResult.setCommercialFlow(TwoSides.TWO, jsonParser.getDoubleValue(), unit);
                     break;
                 case LOOP_FLOW:
                     checkSideHandlingVersion(jsonFileVersion, LOOP_FLOW);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    eFlowCnecResult.setLoopFlow(Side.LEFT, jsonParser.getDoubleValue(), unit);
-                    eFlowCnecResult.setLoopFlow(Side.RIGHT, jsonParser.getDoubleValue(), unit);
+                    eFlowCnecResult.setLoopFlow(TwoSides.ONE, jsonParser.getDoubleValue(), unit);
+                    eFlowCnecResult.setLoopFlow(TwoSides.TWO, jsonParser.getDoubleValue(), unit);
                     break;
                 default:
                     throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
@@ -135,7 +145,7 @@ final class FlowCnecResultArrayDeserializer {
         Utils.checkDeprecatedField(fieldName, FLOWCNEC_RESULTS, jsonFileVersion, "1.1");
     }
 
-    private static void deserializeElementaryFlowCnecResultForUnitAndSide(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, Unit unit, Side side) throws IOException {
+    private static void deserializeElementaryFlowCnecResultForUnitAndSide(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, Unit unit, TwoSides side) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case FLOW:

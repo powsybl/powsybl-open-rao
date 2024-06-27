@@ -19,7 +19,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
@@ -215,7 +215,7 @@ public final class CoreCneCnecsCreator {
         return measurements;
     }
 
-    private double getCnecFlow(FlowCnec cnec, Side side, Instant optimizedInstant) {
+    private double getCnecFlow(FlowCnec cnec, TwoSides side, Instant optimizedInstant) {
         Instant resultState = optimizedInstant;
         if (resultState != null && resultState.isCurative() && cnec.getState().getInstant().isPreventive()) {
             resultState = cracCreationContext.getCrac().getPreventiveInstant();
@@ -287,7 +287,7 @@ public final class CoreCneCnecsCreator {
      */
     private Map<Double, Double> getThresholdToMarginMap(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Map<Double, Double> thresholdToMarginMap = new HashMap<>();
-        Side side = getMonitoredSide(cnec);
+        TwoSides side = getMonitoredSide(cnec);
         double flow = getCnecFlow(cnec, side, optimizedInstant);
         if (!Double.isNaN(flow)) {
             if (false) {
@@ -300,7 +300,7 @@ public final class CoreCneCnecsCreator {
         return thresholdToMarginMap;
     }
 
-    private void getThresholdToMarginMapAsCnec(FlowCnec cnec, Unit unit, boolean deductFrmFromThreshold, Map<Double, Double> thresholdToMarginMap, double flow, Side side) {
+    private void getThresholdToMarginMapAsCnec(FlowCnec cnec, Unit unit, boolean deductFrmFromThreshold, Map<Double, Double> thresholdToMarginMap, double flow, TwoSides side) {
         // TODO : remove this when we go back to considering FRM in the exported threshold
         double flowUnitMultiplier = getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
         double frm = deductFrmFromThreshold ? 0 : cnec.getReliabilityMargin() * flowUnitMultiplier;
@@ -314,7 +314,7 @@ public final class CoreCneCnecsCreator {
         thresholdToMarginMap.putIfAbsent(minThreshold, flow * flowUnitMultiplier - minThreshold);
     }
 
-    private void getThresholdToMarginMapAsMnec(FlowCnec cnec, Unit unit, Map<Double, Double> thresholdToMarginMap, double flow, Side side) {
+    private void getThresholdToMarginMapAsMnec(FlowCnec cnec, Unit unit, Map<Double, Double> thresholdToMarginMap, double flow, TwoSides side) {
         // Look at thresholds computed using initial flow
         double flowUnitMultiplier = getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
         double initialFlow = getCnecFlow(cnec, getMonitoredSide(cnec), null) * flowUnitMultiplier;
@@ -359,7 +359,7 @@ public final class CoreCneCnecsCreator {
         return measurements;
     }
 
-    public static double getFlowUnitMultiplier(FlowCnec cnec, Side voltageSide, Unit unitFrom, Unit unitTo) {
+    public static double getFlowUnitMultiplier(FlowCnec cnec, TwoSides voltageSide, Unit unitFrom, Unit unitTo) {
         if (unitFrom == unitTo) {
             return 1;
         }
@@ -373,7 +373,7 @@ public final class CoreCneCnecsCreator {
         }
     }
 
-    private Side getMonitoredSide(FlowCnec cnec) {
-        return cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
+    private TwoSides getMonitoredSide(FlowCnec cnec) {
+        return cnec.getMonitoredSides().contains(TwoSides.ONE) ? TwoSides.ONE : TwoSides.TWO;
     }
 }

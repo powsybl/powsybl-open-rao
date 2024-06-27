@@ -13,7 +13,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.iidm.network.Connectable;
@@ -52,8 +52,8 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     @Override
-    public Double getIMax(Side side) {
-        if (side.equals(Side.LEFT)) {
+    public Double getIMax(TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
             return iMax[0];
         } else {
             return iMax[1];
@@ -61,7 +61,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     @Override
-    public Optional<Double> getLowerBound(Side side, Unit requestedUnit) {
+    public Optional<Double> getLowerBound(TwoSides side, Unit requestedUnit) {
 
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec lowerBound can only be requested in AMPERE or MEGAWATT");
@@ -91,7 +91,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     @Override
-    public Optional<Double> getUpperBound(Side side, Unit requestedUnit) {
+    public Optional<Double> getUpperBound(TwoSides side, Unit requestedUnit) {
 
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec upperBound can only be requested in AMPERE or MEGAWATT");
@@ -129,7 +129,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
     }
 
-    private double changeValueUnit(double value, Unit oldUnit, Unit newUnit, Side side) {
+    private double changeValueUnit(double value, Unit oldUnit, Unit newUnit, TwoSides side) {
         if (oldUnit.equals(newUnit) ||
             oldUnit.equals(Unit.PERCENT_IMAX) && newUnit.equals(Unit.AMPERE)) {
             return value;

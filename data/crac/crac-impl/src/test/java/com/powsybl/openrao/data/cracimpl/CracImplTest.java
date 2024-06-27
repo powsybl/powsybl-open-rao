@@ -16,7 +16,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -159,7 +159,7 @@ class CracImplTest {
                 .withOptimized(true)
                 .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("co")
-                .newThreshold().withMin(-1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMin(-1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
 
         assertNotNull(crac.getFlowCnec("cnec-id"));
@@ -209,7 +209,7 @@ class CracImplTest {
                 .withNetworkElement("ne3")
                 .withOperator("operator")
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .newThreshold().withMin(-1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMin(-1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
 
         crac.newNetworkAction()
@@ -260,7 +260,7 @@ class CracImplTest {
                 .withOperator("operator")
                 .withContingency("co1")
                 .withInstant(CURATIVE_INSTANT_ID)
-                .newThreshold().withMin(-1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMin(-1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
 
         crac.newNetworkAction()
@@ -326,7 +326,7 @@ class CracImplTest {
                 .withNetworkElement("anyNetworkElement")
                 .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("co1")
-                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
 
         assertEquals(1, crac.getContingencies().size());
@@ -466,21 +466,21 @@ class CracImplTest {
                 .withNetworkElement("anyNetworkElement")
                 .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("co1")
-                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
         FlowCnec cnec2 = crac.newFlowCnec()
                 .withId("cnec2")
                 .withNetworkElement("anyNetworkElement")
                 .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("co1")
-                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
         FlowCnec cnec3 = crac.newFlowCnec()
                 .withId("cnec3")
                 .withNetworkElement("anyNetworkElement")
                 .withInstant(OUTAGE_INSTANT_ID)
                 .withContingency("co2")
-                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
 
         State state1 = crac.getState("co1", curativeInstant);
@@ -512,28 +512,28 @@ class CracImplTest {
                 .withNetworkElement("ne1")
                 .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("co1")
-                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
         crac.newFlowCnec()
                 .withId("cnec2")
                 .withNetworkElement("ne1")
                 .withInstant(OUTAGE_INSTANT_ID)
                 .withContingency("co1")
-                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
         crac.newFlowCnec()
                 .withId("cnec3")
                 .withNetworkElement("ne2")
                 .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("co1")
-                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
         crac.newFlowCnec()
                 .withId("cnec4")
                 .withNetworkElement("ne2")
                 .withInstant(OUTAGE_INSTANT_ID)
                 .withContingency("co1")
-                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
                 .add();
 
         assertEquals(4, crac.getFlowCnecs().size());

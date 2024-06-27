@@ -334,7 +334,7 @@ crac.newFlowCnec()
     .withOptimized(true)
     .newThreshold()
       .withUnit(Unit.MEGAWATT)
-      .withSide(Side.LEFT)
+      .withSide(TwoSides.ONE)
       .withMin(-1500.)
       .withMax(1500.)
       .add()
@@ -350,20 +350,20 @@ crac.newFlowCnec()
     .withBorder("border")
     .newThreshold()
       .withUnit(Unit.PERCENT_IMAX)
-      .withSide(Side.RIGHT)
+      .withSide(TwoSides.TWO)
       .withMax(0.95)
       .add()
     .newThreshold()
       .withUnit(Unit.AMPERE)
-      .withSide(Side.LEFT)
+      .withSide(TwoSides.ONE)
       .withMin(-450.)
       .add()
     .withReliabilityMargin(50.)
     .withOptimized(true)
     .withMonitored(false)
-    .withNominalVoltage(380., Side.LEFT)
-    .withNominalVoltage(220., Side.RIGHT)
-    .withIMax(500.) // this means that the value is the same on both sides, but the side could have been specified using "withImax(500., Side.RIGHT)" instead 
+    .withNominalVoltage(380., TwoSides.ONE)
+    .withNominalVoltage(220., TwoSides.TWO)
+    .withIMax(500.) // this means that the value is the same on both sides, but the side could have been specified using "withImax(500., TwoSides.TWO)" instead 
     .add();
 ~~~
 :::
@@ -383,7 +383,7 @@ crac.newFlowCnec()
     "unit" : "megawatt",
     "min" : -1500.0,
     "max" : 1500.0,
-    "side" : "left"
+    "side" : 1
   } ]
 },  {
   "id" : "curative-cnec-with-two-thresholds-id",
@@ -401,11 +401,11 @@ crac.newFlowCnec()
   "thresholds" : [ {
     "unit" : "ampere",
     "min" : -450.0,
-    "side" : "left"
+    "side" : 1
   }, {
     "unit" : "percent_imax",
     "max" : 0.95,
-    "side" : "right"
+    "side" : 2
   } ]
 } ]
 ~~~
