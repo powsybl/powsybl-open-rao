@@ -162,4 +162,14 @@ class InstantImplTest {
 
         assertFalse(preventiveInstant.comesAfter(preventiveInstant));
     }
+
+    @Test
+    void testMin() {
+        InstantImpl instant1 = new InstantImpl("instant1", InstantKind.PREVENTIVE, null);
+        InstantImpl instant2 = new InstantImpl("instant2", InstantKind.CURATIVE, instant1);
+        assertEquals(instant1, Instant.min(instant1, instant2));
+        assertNull(Instant.min(instant1, null));
+        assertNull(Instant.min(null, instant2));
+        assertNull(Instant.min(null, null));
+    }
 }

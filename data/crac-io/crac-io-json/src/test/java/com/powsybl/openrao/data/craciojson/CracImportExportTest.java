@@ -42,23 +42,40 @@ import static org.junit.jupiter.api.Assertions.*;
 class CracImportExportTest {
 
     @Test
-    void roundTripTest() {
+    void testExists() {
+        assertTrue(new JsonImport().exists(getClass().getResourceAsStream("/cracHeader.json")));
+        assertFalse(new JsonImport().exists(getClass().getResourceAsStream("/invalidCrac.json")));
+        assertFalse(new JsonImport().exists(getClass().getResourceAsStream("/invalidCrac.txt")));
+    }
+
+    @Test
+    void explicitJsonRoundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
+        Crac importedCrac = RoundTripUtil.explicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+        checkContent(importedCrac);
+    }
+
+    @Test
+    void implicitJsonRoundTripTest() {
+        Crac crac = ExhaustiveCracCreation.create();
+        Crac importedCrac = RoundTripUtil.implicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+        checkContent(importedCrac);
+    }
+
+    private void checkContent(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
         Instant curativeInstant = crac.getInstant("curative");
 
-        Crac importedCrac = RoundTripUtil.roundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
-
         // check overall content
-        assertNotNull(importedCrac);
-        assertEquals(5, importedCrac.getStates().size());
-        assertEquals(2, importedCrac.getContingencies().size());
-        assertEquals(7, importedCrac.getFlowCnecs().size());
-        assertEquals(1, importedCrac.getAngleCnecs().size());
-        assertEquals(1, importedCrac.getVoltageCnecs().size());
-        assertEquals(9, importedCrac.getRangeActions().size());
-        assertEquals(4, importedCrac.getNetworkActions().size());
+        assertNotNull(crac);
+        assertEquals(5, crac.getStates().size());
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(9, crac.getRangeActions().size());
+        assertEquals(4, crac.getNetworkActions().size());
 
         // --------------------------
         // --- test Ra Usage Limits ---
@@ -257,11 +274,11 @@ class CracImportExportTest {
         assertEquals(2, crac.getPstRangeAction("pstRange1Id").getRanges().size());
 
         TapRange absRange = crac.getPstRangeAction("pstRange1Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+            .findAny().orElse(null);
         TapRange relRange = crac.getPstRangeAction("pstRange1Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
+            .findAny().orElse(null);
 
         assertNotNull(absRange);
         assertEquals(1, absRange.getMinTap());
@@ -285,14 +302,14 @@ class CracImportExportTest {
         assertEquals(3, crac.getPstRangeAction("pstRange2Id").getRanges().size());
 
         absRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+            .findAny().orElse(null);
         relRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
+            .findAny().orElse(null);
         TapRange relTimestampRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
+            .findAny().orElse(null);
 
         assertNotNull(absRange);
         assertEquals(-4, absRange.getMinTap());
