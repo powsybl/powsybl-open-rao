@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
@@ -32,7 +31,7 @@ import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
+public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     private final State preventiveState;
     private final PrePerimeterResult initialResult;
     private final PerimeterResult firstPreventivePerimeterResult;
@@ -443,17 +442,6 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction networkAction) {
-            return isActivatedDuringState(state, networkAction);
-        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
-            return isActivatedDuringState(state, rangeAction);
-        } else {
-            throw new OpenRaoException("Unrecognized remedial action type");
-        }
-    }
-
-    @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         if (state.getInstant().isPreventive()) {
             return false;
@@ -616,14 +604,6 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         } else {
             throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
         }
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
-            return false;
-        }
-        return getFunctionalCost(optimizedInstant) < 0;
     }
 
     @Override

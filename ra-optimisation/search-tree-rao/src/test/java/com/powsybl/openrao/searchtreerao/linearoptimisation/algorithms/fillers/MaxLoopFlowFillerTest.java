@@ -31,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +51,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private FlowCnec cnecOn2sides;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         init();
 
         cnecOn2sides = crac.newFlowCnec()

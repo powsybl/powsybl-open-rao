@@ -14,13 +14,13 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
-import com.powsybl.openrao.data.cracioapi.CracImporters;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -67,11 +67,11 @@ abstract class AbstractFillerTest {
     Crac crac;
     Network network;
 
-    void init() {
+    void init() throws IOException {
         // arrange some data for all fillers test
         // crac and network
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
+        crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac.json"), network);
 
         // get cnec and rangeAction
         cnec1 = crac.getFlowCnec(CNEC_1_ID);

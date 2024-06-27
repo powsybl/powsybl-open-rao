@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
+import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation.createCracWithRemedialActions;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -123,5 +126,32 @@ class TopologicalActionImplTest {
     void equals() {
         assertEquals(topologyClose, topologyClose);
         assertNotEquals(topologyClose, topologyOpen);
+    }
+
+    @Test
+    void compatibility() {
+        Crac crac = createCracWithRemedialActions();
+        TopologicalAction topologicalAction = (TopologicalAction) crac.getNetworkAction("open-switch-1").getElementaryActions().iterator().next();
+
+        assertTrue(topologicalAction.isCompatibleWith(topologicalAction));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("open-switch-2").getElementaryActions().iterator().next()));
+        assertFalse(topologicalAction.isCompatibleWith(crac.getNetworkAction("close-switch-1").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("close-switch-2").getElementaryActions().iterator().next()));
+
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("generator-1-75-mw").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("generator-1-100-mw").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("generator-2-75-mw").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("generator-2-100-mw").getElementaryActions().iterator().next()));
+
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("pst-1-tap-3").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("pst-1-tap-8").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("pst-2-tap-3").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("pst-2-tap-8").getElementaryActions().iterator().next()));
+
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-2").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("open-switch-2-close-switch-1").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-4").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-3").getElementaryActions().iterator().next()));
+        assertTrue(topologicalAction.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-2").getElementaryActions().iterator().next()));
     }
 }
