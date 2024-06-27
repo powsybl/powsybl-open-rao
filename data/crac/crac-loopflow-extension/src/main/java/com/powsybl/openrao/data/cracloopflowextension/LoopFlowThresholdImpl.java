@@ -10,7 +10,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
@@ -100,11 +100,11 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
     }
 
     private double convertMWToA(double valueInMW) {
-        return valueInMW * 1000 / (getExtendable().getNominalVoltage(Side.LEFT) * Math.sqrt(3));
+        return valueInMW * 1000 / (getExtendable().getNominalVoltage(TwoSides.ONE) * Math.sqrt(3));
     }
 
     private double convertAToMW(double valueInA) {
-        return valueInA * getExtendable().getNominalVoltage(Side.LEFT) * Math.sqrt(3) / 1000;
+        return valueInA * getExtendable().getNominalVoltage(TwoSides.ONE) * Math.sqrt(3) / 1000;
     }
 
     private double convertAToPercentImax(double valueInA) {
@@ -117,12 +117,12 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
 
     private double getCnecFmaxWithoutFrmInA() {
         double minUpperBound = Math.min(
-            getExtendable().getUpperBound(Side.LEFT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
-            getExtendable().getUpperBound(Side.RIGHT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)
+            getExtendable().getUpperBound(TwoSides.ONE, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
+            getExtendable().getUpperBound(TwoSides.TWO, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)
         );
         double maxLowerBound = Math.max(
-            getExtendable().getLowerBound(Side.LEFT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY),
-            getExtendable().getLowerBound(Side.RIGHT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY)
+            getExtendable().getLowerBound(TwoSides.ONE, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY),
+            getExtendable().getLowerBound(TwoSides.TWO, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY)
         );
         return Math.min(minUpperBound, -maxLowerBound) + convertMWToA(getExtendable().getReliabilityMargin());
     }

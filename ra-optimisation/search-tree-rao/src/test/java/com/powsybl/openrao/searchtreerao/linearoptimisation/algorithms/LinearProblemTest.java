@@ -10,7 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -52,7 +52,7 @@ class LinearProblemTest {
 
         rangeAction = Mockito.mock(PstRangeAction.class);
         cnec = Mockito.mock(FlowCnec.class);
-        Mockito.when(cnec.getMonitoredSides()).thenReturn(Collections.singleton(Side.LEFT));
+        Mockito.when(cnec.getMonitoredSides()).thenReturn(Collections.singleton(TwoSides.ONE));
         state = Mockito.mock(State.class);
 
         Mockito.when(rangeAction.getId()).thenReturn(RANGE_ACTION_ID);
@@ -62,22 +62,22 @@ class LinearProblemTest {
 
     @Test
     void flowVariableTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec, Side.LEFT));
-        assertEquals("Variable cnec_id_left_flow_variable has not been created yet", e.getMessage());
-        linearProblem.addFlowVariable(LB, UB, cnec, Side.LEFT);
-        assertNotNull(linearProblem.getFlowVariable(cnec, Side.LEFT));
-        assertEquals(LB, linearProblem.getFlowVariable(cnec, Side.LEFT).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getFlowVariable(cnec, Side.LEFT).ub(), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec, TwoSides.ONE));
+        assertEquals("Variable cnec_id_one_flow_variable has not been created yet", e.getMessage());
+        linearProblem.addFlowVariable(LB, UB, cnec, TwoSides.ONE);
+        assertNotNull(linearProblem.getFlowVariable(cnec, TwoSides.ONE));
+        assertEquals(LB, linearProblem.getFlowVariable(cnec, TwoSides.ONE).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getFlowVariable(cnec, TwoSides.ONE).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void flowConstraintTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec, Side.LEFT));
-        assertEquals("Constraint cnec_id_left_flow_constraint has not been created yet", e.getMessage());
-        linearProblem.addFlowConstraint(LB, UB, cnec, Side.LEFT);
-        assertNotNull(linearProblem.getFlowConstraint(cnec, Side.LEFT));
-        assertEquals(LB, linearProblem.getFlowConstraint(cnec, Side.LEFT).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getFlowConstraint(cnec, Side.LEFT).ub(), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec, TwoSides.ONE));
+        assertEquals("Constraint cnec_id_one_flow_constraint has not been created yet", e.getMessage());
+        linearProblem.addFlowConstraint(LB, UB, cnec, TwoSides.ONE);
+        assertNotNull(linearProblem.getFlowConstraint(cnec, TwoSides.ONE));
+        assertEquals(LB, linearProblem.getFlowConstraint(cnec, TwoSides.ONE).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getFlowConstraint(cnec, TwoSides.ONE).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -178,16 +178,16 @@ class LinearProblemTest {
 
     @Test
     void minimumMarginConstraintTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
-        assertEquals("Constraint cnec_id_left_minmargin_above_threshold_constraint has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
-        assertEquals("Constraint cnec_id_left_minmargin_below_threshold_constraint has not been created yet", e.getMessage());
-        linearProblem.addMinimumMarginConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        linearProblem.addMinimumMarginConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        assertNotNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
-        assertNotNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
-        assertEquals(LB, linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMinimumMarginConstraint(cnec, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        assertEquals("Constraint cnec_id_one_minmargin_above_threshold_constraint has not been created yet", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMinimumMarginConstraint(cnec, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        assertEquals("Constraint cnec_id_one_minmargin_below_threshold_constraint has not been created yet", e.getMessage());
+        linearProblem.addMinimumMarginConstraint(LB, UB, cnec, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        linearProblem.addMinimumMarginConstraint(LB, UB, cnec, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        assertNotNull(linearProblem.getMinimumMarginConstraint(cnec, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        assertNotNull(linearProblem.getMinimumMarginConstraint(cnec, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        assertEquals(LB, linearProblem.getMinimumMarginConstraint(cnec, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getMinimumMarginConstraint(cnec, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -226,16 +226,16 @@ class LinearProblemTest {
 
     @Test
     void maxLoopFlowConstraintTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND));
-        assertEquals("Constraint cnec_id_left_maxloopflow_upper_bound_constraint has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND));
-        assertEquals("Constraint cnec_id_left_maxloopflow_lower_bound_constraint has not been created yet", e.getMessage());
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxLoopFlowConstraint(cnec, TwoSides.ONE, LinearProblem.BoundExtension.UPPER_BOUND));
+        assertEquals("Constraint cnec_id_one_maxloopflow_upper_bound_constraint has not been created yet", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxLoopFlowConstraint(cnec, TwoSides.ONE, LinearProblem.BoundExtension.LOWER_BOUND));
+        assertEquals("Constraint cnec_id_one_maxloopflow_lower_bound_constraint has not been created yet", e.getMessage());
 
-        linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
-        linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
+        linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, TwoSides.ONE, LinearProblem.BoundExtension.UPPER_BOUND);
+        linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, TwoSides.ONE, LinearProblem.BoundExtension.LOWER_BOUND);
 
-        assertEquals(LB, linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND).ub(), DOUBLE_TOLERANCE);
+        assertEquals(LB, linearProblem.getMaxLoopFlowConstraint(cnec, TwoSides.ONE, LinearProblem.BoundExtension.UPPER_BOUND).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getMaxLoopFlowConstraint(cnec, TwoSides.ONE, LinearProblem.BoundExtension.UPPER_BOUND).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test

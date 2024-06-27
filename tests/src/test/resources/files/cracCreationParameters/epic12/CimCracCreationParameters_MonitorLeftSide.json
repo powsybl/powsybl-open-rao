@@ -1,4 +1,4 @@
 {
   "crac-factory": "CracImplFactory",
-  "default-monitored-line-side" : "monitor-lines-on-left-side"
+  "default-monitored-line-side" : "monitor-lines-on-side-one"
 }

@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
@@ -43,7 +43,7 @@ class AbsolutePtdfSumsComputationTest {
     public void setUp() {
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(SensitivityVariableSet.class), Mockito.any(FlowCnec.class), Mockito.any(Side.class)))
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(SensitivityVariableSet.class), Mockito.any(FlowCnec.class), Mockito.any(TwoSides.class)))
             .thenAnswer(
                 (Answer<Double>) invocation -> {
                     SensitivityVariableSet linearGlsk = (SensitivityVariableSet) invocation.getArguments()[0];
@@ -89,7 +89,7 @@ class AbsolutePtdfSumsComputationTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
-        Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
+        Crac crac = CommonCracCreation.create(Set.of(TwoSides.ONE, TwoSides.TWO));
         List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
                 new ZoneToZonePtdfDefinition("{FR}-{BE}"),
                 new ZoneToZonePtdfDefinition("{FR}-{DE}"),
@@ -98,11 +98,11 @@ class AbsolutePtdfSumsComputationTest {
 
         // compute zToz PTDF sum
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
-        Map<FlowCnec, Map<Side, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
+        Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // test results
-        assertEquals(0.6, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(Side.LEFT), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.1 - 0.3 + 0.4) = 0.1 + 0.2 + 0.1 + 0.2
-        assertEquals(0.9, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(Side.RIGHT), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.9 - 0.2 + 0.1) = 0 + 0.1 + 0.1 + 0.7
+        assertEquals(0.6, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(TwoSides.ONE), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.1 - 0.3 + 0.4) = 0.1 + 0.2 + 0.1 + 0.2
+        assertEquals(0.9, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.9 - 0.2 + 0.1) = 0 + 0.1 + 0.1 + 0.7
     }
 
     @Test
@@ -112,7 +112,7 @@ class AbsolutePtdfSumsComputationTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
-        Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
+        Crac crac = CommonCracCreation.create(Set.of(TwoSides.ONE, TwoSides.TWO));
         List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
                 new ZoneToZonePtdfDefinition("{FR}-{BE}"),
                 new ZoneToZonePtdfDefinition("{FR}-{DE}"),
@@ -123,10 +123,10 @@ class AbsolutePtdfSumsComputationTest {
 
         // compute zToz PTDF sum
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
-        Map<FlowCnec, Map<Side, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
+        Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // Test that these 3 new boundaries are ignored (results should be the same as previous test)
-        assertEquals(0.5, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(Side.RIGHT), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) = 0.1 + 0.2 + 0.1 + 0.1
-        assertEquals(0.3, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(Side.LEFT), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.2) = 0 + 0.1 + 0.1 + 0.1
+        assertEquals(0.5, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) = 0.1 + 0.2 + 0.1 + 0.1
+        assertEquals(0.3, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(TwoSides.ONE), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.2) = 0 + 0.1 + 0.1 + 0.1
     }
 }

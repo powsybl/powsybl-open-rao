@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracapi.cnec;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
@@ -39,12 +40,12 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
     Set<BranchThreshold> getThresholds();
 
     /**
-     * Getter of the nominal voltage on each {@link Side} of the {@code BranchCnec}.
+     * Getter of the nominal voltage on each {@link TwoSides} of the {@code BranchCnec}.
      *
-     * @param side: The {@link Side} on which the nominal voltage is queried.
+     * @param side: The {@link TwoSides} on which the nominal voltage is queried.
      * @return The value of nominal voltage.
      */
-    Double getNominalVoltage(Side side);
+    Double getNominalVoltage(TwoSides side);
 
     /**
      * Getter that returns the lower acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
@@ -58,7 +59,7 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      *            defined in a different unit that the one requested.
      * @return The lower bound of the {@link PhysicalParameter} on this {@code BranchCnec}.
      */
-    Optional<Double> getLowerBound(Side side, Unit unit);
+    Optional<Double> getLowerBound(TwoSides side, Unit unit);
 
     /**
      * Getter that returns the upper acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
@@ -72,7 +73,7 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      *            defined in a different unit that the one requested.
      * @return The upper bound of the {@link PhysicalParameter} on this {@code BranchCnec}.
      */
-    Optional<Double> getUpperBound(Side side, Unit unit);
+    Optional<Double> getUpperBound(TwoSides side, Unit unit);
 
     /**
      * A margin can be computed on a {@code BranchCnec}. It is the worst (minimal including negative) difference
@@ -91,12 +92,12 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      * @return The margin of the {@code BranchCnec} on the given {@code side} with the given {@code unit} taking
      * {@code reliabilityMargin} into account.
      */
-    double computeMargin(double actualValue, Side side, Unit unit);
+    double computeMargin(double actualValue, TwoSides side, Unit unit);
 
     /**
-     * Getter of the one or two {@link Side}s on which the {@code Cnec} is defined.
+     * Getter of the one or two {@link TwoSides}s on which the {@code Cnec} is defined.
      */
-    default Set<Side> getMonitoredSides() {
+    default Set<TwoSides> getMonitoredSides() {
         return getThresholds().stream().map(BranchThreshold::getSide).collect(Collectors.toUnmodifiableSet());
     }
 }

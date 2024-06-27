@@ -8,7 +8,7 @@ package com.powsybl.openrao.loopflowcomputation;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.cnec.BranchCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public class LoopFlowResult {
 
-    private final Map<BranchCnec<?>, Map<Side, LoopFlow>> loopFlowMap;
+    private final Map<BranchCnec<?>, Map<TwoSides, LoopFlow>> loopFlowMap;
 
     private static class LoopFlow {
         double loopFlowValue;
@@ -49,25 +49,25 @@ public class LoopFlowResult {
         this.loopFlowMap = new HashMap<>();
     }
 
-    public void addCnecResult(BranchCnec<?> cnec, Side side, double loopFlowValue, double commercialFlowValue, double referenceFlowValue) {
-        loopFlowMap.computeIfAbsent(cnec, k -> new EnumMap<>(Side.class)).put(side, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue));
+    public void addCnecResult(BranchCnec<?> cnec, TwoSides side, double loopFlowValue, double commercialFlowValue, double referenceFlowValue) {
+        loopFlowMap.computeIfAbsent(cnec, k -> new EnumMap<>(TwoSides.class)).put(side, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue));
     }
 
-    public double getLoopFlow(BranchCnec<?> cnec, Side side) {
+    public double getLoopFlow(BranchCnec<?> cnec, TwoSides side) {
         if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side)) {
             throw new OpenRaoException(String.format("No loop-flow value found for cnec %s on side %s", cnec.getId(), side));
         }
         return loopFlowMap.get(cnec).get(side).getLoopFlow();
     }
 
-    public double getCommercialFlow(BranchCnec<?> cnec, Side side) {
+    public double getCommercialFlow(BranchCnec<?> cnec, TwoSides side) {
         if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side)) {
             throw new OpenRaoException(String.format("No commercial flow value found for cnec %s on side %s", cnec.getId(), side));
         }
         return loopFlowMap.get(cnec).get(side).getCommercialFlow();
     }
 
-    public double getReferenceFlow(BranchCnec<?> cnec, Side side) {
+    public double getReferenceFlow(BranchCnec<?> cnec, TwoSides side) {
         if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side)) {
             throw new OpenRaoException(String.format("No reference flow value found for cnec %s on side %s", cnec.getId(), side));
         }

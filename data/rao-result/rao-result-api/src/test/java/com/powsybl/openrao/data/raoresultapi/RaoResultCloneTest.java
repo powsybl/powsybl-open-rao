@@ -11,7 +11,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
@@ -24,8 +24,8 @@ import org.mockito.Mockito;
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.*;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.LEFT;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.RIGHT;
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -84,15 +84,15 @@ class RaoResultCloneTest {
         // Mocking flowCnec results
         FlowCnec cnecP = mock(FlowCnec.class);
         when(crac.getFlowCnec("cnec4prevId")).thenReturn(cnecP);
-        Mockito.when(raoResult.getFlow(null, cnecP, RIGHT, MEGAWATT)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getFlow(null, cnecP, LEFT, MEGAWATT)).thenReturn(4110.0);
+        Mockito.when(raoResult.getFlow(null, cnecP, TWO, MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getFlow(null, cnecP, ONE, MEGAWATT)).thenReturn(4110.0);
 
-        Mockito.when(raoResult.getFlow(preventiveInstant, cnecP, RIGHT, AMPERE)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getFlow(preventiveInstant, cnecP, LEFT, AMPERE)).thenReturn(4220.);
-        Mockito.when(raoResult.getFlow(autoInstant, cnecP, RIGHT, AMPERE)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getFlow(autoInstant, cnecP, LEFT, AMPERE)).thenReturn(4220.);
-        Mockito.when(raoResult.getFlow(curativeInstant, cnecP, RIGHT, AMPERE)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getFlow(curativeInstant, cnecP, LEFT, AMPERE)).thenReturn(4220.);
+        Mockito.when(raoResult.getFlow(preventiveInstant, cnecP, TWO, AMPERE)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getFlow(preventiveInstant, cnecP, ONE, AMPERE)).thenReturn(4220.);
+        Mockito.when(raoResult.getFlow(autoInstant, cnecP, TWO, AMPERE)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getFlow(autoInstant, cnecP, ONE, AMPERE)).thenReturn(4220.);
+        Mockito.when(raoResult.getFlow(curativeInstant, cnecP, TWO, AMPERE)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getFlow(curativeInstant, cnecP, ONE, AMPERE)).thenReturn(4220.);
 
         Mockito.when(raoResult.getMargin(null, cnecP, MEGAWATT)).thenReturn(4111.);
         Mockito.when(raoResult.getMargin(preventiveInstant, cnecP, AMPERE)).thenReturn(4221.);
@@ -101,36 +101,36 @@ class RaoResultCloneTest {
         Mockito.when(raoResult.getRelativeMargin(null, cnecP, AMPERE)).thenReturn(4221.);
         Mockito.when(raoResult.getRelativeMargin(preventiveInstant, cnecP, AMPERE)).thenReturn(4222.);
 
-        Mockito.when(raoResult.getLoopFlow(null, cnecP, RIGHT, MEGAWATT)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getLoopFlow(null, cnecP, LEFT, MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getLoopFlow(null, cnecP, TWO, MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getLoopFlow(null, cnecP, ONE, MEGAWATT)).thenReturn(Double.NaN);
 
-        Mockito.when(raoResult.getCommercialFlow(null, cnecP, RIGHT, MEGAWATT)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getCommercialFlow(null, cnecP, LEFT, MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getCommercialFlow(null, cnecP, TWO, MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getCommercialFlow(null, cnecP, ONE, MEGAWATT)).thenReturn(Double.NaN);
 
-        Mockito.when(raoResult.getPtdfZonalSum(preventiveInstant, cnecP, LEFT)).thenReturn(0.4);
-        Mockito.when(raoResult.getPtdfZonalSum(preventiveInstant, cnecP, RIGHT)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getPtdfZonalSum(preventiveInstant, cnecP, ONE)).thenReturn(0.4);
+        Mockito.when(raoResult.getPtdfZonalSum(preventiveInstant, cnecP, TWO)).thenReturn(Double.NaN);
 
         FlowCnec cnecO = Mockito.mock(FlowCnec.class);
         Mockito.when(cnecO.getId()).thenReturn("cnec1outageId");
         Mockito.when(crac.getFlowCnec("cnec1outageId")).thenReturn(cnecO);
-        Mockito.when(raoResult.getFlow(null, cnecO, Side.LEFT, AMPERE)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getFlow(null, cnecO, Side.RIGHT, AMPERE)).thenReturn(1120.5);
+        Mockito.when(raoResult.getFlow(null, cnecO, TwoSides.ONE, AMPERE)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getFlow(null, cnecO, TwoSides.TWO, AMPERE)).thenReturn(1120.5);
         Mockito.when(raoResult.getMargin(null, cnecO, AMPERE)).thenReturn(1121.);
         Mockito.when(raoResult.getRelativeMargin(null, cnecO, AMPERE)).thenReturn(1122.);
-        Mockito.when(raoResult.getLoopFlow(null, cnecO, Side.LEFT, AMPERE)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getLoopFlow(null, cnecO, Side.RIGHT, AMPERE)).thenReturn(1123.5);
-        Mockito.when(raoResult.getCommercialFlow(null, cnecO, Side.LEFT, AMPERE)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getCommercialFlow(null, cnecO, Side.RIGHT, AMPERE)).thenReturn(1124.5);
-        Mockito.when(raoResult.getFlow(preventiveInstant, cnecO, Side.LEFT, MEGAWATT)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getFlow(preventiveInstant, cnecO, Side.RIGHT, MEGAWATT)).thenReturn(1210.5);
+        Mockito.when(raoResult.getLoopFlow(null, cnecO, TwoSides.ONE, AMPERE)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getLoopFlow(null, cnecO, TwoSides.TWO, AMPERE)).thenReturn(1123.5);
+        Mockito.when(raoResult.getCommercialFlow(null, cnecO, TwoSides.ONE, AMPERE)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getCommercialFlow(null, cnecO, TwoSides.TWO, AMPERE)).thenReturn(1124.5);
+        Mockito.when(raoResult.getFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT)).thenReturn(1210.5);
         Mockito.when(raoResult.getMargin(preventiveInstant, cnecO, MEGAWATT)).thenReturn(1211.);
         Mockito.when(raoResult.getRelativeMargin(preventiveInstant, cnecO, MEGAWATT)).thenReturn(1212.);
-        Mockito.when(raoResult.getLoopFlow(preventiveInstant, cnecO, Side.LEFT, MEGAWATT)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getLoopFlow(preventiveInstant, cnecO, Side.RIGHT, MEGAWATT)).thenReturn(1213.5);
-        Mockito.when(raoResult.getCommercialFlow(preventiveInstant, cnecO, Side.LEFT, MEGAWATT)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getCommercialFlow(preventiveInstant, cnecO, Side.RIGHT, MEGAWATT)).thenReturn(1214.5);
-        Mockito.when(raoResult.getPtdfZonalSum(preventiveInstant, cnecO, Side.LEFT)).thenReturn(Double.NaN);
-        Mockito.when(raoResult.getPtdfZonalSum(preventiveInstant, cnecO, Side.RIGHT)).thenReturn(0.6);
+        Mockito.when(raoResult.getLoopFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getLoopFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT)).thenReturn(1213.5);
+        Mockito.when(raoResult.getCommercialFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getCommercialFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT)).thenReturn(1214.5);
+        Mockito.when(raoResult.getPtdfZonalSum(preventiveInstant, cnecO, TwoSides.ONE)).thenReturn(Double.NaN);
+        Mockito.when(raoResult.getPtdfZonalSum(preventiveInstant, cnecO, TwoSides.TWO)).thenReturn(0.6);
 
         // Mocking networkAction results
         State pState = mock(State.class);
@@ -243,31 +243,31 @@ class RaoResultCloneTest {
         - contains result relative margin and PTDF sum but not for loop and commercial flows
          */
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
-        assertEquals(4110., raoResultClone.getFlow(null, cnecP, Side.LEFT, MEGAWATT), 0.001);
-        assertTrue(Double.isNaN(raoResultClone.getFlow(null, cnecP, Side.RIGHT, MEGAWATT)));
+        assertEquals(4110., raoResultClone.getFlow(null, cnecP, TwoSides.ONE, MEGAWATT), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
         assertEquals(4111., raoResultClone.getMargin(null, cnecP, MEGAWATT), 0.001);
         assertEquals(4112., raoResultClone.getRelativeMargin(null, cnecP, MEGAWATT), 0.001);
-        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecP, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecP, Side.RIGHT, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecP, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecP, Side.RIGHT, MEGAWATT)));
+        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
+        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
 
-        assertEquals(4220., raoResultClone.getFlow(preventiveInstant, cnecP, Side.LEFT, AMPERE), 0.001);
-        assertTrue(Double.isNaN(raoResultClone.getFlow(preventiveInstant, cnecP, Side.RIGHT, AMPERE)));
+        assertEquals(4220., raoResultClone.getFlow(preventiveInstant, cnecP, TwoSides.ONE, AMPERE), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getFlow(preventiveInstant, cnecP, TwoSides.TWO, AMPERE)));
         assertEquals(4221., raoResultClone.getMargin(preventiveInstant, cnecP, AMPERE), 0.001);
         assertEquals(4222., raoResultClone.getRelativeMargin(preventiveInstant, cnecP, AMPERE), 0.001);
-        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecP, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecP, Side.RIGHT, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecP, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecP, Side.RIGHT, MEGAWATT)));
+        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
+        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
 
-        assertEquals(0.4, raoResultClone.getPtdfZonalSum(preventiveInstant, cnecP, Side.LEFT), 0.001);
-        assertTrue(Double.isNaN(raoResultClone.getPtdfZonalSum(preventiveInstant, cnecP, Side.RIGHT)));
+        assertEquals(0.4, raoResultClone.getPtdfZonalSum(preventiveInstant, cnecP, TwoSides.ONE), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getPtdfZonalSum(preventiveInstant, cnecP, TwoSides.TWO)));
 
-        assertEquals(raoResultClone.getFlow(autoInstant, cnecP, LEFT, AMPERE), raoResultClone.getFlow(preventiveInstant, cnecP, LEFT, AMPERE), 0.001);
-        assertEquals(raoResultClone.getFlow(autoInstant, cnecP, RIGHT, AMPERE), raoResultClone.getFlow(preventiveInstant, cnecP, RIGHT, AMPERE), 0.001);
-        assertEquals(raoResultClone.getFlow(curativeInstant, cnecP, LEFT, AMPERE), raoResultClone.getFlow(preventiveInstant, cnecP, LEFT, AMPERE), 0.001);
-        assertEquals(raoResultClone.getFlow(curativeInstant, cnecP, RIGHT, AMPERE), raoResultClone.getFlow(preventiveInstant, cnecP, RIGHT, AMPERE), 0.001);
+        assertEquals(raoResultClone.getFlow(autoInstant, cnecP, ONE, AMPERE), raoResultClone.getFlow(preventiveInstant, cnecP, ONE, AMPERE), 0.001);
+        assertEquals(raoResultClone.getFlow(autoInstant, cnecP, TWO, AMPERE), raoResultClone.getFlow(preventiveInstant, cnecP, TWO, AMPERE), 0.001);
+        assertEquals(raoResultClone.getFlow(curativeInstant, cnecP, ONE, AMPERE), raoResultClone.getFlow(preventiveInstant, cnecP, ONE, AMPERE), 0.001);
+        assertEquals(raoResultClone.getFlow(curativeInstant, cnecP, TWO, AMPERE), raoResultClone.getFlow(preventiveInstant, cnecP, TWO, AMPERE), 0.001);
 
         /*
         cnec1outageId: outage, with loop-flows, optimized
@@ -276,26 +276,26 @@ class RaoResultCloneTest {
          */
 
         FlowCnec cnecO = crac.getFlowCnec("cnec1outageId");
-        assertTrue(Double.isNaN(raoResultClone.getFlow(null, cnecO, Side.LEFT, AMPERE)));
-        assertEquals(1120.5, raoResultClone.getFlow(null, cnecO, Side.RIGHT, AMPERE), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getFlow(null, cnecO, TwoSides.ONE, AMPERE)));
+        assertEquals(1120.5, raoResultClone.getFlow(null, cnecO, TwoSides.TWO, AMPERE), 0.001);
         assertEquals(1121., raoResultClone.getMargin(null, cnecO, AMPERE), 0.001);
         assertEquals(1122., raoResultClone.getRelativeMargin(null, cnecO, AMPERE), 0.001);
-        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecO, Side.LEFT, AMPERE)));
-        assertEquals(1123.5, raoResultClone.getLoopFlow(null, cnecO, Side.RIGHT, AMPERE), 0.001);
-        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecO, Side.LEFT, AMPERE)));
-        assertEquals(1124.5, raoResultClone.getCommercialFlow(null, cnecO, Side.RIGHT, AMPERE), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(null, cnecO, TwoSides.ONE, AMPERE)));
+        assertEquals(1123.5, raoResultClone.getLoopFlow(null, cnecO, TwoSides.TWO, AMPERE), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(null, cnecO, TwoSides.ONE, AMPERE)));
+        assertEquals(1124.5, raoResultClone.getCommercialFlow(null, cnecO, TwoSides.TWO, AMPERE), 0.001);
 
-        assertTrue(Double.isNaN(raoResultClone.getFlow(preventiveInstant, cnecO, Side.LEFT, MEGAWATT)));
-        assertEquals(1210.5, raoResultClone.getFlow(preventiveInstant, cnecO, Side.RIGHT, MEGAWATT), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)));
+        assertEquals(1210.5, raoResultClone.getFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT), 0.001);
         assertEquals(1211., raoResultClone.getMargin(preventiveInstant, cnecO, MEGAWATT), 0.001);
         assertEquals(1212., raoResultClone.getRelativeMargin(preventiveInstant, cnecO, MEGAWATT), 0.001);
-        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(preventiveInstant, cnecO, Side.LEFT, MEGAWATT)));
-        assertEquals(1213.5, raoResultClone.getLoopFlow(preventiveInstant, cnecO, Side.RIGHT, MEGAWATT), 0.001);
-        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(preventiveInstant, cnecO, Side.LEFT, MEGAWATT)));
-        assertEquals(1214.5, raoResultClone.getCommercialFlow(preventiveInstant, cnecO, Side.RIGHT, MEGAWATT), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getLoopFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)));
+        assertEquals(1213.5, raoResultClone.getLoopFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getCommercialFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)));
+        assertEquals(1214.5, raoResultClone.getCommercialFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT), 0.001);
 
-        assertTrue(Double.isNaN(raoResultClone.getPtdfZonalSum(preventiveInstant, cnecO, Side.LEFT)));
-        assertEquals(0.6, raoResultClone.getPtdfZonalSum(preventiveInstant, cnecO, Side.RIGHT), 0.001);
+        assertTrue(Double.isNaN(raoResultClone.getPtdfZonalSum(preventiveInstant, cnecO, TwoSides.ONE)));
+        assertEquals(0.6, raoResultClone.getPtdfZonalSum(preventiveInstant, cnecO, TwoSides.TWO), 0.001);
 
         // -----------------------------
         // --- NetworkAction results ---

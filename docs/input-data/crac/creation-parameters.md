@@ -48,8 +48,8 @@ convention), when optimizing line's flow margin.
 Note that this parameter is ignored when the line side to monitor is defined by the native CRAC itself (e.g. when a 
 cross-border tie-line is monitored by one TSO only, then the RAO will automatically detect on which side this TSO is).  
 Possible values for this parameter are:  
-- **monitor-lines-on-left-side** to monitor lines on left side only (typically to be used in DC-loadflow mode)
-- **monitor-lines-on-right-side** to monitor lines on right side only (alternatively in DC-loadflow mode)
+- **monitor-lines-on-side-one** to monitor lines on side one only (typically to be used in DC-loadflow mode)
+- **monitor-lines-on-side-two** to monitor lines on side two only (alternatively in DC-loadflow mode)
 - **monitor-lines-on-both-sides** to monitor lines on both sides; the flow limits defined in the native CRAC file will then 
 apply to both sides (typically to be used in AC-loadflow mode)
   

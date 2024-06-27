@@ -10,7 +10,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -118,22 +118,22 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
-    public double getFlow(FlowCnec branchCnec, Side side, Unit unit) {
+    public double getFlow(FlowCnec branchCnec, TwoSides side, Unit unit) {
         return flowResult.getFlow(branchCnec, side, unit);
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec branchCnec, Side side, Unit unit) {
+    public double getCommercialFlow(FlowCnec branchCnec, TwoSides side, Unit unit) {
         return flowResult.getCommercialFlow(branchCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec branchCnec, Side side) {
+    public double getPtdfZonalSum(FlowCnec branchCnec, TwoSides side) {
         return flowResult.getPtdfZonalSum(branchCnec, side);
     }
 
     @Override
-    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
         return flowResult.getPtdfZonalSums();
     }
 
@@ -183,12 +183,12 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec branchCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec branchCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
         return sensitivityResult.getSensitivityValue(branchCnec, side, rangeAction, unit);
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec branchCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec branchCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         return sensitivityResult.getSensitivityValue(branchCnec, side, linearGlsk, unit);
     }
 

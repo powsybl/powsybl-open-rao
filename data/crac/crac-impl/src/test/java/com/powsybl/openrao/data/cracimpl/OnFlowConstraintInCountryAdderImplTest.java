@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
@@ -62,13 +62,13 @@ class OnFlowConstraintInCountryAdderImplTest {
             .withOperator("operator2")
             .newThreshold()
             .withUnit(Unit.MEGAWATT)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-1500.)
             .withMax(1500.)
             .add()
             .newThreshold()
             .withUnit(Unit.PERCENT_IMAX)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-0.3)
             .withMax(0.3)
             .add()
