@@ -27,6 +27,7 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -66,7 +67,7 @@ class FlowbasedComputationImplTest {
     }
 
     @Test
-    void testRunWithCra() {
+    void testRunWithCra() throws IOException {
         Crac crac = ExampleGenerator.crac("crac.json", network);
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
@@ -76,7 +77,7 @@ class FlowbasedComputationImplTest {
     }
 
     @Test
-    void testRunWithCraRaoResult() {
+    void testRunWithCraRaoResult() throws IOException {
         Crac crac = ExampleGenerator.crac("crac_for_rao_result.json", network);
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
@@ -87,14 +88,14 @@ class FlowbasedComputationImplTest {
     }
 
     @Test
-    void testRunPraWithForced() {
+    void testRunPraWithForced() throws IOException {
         Crac crac = ExampleGenerator.crac("crac_with_forced.json", network);
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
     }
 
     @Test
-    void testRunPraWithExtension() {
+    void testRunPraWithExtension() throws IOException {
         Crac crac = ExampleGenerator.crac("crac_with_extension.json", network);
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
