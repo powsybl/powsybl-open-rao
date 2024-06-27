@@ -81,7 +81,7 @@ public class LoopFlowResult {
             .filter(FlowCnec.class::isInstance)
             .map(FlowCnec.class::cast)
             .forEach(cnec -> {
-                Map<Side, Double> cnecMap = new HashMap<>();
+                Map<Side, Double> cnecMap = new EnumMap<>(Side.class);
                 loopFlowMap.get(cnec).keySet().forEach(side ->
                     cnecMap.put(side, this.getCommercialFlow(cnec, side))
                 );

@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CurativeWithSecondPraoResultTest {
+class CurativeWithSecondPraoResultTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
     private State mockStateWithContingency(String id) {
