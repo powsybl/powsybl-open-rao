@@ -279,12 +279,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return getRemedialActions().stream()
             .map(RemedialAction::getTriggerConditions)
             .flatMap(Set::stream)
-            // TODO: Previously looked for OnContingencyState urs, hence the cnec/country.isEmpty()
-            // TODO: would it make sense to only look at the contingency?
+            // previously looked for OnContingencyState usage rules
             .anyMatch(triggerCondition -> triggerCondition.getContingency().isPresent()
-                && triggerCondition.getContingency().get().getId().equals(contingencyId)
-                && triggerCondition.getCnec().isEmpty()
-                && triggerCondition.getCountry().isEmpty());
+                && triggerCondition.getContingency().get().getId().equals(contingencyId));
     }
 
     //endregion
@@ -374,17 +371,14 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the State is referenced in a Cnec or a RemedialAction's TriggerCondition
      */
     private boolean isStateUsedWithinCrac(String stateId) {
-        // TODO: Previously looked for OnContingencyState urs, hence the cnec/country.isEmpty()
-        // TODO: would it make sense to only look at the contingency?
+        // previously looked for OnContingencyState usage rules
         return getCnecs().stream()
             .anyMatch(cnec -> cnec.getState().getId().equals(stateId))
                 || getRemedialActions().stream()
                 .map(RemedialAction::getTriggerConditions)
                 .flatMap(Set::stream)
                 .anyMatch(triggerCondition -> triggerCondition.getContingency().isPresent()
-                    && stateId.equals(getState(triggerCondition.getContingency().get(), triggerCondition.getInstant()).getId())
-                    && triggerCondition.getCnec().isEmpty()
-                    && triggerCondition.getCountry().isEmpty());
+                    && stateId.equals(getState(triggerCondition.getContingency().get(), triggerCondition.getInstant()).getId()));
     }
 
     //endregion
