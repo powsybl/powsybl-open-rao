@@ -46,50 +46,10 @@ public final class PstRangeActionArrayDeserializer {
                         break;
                     case TRIGGER_CONDITIONS:
                         jsonParser.nextToken();
-                        TriggerConditionDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        TriggerConditionDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
                         break;
-                    case ON_INSTANT_USAGE_RULES:
-                        checkVersionForUsageRules(version);
-                        jsonParser.nextToken();
-                        OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
-                        break;
-                    case FREE_TO_USE_USAGE_RULES:
-                        checkVersionForUsageRules(version);
-                        deserializeFreeToUseUsageRules(jsonParser, version, pstRangeActionAdder);
-                        break;
-                    case ON_CONTINGENCY_STATE_USAGE_RULES:
-                        checkVersionForUsageRules(version);
-                        jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
-                        break;
-                    case ON_STATE_USAGE_RULES:
-                        checkVersionForUsageRules(version);
-                        deserializeOnStateUsageRules(jsonParser, version, pstRangeActionAdder);
-                        break;
-                    case ON_CONSTRAINT_USAGE_RULES:
-                        checkVersionForUsageRules(version);
-                        jsonParser.nextToken();
-                        OnConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
-                        break;
-                    case ON_FLOW_CONSTRAINT_USAGE_RULES:
-                        checkVersionForUsageRules(version);
-                        jsonParser.nextToken();
-                        deserializeOlderOnConstraintUsageRules(jsonParser, ON_FLOW_CONSTRAINT_USAGE_RULES, version, pstRangeActionAdder);
-                        break;
-                    case ON_ANGLE_CONSTRAINT_USAGE_RULES:
-                        checkVersionForUsageRules(version);
-                        jsonParser.nextToken();
-                        deserializeOlderOnConstraintUsageRules(jsonParser, ON_ANGLE_CONSTRAINT_USAGE_RULES, version, pstRangeActionAdder);
-                        break;
-                    case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
-                        checkVersionForUsageRules(version);
-                        jsonParser.nextToken();
-                        deserializeOlderOnConstraintUsageRules(jsonParser, ON_VOLTAGE_CONSTRAINT_USAGE_RULES, version, pstRangeActionAdder);
-                        break;
-                    case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
-                        checkVersionForUsageRules(version);
-                        jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
+                    case ON_INSTANT_USAGE_RULES, FREE_TO_USE_USAGE_RULES, ON_CONTINGENCY_STATE_USAGE_RULES, ON_STATE_USAGE_RULES, ON_CONSTRAINT_USAGE_RULES, ON_FLOW_CONSTRAINT_USAGE_RULES, ON_ANGLE_CONSTRAINT_USAGE_RULES, ON_VOLTAGE_CONSTRAINT_USAGE_RULES, ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
+                        deserializeUsageRules(jsonParser, version, pstRangeActionAdder, FREE_TO_USE_USAGE_RULES.equals(jsonParser.getCurrentName()));
                         break;
                     case NETWORK_ELEMENT_ID:
                         deserializeNetworkElementId(jsonParser, networkElementsNamesPerId, pstRangeActionAdder);
@@ -132,24 +92,6 @@ public final class PstRangeActionArrayDeserializer {
         }
     }
 
-    private static void deserializeOnStateUsageRules(JsonParser jsonParser, String version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
-        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-            throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
-        } else {
-            jsonParser.nextToken();
-            OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
-        }
-    }
-
-    private static void deserializeFreeToUseUsageRules(JsonParser jsonParser, String version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
-        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-            throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
-        } else {
-            jsonParser.nextToken();
-            OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
-        }
-    }
-
     private static Map<Integer, Double> readIntToDoubleMap(JsonParser jsonParser) throws IOException {
         HashMap<Integer, Double> map = jsonParser.readValueAs(new TypeReference<Map<Integer, Double>>() {
         });
@@ -160,13 +102,5 @@ public final class PstRangeActionArrayDeserializer {
             }
         });
         return map;
-    }
-
-    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, PstRangeActionAdder pstRangeActionAdder) throws IOException {
-        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 4) {
-            OnConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
-        } else {
-            throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));
-        }
     }
 }

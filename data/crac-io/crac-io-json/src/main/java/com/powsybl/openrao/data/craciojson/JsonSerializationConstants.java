@@ -8,12 +8,14 @@
 package com.powsybl.openrao.data.craciojson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
+import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
@@ -22,6 +24,7 @@ import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
+import com.powsybl.openrao.data.craciojson.deserializers.TriggerConditionDeserializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -40,7 +43,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.4";
+    public static final String CRAC_IO_VERSION = "2.5";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -460,10 +463,25 @@ public final class JsonSerializationConstants {
         }
     }
 
+    public static void checkVersionForFreeToUseUsageRules(String version) {
+        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
+            throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
+        }
+    }
+
     public static void checkVersionForUsageRules(String version) {
         if (getPrimaryVersionNumber(version) > 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) >= 5) {
             throw new OpenRaoException("Usage Rules have been discarded as of version 2.5 and replaced by Trigger Conditions.");
         }
+    }
+
+    public static void deserializeUsageRules(JsonParser jsonParser, String version, RemedialActionAdder<?> remedialActionAdder, boolean isFreeToUse) throws IOException {
+        if (isFreeToUse) {
+            checkVersionForFreeToUseUsageRules(version);
+        }
+        checkVersionForUsageRules(version);
+        jsonParser.nextToken();
+        TriggerConditionDeserializer.deserialize(jsonParser, remedialActionAdder, version);
     }
 
     public static class TriggerConditionComparator implements Comparator<TriggerCondition> {

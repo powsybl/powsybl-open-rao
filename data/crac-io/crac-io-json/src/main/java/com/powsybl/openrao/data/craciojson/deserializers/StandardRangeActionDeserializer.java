@@ -40,60 +40,10 @@ public final class StandardRangeActionDeserializer {
                 break;
             case TRIGGER_CONDITIONS:
                 jsonParser.nextToken();
-                TriggerConditionDeserializer.deserialize(jsonParser, standardRangeActionAdder);
+                TriggerConditionDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 break;
-            case ON_INSTANT_USAGE_RULES:
-                checkVersionForUsageRules(version);
-                jsonParser.nextToken();
-                OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
-                break;
-            case FREE_TO_USE_USAGE_RULES:
-                if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-                    throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
-                } else {
-                    checkVersionForUsageRules(version);
-                    jsonParser.nextToken();
-                    OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
-                }
-                break;
-            case ON_CONTINGENCY_STATE_USAGE_RULES:
-                checkVersionForUsageRules(version);
-                jsonParser.nextToken();
-                OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
-                break;
-            case ON_STATE_USAGE_RULES:
-                if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
-                    throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
-                } else {
-                    checkVersionForUsageRules(version);
-                    jsonParser.nextToken();
-                    OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
-                }
-                break;
-            case ON_CONSTRAINT_USAGE_RULES:
-                checkVersionForUsageRules(version);
-                jsonParser.nextToken();
-                OnConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
-                break;
-            case ON_FLOW_CONSTRAINT_USAGE_RULES:
-                checkVersionForUsageRules(version);
-                jsonParser.nextToken();
-                deserializeOlderOnConstraintUsageRules(jsonParser, ON_FLOW_CONSTRAINT_USAGE_RULES, version, standardRangeActionAdder);
-                break;
-            case ON_ANGLE_CONSTRAINT_USAGE_RULES:
-                checkVersionForUsageRules(version);
-                jsonParser.nextToken();
-                deserializeOlderOnConstraintUsageRules(jsonParser, ON_ANGLE_CONSTRAINT_USAGE_RULES, version, standardRangeActionAdder);
-                break;
-            case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
-                checkVersionForUsageRules(version);
-                jsonParser.nextToken();
-                deserializeOlderOnConstraintUsageRules(jsonParser, ON_VOLTAGE_CONSTRAINT_USAGE_RULES, version, standardRangeActionAdder);
-                break;
-            case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
-                checkVersionForUsageRules(version);
-                jsonParser.nextToken();
-                OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
+            case ON_INSTANT_USAGE_RULES, FREE_TO_USE_USAGE_RULES, ON_CONTINGENCY_STATE_USAGE_RULES, ON_STATE_USAGE_RULES, ON_CONSTRAINT_USAGE_RULES, ON_FLOW_CONSTRAINT_USAGE_RULES, ON_ANGLE_CONSTRAINT_USAGE_RULES, ON_VOLTAGE_CONSTRAINT_USAGE_RULES, ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
+                deserializeUsageRules(jsonParser, version, standardRangeActionAdder, FREE_TO_USE_USAGE_RULES.equals(jsonParser.getCurrentName()));
                 break;
             case GROUP_ID:
                 standardRangeActionAdder.withGroupId(jsonParser.nextTextValue());
@@ -117,13 +67,4 @@ public final class StandardRangeActionDeserializer {
         }
         return true;
     }
-
-    private static void deserializeOlderOnConstraintUsageRules(JsonParser jsonParser, String keyword, String version, StandardRangeActionAdder<?> standardRangeActionAdder) throws IOException {
-        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 4) {
-            OnConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
-        } else {
-            throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));
-        }
-    }
-
 }
