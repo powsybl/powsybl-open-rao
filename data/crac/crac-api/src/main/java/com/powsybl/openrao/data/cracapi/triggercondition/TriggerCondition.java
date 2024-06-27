@@ -70,4 +70,20 @@ public interface TriggerCondition {
      * Get the {@link UsageMethod} of the trigger condition on a given state
      */
     UsageMethod getUsageMethod(State state);
+
+    /**
+     * Get the {@link TriggerConditionType} of the trigger condition
+     */
+    default TriggerConditionType getType() {
+        if (getCnec().isPresent()) {
+            return TriggerConditionType.ON_CONSTRAINT;
+        }
+        if (getCountry().isPresent()) {
+            return TriggerConditionType.ON_FLOW_CONSTRAINT_IN_COUNTRY;
+        }
+        if (getContingency().isPresent()) {
+            return TriggerConditionType.ON_CONTINGENCY_STATE;
+        }
+        return TriggerConditionType.ON_INSTANT;
+    }
 }
