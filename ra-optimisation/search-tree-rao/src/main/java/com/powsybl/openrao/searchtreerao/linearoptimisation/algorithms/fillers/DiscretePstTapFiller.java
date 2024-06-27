@@ -181,10 +181,10 @@ public class DiscretePstTapFiller implements ProblemFiller {
      */
     private Pair<Integer, Integer> getMinAndMaxAdmissibleTaps(PstRangeAction pstRangeAction, State state) {
         double prePerimeterAngle = prePerimeterRangeActionSetpoints.getSetpoint(pstRangeAction);
-        int minAdmissibleTap = pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle));
-        int maxAdmissibleTap = pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle));
-        minAdmissibleTap = Math.min(maxAdmissibleTap, minAdmissibleTap);
-        maxAdmissibleTap = Math.max(maxAdmissibleTap, minAdmissibleTap);
+        int minTap = pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle));
+        int maxTap = pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle));
+        int minAdmissibleTap = Math.min(maxTap, minTap);
+        int maxAdmissibleTap = Math.max(maxTap, minTap);
 
         Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationPerimeter, pstRangeAction, state);
         if (lastAvailableRangeAction != null) {
