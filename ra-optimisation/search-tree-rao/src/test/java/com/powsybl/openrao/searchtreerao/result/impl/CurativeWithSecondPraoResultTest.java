@@ -8,12 +8,12 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.Test;
 
@@ -56,13 +56,13 @@ class CurativeWithSecondPraoResultTest {
 
         CurativeWithSecondPraoResult result = new CurativeWithSecondPraoResult(state1, null, null, null, postCraPrePerimeterResult);
 
-        assertEquals(135.4, result.getFlow(cnec1, Side.RIGHT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(135.4, result.getFlow(cnec1, Side.LEFT, Unit.AMPERE, mock(Instant.class)), DOUBLE_TOLERANCE);
+        assertEquals(135.4, result.getFlow(cnec1, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(135.4, result.getFlow(cnec1, TwoSides.ONE, Unit.AMPERE, mock(Instant.class)), DOUBLE_TOLERANCE);
 
-        Exception e = assertThrows(OpenRaoException.class, () -> result.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT));
+        Exception e = assertThrows(OpenRaoException.class, () -> result.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT));
         assertEquals("Cnec cnec2 has a different contingency than this result's state (state1)", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> result.getFlow(cnec2, Side.LEFT, Unit.AMPERE, mock(Instant.class)));
+        e = assertThrows(OpenRaoException.class, () -> result.getFlow(cnec2, TwoSides.ONE, Unit.AMPERE, mock(Instant.class)));
         assertEquals("Cnec cnec2 has a different contingency than this result's state (state1)", e.getMessage());
     }
 }

@@ -342,7 +342,7 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getFlow(flowCnec, side, unit, instant);
         } else if (status == Status.OPTIMIZED) {

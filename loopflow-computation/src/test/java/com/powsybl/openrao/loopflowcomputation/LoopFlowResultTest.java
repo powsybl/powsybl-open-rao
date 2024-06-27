@@ -52,20 +52,20 @@ class LoopFlowResultTest {
         FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
 
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        loopFlowResult.addCnecResult(cnec, Side.RIGHT, 1., 2., 3.);
-        loopFlowResult.addCnecResult(cnec1, Side.RIGHT, 1., 20., 3.);
-        loopFlowResult.addCnecResult(cnec1, Side.LEFT, 1., 22., 3.);
-        loopFlowResult.addCnecResult(cnec2, Side.LEFT, 1., 30., 3.);
+        loopFlowResult.addCnecResult(cnec, TwoSides.TWO, 1., 2., 3.);
+        loopFlowResult.addCnecResult(cnec1, TwoSides.TWO, 1., 20., 3.);
+        loopFlowResult.addCnecResult(cnec1, TwoSides.ONE, 1., 22., 3.);
+        loopFlowResult.addCnecResult(cnec2, TwoSides.ONE, 1., 30., 3.);
 
-        Map<FlowCnec, Map<Side, Double>> commercialFlowsMap = loopFlowResult.getCommercialFlowsMap();
+        Map<FlowCnec, Map<TwoSides, Double>> commercialFlowsMap = loopFlowResult.getCommercialFlowsMap();
         assertEquals(2, commercialFlowsMap.size());
 
         assertEquals(2, commercialFlowsMap.get(cnec1).size());
-        assertEquals(20., commercialFlowsMap.get(cnec1).get(Side.RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(22., commercialFlowsMap.get(cnec1).get(Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(20., commercialFlowsMap.get(cnec1).get(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(22., commercialFlowsMap.get(cnec1).get(TwoSides.ONE), DOUBLE_TOLERANCE);
 
         assertEquals(1, commercialFlowsMap.get(cnec2).size());
-        assertEquals(30., commercialFlowsMap.get(cnec2).get(Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(30., commercialFlowsMap.get(cnec2).get(TwoSides.ONE), DOUBLE_TOLERANCE);
     }
 }
 

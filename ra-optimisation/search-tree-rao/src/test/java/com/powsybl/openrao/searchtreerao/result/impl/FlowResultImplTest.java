@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -137,9 +138,9 @@ class FlowResultImplTest {
 
     @Test
     void testConstructorWrongCases() {
-        Map<FlowCnec, Map<Side, Double>> commercialFlows = new HashMap<>();
+        Map<FlowCnec, Map<TwoSides, Double>> commercialFlows = new HashMap<>();
         FlowResult fixedCommercialFlows = Mockito.mock(FlowResult.class);
-        Map<FlowCnec, Map<Side, Double>> ptdfZonalSums = new HashMap<>();
+        Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums = new HashMap<>();
         FlowResult fixedPtdfZonalSums = Mockito.mock(FlowResult.class);
 
         Exception e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, fixedCommercialFlows, ptdfZonalSums, null));

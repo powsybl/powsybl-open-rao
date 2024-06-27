@@ -244,7 +244,7 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).get(side);
     }
 
-    public double getReferenceFlow(FlowCnec cnec, Side side, Instant instant) {
+    public double getReferenceFlow(FlowCnec cnec, TwoSides side, Instant instant) {
         StateResult stateResult = getCnecStateResult(cnec, instant);
         if (stateResult == null ||
             !stateResult.getReferenceFlows().containsKey(cnec.getNetworkElement().getId()) ||
@@ -264,7 +264,7 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).get(side);
     }
 
-    public double getReferenceIntensity(FlowCnec cnec, Side side, Instant instant) {
+    public double getReferenceIntensity(FlowCnec cnec, TwoSides side, Instant instant) {
         StateResult stateResult = getCnecStateResult(cnec, instant);
         if (stateResult == null ||
             !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId()) ||
@@ -293,7 +293,7 @@ public class SystematicSensitivityResult {
         return stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
     }
 
-    public double getSensitivityOnFlow(String variableId, FlowCnec cnec, Side side, Instant instant) {
+    public double getSensitivityOnFlow(String variableId, FlowCnec cnec, TwoSides side, Instant instant) {
         StateResult stateResult = getCnecStateResult(cnec, instant);
         if (stateResult == null ||
             !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||

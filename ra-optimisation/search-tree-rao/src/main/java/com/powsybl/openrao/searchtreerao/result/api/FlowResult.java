@@ -36,10 +36,10 @@ public interface FlowResult {
      * @param flowCnec: The branch to be studied.
      * @param side: The side of the branch to be queried.
      * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
-     * @param instant: The optimization instant for which the flow is queried.
+     * @param optimizedInstant: The optimization instant for which the flow is queried.
      * @return The flow on the branch in the given unit.
      */
-    double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant optimizedInstant);
+    double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant optimizedInstant);
 
     /**
      * It gives the margin on a {@link FlowCnec} in a given {@link Unit}. It is basically the difference between the
