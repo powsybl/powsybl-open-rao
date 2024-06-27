@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -330,7 +330,7 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getFlow(flowCnec, side, unit);
         } else if (status == Status.OPTIMIZED) {
@@ -341,7 +341,7 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getCommercialFlow(flowCnec, side, unit);
         } else if (status == Status.OPTIMIZED) {
@@ -352,7 +352,7 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getPtdfZonalSum(flowCnec, side);
         } else if (status == Status.OPTIMIZED) {
@@ -363,7 +363,7 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getPtdfZonalSums();
         } else if (status == Status.OPTIMIZED) {
@@ -574,7 +574,7 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
         if (status == Status.EVALUATED ||
                 status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction)) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
@@ -586,7 +586,7 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         if (status == Status.EVALUATED) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
         } else if (status == Status.OPTIMIZED) {

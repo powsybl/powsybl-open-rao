@@ -9,7 +9,7 @@ package com.powsybl.openrao.sensitivityanalysis;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
@@ -33,7 +33,7 @@ class LoadflowProviderTest {
 
     @Test
     void inAmpereAndMegawattOnOneSide() {
-        Crac crac = CommonCracCreation.create(Set.of(Side.LEFT));
+        Crac crac = CommonCracCreation.create(Set.of(TwoSides.ONE));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
 
@@ -50,7 +50,7 @@ class LoadflowProviderTest {
 
     @Test
     void inAmpereAndMegawattOnTwoSides() {
-        Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
+        Crac crac = CommonCracCreation.create(Set.of(TwoSides.ONE, TwoSides.TWO));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE), ReportNode.NO_OP);
 

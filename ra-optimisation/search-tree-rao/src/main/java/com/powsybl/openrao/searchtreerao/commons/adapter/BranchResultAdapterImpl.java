@@ -10,7 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons.adapter;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.searchtreerao.commons.AbsolutePtdfSumsComputation;
@@ -47,21 +47,21 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
     public FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult, Network network) {
         FlowResult ptdfs;
         if (absolutePtdfSumsComputation != null) {
-            Map<FlowCnec, Map<Side, Double>> ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
+            Map<FlowCnec, Map<TwoSides, Double>> ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
             ptdfs = new FlowResult() {
 
                 @Override
-                public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+                public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+                public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+                public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
                     if (ptdfsMap.containsKey(flowCnec) && ptdfsMap.get(flowCnec).containsKey(side)) {
                         return ptdfsMap.get(flowCnec).get(side);
                     } else {
@@ -70,7 +70,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                 }
 
                 @Override
-                public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+                public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
                     return ptdfsMap;
                 }
             };
@@ -87,12 +87,12 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
             );
             commercialFlows = new FlowResult() {
                 @Override
-                public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+                public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+                public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
                     if (unit == Unit.MEGAWATT) {
                         return loopFlowResult.getCommercialFlow(flowCnec, side);
                     } else {
@@ -102,12 +102,12 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                 }
 
                 @Override
-                public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+                public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+                public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
                     throw new NotImplementedException();
                 }
             };

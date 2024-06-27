@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
@@ -96,15 +96,15 @@ class SystematicSensitivityInterfaceTest {
         assertNotNull(systematicSensitivityAnalysisResult);
         for (FlowCnec cnec : crac.getFlowCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
-                assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, Side.LEFT), FLOW_TOLERANCE);
-                assertEquals(2800., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, Side.RIGHT), FLOW_TOLERANCE);
-                assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec, Side.LEFT), FLOW_TOLERANCE);
-                assertEquals(4000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec, Side.RIGHT), FLOW_TOLERANCE);
+                assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, TwoSides.ONE), FLOW_TOLERANCE);
+                assertEquals(2800., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, TwoSides.TWO), FLOW_TOLERANCE);
+                assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec, TwoSides.ONE), FLOW_TOLERANCE);
+                assertEquals(4000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec, TwoSides.TWO), FLOW_TOLERANCE);
             } else {
-                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, Side.LEFT), FLOW_TOLERANCE);
-                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, Side.RIGHT), FLOW_TOLERANCE);
-                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec, Side.LEFT), FLOW_TOLERANCE);
-                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec, Side.RIGHT), FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, TwoSides.ONE), FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, TwoSides.TWO), FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec, TwoSides.ONE), FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec, TwoSides.TWO), FLOW_TOLERANCE);
             }
         }
 
@@ -149,10 +149,10 @@ class SystematicSensitivityInterfaceTest {
         Mockito.when(result.isSuccess()).thenReturn(true);
         crac.getFlowCnecs().forEach(cnec -> {
             if (cnec.getId().equals("cnec2basecase")) {
-                Mockito.when(result.getReferenceFlow(cnec, Side.LEFT)).thenReturn(1400.);
-                Mockito.when(result.getReferenceFlow(cnec, Side.RIGHT)).thenReturn(2800.);
-                Mockito.when(result.getReferenceIntensity(cnec, Side.LEFT)).thenReturn(2000.);
-                Mockito.when(result.getReferenceIntensity(cnec, Side.RIGHT)).thenReturn(4000.);
+                Mockito.when(result.getReferenceFlow(cnec, TwoSides.ONE)).thenReturn(1400.);
+                Mockito.when(result.getReferenceFlow(cnec, TwoSides.TWO)).thenReturn(2800.);
+                Mockito.when(result.getReferenceIntensity(cnec, TwoSides.ONE)).thenReturn(2000.);
+                Mockito.when(result.getReferenceIntensity(cnec, TwoSides.TWO)).thenReturn(4000.);
                 crac.getRangeActions().forEach(rangeAction -> Mockito.when(result.getSensitivityOnFlow(Mockito.eq(rangeAction), Mockito.eq(cnec), Mockito.any())).thenReturn(random.nextDouble()));
             } else {
                 Mockito.when(result.getReferenceFlow(Mockito.eq(cnec), Mockito.any())).thenReturn(0.0);

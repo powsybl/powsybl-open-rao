@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
@@ -130,27 +130,27 @@ class RaoUtilTest {
     @Test
     void testGetBranchFlowUnitMultiplier() {
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        Mockito.when(cnec.getNominalVoltage(Side.LEFT)).thenReturn(400.);
-        Mockito.when(cnec.getNominalVoltage(Side.RIGHT)).thenReturn(200.);
+        Mockito.when(cnec.getNominalVoltage(TwoSides.ONE)).thenReturn(400.);
+        Mockito.when(cnec.getNominalVoltage(TwoSides.TWO)).thenReturn(200.);
 
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(1000 / 400. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(400 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000 / 400. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(400 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertEquals(1000 / 200. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(200 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000 / 200. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(200 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.PERCENT_IMAX));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.MEGAWATT, Unit.PERCENT_IMAX));
         assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.KILOVOLT, Unit.MEGAWATT));
+        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.ONE, Unit.KILOVOLT, Unit.MEGAWATT));
         assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.TAP));
+        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.AMPERE, Unit.TAP));
         assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.DEGREE, Unit.AMPERE));
+        exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, TwoSides.TWO, Unit.DEGREE, Unit.AMPERE));
         assertEquals("Only conversions between MW and A are supported.", exception.getMessage());
     }
 
@@ -164,15 +164,15 @@ class RaoUtilTest {
         Mockito.when(cnecB.isOptimized()).thenReturn(true);
         Mockito.when(cnecC.isOptimized()).thenReturn(true);
         Mockito.when(cnecD.isOptimized()).thenReturn(false);
-        Mockito.when(cnecA.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
-        Mockito.when(cnecA.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecB.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecB.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
-        Mockito.when(cnecC.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecC.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecD.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
-        Mockito.when(cnecD.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
-        Set.of(cnecA, cnecB, cnecC, cnecD).forEach(cnec -> when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT)));
+        Mockito.when(cnecA.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        Mockito.when(cnecA.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
+        Mockito.when(cnecC.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecC.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecD.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        Mockito.when(cnecD.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        Set.of(cnecA, cnecB, cnecC, cnecD).forEach(cnec -> when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE)));
 
         assertEquals(1000., RaoUtil.getLargestCnecThreshold(Set.of(cnecA), Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecB), Unit.MEGAWATT), DOUBLE_TOLERANCE);

@@ -21,7 +21,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -82,7 +82,7 @@ class CoreCneRemedialActionsCreatorTest {
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withContingency("contingency-id")
                 .withInstant(CURATIVE_INSTANT_ID)
-                .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
+                .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(TwoSides.TWO).add()
                 .add();
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters(ReportNode.NO_OP);

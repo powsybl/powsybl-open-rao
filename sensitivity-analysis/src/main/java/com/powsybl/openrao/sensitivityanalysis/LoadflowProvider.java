@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -140,7 +140,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
                 .collect(Collectors.toSet());
         }
 
-        Map<String, Set<Side>> networkElementsAndSides = new HashMap<>();
+        Map<String, Set<TwoSides>> networkElementsAndSides = new HashMap<>();
         flowCnecs.forEach(flowCnec ->
             networkElementsAndSides.computeIfAbsent(flowCnec.getNetworkElement().getId(), k -> new HashSet<>()).addAll(flowCnec.getMonitoredSides())
         );
@@ -150,7 +150,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         return sensitivityFunctions;
     }
 
-    private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, String networkElementId, Set<Side> sides) {
+    private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, String networkElementId, Set<TwoSides> sides) {
         Identifiable<?> networkIdentifiable = network.getIdentifiable(networkElementId);
         if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof DanglingLine) {
             return getSensitivityFunctionTypes(sides).stream().map(functionType -> Pair.of(networkElementId, functionType)).toList();
@@ -159,18 +159,18 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         }
     }
 
-    private Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<Side> sides) {
+    private Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
         Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
-        if (factorsInMegawatt && sides.contains(Side.LEFT)) {
+        if (factorsInMegawatt && sides.contains(TwoSides.ONE)) {
             sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
         }
-        if (factorsInMegawatt && sides.contains(Side.RIGHT)) {
+        if (factorsInMegawatt && sides.contains(TwoSides.TWO)) {
             sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
         }
-        if (factorsInAmpere && sides.contains(Side.LEFT)) {
+        if (factorsInAmpere && sides.contains(TwoSides.ONE)) {
             sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
         }
-        if (factorsInAmpere && sides.contains(Side.RIGHT)) {
+        if (factorsInAmpere && sides.contains(TwoSides.TWO)) {
             sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
         }
         return sensitivityFunctionTypes;

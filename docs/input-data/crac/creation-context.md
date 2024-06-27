@@ -139,8 +139,8 @@ void printSomeResults(BranchCnecCreationContext context, CracCreationContext cra
     context.getCreatedCnecsIds().entrySet().forEach(entry -> {
             System.out.println(String.format("Created CNEC for instant %s: %s", entry.getKey(), entry.getValue()));
             FlowCnec flowCnec = cracCreationContext.getCrac().getFlowCnec(entry.getValue());
-            System.out.println(String.format("The left-side flow on this native critical branch after RAO is: %.2f A", flowMultiplier * raoResult.getFlow(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, Side.LEFT, Unit.AMPERE)));
-            System.out.println(String.format("The right-side flow on this native critical branch after RAO is: %.2f A", flowMultiplier * raoResult.getFlow(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, Side.RIGHT, Unit.AMPERE)));
+            System.out.println(String.format("The left-side flow on this native critical branch after RAO is: %.2f A", flowMultiplier * raoResult.getFlow(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, TwoSides.ONE, Unit.AMPERE)));
+            System.out.println(String.format("The right-side flow on this native critical branch after RAO is: %.2f A", flowMultiplier * raoResult.getFlow(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, TwoSides.TWO, Unit.AMPERE)));
             System.out.println(String.format("The flow margin on this native critical branch after RAO is: %.2f A", raoResult.getMargin(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, Unit.AMPERE)));
         }
     );

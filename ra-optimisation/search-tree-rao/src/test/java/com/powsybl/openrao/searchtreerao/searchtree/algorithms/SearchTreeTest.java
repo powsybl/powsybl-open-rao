@@ -18,7 +18,7 @@ import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -593,15 +593,15 @@ class SearchTreeTest {
         when(cnec.getNetworkElement()).thenReturn(networkElement);
         when(cnec.getId()).thenReturn("cnec-id");
         when(cnec.getName()).thenReturn("cnec-name");
-        when(cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        when(cnec.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
         when(state.getId()).thenReturn("state-id");
         when(networkElement.getId()).thenReturn("ne-id");
 
         when(rootLeaf.getCostlyElements(eq("loop-flow-cost"), anyInt())).thenReturn(List.of(cnec));
         when(rootLeaf.getIdentifier()).thenReturn("leaf-id");
-        when(rootLeaf.getMargin(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-135.);
-        when(rootLeaf.getMargin(cnec, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-134.);
-        when(rootLeaf.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(1135.);
+        when(rootLeaf.getMargin(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-135.);
+        when(rootLeaf.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-134.);
+        when(rootLeaf.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(1135.);
     }
 
     @Test

@@ -11,7 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
@@ -95,10 +95,10 @@ public class MinMarginEvaluator implements CostEvaluator {
     private double getHighestThreshold(FlowCnec flowCnec) {
         return Math.max(
             Math.max(
-                flowCnec.getUpperBound(Side.LEFT, unit).orElse(0.0),
-                flowCnec.getUpperBound(Side.RIGHT, unit).orElse(0.0)),
+                flowCnec.getUpperBound(TwoSides.ONE, unit).orElse(0.0),
+                flowCnec.getUpperBound(TwoSides.TWO, unit).orElse(0.0)),
             Math.max(
-                -flowCnec.getLowerBound(Side.LEFT, unit).orElse(0.0),
-                -flowCnec.getLowerBound(Side.RIGHT, unit).orElse(0.0)));
+                -flowCnec.getLowerBound(TwoSides.ONE, unit).orElse(0.0),
+                -flowCnec.getLowerBound(TwoSides.TWO, unit).orElse(0.0)));
     }
 }

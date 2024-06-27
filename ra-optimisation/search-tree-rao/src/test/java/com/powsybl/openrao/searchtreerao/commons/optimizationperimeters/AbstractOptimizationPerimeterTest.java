@@ -5,7 +5,7 @@ import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -63,7 +63,7 @@ abstract class AbstractOptimizationPerimeterTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOptimized(true)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(TwoSides.ONE).add()
             .add();
 
         // one outage CNEC for each CO
@@ -73,7 +73,7 @@ abstract class AbstractOptimizationPerimeterTest {
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("outage-1")
             .withMonitored(true)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(TwoSides.ONE).add()
             .add();
         oCnec1.newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.MEGAWATT).withValue(100.).add();
 
@@ -83,7 +83,7 @@ abstract class AbstractOptimizationPerimeterTest {
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("outage-2")
             .withOptimized(true).withMonitored(true)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(TwoSides.ONE).add()
             .add();
 
         cCnec1 = crac.newFlowCnec()
@@ -92,7 +92,7 @@ abstract class AbstractOptimizationPerimeterTest {
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("outage-1")
             .withMonitored(true)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(TwoSides.ONE).add()
             .add();
 
         cCnec2 = crac.newFlowCnec()
@@ -101,7 +101,7 @@ abstract class AbstractOptimizationPerimeterTest {
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("outage-2")
             .withOptimized(true)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(TwoSides.ONE).add()
             .add();
         cCnec2.newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.MEGAWATT).withValue(100.).add();
 
