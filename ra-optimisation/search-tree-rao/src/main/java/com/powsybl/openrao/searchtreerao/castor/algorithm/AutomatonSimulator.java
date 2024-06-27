@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionType;
 import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -368,7 +369,8 @@ public final class AutomatonSimulator {
                                                     Network network) {
         // UsageMethod should be FORCED
         if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
-            if (availableRa.getTriggerConditions().stream().filter(triggerCondition -> triggerCondition.getCnec().isEmpty() && triggerCondition.getCountry().isEmpty())
+            if (availableRa.getTriggerConditions().stream()
+                .filter(triggerCondition -> TriggerConditionType.ON_INSTANT.equals(triggerCondition.getType()) || TriggerConditionType.ON_CONTINGENCY_STATE.equals(triggerCondition.getType()))
                 .anyMatch(triggerCondition -> triggerCondition.getUsageMethod(automatonState).equals(UsageMethod.FORCED))) {
                 return crac.getFlowCnecs(automatonState);
             } else {
