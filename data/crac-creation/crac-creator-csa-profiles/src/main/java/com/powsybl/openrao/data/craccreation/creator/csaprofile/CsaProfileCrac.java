@@ -8,34 +8,13 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.NcPropertyBagsConverter;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileKeyword;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.HeaderType;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.OverridingObjectsFields;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.CurrentLimit;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.GridStateAlterationRemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.SchemeRemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageLimit;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElement;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithContingency;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.AssessedElementWithRemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Contingency;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyEquipment;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ContingencyWithRemedialAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.GridStateAlterationCollection;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionDependency;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionGroup;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RemedialActionScheme;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.RotatingMachineAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.ShuntCompensatorModification;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.Stage;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.StaticPropertyRange;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TapPositionAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.TopologyAction;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.VoltageAngleLimit;
-import com.powsybl.openrao.data.nativecracapi.NativeCrac;
+import com.powsybl.openrao.data.craccreation.creator.csaprofile.nc.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -49,7 +28,7 @@ import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreat
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
-public class CsaProfileCrac implements NativeCrac {
+public class CsaProfileCrac {
 
     private final TripleStore tripleStoreCsaProfileCrac;
 
@@ -63,11 +42,6 @@ public class CsaProfileCrac implements NativeCrac {
         this.queryCatalogCsaProfileCrac = new QueryCatalog(CsaProfileConstants.SPARQL_FILE_CSA_PROFILE);
         this.keywordMap = keywordMap;
         this.overridingData = new HashMap<>();
-    }
-
-    @Override
-    public String getFormat() {
-        return "CsaProfileCrac";
     }
 
     public void clearContext(String context) {

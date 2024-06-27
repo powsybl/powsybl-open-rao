@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.RangeActionGroup;
+import com.powsybl.openrao.data.cracapi.parameters.RangeActionGroup;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimConstants;
 import com.powsybl.openrao.data.craccreation.util.OpenRaoImportException;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;

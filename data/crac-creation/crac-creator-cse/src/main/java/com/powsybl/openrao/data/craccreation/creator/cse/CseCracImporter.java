@@ -6,11 +6,14 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.google.auto.service.AutoService;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.io.Importer;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.CRACDocumentType;
-import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
-import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;
 import org.xml.sax.SAXException;
 
@@ -25,13 +28,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-@AutoService(NativeCracImporter.class)
-public class CseCracImporter implements NativeCracImporter<CseCrac> {
+@AutoService(Importer.class)
+public class CseCracImporter implements Importer<CseCracCreationContext> {
     private static final String CRAC_CSE_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/craccreation/creator/cse/xsd/crac-document_4_23.xsd";
     private static final String ETSO_CORE_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/craccreation/creator/cse/xsd/etso-core-cmpts.xsd";
     private static final String ETSO_CODES_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/craccreation/creator/cse/xsd/etso-code-lists.xsd";
@@ -41,22 +45,24 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
         return "CseCrac";
     }
 
-    @Override
-    public CseCrac importNativeCrac(InputStream inputStream) {
+    private CRACDocumentType importNativeCrac(InputStream inputStream) {
         CRACDocumentType cracDocumentType;
         try {
             cracDocumentType = JAXBContext.newInstance(CRACDocumentType.class)
-                    .createUnmarshaller()
-                    .unmarshal(new StreamSource(inputStream), CRACDocumentType.class)
-                    .getValue();
+                .createUnmarshaller()
+                .unmarshal(new StreamSource(inputStream), CRACDocumentType.class)
+                .getValue();
         } catch (JAXBException e) {
             throw new OpenRaoException(e);
         }
-        return new CseCrac(cracDocumentType);
+        return cracDocumentType;
     }
 
     @Override
     public boolean exists(String s, InputStream inputStream) {
+        if (!FilenameUtils.getExtension(s).equals("xml")) {
+            return false;
+        }
         Source xmlFile = new StreamSource(inputStream);
         // The following line triggers sonar issue java:S2755 which prevents us from accessing XSD schema files
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI); //NOSONAR
@@ -70,7 +76,7 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
 
             schema.newValidator().validate(xmlFile);
             OpenRaoLoggerProvider.BUSINESS_LOGS.info("CSE CRAC document is valid");
-            return FilenameUtils.getExtension(s).equals("xml");
+            return true;
         } catch (MalformedURLException e) {
             throw new OpenRaoException("URL error");
         } catch (SAXException e) {
@@ -79,5 +85,10 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
+        return new CseCracCreator().createCrac(importNativeCrac(inputStream), network, offsetDateTime, cracCreationParameters);
     }
 }

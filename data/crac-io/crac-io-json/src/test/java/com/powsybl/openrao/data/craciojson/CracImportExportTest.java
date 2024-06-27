@@ -45,9 +45,10 @@ class CracImportExportTest {
 
     @Test
     void testExists() {
-        assertTrue(new JsonImport().exists(getClass().getResourceAsStream("/cracHeader.json")));
-        assertFalse(new JsonImport().exists(getClass().getResourceAsStream("/invalidCrac.json")));
-        assertFalse(new JsonImport().exists(getClass().getResourceAsStream("/invalidCrac.txt")));
+        assertTrue(new JsonImport().exists("cracHeader.json", getClass().getResourceAsStream("/cracHeader.json")));
+        assertFalse(new JsonImport().exists("cracHeader.jjson", getClass().getResourceAsStream("/cracHeader.json")));
+        assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.json")));
+        assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.txt")));
     }
 
     @Test
