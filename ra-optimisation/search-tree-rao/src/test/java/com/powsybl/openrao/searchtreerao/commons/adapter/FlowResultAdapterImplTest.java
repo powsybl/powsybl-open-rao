@@ -113,6 +113,7 @@ class FlowResultAdapterImplTest {
         when(loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(systematicSensitivityResult, Set.of(cnec2), network))
                 .thenReturn(loopFlowResult);
         when(loopFlowResult.getCommercialFlow(cnec2, RIGHT)).thenReturn(300.);
+        when(loopFlowResult.getCommercialFlowsMap()).thenReturn(Map.of(cnec2, Map.of(RIGHT, 300.)));
         FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
