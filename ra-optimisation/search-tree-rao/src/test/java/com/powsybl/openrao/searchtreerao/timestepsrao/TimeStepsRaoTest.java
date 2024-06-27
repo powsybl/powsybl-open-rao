@@ -21,6 +21,8 @@ import java.util.Map;
 public class TimeStepsRaoTest {
     List<Network> networks;
     List<Crac> cracs;
+    RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
+
 
     @Test
     void raoTwoTimeStepsWithNetworkActions() {
@@ -44,8 +46,6 @@ public class TimeStepsRaoTest {
             cracs.add(crac);
             raoInputsList.add(RaoInput.build(network, crac).build());
         }
-
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
 
         // Run RAO
         LinearOptimizationResult raoResult = TimeStepsRao.launchMultiRao(raoInputsList, raoParameters);
@@ -86,7 +86,6 @@ public class TimeStepsRaoTest {
     private Map<Integer, Double> computeMargins(List<String> networksPaths, int i, List<String> cracsPaths) {
         Network network = Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i)));
         Crac crac = CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), network);
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
 
         crac.getNetworkAction("close-fr3-be2-2 - TS" + i).apply(network);
         crac.getNetworkAction("close-fr3-be2-3 - TS" + i).apply(network);

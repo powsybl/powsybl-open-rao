@@ -22,7 +22,7 @@
   "contingencies": [],
   "flowCnecs": [
     {
-      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS2 ",
+      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS2",
       "name": "BBE2AA1  FFR3AA1  1 - preventive",
       "networkElementId": "BBE2AA1  FFR3AA1  1",
       "operator": "BE",
@@ -35,8 +35,8 @@
       "nominalV" : [ 400.0 ],
       "thresholds" : [ {
         "unit" : "megawatt",
-        "min" : -300.0,
-        "max" : 300.0,
+        "min" : -400.0,
+        "max" : 400.0,
         "side" : "left"
       } ]
     }

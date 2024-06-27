@@ -43,15 +43,15 @@ public class MultiTSFiller implements ProblemFiller {
     ) {
 
         this.rangeActionsList = optimizationPerimeters
-            .stream().map(perimeter -> perimeter.getRangeActions().stream().collect(Collectors.toSet()))
+            .stream().map(perimeter -> new HashSet<>(perimeter.getRangeActions()))
             .collect(Collectors.toList());
         this.networksList = networksList;
         this.statesList = optimizationPerimeters
-            .stream().map(perimeter -> perimeter.getMainOptimizationState())
+            .stream().map(OptimizationPerimeter::getMainOptimizationState)
             .collect(Collectors.toList());
         this.rangeActionParameters = rangeActionParameters;
         this.cnecsList = optimizationPerimeters
-            .stream().map(perimeter -> perimeter.getFlowCnecs())
+            .stream().map(OptimizationPerimeter::getFlowCnecs)
             .collect(Collectors.toList());
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
     }
@@ -171,7 +171,6 @@ public class MultiTSFiller implements ProblemFiller {
         varConstraintPositive.setCoefficient(previousTSSetPointVariable, -1);
         varConstraintNegative.setLb(0);
         varConstraintNegative.setCoefficient(previousTSSetPointVariable, 1);
-
     }
 
     /**
