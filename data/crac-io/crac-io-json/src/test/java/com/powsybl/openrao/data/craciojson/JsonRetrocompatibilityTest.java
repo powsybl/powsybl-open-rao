@@ -313,7 +313,7 @@ class JsonRetrocompatibilityTest {
         // Add support for trigger conditions
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
         assertEquals(6, crac.getNetworkActions().size());
         testContentOfV2Point5Crac(crac);
     }

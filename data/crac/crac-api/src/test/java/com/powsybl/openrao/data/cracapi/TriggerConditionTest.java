@@ -13,11 +13,15 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionType;
 import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -131,7 +135,6 @@ public class TriggerConditionTest {
             this.cnec = cnec;
         }
 
-
         @Override
         public Instant getInstant() {
             return instant;
@@ -163,7 +166,20 @@ public class TriggerConditionTest {
         }
     }
 
+    private Instant instant = new InstantTest.InstantImplTest(0, InstantKind.CURATIVE);
     private Contingency contingency = new Contingency("contingency");
     private Cnec<?> cnec = new CnecImplTest("cnec");
     private Country country = Country.FR;
+
+    @Test
+    void testGetType() {
+        assertEquals(TriggerConditionType.ON_INSTANT, new TriggerConditionImplTest(instant, null, null, null).getType());
+        assertEquals(TriggerConditionType.ON_CONTINGENCY_STATE, new TriggerConditionImplTest(instant, contingency, null, null).getType());
+        assertEquals(TriggerConditionType.ON_FLOW_CONSTRAINT_IN_COUNTRY, new TriggerConditionImplTest(instant, null, country, null).getType());
+        assertEquals(TriggerConditionType.ON_FLOW_CONSTRAINT_IN_COUNTRY, new TriggerConditionImplTest(instant, contingency, country, null).getType());
+        assertEquals(TriggerConditionType.ON_CONSTRAINT, new TriggerConditionImplTest(instant, null, null, cnec).getType());
+        assertEquals(TriggerConditionType.ON_CONSTRAINT, new TriggerConditionImplTest(instant, contingency, null, cnec).getType());
+        assertEquals(TriggerConditionType.ON_CONSTRAINT, new TriggerConditionImplTest(instant, null, country, cnec).getType());
+        assertEquals(TriggerConditionType.ON_CONSTRAINT, new TriggerConditionImplTest(instant, contingency, country, cnec).getType());
+    }
 }
