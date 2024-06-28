@@ -33,14 +33,14 @@ class FlowResultFromMapImplTest {
     SystematicSensitivityResult systematicSensitivityResult;
     FlowCnec loopFlowCnec;
     FlowCnec optimizedCnec;
-    FlowResultFromMapImpl branchResultFromMap;
+    FlowResultImpl branchResultFromMap;
 
     @BeforeEach
     public void setUp() {
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         loopFlowCnec = Mockito.mock(FlowCnec.class);
         optimizedCnec = Mockito.mock(FlowCnec.class);
-        branchResultFromMap = new FlowResultFromMapImpl(
+        branchResultFromMap = new FlowResultImpl(
                 systematicSensitivityResult,
                 Map.of(loopFlowCnec, Map.of(ONE, 200., TWO, 250.)),
                 Map.of(optimizedCnec, Map.of(ONE, 30., TWO, 35.))

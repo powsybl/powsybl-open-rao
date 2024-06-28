@@ -48,10 +48,13 @@ Feature: US 91.12: Multi-curative
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
     Then the tap of PstRangeAction "CRA_PST_BE" should be -11 after "Contingency DE2 DE3 1" at "curative1"
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after "curative1" instant remedial actions should be 500.0 MW
+    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative1" instant remedial actions should be 500.0 MW
+    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative1" instant remedial actions should be 500.0 MW
     # After second curative
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
     Then the remedial action "CRA_CLOSE_NL2_BE3_2" is used after "Contingency DE2 DE3 1" at "curative2"
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative2" instant remedial actions should be 263.0 MW
+    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative2" instant remedial actions should be 263.0 MW
     # After third curative
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
     Then the remedial action "CRA_CLOSE_NL2_BE3_3" is used after "Contingency DE2 DE3 1" at "curative3"
@@ -541,3 +544,150 @@ Feature: US 91.12: Multi-curative
     Then the remedial action "CRA_CLOSE_BE3_BE4_1" is used after "Contingency DE2 NL3 1" at "curative3"
     Then the tap of PstRangeAction "CRA_PST_BE" should be 3 after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW
+
+  @fast @rao @ac @multi-curative
+  Scenario: US 91.12.16: Multi-curative CNECs with PRAs only
+    # This is a copy of US 91.12.2 but CRAs are transformed into PRAs
+    # Curative CNECs are now part of the preventive perimeter
+    # Then the 3 RAs should be applied in preventive in order to solve curative constraints
+    Given network file is "epic91/12Nodes3ParallelLines.uct"
+    Given crac file is "epic91/crac_91_12_16.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    When I launch search_tree_rao
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_ONLY"
+    And 3 remedial actions are used in preventive
+    And the remedial action "PRA_PST_BE" is used in preventive
+    And the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_2" is used in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    And the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 654.8 MW
+    And the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after PRA should be 320.6 MW
+    And the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after PRA should be 120.6 MW
+    And the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 70.6 MW
+
+  @fast @rao @ac @multi-curative
+  Scenario: US 91.12.17: Multi-curative CNECs with simple 2nd PRAO
+    # This is a copy of previous case, but some useless CRAs are added to keep curative perimeters
+    # Then the same PRAs should be applied in 2nd PRAO
+    Given network file is "epic91/12Nodes3ParallelLines.uct"
+    Given crac file is "epic91/crac_91_12_17.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch search_tree_rao
+    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    And 3 remedial actions are used in preventive
+    And the remedial action "PRA_PST_BE" is used in preventive
+    And the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_2" is used in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    And the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 654.8 MW
+    And the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after PRA should be 320.6 MW
+    And the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after PRA should be 120.6 MW
+    And the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 70.6 MW
+
+  @fast @rao @ac @multi-curative
+  Scenario: US 91.12.18: Multi-curative CNECs with no CRA for curative1 and 2nd PRAO
+    # This is a copy of US 91.12.2 but only CRA that was available in curative1 is made a PRA
+    # (a useless CRA is added to keep all curative perimeters)
+    # Thus the other 2 CRAs should be applied as before, but the PST should be applied in 2nd PRAO
+    Given network file is "epic91/12Nodes3ParallelLines.uct"
+    Given crac file is "epic91/crac_91_12_18.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch search_tree_rao
+    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    # Initial
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" should be 500.0 MW
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - outage" should be 583.33 MW
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" should be 583.33 MW
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" should be 583.33 MW
+    And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" should be 583.33 MW
+    # Preventive
+    And 1 remedial actions are used in preventive
+    And the remedial action "PRA_PST_BE" is used in preventive
+    And the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 392.0 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - outage" after PRA should be 493.4 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after PRA should be 493.4 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after PRA should be 493.4 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 493.4 MW
+    # Curative1
+    And 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after "curative1" instant remedial actions should be 493.4 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative1" instant remedial actions should be 493.4 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative1" instant remedial actions should be 493.4 MW
+    # Curative2
+    And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the remedial action "CRA_CLOSE_NL2_BE3_2" is used after "Contingency DE2 DE3 1" at "curative2"
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative2" instant remedial actions should be 263.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative2" instant remedial actions should be 263.1 MW
+     # Curative3
+    And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
+    And the remedial action "CRA_CLOSE_NL2_BE3_3" is used after "Contingency DE2 DE3 1" at "curative3"
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 179.4 MW
+
+  @fast @rao @ac @multi-curative
+  Scenario: US 91.12.19: Multi-curative CNECs with no CRA for curative2 and 2nd PRAO
+    # This is a copy of US 91.12.2 but only CRA that was available in curative2 is made a PRA
+    # (a useless CRA is added to keep all curative perimeters)
+    # Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_2 should be applied in 2nd PRAO
+    Given network file is "epic91/12Nodes3ParallelLines.uct"
+    Given crac file is "epic91/crac_91_12_19.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch search_tree_rao
+    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    # Preventive
+    And 1 remedial actions are used in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_2" is used in preventive
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 270.3 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - outage" after PRA should be 311.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after PRA should be 311.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after PRA should be 311.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 311.1 MW
+    # Curative1
+    And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the remedial action "CRA_PST_BE" is used after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -11 after "Contingency DE2 DE3 1" at "curative1"
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after "curative1" instant remedial actions should be 263.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative1" instant remedial actions should be 263.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative1" instant remedial actions should be 263.1 MW
+    # Curative2
+    And 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative2" instant remedial actions should be 263.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative2" instant remedial actions should be 263.1 MW
+     # Curative3
+    And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
+    And the remedial action "CRA_CLOSE_NL2_BE3_3" is used after "Contingency DE2 DE3 1" at "curative3"
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 179.4 MW
+
+  @fast @rao @ac @multi-curative
+  Scenario: US 91.12.20: Multi-curative CNECs with no CRA for curative3 and 2nd PRAO
+    # This is a copy of US 91.12.2 but only CRA that was available in curative3 is made a PRA
+    # (a useless CRA is added to keep all curative perimeters)
+    # Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_3 should be applied in 2nd PRAO
+    Given network file is "epic91/12Nodes3ParallelLines.uct"
+    Given crac file is "epic91/crac_91_12_20.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch search_tree_rao
+    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    # Preventive
+    And 1 remedial actions are used in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 270.3 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - outage" after PRA should be 311.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after PRA should be 311.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after PRA should be 311.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 311.1 MW
+    # Curative1
+    And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the remedial action "CRA_PST_BE" is used after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -11 after "Contingency DE2 DE3 1" at "curative1"
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after "curative1" instant remedial actions should be 263.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative1" instant remedial actions should be 263.1 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative1" instant remedial actions should be 263.1 MW
+    # Curative2
+    And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the remedial action "CRA_CLOSE_NL2_BE3_2" is used after "Contingency DE2 DE3 1" at "curative2"
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative2" instant remedial actions should be 179.4 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative2" instant remedial actions should be 179.4 MW
+     # Curative3
+    And 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 179.4 MW
