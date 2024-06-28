@@ -544,6 +544,21 @@ public interface Crac extends Identifiable<Crac> {
     RaUsageLimitsAdder newRaUsageLimits(String instantName);
 
     /**
+     * Get the CRAC format
+     * @param filename               CRAC file name
+     * @param inputStream            CRAC data
+     * @return the CRAC format (if found)
+     */
+    static String getCracFormat(String filename, InputStream inputStream) throws IOException {
+        byte[] bytes = getBytesFromInputStream(inputStream);
+        return new ServiceLoaderCache<>(Importer.class).getServices().stream()
+            .filter(importer -> importer.exists(filename, new ByteArrayInputStream(bytes)))
+            .findAny()
+            .orElseThrow(() -> new OpenRaoException("No suitable CRAC importer found."))
+            .getFormat();
+    }
+
+    /**
      * Import CRAC from a file, inside a CracCreationContext
      *
      * @param filename               CRAC file name

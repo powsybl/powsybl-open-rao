@@ -234,7 +234,7 @@ class CseCracCreatorTest {
     @Test
     void doNotCreateAbsentFromNetworkCnec() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
-        assertCriticalBranchNotImported("French line 2 - FFRFAK2 - FFRFAK1 - outage_2", ELEMENT_NOT_FOUND_IN_NETWORK);
+        assertCriticalBranchNotImported("French line 2 - FFRFAK2  - FFRFAK1  - outage_2", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test

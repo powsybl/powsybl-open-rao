@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCrea
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.FbConstraintCreationContext;
-import com.powsybl.openrao.data.nativecracioapi.NativeCracImporters;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
@@ -95,11 +94,11 @@ public final class Helpers {
         byte[] cracBytes = null;
         try (InputStream cracInputStream = new BufferedInputStream(new FileInputStream(cracFile))) {
             cracBytes = getBytesFromInputStream(cracInputStream);
+            return Crac.getCracFormat(cracFile.getName(), new ByteArrayInputStream(cracBytes));
         } catch (IOException e) {
             e.printStackTrace();
             throw new OpenRaoException("Could not load CRAC file", e);
         }
-        return NativeCracImporters.findImporter(cracFile.getName(), new ByteArrayInputStream(cracBytes)).getFormat();
     }
 
     private static CracCreationContext roundTripOnCracCreationContext(CracCreationContext cracCreationContext, Network network) throws IOException {
