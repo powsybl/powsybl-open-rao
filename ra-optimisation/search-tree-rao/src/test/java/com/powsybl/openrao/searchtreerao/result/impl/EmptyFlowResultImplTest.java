@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,14 +31,14 @@ class EmptyFlowResultImplTest {
         when(cnec.getState()).thenReturn(state);
 
         EmptyFlowResultImpl branchResult = new EmptyFlowResultImpl();
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT, cnec.getState().getInstant())));
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Side.RIGHT, Unit.MEGAWATT, cnec.getState().getInstant())));
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Side.LEFT, Unit.AMPERE, cnec.getState().getInstant())));
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Side.RIGHT, Unit.AMPERE, cnec.getState().getInstant())));
-        assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, Side.LEFT, Unit.MEGAWATT)));
-        assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, Side.RIGHT, Unit.MEGAWATT)));
-        assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec, Side.LEFT)));
-        assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec, Side.RIGHT)));
+        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT, cnec.getState().getInstant())));
+        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT, cnec.getState().getInstant())));
+        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.ONE, Unit.AMPERE, cnec.getState().getInstant())));
+        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.TWO, Unit.AMPERE, cnec.getState().getInstant())));
+        assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec, TwoSides.ONE)));
+        assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec, TwoSides.TWO)));
         assertTrue(branchResult.getPtdfZonalSums().isEmpty());
     }
 }

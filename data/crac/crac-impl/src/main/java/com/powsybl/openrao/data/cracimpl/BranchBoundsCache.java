@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 
 import java.util.*;
 
@@ -31,7 +31,7 @@ public class BranchBoundsCache {
     private List<Boolean> boundsComputed = Arrays.asList(false, false, false, false, false, false, false, false);
     private List<Double> boundValues = Arrays.asList(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 
-    private static int getIndex(Side side, Unit unit, Bound bound) {
+    private static int getIndex(TwoSides side, Unit unit, Bound bound) {
         if (unit.equals(Unit.AMPERE)) {
             return getAmpereIndex(side, bound);
         } else if (unit.equals(Unit.MEGAWATT)) {
@@ -41,50 +41,50 @@ public class BranchBoundsCache {
         }
     }
 
-    private static int getMegawattIndex(Side side, Bound bound) {
+    private static int getMegawattIndex(TwoSides side, Bound bound) {
         if (bound.equals(Bound.LOWER)) {
-            return side.equals(Side.LEFT) ? 0 : 1;
+            return side.equals(TwoSides.ONE) ? 0 : 1;
         } else {
-            return side.equals(Side.LEFT) ? 2 : 3;
+            return side.equals(TwoSides.ONE) ? 2 : 3;
         }
     }
 
-    private static int getAmpereIndex(Side side, Bound bound) {
+    private static int getAmpereIndex(TwoSides side, Bound bound) {
         if (bound.equals(Bound.LOWER)) {
-            return side.equals(Side.LEFT) ? 4 : 5;
+            return side.equals(TwoSides.ONE) ? 4 : 5;
         } else {
-            return side.equals(Side.LEFT) ? 6 : 7;
+            return side.equals(TwoSides.ONE) ? 6 : 7;
         }
     }
 
-    public boolean isLowerBoundComputed(Side side, Unit unit) {
+    public boolean isLowerBoundComputed(TwoSides side, Unit unit) {
         return boundsComputed.get(getIndex(side, unit, Bound.LOWER));
     }
 
-    public boolean isUpperBoundComputed(Side side, Unit unit) {
+    public boolean isUpperBoundComputed(TwoSides side, Unit unit) {
         return boundsComputed.get(getIndex(side, unit, Bound.UPPER));
     }
 
-    public Double getLowerBound(Side side, Unit unit) {
+    public Double getLowerBound(TwoSides side, Unit unit) {
         if (!isLowerBoundComputed(side, unit)) {
             throw new OpenRaoException("Trying to access not computed bound");
         }
         return boundValues.get(getIndex(side, unit, Bound.LOWER));
     }
 
-    public void setLowerBound(Double lowerBound, Side side, Unit unit) {
+    public void setLowerBound(Double lowerBound, TwoSides side, Unit unit) {
         boundValues.set(getIndex(side, unit, Bound.LOWER), lowerBound);
         boundsComputed.set(getIndex(side, unit, Bound.LOWER), true);
     }
 
-    public Double getUpperBound(Side side, Unit unit) {
+    public Double getUpperBound(TwoSides side, Unit unit) {
         if (!isUpperBoundComputed(side, unit)) {
             throw new OpenRaoException("Trying to access not computed bound");
         }
         return boundValues.get(getIndex(side, unit, Bound.UPPER));
     }
 
-    public void setUpperBound(Double upperBound, Side side, Unit unit) {
+    public void setUpperBound(Double upperBound, TwoSides side, Unit unit) {
         boundValues.set(getIndex(side, unit, Bound.UPPER), upperBound);
         boundsComputed.set(getIndex(side, unit, Bound.UPPER), true);
     }

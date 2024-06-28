@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -18,16 +19,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import static com.powsybl.openrao.data.cracapi.cnec.Side.ONE;
+import static com.powsybl.openrao.data.cracapi.cnec.Side.TWO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.LEFT;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.RIGHT;
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -53,13 +57,13 @@ class FlowResultImplTest {
         when(optimizedCnec.getState()).thenReturn(state);
 
         FlowResult fixedCommercialFlows = Mockito.mock(FlowResult.class);
-        when(fixedCommercialFlows.getCommercialFlow(loopFlowCnec, LEFT, Unit.MEGAWATT)).thenReturn(200.);
-        when(fixedCommercialFlows.getCommercialFlow(eq(optimizedCnec), eq(RIGHT), any())).thenThrow(new OpenRaoException("a mock of what would happen if trying to access LF"));
+        when(fixedCommercialFlows.getCommercialFlow(loopFlowCnec, ONE, Unit.MEGAWATT)).thenReturn(200.);
+        when(fixedCommercialFlows.getCommercialFlow(eq(optimizedCnec), eq(TWO), any())).thenThrow(new OpenRaoException("a mock of what would happen if trying to access LF"));
 
         FlowResult fixedPtdfs = Mockito.mock(FlowResult.class);
-        when(fixedPtdfs.getPtdfZonalSums()).thenReturn(Map.of(optimizedCnec, Map.of(RIGHT, 30.)));
-        when(fixedPtdfs.getPtdfZonalSum(optimizedCnec, RIGHT)).thenReturn(30.);
-        when(fixedPtdfs.getPtdfZonalSum(loopFlowCnec, LEFT)).thenThrow(new OpenRaoException("a mock of what would happen if trying to access ptdf sum"));
+        when(fixedPtdfs.getPtdfZonalSums()).thenReturn(Map.of(optimizedCnec, Map.of(TWO, 30.)));
+        when(fixedPtdfs.getPtdfZonalSum(optimizedCnec, TWO)).thenReturn(30.);
+        when(fixedPtdfs.getPtdfZonalSum(loopFlowCnec, ONE)).thenThrow(new OpenRaoException("a mock of what would happen if trying to access ptdf sum"));
 
         branchResult = new FlowResultImpl(
                 systematicSensitivityResult,
@@ -70,39 +74,95 @@ class FlowResultImplTest {
 
     @Test
     void testBasicReturns() {
-        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, LEFT, loopFlowCnec.getState().getInstant())).thenReturn(200.);
-        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, LEFT, loopFlowCnec.getState().getInstant())).thenReturn(58.);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, RIGHT, loopFlowCnec.getState().getInstant())).thenReturn(500.);
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, RIGHT, loopFlowCnec.getState().getInstant())).thenReturn(235.);
+        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, ONE, loopFlowCnec.getState().getInstant())).thenReturn(200.);
+        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, ONE, loopFlowCnec.getState().getInstant())).thenReturn(58.);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, loopFlowCnec.getState().getInstant())).thenReturn(500.);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, loopFlowCnec.getState().getInstant())).thenReturn(235.);
 
-        assertEquals(200, branchResult.getFlow(loopFlowCnec, LEFT, Unit.MEGAWATT, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
-        assertEquals(58, branchResult.getFlow(loopFlowCnec, LEFT, Unit.AMPERE, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
-        assertEquals(500, branchResult.getFlow(optimizedCnec, RIGHT, Unit.MEGAWATT, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
-        assertEquals(235, branchResult.getFlow(optimizedCnec, RIGHT, Unit.AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(200, branchResult.getFlow(loopFlowCnec, ONE, Unit.MEGAWATT, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(58, branchResult.getFlow(loopFlowCnec, ONE, Unit.AMPERE, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(500, branchResult.getFlow(optimizedCnec, TWO, Unit.MEGAWATT, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(235, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
 
-        assertThrows(OpenRaoException.class, () -> branchResult.getPtdfZonalSum(loopFlowCnec, LEFT));
-        assertEquals(30., branchResult.getPtdfZonalSum(optimizedCnec, RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(Map.of(optimizedCnec, Map.of(RIGHT, 30.)), branchResult.getPtdfZonalSums());
+        assertThrows(OpenRaoException.class, () -> branchResult.getPtdfZonalSum(loopFlowCnec, ONE));
+        assertEquals(30., branchResult.getPtdfZonalSum(optimizedCnec, TWO), DOUBLE_TOLERANCE);
+        assertEquals(Map.of(optimizedCnec, Map.of(TWO, 30.)), branchResult.getPtdfZonalSums());
+        
+        assertEquals(200, branchResult.getCommercialFlow(loopFlowCnec, ONE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertThrows(OpenRaoException.class, () -> branchResult.getCommercialFlow(loopFlowCnec, ONE, Unit.AMPERE));
+        assertThrows(OpenRaoException.class, () -> branchResult.getCommercialFlow(optimizedCnec, TWO, Unit.MEGAWATT));
+    }
 
-        assertEquals(200, branchResult.getCommercialFlow(loopFlowCnec, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertThrows(OpenRaoException.class, () -> branchResult.getCommercialFlow(loopFlowCnec, LEFT, Unit.AMPERE));
-        assertThrows(OpenRaoException.class, () -> branchResult.getCommercialFlow(optimizedCnec, RIGHT, Unit.MEGAWATT));
+    @Test
+    void testGetFlowWithInstant() {
+        Instant instant = Mockito.mock(Instant.class);
+
+        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, ONE, instant)).thenReturn(200.);
+        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, ONE, instant)).thenReturn(58.);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, instant)).thenReturn(500.);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, instant)).thenReturn(235.);
+
+        assertEquals(200, branchResult.getFlow(loopFlowCnec, ONE, Unit.MEGAWATT, instant), DOUBLE_TOLERANCE);
+        assertEquals(58, branchResult.getFlow(loopFlowCnec, ONE, Unit.AMPERE, instant), DOUBLE_TOLERANCE);
+        assertEquals(500, branchResult.getFlow(optimizedCnec, TWO, Unit.MEGAWATT, instant), DOUBLE_TOLERANCE);
+        assertEquals(235, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE, instant), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testNanFlow() {
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, RIGHT, optimizedCnec.getState().getInstant())).thenReturn(Double.NaN);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, RIGHT, optimizedCnec.getState().getInstant())).thenReturn(500.);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, optimizedCnec.getState().getInstant())).thenReturn(Double.NaN);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO)).thenReturn(500.);
         when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
 
-        assertEquals(721.69, branchResult.getFlow(optimizedCnec, RIGHT, Unit.AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+
+        Instant instant = Mockito.mock(Instant.class);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, instant)).thenReturn(Double.NaN);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, instant)).thenReturn(500.);
+        when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
+
+        assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testWrongFlowUnit() {
-        assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.KILOVOLT, optimizedCnec.getState().getInstant()));
-        assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.DEGREE, optimizedCnec.getState().getInstant()));
-        assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.PERCENT_IMAX, optimizedCnec.getState().getInstant()));
-        assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.TAP, optimizedCnec.getState().getInstant()));
+        Exception e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.KILOVOLT, optimizedCnec.getState().getInstant()));
+        assertEquals("Unknown unit for flow.", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.DEGREE));
+        assertEquals("Unknown unit for flow.", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.PERCENT_IMAX));
+        assertEquals("Unknown unit for flow.", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.TAP));
+        assertEquals("Unknown unit for flow.", e.getMessage());
+
+        Instant instant = Mockito.mock(Instant.class);
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.KILOVOLT, instant));
+        assertEquals("Unknown unit for flow.", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.DEGREE, instant));
+        assertEquals("Unknown unit for flow.", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.PERCENT_IMAX, instant));
+        assertEquals("Unknown unit for flow.", e.getMessage());
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.TAP, instant));
+        assertEquals("Unknown unit for flow.", e.getMessage());
+    }
+
+    @Test
+    void testConstructorWrongCases() {
+        Map<FlowCnec, Map<TwoSides, Double>> commercialFlows = new HashMap<>();
+        FlowResult fixedCommercialFlows = Mockito.mock(FlowResult.class);
+        Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums = new HashMap<>();
+        FlowResult fixedPtdfZonalSums = Mockito.mock(FlowResult.class);
+
+        Exception e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, fixedCommercialFlows, ptdfZonalSums, null));
+        assertEquals("Either commercialFlows or fixedCommercialFlows should be non null", e.getMessage());
+
+        e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, null, null, ptdfZonalSums, null));
+        assertEquals("Either commercialFlows or fixedCommercialFlows should be non null", e.getMessage());
+
+        e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, null, ptdfZonalSums, fixedPtdfZonalSums));
+        assertEquals("Either ptdfZonalSums or fixedPtdfZonalSums should be non null", e.getMessage());
+
+        e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, null, null, null));
+        assertEquals("Either ptdfZonalSums or fixedPtdfZonalSums should be non null", e.getMessage());
     }
 }

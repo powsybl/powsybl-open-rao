@@ -9,7 +9,7 @@ package com.powsybl.openrao.sensitivityanalysis.rasensihandler;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.Network;
  */
 public interface RangeActionSensiHandler {
 
-    double getSensitivityOnFlow(FlowCnec cnec, Side side, SystematicSensitivityResult sensitivityResult, Instant instant);
+    double getSensitivityOnFlow(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult, Instant instant);
 
     void checkConsistency(Network network);
 

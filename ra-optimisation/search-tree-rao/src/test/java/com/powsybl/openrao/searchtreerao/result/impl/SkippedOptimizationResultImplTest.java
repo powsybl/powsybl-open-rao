@@ -13,7 +13,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -40,7 +40,7 @@ class SkippedOptimizationResultImplTest {
     void testBasicReturns() {
         Instant instant = mock(Instant.class);
         FlowCnec flowCnec = mock(FlowCnec.class);
-        Side side = mock(Side.class);
+        TwoSides side = mock(TwoSides.class);
         Unit unit = mock(Unit.class);
         SensitivityVariableSet sensitivityVariableSet = mock(SensitivityVariableSet.class);
         State state = mock(State.class);

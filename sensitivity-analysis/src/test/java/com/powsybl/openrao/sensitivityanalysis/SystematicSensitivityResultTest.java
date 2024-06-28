@@ -8,7 +8,7 @@ package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.glsk.commons.ZonalData;
@@ -58,7 +58,7 @@ class SystematicSensitivityResultTest {
 
     public void setUpWith12Nodes() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(TwoSides.ONE, TwoSides.TWO));
         outageInstantOrder = crac.getInstant(CURATIVE_INSTANT_ID).getOrder();
 
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
@@ -88,17 +88,17 @@ class SystematicSensitivityResultTest {
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
 
         // Before postTreating intensities
-        assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(200, result.getReferenceIntensity(contingencyCnec, Side.LEFT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(25, result.getReferenceFlow(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(205, result.getReferenceIntensity(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
 
         // After postTreating intensities
         result.postTreatIntensities();
-        assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, Side.LEFT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(25, result.getReferenceFlow(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(205, result.getReferenceIntensity(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
     }
 
     @Test
@@ -117,20 +117,20 @@ class SystematicSensitivityResultTest {
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus());
 
         //  in basecase
-        assertEquals(10, result.getReferenceFlow(nStateCnec, Side.LEFT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(25, result.getReferenceIntensity(nStateCnec, Side.LEFT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec, Side.LEFT, null), EPSILON);
-        assertEquals(-15, result.getReferenceFlow(nStateCnec, Side.RIGHT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(-30, result.getReferenceIntensity(nStateCnec, Side.RIGHT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(-0.55, result.getSensitivityOnFlow(rangeAction, nStateCnec, Side.RIGHT, null), EPSILON);
+        assertEquals(10, result.getReferenceFlow(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(25, result.getReferenceIntensity(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec, TwoSides.ONE, null), EPSILON);
+        assertEquals(-15, result.getReferenceFlow(nStateCnec, TwoSides.TWO, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(-30, result.getReferenceIntensity(nStateCnec, TwoSides.TWO, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(-0.55, result.getSensitivityOnFlow(rangeAction, nStateCnec, TwoSides.TWO, null), EPSILON);
 
         //  after contingency
-        assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, Side.LEFT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, Side.LEFT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(25, result.getReferenceFlow(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(205, result.getReferenceIntensity(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(5.5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(5.5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
     }
 
     @Test
@@ -148,16 +148,16 @@ class SystematicSensitivityResultTest {
         assertTrue(result.isSuccess());
 
         //  in basecase
-        assertEquals(10, result.getReferenceFlow(nStateCnec, Side.LEFT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(0.140, result.getSensitivityOnFlow(linearGlsk, nStateCnec, Side.LEFT), EPSILON);
-        assertEquals(-15, result.getReferenceFlow(nStateCnec, Side.RIGHT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(-0.19, result.getSensitivityOnFlow(linearGlsk, nStateCnec, Side.RIGHT), EPSILON);
+        assertEquals(10, result.getReferenceFlow(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(0.140, result.getSensitivityOnFlow(linearGlsk, nStateCnec, TwoSides.ONE), EPSILON);
+        assertEquals(-15, result.getReferenceFlow(nStateCnec, TwoSides.TWO, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(-0.19, result.getSensitivityOnFlow(linearGlsk, nStateCnec, TwoSides.TWO), EPSILON);
 
         //  after contingency
-        assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(6, result.getSensitivityOnFlow(linearGlsk, contingencyCnec, Side.LEFT), EPSILON);
-        assertEquals(25, result.getReferenceFlow(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(-6.5, result.getSensitivityOnFlow(linearGlsk, contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(6, result.getSensitivityOnFlow(linearGlsk, contingencyCnec, TwoSides.ONE), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-6.5, result.getSensitivityOnFlow(linearGlsk, contingencyCnec, TwoSides.TWO), EPSILON);
     }
 
     @Test
@@ -186,14 +186,14 @@ class SystematicSensitivityResultTest {
             .withId("cnec-prev")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
             .add();
         contingencyCnec = crac.newFlowCnec()
             .withId("cnec-cur")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withContingency("co")
             .withInstant(OUTAGE_INSTANT_ID)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.TWO).add()
             .add();
         hvdcRangeAction = crac.newHvdcRangeAction()
             .withId("hvdc-ra")
@@ -220,13 +220,13 @@ class SystematicSensitivityResultTest {
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
-        assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, Side.LEFT, null), EPSILON);
+        assertEquals(30., result.getReferenceFlow(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(40., result.getReferenceIntensity(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, TwoSides.ONE, null), EPSILON);
 
-        assertEquals(26., result.getReferenceFlow(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(-7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, Side.RIGHT, null), EPSILON);
+        assertEquals(26., result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, TwoSides.TWO, null), EPSILON);
     }
 
     @Test
@@ -244,13 +244,13 @@ class SystematicSensitivityResultTest {
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
-        assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT, nStateCnec.getState().getInstant()), EPSILON);
-        assertEquals(-0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, Side.LEFT, null), EPSILON);
+        assertEquals(30., result.getReferenceFlow(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(40., result.getReferenceIntensity(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(-0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, TwoSides.ONE, null), EPSILON);
 
-        assertEquals(26., result.getReferenceFlow(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, Side.RIGHT, contingencyCnec.getState().getInstant()), EPSILON);
-        assertEquals(7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, Side.RIGHT, null), EPSILON);
+        assertEquals(26., result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, TwoSides.TWO, null), EPSILON);
     }
 
 }

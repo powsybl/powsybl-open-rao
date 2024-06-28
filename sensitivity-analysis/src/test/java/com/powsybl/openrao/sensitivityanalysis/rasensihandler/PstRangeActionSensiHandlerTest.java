@@ -9,7 +9,7 @@ package com.powsybl.openrao.sensitivityanalysis.rasensihandler;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -44,11 +44,11 @@ class PstRangeActionSensiHandlerTest {
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(crac.getPstRangeAction("pst"));
 
         SystematicSensitivityResult sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA1  BBE3AA1  1", flowCnec, Side.LEFT, null)).thenReturn(14.32);
-        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA1  BBE3AA1  1", flowCnec, Side.RIGHT, null)).thenReturn(104.32);
+        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA1  BBE3AA1  1", flowCnec, TwoSides.ONE, null)).thenReturn(14.32);
+        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA1  BBE3AA1  1", flowCnec, TwoSides.TWO, null)).thenReturn(104.32);
 
-        assertEquals(14.32, sensiHandler.getSensitivityOnFlow(flowCnec, Side.LEFT, sensiResult, null), 1e-3);
-        assertEquals(104.32, sensiHandler.getSensitivityOnFlow(flowCnec, Side.RIGHT, sensiResult, null), 1e-3);
+        assertEquals(14.32, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.ONE, sensiResult, null), 1e-3);
+        assertEquals(104.32, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.TWO, sensiResult, null), 1e-3);
     }
 
     @Test

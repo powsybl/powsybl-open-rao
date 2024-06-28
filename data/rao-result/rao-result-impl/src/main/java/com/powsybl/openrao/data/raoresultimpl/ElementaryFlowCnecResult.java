@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.raoresultimpl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -22,22 +22,22 @@ public class ElementaryFlowCnecResult {
     private static final FlowCnecResultPerUnit DEFAULT_RESULT = new FlowCnecResultPerUnit();
 
     private final Map<Unit, FlowCnecResultPerUnit> resultPerUnit;
-    private final Map<Side, Double> ptdfZonalSum;
+    private final Map<TwoSides, Double> ptdfZonalSum;
 
     private static class FlowCnecResultPerUnit {
-        private final Map<Side, Double> flow = new EnumMap<>(Map.of(Side.LEFT, Double.NaN, Side.RIGHT, Double.NaN));
+        private final Map<TwoSides, Double> flow = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
         private double margin = Double.NaN;
         private double relativeMargin = Double.NaN;
-        private final Map<Side, Double> loopFlow = new EnumMap<>(Map.of(Side.LEFT, Double.NaN, Side.RIGHT, Double.NaN));
-        private final Map<Side, Double> commercialFlow = new EnumMap<>(Map.of(Side.LEFT, Double.NaN, Side.RIGHT, Double.NaN));
+        private final Map<TwoSides, Double> loopFlow = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
+        private final Map<TwoSides, Double> commercialFlow = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
     }
 
     ElementaryFlowCnecResult() {
         this.resultPerUnit = new EnumMap<>(Unit.class);
-        this.ptdfZonalSum = new EnumMap<>(Map.of(Side.LEFT, Double.NaN, Side.RIGHT, Double.NaN));
+        this.ptdfZonalSum = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
     }
 
-    public double getFlow(Side side, Unit unit) {
+    public double getFlow(TwoSides side, Unit unit) {
         if (!resultPerUnit.containsKey(unit)) {
             return DEFAULT_RESULT.flow.get(side);
         }
@@ -52,25 +52,25 @@ public class ElementaryFlowCnecResult {
         return resultPerUnit.getOrDefault(unit, DEFAULT_RESULT).relativeMargin;
     }
 
-    public double getLoopFlow(Side side, Unit unit) {
+    public double getLoopFlow(TwoSides side, Unit unit) {
         if (!resultPerUnit.containsKey(unit)) {
             return DEFAULT_RESULT.loopFlow.get(side);
         }
         return resultPerUnit.get(unit).loopFlow.getOrDefault(side, DEFAULT_RESULT.loopFlow.get(side));
     }
 
-    public double getCommercialFlow(Side side, Unit unit) {
+    public double getCommercialFlow(TwoSides side, Unit unit) {
         if (!resultPerUnit.containsKey(unit)) {
             return DEFAULT_RESULT.commercialFlow.get(side);
         }
         return resultPerUnit.get(unit).commercialFlow.getOrDefault(side, DEFAULT_RESULT.commercialFlow.get(side));
     }
 
-    public double getPtdfZonalSum(Side side) {
+    public double getPtdfZonalSum(TwoSides side) {
         return ptdfZonalSum.get(side);
     }
 
-    public void setFlow(Side side, double flow, Unit unit) {
+    public void setFlow(TwoSides side, double flow, Unit unit) {
         setMapForUnitIfNecessary(unit);
         resultPerUnit.get(unit).flow.put(side, flow);
     }
@@ -85,17 +85,17 @@ public class ElementaryFlowCnecResult {
         resultPerUnit.get(unit).relativeMargin = relativeMargin;
     }
 
-    public void setLoopFlow(Side side, double loopFlow, Unit unit) {
+    public void setLoopFlow(TwoSides side, double loopFlow, Unit unit) {
         setMapForUnitIfNecessary(unit);
         resultPerUnit.get(unit).loopFlow.put(side, loopFlow);
     }
 
-    public void setCommercialFlow(Side side, double commercialFlow, Unit unit) {
+    public void setCommercialFlow(TwoSides side, double commercialFlow, Unit unit) {
         setMapForUnitIfNecessary(unit);
         resultPerUnit.get(unit).commercialFlow.put(side, commercialFlow);
     }
 
-    public void setPtdfZonalSum(Side side, double ptdfZonalSum) {
+    public void setPtdfZonalSum(TwoSides side, double ptdfZonalSum) {
         this.ptdfZonalSum.put(side, ptdfZonalSum);
     }
 

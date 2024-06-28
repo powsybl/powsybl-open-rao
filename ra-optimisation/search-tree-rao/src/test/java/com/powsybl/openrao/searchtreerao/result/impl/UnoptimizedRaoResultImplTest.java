@@ -27,8 +27,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.RIGHT;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.LEFT;
+import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.openrao.commons.Unit.*;
 
 /**
@@ -66,18 +66,18 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetFlow() {
-        when(initialResult.getFlow(flowCnec, LEFT, AMPERE, flowCnec.getState().getInstant())).thenReturn(100.);
-        when(initialResult.getFlow(flowCnec, LEFT, MEGAWATT, flowCnec.getState().getInstant())).thenReturn(1000.);
+        when(initialResult.getFlow(flowCnec, ONE, AMPERE, flowCnec.getState().getInstant())).thenReturn(100.);
+        when(initialResult.getFlow(flowCnec, ONE, MEGAWATT, flowCnec.getState().getInstant())).thenReturn(1000.);
 
-        assertEquals(100., output.getFlow(null, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getFlow(preventiveInstant, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getFlow(autoInstant, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getFlow(curativeInstant, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getFlow(null, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getFlow(preventiveInstant, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getFlow(autoInstant, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getFlow(curativeInstant, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(1000., output.getFlow(null, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getFlow(preventiveInstant, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getFlow(autoInstant, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getFlow(curativeInstant, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getFlow(null, flowCnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getFlow(preventiveInstant, flowCnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getFlow(autoInstant, flowCnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getFlow(curativeInstant, flowCnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -114,44 +114,44 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetCommercialFlow() {
-        when(initialResult.getCommercialFlow(flowCnec, RIGHT, AMPERE)).thenReturn(100.);
-        when(initialResult.getCommercialFlow(flowCnec, RIGHT, MEGAWATT)).thenReturn(1000.);
+        when(initialResult.getCommercialFlow(flowCnec, TWO, AMPERE)).thenReturn(100.);
+        when(initialResult.getCommercialFlow(flowCnec, TWO, MEGAWATT)).thenReturn(1000.);
 
-        assertEquals(100., output.getCommercialFlow(null, flowCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getCommercialFlow(preventiveInstant, flowCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getCommercialFlow(autoInstant, flowCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getCommercialFlow(curativeInstant, flowCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getCommercialFlow(null, flowCnec, TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getCommercialFlow(preventiveInstant, flowCnec, TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getCommercialFlow(autoInstant, flowCnec, TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getCommercialFlow(curativeInstant, flowCnec, TWO, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(1000., output.getCommercialFlow(null, flowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getCommercialFlow(preventiveInstant, flowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getCommercialFlow(autoInstant, flowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getCommercialFlow(curativeInstant, flowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getCommercialFlow(null, flowCnec, TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getCommercialFlow(preventiveInstant, flowCnec, TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getCommercialFlow(autoInstant, flowCnec, TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getCommercialFlow(curativeInstant, flowCnec, TWO, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetLoopFlow() {
-        when(initialResult.getLoopFlow(flowCnec, LEFT, AMPERE)).thenReturn(100.);
-        when(initialResult.getLoopFlow(flowCnec, LEFT, MEGAWATT)).thenReturn(1000.);
+        when(initialResult.getLoopFlow(flowCnec, ONE, AMPERE)).thenReturn(100.);
+        when(initialResult.getLoopFlow(flowCnec, ONE, MEGAWATT)).thenReturn(1000.);
 
-        assertEquals(100., output.getLoopFlow(null, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getLoopFlow(preventiveInstant, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getLoopFlow(autoInstant, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getLoopFlow(curativeInstant, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getLoopFlow(null, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getLoopFlow(preventiveInstant, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getLoopFlow(autoInstant, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getLoopFlow(curativeInstant, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(1000., output.getLoopFlow(null, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getLoopFlow(preventiveInstant, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getLoopFlow(autoInstant, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getLoopFlow(curativeInstant, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getLoopFlow(null, flowCnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getLoopFlow(preventiveInstant, flowCnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getLoopFlow(autoInstant, flowCnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getLoopFlow(curativeInstant, flowCnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetPtdfZonalSum() {
-        when(initialResult.getPtdfZonalSum(flowCnec, RIGHT)).thenReturn(100.);
+        when(initialResult.getPtdfZonalSum(flowCnec, TWO)).thenReturn(100.);
 
-        assertEquals(100., output.getPtdfZonalSum(null, flowCnec, RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getPtdfZonalSum(preventiveInstant, flowCnec, RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getPtdfZonalSum(autoInstant, flowCnec, RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getPtdfZonalSum(curativeInstant, flowCnec, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getPtdfZonalSum(null, flowCnec, TWO), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getPtdfZonalSum(preventiveInstant, flowCnec, TWO), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getPtdfZonalSum(autoInstant, flowCnec, TWO), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getPtdfZonalSum(curativeInstant, flowCnec, TWO), DOUBLE_TOLERANCE);
     }
 
     @Test

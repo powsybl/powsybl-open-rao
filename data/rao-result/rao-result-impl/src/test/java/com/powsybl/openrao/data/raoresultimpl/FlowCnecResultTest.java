@@ -8,7 +8,7 @@ package com.powsybl.openrao.data.raoresultimpl;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,27 +24,27 @@ class FlowCnecResultTest {
         Instant preventiveInstant = mock(Instant.class);
         Instant curativeInstant = mock(Instant.class);
         FlowCnecResult defaultFlowCnecResult = new FlowCnecResult();
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getCommercialFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getFlow(Side.RIGHT, Unit.AMPERE), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getCommercialFlow(TwoSides.ONE, Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(null).getFlow(TwoSides.TWO, Unit.AMPERE), 1e-3);
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(preventiveInstant).getMargin(Unit.MEGAWATT), 1e-3);
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(preventiveInstant).getRelativeMargin(Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(curativeInstant).getLoopFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(curativeInstant).getPtdfZonalSum(Side.RIGHT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(curativeInstant).getLoopFlow(TwoSides.ONE, Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, defaultFlowCnecResult.getResult(curativeInstant).getPtdfZonalSum(TwoSides.TWO), 1e-3);
     }
 
     @Test
     void testGetAndCreateIfAbsent() {
         FlowCnecResult flowCnecResult = new FlowCnecResult();
-        assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(Side.LEFT, Unit.MEGAWATT));
-        assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(Side.RIGHT, Unit.MEGAWATT));
+        assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(TwoSides.TWO, Unit.MEGAWATT));
 
-        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(null).setFlow(Side.LEFT, 100., Unit.MEGAWATT);
-        assertEquals(100., flowCnecResult.getResult(null).getFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(Side.RIGHT, Unit.MEGAWATT));
+        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(null).setFlow(TwoSides.ONE, 100., Unit.MEGAWATT);
+        assertEquals(100., flowCnecResult.getResult(null).getFlow(TwoSides.ONE, Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(TwoSides.TWO, Unit.MEGAWATT));
 
         flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(null).setMargin(150., Unit.MEGAWATT);
-        assertEquals(100., flowCnecResult.getResult(null).getFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(Side.RIGHT, Unit.MEGAWATT));
+        assertEquals(100., flowCnecResult.getResult(null).getFlow(TwoSides.ONE, Unit.MEGAWATT), 1e-3);
+        assertEquals(Double.NaN, flowCnecResult.getResult(null).getFlow(TwoSides.TWO, Unit.MEGAWATT));
         assertEquals(150., flowCnecResult.getResult(null).getMargin(Unit.MEGAWATT), 1e-3);
         assertEquals(Double.NaN, flowCnecResult.getResult(null).getMargin(Unit.AMPERE), 1e-3);
     }

@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.cracapi.cnec.Side.LEFT;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.RIGHT;
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -105,31 +105,31 @@ class PerimeterResultImplTest {
 
     @Test
     void testGetFlow() {
-        when(optimizationResult.getFlow(flowCnec1, LEFT, Unit.MEGAWATT, flowCnec1.getState().getInstant())).thenReturn(100.);
-        when(optimizationResult.getFlow(flowCnec2, RIGHT, Unit.AMPERE, flowCnec2.getState().getInstant())).thenReturn(200.);
-        assertEquals(100., perimeterResultImpl.getFlow(flowCnec1, LEFT, Unit.MEGAWATT, flowCnec1.getState().getInstant()), DOUBLE_TOLERANCE);
-        assertEquals(200., perimeterResultImpl.getFlow(flowCnec2, RIGHT, Unit.AMPERE, flowCnec2.getState().getInstant()), DOUBLE_TOLERANCE);
+        when(optimizationResult.getFlow(flowCnec1, ONE, Unit.MEGAWATT, flowCnec1.getState().getInstant())).thenReturn(100.);
+        when(optimizationResult.getFlow(flowCnec2, TWO, Unit.AMPERE, flowCnec2.getState().getInstant())).thenReturn(200.);
+        assertEquals(100., perimeterResultImpl.getFlow(flowCnec1, ONE, Unit.MEGAWATT, flowCnec1.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(200., perimeterResultImpl.getFlow(flowCnec2, TWO, Unit.AMPERE, flowCnec2.getState().getInstant()), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetCommercialFlow() {
-        when(optimizationResult.getCommercialFlow(flowCnec1, LEFT, Unit.MEGAWATT)).thenReturn(100.);
-        when(optimizationResult.getCommercialFlow(flowCnec2, RIGHT, Unit.AMPERE)).thenReturn(200.);
-        assertEquals(100., perimeterResultImpl.getCommercialFlow(flowCnec1, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(200., perimeterResultImpl.getCommercialFlow(flowCnec2, RIGHT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        when(optimizationResult.getCommercialFlow(flowCnec1, ONE, Unit.MEGAWATT)).thenReturn(100.);
+        when(optimizationResult.getCommercialFlow(flowCnec2, TWO, Unit.AMPERE)).thenReturn(200.);
+        assertEquals(100., perimeterResultImpl.getCommercialFlow(flowCnec1, ONE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(200., perimeterResultImpl.getCommercialFlow(flowCnec2, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetPtdfZonalSum() {
-        when(optimizationResult.getPtdfZonalSum(flowCnec1, LEFT)).thenReturn(100.);
-        when(optimizationResult.getPtdfZonalSum(flowCnec2, RIGHT)).thenReturn(200.);
-        assertEquals(100., perimeterResultImpl.getPtdfZonalSum(flowCnec1, LEFT), DOUBLE_TOLERANCE);
-        assertEquals(200., perimeterResultImpl.getPtdfZonalSum(flowCnec2, RIGHT), DOUBLE_TOLERANCE);
+        when(optimizationResult.getPtdfZonalSum(flowCnec1, ONE)).thenReturn(100.);
+        when(optimizationResult.getPtdfZonalSum(flowCnec2, TWO)).thenReturn(200.);
+        assertEquals(100., perimeterResultImpl.getPtdfZonalSum(flowCnec1, ONE), DOUBLE_TOLERANCE);
+        assertEquals(200., perimeterResultImpl.getPtdfZonalSum(flowCnec2, TWO), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetPtdfZonalSums() {
-        Map<FlowCnec, Map<Side, Double>> map = Map.of(flowCnec1, Map.of(LEFT, 100.), flowCnec2, Map.of(RIGHT, 200.));
+        Map<FlowCnec, Map<TwoSides, Double>> map = Map.of(flowCnec1, Map.of(ONE, 100.), flowCnec2, Map.of(TWO, 200.));
         when(optimizationResult.getPtdfZonalSums()).thenReturn(map);
         assertEquals(map, perimeterResultImpl.getPtdfZonalSums());
     }
@@ -237,13 +237,13 @@ class PerimeterResultImplTest {
 
     @Test
     void testGetSensitivityValueOnRa() {
-        assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, LEFT, ra1, Unit.MEGAWATT));
-        assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, LEFT, ra2, Unit.AMPERE));
+        assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, ONE, ra1, Unit.MEGAWATT));
+        assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, ONE, ra2, Unit.AMPERE));
     }
 
     @Test
     void testGetSensitivityValueOnGlsk() {
-        assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, LEFT, mock(SensitivityVariableSet.class), Unit.MEGAWATT));
-        assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, LEFT, mock(SensitivityVariableSet.class), Unit.AMPERE));
+        assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, ONE, mock(SensitivityVariableSet.class), Unit.MEGAWATT));
+        assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, ONE, mock(SensitivityVariableSet.class), Unit.AMPERE));
     }
 }

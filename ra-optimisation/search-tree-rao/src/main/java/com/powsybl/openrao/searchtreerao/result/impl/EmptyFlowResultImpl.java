@@ -10,7 +10,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
 import java.util.Collections;
@@ -22,22 +22,22 @@ import java.util.Map;
 public class EmptyFlowResultImpl implements FlowResult {
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit, Instant instant) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
         return Double.NaN;
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         return Double.NaN;
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
         return Double.NaN;
     }
 
     @Override
-    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
         return Collections.emptyMap();
     }
 }

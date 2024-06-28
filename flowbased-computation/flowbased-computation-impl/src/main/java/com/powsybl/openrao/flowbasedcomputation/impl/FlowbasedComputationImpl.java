@@ -13,7 +13,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -172,8 +172,8 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     private DataMonitoredBranch buildDataMonitoredBranch(FlowCnec cnec, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
-        double maxThreshold = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
-        double minThreshold = cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
+        double maxThreshold = cnec.getUpperBound(TwoSides.ONE, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+        double minThreshold = cnec.getLowerBound(TwoSides.ONE, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         return new DataMonitoredBranch(
                 cnec.getId(),
                 cnec.getName(),
@@ -181,7 +181,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 cnec.getNetworkElement().getId(),
                 minThreshold,
                 maxThreshold,
-                zeroIfNaN(result.getReferenceFlow(cnec, Side.LEFT, cnec.getState().getInstant())), // TODO : handle both sides if needed
+                zeroIfNaN(result.getReferenceFlow(cnec, TwoSides.ONE, cnec.getState().getInstant())), // TODO : handle both sides if needed
                 buildDataPtdfPerCountry(cnec, glsk, result)
         );
     }
@@ -192,7 +192,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .map(glsk ->
                         new DataPtdfPerCountry(
                                 glsk.getId(),
-                                zeroIfNaN(result.getSensitivityOnFlow(glsk.getId(), cnec, Side.LEFT, cnec.getState().getInstant())) // TODO : handle both sides if needed
+                                zeroIfNaN(result.getSensitivityOnFlow(glsk.getId(), cnec, TwoSides.ONE, cnec.getState().getInstant())) // TODO : handle both sides if needed
                         )
                 ).toList();
     }

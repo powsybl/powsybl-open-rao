@@ -13,7 +13,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
@@ -106,7 +106,7 @@ class AutomatonSimulatorTest {
             .withNetworkElement("cnec-ne")
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withNominalVoltage(220.)
-            .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.TWO).withMax(1000.).withUnit(Unit.AMPERE).add()
             .add();
         cnec1 = crac.newFlowCnec()
             .withId("cnec1")
@@ -114,7 +114,7 @@ class AutomatonSimulatorTest {
             .withContingency("contingency1")
             .withInstant(AUTO_INSTANT_ID)
             .withNominalVoltage(220.)
-            .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.TWO).withMax(1000.).withUnit(Unit.AMPERE).add()
             .add();
         cnec2 = crac.newFlowCnec()
             .withId("cnec2")
@@ -122,7 +122,7 @@ class AutomatonSimulatorTest {
             .withContingency("contingency1")
             .withInstant(AUTO_INSTANT_ID)
             .withNominalVoltage(220.)
-            .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(TwoSides.TWO).withMax(1000.).withUnit(Unit.AMPERE).add()
             .add();
         Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         autoState = crac.getState(contingency1, autoInstant);
@@ -442,20 +442,20 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(state.getInstant()).thenReturn(instant);
         when(cnec.getState()).thenReturn(state);
-        when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.RIGHT));
+        when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
 
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // suppose threshold is -1000, flow is -1100 then -1010 then -1000
         // getFlow is called once in every iteration
-        when(mockedPrePerimeterResult.getFlow(cnec, Side.RIGHT, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(-1100., -1010., -1000.);
+        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(-1100., -1010., -1000.);
         // getMargin is called once before loop, once in 1st iteration, once in second iteration
         when(mockedPrePerimeterResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -10., 0.);
         // getMargin with side is called once before loop, once in 1st iteration, once in second iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
+        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
         // suppose approx sensi is +50 on both RAs first, then +5 (so +100 then +10 total)
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.RIGHT, ara1, Unit.MEGAWATT)).thenReturn(50., 5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.RIGHT, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(50., 5.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
         // so PSTs should be shifted to setpoint +1.1 on first iteration, then +3.1 on second because of under-estimator
 
         AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
@@ -471,23 +471,23 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(state.getInstant()).thenReturn(instant);
         when(cnec.getState()).thenReturn(state);
-        when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT, Side.RIGHT));
+        when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE, TwoSides.TWO));
 
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // same as case 1 but flows & sensi are inverted -> setpoints should be the same
         // getFlow is called once in every iteration
-        when(mockedPrePerimeterResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(1100., 1010., 1000.);
-        when(mockedPrePerimeterResult.getFlow(cnec, Side.RIGHT, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(0., 0., 0.);
+        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(1100., 1010., 1000.);
+        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(0., 0., 0.);
         // getMargin is called once before loop, once in 1st iteration, once in second iteration
         when(mockedPrePerimeterResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -10., 0.);
         // getMargin with side is called once before loop, once in 1st iteration, once in second iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
-        when(mockedPrePerimeterResult.getMargin(cnec, Side.RIGHT, Unit.MEGAWATT)).thenReturn(100.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.LEFT, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.LEFT, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.RIGHT, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.RIGHT, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
+        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(100.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.ONE, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.ONE, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
 
         AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
             automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
@@ -502,19 +502,19 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(state.getInstant()).thenReturn(instant);
         when(cnec.getState()).thenReturn(state);
-        when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
+        when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
 
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // same as case 1 but flows are inverted -> setpoints should be inverted
         // getFlow is called once in every iteration
-        when(mockedPrePerimeterResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(1100., 1010., 1000.);
+        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(1100., 1010., 1000.);
         // getMargin is called once before loop, once in second iteration
         when(mockedPrePerimeterResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -10., 0.);
         // getMargin with side is called once before loop, once in 1st iteration, once in second iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.LEFT, ara1, Unit.MEGAWATT)).thenReturn(50., 5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.LEFT, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
+        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.ONE, ara1, Unit.MEGAWATT)).thenReturn(50., 5.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.ONE, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
 
         AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
             automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
@@ -529,30 +529,30 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(state.getInstant()).thenReturn(instant);
         when(cnec.getState()).thenReturn(state);
-        when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.RIGHT));
+        when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
 
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // same as case 1 but sensi are inverted -> setpoints should be inverted
         // + added a cnec with sensi = 0
         // getFlow is called once in every iteration
-        when(mockedPrePerimeterResult.getFlow(cnec, Side.RIGHT, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(-1100., -1010., -1000.);
+        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT, cnec.getState().getInstant())).thenReturn(-1100., -1010., -1000.);
         // getMargin is called once before loop, once in 1st iteration when most limiting cnec is different, once in second iteration, once in third iteration
         when(mockedPrePerimeterResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -100., -100., -10., 0.);
         // getMargin with side is called once before loop, once in 1st iteration when most limiting cnec is different, once in second iteration, once in third iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-100., -100., -100., -100., -10., -10., 0.);
+        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-100., -100., -100., -100., -10., -10., 0.);
         // computeMargin is called once in 1st iteration, once in second iteration, once in third iteration
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.RIGHT, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.RIGHT, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
 
         FlowCnec cnec2 = mock(FlowCnec.class);
         when(cnec2.getState()).thenReturn(state);
-        when(cnec2.getMonitoredSides()).thenReturn(Set.of(Side.RIGHT));
-        when(mockedPrePerimeterResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT, cnec2.getState().getInstant())).thenReturn(2200.);
+        when(cnec2.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
+        when(mockedPrePerimeterResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT, cnec2.getState().getInstant())).thenReturn(2200.);
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-200.);
-        when(mockedPrePerimeterResult.getMargin(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-200.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec2, Side.RIGHT, ara1, Unit.MEGAWATT)).thenReturn(0.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec2, Side.RIGHT, ara2, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPrePerimeterResult.getMargin(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-200.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec2, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec2, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
 
         AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
             automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
@@ -573,10 +573,10 @@ class AutomatonSimulatorTest {
         toRemove.remove("ara2");
         toRemove.forEach(ra -> crac.removeRemedialAction(ra));
 
-        when(mockedPrePerimeterResult.getFlow(cnec1, Side.RIGHT, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(1100.);
+        when(mockedPrePerimeterResult.getFlow(cnec1, TwoSides.TWO, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(1100.);
         when(mockedPrePerimeterResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-100.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec1, Side.RIGHT, ara1, Unit.MEGAWATT)).thenReturn(0.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec1, Side.RIGHT, ara2, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
 
         AutomatonSimulator.RangeAutomatonSimulationResult result = automatonSimulator.simulateRangeAutomatons(autoState, Set.of(curativeState), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult);
 
@@ -652,10 +652,10 @@ class AutomatonSimulatorTest {
         toRemove.forEach(ra -> crac.removeRemedialAction(ra));
 
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(100.);
-        when(mockedPrePerimeterResult.getFlow(cnec1, Side.RIGHT, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(1100.);
+        when(mockedPrePerimeterResult.getFlow(cnec1, TwoSides.TWO, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(1100.);
         when(mockedPrePerimeterResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-100.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec1, Side.RIGHT, ara1, Unit.MEGAWATT)).thenReturn(0.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec1, Side.RIGHT, ara2, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
 
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(mockedPrePerimeterResult.getObjectiveFunction()).thenReturn(objectiveFunction);
@@ -694,15 +694,15 @@ class AutomatonSimulatorTest {
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // check that angle-droop control was not disabled when margins are positive
-        when(prePerimeterResult.getMargin(cnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(0.);
-        when(prePerimeterResult.getMargin(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(100.);
+        when(prePerimeterResult.getMargin(cnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(0.);
+        when(prePerimeterResult.getMargin(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(100.);
         automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         assertTrue(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertTrue(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
 
         // check that angle-droop control is disabled when one margin is negative
-        when(prePerimeterResult.getMargin(cnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-1.);
-        when(prePerimeterResult.getMargin(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(100.);
+        when(prePerimeterResult.getMargin(cnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-1.);
+        when(prePerimeterResult.getMargin(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(100.);
         automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertFalse(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());

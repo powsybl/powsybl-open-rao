@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -62,18 +62,18 @@ class BestTapFinderTest {
         when(optimizedState.getInstant()).thenReturn(preventiveInstant);
 
         cnec1 = Mockito.mock(FlowCnec.class);
-        when(cnec1.getMonitoredSides()).thenReturn(Collections.singleton(Side.LEFT));
+        when(cnec1.getMonitoredSides()).thenReturn(Collections.singleton(TwoSides.ONE));
         when(cnec1.getState()).thenReturn(optimizedState);
         cnec2 = Mockito.mock(FlowCnec.class);
-        when(cnec2.getMonitoredSides()).thenReturn(Collections.singleton(Side.RIGHT));
+        when(cnec2.getMonitoredSides()).thenReturn(Collections.singleton(TwoSides.TWO));
         when(cnec2.getState()).thenReturn(optimizedState);
         network = Mockito.mock(Network.class);
 
         linearOptimizationResult = mock(LinearOptimizationResult.class);
         when(linearOptimizationResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2));
 
-        when(linearOptimizationResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(REF_FLOW_1);
-        when(linearOptimizationResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT, cnec2.getState().getInstant())).thenReturn(REF_FLOW_2);
+        when(linearOptimizationResult.getFlow(cnec1, TwoSides.ONE, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(REF_FLOW_1);
+        when(linearOptimizationResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT, cnec2.getState().getInstant())).thenReturn(REF_FLOW_2);
 
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         pstRangeAction = createPst();
@@ -85,8 +85,8 @@ class BestTapFinderTest {
     }
 
     private void setSensitivityValues(PstRangeAction pstRangeAction) {
-        when(linearOptimizationResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
-        when(linearOptimizationResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
+        when(linearOptimizationResult.getSensitivityValue(cnec1, TwoSides.ONE, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
+        when(linearOptimizationResult.getSensitivityValue(cnec2, TwoSides.TWO, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
     }
 
     private void mockPstRangeAction(PstRangeAction pstRangeAction) {
@@ -110,12 +110,12 @@ class BestTapFinderTest {
 
     private void mockMarginOnCnec1(PstRangeAction pstRangeAction, int tap, double margin) {
         double flow = REF_FLOW_1 + (pstRangeAction.convertTapToAngle(tap) - INITIAL_PST_SET_POINT) * SENSI_1;
-        when(cnec1.computeMargin(flow, Side.LEFT, Unit.MEGAWATT)).thenReturn(margin);
+        when(cnec1.computeMargin(flow, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(margin);
     }
 
     private void mockMarginOnCnec2(PstRangeAction pstRangeAction, int tap, double margin) {
         double flow = REF_FLOW_2 + (pstRangeAction.convertTapToAngle(tap) - INITIAL_PST_SET_POINT) * SENSI_2;
-        when(cnec2.computeMargin(flow, Side.RIGHT, Unit.MEGAWATT)).thenReturn(margin);
+        when(cnec2.computeMargin(flow, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(margin);
     }
 
     private Map<Integer, Double> computeMinMarginsForBestTaps(double startingSetPoint) {

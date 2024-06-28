@@ -13,7 +13,7 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -94,22 +94,22 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit, optimizedInstant);
     }
 
     @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return getAppropriateResult(optimizedInstant, flowCnec).getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return getAppropriateResult(optimizedInstant, flowCnec).getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
         return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 

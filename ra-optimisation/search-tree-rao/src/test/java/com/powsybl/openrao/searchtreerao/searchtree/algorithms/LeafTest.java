@@ -14,7 +14,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -50,8 +50,8 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.RIGHT;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.LEFT;
+import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.openrao.commons.Unit.*;
 import static org.mockito.Mockito.*;
 
@@ -339,16 +339,16 @@ class LeafTest {
 
         double expectedFlow = 3.;
         Unit unit = MEGAWATT;
-        when(flowResult.getFlow(flowCnec, LEFT, unit, flowCnec.getState().getInstant())).thenReturn(expectedFlow);
-        when(flowResult.getCommercialFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
-        assertEquals(expectedFlow, leaf.getFlow(flowCnec, LEFT, unit, flowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
-        assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
+        when(flowResult.getFlow(flowCnec, ONE, unit, flowCnec.getState().getInstant())).thenReturn(expectedFlow);
+        when(flowResult.getCommercialFlow(flowCnec, ONE, unit)).thenReturn(expectedFlow);
+        assertEquals(expectedFlow, leaf.getFlow(flowCnec, ONE, unit, flowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, ONE, unit), DOUBLE_TOLERANCE);
 
         double expectedPtdf = 4.;
-        when(flowResult.getPtdfZonalSum(flowCnec, LEFT)).thenReturn(expectedPtdf);
-        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(flowCnec, LEFT), DOUBLE_TOLERANCE);
+        when(flowResult.getPtdfZonalSum(flowCnec, ONE)).thenReturn(expectedPtdf);
+        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(flowCnec, ONE), DOUBLE_TOLERANCE);
 
-        Map<FlowCnec, Map<Side, Double>> expectedPtdfZonalSums = new HashMap<>();
+        Map<FlowCnec, Map<TwoSides, Double>> expectedPtdfZonalSums = new HashMap<>();
         when(flowResult.getPtdfZonalSums()).thenReturn(expectedPtdfZonalSums);
         assertEquals(expectedPtdfZonalSums, leaf.getPtdfZonalSums());
     }
@@ -370,16 +370,16 @@ class LeafTest {
 
         double expectedFlow = 3.;
         Unit unit = MEGAWATT;
-        when(linearOptimizationResult.getFlow(flowCnec, LEFT, unit, flowCnec.getState().getInstant())).thenReturn(expectedFlow);
-        when(linearOptimizationResult.getCommercialFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
-        assertEquals(expectedFlow, leaf.getFlow(flowCnec, LEFT, unit, flowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
-        assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
+        when(linearOptimizationResult.getFlow(flowCnec, ONE, unit, flowCnec.getState().getInstant())).thenReturn(expectedFlow);
+        when(linearOptimizationResult.getCommercialFlow(flowCnec, ONE, unit)).thenReturn(expectedFlow);
+        assertEquals(expectedFlow, leaf.getFlow(flowCnec, ONE, unit, flowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, ONE, unit), DOUBLE_TOLERANCE);
 
         double expectedPtdf = 4.;
-        when(linearOptimizationResult.getPtdfZonalSum(flowCnec, LEFT)).thenReturn(expectedPtdf);
-        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(flowCnec, LEFT), DOUBLE_TOLERANCE);
+        when(linearOptimizationResult.getPtdfZonalSum(flowCnec, ONE)).thenReturn(expectedPtdf);
+        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(flowCnec, ONE), DOUBLE_TOLERANCE);
 
-        Map<FlowCnec, Map<Side, Double>> expectedPtdfZonalSums = new HashMap<>();
+        Map<FlowCnec, Map<TwoSides, Double>> expectedPtdfZonalSums = new HashMap<>();
         when(linearOptimizationResult.getPtdfZonalSums()).thenReturn(expectedPtdfZonalSums);
         assertEquals(expectedPtdfZonalSums, leaf.getPtdfZonalSums());
 
@@ -401,7 +401,7 @@ class LeafTest {
     void getCommercialFlowOnFlowCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getCommercialFlow(flowCnec, LEFT, MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getCommercialFlow(flowCnec, ONE, MEGAWATT));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -409,7 +409,7 @@ class LeafTest {
     void getPtdfZonalSumOnCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getPtdfZonalSum(flowCnec, LEFT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getPtdfZonalSum(flowCnec, ONE));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -696,11 +696,11 @@ class LeafTest {
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         double expectedSensi = 3.;
 
-        when(prePerimeterResult.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT)).thenReturn(expectedSensi);
-        when(prePerimeterResult.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT)).thenReturn(expectedSensi);
+        when(prePerimeterResult.getSensitivityValue(flowCnec, TWO, rangeAction, MEGAWATT)).thenReturn(expectedSensi);
+        when(prePerimeterResult.getSensitivityValue(flowCnec, TWO, linearGlsk, MEGAWATT)).thenReturn(expectedSensi);
 
-        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, TWO, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, TWO, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -715,12 +715,12 @@ class LeafTest {
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         double expectedSensi = 3.;
 
-        when(linearOptimizationResult.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT)).thenReturn(expectedSensi);
-        when(linearOptimizationResult.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT)).thenReturn(expectedSensi);
+        when(linearOptimizationResult.getSensitivityValue(flowCnec, TWO, rangeAction, MEGAWATT)).thenReturn(expectedSensi);
+        when(linearOptimizationResult.getSensitivityValue(flowCnec, TWO, linearGlsk, MEGAWATT)).thenReturn(expectedSensi);
         when(linearOptimizationResult.getRangeActions()).thenReturn(Set.of(rangeAction));
 
-        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, TWO, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, TWO, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -728,7 +728,7 @@ class LeafTest {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getSensitivityValue(flowCnec, TWO, rangeAction, MEGAWATT));
         assertEquals("No results available.", exception.getMessage());
     }
 
@@ -737,7 +737,7 @@ class LeafTest {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getSensitivityValue(flowCnec, TWO, linearGlsk, MEGAWATT));
         assertEquals("No results available.", exception.getMessage());
     }
 

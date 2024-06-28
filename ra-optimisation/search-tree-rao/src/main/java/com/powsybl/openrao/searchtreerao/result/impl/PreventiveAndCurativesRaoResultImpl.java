@@ -13,7 +13,7 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -277,7 +277,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getFlow(flowCnec, side, unit, optimizedInstant);
@@ -287,7 +287,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getCommercialFlow(flowCnec, side, unit);
@@ -297,7 +297,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getLoopFlow(flowCnec, side, unit);
@@ -307,7 +307,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
         FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getPtdfZonalSum(flowCnec, side);
