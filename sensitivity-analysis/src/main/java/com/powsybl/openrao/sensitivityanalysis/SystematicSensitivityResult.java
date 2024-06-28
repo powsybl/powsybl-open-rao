@@ -7,6 +7,7 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -243,11 +244,31 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).get(side);
     }
 
+    public double getReferenceFlow(FlowCnec cnec, TwoSides side, Instant instant) {
+        StateResult stateResult = getCnecStateResult(cnec, instant);
+        if (stateResult == null ||
+            !stateResult.getReferenceFlows().containsKey(cnec.getNetworkElement().getId()) ||
+            !stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).containsKey(side)) {
+            return 0.0;
+        }
+        return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).get(side);
+    }
+
     public double getReferenceIntensity(FlowCnec cnec, TwoSides side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
                 !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId()) ||
                 !stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).containsKey(side)) {
+            return 0.0;
+        }
+        return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).get(side);
+    }
+
+    public double getReferenceIntensity(FlowCnec cnec, TwoSides side, Instant instant) {
+        StateResult stateResult = getCnecStateResult(cnec, instant);
+        if (stateResult == null ||
+            !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId()) ||
+            !stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).containsKey(side)) {
             return 0.0;
         }
         return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).get(side);
@@ -267,6 +288,17 @@ public class SystematicSensitivityResult {
                 !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
                 !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId) ||
                 !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).containsKey(side)) {
+            return 0.0;
+        }
+        return stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
+    }
+
+    public double getSensitivityOnFlow(String variableId, FlowCnec cnec, TwoSides side, Instant instant) {
+        StateResult stateResult = getCnecStateResult(cnec, instant);
+        if (stateResult == null ||
+            !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
+            !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId) ||
+            !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).containsKey(side)) {
             return 0.0;
         }
         return stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
@@ -293,6 +325,21 @@ public class SystematicSensitivityResult {
             return null;
         } else {
             return nStateResult;
+        }
+    }
+
+    private StateResult getCnecStateResult(Cnec<?> cnec, Instant instant) {
+        Optional<Contingency> optionalContingency = cnec.getState().getContingency();
+        if (optionalContingency.isPresent()) {
+            int maxAdmissibleInstantOrder = instant == null ? 1 : Math.max(1, instant.getOrder()); // when dealing with post-contingency CNECs, a null instant refers to the outage instant
+            List<Integer> possibleInstants = postContingencyResults.keySet().stream()
+                .filter(instantOrder -> instantOrder <= cnec.getState().getInstant().getOrder() && instantOrder <= maxAdmissibleInstantOrder)
+                .sorted(Comparator.reverseOrder())
+                .toList();
+            String contingencyId = optionalContingency.get().getId();
+            return possibleInstants.isEmpty() ? null : postContingencyResults.get(possibleInstants.get(0)).get(contingencyId);
+        } else {
+            return nStateResult; // when dealing with preventive CNECs, a null instant refers to the initial instant
         }
     }
 }

@@ -280,7 +280,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
-            return flowResult.getFlow(flowCnec, side, unit);
+            return flowResult.getFlow(flowCnec, side, unit, optimizedInstant);
         } else {
             return Double.NaN;
         }
@@ -589,8 +589,11 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             // curative
             Contingency contingency = state.getContingency().orElseThrow();
             return postContingencyResults.keySet().stream()
-                .filter(mapState -> mapState.getInstant().isAuto() && mapState.getContingency().equals(Optional.of(contingency)))
-                .findAny().orElse(preventiveState);
+                .filter(mapState -> mapState.getContingency().equals(Optional.of(contingency)))
+                .filter(mapState -> mapState.getInstant().isAuto() || mapState.getInstant().isCurative())
+                .filter(mapState -> mapState.getInstant().comesBefore(state.getInstant()))
+                .max(Comparator.comparingInt(mapState -> mapState.getInstant().getOrder()))
+                .orElse(preventiveState);
         }
     }
 

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ class EmptyFlowResultImplTest {
         assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)));
         assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.ONE, Unit.AMPERE)));
         assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.TWO, Unit.AMPERE)));
+        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.TWO, Unit.AMPERE, Mockito.mock(Instant.class))));
         assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)));
         assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)));
         assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec, TwoSides.ONE)));

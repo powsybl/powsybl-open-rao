@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -40,6 +41,11 @@ public class PerimeterResultImpl implements PerimeterResult {
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         return optimizationResult.getFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
+        return optimizationResult.getFlow(flowCnec, side, unit, instant);
     }
 
     @Override

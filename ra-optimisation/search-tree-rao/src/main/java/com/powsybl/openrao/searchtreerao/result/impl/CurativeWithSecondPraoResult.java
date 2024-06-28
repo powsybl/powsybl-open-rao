@@ -1,7 +1,15 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
@@ -21,6 +29,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public class CurativeWithSecondPraoResult implements OptimizationResult {
 
     private final State state; // the optimized state of the curative RAO
@@ -52,8 +63,8 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     private void checkCnec(Cnec<?> cnec) {
-        if (!cnec.getState().equals(state)) {
-            throw new OpenRaoException(String.format("Cnec %s has a different state than this result's state (%s)", cnec.getId(), state.getId()));
+        if (!cnec.getState().getContingency().equals(state.getContingency())) {
+            throw new OpenRaoException(String.format("Cnec %s has a different contingency than this result's state (%s)", cnec.getId(), state.getId()));
         }
     }
 
@@ -65,6 +76,12 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         checkCnec(flowCnec);
         return postCraSensitivityFlowResult.getFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
+        checkCnec(flowCnec);
+        return postCraSensitivityFlowResult.getFlow(flowCnec, side, unit, instant);
     }
 
     @Override

@@ -543,8 +543,8 @@ class CastorFullOptimizationTest {
         Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        CastorFullOptimization.addAppliedNetworkActionsPostContingency(autoInstant, appliedRemedialActions, curativeResults);
-        CastorFullOptimization.addAppliedNetworkActionsPostContingency(curativeInstant, appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedNetworkActionsPostContingency(Set.of(autoInstant), appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedNetworkActionsPostContingency(Set.of(curativeInstant), appliedRemedialActions, curativeResults);
 
         // do not apply network action
         // do not apply range action as it was not yet added to applied RAs
@@ -561,8 +561,8 @@ class CastorFullOptimizationTest {
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
 
         // add range action
-        CastorFullOptimization.addAppliedRangeActionsPostContingency(autoInstant, appliedRemedialActions, curativeResults);
-        CastorFullOptimization.addAppliedRangeActionsPostContingency(curativeInstant, appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(Set.of(autoInstant), appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(Set.of(curativeInstant), appliedRemedialActions, curativeResults);
 
         // apply also range action
         appliedRemedialActions.applyOnNetwork(state1, network);
@@ -1055,5 +1055,119 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
+    }
+
+    private State mockState(Instant instant) {
+        State state = Mockito.mock(State.class);
+        when(state.getInstant()).thenReturn(instant);
+        return state;
+    }
+
+    private OptimizationResult mockOptimizationResult(Set<NetworkAction> activatedNetworkActions) {
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
+        when(optimizationResult.getActivatedNetworkActions()).thenReturn(activatedNetworkActions);
+        return optimizationResult;
+    }
+
+    private OptimizationResult mockOptimizationResult(Set<RangeAction<?>> activatedRangeActions, State state) {
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
+        when(optimizationResult.getActivatedRangeActions(state)).thenReturn(activatedRangeActions);
+        return optimizationResult;
+    }
+
+    @Test
+    void testAddAppliedNetworkActionsPostContingency() {
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        Instant instant1 = Mockito.mock(Instant.class);
+        when(instant1.isAuto()).thenReturn(true);
+        Instant instant2 = Mockito.mock(Instant.class);
+        when(instant2.isCurative()).thenReturn(true);
+
+        State state11 = mockState(instant1);
+        State state12 = mockState(instant1);
+        State state21 = mockState(instant2);
+        State state22 = mockState(instant2);
+
+        NetworkAction na111 = Mockito.mock(NetworkAction.class);
+        NetworkAction na112 = Mockito.mock(NetworkAction.class);
+        NetworkAction na121 = Mockito.mock(NetworkAction.class);
+        NetworkAction na211 = Mockito.mock(NetworkAction.class);
+        NetworkAction na221 = Mockito.mock(NetworkAction.class);
+        NetworkAction na222 = Mockito.mock(NetworkAction.class);
+
+        OptimizationResult optimizationResult11 = mockOptimizationResult(Set.of(na111, na112));
+        OptimizationResult optimizationResult12 = mockOptimizationResult(Set.of(na121));
+        OptimizationResult optimizationResult21 = mockOptimizationResult(Set.of(na211));
+        OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(na221, na222));
+
+        Map<State, OptimizationResult> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
+            state21, optimizationResult21, state22, optimizationResult22);
+
+        CastorFullOptimization.addAppliedNetworkActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);
+
+        assertTrue(appliedRemedialActions.getAppliedNetworkActions(state11).isEmpty());
+        assertTrue(appliedRemedialActions.getAppliedNetworkActions(state12).isEmpty());
+        assertTrue(appliedRemedialActions.getAppliedNetworkActions(state21).isEmpty());
+        assertTrue(appliedRemedialActions.getAppliedNetworkActions(state22).isEmpty());
+
+        CastorFullOptimization.addAppliedNetworkActionsPostContingency(Set.of(instant1), appliedRemedialActions, postContingencyResults);
+        assertEquals(Set.of(na111, na112), appliedRemedialActions.getAppliedNetworkActions(state11));
+        assertEquals(Set.of(na121), appliedRemedialActions.getAppliedNetworkActions(state12));
+        assertTrue(appliedRemedialActions.getAppliedNetworkActions(state21).isEmpty());
+        assertTrue(appliedRemedialActions.getAppliedNetworkActions(state22).isEmpty());
+
+        CastorFullOptimization.addAppliedNetworkActionsPostContingency(Set.of(instant2), appliedRemedialActions, postContingencyResults);
+        assertEquals(Set.of(na111, na112), appliedRemedialActions.getAppliedNetworkActions(state11));
+        assertEquals(Set.of(na121), appliedRemedialActions.getAppliedNetworkActions(state12));
+        assertEquals(Set.of(na211), appliedRemedialActions.getAppliedNetworkActions(state21));
+        assertEquals(Set.of(na221, na222), appliedRemedialActions.getAppliedNetworkActions(state22));
+    }
+
+    @Test
+    void testAddAppliedRangeActionsPostContingency() {
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        Instant instant1 = Mockito.mock(Instant.class);
+        when(instant1.isAuto()).thenReturn(true);
+        Instant instant2 = Mockito.mock(Instant.class);
+        when(instant2.isCurative()).thenReturn(true);
+
+        State state11 = mockState(instant1);
+        State state12 = mockState(instant1);
+        State state21 = mockState(instant2);
+        State state22 = mockState(instant2);
+
+        RangeAction<?> ra111 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra112 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra121 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra211 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra221 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra222 = Mockito.mock(RangeAction.class);
+
+        OptimizationResult optimizationResult11 = mockOptimizationResult(Set.of(ra111, ra112), state11);
+        OptimizationResult optimizationResult12 = mockOptimizationResult(Set.of(ra121), state12);
+        OptimizationResult optimizationResult21 = mockOptimizationResult(Set.of(ra211), state21);
+        OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(ra221, ra222), state22);
+
+        Map<State, OptimizationResult> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
+            state21, optimizationResult21, state22, optimizationResult22);
+
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);
+
+        assertTrue(appliedRemedialActions.getAppliedRangeActions(state11).isEmpty());
+        assertTrue(appliedRemedialActions.getAppliedRangeActions(state12).isEmpty());
+        assertTrue(appliedRemedialActions.getAppliedRangeActions(state21).isEmpty());
+        assertTrue(appliedRemedialActions.getAppliedRangeActions(state22).isEmpty());
+
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(Set.of(instant1), appliedRemedialActions, postContingencyResults);
+        assertEquals(Map.of(ra111, 0., ra112, 0.), appliedRemedialActions.getAppliedRangeActions(state11));
+        assertEquals(Map.of(ra121, 0.), appliedRemedialActions.getAppliedRangeActions(state12));
+        assertTrue(appliedRemedialActions.getAppliedRangeActions(state21).isEmpty());
+        assertTrue(appliedRemedialActions.getAppliedRangeActions(state22).isEmpty());
+
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(Set.of(instant2), appliedRemedialActions, postContingencyResults);
+        assertEquals(Map.of(ra111, 0., ra112, 0.), appliedRemedialActions.getAppliedRangeActions(state11));
+        assertEquals(Map.of(ra121, 0.), appliedRemedialActions.getAppliedRangeActions(state12));
+        assertEquals(Map.of(ra211, 0.), appliedRemedialActions.getAppliedRangeActions(state21));
+        assertEquals(Map.of(ra221, 0., ra222, 0.), appliedRemedialActions.getAppliedRangeActions(state22));
     }
 }

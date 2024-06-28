@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -22,6 +23,11 @@ public class EmptyFlowResultImpl implements FlowResult {
 
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
+        return Double.NaN;
+    }
+
+    @Override
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
         return Double.NaN;
     }
 

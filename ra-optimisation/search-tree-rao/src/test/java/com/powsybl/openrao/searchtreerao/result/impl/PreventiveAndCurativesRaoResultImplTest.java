@@ -562,9 +562,9 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetFlow() {
-        when(initialResult.getFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
-        when(postPrevResult.getFlow(cnec3, TWO, MEGAWATT)).thenReturn(30.);
+        when(initialResult.getFlow(cnec1, ONE, MEGAWATT, null)).thenReturn(10.);
+        when(preCurativeResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
+        when(postPrevResult.getFlow(cnec3, TWO, MEGAWATT, curativeInstant)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
@@ -839,9 +839,9 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(curativeState3));
 
         // Test get flow
-        when(initialResult.getFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
-        when(preCurativeResult.getFlow(cnec3, TWO, MEGAWATT)).thenReturn(30.);
+        when(initialResult.getFlow(cnec1, ONE, MEGAWATT, null)).thenReturn(10.);
+        when(preCurativeResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
+        when(preCurativeResult.getFlow(cnec3, TWO, MEGAWATT, curativeInstant)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
