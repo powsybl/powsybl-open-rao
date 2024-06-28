@@ -203,7 +203,7 @@ public class LinearProblemBuilderMultiTS {
     private ProblemFiller buildIntegerPstTapFiller(IteratingLinearOptimizerMultiTSInput inputs, Map<State, Set<PstRangeAction>> pstRangeActions, int i) {
         return new DiscretePstTapFiller(
             inputs.getNetwork(i),
-            inputs.getOptimizationPerimeter(i).getMainOptimizationState(),
+            inputs.getOptimizationPerimeter(i),
             pstRangeActions,
             inputs.getPrePerimeterSetpoints()
         );

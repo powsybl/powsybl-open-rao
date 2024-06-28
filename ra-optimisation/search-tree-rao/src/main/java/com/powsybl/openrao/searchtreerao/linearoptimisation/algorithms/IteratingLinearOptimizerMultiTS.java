@@ -164,9 +164,14 @@ public final class IteratingLinearOptimizerMultiTS {
         // apply RangeAction from first optimization state
         for (int i = 0; i < optimizationPerimeters.size(); i++) {
             OptimizationPerimeter optimizationPerimeter = optimizationPerimeters.get(i);
-            int finalI = i;
-            optimizationPerimeter.getRangeActionsPerState().get(optimizationPerimeter.getMainOptimizationState())
-                .forEach(ra -> ra.apply(input.getNetwork(finalI), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationPerimeter.getMainOptimizationState())));
+            //apply for the next time steps (wil be overridden if appear in next time steps)
+            for (int j = i; j < optimizationPerimeters.size(); j++) {
+                int finalJ = j;
+                if (!optimizationPerimeter.getRangeActionsPerState().isEmpty()) {
+                    optimizationPerimeter.getRangeActionsPerState().get(optimizationPerimeter.getMainOptimizationState())
+                        .forEach(ra -> ra.apply(input.getNetwork(finalJ), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationPerimeter.getMainOptimizationState())));
+                }
+            }
 
             // add RangeAction activated in the following states
             if (optimizationPerimeter instanceof GlobalOptimizationPerimeter) {

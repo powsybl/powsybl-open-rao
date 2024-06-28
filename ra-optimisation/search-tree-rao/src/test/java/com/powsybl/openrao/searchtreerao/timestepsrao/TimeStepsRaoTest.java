@@ -23,7 +23,6 @@ public class TimeStepsRaoTest {
     List<Crac> cracs;
     RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
 
-
     @Test
     void raoTwoTimeStepsWithNetworkActions() {
         List<String> cracsPaths = List.of(
@@ -101,7 +100,4 @@ public class TimeStepsRaoTest {
         }
         return marginsMap;
     }
-
 }
-
-

@@ -41,7 +41,6 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static java.util.Objects.nonNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ComplexScenariosMultiTsTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
@@ -57,7 +56,6 @@ public class ComplexScenariosMultiTsTest {
     @BeforeEach
     public void setUp() {
         raoParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
-
     }
 
     private RangeActionSetpointResult computeInitialSetpointsResults() {
@@ -205,6 +203,45 @@ public class ComplexScenariosMultiTsTest {
     }
 
     @Test
+    public void testFourTimestepsOnePst() {
+        List<String> cracsPaths = List.of(
+            "multi-ts/crac/crac-case0_0.json",
+            "multi-ts/crac/crac-no-pst-1.json",
+            "multi-ts/crac/crac-no-pst-2.json",
+            "multi-ts/crac/crac-pst-3.json"
+        );
+        List<String> networksPaths = List.of(
+            "multi-ts/network/12NodesProdFR.uct",
+            "multi-ts/network/12NodesProdFR.uct",
+            "multi-ts/network/12NodesProdFR.uct",
+            "multi-ts/network/12NodesProdFR.uct"
+        );
+
+        cracs = new ArrayList<>();
+        networks = new ArrayList<>();
+
+        for (int i = 0; i < networksPaths.size(); i++) {
+            networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
+            cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
+        }
+
+        initialSetpoints = computeInitialSetpointsResults();
+        optimizationPerimeters = computeOptimizationPerimeters();
+        initialSensiResult = runInitialSensi();
+
+        LinearOptimizationResult result = runIteratingLinearOptimization();
+        System.out.println(result.getStatus());
+
+        PstRangeAction pstRa0Ts0 = cracs.get(0).getPstRangeActions().stream().toList().get(0);
+
+        State state0 = optimizationPerimeters.get(0).getMainOptimizationState();
+        double pstOptimizedSetPoint0Ts0 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0Ts0, state0);
+
+        System.out.println("---- TS0 ----");
+        System.out.println(pstOptimizedSetPoint0Ts0);
+    }
+
+    @Test
     public void sensiTwoTimestepsThreePst() {
         List<String> cracsPaths = List.of(
             "multi-ts/crac/crac-3pst-ts0.json",
@@ -229,10 +266,10 @@ public class ComplexScenariosMultiTsTest {
     }
 
     private void getMarginFromSetPointManyPst(List<Double> setPoints, int timeStepIndex) {
-        for (int pstIndex = 0; pstIndex < setPoints.size() ; pstIndex++) {
+        for (int pstIndex = 0; pstIndex < setPoints.size(); pstIndex++) {
             PstRangeAction pstRangeAction = cracs.get(timeStepIndex).getPstRangeAction("pst_be_" + pstIndex + " - TS" + timeStepIndex);
             if (nonNull(pstRangeAction)) {
-                pstRangeAction.apply(networks.get(timeStepIndex), (setPoints.get(pstIndex)));
+                pstRangeAction.apply(networks.get(timeStepIndex), setPoints.get(pstIndex));
             }
         }
 
@@ -261,7 +298,6 @@ public class ComplexScenariosMultiTsTest {
             networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
             cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
         }
-
         List<Double> setPoints0 = List.of(-6.2276423729910535, 0.0);
         List<Double> setPoints1 = List.of(-6.2276423729910535, -3.1161220798131644);
         List<Double> setPoints2 = List.of(-6.2276423729910535, -3.1161220798131644);
@@ -271,11 +307,27 @@ public class ComplexScenariosMultiTsTest {
     }
 
     private void getMarginFromSetPointOnePst(List<Double> setPoints, int timeStepIndex) {
-        for (int pstIndex = 0; pstIndex < setPoints.size() ; pstIndex++) {
-            PstRangeAction pstRangeAction = cracs.get(timeStepIndex).getPstRangeAction("pst_be - TS" + timeStepIndex);
-            if (nonNull(pstRangeAction)) {
-                pstRangeAction.apply(networks.get(timeStepIndex), (setPoints.get(pstIndex)));
-            }
+//        for (int pstIndex = 0; pstIndex < setPoints.size() ; pstIndex++) {
+//            PstRangeAction pstRangeAction = cracs.get(timeStepIndex).getPstRangeAction("pst_be - TS" + timeStepIndex);
+//            if (nonNull(pstRangeAction)) {
+//                pstRangeAction.apply(networks.get(timeStepIndex), (setPoints.get(pstIndex)));
+//            }
+//        }
+
+        if (timeStepIndex == 0) {
+            PstRangeAction pstRangeAction = cracs.get(0).getPstRangeAction("pst_be - TS0");
+            pstRangeAction.apply(networks.get(timeStepIndex), setPoints.get(0));
+
+        } else if (timeStepIndex == 1) {
+            PstRangeAction pstRangeAction0 = cracs.get(0).getPstRangeAction("pst_be - TS0");
+            pstRangeAction0.apply(networks.get(timeStepIndex), setPoints.get(0));
+            PstRangeAction pstRangeAction1 = cracs.get(1).getPstRangeAction("pst_be - TS1");
+            pstRangeAction1.apply(networks.get(timeStepIndex), setPoints.get(1));
+        } else if (timeStepIndex == 2) {
+            PstRangeAction pstRangeAction1 = cracs.get(1).getPstRangeAction("pst_be - TS1");
+            pstRangeAction1.apply(networks.get(timeStepIndex), setPoints.get(1));
+            PstRangeAction pstRangeAction2 = cracs.get(2).getPstRangeAction("pst_be - TS2");
+            pstRangeAction2.apply(networks.get(timeStepIndex), setPoints.get(0));
         }
 
         LoadFlow.find("OpenLoadFlow").run(networks.get(timeStepIndex), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
@@ -326,11 +378,27 @@ public class ComplexScenariosMultiTsTest {
     }
 
     private double getMarginFromTap(List<Integer> taps, int timeStepIndex) {
-        for (int pstIndex = 0; pstIndex < taps.size() ; pstIndex++) {
-            PstRangeAction pstRangeAction = cracs.get(timeStepIndex).getPstRangeAction("pst_be - TS" + timeStepIndex);
-            if (nonNull(pstRangeAction)) {
-                pstRangeAction.apply(networks.get(timeStepIndex), pstRangeAction.convertTapToAngle(taps.get(pstIndex)));
-            }
+//        for (int pstIndex = 0; pstIndex < taps.size() ; pstIndex++) {
+//            PstRangeAction pstRangeAction = cracs.get(timeStepIndex).getPstRangeAction("pst_be - TS" + timeStepIndex);
+//            if (nonNull(pstRangeAction)) {
+//                pstRangeAction.apply(networks.get(timeStepIndex), pstRangeAction.convertTapToAngle(taps.get(pstIndex)));
+//            }
+//        }
+
+        if (timeStepIndex == 0) {
+            PstRangeAction pstRangeAction = cracs.get(0).getPstRangeAction("pst_be - TS0");
+            pstRangeAction.apply(networks.get(timeStepIndex), pstRangeAction.convertTapToAngle(taps.get(0)));
+
+        } else if (timeStepIndex == 1) {
+            PstRangeAction pstRangeAction0 = cracs.get(0).getPstRangeAction("pst_be - TS0");
+            pstRangeAction0.apply(networks.get(timeStepIndex), pstRangeAction0.convertTapToAngle(taps.get(0)));
+            PstRangeAction pstRangeAction1 = cracs.get(1).getPstRangeAction("pst_be - TS1");
+            pstRangeAction1.apply(networks.get(timeStepIndex), pstRangeAction1.convertTapToAngle(taps.get(1)));
+        } else if (timeStepIndex == 2) {
+            PstRangeAction pstRangeAction1 = cracs.get(1).getPstRangeAction("pst_be - TS1");
+            pstRangeAction1.apply(networks.get(timeStepIndex), pstRangeAction1.convertTapToAngle(taps.get(1)));
+            PstRangeAction pstRangeAction2 = cracs.get(2).getPstRangeAction("pst_be - TS2");
+            pstRangeAction2.apply(networks.get(timeStepIndex), pstRangeAction2.convertTapToAngle(taps.get(0)));
         }
 
         LoadFlow.find("OpenLoadFlow").run(networks.get(timeStepIndex), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());

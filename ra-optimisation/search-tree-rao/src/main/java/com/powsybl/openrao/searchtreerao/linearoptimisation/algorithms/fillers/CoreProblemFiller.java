@@ -295,20 +295,6 @@ public class CoreProblemFiller implements ProblemFiller {
             setPointVariable.setLb(minSetPoint - RANGE_ACTION_SETPOINT_EPSILON);
             setPointVariable.setUb(maxSetPoint + RANGE_ACTION_SETPOINT_EPSILON);
 
-//
-//            if (setPointVariable.name().equals("pst_be - TS0_preventive_setpoint_variable") ) {
-//                setPointVariable.setUb(-6.1);
-//            }
-//
-//            if (setPointVariable.name().equals("pst_be - TS1_preventive_setpoint_variable") ) {
-//                setPointVariable.setLb(-3.3);
-//                setPointVariable.setUb(-3.0);
-//            }
-//
-//            if (setPointVariable.name().equals("pst_be - TS2_preventive_setpoint_variable") ) {
-//                setPointVariable.setUb(-6.1);
-//            }
-
             varConstraintNegative.setLb(-prePerimeterSetPoint);
             varConstraintNegative.setCoefficient(absoluteVariationVariable, 1);
             varConstraintNegative.setCoefficient(setPointVariable, -1);

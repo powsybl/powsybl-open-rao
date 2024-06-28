@@ -156,12 +156,12 @@ public class NewRAOTest {
 
         DiscretePstTapFiller discretePstTapFiller0 = new DiscretePstTapFiller(
             networks.get(0),
-            optimizationPerimeters.get(0).getMainOptimizationState(),
+            optimizationPerimeters.get(0),
             rangeActionsPerStatePerTimestamp.get(0),
             initialSetpoints);
         DiscretePstTapFiller discretePstTapFiller1 = new DiscretePstTapFiller(
             networks.get(1),
-            optimizationPerimeters.get(1).getMainOptimizationState(),
+            optimizationPerimeters.get(1),
             rangeActionsPerStatePerTimestamp.get(1),
             initialSetpoints);
 
