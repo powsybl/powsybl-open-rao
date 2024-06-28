@@ -11,8 +11,8 @@ import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -78,15 +78,15 @@ public final class CommonCracCreation {
         // nothing
     }
 
-    public static Crac create(Set<Side> monitoredCnecSides) {
+    public static Crac create(Set<TwoSides> monitoredCnecSides) {
         return create(new CracImplFactory(), monitoredCnecSides);
     }
 
     public static Crac create() {
-        return create(new CracImplFactory(), Set.of(Side.LEFT));
+        return create(new CracImplFactory(), Set.of(TwoSides.ONE));
     }
 
-    public static Crac create(CracFactory cracFactory, Set<Side> monitoredCnecSides) {
+    public static Crac create(CracFactory cracFactory, Set<TwoSides> monitoredCnecSides) {
 
         Crac crac = cracFactory.create("idSimpleCracTestUS", "nameSimpleCracTestUS")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
@@ -220,13 +220,13 @@ public final class CommonCracCreation {
         monitoredCnecSides.forEach(side ->
             cnecAdder6.newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withSide(Side.LEFT)
+                .withSide(TwoSides.ONE)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
                 .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
-                .withSide(Side.LEFT)
+                .withSide(TwoSides.ONE)
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add());
@@ -236,10 +236,10 @@ public final class CommonCracCreation {
     }
 
     public static Crac createWithPreventivePstRange() {
-        return createWithPreventivePstRange(Set.of(Side.LEFT));
+        return createWithPreventivePstRange(Set.of(TwoSides.ONE));
     }
 
-    public static Crac createWithPreventivePstRange(Set<Side> monitoredCnecSides) {
+    public static Crac createWithPreventivePstRange(Set<TwoSides> monitoredCnecSides) {
         Crac crac = create(monitoredCnecSides);
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
@@ -265,10 +265,10 @@ public final class CommonCracCreation {
     }
 
     public static Crac createWithCurativePstRange() {
-        return createWithCurativePstRange(Set.of(Side.LEFT));
+        return createWithCurativePstRange(Set.of(TwoSides.ONE));
     }
 
-    public static Crac createWithCurativePstRange(Set<Side> monitoredCnecSides) {
+    public static Crac createWithCurativePstRange(Set<TwoSides> monitoredCnecSides) {
         Crac crac = create();
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);

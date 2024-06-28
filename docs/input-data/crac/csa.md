@@ -299,9 +299,9 @@ The CNEC's threshold side depends on the nature of the `OperationalLimitSet`'s `
 existing line in the network and which also defines the CNEC's network element:
 
 - if the line is a `CGMES.Terminal1` or a `CGMES.Terminal_Boundary_1` in PowSyBl, the threshold of the CNEC is on the
-  **left** side
+  side **one**
 - if the line is a `CGMES.Terminal2` or a `CGMES.Terminal_Boundary_2` in PowSyBl, the threshold of the CNEC is on the
-  **right** side
+  side **two**
 
 Depending on the `OperationalLimitType`'s `kind` (PATL or TATL) and its `acceptableDuration` (if TATL), the FlowCNEC's instant can be deduced (see [this section](#tatl-to-flowcnec-instant-association) for more information).
 

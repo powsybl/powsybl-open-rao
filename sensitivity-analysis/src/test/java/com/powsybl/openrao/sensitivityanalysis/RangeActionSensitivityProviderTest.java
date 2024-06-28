@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -69,7 +69,7 @@ class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -83,7 +83,7 @@ class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -97,7 +97,7 @@ class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -137,7 +137,7 @@ class RangeActionSensitivityProviderTest {
 
     @Test
     void factorsCracPstWithRange() {
-        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(TwoSides.ONE, TwoSides.TWO));
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
@@ -180,7 +180,7 @@ class RangeActionSensitivityProviderTest {
 
     @Test
     void cracWithoutRangeActionNorPst() {
-        Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
+        Crac crac = CommonCracCreation.create(Set.of(TwoSides.ONE, TwoSides.TWO));
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
@@ -210,8 +210,8 @@ class RangeActionSensitivityProviderTest {
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.TWO).add()
             .add();
 
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
@@ -260,7 +260,7 @@ class RangeActionSensitivityProviderTest {
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
             .add();
 
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
@@ -283,7 +283,7 @@ class RangeActionSensitivityProviderTest {
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
             .add();
 
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));

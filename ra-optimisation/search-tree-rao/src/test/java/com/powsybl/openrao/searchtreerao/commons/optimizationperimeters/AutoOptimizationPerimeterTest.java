@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.CracImplFactory;
@@ -75,7 +75,7 @@ class AutoOptimizationPerimeterTest {
             .withNetworkElement("line")
             .withNominalVoltage(400)
             .newThreshold()
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-1000d)
             .withMax(1000d)
             .withUnit(Unit.AMPERE)
@@ -90,7 +90,7 @@ class AutoOptimizationPerimeterTest {
             .withNetworkElement("line")
             .withNominalVoltage(400)
             .newThreshold()
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-2500d)
             .withMax(2500d)
             .withUnit(Unit.AMPERE)
@@ -105,7 +105,7 @@ class AutoOptimizationPerimeterTest {
             .withNetworkElement("line")
             .withNominalVoltage(400)
             .newThreshold()
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-1500d)
             .withMax(1500d)
             .withUnit(Unit.AMPERE)
@@ -120,7 +120,7 @@ class AutoOptimizationPerimeterTest {
             .withNetworkElement("line")
             .withNominalVoltage(400)
             .newThreshold()
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .withMin(-1000d)
             .withMax(1000d)
             .withUnit(Unit.AMPERE)

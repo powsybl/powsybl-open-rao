@@ -11,7 +11,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.NativeBranch;
@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.craccreation.creator.cse.xsd.TImax;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.TOutage;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteFlowElementHelper;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
-import com.powsybl.iidm.network.TwoSides;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -41,7 +40,7 @@ public class CriticalBranchReader {
     private boolean selected;
     private final Set<String> remedialActionIds = new HashSet<>();
     private final ImportStatus criticalBranchImportStatus;
-    private Set<Side> monitoredSides;
+    private Set<TwoSides> monitoredSides;
 
     public String getCriticalBranchName() {
         return criticalBranchName;
@@ -79,7 +78,7 @@ public class CriticalBranchReader {
         return selected;
     }
 
-    public CriticalBranchReader(List<TBranch> tBranches, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides, boolean isMonitored) {
+    public CriticalBranchReader(List<TBranch> tBranches, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<TwoSides> defaultMonitoredSides, boolean isMonitored) {
         if (tBranches.size() > 1) {
             this.criticalBranchName = tBranches.stream().map(tBranch -> tBranch.getName().getV()).collect(Collectors.joining(" ; "));
             this.nativeBranch = new NativeBranch(tBranches.get(0).getFromNode().toString(), tBranches.get(0).getToNode().toString(), tBranches.get(0).getOrder().toString());
@@ -99,7 +98,7 @@ public class CriticalBranchReader {
             this.criticalBranchImportStatus = ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
             return;
         }
-        this.monitoredSides = branchHelper.isHalfLine() ? Set.of(Side.fromIidmSide(branchHelper.getHalfLineSide())) : defaultMonitoredSides;
+        this.monitoredSides = branchHelper.isHalfLine() ? Set.of(branchHelper.getHalfLineSide()) : defaultMonitoredSides;
         if (tOutage != null && crac.getContingency(outage) == null) {
             this.isImported = false;
             this.criticalBranchImportStatus = ImportStatus.INCOMPLETE_DATA;
@@ -155,18 +154,18 @@ public class CriticalBranchReader {
                 .withContingency(outage)
                 .withOptimized(selected).withMonitored(isMonitored)
                 .withNetworkElement(branchHelper.getIdInNetwork())
-                .withIMax(branchHelper.getCurrentLimit(TwoSides.ONE), Side.LEFT)
-                .withIMax(branchHelper.getCurrentLimit(TwoSides.TWO), Side.RIGHT)
-                .withNominalVoltage(branchHelper.getNominalVoltage(TwoSides.ONE), Side.LEFT)
-                .withNominalVoltage(branchHelper.getNominalVoltage(TwoSides.TWO), Side.RIGHT);
+                .withIMax(branchHelper.getCurrentLimit(TwoSides.ONE), TwoSides.ONE)
+                .withIMax(branchHelper.getCurrentLimit(TwoSides.TWO), TwoSides.TWO)
+                .withNominalVoltage(branchHelper.getNominalVoltage(TwoSides.ONE), TwoSides.ONE)
+                .withNominalVoltage(branchHelper.getNominalVoltage(TwoSides.TWO), TwoSides.TWO);
 
-        Set<Side> monitoredSidesForThreshold = monitoredSides;
+        Set<TwoSides> monitoredSidesForThreshold = monitoredSides;
         Unit unit = convertUnit(tImax.getUnit());
         // For transformers, if unit is absolute amperes, monitor low voltage side
         if (!branchHelper.isHalfLine() && unit.equals(Unit.AMPERE) &&
                 Math.abs(branchHelper.getNominalVoltage(TwoSides.ONE) - branchHelper.getNominalVoltage(TwoSides.TWO)) > 1) {
             monitoredSidesForThreshold = (branchHelper.getNominalVoltage(TwoSides.ONE) <= branchHelper.getNominalVoltage(TwoSides.TWO)) ?
-                    Set.of(Side.LEFT) : Set.of(Side.RIGHT);
+                    Set.of(TwoSides.ONE) : Set.of(TwoSides.TWO);
         }
         addThreshold(cnecAdder, tImax.getV(), unit, tBranch.getDirection().getV(), isDirectionInverted, monitoredSidesForThreshold);
         cnecAdder.add();
@@ -182,7 +181,7 @@ public class CriticalBranchReader {
         );
     }
 
-    private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, Unit unit, String direction, boolean invert, Set<Side> monitoredSides) {
+    private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, Unit unit, String direction, boolean invert, Set<TwoSides> monitoredSides) {
         monitoredSides.forEach(side -> {
             BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
                     .withSide(side)

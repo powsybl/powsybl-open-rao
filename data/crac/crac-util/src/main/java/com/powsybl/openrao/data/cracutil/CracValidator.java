@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
@@ -79,10 +79,10 @@ public final class CracValidator {
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(cnec.getId() + " - OUTAGE DUPLICATE")
             .withNetworkElement(cnec.getNetworkElement().getId())
-            .withIMax(cnec.getIMax(Side.LEFT), Side.LEFT)
-            .withIMax(cnec.getIMax(Side.RIGHT), Side.RIGHT)
-            .withNominalVoltage(cnec.getNominalVoltage(Side.LEFT), Side.LEFT)
-            .withNominalVoltage(cnec.getNominalVoltage(Side.RIGHT), Side.RIGHT)
+            .withIMax(cnec.getIMax(TwoSides.ONE), TwoSides.ONE)
+            .withIMax(cnec.getIMax(TwoSides.TWO), TwoSides.TWO)
+            .withNominalVoltage(cnec.getNominalVoltage(TwoSides.ONE), TwoSides.ONE)
+            .withNominalVoltage(cnec.getNominalVoltage(TwoSides.TWO), TwoSides.TWO)
             .withReliabilityMargin(cnec.getReliabilityMargin())
             .withInstant(outageInstant.getId()).withContingency(cnec.getState().getContingency().orElseThrow().getId())
             .withOptimized(cnec.isOptimized())
