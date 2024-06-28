@@ -49,7 +49,7 @@
     "thresholds" : [ {
       "unit" : "ampere",
       "min" : -800.0,
-      "side" : "left"
+      "side" : 1
     } ]
   }, {
     "id" : "cnec1prevId",
@@ -66,7 +66,7 @@
     "thresholds" : [ {
       "unit" : "ampere",
       "min" : -500.0,
-      "side" : "right"
+      "side" : 2
     } ]
   }, {
     "id" : "cnec2prevId",
@@ -83,19 +83,19 @@
     "thresholds" : [ {
       "unit" : "ampere",
       "min" : -800.0,
-      "side" : "left"
+      "side" : 1
     }, {
       "unit" : "ampere",
       "min" : -800.0,
-      "side" : "left"
+      "side" : 1
     }, {
       "unit" : "ampere",
       "max" : 1200.0,
-      "side" : "right"
+      "side" : 2
     }, {
       "unit" : "percent_imax",
       "min" : -0.3,
-      "side" : "left"
+      "side" : 1
     } ]
   }, {
     "id" : "cnec3autoId",
@@ -113,7 +113,7 @@
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
-      "side" : "left"
+      "side" : 1
     } ]
   }, {
     "id" : "cnec3curId",
@@ -131,7 +131,7 @@
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
-      "side" : "left"
+      "side" : 1
     } ]
   }, {
     "id" : "cnec3prevId",
@@ -148,7 +148,7 @@
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
-      "side" : "left"
+      "side" : 1
     } ]
   }, {
     "id" : "cnec4prevId",
@@ -165,7 +165,7 @@
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
-      "side" : "left"
+      "side" : 1
     } ]
   } ],
   "angleCnecs" : [ {
