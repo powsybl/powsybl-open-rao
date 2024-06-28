@@ -177,7 +177,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.5/rao-result-v1.5.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.5/crac-for-rao-result-v1.5.json");
 
-        Crac crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
+        Crac crac = Crac.read("crac-for-rao-result-v1.5.json", cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point3RaoResult(raoResult, crac);

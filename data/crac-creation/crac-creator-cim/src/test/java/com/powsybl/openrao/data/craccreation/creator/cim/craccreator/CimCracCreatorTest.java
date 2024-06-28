@@ -408,9 +408,9 @@ class CimCracCreatorTest {
         assertHasOneThreshold("CNEC-4 - Co-2 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -0.04, 0.04);
 
         // CNEC 5
-        assertCnecImported("MNEC-1", Set.of("CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative"));
-        assertHasOneThreshold("CNEC-5 - MONITORED - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
-        assertHasOneThreshold("CNEC-5 - MONITORED - Co-1 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertCnecImported("MNEC-1", Set.of("CNEC-5 - ONE - MONITORED - preventive", "CNEC-5 - ONE - MONITORED - Co-1 - curative"));
+        assertHasOneThreshold("CNEC-5 - ONE - MONITORED - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertHasOneThreshold("CNEC-5 - ONE - MONITORED - Co-1 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
 
         // CNEC 6
         assertCnecImported("MNEC-2", Set.of("CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
@@ -479,7 +479,7 @@ class CimCracCreatorTest {
         assertRemedialActionNotImported("PRA_20", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_21", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_22", INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("PRA_23", INCOMPLETE_DATA);
+        assertRemedialActionNotImported("PRA_23", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_24", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertRemedialActionNotImported("PRA_25", NOT_YET_HANDLED_BY_OPEN_RAO);
         // Mix
@@ -581,16 +581,16 @@ class CimCracCreatorTest {
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         PstRangeAction pra1 = importedCrac.getPstRangeAction("PRA_1");
         assertEquals(10, pra1.getUsageRules().size());
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - preventive");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - auto");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-1 - curative");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
-        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - preventive");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-1 - outage");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-1 - auto");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-1 - curative");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-2 - outage");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-2 - auto");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-3 - outage");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-3 - auto");
+        assertHasOnFlowConstraintUsageRule(pra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-3 - curative");
         assertEquals(1, pra1.getRanges().size());
         assertEquals(RangeType.ABSOLUTE, pra1.getRanges().get(0).getRangeType());
         assertEquals(1, pra1.getRanges().get(0).getMinTap());
@@ -601,14 +601,14 @@ class CimCracCreatorTest {
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
         assertEquals(8, praCra1.getUsageRules().size());
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-2 - outage");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-2 - auto");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-3 - outage");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-3 - auto");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-3 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-3 - curative");
         assertEquals(1, praCra1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, praCra1.getRanges().get(0).getRangeType());
         assertEquals(-10, praCra1.getRanges().get(0).getMinTap());
@@ -619,10 +619,10 @@ class CimCracCreatorTest {
         assertPstRangeActionImported("AUTO_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction auto1 = importedCrac.getPstRangeAction("AUTO_1");
         assertEquals(4, auto1.getUsageRules().size());
-        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
-        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-2 - auto");
+        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-3 - auto");
+        assertHasOnFlowConstraintUsageRule(auto1, autoInstant, "GHIOL_QSDFGH_1_220 - ONE - Co-one-3 - curative");
         assertEquals(1, auto1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, auto1.getRanges().get(0).getRangeType());
         assertEquals(-10, auto1.getRanges().get(0).getMinTap());
@@ -771,14 +771,14 @@ class CimCracCreatorTest {
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
         assertEquals(8, praCra1.getUsageRules().size());
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
-        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
-        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - TWO - Co-one-2 - outage");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - TWO - Co-one-2 - auto");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - TWO - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - TWO - Co-one-3 - outage");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - TWO - Co-one-3 - auto");
+        assertHasOnFlowConstraintUsageRule(praCra1, preventiveInstant, "GHIOL_QSDFGH_1_220 - TWO - Co-one-3 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - TWO - Co-one-2 - curative");
+        assertHasOnFlowConstraintUsageRule(praCra1, curativeInstant, "GHIOL_QSDFGH_1_220 - TWO - Co-one-3 - curative");
         assertEquals(1, praCra1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, praCra1.getRanges().get(0).getRangeType());
         assertEquals(-10, praCra1.getRanges().get(0).getMinTap());
@@ -849,7 +849,7 @@ class CimCracCreatorTest {
 
         // CNEC 4
         assertCnecImported("CNEC-4", Set.of("CNEC-4 - preventive", "CNEC-4 - Co-1 - curative", "CNEC-4 - Co-2 - curative",
-            "CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative",
+            "CNEC-5 - ONE - MONITORED - preventive", "CNEC-5 - ONE - MONITORED - Co-1 - curative",
             "CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
         assertFalse(cracCreationContext.getMonitoredSeriesCreationContext("CNEC-4").isAltered());
     }
@@ -917,9 +917,9 @@ class CimCracCreatorTest {
         assertHasOneThreshold("CNEC-4 - Co-2 - curative", TwoSides.TWO, Unit.PERCENT_IMAX, -0.04, 0.04);
 
         // CNEC 5
-        assertCnecImported("MNEC-1", Set.of("CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative"));
-        assertHasOneThreshold("CNEC-5 - MONITORED - preventive", TwoSides.TWO, Unit.PERCENT_IMAX, -0.05, 0.05);
-        assertHasOneThreshold("CNEC-5 - MONITORED - Co-1 - curative", TwoSides.TWO, Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertCnecImported("MNEC-1", Set.of("CNEC-5 - ONE - MONITORED - preventive", "CNEC-5 - ONE - MONITORED - Co-1 - curative"));
+        assertHasOneThreshold("CNEC-5 - ONE - MONITORED - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertHasOneThreshold("CNEC-5 - ONE - MONITORED - Co-1 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
 
         // CNEC 6 - Cannot be imported because has no Imax on right side
         assertCnecNotImported("MNEC-2", OTHER);
@@ -949,9 +949,9 @@ class CimCracCreatorTest {
         assertHasTwoThresholds("CNEC-4 - Co-2 - curative", Unit.PERCENT_IMAX, -0.04, 0.04);
 
         // CNEC 5
-        assertCnecImported("MNEC-1", Set.of("CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative"));
-        assertHasTwoThresholds("CNEC-5 - MONITORED - preventive", Unit.PERCENT_IMAX, -0.05, 0.05);
-        assertHasTwoThresholds("CNEC-5 - MONITORED - Co-1 - curative", Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertCnecImported("MNEC-1", Set.of("CNEC-5 - ONE - MONITORED - preventive", "CNEC-5 - ONE - MONITORED - Co-1 - curative"));
+        assertHasOneThreshold("CNEC-5 - ONE - MONITORED - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertHasOneThreshold("CNEC-5 - ONE - MONITORED - Co-1 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
 
         // CNEC 6 - Only one threshold because has only Imax on ONE side in network
         assertCnecImported("MNEC-2", Set.of("CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
@@ -1037,24 +1037,24 @@ class CimCracCreatorTest {
         assertEquals(14, importedCrac.getFlowCnecs().size());
 
         assertCnecImported("TUU_MR_31", Set.of(
-            "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
-            "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
-            "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
-            "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
+            "GHIOL_QSDFGH_1_220 - TWO - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - TWO - preventive", "GHIOL_QSDFGH_1_220 - TWO - Co-one-1 - outage",
+            "GHIOL_QSDFGH_1_220 - TWO - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - TWO - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - TWO - Co-one-2 - curative",
+            "GHIOL_QSDFGH_1_220 - TWO - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - TWO - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - TWO - Co-one-2 - auto",
+            "GHIOL_QSDFGH_1_220 - TWO - Co-one-2 - outage"
         ));
-        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -1, 1);
-        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-1 - outage", TwoSides.ONE, Unit.PERCENT_IMAX, -1.15, 1.15);
-        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-2 - auto", TwoSides.ONE, Unit.PERCENT_IMAX, -1.1, 1.1);
-        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-3 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -1.05, 1.05);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - TWO - preventive", TwoSides.TWO, Unit.PERCENT_IMAX, -1, 1);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - TWO - Co-one-1 - outage", TwoSides.TWO, Unit.PERCENT_IMAX, -1.15, 1.15);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - TWO - Co-one-2 - auto", TwoSides.TWO, Unit.PERCENT_IMAX, -1.1, 1.1);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - TWO - Co-one-3 - curative", TwoSides.TWO, Unit.PERCENT_IMAX, -1.05, 1.05);
 
         assertCnecImported("TUU_MR_56", Set.of(
-            "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
-            "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
+            "GHIOL_QSRBJH_1_400 - TWO - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - TWO - preventive", "GHIOL_QSRBJH_1_400 - TWO - Co-one-1 - outage",
+            "GHIOL_QSRBJH_1_400 - TWO - Co-one-1 - curative"
         ));
-        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -1, 1);
-        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - outage", TwoSides.ONE, Unit.PERCENT_IMAX, -1.5, 1.5);
-        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - auto", TwoSides.ONE, Unit.PERCENT_IMAX, -1.3, 1.3);
-        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -1.05, 1.05);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - TWO - preventive", TwoSides.TWO, Unit.PERCENT_IMAX, -1, 1);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - TWO - Co-one-1 - outage", TwoSides.TWO, Unit.PERCENT_IMAX, -1.5, 1.5);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - TWO - Co-one-1 - auto", TwoSides.TWO, Unit.PERCENT_IMAX, -1.3, 1.3);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - TWO - Co-one-1 - curative", TwoSides.TWO, Unit.PERCENT_IMAX, -1.05, 1.05);
 
         // PRA_1
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);

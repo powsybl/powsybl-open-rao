@@ -50,7 +50,7 @@
             <mRID>Co-2</mRID>
             <name>Co-2-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <mRID codingScheme="A02">_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
               <name>Co2NetworkElementName</name>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
@@ -112,7 +112,7 @@
             <mRID>Co-2</mRID>
             <name>Co-2-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <mRID codingScheme="A02">_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
               <name>Co2NetworkElementName</name>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
