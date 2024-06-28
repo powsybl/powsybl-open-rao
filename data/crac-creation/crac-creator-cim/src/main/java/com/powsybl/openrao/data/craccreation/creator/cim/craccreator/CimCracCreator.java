@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MonitoredSeriesCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.VoltageCnecsCreator;
@@ -89,7 +89,7 @@ class CimCracCreator {
         new CimContingencyCreator(cimTimeSeries, crac, network, creationContext).createAndAddContingencies();
     }
 
-    private void createCnecs(Set<Side> defaultMonitoredSides) {
+    private void createCnecs(Set<TwoSides> defaultMonitoredSides) {
         new MonitoredSeriesCreator(cimTimeSeries, network, creationContext, defaultMonitoredSides).createAndAddMonitoredSeries();
     }
 

@@ -17,7 +17,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.parameters.RangeActionGroup;
@@ -97,7 +97,7 @@ class CimCracCreatorTest {
 
     private void setUpWithGroupId(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, List<List<String>> alignedRangeActions) throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         cracCreationParameters = Mockito.spy(cracCreationParameters);
         CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
@@ -116,7 +116,7 @@ class CimCracCreatorTest {
 
     private void setUpWithSpeed(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<RangeActionSpeed> rangeActionSpeeds) throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         cracCreationParameters = Mockito.spy(cracCreationParameters);
         CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
@@ -133,7 +133,7 @@ class CimCracCreatorTest {
 
     private void setUpWithTimeseriesMrids(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<String> timeseriesMrids) throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         cracCreationParameters = Mockito.spy(cracCreationParameters);
         CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
@@ -294,7 +294,7 @@ class CimCracCreatorTest {
                         ));
     }
 
-    private void assertHasOneThreshold(String cnecId, Side side, Unit unit, double min, double max) {
+    private void assertHasOneThreshold(String cnecId, TwoSides side, Unit unit, double min, double max) {
         FlowCnec cnec = importedCrac.getFlowCnec(cnecId);
         assertEquals(1, cnec.getThresholds().size());
         BranchThreshold threshold = cnec.getThresholds().iterator().next();
@@ -309,8 +309,8 @@ class CimCracCreatorTest {
     private void assertHasTwoThresholds(String cnecId, Unit unit, double min, double max) {
         FlowCnec cnec = importedCrac.getFlowCnec(cnecId);
         assertEquals(2, cnec.getThresholds().size());
-        assertTrue(cnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(Side.LEFT)));
-        assertTrue(cnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(Side.RIGHT)));
+        assertTrue(cnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(TwoSides.ONE)));
+        assertTrue(cnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(TwoSides.TWO)));
         cnec.getThresholds().forEach(threshold -> {
             assertEquals(unit, threshold.getUnit());
             assertTrue(threshold.limitsByMin());
@@ -387,7 +387,7 @@ class CimCracCreatorTest {
     @Test
     void testImportFakeCnecs() throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
 
         assertEquals(10, importedCrac.getFlowCnecs().size());
@@ -397,25 +397,25 @@ class CimCracCreatorTest {
 
         // CNEC 3
         assertCnecImported("CNEC-3", Set.of("CNEC-3 - preventive", "CNEC-3 - Co-1 - auto", "CNEC-3 - Co-2 - auto"));
-        assertHasOneThreshold("CNEC-3 - preventive", Side.LEFT, Unit.MEGAWATT, -3, 3);
-        assertHasOneThreshold("CNEC-3 - Co-1 - auto", Side.LEFT, Unit.AMPERE, -3, 3);
-        assertHasOneThreshold("CNEC-3 - Co-2 - auto", Side.LEFT, Unit.AMPERE, -3, 3);
+        assertHasOneThreshold("CNEC-3 - preventive", TwoSides.ONE, Unit.MEGAWATT, -3, 3);
+        assertHasOneThreshold("CNEC-3 - Co-1 - auto", TwoSides.ONE, Unit.AMPERE, -3, 3);
+        assertHasOneThreshold("CNEC-3 - Co-2 - auto", TwoSides.ONE, Unit.AMPERE, -3, 3);
 
         // CNEC 4
         assertCnecImported("CNEC-4", Set.of("CNEC-4 - preventive", "CNEC-4 - Co-1 - curative", "CNEC-4 - Co-2 - curative"));
-        assertHasOneThreshold("CNEC-4 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -0.04, 0.04);
-        assertHasOneThreshold("CNEC-4 - Co-1 - curative", Side.LEFT, Unit.PERCENT_IMAX, -0.04, 0.04);
-        assertHasOneThreshold("CNEC-4 - Co-2 - curative", Side.LEFT, Unit.PERCENT_IMAX, -0.04, 0.04);
+        assertHasOneThreshold("CNEC-4 - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -0.04, 0.04);
+        assertHasOneThreshold("CNEC-4 - Co-1 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -0.04, 0.04);
+        assertHasOneThreshold("CNEC-4 - Co-2 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -0.04, 0.04);
 
         // CNEC 5
         assertCnecImported("MNEC-1", Set.of("CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative"));
-        assertHasOneThreshold("CNEC-5 - MONITORED - preventive", Side.LEFT, Unit.PERCENT_IMAX, -0.05, 0.05);
-        assertHasOneThreshold("CNEC-5 - MONITORED - Co-1 - curative", Side.LEFT, Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertHasOneThreshold("CNEC-5 - MONITORED - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertHasOneThreshold("CNEC-5 - MONITORED - Co-1 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -0.05, 0.05);
 
         // CNEC 6
         assertCnecImported("MNEC-2", Set.of("CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
-        assertHasOneThreshold("CNEC-6 - MONITORED - preventive", Side.LEFT, Unit.PERCENT_IMAX, -0.06, 0.06);
-        assertHasOneThreshold("CNEC-6 - MONITORED - Co-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -0.06, 0.06);
+        assertHasOneThreshold("CNEC-6 - MONITORED - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -0.06, 0.06);
+        assertHasOneThreshold("CNEC-6 - MONITORED - Co-1 - outage", TwoSides.ONE, Unit.PERCENT_IMAX, -0.06, 0.06);
     }
 
     @Test
@@ -896,7 +896,7 @@ class CimCracCreatorTest {
     @Test
     void testImportCnecOnRightSide() throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
         setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
 
         assertEquals(8, importedCrac.getFlowCnecs().size());
@@ -906,20 +906,20 @@ class CimCracCreatorTest {
 
         // CNEC 3
         assertCnecImported("CNEC-3", Set.of("CNEC-3 - preventive", "CNEC-3 - Co-1 - auto", "CNEC-3 - Co-2 - auto"));
-        assertHasOneThreshold("CNEC-3 - preventive", Side.RIGHT, Unit.MEGAWATT, -3, 3);
-        assertHasOneThreshold("CNEC-3 - Co-1 - auto", Side.RIGHT, Unit.AMPERE, -3, 3);
-        assertHasOneThreshold("CNEC-3 - Co-2 - auto", Side.RIGHT, Unit.AMPERE, -3, 3);
+        assertHasOneThreshold("CNEC-3 - preventive", TwoSides.TWO, Unit.MEGAWATT, -3, 3);
+        assertHasOneThreshold("CNEC-3 - Co-1 - auto", TwoSides.TWO, Unit.AMPERE, -3, 3);
+        assertHasOneThreshold("CNEC-3 - Co-2 - auto", TwoSides.TWO, Unit.AMPERE, -3, 3);
 
         // CNEC 4
         assertCnecImported("CNEC-4", Set.of("CNEC-4 - preventive", "CNEC-4 - Co-1 - curative", "CNEC-4 - Co-2 - curative"));
-        assertHasOneThreshold("CNEC-4 - preventive", Side.RIGHT, Unit.PERCENT_IMAX, -0.04, 0.04);
-        assertHasOneThreshold("CNEC-4 - Co-1 - curative", Side.RIGHT, Unit.PERCENT_IMAX, -0.04, 0.04);
-        assertHasOneThreshold("CNEC-4 - Co-2 - curative", Side.RIGHT, Unit.PERCENT_IMAX, -0.04, 0.04);
+        assertHasOneThreshold("CNEC-4 - preventive", TwoSides.TWO, Unit.PERCENT_IMAX, -0.04, 0.04);
+        assertHasOneThreshold("CNEC-4 - Co-1 - curative", TwoSides.TWO, Unit.PERCENT_IMAX, -0.04, 0.04);
+        assertHasOneThreshold("CNEC-4 - Co-2 - curative", TwoSides.TWO, Unit.PERCENT_IMAX, -0.04, 0.04);
 
         // CNEC 5
         assertCnecImported("MNEC-1", Set.of("CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative"));
-        assertHasOneThreshold("CNEC-5 - MONITORED - preventive", Side.RIGHT, Unit.PERCENT_IMAX, -0.05, 0.05);
-        assertHasOneThreshold("CNEC-5 - MONITORED - Co-1 - curative", Side.RIGHT, Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertHasOneThreshold("CNEC-5 - MONITORED - preventive", TwoSides.TWO, Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertHasOneThreshold("CNEC-5 - MONITORED - Co-1 - curative", TwoSides.TWO, Unit.PERCENT_IMAX, -0.05, 0.05);
 
         // CNEC 6 - Cannot be imported because has no Imax on right side
         assertCnecNotImported("MNEC-2", OTHER);
@@ -953,10 +953,10 @@ class CimCracCreatorTest {
         assertHasTwoThresholds("CNEC-5 - MONITORED - preventive", Unit.PERCENT_IMAX, -0.05, 0.05);
         assertHasTwoThresholds("CNEC-5 - MONITORED - Co-1 - curative", Unit.PERCENT_IMAX, -0.05, 0.05);
 
-        // CNEC 6 - Only one threshold because has only Imax on LEFT side in network
+        // CNEC 6 - Only one threshold because has only Imax on ONE side in network
         assertCnecImported("MNEC-2", Set.of("CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
-        assertHasOneThreshold("CNEC-6 - MONITORED - preventive", Side.LEFT, Unit.PERCENT_IMAX, -0.06, 0.06);
-        assertHasOneThreshold("CNEC-6 - MONITORED - Co-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -0.06, 0.06);
+        assertHasOneThreshold("CNEC-6 - MONITORED - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -0.06, 0.06);
+        assertHasOneThreshold("CNEC-6 - MONITORED - Co-1 - outage", TwoSides.ONE, Unit.PERCENT_IMAX, -0.06, 0.06);
     }
 
     @Test
@@ -972,24 +972,24 @@ class CimCracCreatorTest {
         assertHasTwoThresholds("OJLJJ_5_400_220 - preventive", Unit.PERCENT_IMAX, -1., 1.);
         assertHasTwoThresholds("OJLJJ_5_400_220 - CO_2 - outage", Unit.MEGAWATT, -1000., 1000.);
         assertHasTwoThresholds("OJLJJ_5_400_220 - CO_3 - outage", Unit.MEGAWATT, -1000., 1000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
 
-        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T03:00Z"), cracCreationParameters);
-        assertHasOneThreshold("OJLJJ_5_400_220 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1., 1.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", Side.LEFT, Unit.MEGAWATT, -1000., 1000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", Side.LEFT, Unit.MEGAWATT, -1000., 1000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -1., 1.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", TwoSides.ONE, Unit.MEGAWATT, -1000., 1000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", TwoSides.ONE, Unit.MEGAWATT, -1000., 1000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
 
-        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
         setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T05:00Z"), cracCreationParameters);
-        assertHasOneThreshold("OJLJJ_5_400_220 - preventive", Side.RIGHT, Unit.PERCENT_IMAX, -1., 1.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", Side.RIGHT, Unit.MEGAWATT, -1000., 1000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", Side.RIGHT, Unit.MEGAWATT, -1000., 1000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - preventive", TwoSides.TWO, Unit.PERCENT_IMAX, -1., 1.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", TwoSides.TWO, Unit.MEGAWATT, -1000., 1000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", TwoSides.TWO, Unit.MEGAWATT, -1000., 1000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
     }
 
     private void assertCnecHasOutageDuplicate(String flowCnecId) {
@@ -1003,10 +1003,10 @@ class CimCracCreatorTest {
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
         assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
-        assertEquals(flowCnec.getIMax(Side.LEFT), duplicate.getIMax(Side.LEFT), 1e-6);
-        assertEquals(flowCnec.getIMax(Side.RIGHT), duplicate.getIMax(Side.RIGHT), 1e-6);
-        assertEquals(flowCnec.getNominalVoltage(Side.LEFT), duplicate.getNominalVoltage(Side.LEFT), 1e-6);
-        assertEquals(flowCnec.getNominalVoltage(Side.RIGHT), duplicate.getNominalVoltage(Side.RIGHT), 1e-6);
+        assertEquals(flowCnec.getIMax(TwoSides.ONE), duplicate.getIMax(TwoSides.ONE), 1e-6);
+        assertEquals(flowCnec.getIMax(TwoSides.TWO), duplicate.getIMax(TwoSides.TWO), 1e-6);
+        assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);
+        assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
         assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());
         assertTrue(cracCreationContext.getCreationReport().getReport().contains(String.format("[ADDED] CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", flowCnecId)));
     }
@@ -1042,19 +1042,19 @@ class CimCracCreatorTest {
             "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
             "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
         ));
-        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
-        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.15, 1.15);
-        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-2 - auto", Side.LEFT, Unit.PERCENT_IMAX, -1.1, 1.1);
-        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-3 - curative", Side.LEFT, Unit.PERCENT_IMAX, -1.05, 1.05);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -1, 1);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-1 - outage", TwoSides.ONE, Unit.PERCENT_IMAX, -1.15, 1.15);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-2 - auto", TwoSides.ONE, Unit.PERCENT_IMAX, -1.1, 1.1);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-3 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -1.05, 1.05);
 
         assertCnecImported("TUU_MR_56", Set.of(
             "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
             "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
         ));
-        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
-        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.5, 1.5);
-        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - auto", Side.LEFT, Unit.PERCENT_IMAX, -1.3, 1.3);
-        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - curative", Side.LEFT, Unit.PERCENT_IMAX, -1.05, 1.05);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -1, 1);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - outage", TwoSides.ONE, Unit.PERCENT_IMAX, -1.5, 1.5);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - auto", TwoSides.ONE, Unit.PERCENT_IMAX, -1.3, 1.3);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - curative", TwoSides.ONE, Unit.PERCENT_IMAX, -1.05, 1.05);
 
         // PRA_1
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);

@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -88,7 +88,7 @@ final class FlowCnecResultArraySerializer {
         }
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         serializeFlowCnecMargin(optInstant, unit, flowCnec, raoResult, jsonGenerator);
-        for (Side side : flowCnec.getMonitoredSides().stream().sorted(Comparator.comparing(Side::toString)).toList()) {
+        for (TwoSides side : flowCnec.getMonitoredSides().stream().sorted(Comparator.comparing(TwoSides::toString)).toList()) {
             serializeFlowCnecFlows(optInstant, unit, flowCnec, side, raoResult, jsonGenerator);
         }
         jsonGenerator.writeEndObject();
@@ -109,7 +109,7 @@ final class FlowCnecResultArraySerializer {
         }
     }
 
-    private static void serializeFlowCnecFlows(Instant optInstant, Unit unit, FlowCnec flowCnec, Side side, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeFlowCnecFlows(Instant optInstant, Unit unit, FlowCnec flowCnec, TwoSides side, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
         double flow = safeGetFlow(raoResult, flowCnec, side, optInstant, unit);
         double loopFlow = safeGetLoopFlow(raoResult, flowCnec, side, optInstant, unit);
         double commercialFlow = safeGetCommercialFlow(raoResult, flowCnec, side, optInstant, unit);
@@ -150,18 +150,18 @@ final class FlowCnecResultArraySerializer {
     private static boolean containsAnyResultForOptimizationState(RaoResult raoResult, FlowCnec flowCnec, Instant optInstant, Unit unit) {
         return !Double.isNaN(safeGetMargin(raoResult, flowCnec, optInstant, unit)) ||
             !Double.isNaN(safeGetRelativeMargin(raoResult, flowCnec, optInstant, unit)) ||
-            containsAnyResultForOptimizationStateAndSide(raoResult, flowCnec, Side.LEFT, optInstant, unit) ||
-            containsAnyResultForOptimizationStateAndSide(raoResult, flowCnec, Side.RIGHT, optInstant, unit);
+            containsAnyResultForOptimizationStateAndSide(raoResult, flowCnec, TwoSides.ONE, optInstant, unit) ||
+            containsAnyResultForOptimizationStateAndSide(raoResult, flowCnec, TwoSides.TWO, optInstant, unit);
     }
 
-    private static boolean containsAnyResultForOptimizationStateAndSide(RaoResult raoResult, FlowCnec flowCnec, Side side, Instant optInstant, Unit unit) {
+    private static boolean containsAnyResultForOptimizationStateAndSide(RaoResult raoResult, FlowCnec flowCnec, TwoSides side, Instant optInstant, Unit unit) {
         return !Double.isNaN(safeGetFlow(raoResult, flowCnec, side, optInstant, unit)) ||
             !Double.isNaN(safeGetLoopFlow(raoResult, flowCnec, side, optInstant, unit)) ||
             !Double.isNaN(safeGetCommercialFlow(raoResult, flowCnec, side, optInstant, unit)) ||
             !Double.isNaN(safeGetPtdfZonalSum(raoResult, flowCnec, side, optInstant)) && unit.equals(MEGAWATT);
     }
 
-    private static double safeGetFlow(RaoResult raoResult, FlowCnec flowCnec, Side side, Instant optInstant, Unit unit) {
+    private static double safeGetFlow(RaoResult raoResult, FlowCnec flowCnec, TwoSides side, Instant optInstant, Unit unit) {
         // methods getFlow can return an exception if RAO is executed on one state only
         try {
             return raoResult.getFlow(optInstant, flowCnec, side, unit);
@@ -188,7 +188,7 @@ final class FlowCnecResultArraySerializer {
         }
     }
 
-    private static double safeGetLoopFlow(RaoResult raoResult, FlowCnec flowCnec, Side side, Instant optInstant, Unit unit) {
+    private static double safeGetLoopFlow(RaoResult raoResult, FlowCnec flowCnec, TwoSides side, Instant optInstant, Unit unit) {
         // methods getLoopFlow can throw an exception if queried in AMPERE
         try {
             return raoResult.getLoopFlow(optInstant, flowCnec, side, unit);
@@ -197,7 +197,7 @@ final class FlowCnecResultArraySerializer {
         }
     }
 
-    private static double safeGetCommercialFlow(RaoResult raoResult, FlowCnec flowCnec, Side side, Instant optInstant, Unit unit) {
+    private static double safeGetCommercialFlow(RaoResult raoResult, FlowCnec flowCnec, TwoSides side, Instant optInstant, Unit unit) {
         // methods getCommercialFlow can throw an exception if queried in AMPERE
         try {
             return raoResult.getCommercialFlow(optInstant, flowCnec, side, unit);
@@ -206,7 +206,7 @@ final class FlowCnecResultArraySerializer {
         }
     }
 
-    private static double safeGetPtdfZonalSum(RaoResult raoResult, FlowCnec flowCnec, Side side, Instant optInstant) {
+    private static double safeGetPtdfZonalSum(RaoResult raoResult, FlowCnec flowCnec, TwoSides side, Instant optInstant) {
         // methods getPtdfZonalSum can throw an exception if RAO is executed on one state only
         try {
             return raoResult.getPtdfZonalSum(optInstant, flowCnec, side);

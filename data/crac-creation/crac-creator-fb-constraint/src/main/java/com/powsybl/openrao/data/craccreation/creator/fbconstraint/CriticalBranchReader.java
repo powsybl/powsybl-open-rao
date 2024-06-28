@@ -11,7 +11,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.NativeBranch;
@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.craccreation.util.ucte.UcteFlowElementHelper;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.TwoSides;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -38,12 +37,12 @@ class CriticalBranchReader {
     private ImportStatus importStatus;
 
     private final CriticalBranchType criticalBranch;
-    private Set<Side> monitoredSides;
+    private Set<TwoSides> monitoredSides;
     private boolean isBaseCase;
     private boolean isInvertedInNetwork;
     private OutageReader outageReader;
     private UcteFlowElementHelper ucteFlowElementHelper;
-    private Side ampereThresholdSide = null;
+    private TwoSides ampereThresholdSide = null;
 
     boolean isCriticialBranchValid() {
         return importStatus.equals(ImportStatus.IMPORTED);
@@ -98,7 +97,7 @@ class CriticalBranchReader {
         return isInvertedInNetwork;
     }
 
-    CriticalBranchReader(CriticalBranchType criticalBranch, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides) {
+    CriticalBranchReader(CriticalBranchType criticalBranch, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<TwoSides> defaultMonitoredSides) {
         this.criticalBranch = criticalBranch;
         this.monitoredSides = defaultMonitoredSides;
         interpretWithNetwork(ucteNetworkAnalyzer);
@@ -124,7 +123,7 @@ class CriticalBranchReader {
         if (ucteFlowElementHelper.isValid()) {
             this.isInvertedInNetwork = ucteFlowElementHelper.isInvertedInNetwork();
             if (ucteFlowElementHelper.isHalfLine()) {
-                this.monitoredSides = Set.of(Side.fromIidmSide(ucteFlowElementHelper.getHalfLineSide()));
+                this.monitoredSides = Set.of(ucteFlowElementHelper.getHalfLineSide());
             }
         } else {
             this.importStatus = ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
@@ -165,7 +164,7 @@ class CriticalBranchReader {
             && Math.abs(ucteFlowElementHelper.getNominalVoltage(TwoSides.ONE) - ucteFlowElementHelper.getNominalVoltage(TwoSides.TWO)) > 1) {
             // For transformers, if unit is absolute amperes, monitor low voltage side
             ampereThresholdSide = ucteFlowElementHelper.getNominalVoltage(TwoSides.ONE) <= ucteFlowElementHelper.getNominalVoltage(TwoSides.TWO) ?
-                Side.LEFT : Side.RIGHT;
+                TwoSides.ONE : TwoSides.TWO;
         }
     }
 
@@ -195,10 +194,10 @@ class CriticalBranchReader {
             .withOperator(criticalBranch.getTsoOrigin())
             .withMonitored(criticalBranch.isMNEC())
             .withOptimized(criticalBranch.isCNEC())
-            .withIMax(ucteFlowElementHelper.getCurrentLimit(TwoSides.ONE), Side.LEFT)
-            .withIMax(ucteFlowElementHelper.getCurrentLimit(TwoSides.TWO), Side.RIGHT)
-            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(TwoSides.ONE), Side.LEFT)
-            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(TwoSides.TWO), Side.RIGHT);
+            .withIMax(ucteFlowElementHelper.getCurrentLimit(TwoSides.ONE), TwoSides.ONE)
+            .withIMax(ucteFlowElementHelper.getCurrentLimit(TwoSides.TWO), TwoSides.TWO)
+            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(TwoSides.ONE), TwoSides.ONE)
+            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(TwoSides.TWO), TwoSides.TWO);
 
         if (!isBaseCase) {
             adder.withContingency(outageReader.getOutage().getId());
@@ -249,7 +248,7 @@ class CriticalBranchReader {
         //idea: create threshold in AMPERE instead of PERCENT_IMAX to avoid synchronisation afterwards
         //      can be tricky for transformers
 
-        Set<Side> monitoredSidesForThreshold = (unit.equals(Unit.AMPERE) && ampereThresholdSide != null) ?
+        Set<TwoSides> monitoredSidesForThreshold = (unit.equals(Unit.AMPERE) && ampereThresholdSide != null) ?
             Set.of(ampereThresholdSide) : monitoredSides;
         monitoredSidesForThreshold.forEach(side -> {
             BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()

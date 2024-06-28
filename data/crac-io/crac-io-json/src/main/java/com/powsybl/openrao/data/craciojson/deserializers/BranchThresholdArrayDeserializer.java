@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 
@@ -50,7 +51,18 @@ public final class BranchThresholdArrayDeserializer {
                         }
                         break;
                     case SIDE:
-                        branchThresholdAdder.withSide(deserializeSide(jsonParser.nextTextValue()));
+                        JsonToken side = jsonParser.nextToken();
+                        if (getPrimaryVersionNumber(version) > 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) > 3) {
+                            if (side == JsonToken.VALUE_NUMBER_INT) {
+                                branchThresholdAdder.withSide(deserializeSide(jsonParser.getIntValue()));
+                            } else if (Objects.equals(jsonParser.getValueAsString(), LEFT_SIDE) || Objects.equals(jsonParser.getValueAsString(), RIGHT_SIDE)) {
+                                throw new OpenRaoException(String.format("Side should be %d/%d and not %s/%s since CRAC version 2.4", SIDE_ONE, SIDE_TWO, LEFT_SIDE, RIGHT_SIDE));
+                            } else {
+                                throw new OpenRaoException(String.format("Unrecognized side %s", jsonParser.getValueAsString()));
+                            }
+                        } else {
+                            branchThresholdAdder.withSide(deserializeSide(jsonParser.getValueAsString()));
+                        }
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in BranchThreshold: " + jsonParser.getCurrentName());

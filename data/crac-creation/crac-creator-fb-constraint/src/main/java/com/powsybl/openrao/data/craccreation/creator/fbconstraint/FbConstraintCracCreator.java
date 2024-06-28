@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.fbconstraint;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd.CriticalBranchType;
@@ -78,7 +78,7 @@ class FbConstraintCracCreator {
         outageReaders.forEach(or -> or.addContingency(crac));
     }
 
-    private void readCriticalBranches(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders, Set<Side> defaultMonitoredSides) {
+    private void readCriticalBranches(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders, Set<TwoSides> defaultMonitoredSides) {
         List<CriticalBranchType> criticalBranchForTimeStamp = selectCriticalBranchesForTimeStamp(fbConstraintDocument, offsetDateTime);
 
         if (!isEmpty(criticalBranchForTimeStamp)) {

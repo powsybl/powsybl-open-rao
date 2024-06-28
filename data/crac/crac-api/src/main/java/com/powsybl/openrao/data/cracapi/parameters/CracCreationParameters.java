@@ -8,7 +8,7 @@ package com.powsybl.openrao.data.cracapi.parameters;
 
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -42,17 +42,17 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
     private String cracFactoryName = DEFAULT_CRAC_FACTORY_NAME;
 
     public enum MonitoredLineSide {
-        MONITOR_LINES_ON_LEFT_SIDE(Set.of(Side.LEFT)),
-        MONITOR_LINES_ON_RIGHT_SIDE(Set.of(Side.RIGHT)),
-        MONITOR_LINES_ON_BOTH_SIDES(Set.of(Side.LEFT, Side.RIGHT));
+        MONITOR_LINES_ON_SIDE_ONE(Set.of(TwoSides.ONE)),
+        MONITOR_LINES_ON_SIDE_TWO(Set.of(TwoSides.TWO)),
+        MONITOR_LINES_ON_BOTH_SIDES(Set.of(TwoSides.ONE, TwoSides.TWO));
 
-        private final Set<Side> monitoredSides;
+        private final Set<TwoSides> monitoredSides;
 
-        MonitoredLineSide(Set<Side> monitoredSides) {
+        MonitoredLineSide(Set<TwoSides> monitoredSides) {
             this.monitoredSides = monitoredSides;
         }
 
-        Set<Side> getMonitoredSides() {
+        Set<TwoSides> getMonitoredSides() {
             return monitoredSides;
         }
     }
@@ -88,7 +88,7 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
         return CracFactory.find(cracFactoryName);
     }
 
-    public Set<Side> getDefaultMonitoredSides() {
+    public Set<TwoSides> getDefaultMonitoredSides() {
         return defaultMonitoredLineSide.getMonitoredSides();
     }
 

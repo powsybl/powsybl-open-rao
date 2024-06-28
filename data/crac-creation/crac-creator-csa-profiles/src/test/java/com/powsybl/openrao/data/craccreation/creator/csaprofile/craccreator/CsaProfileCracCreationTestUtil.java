@@ -3,12 +3,14 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -73,7 +75,7 @@ public final class CsaProfileCracCreationTestUtil {
         assertTrue(cracCreationContext.getCnecCreationContexts().stream().anyMatch(context -> !context.isImported() && assessedElementId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
     }
 
-    public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides, String expectedOperator) {
+    public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<TwoSides> expectedThresholdSides, String expectedOperator) {
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getId());
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getName());
         assertEquals(expectedNetworkElementId, flowCnec.getNetworkElement().getId());
@@ -86,9 +88,9 @@ public final class CsaProfileCracCreationTestUtil {
 
         List<BranchThreshold> thresholds = flowCnec.getThresholds().stream().sorted(Comparator.comparing(BranchThreshold::getSide)).toList();
         for (BranchThreshold threshold : thresholds) {
-            Side side = threshold.getSide();
-            assertEquals(side == Side.LEFT ? expectedThresholdMaxLeft : expectedThresholdMaxRight, threshold.max().orElse(null));
-            assertEquals(side == Side.LEFT ? expectedThresholdMinLeft : expectedThresholdMinRight, threshold.min().orElse(null));
+            TwoSides side = threshold.getSide();
+            assertEquals(side == TwoSides.ONE ? expectedThresholdMaxLeft : expectedThresholdMaxRight, threshold.max().orElse(null));
+            assertEquals(side == TwoSides.ONE ? expectedThresholdMinLeft : expectedThresholdMinRight, threshold.min().orElse(null));
         }
 
         assertEquals(expectedThresholdSides, flowCnec.getMonitoredSides());
@@ -276,7 +278,7 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static Network getNetworkFromResource(String filename) {
         Properties importParams = new Properties();
-        importParams.put("iidm.import.cgmes.cgm-with-subnetworks", false);
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, false);
         return Network.read(Paths.get(new File(CsaProfileCracCreationTestUtil.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 }

@@ -98,7 +98,7 @@ public interface Crac extends Identifiable<Crac> {
     Instant getInstant(InstantKind instantKind);
 
     /**
-     * Gather all the instants present in the Crac with the correct instantKind.
+     * Returns all the instants present in the Crac with the correct instantKind.
      */
     SortedSet<Instant> getInstants(InstantKind instantKind);
 
