@@ -393,7 +393,7 @@ class LeafTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(state.getInstant()).thenReturn(instant);
         when(flowCnec.getState()).thenReturn(state);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getFlow(flowCnec, LEFT, MEGAWATT, flowCnec.getState().getInstant()));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> leaf.getFlow(flowCnec, ONE, MEGAWATT, flowCnec.getState().getInstant()));
         assertEquals("No results available.", exception.getMessage());
     }
 

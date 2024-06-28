@@ -80,10 +80,10 @@ class AutomatonPerimeterResultImplTest {
 
     @Test
     void testGetFlow() {
-        when(postAutoSensitivity.getFlow(cnec1, TWO, AMPERE)).thenReturn(10.);
-        when(postAutoSensitivity.getFlow(cnec1, TWO, MEGAWATT)).thenReturn(100.);
-        assertEquals(10., result.getFlow(cnec1, TWO, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., result.getFlow(cnec1, TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        when(postAutoSensitivity.getFlow(cnec1, TWO, AMPERE, cnec1.getState().getInstant())).thenReturn(10.);
+        when(postAutoSensitivity.getFlow(cnec1, TWO, MEGAWATT, cnec1.getState().getInstant())).thenReturn(100.);
+        assertEquals(10., result.getFlow(cnec1, TWO, AMPERE, cnec1.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(100., result.getFlow(cnec1, TWO, MEGAWATT, cnec1.getState().getInstant()), DOUBLE_TOLERANCE);
     }
 
     @Test

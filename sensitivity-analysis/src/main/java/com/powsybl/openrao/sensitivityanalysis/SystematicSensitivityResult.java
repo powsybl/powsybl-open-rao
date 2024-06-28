@@ -273,17 +273,6 @@ public class SystematicSensitivityResult {
         return stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
     }
 
-    public double getSensitivityOnFlow(String variableId, FlowCnec cnec, TwoSides side, Instant instant) {
-        StateResult stateResult = getCnecStateResult(cnec, instant);
-        if (stateResult == null ||
-            !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
-            !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId) ||
-            !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).containsKey(side)) {
-            return 0.0;
-        }
-        return stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
-    }
-
     private StateResult getCnecStateResult(Cnec<?> cnec) {
         if (memoizedStateResultPerCnec.containsKey(cnec)) {
             return memoizedStateResultPerCnec.get(cnec);
@@ -309,7 +298,7 @@ public class SystematicSensitivityResult {
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec, Instant instant) {
-        // TODO: memoize stuff
+        // TODO: memoize data (see previous method)?
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
             int maxAdmissibleInstantOrder = instant == null ? 1 : Math.max(1, instant.getOrder()); // when dealing with post-contingency CNECs, a null instant refers to the outage instant

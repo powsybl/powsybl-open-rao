@@ -84,9 +84,8 @@ class InjectionRangeActionSensiHandlerTest {
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
         SystematicSensitivityResult sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        // TODO: why null?
         Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.ONE, null)).thenReturn(4.);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", flowCnec, TwoSides.ONE)).thenReturn(7.);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", flowCnec, TwoSides.ONE, null)).thenReturn(7.);
         Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.TWO, null)).thenReturn(10.);
         Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", flowCnec, TwoSides.TWO, null)).thenReturn(30.);
 

@@ -78,22 +78,6 @@ public class FlowResultImpl implements FlowResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
-        if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant);
-        } else if (unit == Unit.AMPERE) {
-            double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec, side, instant);
-            if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
-                return systematicSensitivityResult.getReferenceFlow(flowCnec, side, instant) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
-            } else {
-                return intensity;
-            }
-        } else {
-            throw new OpenRaoException("Unknown unit for flow.");
-        }
-    }
-
-    @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (unit != Unit.MEGAWATT) {
             throw new OpenRaoException("Commercial flows only in MW.");
