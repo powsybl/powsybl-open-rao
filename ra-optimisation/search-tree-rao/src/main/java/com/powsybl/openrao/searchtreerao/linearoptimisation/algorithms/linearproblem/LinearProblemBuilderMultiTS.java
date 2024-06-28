@@ -20,9 +20,6 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.Iterating
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
- */
 public class LinearProblemBuilderMultiTS {
 
     private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
@@ -95,6 +92,11 @@ public class LinearProblemBuilderMultiTS {
             for (OptimizationPerimeter optimizationPerimeter : inputs.getOptimizationPerimeters()) {
                 this.withProblemFiller(buildContinuousRangeActionGroupFiller(optimizationPerimeter.getRangeActionsPerState()));
             }
+        }
+
+        // Add Multi time steps constraints
+        if (inputs.getNetworks().size() > 1) {
+            this.withProblemFiller(buildMultiTSFiller(inputs, parameters));
         }
 
         // RA limitation
@@ -201,7 +203,7 @@ public class LinearProblemBuilderMultiTS {
     private ProblemFiller buildIntegerPstTapFiller(IteratingLinearOptimizerMultiTSInput inputs, Map<State, Set<PstRangeAction>> pstRangeActions, int i) {
         return new DiscretePstTapFiller(
             inputs.getNetwork(i),
-            inputs.getOptimizationPerimeter(i).getMainOptimizationState(),
+            inputs.getOptimizationPerimeter(i),
             pstRangeActions,
             inputs.getPrePerimeterSetpoints()
         );
@@ -212,6 +214,15 @@ public class LinearProblemBuilderMultiTS {
             inputs.getNetwork(i),
             inputs.getOptimizationPerimeter(i).getMainOptimizationState(),
             pstRangeActions
+        );
+    }
+
+    private ProblemFiller buildMultiTSFiller(IteratingLinearOptimizerMultiTSInput inputs, IteratingLinearOptimizerParameters parameters) {
+        return new MultiTSFiller(
+            inputs.getOptimizationPerimeters(),
+            inputs.getNetworks(),
+            parameters.getRangeActionParameters(),
+            inputs.getRaActivationFromParentLeaf()
         );
     }
 
