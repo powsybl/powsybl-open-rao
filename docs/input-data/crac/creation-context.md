@@ -23,6 +23,34 @@ CracCreationContext cracCreationContext = CracCreators.createCrac(nativeCrac, ne
 
 ![CracCreationContext inheritance](/_static/img/CracCreationContext.png){.forced-white-background}
 
+~~~puml
+interface CracCreationContext {
++ boolean isCreationSuccessful()
++ Crac getCrac()
++ OffsetDateTime getTimeStamp()
++ String getNetworkName()
++ CracCreationReport getCreationReport()
+}
+CracCreationContext <|-- UcteCracCreationContext
+CracCreationContext <|-- JsonCracCreationContext
+CracCreationContext <|-- CimCracCreationContext
+CracCreationContext <|-- CsaProfilesCreationContext
+
+
+interface UcteCracCreationContext {
++ List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts()
++ BranchCnecCreationContext getBranchCnecCreationContext(String branchCnecId)
++ List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts()
++ RemedialActionCreationContext getRemedialActionCreationContext(String remedialActionId)
+}
+
+UcteCracCreationContext <|-- FbConstraintCreationContext
+UcteCracCreationContext <|-- CseCracCreationContext
+
+
+~~~
+
+
 ## Non-specific information
 All CracCreationContext implementations present the following information.
 
@@ -248,6 +276,31 @@ void printSomeInformation(CseOutageCreationContext context, CracCreationContext 
 The [CimCracCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/CimCracCreationContext.java) 
 is not a UcteCracCreationParameters implementation.  
 It has all the [non-specific](#non-specific-information) features, plus the following.
+
+~~~puml
+class CimCracCreationContext {
++ boolean isCreationSuccessful()
++ Crac getCrac()
++ OffsetDateTime getTimeStamp()
++ String getNetworkName()
++ CracCreationReport getCreationReport()
++ Set<CimContingencyCreationContext> getContingencyCreationContexts()
++ MonitoredSeriesCreationContext getMonitoredSeriesCreationContext(String seriesId)
++ Map<String, MonitoredSeriesCreationContext> getMonitoredSeriesCreationContexts()
++ Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContexts()
++ RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId)
++ CimContingencyCreationContext getContingencyCreationContextById(String contingencyId)
++ CimContingencyCreationContext getContingencyCreationContextByName(String contingencyName)
++ Set<AngleCnecCreationContext> getAngleCnecCreationContexts()
++ AngleCnecCreationContext getAngleCnecCreationContext(String seriesId)
++ Set<VoltageCnecCreationContext> getVoltageCnecCreationContexts()
++ VoltageCnecCreationContext getVoltageCnecCreationContext(String nativeNetworkElementId, String instantId, String nativeContingencyName)
++ Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForNetworkElement(String nativeNetworkElementId)
++ Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForContingency(String nativeContingencyName)
+}
+
+
+~~~
 
 ### Contingency series creation contexts
 The [CimContingencyCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/contingency/CimContingencyCreationContext.java) 
