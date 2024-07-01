@@ -1,6 +1,6 @@
-# CRAC import & creation
+# CRAC import & export
 
-## CRAC import/export
+## Introduction
 
 The [OpenRAO CRAC object model](json) can be directly imported and exported using the CRAC API.  
 
@@ -22,6 +22,13 @@ Crac crac = Crac.read("crac.json", new FileInputStream(new File("/tmp/crac.json"
 crac.write("JSON", Paths.get("/tmp/crac.json"));
 ~~~
 
+The formats currently supported by OpenRAO are:
+- [OpenRAO JSON format](json) (import & export)
+- [FlowBasedConstraint document](fbconstraint), also known as Merged-CB, CBCORA or F301 (import only)
+- [CSE CRAC](cse) (import only)
+- [CIM CRAC](cim) (import only)
+- [CSA PROFILES CRAC](csa) (import only)
+
 ## Versioning of internal JSON CRAC files
 Json files and json importer/exporter are versioned.  
 The version number does not correspond to the version number of powsybl-open-rao. The version only increases when a 
@@ -41,7 +48,6 @@ modification is made within the JSON importer / exporter.
 
 [^1]: might work in some situations
 
-
 ## CracCreationParameters and CracCreationContext
 
 The [OpenRAO CRAC object model](json) is not a bijection ("one-to-one" mapping) of existing "business" (or "native") formats:  
@@ -60,13 +66,7 @@ To handle this complex mapping, extra objects have been created:
 - The CRAC importers can process a [CracCreationParameters](creation-parameters) object, that allows the user to add to 
   the OpenRAO CRAC object information that is not possible to model in the native format (see examples [here](creation-parameters.md)).
 
-The formats currently supported by OpenRAO are:	
-- [FlowBasedConstraint document](fbconstraint), also known as Merged-CB, CBCORA or F301
-- [CSE CRAC](cse)
-- [CIM CRAC](cim)
-- [CSA PROFILES CRAC](csa)
-
-## Importing a CRAC object
+## Importing a CRAC object from a file
 The user can import a CRAC object from a file using one of two static methods of the Crac interface.  
 It is necessary to add the needed format importers (`Importer` implementation) to the run-time dependencies.
 
@@ -97,7 +97,7 @@ Where:
 - **format** is a String indicating the format of the export (currently, only "JSON" is supported)
 - **outputStream** is the stream that should be written to
 
-## Implementing new CRAC formats
+## Implementing new CRAC file formats
 Developers are welcome to add CRAC importers/exporters to handle their native formats, by implementing the`Importer`/
 `Exporter` interface of the CRAC I/O module, and add the implementations to their run-time dependencies.
 There is no obligation to publish the resulting code.  
