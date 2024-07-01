@@ -23,7 +23,7 @@ CracCreationContext cracCreationContext = CracCreators.createCrac(nativeCrac, ne
 
 ![CracCreationContext inheritance](/_static/img/CracCreationContext.png){.forced-white-background}
 
-~~~puml
+~~~plantuml
 interface CracCreationContext {
 + boolean isCreationSuccessful()
 + Crac getCrac()
@@ -277,7 +277,8 @@ The [CimCracCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/ma
 is not a UcteCracCreationParameters implementation.  
 It has all the [non-specific](#non-specific-information) features, plus the following.
 
-~~~puml
+~~~plantuml
+@startuml
 class CimCracCreationContext {
 + boolean isCreationSuccessful()
 + Crac getCrac()
@@ -298,8 +299,7 @@ class CimCracCreationContext {
 + Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForNetworkElement(String nativeNetworkElementId)
 + Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForContingency(String nativeContingencyName)
 }
-
-
+@enduml
 ~~~
 
 ### Contingency series creation contexts
