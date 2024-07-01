@@ -23,7 +23,7 @@ CracCreationContext cracCreationContext = CracCreators.createCrac(nativeCrac, ne
 
 ![CracCreationContext inheritance](/_static/img/CracCreationContext.png){.forced-white-background}
 
-~~~plantuml
+~~~{plantuml}
 interface CracCreationContext {
 + boolean isCreationSuccessful()
 + Crac getCrac()
@@ -277,7 +277,7 @@ The [CimCracCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/ma
 is not a UcteCracCreationParameters implementation.  
 It has all the [non-specific](#non-specific-information) features, plus the following.
 
-~~~plantuml
+~~~{plantuml}
 @startuml
 class CimCracCreationContext {
 + boolean isCreationSuccessful()
