@@ -12,10 +12,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MonitoredSeriesCreator;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.VoltageCnecsCreator;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency.CimContingencyCreator;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.remedialaction.RemedialActionSeriesCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.CRACMarketDocument;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.TimeSeries;
@@ -59,13 +55,15 @@ class CimCracCreator {
 
         if (offsetDateTime == null) {
             creationContext.getCreationReport().error("Timestamp is null for cim crac creator.");
-            return creationContext.creationFailure();
+            creationContext.setCreationFailure();
+            return creationContext;
         } else {
             String cracTimePeriodStart = cimCrac.getTimePeriodTimeInterval().getStart();
             String cracTimePeriodEnd = cimCrac.getTimePeriodTimeInterval().getEnd();
             if (!isInTimeInterval(offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd)) {
                 creationContext.getCreationReport().error(String.format("Timestamp %s is not in time interval [%s %s].", offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd));
-                return creationContext.creationFailure();
+                creationContext.setCreationFailure();
+                return creationContext;
             }
         }
 
@@ -75,7 +73,8 @@ class CimCracCreator {
         createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport();
         CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
-        return creationContext.creationSuccess(crac);
+        creationContext.setCreationSuccess(crac);
+        return creationContext;
     }
 
     private void addCimInstants() {

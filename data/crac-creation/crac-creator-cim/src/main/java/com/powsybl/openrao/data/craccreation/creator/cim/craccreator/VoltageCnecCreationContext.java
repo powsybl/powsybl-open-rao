@@ -4,13 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec;
+package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
+// TODO : make it implement ElementaryCreationContext if we can extend ElementaryCreationContext?
 public final class VoltageCnecCreationContext {
     private final String nativeNetworkElementId;
     private final String instantId;
@@ -28,11 +29,11 @@ public final class VoltageCnecCreationContext {
         this.createdCnecId = createdCnecId;
     }
 
-    public static VoltageCnecCreationContext imported(String nativeNetworkElementId, String instantId, String nativeContingencyName, String createdCnecId) {
+    static VoltageCnecCreationContext imported(String nativeNetworkElementId, String instantId, String nativeContingencyName, String createdCnecId) {
         return new VoltageCnecCreationContext(nativeNetworkElementId, instantId, nativeContingencyName, ImportStatus.IMPORTED, null, createdCnecId);
     }
 
-    public static VoltageCnecCreationContext notImported(String nativeNetworkElementId, String instantId, String nativeContingencyName, ImportStatus importStatus, String importStatusDetail) {
+    static VoltageCnecCreationContext notImported(String nativeNetworkElementId, String instantId, String nativeContingencyName, ImportStatus importStatus, String importStatusDetail) {
         return new VoltageCnecCreationContext(nativeNetworkElementId, instantId, nativeContingencyName, importStatus, importStatusDetail, null);
     }
 

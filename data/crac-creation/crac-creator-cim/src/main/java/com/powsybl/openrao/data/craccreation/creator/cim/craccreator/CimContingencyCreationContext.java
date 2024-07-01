@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency;
+package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
 import com.powsybl.openrao.data.craccreation.creator.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
@@ -13,6 +13,8 @@ import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
+// TODO : promote getNativeName & getCreatedContingencyId (but rename it getCreatedObjectId) to ElementaryCreationContext
+    // and remove this class, and those like it that do not need extra information
 public final class CimContingencyCreationContext implements ElementaryCreationContext {
     private String contingencyID;
     private String contingencyName;

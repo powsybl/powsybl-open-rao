@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec;
+package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 
@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
+// TODO : make it implement ElementaryCreationContext if we can extend ElementaryCreationContext?
 public final class MonitoredSeriesCreationContext {
     private final String monitoredSeriesId;
     private final String monitoredSeriesName;
@@ -87,7 +88,7 @@ public final class MonitoredSeriesCreationContext {
         return measurementCreationContexts;
     }
 
-    public void addMeasurementCreationContext(MeasurementCreationContext measurementCreationContext) {
+    void addMeasurementCreationContext(MeasurementCreationContext measurementCreationContext) {
         addMeasurementCreationContexts(Set.of(measurementCreationContext));
     }
 

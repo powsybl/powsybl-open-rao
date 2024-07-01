@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec;
+package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;

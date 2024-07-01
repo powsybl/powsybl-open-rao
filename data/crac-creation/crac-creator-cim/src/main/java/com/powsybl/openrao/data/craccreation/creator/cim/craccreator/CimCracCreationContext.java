@@ -11,15 +11,9 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.ElementaryCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.*;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency.CimContingencyCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.remedialaction.RemedialActionSeriesCreationContext;
 
 import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,7 +64,7 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     // Only contains contingency creation context report for the moment
-    public void buildCreationReport() {
+    void buildCreationReport() {
         addToReport(contingencyCreationContexts, "Contingency_Series");
         addToReport(angleCnecCreationContexts, "AdditionalConstraint_Series");
         addToReport(monitoredSeriesCreationContexts);
@@ -143,7 +137,7 @@ public class CimCracCreationContext implements CracCreationContext {
         return networkName;
     }
 
-    public void addAngleCnecCreationContext(AngleCnecCreationContext angleCnecCreationContext) {
+    void addAngleCnecCreationContext(AngleCnecCreationContext angleCnecCreationContext) {
         this.angleCnecCreationContexts.add(angleCnecCreationContext);
     }
 
@@ -155,7 +149,7 @@ public class CimCracCreationContext implements CracCreationContext {
         return angleCnecCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
     }
 
-    public void addVoltageCnecCreationContext(VoltageCnecCreationContext voltageCnecCreationContext) {
+    void addVoltageCnecCreationContext(VoltageCnecCreationContext voltageCnecCreationContext) {
         this.voltageCnecCreationContexts.add(voltageCnecCreationContext);
     }
 
@@ -179,7 +173,7 @@ public class CimCracCreationContext implements CracCreationContext {
         return voltageCnecCreationContexts.stream().filter(creationContext -> nativeContingencyName.equals(creationContext.getNativeContingencyName())).collect(Collectors.toSet());
     }
 
-    public void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
+    void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
         this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
 
@@ -192,19 +186,19 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public Map<String, MonitoredSeriesCreationContext> getMonitoredSeriesCreationContexts() {
-        return monitoredSeriesCreationContexts;
+        return new HashMap<>(monitoredSeriesCreationContexts);
     }
 
-    public void setMonitoredSeriesCreationContexts(Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts) {
+    void setMonitoredSeriesCreationContexts(Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts) {
         this.monitoredSeriesCreationContexts = monitoredSeriesCreationContexts;
     }
 
-    public void setRemedialActionSeriesCreationContexts(Set<RemedialActionSeriesCreationContext> remedialActionCreationContexts) {
+    void setRemedialActionSeriesCreationContexts(Set<RemedialActionSeriesCreationContext> remedialActionCreationContexts) {
         this.remedialActionSeriesCreationContexts = new HashSet<>(remedialActionCreationContexts);
     }
 
     public Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContexts() {
-        return remedialActionSeriesCreationContexts;
+        return new HashSet<>(remedialActionSeriesCreationContexts);
     }
 
     public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId) {
@@ -219,15 +213,13 @@ public class CimCracCreationContext implements CracCreationContext {
         return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeName().equals(contingencyName)).findAny().orElse(null);
     }
 
-    CimCracCreationContext creationFailure() {
+    void setCreationFailure() {
         this.isCreationSuccessful = false;
         this.crac = null;
-        return this;
     }
 
-    CimCracCreationContext creationSuccess(Crac crac) {
+    void setCreationSuccess(Crac crac) {
         this.isCreationSuccessful = true;
         this.crac = crac;
-        return this;
     }
 }

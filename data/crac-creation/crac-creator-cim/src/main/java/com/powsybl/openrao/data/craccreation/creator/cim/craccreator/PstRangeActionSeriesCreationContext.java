@@ -1,4 +1,4 @@
-package com.powsybl.openrao.data.craccreation.creator.cim.craccreator.remedialaction;
+package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 

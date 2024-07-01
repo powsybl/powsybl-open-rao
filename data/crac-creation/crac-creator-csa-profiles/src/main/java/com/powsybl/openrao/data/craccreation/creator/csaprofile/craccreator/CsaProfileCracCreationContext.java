@@ -20,6 +20,7 @@ import java.util.Set;
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
+// TODO : make all setters private package
 public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private Crac crac;
