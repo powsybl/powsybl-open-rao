@@ -533,7 +533,7 @@ public class CastorFullOptimization {
         // -- Gather all post contingency remedial actions
         // ---- Curative remedial actions :
         // ------ appliedCras from secondPreventiveRaoResult
-        AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.searchTreeResult.getAppliedRemedialActions().copyCurative();
+        AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.searchTreeResult.getAllStatesRemedialActionResult().toAppliedRemedialActions().copyCurative();
 
         // ---- Auto remedial actions : computed during second auto, saved in newPostContingencyResults
         // ---- only RAs from perimeters that haven't failed are included in appliedArasAndCras
@@ -709,7 +709,7 @@ public class CastorFullOptimization {
         SearchTreeResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
         // apply PRAs
-        AppliedRemedialActions appliedRemedialActions = result.getAppliedRemedialActions();
+        AppliedRemedialActions appliedRemedialActions = result.getAllStatesRemedialActionResult().toAppliedRemedialActions();
         raoInput.getNetwork().getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
         appliedRemedialActions.getAppliedRangeActions(preventiveState).forEach((rangeAction, setpoint) -> rangeAction.apply(raoInput.getNetwork(), setpoint));
         appliedRemedialActions.getAppliedNetworkActions(preventiveState).forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));

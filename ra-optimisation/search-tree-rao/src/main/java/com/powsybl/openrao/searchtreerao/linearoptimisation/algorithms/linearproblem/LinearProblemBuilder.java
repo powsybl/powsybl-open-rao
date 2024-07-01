@@ -112,8 +112,8 @@ public class LinearProblemBuilder {
     private ProblemFiller buildCoreProblemFiller() {
         return new CoreProblemFiller(
             inputs.getOptimizationPerimeter(),
-            inputs.getPrePerimeterSetpoints(),
-            inputs.getRaActivationFromParentLeaf(),
+            inputs.getPrePerimeterResult(),
+            inputs.getPreOptimizationResult().getAllStatesRemedialActionResult(),
             parameters.getRangeActionParameters(),
             parameters.getObjectiveFunctionUnit(),
             parameters.getRaRangeShrinking()
@@ -123,7 +123,7 @@ public class LinearProblemBuilder {
     private ProblemFiller buildMaxMinRelativeMarginFiller() {
         return new MaxMinRelativeMarginFiller(
             inputs.getOptimizationPerimeter().getOptimizedFlowCnecs(),
-            inputs.getPreOptimizationFlowResult(),
+            inputs.getInitialFlowResult(),
             parameters.getObjectiveFunction().getUnit(),
             parameters.getMaxMinRelativeMarginParameters()
         );
@@ -156,7 +156,7 @@ public class LinearProblemBuilder {
     private ProblemFiller buildUnoptimizedCnecFiller() {
         return new UnoptimizedCnecFiller(
                 inputs.getOptimizationPerimeter().getFlowCnecs(),
-                inputs.getPrePerimeterFlowResult(),
+                inputs.getPrePerimeterResult(),
                 parameters.getUnoptimizedCnecParameters()
         );
     }
@@ -166,7 +166,7 @@ public class LinearProblemBuilder {
             inputs.getNetwork(),
             inputs.getOptimizationPerimeter().getMainOptimizationState(),
             pstRangeActions,
-            inputs.getPrePerimeterSetpoints()
+            inputs.getPrePerimeterResult()
         );
     }
 
@@ -185,7 +185,7 @@ public class LinearProblemBuilder {
     private ProblemFiller buildRaUageLimitsFiller() {
         return new RaUsageLimitsFiller(
             inputs.getOptimizationPerimeter().getRangeActionsPerState(),
-            inputs.getPrePerimeterSetpoints(),
+            inputs.getPrePerimeterResult(),
             parameters.getRaLimitationParameters(),
             parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
     }

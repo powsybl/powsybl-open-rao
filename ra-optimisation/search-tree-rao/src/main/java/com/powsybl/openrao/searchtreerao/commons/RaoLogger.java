@@ -74,7 +74,7 @@ public final class RaoLogger {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
-        MultiStateRemedialActionResultImpl allStatesRangeActionResult = searchTreeResult.getAllStatesRangeActionResult();
+        MultiStateRemedialActionResultImpl allStatesRangeActionResult = searchTreeResult.getAllStatesRemedialActionResult();
 
         List<String> rangeActionSetpoints = optimizationContext.getRangeActionOptimizationStates().stream().flatMap(state -> {
             RangeActionResult stateRangeActionResult = allStatesRangeActionResult.getRangeActionResultOnState(state);

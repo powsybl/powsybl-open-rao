@@ -69,7 +69,6 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         // Set initial margins on both preventive CNECs
         cnecFr = crac.getFlowCnec("Tieline BE FR - N - preventive");
 
-
         RangeActionResult initialRangeActionResult = RangeActionResultImpl.buildWithSetpointsFromNetwork(network, Set.of(pstRangeAction));
 
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);

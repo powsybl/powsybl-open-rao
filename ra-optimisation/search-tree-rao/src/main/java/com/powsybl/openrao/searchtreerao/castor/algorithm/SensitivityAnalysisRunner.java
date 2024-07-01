@@ -130,6 +130,6 @@ public class SensitivityAnalysisRunner {
     }
 
     private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        return objectiveFunction.evaluate(flowResult, sensitivityResult, sensitivityResult.getSensitivityStatus());
+        return objectiveFunction.evaluate(flowResult, sensitivityResult);
     }
 }

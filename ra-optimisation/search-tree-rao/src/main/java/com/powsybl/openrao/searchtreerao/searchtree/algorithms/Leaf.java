@@ -91,6 +91,8 @@ public class Leaf {
         this.previousDepthResult = previousDepthResult;
         this.shouldPreviousDepthMainStateRangeActionBeRemoved = shouldPreviousDepthMainStateRangeActionBeRemoved;
 
+        networkActionsApplied.addAll(previousDepthResult.getPerimeterResultWithCnecs().getActivatedNetworkActions());
+
         // apply Network Actions on initial network
         for (NetworkAction na : newCombinationToApply.getNetworkActionSet()) {
             networkActionsApplied.add(na);

@@ -60,14 +60,14 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         buildDontOptimizeCnecVariables(linearProblem, validFlowCnecs);
 
         // build constraints
-        buildDontOptimizeCnecConstraints(linearProblem, validFlowCnecs, flowAndSensiResult);
+        buildDontOptimizeCnecConstraints(linearProblem, validFlowCnecs);
 
         // update minimum margin objective function constraints
         updateMinimumMarginConstraints(linearProblem, validFlowCnecs);
     }
 
     @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, PerimeterResultWithCnecs flowAnsSensiResult, MultiStateRemedialActionResultImpl rangeActionResult) {
         // nothing to do
     }
 
