@@ -55,7 +55,7 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimizati
 
 ### Root leaf
 
-Then it starts the [search-tree](/castor/search-tree-rao.md) algorithm, starting by evaluating the 
+Then it starts the [search-tree](/castor.md#algorithm) algorithm, starting by evaluating the 
 "root leaf": it assesses CNEC constraints on the network, considering only CNECs that belong to the 
 [preventive perimeter](/castor/rao-steps.md#preventive-perimeter), 
 before applying any preventive remedial action.  
@@ -72,7 +72,7 @@ INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -1
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
 
-After root leaf evaluation, the RAO conducts [range action linear optimisation](/castor/linear-problem/linear-rao.md) 
+After root leaf evaluation, the RAO conducts [range action linear optimisation](/castor/linear-problem.md) 
 before applying any [network action](/input-data/crac.md#network-action).  
 This step is usually quick and allows the RAO to try to secure the network / improve margins using only remedial actions 
 with a linear impact on the network ([range actions](/input-data/crac.md#range-action)).  
