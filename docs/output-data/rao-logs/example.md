@@ -73,9 +73,9 @@ INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #02: margin = -1
 ~~~
 
 After root leaf evaluation, the RAO conducts [range action linear optimisation](/castor/linear-problem/linear-rao.md) 
-before applying any [network action](/input-data/crac/introduction.md#network-action).  
+before applying any [network action](/input-data/crac.md#network-action).  
 This step is usually quick and allows the RAO to try to secure the network / improve margins using only remedial actions 
-with a linear impact on the network ([range actions](/input-data/crac/introduction.md#range-action)).  
+with a linear impact on the network ([range actions](/input-data/crac.md#range-action)).  
 Multiple "MILP -> sensitivity analysis" iterations can be needed until the optimisation converges to an optimal set of 
 set-point for range actions (in the example, 2 iterations are needed at the root leaf).
 
@@ -101,12 +101,12 @@ The RAO successfully decreased the objection function value to 179.1 by setting 
 (Note that the objective function seen by the RAO is the opposite of the minimum margin).  
 So it increased the margin on the most limiting element from -182MW to -179MW.  
 This is not a lot (but it's a good start); you can limit using range actions for small margin improvements using 
-[the dedicated parameters](/parameters/parameters.md#range-actions-optimisation-parameters).
+[the dedicated parameters](/parameters.md#range-actions-optimisation-parameters).
 
 ### Network actions optimisation
 
 After getting the most out of range actions, the RAO then goes on to choosing the best network actions.  
-It does so by choosing the single best network action (or [pre-defined network action combination](/parameters/parameters.md#predefined-combinations)) 
+It does so by choosing the single best network action (or [pre-defined network action combination](/parameters.md#predefined-combinations)) 
 first ("search depth 1"), then trying to combine it with the remaining actions to get a two-actions combo 
 ("search depth 2"), ... until the minimum margin cannot be improved anymore, or until there are no remaining network 
 actions to try.  
