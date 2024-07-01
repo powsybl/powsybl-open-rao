@@ -701,7 +701,7 @@ Zones are seperated by + or -.
 :::
 :::{group-tab} iTools
 Based on PowSyBl's [configuration mechanism](https://www.powsybl.org/pages/documentation/user/configuration/).
-~~~yml
+~~~yaml
 rao-objective-function:
   type: MAX_MIN_MARGIN_IN_AMPERE
   preventive-stop-criterion: SECURE
