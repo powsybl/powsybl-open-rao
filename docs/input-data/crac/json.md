@@ -434,7 +434,7 @@ crac.newFlowCnec()
 ::::
 
 #### Loop-flow extension
-When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters/parameters.md#loop-flow-extension)),
+When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters.md#loop-flow-extension)),
 its loop-flow is monitored by the RAO, that will keep it [under its threshold](/castor/special-features/loop-flows.md)
 when optimising remedial actions.  
 The loop-flow extension defines the loop-flow threshold to be respected by the RAO (even though the initial loop-flow
@@ -1323,6 +1323,7 @@ crac.newRaUsageLimits("preventive")
     .withMaxRaPerTso(new HashMap<>(Map.of("FR", 41, "BE", 12)))
     .withMaxPstPerTso(new HashMap<>(Map.of("BE", 7)))
     .withMaxTopoPerTso(new HashMap<>(Map.of("DE", 5)))
+    .withMaxElementaryActionPerTso(new HashMap<>(Map.of("BE", 20)))
     .add();
 crac.newRaUsageLimits("curative")
     .withMaxRa(3)
@@ -1338,6 +1339,7 @@ crac.newRaUsageLimits("curative")
   "max-ra-per-tso" : {"FR": 41, "BE": 12},
   "max-topo-per-tso" : {"DE": 5},
   "max-pst-per-tso" : {"BE": 7}
+  "max-elementary-actions-per-tso" : {"BE": 20}
 }, {
   "instant": "curative",
   "max-ra" : 3

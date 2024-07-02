@@ -7,8 +7,8 @@
 | PstRangeActions                  | $r \in \mathcal{RA}^{PST}$                           | Set of PST RangeActions                                                                                   |
 | reference angle                  | $\alpha _n(r)$                                       | angle of PstRangeAction $r$ at the beginning of the current iteration of the MILP                         |
 | reference tap position           | $t_{n}(r)$                                           | tap of PstRangeAction $r$ at the beginning of the current iteration of the MILP                           |
-| PstRangeAction angle bounds      | $\underline{\alpha(r)} \: , \: \overline{\alpha(r)}$ | min and max angle[^1] of PstRangeAction $r$                                                               |
-| PstRangeAction tap bounds        | $\underline{t(r)} \: , \: \overline{t(r)}$           | min and max tap[^1] of PstRangeAction $r$                                                                 |
+| PstRangeAction angle bounds      | $\alpha^{min}(r) \: , \: \alpha^{max}(r)$ | min and max angle[^1] of PstRangeAction $r$                                                               |
+| PstRangeAction tap bounds        | $t^{min}(r) \: , \: t^{max}(r)$           | min and max tap[^1] of PstRangeAction $r$                                                                 |
 | tap-to-angle conversion function | $f_r(t) = \alpha$                                    | Discrete function $f$, which gives, for a given tap of the PstRangeAction $r$, its associated angle value |
 
 [^1]: PST range actions' lower & upper bounds are computed using CRAC + network + previous RAO results, depending on the
@@ -55,13 +55,13 @@ For the **first solve**, the coefficients are calibrated on the maximum possible
 
 $$
 \begin{equation}
-c^{+}_{tap \rightarrow a}(r) = \frac{f_r(\overline{t(r)}) - f_r(t_{n}(r))}{\overline{t(r)} - t_{n}(r)}
+c^{+}_{tap \rightarrow a}(r) = \frac{f_r(t^{max}(r)) - f_r(t_{n}(r))}{t^{max}(r) - t_{n}(r)}
 \end{equation}
 $$
 
 $$
 \begin{equation}
-c^{-}_{tap \rightarrow a}(r) = \frac{f_r(t_{n}(r)) - f_r(\underline{t(r)})}{t_{n}(r) - \underline{t(r)}}
+c^{-}_{tap \rightarrow a}(r) = \frac{f_r(t_{n}(r)) - f_r(t^{min}(r))}{t_{n}(r) - t^{min}(r)}
 \end{equation}
 $$
 
@@ -82,7 +82,7 @@ $$
 
 <br>
 
-*Note that if $t_n(r)$ is equal to its bound $\overline{t(r)}$ (resp. $\underline{t(r)}$), then the coefficient
+*Note that if $t_n(r)$ is equal to its bound $t^{max}(r)$ (resp. $t^{min}(r)$), then the coefficient
 $c^{+}_{tap \rightarrow a}(r)$ (resp. $c^{-}_{tap \rightarrow a}(r)$) is set equal to 0 instead.*
 
 <br>
@@ -91,13 +91,13 @@ $c^{+}_{tap \rightarrow a}(r)$ (resp. $c^{-}_{tap \rightarrow a}(r)$) is set equ
 
 $$
 \begin{equation}
-\Delta t^{+} (r) \leq \delta ^{+} (r) [\overline{t(r)} - t_{n}(r)] , \forall r \in \mathcal{RA}^{PST}
+\Delta t^{+} (r) \leq \delta ^{+} (r) [t^{max}(r) - t_{n}(r)] , \forall r \in \mathcal{RA}^{PST}
 \end{equation}
 $$
 
 $$
 \begin{equation}
-\Delta t^{-} (r) \leq \delta ^{-} (r) [t_{n}(r) - \underline{t(r)}] , \forall r \in \mathcal{RA}^{PST}
+\Delta t^{-} (r) \leq \delta ^{-} (r) [t_{n}(r) - t^{min}(r)] , \forall r \in \mathcal{RA}^{PST}
 \end{equation}
 $$
 
