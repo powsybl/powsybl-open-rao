@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracapi.usagerule;
+package com.powsybl.openrao.data.cracapi.triggercondition;
 
 import java.util.Set;
 

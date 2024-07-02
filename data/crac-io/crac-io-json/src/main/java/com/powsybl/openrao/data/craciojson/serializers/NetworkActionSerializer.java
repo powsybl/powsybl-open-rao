@@ -25,7 +25,7 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
         gen.writeStringField(ID, value.getId());
         gen.writeStringField(NAME, value.getName());
         gen.writeStringField(OPERATOR, value.getOperator());
-        UsageRulesSerializer.serializeUsageRules(value, gen);
+        serializeTriggerConditions(value, TRIGGER_CONDITIONS, gen);
         serializeElementaryActions(value, TopologicalAction.class, TOPOLOGICAL_ACTIONS, gen);
         serializeElementaryActions(value, PstSetpoint.class, PST_SETPOINTS, gen);
         serializeElementaryActions(value, InjectionSetpoint.class, INJECTION_SETPOINTS, gen);

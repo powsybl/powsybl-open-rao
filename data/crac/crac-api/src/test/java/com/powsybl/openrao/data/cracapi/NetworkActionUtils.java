@@ -19,9 +19,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -231,7 +230,7 @@ public final class NetworkActionUtils {
         }
 
         @Override
-        public Set<UsageRule> getUsageRules() {
+        public Set<TriggerCondition> getTriggerConditions() {
             return null;
         }
 
@@ -246,22 +245,17 @@ public final class NetworkActionUtils {
         }
 
         @Override
-        public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
+        public Set<FlowCnec> getFlowCnecsConstrainingTriggerConditions(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
             return null;
         }
 
         @Override
-        public Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network) {
+        public Set<FlowCnec> getFlowCnecsConstrainingForOneTriggerCondition(TriggerCondition triggerCondition, Set<FlowCnec> perimeterCnecs, Network network) {
             return null;
         }
 
         @Override
         public Set<NetworkElement> getNetworkElements() {
-            return null;
-        }
-
-        @Override
-        public OnContingencyStateAdderToRemedialAction<NetworkAction> newOnStateUsageRule() {
             return null;
         }
 

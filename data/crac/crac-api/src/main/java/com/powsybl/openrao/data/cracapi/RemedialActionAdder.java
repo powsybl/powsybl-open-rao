@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.cracapi;
 
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -20,11 +20,5 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
 
     RemedialAction<?> add();
 
-    OnInstantAdder<T> newOnInstantUsageRule();
-
-    OnContingencyStateAdder<T> newOnContingencyStateUsageRule();
-
-    OnConstraintAdder<T, ?> newOnConstraintUsageRule();
-
-    OnFlowConstraintInCountryAdder<T> newOnFlowConstraintInCountryUsageRule();
+    TriggerConditionAdder<T> newTriggerCondition();
 }

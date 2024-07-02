@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.CracImplFactory;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ class ElementaryActionsCompatibilityFilterTest {
             .withNetworkElement("switch-1")
             .withActionType(ActionType.OPEN)
             .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
             .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -59,7 +59,7 @@ class ElementaryActionsCompatibilityFilterTest {
             .withSetpoint(100d)
             .withUnit(Unit.MEGAWATT)
             .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
             .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -76,7 +76,7 @@ class ElementaryActionsCompatibilityFilterTest {
             .withNetworkElement("pst-1")
             .withSetpoint(1)
             .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
             .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -90,7 +90,7 @@ class ElementaryActionsCompatibilityFilterTest {
             .withSetpoint(75d)
             .withUnit(Unit.MEGAWATT)
             .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
             .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -108,7 +108,7 @@ class ElementaryActionsCompatibilityFilterTest {
             .withNetworkElement("switch-3")
             .withActionType(ActionType.CLOSE)
             .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
             .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -121,7 +121,7 @@ class ElementaryActionsCompatibilityFilterTest {
             .withSwitchToOpen("switch-2")
             .withSwitchToClose("switch-1")
             .add()
-            .newOnInstantUsageRule()
+            .newTriggerCondition()
             .withInstant("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()

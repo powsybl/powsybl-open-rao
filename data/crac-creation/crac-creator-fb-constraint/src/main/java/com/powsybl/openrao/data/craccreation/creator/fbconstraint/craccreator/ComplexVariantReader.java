@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 
 import java.util.*;
 
-import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.AVAILABLE;
+import static com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod.AVAILABLE;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
@@ -46,7 +46,7 @@ class ComplexVariantReader {
 
         interpretWithNetwork(ucteNetworkAnalyzer);
         if (isComplexVariantValid()) {
-            interpretUsageRules(validCoIds);
+            interpretTriggerConditions(validCoIds);
         }
     }
 
@@ -57,7 +57,7 @@ class ComplexVariantReader {
                     .withName(complexVariant.getName())
                     .withOperator(complexVariant.getTsoOrigin());
             actionReaders.get(0).addAction(pstRangeActionAdder);
-            addUsageRules(pstRangeActionAdder, crac);
+            addTriggerConditions(pstRangeActionAdder, crac);
             pstRangeActionAdder.add();
             complexVariantCreationContext = PstComplexVariantCreationContext.imported(
                     complexVariant.getId(),
@@ -72,7 +72,7 @@ class ComplexVariantReader {
                     .withName(complexVariant.getName())
                     .withOperator(complexVariant.getTsoOrigin());
             actionReaders.forEach(action -> action.addAction(networkActionAdder));
-            addUsageRules(networkActionAdder, crac);
+            addTriggerConditions(networkActionAdder, crac);
             networkActionAdder.add();
         }
     }
@@ -137,7 +137,7 @@ class ComplexVariantReader {
         }
     }
 
-    private void interpretUsageRules(Set<String> validCoIds) {
+    private void interpretTriggerConditions(Set<String> validCoIds) {
 
         ActionsSetType actionsSet = complexVariant.getActionsSet().get(0);
 
@@ -162,11 +162,11 @@ class ComplexVariantReader {
         }
     }
 
-    private void addUsageRules(RemedialActionAdder<?> remedialActionAdder, Crac crac) {
+    private void addTriggerConditions(RemedialActionAdder<?> remedialActionAdder, Crac crac) {
         ActionsSetType actionsSetType = complexVariant.getActionsSet().get(0);
 
         if (actionsSetType.isPreventive()) {
-            remedialActionAdder.newOnInstantUsageRule()
+            remedialActionAdder.newTriggerCondition()
                     .withInstant(crac.getPreventiveInstant().getId())
                     .withUsageMethod(AVAILABLE)
                     .add();
@@ -174,7 +174,7 @@ class ComplexVariantReader {
 
         if (actionsSetType.isCurative() && !Objects.isNull(afterCoList)) {
             for (String co : afterCoList) {
-                remedialActionAdder.newOnContingencyStateUsageRule()
+                remedialActionAdder.newTriggerCondition()
                         .withContingency(co)
                         .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
                         .withUsageMethod(AVAILABLE)

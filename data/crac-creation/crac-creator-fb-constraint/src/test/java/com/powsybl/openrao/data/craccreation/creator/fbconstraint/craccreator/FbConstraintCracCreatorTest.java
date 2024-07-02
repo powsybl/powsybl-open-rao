@@ -17,9 +17,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.TapRange;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.BranchCnecCreationContext;
@@ -174,10 +172,12 @@ class FbConstraintCracCreatorTest {
         assertEquals("RA_BE_0001", rangeAction.getId());
         assertEquals("PRA_PST_BE", rangeAction.getName());
         assertEquals("BE", rangeAction.getOperator());
-        assertEquals(1, rangeAction.getUsageRules().size());
-        assertEquals(UsageMethod.AVAILABLE, rangeAction.getUsageRules().iterator().next().getUsageMethod());
-        assertTrue(rangeAction.getUsageRules().iterator().next() instanceof OnInstant);
-        assertEquals(crac.getPreventiveState().getInstant(), rangeAction.getUsageRules().iterator().next().getInstant());
+        assertEquals(1, rangeAction.getTriggerConditions().size());
+        assertEquals(UsageMethod.AVAILABLE, rangeAction.getTriggerConditions().iterator().next().getUsageMethod());
+        assertTrue(rangeAction.getTriggerConditions().iterator().next().getContingency().isEmpty());
+        assertTrue(rangeAction.getTriggerConditions().iterator().next().getCnec().isEmpty());
+        assertTrue(rangeAction.getTriggerConditions().iterator().next().getCountry().isEmpty());
+        assertEquals(crac.getPreventiveState().getInstant(), rangeAction.getTriggerConditions().iterator().next().getInstant());
         assertTrue(rangeAction.getGroupId().isPresent());
         assertEquals("1", rangeAction.getGroupId().get());
         assertEquals(1, rangeAction.getRanges().size());
@@ -194,10 +194,12 @@ class FbConstraintCracCreatorTest {
         assertEquals(2, topoPra.getNetworkElements().size());
         assertEquals("PRA_TOPO_FR", topoPra.getName());
         assertEquals("FR", topoPra.getOperator());
-        assertEquals(1, topoPra.getUsageRules().size());
-        assertEquals(UsageMethod.AVAILABLE, topoPra.getUsageRules().iterator().next().getUsageMethod());
-        assertTrue(topoPra.getUsageRules().iterator().next() instanceof OnInstant);
-        assertEquals(crac.getPreventiveState().getInstant(), topoPra.getUsageRules().iterator().next().getInstant());
+        assertEquals(1, topoPra.getTriggerConditions().size());
+        assertEquals(UsageMethod.AVAILABLE, topoPra.getTriggerConditions().iterator().next().getUsageMethod());
+        assertTrue(topoPra.getTriggerConditions().iterator().next().getContingency().isEmpty());
+        assertTrue(topoPra.getTriggerConditions().iterator().next().getCnec().isEmpty());
+        assertTrue(topoPra.getTriggerConditions().iterator().next().getCountry().isEmpty());
+        assertEquals(crac.getPreventiveState().getInstant(), topoPra.getTriggerConditions().iterator().next().getInstant());
         assertEquals(NetworkActionImpl.class, topoPra.getClass());
         assertEquals(2, topoPra.getElementaryActions().size());
 
@@ -206,9 +208,11 @@ class FbConstraintCracCreatorTest {
         assertEquals(1, topoCra.getNetworkElements().size());
         assertEquals("CRA_TOPO_FR", topoCra.getName());
         assertEquals("FR", topoCra.getOperator());
-        assertEquals(2, topoCra.getUsageRules().size());
-        assertEquals(UsageMethod.AVAILABLE, topoCra.getUsageRules().iterator().next().getUsageMethod());
-        assertTrue(topoCra.getUsageRules().iterator().next() instanceof OnContingencyState);
+        assertEquals(2, topoCra.getTriggerConditions().size());
+        assertEquals(UsageMethod.AVAILABLE, topoCra.getTriggerConditions().iterator().next().getUsageMethod());
+        assertTrue(topoCra.getTriggerConditions().iterator().next().getContingency().isPresent());
+        assertTrue(topoCra.getTriggerConditions().iterator().next().getCnec().isEmpty());
+        assertTrue(topoCra.getTriggerConditions().iterator().next().getCountry().isEmpty());
         assertEquals(NetworkActionImpl.class, topoCra.getClass());
         assertEquals(1, topoCra.getElementaryActions().size());
 
@@ -455,19 +459,19 @@ class FbConstraintCracCreatorTest {
         assertComplexVariantNotImported("RA_BE_0003", INCONSISTENCY_IN_DATA); //two PST actions
         assertComplexVariantNotImported("RA_BE_0004", INCOMPLETE_DATA); //two action set
         assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0001").isImported());
-        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0002").isImported()); //same network element/action/usage rule as RA_FR_0005, prioritized due to alphabetical order
+        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0002").isImported()); //same network element/action/trigger condition as RA_FR_0005, prioritized due to alphabetical order
         assertComplexVariantNotImported("RA_FR_0003", INCOMPLETE_DATA); //no CO list
         assertComplexVariantNotImported("RA_FR_0004", INCONSISTENCY_IN_DATA); //preventive and curative
-        assertComplexVariantNotImported("RA_FR_0005", INCONSISTENCY_IN_DATA); //same network element/usage rule as RA_FR_0002
+        assertComplexVariantNotImported("RA_FR_0005", INCONSISTENCY_IN_DATA); //same network element/trigger condition as RA_FR_0002
         assertComplexVariantNotImported("RA_FR_0006", INCONSISTENCY_IN_DATA); //all outage in CO list not ok
         assertComplexVariantNotImported("RA_FR_0007", ELEMENT_NOT_FOUND_IN_NETWORK); //unknown branch
-        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0008").isImported()); //same network element/action as RA_FR_0002, but not same usage rule
-        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0009").isImported()); //same network element/usage rule as RA_FR_0002, but not same action
+        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0008").isImported()); //same network element/action as RA_FR_0002, but not same trigger condition
+        assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0009").isImported()); //same network element/trigger condition as RA_FR_0002, but not same action
 
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(4, crac.getNetworkActions().size());
 
-        assertEquals(1, crac.getNetworkAction("RA_FR_0002").getUsageRules().size()); // one cannot be interpreted
+        assertEquals(1, crac.getNetworkAction("RA_FR_0002").getTriggerConditions().size()); // one cannot be interpreted
     }
 
     @Test

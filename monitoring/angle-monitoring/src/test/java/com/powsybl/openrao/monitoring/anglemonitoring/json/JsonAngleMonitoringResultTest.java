@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,12 +92,12 @@ class JsonAngleMonitoringResultTest {
         na1 = crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(ac1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newTriggerCondition().withInstant(PREVENTIVE_INSTANT_ID).withCnec(ac1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         na2 = crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-                .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(ac2.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newTriggerCondition().withInstant(CURATIVE_INSTANT_ID).withCnec(ac2.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         angleMonitoringResultImporter = new AngleMonitoringResultImporter();
     }

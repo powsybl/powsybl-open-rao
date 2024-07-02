@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -34,9 +34,9 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     private final List<StandardRange> ranges;
     private final double initialSetpoint;
 
-    HvdcRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<StandardRange> ranges,
+    HvdcRangeActionImpl(String id, String name, String operator, Set<TriggerCondition> triggerConditions, List<StandardRange> ranges,
                         double initialSetpoint, NetworkElement networkElement, String groupId, Integer speed) {
-        super(id, name, operator, usageRules, groupId, speed);
+        super(id, name, operator, triggerConditions, groupId, speed);
         this.networkElement = networkElement;
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;

@@ -50,7 +50,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     @Override
     public CounterTradeRangeAction add() {
         checkId();
-        checkAutoUsageRules();
+        checkAutoTriggerConditions();
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
@@ -62,12 +62,12 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         // check ranges
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
 
-        // check usage rules
-        if (usageRules.isEmpty()) {
-            BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any usage rule, by default it will never be available", id);
+        // check trigger conditions
+        if (triggerConditions.isEmpty()) {
+            BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any trigger condition, by default it will never be available", id);
         }
 
-        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, this.exportingCountry, this.importingCountry);
+        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.triggerConditions, this.ranges, this.initialSetpoint, speed, this.exportingCountry, this.importingCountry);
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;
 

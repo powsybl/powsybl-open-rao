@@ -7,21 +7,33 @@
 
 package com.powsybl.openrao.data.craciojson;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.RemedialAction;
+import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
+import com.powsybl.openrao.data.craciojson.deserializers.TriggerConditionDeserializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -31,7 +43,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.4";
+    public static final String CRAC_IO_VERSION = "2.5";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -46,6 +58,7 @@ public final class JsonSerializationConstants {
     v2.2: addition of contingency id in on-flow-constraint-in-country
     v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
     v2.4: new names for onConstraint and cnecId + side left/right -> one/two
+    v2.5: addition of triggerConditions to replace onInstantUsageRules, onContingencyStateUsageRules, onConstraintUsageRules and onFlowConstraintInCountryUsageRules
      */
 
     // headers
@@ -107,15 +120,16 @@ public final class JsonSerializationConstants {
     public static final String SWITCH_PAIRS = "switchPairs";
 
     public static final String USAGE_METHOD = "usageMethod";
-    public static final String ON_INSTANT_USAGE_RULES = "onInstantUsageRules";
+    public static final String TRIGGER_CONDITIONS = "triggerConditions";
+    public static final String ON_INSTANT_USAGE_RULES = "onInstantUsageRules"; // retro-compatibility only
     public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules"; // retro-compatibility only
-    public static final String ON_CONTINGENCY_STATE_USAGE_RULES = "onContingencyStateUsageRules";
+    public static final String ON_CONTINGENCY_STATE_USAGE_RULES = "onContingencyStateUsageRules"; // retro-compatibility only
     public static final String ON_STATE_USAGE_RULES = "onStateUsageRules"; // retro-compatibility only
-    public static final String ON_CONSTRAINT_USAGE_RULES = "onConstraintUsageRules";
-    public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
-    public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules";
-    public static final String ON_VOLTAGE_CONSTRAINT_USAGE_RULES = "onVoltageConstraintUsageRules";
-    public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES = "onFlowConstraintInCountryUsageRules";
+    public static final String ON_CONSTRAINT_USAGE_RULES = "onConstraintUsageRules"; // retro-compatibility only
+    public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules"; // retro-compatibility only
+    public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules"; // retro-compatibility only
+    public static final String ON_VOLTAGE_CONSTRAINT_USAGE_RULES = "onVoltageConstraintUsageRules"; // retro-compatibility only
+    public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES = "onFlowConstraintInCountryUsageRules"; // retro-compatibility only
 
     public static final String ID = "id";
     public static final String NAME = "name";
@@ -440,31 +454,66 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static class UsageRuleComparator implements Comparator<UsageRule> {
+    public static void serializeTriggerConditions(RemedialAction<?> remedialAction, String arrayName, JsonGenerator gen) throws IOException {
+        List<TriggerCondition> triggerConditions = remedialAction.getTriggerConditions().stream().sorted(new TriggerConditionComparator()).toList();
+        if (!triggerConditions.isEmpty()) {
+            gen.writeArrayFieldStart(arrayName);
+            for (TriggerCondition triggerCondition : triggerConditions) {
+                gen.writeObject(triggerCondition);
+            }
+            gen.writeEndArray();
+        }
+    }
+
+    public static void checkVersionForFreeToUseUsageRules(String version) {
+        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
+            throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
+        }
+    }
+
+    public static void checkVersionForUsageRules(String version) {
+        if (getPrimaryVersionNumber(version) > 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) >= 5) {
+            throw new OpenRaoException("Usage Rules have been discarded as of version 2.5 and replaced by Trigger Conditions.");
+        }
+    }
+
+    public static void deserializeUsageRules(JsonParser jsonParser, String version, RemedialActionAdder<?> remedialActionAdder, boolean isFreeToUse) throws IOException {
+        if (isFreeToUse) {
+            checkVersionForFreeToUseUsageRules(version);
+        }
+        checkVersionForUsageRules(version);
+        jsonParser.nextToken();
+        TriggerConditionDeserializer.deserialize(jsonParser, remedialActionAdder, version);
+    }
+
+    public static class TriggerConditionComparator implements Comparator<TriggerCondition> {
         @Override
-        public int compare(UsageRule o1, UsageRule o2) {
-            if (!o1.getClass().equals(o2.getClass())) {
-                return o1.getClass().toString().compareTo(o2.getClass().toString());
+        public int compare(TriggerCondition tc1, TriggerCondition tc2) {
+            if (tc1.getInstant().equals(tc2.getInstant())) {
+                Optional<Contingency> contingency1 = tc1.getContingency();
+                Optional<Contingency> contingency2 = tc2.getContingency();
+                if (contingency1.isEmpty() && contingency2.isEmpty() || contingency1.isPresent() && contingency2.isPresent() && contingency1.get().getId().equals(contingency2.get().getId())) {
+                    if (tc1.getCountry().equals(tc2.getCountry())) {
+                        Optional<Cnec<?>> cnec1 = tc1.getCnec();
+                        Optional<Cnec<?>> cnec2 = tc2.getCnec();
+                        if (cnec1.isEmpty() && cnec2.isEmpty() || cnec1.isPresent() && cnec2.isPresent() && cnec1.get().getId().equals(cnec2.get().getId())) {
+                            return (int) Math.signum(tc1.getUsageMethod().toString().compareTo(tc2.getUsageMethod().toString()));
+                        }
+                        String cnec1Id = cnec1.isPresent() ? cnec1.get().getId() : "";
+                        String cnec2Id = cnec2.isPresent() ? cnec2.get().getId() : "";
+                        return (int) Math.signum(cnec1Id.compareTo(cnec2Id));
+                    }
+                    Optional<Country> country1 = tc1.getCountry();
+                    Optional<Country> country2 = tc2.getCountry();
+                    String country1Code = country1.isPresent() ? country1.get().toString() : "";
+                    String country2Code = country2.isPresent() ? country2.get().toString() : "";
+                    return (int) Math.signum(country1Code.compareTo(country2Code));
+                }
+                String contingency1Id = contingency1.isPresent() ? contingency1.get().getId() : "";
+                String contingency2Id = contingency2.isPresent() ? contingency2.get().getId() : "";
+                return (int) Math.signum(contingency1Id.compareTo(contingency2Id));
             }
-            if (!o1.getInstant().equals(o2.getInstant())) {
-                return o1.getInstant().comesBefore(o2.getInstant()) ? -1 : 1;
-            }
-            if (!o1.getUsageMethod().equals(o2.getUsageMethod())) {
-                return serializeUsageMethod(o1.getUsageMethod()).compareTo(serializeUsageMethod(o2.getUsageMethod()));
-            }
-            if (o1 instanceof OnInstant) {
-                return 0;
-            }
-            if (o1 instanceof OnContingencyState ocs1) {
-                return ocs1.getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
-            }
-            if (o1 instanceof OnFlowConstraintInCountry ofcic1) {
-                return ofcic1.getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
-            }
-            if (o1 instanceof OnConstraint<?> oc1) {
-                return oc1.getCnec().getId().compareTo(((OnConstraint<?>) o2).getCnec().getId());
-            }
-            throw new OpenRaoException(String.format("Unknown usage rule type: %s", o1.getClass()));
+            return tc1.getInstant().comesBefore(tc2.getInstant()) ? -1 : 1;
         }
     }
 }

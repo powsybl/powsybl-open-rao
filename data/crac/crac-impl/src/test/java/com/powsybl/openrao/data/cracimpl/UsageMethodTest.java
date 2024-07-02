@@ -1,6 +1,6 @@
 package com.powsybl.openrao.data.cracimpl;
 
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;

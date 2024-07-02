@@ -20,7 +20,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionType;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
@@ -368,11 +369,12 @@ public final class AutomatonSimulator {
                                                     Network network) {
         // UsageMethod should be FORCED
         if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
-            if (availableRa.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState)
-                .anyMatch(usageRule -> usageRule.getUsageMethod(automatonState).equals(UsageMethod.FORCED))) {
+            if (availableRa.getTriggerConditions().stream()
+                .filter(triggerCondition -> TriggerConditionType.ON_INSTANT.equals(triggerCondition.getType()) || TriggerConditionType.ON_CONTINGENCY_STATE.equals(triggerCondition.getType()))
+                .anyMatch(triggerCondition -> triggerCondition.getUsageMethod(automatonState).equals(UsageMethod.FORCED))) {
                 return crac.getFlowCnecs(automatonState);
             } else {
-                return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);
+                return availableRa.getFlowCnecsConstrainingTriggerConditions(crac.getFlowCnecs(automatonState), network, automatonState);
             }
         } else {
             throw new OpenRaoException(String.format("Range action %s has usage method %s although FORCED was expected.", availableRa, availableRa.getUsageMethod(automatonState)));

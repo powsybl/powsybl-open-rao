@@ -8,11 +8,10 @@
 package com.powsybl.openrao.data.cracapi;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.util.Optional;
 import java.util.Set;
@@ -24,8 +23,8 @@ import java.util.stream.Collectors;
  * A Remedial Action is a lever which can be applied on the network. It is typically used to improve
  * a network situation (e.g. increase the margin on the critical network elements).
  *
- * A Remedial Action contains {@link UsageRule} which defines conditions under which it can be used.
- * For instance, most remedial actions cannot be used in all {@link State}, and the usage rules of the
+ * A Remedial Action contains {@link TriggerCondition} which defines conditions under which it can be used.
+ * For instance, most remedial actions cannot be used in all {@link State}, and the trigger conditions of the
  * remedial action specify on which state it is available.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -40,13 +39,13 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     String getOperator();
 
     /**
-     * Get the list of {@link UsageRule} of the Remedial Action
+     * Get the list of {@link TriggerCondition} of the Remedial Action
      */
-    Set<UsageRule> getUsageRules();
+    Set<TriggerCondition> getTriggerConditions();
 
     /**
      * Get the {@link UsageMethod} of the Remedial Action in a given state, deduced from the
-     * usage rules of the remedial action
+     * trigger conditions of the remedial action
      */
     UsageMethod getUsageMethod(State state);
 
@@ -55,9 +54,9 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
      */
     Optional<Integer> getSpeed();
 
-    Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState);
+    Set<FlowCnec> getFlowCnecsConstrainingTriggerConditions(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState);
 
-    Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network);
+    Set<FlowCnec> getFlowCnecsConstrainingForOneTriggerCondition(TriggerCondition triggerCondition, Set<FlowCnec> perimeterCnecs, Network network);
 
     /**
      * Gather all the network elements present in the remedial action. It returns a set because network
@@ -74,6 +73,4 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
         return getNetworkElements().stream().map(networkElement -> networkElement.getLocation(network))
                 .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
     }
-
-    OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule();
 }

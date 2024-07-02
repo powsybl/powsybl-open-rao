@@ -17,7 +17,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cse.*;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.*;
@@ -117,7 +117,7 @@ public class TRemedialActionAdder {
                 .add();
         }
 
-        addUsageRules(networkActionAdder, tRemedialAction);
+        addTriggerConditions(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
         cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, false, null));
     }
@@ -165,7 +165,7 @@ public class TRemedialActionAdder {
 
         }
         // After looping on all nodes
-        addUsageRules(networkActionAdder, tRemedialAction);
+        addTriggerConditions(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
         cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail == null ? null : alteringDetail.toString()));
     }
@@ -195,7 +195,7 @@ public class TRemedialActionAdder {
                 .withRangeType(convertRangeType(tRemedialAction.getPstRange().getVariationType()))
                 .add();
 
-            addUsageRules(pstRangeActionAdder, tRemedialAction);
+            addTriggerConditions(pstRangeActionAdder, tRemedialAction);
             pstRangeActionAdder.add();
             String nativeNetworkElementId = String.format("%1$-8s %2$-8s %3$s", pstHelper.getOriginalFrom(), pstHelper.getOriginalTo(), pstHelper.getSuffix());
             cseCracCreationContext.addRemedialActionCreationContext(CsePstCreationContext.imported(tRemedialAction, nativeNetworkElementId, id, false, null));
@@ -294,7 +294,7 @@ public class TRemedialActionAdder {
             }
         }
 
-        addUsageRules(injectionRangeActionAdder, tRemedialAction);
+        addTriggerConditions(injectionRangeActionAdder, tRemedialAction);
         injectionRangeActionAdder.add();
         cseCracCreationContext.addRemedialActionCreationContext(CseHvdcCreationContext.imported(tRemedialAction,
             raId,
@@ -335,9 +335,9 @@ public class TRemedialActionAdder {
         }
     }
 
-    void addUsageRules(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction) {
+    void addTriggerConditions(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction) {
         Instant raApplicationInstant = getInstant(tRemedialAction.getApplication());
-        addOnFlowConstraintUsageRules(remedialActionAdder, tRemedialAction, raApplicationInstant);
+        addOnFlowConstraintTriggerConditions(remedialActionAdder, tRemedialAction, raApplicationInstant);
 
         // According to <SharedWith> tag :
         String sharedWithId = tRemedialAction.getSharedWith().getV();
@@ -345,14 +345,14 @@ public class TRemedialActionAdder {
             if (raApplicationInstant.isAuto()) {
                 throw new OpenRaoException("Cannot import automatons from CSE CRAC yet");
             } else {
-                addOnInstantUsageRules(remedialActionAdder, raApplicationInstant);
+                addOnInstantTriggerConditions(remedialActionAdder, raApplicationInstant);
             }
         } else {
-            addOnFlowConstraintUsageRulesAfterSpecificCountry(remedialActionAdder, tRemedialAction, raApplicationInstant, sharedWithId);
+            addOnFlowConstraintTriggerConditionsAfterSpecificCountry(remedialActionAdder, tRemedialAction, raApplicationInstant, sharedWithId);
         }
     }
 
-    private void addOnFlowConstraintUsageRulesAfterSpecificCountry(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction, Instant raApplicationInstant, String sharedWithId) {
+    private void addOnFlowConstraintTriggerConditionsAfterSpecificCountry(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction, Instant raApplicationInstant, String sharedWithId) {
         // Check that sharedWithID is a UCTE country
         if (sharedWithId.equals("None")) {
             return;
@@ -362,32 +362,32 @@ public class TRemedialActionAdder {
         try {
             country = Country.valueOf(sharedWithId);
         } catch (IllegalArgumentException e) {
-            cseCracCreationContext.getCreationReport().removed(String.format("RA %s has a non-UCTE sharedWith country : %s. The usage rule was not created.", tRemedialAction.getName().getV(), sharedWithId));
+            cseCracCreationContext.getCreationReport().removed(String.format("RA %s has a non-UCTE sharedWith country : %s. The trigger condition was not created.", tRemedialAction.getName().getV(), sharedWithId));
             return;
         }
 
         // RA is available for specific UCTE country
-        remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
+        remedialActionAdder.newTriggerCondition()
             .withInstant(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .withCountry(country)
             .add();
     }
 
-    private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {
+    private void addOnInstantTriggerConditions(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {
         // RA is available for all countries
-        remedialActionAdder.newOnInstantUsageRule()
+        remedialActionAdder.newTriggerCondition()
             .withInstant(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
 
-    private void addOnFlowConstraintUsageRules(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction, Instant raApplicationInstant) {
+    private void addOnFlowConstraintTriggerConditions(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction, Instant raApplicationInstant) {
         if (remedialActionsForCnecsMap.containsKey(tRemedialAction.getName().getV())) {
             for (String flowCnecId : remedialActionsForCnecsMap.get(tRemedialAction.getName().getV())) {
-                // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
+                // Only add the trigger condition if the RemedialAction can be applied before or during CNEC instant
                 if (!crac.getFlowCnec(flowCnecId).getState().getInstant().comesBefore(raApplicationInstant)) {
-                    remedialActionAdder.newOnConstraintUsageRule()
+                    remedialActionAdder.newTriggerCondition()
                         .withInstant(raApplicationInstant.getId())
                         .withUsageMethod(UsageMethod.AVAILABLE)
                         .withCnec(flowCnecId)
@@ -422,7 +422,7 @@ public class TRemedialActionAdder {
             cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, e.getMessage()));
             return;
         }
-        addUsageRules(networkActionAdder, tRemedialAction);
+        addTriggerConditions(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
         cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, raId, false, null));
     }

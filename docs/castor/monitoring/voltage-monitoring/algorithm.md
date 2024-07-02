@@ -17,7 +17,7 @@ Here is a detailed description of how the voltage monitoring algorithm operates:
       - security status UNKNOWN
   - Compute the voltages for all VoltageCnecs (computeVoltages method)
   - Compare the voltages to their thresholds. For the VoltageCnecs that have a voltage overshoot, get the associated remedial actions (with
-    an OnVoltageConstraint usage rule containing the VoltageCnec and the state's instant)
+    a trigger condition containing the VoltageCnec and the state's instant)
     - If the VoltageCnec has no associated RA, log a warning that the voltage constraint cannot be remedied, and move on to the
       next VoltageCnec.
     - For every RA:

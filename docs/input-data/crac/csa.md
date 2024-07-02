@@ -885,18 +885,18 @@ of sections.
 
 An auto remedial action can also be defined in a more concise way using a `GridStateAlterationRemedialAction` with a `timeToImplement`. If this time, converted to a number of seconds, is below the [sps-max-time-to-implement-threshold-in-seconds](creation-parameters.md#sps-max-time-to-implement-threshold-in-seconds) threshold defined in the CSA CRAC creation parameters, the remedial action will be imported as an ARA instead of a CRA.
 
-### Usage Rules
+### Trigger Conditions
 
-#### OnInstant
+#### Basic case
 
-By default, if no additional information is given, the remedial action is imported with an **onInstant usage rule**
-and an **AVAILABLE usage method**.
+By default, if no additional information is given, the remedial action is imported with an simple _instant-only_
+trigger condition.
 
-#### OnContingencyState
+#### Link with a Contingency
 
-If the remedial action is linked to a contingency, its usage method is no longer onInstant and is now
-**onContingencyState**. This link is created with a `ContingencyWithRemedialAction` object that bounds together the
-remedial action and the contingency.
+If the remedial action is linked to a contingency, its trigger condition is no longer will also contain a contingency.
+This link is created with a `ContingencyWithRemedialAction` object that bounds together the remedial action and the
+contingency.
 
 ```xml
 <!-- RA Profile -->
@@ -923,11 +923,11 @@ The usage method depends on the value of the `combinationConstraintKind` field:
 >
 > This case is illegal and will be discarded at the import.
 
-#### OnConstraint
+#### Link with an Assessed Element
 
-If the remedial action is linked to an assessed element (a CNEC), its usage method is no longer onInstant and is now
-**onConstraint**. This link is created with a `AssessedElementWithRemedialAction` object that bounds together the
-assessed element and the contingency.
+If the remedial action is linked to an assessed element (a CNEC), its usage method will also contain a CNEC. This link
+is created with a `AssessedElementWithRemedialAction` object that bounds together the assessed element and the
+contingency.
 
 ```xml
 <!-- AE Profile -->

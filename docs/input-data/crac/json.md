@@ -702,7 +702,7 @@ crac.newVoltageCnec()
 :::
 ::::
 
-## Remedial actions and usages rules
+## Remedial actions and trigger conditions
 A remedial action is an action on the network that is considered capable of reducing constraints on the CNECs.
 
 Two types of remedial action exist in OpenRAO:
@@ -711,25 +711,36 @@ Two types of remedial action exist in OpenRAO:
 - **Range Actions**: they have the specificity of having a degree of freedom, a set-point. When a Range Action is
   activated, it is activated at a given value of its set-point. PSTs are a typical example of Range Actions.
 
-Both Network Actions and Range Actions have usage rules which define the conditions under which they can be activated.  
-A usage rule contains a usage method which can be activated under certain conditions. The usage methods in OpenRAO are: 
-- **UNDEFINED**: this means that the usage rule cannot decide if the remedial action can be used.
+Both Network Actions and Range Actions have trigger conditions which define the conditions under which they can be activated.  
+A trigger condition contains a usage method which can be activated under certain conditions. The usage methods in OpenRAO are: 
+- **UNDEFINED**: this means that the trigger condition cannot decide if the remedial action can be used.
 - **AVAILABLE**: when activated, this means that the remedial action is available for the RAO to assess. The RAO can 
   choose to activate it if it finds that it is optimal. Takes precedence over the above usage method.
 - **FORCED**: when activated, this means that the remedial action must be applied by the RAO (usually used for automatons).
   Takes precedence over the above usage methods.
 - **UNAVAILABLE**: when activated, this means that the remedial action cannot be used. Takes precedence over the above usage methods.  
 
-OpenRAO has the following usage rules with their activation conditions:
-- the **FreeToUse** usage rule (defined for a specific [instant](#instants-and-states)): the usage method is activated in all
-  the states of a given instant.
-- the **OnState** usage rule (defined for a specific [state](#instants-and-states)): the usage method is activated in a given state.
-- the **OnFlowConstraintInCountry** usage rule (defined for a specific [Country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java), a specific [instant](#instants-and-states)), 
-  and an optional [contingency](#contingencies): the usage method is activated if any FlowCnec in the given country is
-  constrained (ie has a flow greater than one of its thresholds) at the given instant. If a contingency is defined, then 
-  only constraints on FlowCnecs with the same contingency count.  
-- the **OnConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [Cnec](#cnecs)):
-  the usage method is activated if the given Cnec is constrained at the given instant.
+A remedial action can be made applicable is some conditions, called _trigger conditions_ are met. A trigger condition
+can be composed of up to 4 sub-conditions that must all be true for the trigger condition to be true as well (like a 
+global AND logical gate):
+
+- an **instant** (mandatory) at which the remedial action can be applied
+- a **contingency** (optional) after which the remedial action becomes applicable
+- a **CNEC** (optional) which, if constrained, makes the remedial action applicable
+- a **country** (optional) in which any overloaded FlowCNEC makes the remedial action applicable
+
+A trigger condition also has one usage method to describe how the remedial action should be applied if triggered.
+
+> ⚠️ **Unsupported combinations**
+> 
+> Some combinations of parameters for trigger conditions are not valid in OpenRAO:
+> - a contingency cannot be declared alongside a preventive instant, except if the remedial action is FORCED or if a country is declared to (because the contingency would be used to filter the FlowCNECs in the country)
+> - a country and a CNEC cannot be declared simultaneously since the CNEC makes the trigger condition more restrictive
+> - a CNEC cannot be declared alongside a contingency different from its own for this would be ambiguous
+> - a CNEC with an instant occurring before the instant of the trigger condition is impossible
+
+A remedial action can have an arbitrary number of trigger conditions. It will be triggered as long as **at least one**
+of its trigger conditions is true (global OR gate).
 
 A remedial action has an operator, which is the name of the TSO which operates the remedial action.
 
@@ -739,39 +750,39 @@ The examples below are given for a Network Action, but the same methods exists f
 Complete examples of Network and Range Action creation are given in the following paragraphs.
 ~~~java
 crac.newNetworkAction()
-    .newFreeToUseUsageRule()
+    .newTriggerCondition()
         .withUsageMethod(UsageMethod.AVAILABLE)
         .withInstant("preventive")
         .add();
 
 crac.newNetworkAction()
-    .newOnStateUsageRule()
+    .newTriggerCondition()
         .withUsageMethod(UsageMethod.AVAILABLE)
         .withInstant("curative")
         .withContingency("contingency-id")
         .add();
 
 crac.newNetworkAction()
-    .newOnConstraintUsageRule()
+    .newTriggerCondition()
         .withInstant("auto")
         .withCnec("flow-cnec-id")
         .add();
 
 crac.newNetworkAction()
-    .newOnFlowConstraintInCountryUsageRule()
+    .newTriggerCondition()
         .withInstant("preventive")
         .withCountry(Country.FR)
         .withContingency("contingency-id")
         .add();
 
 crac.newNetworkAction()
-    .newOnConstraintUsageRule()
+    .newTriggerCondition()
         .withInstant("curative")
         .withCnec("angle-cnec-id")
         .add();
 
 crac.newNetworkAction()
-    .newOnConstraintUsageRule()
+    .newTriggerCondition()
         .withInstant("curative")
         .withCnec("voltage-cnec-id")
         .add();
@@ -780,16 +791,14 @@ crac.newNetworkAction()
 :::{group-tab} JSON file
 Complete examples of Network and Range Action in Json format are given in the following paragraphs
 ~~~json
-"onInstantUsageRules" : [ {
+"triggerConditions" : [ {
   "instant" : "preventive",
   "usageMethod" : "available"
-} ],
-"onContingencyStateUsageRules" : [ {
+}, {
   "instant" : "curative",
   "contingencyId" : "contingency-id",
   "usageMethod" : "available"
-} ],
-"onConstraintUsageRules" : [ {
+}, {
     "instant" : "auto",
     "flowCnecId" : "flow-cnec-id"
 }, {
@@ -798,8 +807,7 @@ Complete examples of Network and Range Action in Json format are given in the fo
 }, {
     "instant" : "curative",
     "voltageCnecId" : "voltage-cnec-id"
-} ],
-"onFlowConstraintInCountryUsageRules" : [ {
+}, {
     "instant" : "preventive",
     "contingencyId" : "contingency-id",
     "country" : "FR"
@@ -807,27 +815,17 @@ Complete examples of Network and Range Action in Json format are given in the fo
 ~~~
 :::
 :::{group-tab} Object fields
-<ins>**For FreeToUse usage rules**</ins>  
-🔴 **instant**  
-🔴 **usageMethod**  
-<ins>**For OnState usage rules**</ins>  
-🔴 **instant**  
-🔴 **usageMethod**  
-🔴 **contingency**: must be the id of a contingency that exists in the CRAC  
-<ins>**For OnFlowConstraintInCountry usage rules**</ins>  
-🔴 **instant**  
-🔵 **contingency**: must be the id of a contingency that exists in the CRAC  
-🔴 **country**: must be the [alpha-2 code of a country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java)  
-<ins>**For OnConstraint usage rules**</ins>  
-🔴 **instant**  
-🔴 **cnecId**: must be the id of a [Cnec](#cnecs) that exists in the CRAC  
+- 🔴 **instant** 
+- 🔵 **contingencyId**: must be the id of a contingency that exists in the CRAC 
+- 🔵 **cnecId**: must be the id of a CNEC that exists in the CRAC 
+- 🔵 **country**: must be the [alpha-2 code of a country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java) 
+- 🔴 **usageMethod**  
+
 <ins>**Usage methods**</ins>  
 OpenRAO handles three different types of usage methods sorted by priority:
-1- **UNAVAILABLE**: the remedial action can not be considered by the RAO.
-2 - **FORCED**: For automaton instant, the RAO must activate the remedial action under the condition described by the usage rule. For other instants, it will be ignored.
-3 - **AVAILABLE**: For automaton instant, the remedial action is ignored. Otherwise, it can be chosen by the RAO under the condition described by the usage rule.
-
-*NB*: even though OnState usage rules on the preventive state is theoretically possible, it is forbidden by OpenRAO as the same purpose can be achieved with a FreeToUse usage rule on the preventive instant.  
+1. **UNAVAILABLE**: the remedial action can not be considered by the RAO.
+2. **FORCED**: For automaton instant, the RAO must activate the remedial action under the condition described by the trigger condition. For other instants, it will be ignored.
+3. **AVAILABLE**: For automaton instant, the remedial action is ignored. Otherwise, it can be chosen by the RAO under the condition described by the trigger condition.
 :::
 ::::
 
@@ -856,7 +854,7 @@ crac.newNetworkAction()
 		.withNetworkElement("network-element-id-2")
 		.withActionType(ActionType.OPEN)
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
     .add();
 
 // pst set-point
@@ -868,10 +866,10 @@ crac.newNetworkAction()
 		.withSetpoint(15)
 		.withNetworkElement("pst-network-element-id")
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
     .add();
 
-// injection set-point with two usage rules
+// injection set-point with two trigger conditions
 crac.newNetworkAction()
 	.withId("injection-setpoint-na-id")
 	.withOperator("operator")
@@ -880,8 +878,8 @@ crac.newNetworkAction()
 		.withNetworkElement("generator-network-element-id")
 		.withUnit(Unit.MEGAWATT)
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
-    .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("contingency-id").withInstant(Instant.CURATIVE).add()
+    .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withContingency("contingency-id").withInstant(Instant.CURATIVE).add()
     .add();
 
 // injection set-point on a shunt compensator
@@ -893,7 +891,7 @@ crac.newNetworkAction()
           .withNetworkElement("shunt-compensator-id")
           .withUnit(Unit.SECTION_COUNT)
           .add()
-        .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+        .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
         .add();
 
 // switch pair
@@ -904,7 +902,7 @@ crac.newNetworkAction()
 		.withSwitchToOpen("switch-to-open-id", "switch-to-open-name")
 		.withSwitchToClose("switch-to-close-id-and-name")
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
     .add();
 ~~~
 :::
@@ -914,7 +912,7 @@ crac.newNetworkAction()
     "id" : "topological-na-id",
     "name" : "topological-na-name",
     "operator" : "operator",
-    "onInstantUsageRules" : [ {
+    "triggerConditions" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -929,7 +927,7 @@ crac.newNetworkAction()
     "id" : "pst-setpoint-na-id",
     "name" : "pst-setpoint-na-name",
     "operator" : "operator",
-    "onInstantUsageRules" : [ {
+    "triggerConditions" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -941,11 +939,10 @@ crac.newNetworkAction()
     "id" : "injection-setpoint-na-id",
     "name" : "injection-setpoint-na-id",
     "operator" : "operator",
-    "onInstantUsageRules" : [ {
+    "triggerConditions" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
-    } ],
-    "onContingencyStateUsageRules" : [ {
+    }, {
       "instant" : "curative",
       "contingencyId" : "contingency-id",
       "usageMethod" : "available"
@@ -959,7 +956,7 @@ crac.newNetworkAction()
     "id" : "switch-pair-na-id",
     "name" : "switch-pair-na-id",
     "operator" : "operator",
-    "onInstantUsageRules" : [ {
+    "triggerConditions" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -974,10 +971,7 @@ crac.newNetworkAction()
 🔴⭐ **identifier**  
 ⚪ **name**  
 ⚪ **operator**  
-⚪ **freeToUse usage rules**: list of 0 to N FreeToUse usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onState usage rules**: list of 0 to N OnState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **trigger conditions**: list of 0 to N trigger conditions (see previous paragraph on [trigger conditions](#remedial-actions-and-trigger-conditions))  
 🔵 **topological actions**: list of 0 to N TopologicalAction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **action type**  
@@ -1051,7 +1045,7 @@ crac.newPstRangeAction()
         .withMinTap(-2)
         .withMaxTap(2)
         .add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+    .newTriggerCondition().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
     .withSpeed(1)
     .add();
 ~~~
@@ -1064,7 +1058,7 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
     "id" : "pst-range-action-1-id",
     "name" : "pst-range-action-1-name",
     "operator" : "operator",
-    "onInstantUsageRules" : [ {
+    "triggerConditions" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -1107,10 +1101,7 @@ group ID you like, as long as you use the same for all the range actions you wan
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **range type**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min tap**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max tap**: at least one value must be defined  
-⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **trigger conditions**: list of 0 to N trigger conditions (see previous paragraph on [trigger conditions](#remedial-actions-and-trigger-conditions))
 :::
 ::::
 
@@ -1137,7 +1128,7 @@ No two range-action automatons can have the same speed value, unless they are al
    		.withOperator("operator")
         .withNetworkElement("hvec-id")
         .newHvdcRange().withMin(-5).withMax(10).add()
-        .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+        .newTriggerCondition().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
         .add();  
 ~~~
 In that case, the validity domain of the HVDC is [-5; 10].
@@ -1148,7 +1139,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
     "id" : "hvdc-range-action-id",
     "name" : "hvdc-range-action-name",
     "operator" : "operator",
-    "onInstantUsageRules" : [ {
+    "triggerConditions" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -1170,9 +1161,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
 ⚪ **hvdc ranges**: list of 0 to N HvdcRange  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
-⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **trigger conditions**: list of 0 to N trigger conditions (see previous paragraph on [trigger conditions](#remedial-actions-and-trigger-conditions))
 :::
 ::::
 
@@ -1202,7 +1191,7 @@ No two range-action automatons can have the same speed value, unless they are al
         .withNetworkElementAndKey(1, "network-element-1")
         .withNetworkElementAndKey(-0.5, "network-element-2")
         .newRange().withMin(-1200).withMax(500).add()
-        .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+        .newTriggerCondition().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
         .add();     
 ~~~
 In that case, the validity domain of the injection range action's reference set-point is [-1200; 500].  
@@ -1214,7 +1203,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
     "id" : "injection-range-action-id",
     "name" : "injection-range-action-name",
     "operator" : "operator",
-    "onInstantUsageRules" : [ {
+    "triggerConditions" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -1239,9 +1228,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 🔴 **ranges**: list of 1 to N Range  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
-⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
-⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
+⚪ **trigger conditions**: list of 0 to N trigger conditions (see previous paragraph on [trigger conditions](#remedial-actions-and-trigger-conditions)) 
 :::
 ::::
 
@@ -1262,7 +1249,7 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withExportingCountry(Country.FR)
         .withImportingCountry(Country.ES)
         .newRange().withMin(0).withMax(1000).add()
-        .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+        .newTriggerCondition().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
         .add();     
 ~~~
 In that case, the validity domain of the counter-trade range action's reference set-point is [0; 1000]. The power is
@@ -1275,7 +1262,7 @@ exported from France to Spain.
     "name" : "counterTradeRange1Name",
     "operator" : null,
     "speed" : 30,
-    "onInstantUsageRules" : [ {
+    "triggerConditions" : [ {
         "instant" : "preventive",
         "usageMethod" : "available"
     } ],
@@ -1303,9 +1290,7 @@ exported from France to Spain.
 ⚪ **ranges**: list of 0 to N Range  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
-⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
-⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
+⚪ **trigger conditions**: list of 0 to N trigger conditions (see previous paragraph on [trigger conditions](#remedial-actions-and-trigger-conditions)) 
 :::
 ::::
 

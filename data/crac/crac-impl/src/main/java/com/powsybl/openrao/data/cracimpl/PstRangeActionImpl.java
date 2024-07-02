@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.TapRange;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -37,9 +37,9 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     private final int lowTapPosition;
     private final int highTapPosition;
 
-    PstRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<TapRange> ranges,
-                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
-        super(id, name, operator, usageRules, groupId, speed);
+    PstRangeActionImpl(String id, String name, String operator, Set<TriggerCondition> triggerConditions, List<TapRange> ranges,
+                       NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
+        super(id, name, operator, triggerConditions, groupId, speed);
         this.networkElement = networkElement;
         this.ranges = ranges;
         this.initialTapPosition = initialTap;

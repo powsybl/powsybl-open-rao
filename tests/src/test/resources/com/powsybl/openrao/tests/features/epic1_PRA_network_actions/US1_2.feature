@@ -31,8 +31,8 @@ Feature: US 1.2: Import of simple network actions as preventive remedial action 
       | Open tie-line FR DE  | Open tie-line FR DE  | 1                 | TopologicalAction    | FFR2AA1  DDE3AA1  1 | OPEN            |
       | Close tie-line FR BE | Close tie-line FR BE | 1                 | TopologicalAction    | BBE2AA1  FFR3AA1  1 | CLOSE           |
       | PST @1               | PST @1               | 1                 | PstSetpoint          | BBE2AA1  BBE3AA1  1 | -16             |
-    Then the remedial actions should have the following usage rules:
-      | RemedialActionId     | UsageRules | Rule      | Method    | Instant    | ContingencyId | FlowCnecId |
-      | Open tie-line FR DE  | 1          | OnInstant | Available | preventive |               |            |
-      | Close tie-line FR BE | 1          | OnInstant | Available | preventive |               |            |
-      | PST @1               | 1          | OnInstant | Available | preventive |               |            |
+    Then the remedial actions should have the following trigger condition:
+      | RemedialActionId     | Method    | Instant    | ContingencyId | FlowCnecId |
+      | Open tie-line FR DE  | Available | preventive |               |            |
+      | Close tie-line FR BE | Available | preventive |               |            |
+      | PST @1               | Available | preventive |               |            |

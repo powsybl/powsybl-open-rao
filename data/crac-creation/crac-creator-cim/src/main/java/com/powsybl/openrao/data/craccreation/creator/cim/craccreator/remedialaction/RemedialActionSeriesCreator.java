@@ -11,8 +11,8 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.usagerule.OnFlowConstraintInCountryAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerConditionAdder;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracUtils;
@@ -279,9 +279,9 @@ public class RemedialActionSeriesCreator {
                     pstRangeActionCreator.createPstRangeActionAdder(cimCracCreationParameters);
                     pstRangeActionCreators.put(createdRemedialActionId, pstRangeActionCreator);
                 } else {
-                    // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
-                    // In this case, only import extra usage rules
-                    addExtraUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder());
+                    // Some remedial actions can be defined in multiple Series in order to define multiple trigger conditions (eg on flow constraint on different CNECs)
+                    // In this case, only import extra trigger conditions
+                    addExtraTriggerConditions(applicationModeMarketObjectStatus, createdRemedialActionId, pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder());
                 }
                 return true;
 
@@ -290,13 +290,13 @@ public class RemedialActionSeriesCreator {
         return false;
     }
 
-    private void addExtraUsageRules(String applicationModeMarketObjectStatus, String remedialActionId, RemedialActionAdder<?> adder) {
+    private void addExtraTriggerConditions(String applicationModeMarketObjectStatus, String remedialActionId, RemedialActionAdder<?> adder) {
         try {
-            RemedialActionSeriesCreator.addUsageRules(
+            RemedialActionSeriesCreator.addTriggerConditions(
                 crac, applicationModeMarketObjectStatus, adder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain
             );
         } catch (OpenRaoImportException e) {
-            cracCreationContext.getCreationReport().warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()));
+            cracCreationContext.getCreationReport().warn(String.format("Extra trigger conditions for RA %s could not be imported: %s", remedialActionId, e.getMessage()));
         }
     }
 
@@ -333,9 +333,9 @@ public class RemedialActionSeriesCreator {
             networkActionCreator.createNetworkActionAdder();
             networkActionCreators.put(createdRemedialActionId, networkActionCreator);
         } else {
-            // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
-            // In this case, only import extra usage rules
-            addExtraUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
+            // Some remedial actions can be defined in multiple Series in order to define multiple trigger conditions (eg on flow constraint on different CNECs)
+            // In this case, only import extra trigger conditions
+            addExtraTriggerConditions(applicationModeMarketObjectStatus, createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
         }
     }
 
@@ -367,7 +367,7 @@ public class RemedialActionSeriesCreator {
         }
     }
 
-    public static void addUsageRules(Crac crac, String applicationModeMarketObjectStatus,
+    public static void addTriggerConditions(Crac crac, String applicationModeMarketObjectStatus,
                                      RemedialActionAdder<?> remedialActionAdder,
                                      List<Contingency> contingencies,
                                      List<String> invalidContingencies,
@@ -434,21 +434,21 @@ public class RemedialActionSeriesCreator {
                     throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a free-to-use remedial action at instant '%s'", instant));
                 }
                 if (contingencies.isEmpty()) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and trigger condition is on instant '%s'", instant));
                 }
                 break;
             case CURATIVE:
                 if (contingencies.isEmpty() && !invalidContingencies.isEmpty()) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
+                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and trigger condition is on instant '%s'", instant));
                 }
                 break;
             default:
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant '%s'", instant));
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add trigger condition on instant '%s'", instant));
         }
     }
 
     private static void addOnInstantUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
-        adder.newOnInstantUsageRule()
+        adder.newTriggerCondition()
             .withInstant(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
@@ -456,7 +456,7 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
         contingencies.forEach(contingency ->
-            adder.newOnContingencyStateUsageRule()
+            adder.newTriggerCondition()
                 .withInstant(raApplicationInstant.getId())
                 .withUsageMethod(usageMethod)
                 .withContingency(contingency.getId())
@@ -471,7 +471,7 @@ public class RemedialActionSeriesCreator {
         if (flowCnec.getState().getInstant().comesBefore(instant)) {
             return;
         }
-        adder.newOnConstraintUsageRule()
+        adder.newTriggerCondition()
             .withCnec(flowCnec.getId())
             .withUsageMethod(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(instant.getId())
@@ -479,7 +479,7 @@ public class RemedialActionSeriesCreator {
     }
 
     private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, Instant instant) {
-        adder.newOnConstraintUsageRule()
+        adder.newTriggerCondition()
             .withCnec(angleCnec.getId())
             .withUsageMethod(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(instant.getId())
@@ -487,8 +487,8 @@ public class RemedialActionSeriesCreator {
     }
 
     private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, Country sharedDomain, Instant instant, UsageMethod usageMethod) {
-        OnFlowConstraintInCountryAdder<?> onFlowConstraintInCountryAdder = remedialActionAdder
-            .newOnFlowConstraintInCountryUsageRule()
+        TriggerConditionAdder<?> onFlowConstraintInCountryAdder = remedialActionAdder
+            .newTriggerCondition()
             .withInstant(instant.getId())
             .withCountry(sharedDomain)
             .withUsageMethod(usageMethod);

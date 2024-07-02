@@ -116,7 +116,7 @@ This algorithm acts on sets of states that share common remedial actions, also c
 
 The main inputs of the algorithm are:
 - the [network](/input-data/network.md) at the root of the perimeter,
-- an extract of the original [CRAC](/input-data/crac/introduction.md), containing only the remedial actions that are available in the given perimeter (filtered on usage rules). 
+- an extract of the original [CRAC](/input-data/crac/introduction.md), containing only the remedial actions that are available in the given perimeter (filtered on trigger conditions). 
 
 ## Stop criterion
 

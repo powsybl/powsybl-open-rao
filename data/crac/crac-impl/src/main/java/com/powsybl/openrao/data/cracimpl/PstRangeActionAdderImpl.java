@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.TapRange;
 import com.powsybl.openrao.data.cracapi.range.TapRangeAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
 
 import java.util.*;
 
@@ -81,7 +81,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     @Override
     public PstRangeAction add() {
         checkId();
-        checkAutoUsageRules();
+        checkAutoTriggerConditions();
         assertAttributeNotNull(networkElementId, PST_RANGE_ACTION, "network element", "withNetworkElement()");
         assertAttributeNotNull(initialTap, PST_RANGE_ACTION, "initial tap", "withInitialTap()");
         assertAttributeNotNull(tapToAngleConversionMap, PST_RANGE_ACTION, "tap to angle conversion map", "withTapToAngleConversionMap()");
@@ -93,12 +93,12 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         List<TapRange> validRanges = checkRanges();
         checkTapToAngleConversionMap();
 
-        if (usageRules.isEmpty()) {
-            BUSINESS_WARNS.warn("PstRangeAction {} does not contain any usage rule, by default it will never be available", id);
+        if (triggerConditions.isEmpty()) {
+            BUSINESS_WARNS.warn("PstRangeAction {} does not contain any trigger condition, by default it will never be available", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId, initialTap, tapToAngleConversionMap, speed);
+        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.triggerConditions, validRanges, networkElement, groupId, initialTap, tapToAngleConversionMap, speed);
         this.getCrac().addPstRangeAction(pstWithRange);
         return pstWithRange;
     }
@@ -107,8 +107,8 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         ranges.add(pstRange);
     }
 
-    private boolean isPreventiveUsageRule(UsageRule usageRule) {
-        return usageRule.getInstant().isPreventive();
+    private boolean isPreventiveTriggerCondition(TriggerCondition triggerCondition) {
+        return triggerCondition.getInstant().isPreventive();
     }
 
     private List<TapRange> checkRanges() {
@@ -116,7 +116,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         // filter RELATIVE_TO_PREVIOUS_INSTANT range if the RA is purely preventive
         List<TapRange> validRanges = new ArrayList<>();
 
-        if (usageRules.stream().allMatch(this::isPreventiveUsageRule)) {
+        if (triggerConditions.stream().allMatch(this::isPreventiveTriggerCondition)) {
             ranges.forEach(range -> {
                 if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {
                     BUSINESS_WARNS.warn("RELATIVE_TO_PREVIOUS_INSTANT range has been filtered from PstRangeAction {}, as it is a preventive RA", id);
@@ -165,9 +165,9 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         }
     }
 
-    void checkAutoUsageRules() {
-        usageRules.forEach(usageRule -> {
-            if (usageRule.getInstant().isAuto() && Objects.isNull(speed)) {
+    void checkAutoTriggerConditions() {
+        triggerConditions.forEach(triggerCondition -> {
+            if (triggerCondition.getInstant().isAuto() && Objects.isNull(speed)) {
                 throw new OpenRaoException("Cannot create an AUTO Pst range action without speed defined");
             }
         });

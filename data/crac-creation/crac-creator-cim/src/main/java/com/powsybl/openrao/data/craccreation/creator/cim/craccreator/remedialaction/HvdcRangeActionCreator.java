@@ -181,8 +181,8 @@ public class HvdcRangeActionCreator {
             }
         }
 
-        // Usage rules
-        RemedialActionSeriesCreator.addUsageRules(crac, CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
+        // Trigger conditions
+        RemedialActionSeriesCreator.addTriggerConditions(crac, CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
 
         return hvdcRangeActionAdder;
     }

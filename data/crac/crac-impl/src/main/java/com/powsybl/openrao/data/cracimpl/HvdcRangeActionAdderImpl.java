@@ -54,7 +54,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     @Override
     public HvdcRangeAction add() {
         checkId();
-        checkAutoUsageRules();
+        checkAutoTriggerConditions();
         assertAttributeNotNull(networkElementId, HVDC_RANGE_ACTION, "network element", "withNetworkElement()");
         assertAttributeNotEmpty(ranges, HVDC_RANGE_ACTION, "range", "newRange()");
 
@@ -62,12 +62,12 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
 
-        if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
+        if (triggerConditions.isEmpty()) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any trigger condition, by default it will never be available", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed);
+        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.triggerConditions, ranges, initialSetpoint, networkElement, groupId, speed);
         this.getCrac().addHvdcRangeAction(hvdcWithRange);
         return hvdcWithRange;
     }

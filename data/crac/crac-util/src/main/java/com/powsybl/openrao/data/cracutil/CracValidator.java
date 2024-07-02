@@ -7,13 +7,17 @@
 
 package com.powsybl.openrao.data.cracutil;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.cracapi.triggercondition.TriggerCondition;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -93,12 +97,12 @@ public final class CracValidator {
     }
 
     private static boolean hasGlobalRemedialActions(State state, Crac crac) {
-        return hasOnInstantOrOnStateUsageRules(crac.getRangeActions(state, UsageMethod.FORCED)) ||
-            hasOnInstantOrOnStateUsageRules(crac.getNetworkActions(state, UsageMethod.FORCED));
+        return hasTriggerConditionOnInstantOrContingencyOnly(crac.getRangeActions(state, UsageMethod.FORCED)) ||
+            hasTriggerConditionOnInstantOrContingencyOnly(crac.getNetworkActions(state, UsageMethod.FORCED));
     }
 
-    private static <T extends RemedialAction<?>> boolean hasOnInstantOrOnStateUsageRules(Set<T> remedialActionSet) {
-        return remedialActionSet.stream().anyMatch(rangeAction -> rangeAction.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState));
+    private static <T extends RemedialAction<?>> boolean hasTriggerConditionOnInstantOrContingencyOnly(Set<T> remedialActionSet) {
+        return remedialActionSet.stream().anyMatch(rangeAction -> rangeAction.getTriggerConditions().stream().anyMatch(triggerCondition -> triggerCondition.getCnec().isEmpty() && triggerCondition.getCountry().isEmpty()));
     }
 
     private static void copyThresholds(FlowCnec cnec, FlowCnecAdder adder) {
@@ -128,29 +132,42 @@ public final class CracValidator {
      * If no auto remedial action affects the CNEC and the CNEC does not trigger any auto remedial action, there is no
      * need to duplicate it because this means that no auto remedial action is available for this auto state at all.
      * In this case, the StateTree algorithm will automatically include all the CNECs from the state to the preventive perimeter.
+     *
      * @param remedialActions The set of remedial actions that may affect the CNEC
-     * @param flowCnec The FlowCNEC to possibly duplicate
-     * @param network The network
+     * @param flowCnec        The FlowCNEC to possibly duplicate
+     * @param network         The network
      * @return Boolean value that indicates whether the CNEC should be duplicate in the outage state or not
      */
     private static boolean shouldDuplicateAutoCnecInOutageState(Set<RemedialAction<?>> remedialActions, FlowCnec flowCnec, Network network) {
         boolean raForOtherCnecs = false;
         for (RemedialAction<?> remedialAction : remedialActions) {
-            for (UsageRule usageRule : remedialAction.getUsageRules()) {
-                if (usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(flowCnec.getState().getInstant())) {
+            // TODO: try to refactor this in a more elegant way
+            for (TriggerCondition triggerCondition : remedialAction.getTriggerConditions()) {
+                Instant instant = triggerCondition.getInstant();
+                Optional<Contingency> contingency = triggerCondition.getContingency();
+                Optional<Cnec<?>> cnec = triggerCondition.getCnec();
+                Optional<Country> country = triggerCondition.getCountry();
+                if (instant.equals(flowCnec.getState().getInstant())
+                    && contingency.isEmpty()
+                    && cnec.isEmpty()
+                    && triggerCondition.getCountry().isEmpty()) {
                     return false;
-                } else if (usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getState().equals(flowCnec.getState())) {
+                } else if (instant.equals(flowCnec.getState().getInstant())
+                    && contingency.isPresent()
+                    && contingency.equals(flowCnec.getState().getContingency())
+                    && cnec.isEmpty()
+                    && country.isEmpty()) {
                     return false;
-                } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec && onConstraint.getCnec().getState().equals(flowCnec.getState())) {
-                    if (onConstraint.getCnec().equals(flowCnec)) {
+                } else if (cnec.isPresent() && cnec.get() instanceof FlowCnec && cnec.get().getState().equals(flowCnec.getState())) {
+                    if (cnec.get().equals(flowCnec)) {
                         return false;
                     } else {
                         raForOtherCnecs = true;
                     }
-                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
-                    && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
-                    && (onFlowConstraintInCountry.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(onFlowConstraintInCountry.getContingency()))) {
-                    if (flowCnec.getLocation(network).contains(Optional.of(onFlowConstraintInCountry.getCountry()))) {
+                } else if (country.isPresent()
+                    && instant.equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
+                    && (contingency.isEmpty() || flowCnec.getState().getContingency().equals(contingency))) {
+                    if (flowCnec.getLocation(network).contains(country)) {
                         return false;
                     } else {
                         raForOtherCnecs = true;

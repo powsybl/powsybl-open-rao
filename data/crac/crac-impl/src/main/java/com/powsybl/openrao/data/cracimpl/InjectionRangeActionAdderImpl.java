@@ -49,7 +49,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeAction add() {
         checkId();
-        checkAutoUsageRules();
+        checkAutoTriggerConditions();
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
@@ -61,13 +61,13 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         // check ranges
         assertAttributeNotEmpty(ranges, INJECTION_RANGE_ACTION, "range", "newRange()");
 
-        // check usage rules
-        if (usageRules.isEmpty()) {
-            BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
+        // check trigger conditions
+        if (triggerConditions.isEmpty()) {
+            BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any trigger condition, by default it will never be available", id);
         }
 
         Map<NetworkElement, Double> neAndDk = addNetworkElements();
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed);
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.triggerConditions, this.ranges, this.initialSetpoint, neAndDk, speed);
         this.getCrac().addInjectionRangeAction(injectionRangeAction);
         return injectionRangeAction;
     }

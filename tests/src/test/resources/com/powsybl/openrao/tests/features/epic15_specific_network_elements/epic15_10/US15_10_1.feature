@@ -17,9 +17,9 @@ Feature: US 15.10.1: Modify voltage level topology as remedial action (2 nodes c
       | Bus bar ok test | Bus bar ok test   | 4                 | SwitchPair           | BBE1AA1X BBE1AA11 1/BBE1AA1X BBE1AA12 1 | OPEN/CLOSE      |
       | Bus bar ok test | Bus bar ok test   | 4                 | SwitchPair           | BBE1AA1Y BBE1AA11 1/BBE1AA1Y BBE1AA12 1 | OPEN/CLOSE      |
       | Bus bar ok test | Bus bar ok test   | 4                 | SwitchPair           | BBE1AA1Z BBE1AA11 1/BBE1AA1Z BBE1AA12 1 | OPEN/CLOSE      |
-    Then the remedial actions should have the following usage rules:
-      | RemedialActionId | UsageRules | Rule      | Method    | Instant    | ContingencyId | FlowCnecId |
-      | Bus bar ok test  | 1          | OnInstant | Available | preventive |               |            |
+    Then the remedial actions should have the following trigger condition:
+      | RemedialActionId | Method    | Instant    | ContingencyId | FlowCnecId |
+      | Bus bar ok test  | Available | preventive |               |            |
 
   @fast @crac @mock
   Scenario: US 15.10.1.2: Import succeed when some lines are already on final node
@@ -33,9 +33,9 @@ Feature: US 15.10.1: Modify voltage level topology as remedial action (2 nodes c
       | Bus bar ok test | Bus bar ok test   | 4                 | SwitchPair           | BBE1AA1X BBE1AA12 1/BBE1AA1X BBE1AA11 1 | OPEN/CLOSE      |
       | Bus bar ok test | Bus bar ok test   | 4                 | SwitchPair           | BBE1AA1Y BBE1AA12 1/BBE1AA1Y BBE1AA11 1 | OPEN/CLOSE      |
       | Bus bar ok test | Bus bar ok test   | 4                 | SwitchPair           | BBE1AA1Z BBE1AA12 1/BBE1AA1Z BBE1AA11 1 | OPEN/CLOSE      |
-    Then the remedial actions should have the following usage rules:
-      | RemedialActionId | UsageRules | Rule      | Method    | Instant    | ContingencyId | FlowCnecId |
-      | Bus bar ok test  | 1          | OnInstant | Available | preventive |               |            |
+    Then the remedial actions should have the following trigger condition:
+      | RemedialActionId | Method    | Instant    | ContingencyId | FlowCnecId |
+      | Bus bar ok test  | Available | preventive |               |            |
 
   @fast @crac @mock
   Scenario: US 15.10.1.3: Wrong import with missing switch in the network
@@ -65,10 +65,10 @@ Feature: US 15.10.1: Modify voltage level topology as remedial action (2 nodes c
       | NetworkActionId | NetworkActionName | ElementaryActions | ElementaryActionType | NetworkElementId                        | Action/Setpoint |
       | RA1             | RA1               | 1                 | SwitchPair           | BBE1AA1X BBE1AA11 1/BBE1AA1X BBE1AA12 1 | OPEN/CLOSE      |
       | RA2             | RA2               | 1                 | SwitchPair           | BBE1AA1X BBE1AA12 1/BBE1AA1X BBE1AA11 1 | OPEN/CLOSE      |
-    And the remedial actions should have the following usage rules:
-      | RemedialActionId | UsageRules | Rule      | Method    | Instant  | ContingencyId | FlowCnecId |
-      | RA1              | 1          | OnInstant | Available | curative |               |            |
-      | RA2              | 1          | OnInstant | Available | curative |               |            |
+    And the remedial actions should have the following trigger condition:
+      | RemedialActionId | Method    | Instant  | ContingencyId | FlowCnecId |
+      | RA1              | Available | curative |               |            |
+      | RA2              | Available | curative |               |            |
 
   @fast @rao @mock @dc @contingency-scenarios
   Scenario: US 15.10.1.6: bus bar change in RAO

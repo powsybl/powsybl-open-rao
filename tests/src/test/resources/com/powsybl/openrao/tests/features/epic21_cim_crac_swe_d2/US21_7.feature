@@ -20,6 +20,6 @@ Feature: US 21.7 : import angle cnecs
       | RA-1            | Decrease Generation and open line | 3                 | InjectionSetpoint    | _1dc9afba-23b5-41a0-8540-b479ed8baf4b | 0               |
       | RA-1            | Decrease Generation and open line | 3                 | InjectionSetpoint    | _550ebe0d-f2b2-48c1-991f-cebea43a21aa | 10              |
       | RA-1            | Decrease Generation and open line | 3                 | TopologicalAction    | _ffbabc27-1ccd-4fdc-b037-e341706c8d29 | OPEN            |
-    And the remedial actions should have the following usage rules:
-      | RemedialActionId | UsageRules | Rule              | Method    | Instant  | ContingencyId | AngleCnecId |
-      | RA-1             | 1          | OnAngleConstraint | AVAILABLE | CURATIVE | Co-1          | AngleCnec1  |
+    And the remedial actions should have the following trigger condition:
+      | RemedialActionId | Method    | Instant  | AngleCnecId |
+      | RA-1             | AVAILABLE | CURATIVE | AngleCnec1  |

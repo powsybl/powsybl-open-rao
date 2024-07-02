@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import org.junit.jupiter.api.Test;
 
@@ -70,9 +70,9 @@ class CsaProfileSsiTest {
         assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
 
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(PREVENTIVE_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.AVAILABLE, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(1, remedialAction.getTriggerConditions().size());
+        assertEquals(crac.getInstant(PREVENTIVE_INSTANT_ID), remedialAction.getTriggerConditions().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, remedialAction.getTriggerConditions().iterator().next().getUsageMethod());
 
         assertRaNotImported(cracCreationContext, "remedial-action-2", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-2 will not be imported because normalAvailable is set to false");
 
@@ -91,9 +91,9 @@ class CsaProfileSsiTest {
         assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
 
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(PREVENTIVE_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.AVAILABLE, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(1, remedialAction.getTriggerConditions().size());
+        assertEquals(crac.getInstant(PREVENTIVE_INSTANT_ID), remedialAction.getTriggerConditions().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, remedialAction.getTriggerConditions().iterator().next().getUsageMethod());
 
         assertRaNotImported(cracCreationContext, "remedial-action-1", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-1 will not be imported because normalAvailable is set to false");
     }
@@ -408,17 +408,17 @@ class CsaProfileSsiTest {
 
         assertEquals("remedial-action-1", networkActions.get(0).getId());
         assertEquals("RTE_RA1", networkActions.get(0).getName());
-        assertEquals(3, networkActions.get(0).getUsageRules().size());
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-1", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-1", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-1", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
+        assertEquals(3, networkActions.get(0).getTriggerConditions().size());
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, "remedial-action-1", "contingency-1", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, "remedial-action-1", "contingency-1", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, "remedial-action-1", "contingency-1", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
         assertEquals("remedial-action-2", networkActions.get(1).getId());
         assertEquals("RTE_RA2", networkActions.get(1).getName());
-        assertEquals(3, networkActions.get(1).getUsageRules().size());
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-2", "contingency-3", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-2", "contingency-3", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-2", "contingency-3", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
+        assertEquals(3, networkActions.get(1).getTriggerConditions().size());
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, "remedial-action-2", "contingency-3", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, "remedial-action-2", "contingency-3", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, "remedial-action-2", "contingency-3", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-12_ContingencyWithRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
@@ -435,14 +435,14 @@ class CsaProfileSsiTest {
 
         assertEquals("remedial-action-1", networkActions.get(0).getId());
         assertEquals("RTE_RA1", networkActions.get(0).getName());
-        assertEquals(3, networkActions.get(0).getUsageRules().size());
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-2", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-2", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-1", "contingency-2", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
+        assertEquals(3, networkActions.get(0).getTriggerConditions().size());
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, "remedial-action-1", "contingency-2", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, "remedial-action-1", "contingency-2", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
+        assertHasOnContingencyStateTriggerCondition(cracCreationContext, "remedial-action-1", "contingency-2", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
         assertEquals("remedial-action-2", networkActions.get(1).getId());
         assertEquals("RTE_RA2", networkActions.get(1).getName());
-        assertEquals(0, networkActions.get(1).getUsageRules().size());
+        assertEquals(0, networkActions.get(1).getTriggerConditions().size());
     }
 
     @Test
@@ -522,17 +522,17 @@ class CsaProfileSsiTest {
 
         assertEquals("remedial-action-1", remedialActions.get(0).getId());
         assertEquals("RTE_RA1", remedialActions.get(0).getName());
-        assertEquals(3, remedialActions.get(0).getUsageRules().size());
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", crac.getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", crac.getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", crac.getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
+        assertEquals(3, remedialActions.get(0).getTriggerConditions().size());
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", crac.getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", crac.getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO - curative 3", crac.getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
 
         assertEquals("remedial-action-2", remedialActions.get(1).getId());
         assertEquals("RTE_RA2", remedialActions.get(1).getName());
-        assertEquals(3, remedialActions.get(1).getUsageRules().size());
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", crac.getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", crac.getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-2", "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", crac.getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
+        assertEquals(3, remedialActions.get(1).getTriggerConditions().size());
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", crac.getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", crac.getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-2", "RTE_AE3 (assessed-element-3) - RTE_CO - curative 3", crac.getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
 
         // With SSI
         cracCreationContext = getCsaCracCreationContext("/profiles/ssi/SSI-16_AssessedElementWithRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
@@ -552,14 +552,14 @@ class CsaProfileSsiTest {
 
         assertEquals("remedial-action-1", remedialActions.get(0).getId());
         assertEquals("RTE_RA1", remedialActions.get(0).getName());
-        assertEquals(3, remedialActions.get(0).getUsageRules().size());
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", crac.getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", crac.getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
-        assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", crac.getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
+        assertEquals(3, remedialActions.get(0).getTriggerConditions().size());
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", crac.getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", crac.getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
+        assertHasOnConstraintTriggerCondition(cracCreationContext, "remedial-action-1", "RTE_AE2 (assessed-element-2) - RTE_CO - curative 3", crac.getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.FORCED, AngleCnec.class);
 
         assertEquals("remedial-action-2", remedialActions.get(1).getId());
         assertEquals("RTE_RA2", remedialActions.get(1).getName());
-        assertEquals(0, remedialActions.get(1).getUsageRules().size());
+        assertEquals(0, remedialActions.get(1).getTriggerConditions().size());
     }
 
     @Test
@@ -579,9 +579,9 @@ class CsaProfileSsiTest {
         assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
 
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(1, remedialAction.getTriggerConditions().size());
+        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getTriggerConditions().iterator().next().getInstant());
+        assertEquals(UsageMethod.FORCED, remedialAction.getTriggerConditions().iterator().next().getUsageMethod());
 
         assertRaNotImported(cracCreationContext, "ara-2", ImportStatus.NOT_FOR_RAO, "Remedial action ara-2 will not be imported because normalAvailable is set to false");
 
@@ -600,9 +600,9 @@ class CsaProfileSsiTest {
         assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
 
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(1, remedialAction.getTriggerConditions().size());
+        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getTriggerConditions().iterator().next().getInstant());
+        assertEquals(UsageMethod.FORCED, remedialAction.getTriggerConditions().iterator().next().getUsageMethod());
 
         assertRaNotImported(cracCreationContext, "ara-1", ImportStatus.NOT_FOR_RAO, "Remedial action ara-1 will not be imported because normalAvailable is set to false");
     }
@@ -624,9 +624,9 @@ class CsaProfileSsiTest {
         assertEquals("BBE1AA1  BBE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
 
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(1, remedialAction.getTriggerConditions().size());
+        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getTriggerConditions().iterator().next().getInstant());
+        assertEquals(UsageMethod.FORCED, remedialAction.getTriggerConditions().iterator().next().getUsageMethod());
 
         assertRaNotImported(cracCreationContext, "ara-2", ImportStatus.NOT_FOR_RAO, "Remedial action ara-2 will not be imported because RemedialActionScheme remedial-action-scheme-2 is not armed");
 
@@ -645,9 +645,9 @@ class CsaProfileSsiTest {
         assertEquals("DDE3AA1  DDE4AA1  1", ((TopologicalAction) elementaryAction).getNetworkElement().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) elementaryAction).getActionType());
 
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(1, remedialAction.getTriggerConditions().size());
+        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getTriggerConditions().iterator().next().getInstant());
+        assertEquals(UsageMethod.FORCED, remedialAction.getTriggerConditions().iterator().next().getUsageMethod());
 
         assertRaNotImported(cracCreationContext, "ara-1", ImportStatus.NOT_FOR_RAO, "Remedial action ara-1 will not be imported because RemedialActionScheme remedial-action-scheme-1 is not armed");
     }

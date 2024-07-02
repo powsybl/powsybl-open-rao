@@ -139,8 +139,8 @@ Remedial actions can be of different types, but they will always have :
 - Its TSO origin
 
 Then it has the &lt;actionSet&gt; tag :
-- &lt;preventive&gt; tag : if true a usage rule will be added to the remedial action to make it available on preventive state
-- &lt;curative&gt; tag : if true some usage rules will be added to the remedial action to make it available on specified 
+- &lt;preventive&gt; tag : if true a trigger condition will be added to the remedial action to make it available on preventive state
+- &lt;curative&gt; tag : if true some trigger conditions will be added to the remedial action to make it available on specified 
   curative states. To specify these states &lt;afterCOId&gt; tag will be used, they defined the outages after which this 
   remedial action will be available.
 - &lt;enforced&gt; tag : it is not used for now  

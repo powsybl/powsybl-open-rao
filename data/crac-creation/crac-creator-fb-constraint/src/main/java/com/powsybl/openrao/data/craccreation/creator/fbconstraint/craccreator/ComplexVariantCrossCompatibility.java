@@ -40,7 +40,7 @@ public final class ComplexVariantCrossCompatibility {
 
                 if (complexVariantReaders.get(j).isComplexVariantValid()
                         && actionsOverlap(complexVariantReaders.get(i), complexVariantReaders.get(j))
-                        && usageRulesOverlap(complexVariantReaders.get(i), complexVariantReaders.get(j))) {
+                        && triggerConditionsOverlap(complexVariantReaders.get(i), complexVariantReaders.get(j))) {
                     overlappingComplexVariants.add(complexVariantReaders.get(j));
                 }
             }
@@ -83,9 +83,9 @@ public final class ComplexVariantCrossCompatibility {
         }
     }
 
-    private static boolean usageRulesOverlap(ComplexVariantReader cvr1, ComplexVariantReader cvr2) {
+    private static boolean triggerConditionsOverlap(ComplexVariantReader cvr1, ComplexVariantReader cvr2) {
 
-        // usageRules overlap each others if they are available on a same state
+        // triggerConditions overlap each others if they are available on a same state
 
         ActionsSetType ast1 = cvr1.getComplexVariant().getActionsSet().get(0);
         ActionsSetType ast2 = cvr2.getComplexVariant().getActionsSet().get(0);

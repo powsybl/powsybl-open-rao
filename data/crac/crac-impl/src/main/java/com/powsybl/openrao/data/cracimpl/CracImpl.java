@@ -14,8 +14,7 @@ import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
-import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracapi.triggercondition.UsageMethod;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -138,7 +137,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeContingency(String id) {
         if (isContingencyUsedWithinCrac(id)) {
-            throw new OpenRaoException(format("Contingency %s is used within a CNEC or an OnContingencyState UsageRule. Please remove all references to the contingency first.", id));
+            throw new OpenRaoException(format("Contingency %s is used within a CNEC or a trigger condition. Please remove all references to the contingency first.", id));
         } else {
             Contingency contingency = contingencies.get(id);
             if (contingency != null) {
@@ -251,9 +250,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     /**
-     * Check if a Contingency is referenced in the CRAC (ie in a Cnec or in a RemedialAction's UsageRule)
+     * Check if a Contingency is referenced in the CRAC (ie in a Cnec or in a RemedialAction's TriggerCondition)
      * @param contingencyId: ID of the Contingency
-     * @return true if the Contingency is referenced in a Cnec or in a RemedialAction's UsageRule
+     * @return true if the Contingency is referenced in a Cnec or in a RemedialAction's TriggerCondition
      */
     private boolean isContingencyUsedWithinCrac(String contingencyId) {
         return isContingencyUsedForCnecs(contingencyId) || isContingencyUsedForRemedialActions(contingencyId);
@@ -265,18 +264,24 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the Contingency is referenced in a Cnec
      */
     private boolean isContingencyUsedForCnecs(String contingencyId) {
+        // TODO: Previously looked for OnContingencyState urs, hence the cnec/country.isEmpty()
+        // TODO: would it make sense to only look at the contingency?
         return getCnecs().stream().anyMatch(cnec ->
             cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingencyId));
     }
 
     /**
-     * Check if a Contingency is referenced in a RemedialAction's UsageRule
+     * Check if a Contingency is referenced in a RemedialAction's TriggerCondition
      * @param contingencyId: ID of the Contingency
-     * @return true if the Contingency is referenced in a RemedialAction's UsageRule
+     * @return true if the Contingency is referenced in a RemedialAction's TriggerCondition
      */
     private boolean isContingencyUsedForRemedialActions(String contingencyId) {
-        return getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).anyMatch(usageRule ->
-            usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getContingency().getId().equals(contingencyId));
+        return getRemedialActions().stream()
+            .map(RemedialAction::getTriggerConditions)
+            .flatMap(Set::stream)
+            // previously looked for OnContingencyState usage rules
+            .anyMatch(triggerCondition -> triggerCondition.getContingency().isPresent()
+                && triggerCondition.getContingency().get().getId().equals(contingencyId));
     }
 
     //endregion
@@ -361,17 +366,19 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     /**
-     * Check if a State is referenced in the CRAC (ie in a Cnec or a RemedialAction's UsageRule)
+     * Check if a State is referenced in the CRAC (ie in a Cnec or a RemedialAction's TriggerCondition)
      * @param stateId: ID of the State
-     * @return true if the State is referenced in a Cnec or a RemedialAction's UsageRule
+     * @return true if the State is referenced in a Cnec or a RemedialAction's TriggerCondition
      */
     private boolean isStateUsedWithinCrac(String stateId) {
+        // previously looked for OnContingencyState usage rules
         return getCnecs().stream()
             .anyMatch(cnec -> cnec.getState().getId().equals(stateId))
                 || getRemedialActions().stream()
-                .map(RemedialAction::getUsageRules)
+                .map(RemedialAction::getTriggerConditions)
                 .flatMap(Set::stream)
-                .anyMatch(ur -> ur instanceof OnContingencyState onContingencyState && onContingencyState.getState().getId().equals(stateId));
+                .anyMatch(triggerCondition -> triggerCondition.getContingency().isPresent()
+                    && stateId.equals(getState(triggerCondition.getContingency().get(), triggerCondition.getInstant()).getId()));
     }
 
     //endregion
@@ -613,9 +620,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     private Set<State> getAssociatedStates(RemedialAction<?> remedialAction) {
-        return remedialAction.getUsageRules().stream()
-                .filter(OnContingencyState.class::isInstance)
-                .map(ur -> ((OnContingencyState) ur).getState())
+        return remedialAction.getTriggerConditions().stream()
+                .filter(triggerCondition -> triggerCondition.getContingency().isPresent())
+                .filter(triggerCondition -> triggerCondition.getCnec().isEmpty())
+                .filter(triggerCondition -> triggerCondition.getCountry().isEmpty())
+                .map(triggerCondition -> getState(triggerCondition.getContingency().get(), triggerCondition.getInstant()))
                 .collect(Collectors.toSet());
     }
 
