@@ -83,7 +83,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
             MEGAWATT,
-            false);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {

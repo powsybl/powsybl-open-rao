@@ -66,7 +66,7 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
             Unit.MEGAWATT,
-            false);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(state, Set.of(pstRa1, pstRa2));
