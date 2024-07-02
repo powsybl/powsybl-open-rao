@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
@@ -52,10 +53,11 @@ public final class BestTapFinder {
                                                     OptimizationPerimeter optimizationContext,
                                                     RangeActionSetpointResult prePerimeterSetpoint,
                                                     LinearOptimizationResult linearOptimizationResult,
-                                                    Unit unit) {
+                                                    Unit unit,
+                                                    RangeActionsOptimizationParameters.PstModel pstModel) {
 
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoint);
-        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit);
+        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit, pstModel);
         roundOtherRa(linearProblemResult, optimizationContext, roundedResult);
         return roundedResult;
     }
@@ -65,7 +67,17 @@ public final class BestTapFinder {
                                                      OptimizationPerimeter optimizationContext,
                                                      LinearOptimizationResult linearOptimizationResult,
                                                      RangeActionActivationResultImpl roundedResult,
-                                                     Unit unit) {
+                                                     Unit unit,
+                                                     RangeActionsOptimizationParameters.PstModel pstModel) {
+
+        if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+            optimizationContext.getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state).forEach(rangeAction -> {
+                if (rangeAction instanceof PstRangeAction pstRangeAction) {
+                    roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(linearProblemResult.getOptimizedTap(pstRangeAction, state)));
+                }
+            }));
+            return;
+        }
 
         for (State state : optimizationContext.getRangeActionOptimizationStates()) {
 

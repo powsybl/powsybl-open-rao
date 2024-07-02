@@ -28,10 +28,10 @@
 | Name                           | Symbol          | Details                                                                                                           | Type                | Index                                            | Unit                                                      | Lower bound           | Upper bound           |
 |--------------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------|---------------------|--------------------------------------------------|-----------------------------------------------------------|-----------------------|-----------------------|
 | Flow                           | $F(c)$          | flow of FlowCnec $c$                                                                                              | Real value          | One variable for every element of (FlowCnecs)    | MW                                                        | $-\infty$             | $+\infty$             |
-| RA setpoint                    | $A(r,s)$        | setpoint of RangeAction $r$ on state $s$                                                                          | Real value          | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | Range lower bound[^1] | Range upper bound[^1] |
+| RA setpoint                    | $A(r,s)$        | setpoint of RangeAction $r$ on state $s$                                                                          | Real value          | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | Range lower bound[^2] | Range upper bound[^2] |
 | RA setpoint absolute variation | $\Delta A(r,s)$ | The absolute setpoint variation of RangeAction $r$ on state $s$, from setpoint on previous state to "RA setpoint" | Real positive value | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | 0                     | $+\infty$             |
 
-[^1]: Range actions' lower & upper bounds are computed using CRAC + network + previous RAO results, depending on the
+[^2]: Range actions' lower & upper bounds are computed using CRAC + network + previous RAO results, depending on the
 types of their ranges: ABSOLUTE, RELATIVE_TO_INITIAL_NETWORK, RELATIVE_TO_PREVIOUS_INSTANT (more
 information [here](/input-data/crac/json.md#range-actions))
 
@@ -50,7 +50,7 @@ with $s$ the state on $c$ which is evaluated
 
 <br>
 
-### Definition of the absolute setpoint variations of the RangeActions
+### Definition of the setpoint variations of the RangeActions
 
 $$
 \begin{equation}
@@ -67,8 +67,15 @@ $$
 with $A(r,s')$ the setpoint of the last range action on the same element as $r$ but a state preceding $s$. If none such
 range actions exists, then $A(r,s') = \alpha_{0}(r)$
 
+This equation always applies, except for PSTs when modeling them as [APPROXIMATED_INTEGERS](/parameters.md#pst-model).
+If so, this constraint will be modeled directly via PST taps, see [here](/castor/linear-problem/discrete-pst-tap-filler.md#rangeactions-relative-tap-variations) as it gives better result [^3].
 
 <br>
+
+[^3]: Relative bounds are originally in tap.
+When converting them in angle, we take the smallest angle step between two tap changes.
+Despite artificially tightening the bounds, this is the only way to ensure we respect the tap limits as the tap to angle map is non linear.  
+With PST modeled as APPROXIMATED_INTEGERS, we can directly use the taps and therefore avoid this approximation.
 
 ### Shrinking the allowed range
 

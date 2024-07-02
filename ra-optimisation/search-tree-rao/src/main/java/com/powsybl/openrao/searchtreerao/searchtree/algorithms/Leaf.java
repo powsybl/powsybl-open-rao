@@ -219,7 +219,7 @@ public class Leaf implements OptimizationResult {
                     .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
                     .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant());
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
