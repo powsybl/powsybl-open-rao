@@ -56,59 +56,20 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      */
     default boolean isCompatibleWith(NetworkAction otherNetworkAction) {
         return getElementaryActions().stream().allMatch(elementaryAction -> {
-            if (elementaryAction instanceof GeneratorAction generatorAction) {
-                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof GeneratorAction otherGeneratorAction) {
-                        return !generatorAction.getGeneratorId().equals(otherGeneratorAction.getGeneratorId()) || generatorAction.getActivePowerValue().equals(otherGeneratorAction.getActivePowerValue());
-                    }
-                    return true;
-                });
-            } else if (elementaryAction instanceof LoadAction loadAction) {
-                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof LoadAction otherLoadAction) {
-                        return !loadAction.getLoadId().equals(otherLoadAction.getLoadId()) || loadAction.getActivePowerValue().equals(otherLoadAction.getActivePowerValue());
-                    }
-                    return true;
-                });
-            } else if (elementaryAction instanceof DanglingLineAction danglingLineAction) {
-                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof DanglingLineAction otherDanglingLineAction) {
-                        return !danglingLineAction.getDanglingLineId().equals(otherDanglingLineAction.getDanglingLineId()) || danglingLineAction.getActivePowerValue().equals(otherDanglingLineAction.getActivePowerValue());
-                    }
-                    return true;
-                });
-            } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
-                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof ShuntCompensatorPositionAction otherShuntCompensatorPositionAction) {
-                        return !shuntCompensatorPositionAction.getShuntCompensatorId().equals(otherShuntCompensatorPositionAction.getShuntCompensatorId()) || shuntCompensatorPositionAction.getSectionCount() == otherShuntCompensatorPositionAction.getSectionCount();
-                    }
-                    return true;
-                });
-            } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
-                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof PhaseTapChangerTapPositionAction otherPhaseTapChangerTapPositionAction) {
-                        return !phaseTapChangerTapPositionAction.getTransformerId().equals(otherPhaseTapChangerTapPositionAction.getTransformerId()) || phaseTapChangerTapPositionAction.getTapPosition() == otherPhaseTapChangerTapPositionAction.getTapPosition();
-                    }
-                    return true;
-                });
-            } else if (elementaryAction instanceof SwitchPair switchPair) {
+            if (elementaryAction instanceof SwitchPair switchPair) {
                 return otherNetworkAction.getElementaryActions().stream().allMatch(switchPair::isCompatibleWith);
-            } else if (elementaryAction instanceof TerminalsConnectionAction terminalsConnectionAction) {
-                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof TerminalsConnectionAction otherTerminalsConnectionAction) {
-                        return !terminalsConnectionAction.getElementId().equals(otherTerminalsConnectionAction.getElementId()) || terminalsConnectionAction.isOpen() == otherTerminalsConnectionAction.isOpen();
-                    }
-                    return true;
-                });
-            } else if (elementaryAction instanceof SwitchAction switchAction) {
-                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof SwitchAction otherSwitchAction) {
-                        return !switchAction.getSwitchId().equals(otherSwitchAction.getSwitchId()) || switchAction.isOpen() == otherSwitchAction.isOpen();
-                    }
-                    return true;
-                });
             } else {
-                throw new NotImplementedException();
+                // FIXME: Action equals is only implemented for Action currently used in Rao,
+                //  so the code above is not working for all Action but only for:
+                //  GeneratorAction, LoadAction, DanglingLineAction, ShuntCompensatorPositionAction,
+                //  PhaseTapChangerTapPositionAction, TerminalsConnectionAction, SwitchAction
+                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
+                    if (otherElementaryAction instanceof SwitchPair) {
+                        return true;
+                    } else {
+                        return !getNetworkElementId(elementaryAction).equals(getNetworkElementId(otherElementaryAction)) || elementaryAction.equals(otherElementaryAction);
+                    }
+                });
             }
         });
     }
@@ -117,4 +78,25 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      * Returns true if all the elementary actions can be applied to the given network
      */
     boolean canBeApplied(Network network);
+
+    // FIXME: to remove after getElementId is added to core Action interface
+    static String getNetworkElementId(Action elementaryAction) {
+        if (elementaryAction instanceof GeneratorAction generatorAction) {
+            return generatorAction.getGeneratorId();
+        } else if (elementaryAction instanceof LoadAction loadAction) {
+            return loadAction.getLoadId();
+        } else if (elementaryAction instanceof DanglingLineAction danglingLineAction) {
+            return danglingLineAction.getDanglingLineId();
+        } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
+            return shuntCompensatorPositionAction.getShuntCompensatorId();
+        } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
+            return phaseTapChangerTapPositionAction.getTransformerId();
+        } else if (elementaryAction instanceof TerminalsConnectionAction terminalsConnectionAction) {
+            return terminalsConnectionAction.getElementId();
+        } else if (elementaryAction instanceof SwitchAction switchAction) {
+            return switchAction.getSwitchId();
+        } else {
+            throw new NotImplementedException();
+        }
+    }
 }

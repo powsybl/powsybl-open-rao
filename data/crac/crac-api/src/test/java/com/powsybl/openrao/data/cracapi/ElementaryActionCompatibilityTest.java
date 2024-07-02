@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.cracapi;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
 import org.junit.jupiter.api.Test;
 
@@ -37,14 +36,14 @@ class ElementaryActionCompatibilityTest {
     private final NetworkAction pstFr5 = NetworkActionUtils.createPhaseTapChangerTapPositionAction(pstFr, 5);
     private final NetworkAction pstBe0 = NetworkActionUtils.createPhaseTapChangerTapPositionAction(pstBe, 0);
     private final NetworkAction pstBeMinus5 = NetworkActionUtils.createPhaseTapChangerTapPositionAction(pstBe, -5);
-    private final NetworkAction generatorFr0Mw = NetworkActionUtils.createGeneratorAction(generatorFr, 0d, Unit.MEGAWATT);
-    private final NetworkAction generatorFr100Mw = NetworkActionUtils.createGeneratorAction(generatorFr, 100d, Unit.MEGAWATT);
-    // private final NetworkAction generatorFr0A = NetworkActionUtils.createInjectionSetpoint(generatorFr, 0d, Unit.AMPERE); TODO not implemented in IsCompatibleWith
-    // private final NetworkAction generatorFr1000A = NetworkActionUtils.createInjectionSetpoint(generatorFr, 1000d, Unit.AMPERE); TODO not implemented in IsCompatibleWith
-    private final NetworkAction generatorBe0Mw = NetworkActionUtils.createGeneratorAction(generatorBe, 0d, Unit.MEGAWATT);
-    private final NetworkAction generatorBe100Mw = NetworkActionUtils.createGeneratorAction(generatorBe, 100d, Unit.MEGAWATT);
-    // private final NetworkAction generatorBe0A = NetworkActionUtils.createInjectionSetpoint(generatorBe, 0d, Unit.AMPERE); TODO not implemented in IsCompatibleWith
-    // private final NetworkAction generatorBe1000A = NetworkActionUtils.createInjectionSetpoint(generatorBe, 1000d, Unit.AMPERE); TODO not implemented in IsCompatibleWith
+    private final NetworkAction generatorFr0Mw = NetworkActionUtils.createGeneratorActivePowerAction(generatorFr, 0d);
+    private final NetworkAction generatorFr100Mw = NetworkActionUtils.createGeneratorActivePowerAction(generatorFr, 100d);
+    private final NetworkAction generatorFr0A = NetworkActionUtils.createGeneratorTargetVAction(generatorFr, 0d);
+    private final NetworkAction generatorFr1000A = NetworkActionUtils.createGeneratorTargetVAction(generatorFr, 1000d);
+    private final NetworkAction generatorBe0Mw = NetworkActionUtils.createGeneratorActivePowerAction(generatorBe, 0d);
+    private final NetworkAction generatorBe100Mw = NetworkActionUtils.createGeneratorActivePowerAction(generatorBe, 100d);
+    private final NetworkAction generatorBe0A = NetworkActionUtils.createGeneratorTargetVAction(generatorBe, 0d);
+    private final NetworkAction generatorBe1000A = NetworkActionUtils.createGeneratorTargetVAction(generatorBe, 1000d);
     private final List<NetworkAction> networkActions = gatherActions();
 
     @Test
@@ -59,14 +58,14 @@ class ElementaryActionCompatibilityTest {
         assertIncompatibility(pstFr5, pstFr0);
         assertIncompatibility(pstBe0, pstBeMinus5);
         assertIncompatibility(pstBeMinus5, pstBe0);
-        //assertIncompatibility(generatorFr0Mw, generatorFr100Mw, generatorFr0A, generatorFr1000A); TODO not implemented in IsCompatibleWith
-        //assertIncompatibility(generatorFr100Mw, generatorFr0Mw, generatorFr0A, generatorFr1000A); TODO not implemented in IsCompatibleWith
-        //assertIncompatibility(generatorFr0A, generatorFr100Mw, generatorFr0Mw, generatorFr1000A); TODO not implemented in IsCompatibleWith
-        //assertIncompatibility(generatorFr1000A, generatorFr0Mw, generatorFr100Mw, generatorFr0A); TODO not implemented in IsCompatibleWith
-        //assertIncompatibility(generatorBe0Mw, generatorBe100Mw, generatorBe0A, generatorBe1000A); TODO not implemented in IsCompatibleWith
-        //assertIncompatibility(generatorBe100Mw, generatorBe0Mw, generatorBe0A, generatorBe1000A); TODO not implemented in IsCompatibleWith
-        //assertIncompatibility(generatorBe0A, generatorBe0Mw, generatorBe100Mw, generatorBe1000A); TODO not implemented in IsCompatibleWith
-        //assertIncompatibility(generatorBe1000A, generatorBe0Mw, generatorBe100Mw, generatorBe0A); TODO not implemented in IsCompatibleWith
+        assertIncompatibility(generatorFr0Mw, generatorFr100Mw, generatorFr0A, generatorFr1000A);
+        assertIncompatibility(generatorFr100Mw, generatorFr0Mw, generatorFr0A, generatorFr1000A);
+        assertIncompatibility(generatorFr0A, generatorFr100Mw, generatorFr0Mw, generatorFr1000A);
+        assertIncompatibility(generatorFr1000A, generatorFr0Mw, generatorFr100Mw, generatorFr0A);
+        assertIncompatibility(generatorBe0Mw, generatorBe100Mw, generatorBe0A, generatorBe1000A);
+        assertIncompatibility(generatorBe100Mw, generatorBe0Mw, generatorBe0A, generatorBe1000A);
+        assertIncompatibility(generatorBe0A, generatorBe0Mw, generatorBe100Mw, generatorBe1000A);
+        assertIncompatibility(generatorBe1000A, generatorBe0Mw, generatorBe100Mw, generatorBe0A);
     }
 
     private List<NetworkAction> gatherActions() {
@@ -83,12 +82,12 @@ class ElementaryActionCompatibilityTest {
         actions.add(pstBeMinus5);
         actions.add(generatorFr0Mw);
         actions.add(generatorFr100Mw);
-        //actions.add(generatorFr0A); TODO not implemented in IsCompatibleWith
-        //actions.add(generatorFr1000A); TODO not implemented in IsCompatibleWith
+        actions.add(generatorFr0A);
+        actions.add(generatorFr1000A);
         actions.add(generatorBe0Mw);
         actions.add(generatorBe100Mw);
-        //actions.add(generatorBe0A); TODO not implemented in IsCompatibleWith
-        //actions.add(generatorBe1000A); TODO not implemented in IsCompatibleWith
+        actions.add(generatorBe0A);
+        actions.add(generatorBe1000A);
         return actions;
     }
 

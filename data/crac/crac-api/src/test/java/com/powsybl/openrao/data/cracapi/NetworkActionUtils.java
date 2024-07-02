@@ -11,7 +11,6 @@ import com.powsybl.action.*;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -247,8 +246,11 @@ public final class NetworkActionUtils {
         return new NetworkActionImplTest(new PhaseTapChangerTapPositionActionBuilder().withId("id").withNetworkElementId(pst.getId()).withTapPosition(setpoint).withRelativeValue(false).build());
     }
 
-    public static NetworkAction createGeneratorAction(NetworkElement networkElement, double setpoint, Unit unit) {
-        assert unit == Unit.MEGAWATT;
+    public static NetworkAction createGeneratorActivePowerAction(NetworkElement networkElement, double setpoint) {
         return new NetworkActionImplTest(new GeneratorActionBuilder().withId("id").withGeneratorId(networkElement.getId()).withActivePowerValue(setpoint).withActivePowerRelativeValue(false).build());
+    }
+
+    public static NetworkAction createGeneratorTargetVAction(NetworkElement networkElement, double setpoint) {
+        return new NetworkActionImplTest(new GeneratorActionBuilder().withId("id").withGeneratorId(networkElement.getId()).withTargetV(setpoint).build());
     }
 }
