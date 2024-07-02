@@ -6,18 +6,17 @@
  */
 package com.powsybl.openrao.data.craciojson;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.NetworkElement;
-import com.powsybl.openrao.data.cracapi.RaUsageLimits;
+import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
 import com.powsybl.openrao.data.cracapi.range.TapRange;
@@ -26,8 +25,11 @@ import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,23 @@ class CracImportExportTest {
         assertFalse(new JsonImport().exists("cracHeader.jjson", getClass().getResourceAsStream("/cracHeader.json")));
         assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.json")));
         assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.txt")));
+    }
+
+    @Test
+    void testNonNullOffsetDateTime() {
+        Network network = NetworkImportsUtil.createNetworkWithLines("ne1Id", "ne2Id", "ne3Id");
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), network, Mockito.mock(OffsetDateTime.class));
+        assertTrue(context.isCreationSuccessful());
+        assertEquals(List.of("[WARN] OffsetDateTime was ignored by the JSON CRAC importer"), context.getCreationReport().getReport());
+    }
+
+    @Test
+    void testImportFailure() {
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), Mockito.mock(Network.class), Mockito.mock(OffsetDateTime.class));
+        assertNotNull(context);
+        assertFalse(context.isCreationSuccessful());
+        assertNull(context.getCrac());
+        assertEquals(List.of("[ERROR] In Contingency, network element with id ne1Id does not exist in network null, so it does not have type information and can not be converted to a contingency element."), context.getCreationReport().getReport());
     }
 
     @Test

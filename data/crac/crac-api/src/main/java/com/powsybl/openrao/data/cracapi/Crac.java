@@ -19,11 +19,7 @@ import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -545,17 +541,14 @@ public interface Crac extends Identifiable<Crac> {
 
     /**
      * Get the CRAC format
-     * @param filename               CRAC file name
-     * @param inputStream            CRAC data
+     *
+     * @param filename    CRAC file name
+     * @param inputStream CRAC data
      * @return the CRAC format (if found)
      */
     static String getCracFormat(String filename, InputStream inputStream) throws IOException {
         byte[] bytes = getBytesFromInputStream(inputStream);
-        return new ServiceLoaderCache<>(Importer.class).getServices().stream()
-            .filter(importer -> importer.exists(filename, new ByteArrayInputStream(bytes)))
-            .findAny()
-            .orElseThrow(() -> new OpenRaoException("No suitable CRAC importer found."))
-            .getFormat();
+        return findImporter(filename, bytes).getFormat();
     }
 
     /**
@@ -569,17 +562,20 @@ public interface Crac extends Identifiable<Crac> {
      */
     static CracCreationContext readWithContext(String filename, InputStream inputStream, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) throws IOException {
         byte[] bytes = getBytesFromInputStream(inputStream);
+        return findImporter(filename, bytes).importData(new ByteArrayInputStream(bytes), cracCreationParameters, network, offsetDateTime);
+    }
+
+    private static Importer<?> findImporter(String filename, byte[] bytes) throws IOException {
         return new ServiceLoaderCache<>(Importer.class).getServices().stream()
             .filter(importer -> importer.exists(filename, new ByteArrayInputStream(bytes)))
             .findAny()
-            .orElseThrow(() -> new OpenRaoException("No suitable CRAC importer found."))
-            .importData(new ByteArrayInputStream(bytes), cracCreationParameters, network, offsetDateTime);
+            .orElseThrow(() -> new OpenRaoException("No suitable CRAC importer found."));
     }
 
     /**
      * Import CRAC from a file, inside a CracCreationContext
      *
-     * @param filename               CRAC file name
+     * @param filename    CRAC file name
      * @param inputStream CRAC data
      * @param network     the network on which the CRAC data is based
      * @return CracCreationContext object

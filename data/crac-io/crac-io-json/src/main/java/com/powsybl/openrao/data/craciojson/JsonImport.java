@@ -60,16 +60,17 @@ public class JsonImport implements Importer<JsonCracCreationContext> {
         if (network == null) {
             throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
         }
-        if (offsetDateTime != null) {
-            // TODO : exception or warning
-        }
         try {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
             module.addDeserializer(Crac.class, new CracDeserializer(cracCreationParameters.getCracFactory(), network));
             objectMapper.registerModule(module);
             Crac crac = objectMapper.readValue(inputStream, Crac.class);
-            return new JsonCracCreationContext(true, crac, network.getNameOrId());
+            CracCreationContext cracCreationContext = new JsonCracCreationContext(true, crac, network.getNameOrId());
+            if (offsetDateTime != null) {
+                cracCreationContext.getCreationReport().warn("OffsetDateTime was ignored by the JSON CRAC importer");
+            }
+            return cracCreationContext;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (OpenRaoException e) {
