@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
-import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -37,7 +36,7 @@ public final class IteratingLinearOptimizer {
 
     }
 
-    public static LinearOptimizationResult optimize(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, Instant outageInstant) {
+    public static LinearOptimizationResult optimize(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
 
         IteratingLinearOptimizationResultImpl bestResult = createResult(
                 input.getPreOptimizationFlowResult(),
@@ -225,7 +224,8 @@ public final class IteratingLinearOptimizer {
                 input.getOptimizationPerimeter(),
                 input.getPrePerimeterSetpoints(),
                 previousResult,
-                parameters.getObjectiveFunctionUnit()
+                parameters.getObjectiveFunctionUnit(),
+            parameters.getRangeActionParameters().getPstModel()
         );
     }
 

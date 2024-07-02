@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
@@ -132,7 +133,7 @@ class BestTapFinderTest {
             optimizationPerimeter,
             rangeActionSetpointResult,
             linearOptimizationResult,
-            Unit.MEGAWATT
+            Unit.MEGAWATT, RangeActionsOptimizationParameters.PstModel.CONTINUOUS
         );
     }
 

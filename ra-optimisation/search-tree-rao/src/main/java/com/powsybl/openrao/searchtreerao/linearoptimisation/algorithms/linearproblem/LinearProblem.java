@@ -161,6 +161,14 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }
 
+    public OpenRaoMPConstraint addRangeActionRelativeTapConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, rangeActionRelativeTapConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionRelativeTapConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionRelativeTapConstraintId(rangeAction, state));
+    }
+
     public OpenRaoMPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
         return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }

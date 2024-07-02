@@ -23,6 +23,8 @@ public final class LinearProblemIdGenerator {
     private static final String FLOW = "flow";
     private static final String RELATIVE = "relative";
     private static final String SET_POINT = "setpoint";
+
+    private static final String TAP = "tap";
     private static final String TAP_VARIATION = "tapvariation";
     private static final String TAP_VARIATION_BINARY = "isvariation";
     private static final String TAP_TO_ANGLE_CONVERSION = "taptoangleconversion";
@@ -62,6 +64,10 @@ public final class LinearProblemIdGenerator {
 
     public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.RaRangeShrinking raRangeShrinking) {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + SET_POINT + SEPARATOR + raRangeShrinking.toString() + CONSTRAINT_SUFFIX;
+    }
+
+    public static String rangeActionRelativeTapConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + TAP + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String pstTapVariableVariationId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
