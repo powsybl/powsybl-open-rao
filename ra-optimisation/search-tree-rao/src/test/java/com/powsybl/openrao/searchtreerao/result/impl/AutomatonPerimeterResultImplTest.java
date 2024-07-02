@@ -166,7 +166,6 @@ class AutomatonPerimeterResultImplTest {
     }
 
     @Test
-    //TODO modify
     void testGetTapsAndSetpoints() {
         when(postAutoSensitivity.getSetpoint(pstRangeActionShifted)).thenReturn(rangeActionsWithSetpoint.get(pstRangeActionShifted));
         when(postAutoSensitivity.getSetpoint(unshiftedRangeAction)).thenReturn(rangeActionsWithSetpoint.get(unshiftedRangeAction));
