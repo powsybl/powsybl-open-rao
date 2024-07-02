@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
@@ -28,6 +27,7 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer.roundOtherRas;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -127,14 +127,17 @@ class BestTapFinderTest {
     }
 
     private RangeActionActivationResult computeUpdatedRangeActionResult() {
-        return BestTapFinder.round(
+        RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
+        BestTapFinder.round(
             rangeActionActivationResult,
             network,
             optimizationPerimeter,
-            rangeActionSetpointResult,
             linearOptimizationResult,
-            Unit.MEGAWATT, RangeActionsOptimizationParameters.PstModel.CONTINUOUS
+            Unit.MEGAWATT,
+            roundedResult
         );
+        roundOtherRas(rangeActionActivationResult, optimizationPerimeter, roundedResult);
+        return roundedResult;
     }
 
     private PstRangeAction createPstWithGroupId(String groupId) {
@@ -346,7 +349,7 @@ class BestTapFinderTest {
         setMarginsForTap(pstRangeAction, 1, 120, 150);
         setMarginsForTap(pstRangeAction, 2, 150, 140); // Tap 2 would be ignored even if result is better
 
-        RangeAction activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
+        RangeAction<?> activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
         when(activatedRangeActionOtherThanPst.getId()).thenReturn("notPst");
         NetworkElement networkElementOtherThanPst = Mockito.mock(NetworkElement.class);
         when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
