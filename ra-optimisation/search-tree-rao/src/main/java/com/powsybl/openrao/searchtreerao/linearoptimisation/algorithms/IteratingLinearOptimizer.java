@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -19,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.Iterating
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
@@ -217,18 +219,6 @@ public final class IteratingLinearOptimizer {
                 objectiveFunction.evaluate(flowResult, rangeActionActivation, sensitivityResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
     }
 
-    private static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
-        return BestTapFinder.round(
-                linearProblemResult,
-                input.getNetwork(),
-                input.getOptimizationPerimeter(),
-                input.getPrePerimeterSetpoints(),
-                previousResult,
-                parameters.getObjectiveFunctionUnit(),
-            parameters.getRangeActionParameters().getPstModel()
-        );
-    }
-
     private static Pair<IteratingLinearOptimizationResultImpl, Boolean> updateBestResultAndCheckStopCondition(boolean raRangeShrinking, LinearProblem linearProblem, IteratingLinearOptimizerInput input, int iteration, IteratingLinearOptimizationResultImpl currentResult, IteratingLinearOptimizationResultImpl bestResult) {
         if (currentResult.getCost() < bestResult.getCost()) {
             logBetterResult(iteration, currentResult);
@@ -241,6 +231,35 @@ public final class IteratingLinearOptimizer {
             linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
         }
         return Pair.of(bestResult, !raRangeShrinking);
+    }
+
+    private static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+        RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(input.getPrePerimeterSetpoints());
+        if (parameters.getRangeActionParameters().getPstModel().equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS)) {
+            BestTapFinder.round(
+                linearProblemResult,
+                input.getNetwork(),
+                input.getOptimizationPerimeter(),
+                previousResult,
+                parameters.getObjectiveFunctionUnit(), roundedResult
+            );
+        } else {
+            input.getOptimizationPerimeter().getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state).forEach(rangeAction -> {
+                if (rangeAction instanceof PstRangeAction pstRangeAction) {
+                    roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(linearProblemResult.getOptimizedTap(pstRangeAction, state)));
+                }
+            }));
+        }
+        roundOtherRas(linearProblemResult, input.getOptimizationPerimeter(), roundedResult);
+        return roundedResult;
+    }
+
+    static void roundOtherRas(RangeActionActivationResult linearProblemResult,
+                             OptimizationPerimeter optimizationContext,
+                             RangeActionActivationResultImpl roundedResult) {
+        optimizationContext.getRangeActionsPerState().keySet().forEach(state -> linearProblemResult.getActivatedRangeActions(state).stream()
+            .filter(ra -> !(ra instanceof PstRangeAction))
+            .forEach(ra -> roundedResult.activate(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {

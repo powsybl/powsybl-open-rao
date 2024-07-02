@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
@@ -46,20 +45,14 @@ public final class BestTapFinder {
      * If virtual costs are an important part of the optimization, it is highly recommended to use APPROXIMATED_INTEGERS
      * taps in the linear optimization, rather than relying on the best tap finder to round the taps.
      *
-     * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
-    public static RangeActionActivationResult round(RangeActionActivationResult linearProblemResult,
+    public static void round(RangeActionActivationResult linearProblemResult,
                                                     Network network,
                                                     OptimizationPerimeter optimizationContext,
-                                                    RangeActionSetpointResult prePerimeterSetpoint,
                                                     LinearOptimizationResult linearOptimizationResult,
                                                     Unit unit,
-                                                    RangeActionsOptimizationParameters.PstModel pstModel) {
-
-        RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoint);
-        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit, pstModel);
-        roundOtherRa(linearProblemResult, optimizationContext, roundedResult);
-        return roundedResult;
+                                                    RangeActionActivationResultImpl roundedResult) {
+        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit);
     }
 
     private static void findBestTapOfPstRangeActions(RangeActionActivationResult linearProblemResult,
@@ -67,18 +60,7 @@ public final class BestTapFinder {
                                                      OptimizationPerimeter optimizationContext,
                                                      LinearOptimizationResult linearOptimizationResult,
                                                      RangeActionActivationResultImpl roundedResult,
-                                                     Unit unit,
-                                                     RangeActionsOptimizationParameters.PstModel pstModel) {
-
-        if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
-            optimizationContext.getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state).forEach(rangeAction -> {
-                if (rangeAction instanceof PstRangeAction pstRangeAction) {
-                    roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(linearProblemResult.getOptimizedTap(pstRangeAction, state)));
-                }
-            }));
-            return;
-        }
-
+                                                     Unit unit) {
         for (State state : optimizationContext.getRangeActionOptimizationStates()) {
 
             Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
@@ -259,15 +241,5 @@ public final class BestTapFinder {
             }
         }
         return Pair.of(minMargin1, minMargin2);
-    }
-
-    private static void roundOtherRa(RangeActionActivationResult linearProblemResult,
-                                     OptimizationPerimeter optimizationContext,
-                                     RangeActionActivationResultImpl roundedResult) {
-
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.stream()
-            .filter(ra -> !(ra instanceof PstRangeAction))
-            .filter(ra -> linearProblemResult.getActivatedRangeActions(state).contains(ra))
-            .forEach(ra -> roundedResult.activate(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 }
