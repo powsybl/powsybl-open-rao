@@ -465,7 +465,12 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         Map<State, Set<PstRangeAction>> pstRangeActionsPerState = new HashMap<>();
         rangeActionsPerState.forEach((s, rangeActionSet) -> rangeActionSet.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).forEach(pstRangeAction -> pstRangeActionsPerState.computeIfAbsent(s, e -> new HashSet<>()).add(pstRangeAction)));
-        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(network, state, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult);
+
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        when(optimizationPerimeter.getMainOptimizationState()).thenReturn(state);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerState);
+
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(network, optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
