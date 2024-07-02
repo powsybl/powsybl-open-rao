@@ -59,8 +59,8 @@ public class CseCracImporter implements Importer<CseCracCreationContext> {
     }
 
     @Override
-    public boolean exists(String s, InputStream inputStream) {
-        if (!FilenameUtils.getExtension(s).equals("xml")) {
+    public boolean exists(String filename, InputStream inputStream) {
+        if (!FilenameUtils.getExtension(filename).equals("xml")) {
             return false;
         }
         Source xmlFile = new StreamSource(inputStream);
