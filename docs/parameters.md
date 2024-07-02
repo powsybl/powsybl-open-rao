@@ -101,7 +101,7 @@ These parameters (objective-function) configure the remedial action optimisation
 second preventive won't be run, even if curative cost is higher, in order to save computation time* 
 
 ### Range actions optimisation parameters
-These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem/linear-rao.md) used to optimise range actions.  
+These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem.md) used to optimise range actions.  
 (See [Modelling CNECs and range actions](/castor/linear-problem/core-problem-filler.md))
 
 #### max-mip-iterations
@@ -195,7 +195,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
   active+reactive computations, this approximation may be incorrect. The linear problem can thus find a worse solution 
   than in its previous iteration.
   - **DISABLED**: if this situation occurs, the linear problem stops and returns the previous solution,
-    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem/linear-rao.md#algorithm).
+    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem.md#algorithm).
   - **ENABLED**: this introduces two new behaviors to the iterating linear optimiser:
     1. If the linear problem finds a solution worse than in its previous iteration, it continues iterating.  
        When stop condition is met ([max-mip-iterations](#max-mip-iterations) reached, or two successive iterations have 
@@ -238,7 +238,7 @@ These are parameters that tune the solver used to solve the MIP problem.
   not enough.
 
 ### Network actions optimisation parameters
-These parameters (topological-actions-optimization) tune the [search-tree algorithm](/castor/search-tree-rao.md) 
+These parameters (topological-actions-optimization) tune the [search-tree algorithm](/castor.md#algorithm) 
 when searching for the best network actions.
 
 #### max-preventive-search-tree-depth
@@ -701,7 +701,7 @@ Zones are seperated by + or -.
 :::
 :::{group-tab} iTools
 Based on PowSyBl's [configuration mechanism](https://www.powsybl.org/pages/documentation/user/configuration/).
-~~~yml
+~~~yaml
 rao-objective-function:
   type: MAX_MIN_MARGIN_IN_AMPERE
   preventive-stop-criterion: SECURE

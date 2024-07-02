@@ -21,14 +21,14 @@ And $PTDF_{zTos}(z1, c)$, the zone-to-slack PTDF of bidding zone $z1$ on CNEC $c
 
 | Name                                                                   | Symbol               | Details                                                                                                                                                                                                                                                                                                          |
 |------------------------------------------------------------------------|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [type](/parameters/parameters.md#type)                                 |                      | This filler is only used if the objective function is MAX_MIN_MARGIN_IN_MEGAWATT, or MAX_MIN_MARGIN_IN_AMPERE. This parameter is also used to set the unit (AMPERE/MW) of the objective function                                                                                                                 |
-| [ptdf-sum-lower-bound](/parameters/parameters.md#ptdf-sum-lower-bound) | $\varepsilon_{PTDF}$ | zToz PTDF sum below this value are lifted to the ptdf-sum-lower-bound, to avoid a bad conditionning of the problem where the value of relative margins are very high. <br>*Its impact on the accuracy of the problem is insignificant, as high relative margins do not usually define the min. relative margin.* |
+| [type](/parameters.md#type)                                 |                      | This filler is only used if the objective function is MAX_MIN_MARGIN_IN_MEGAWATT, or MAX_MIN_MARGIN_IN_AMPERE. This parameter is also used to set the unit (AMPERE/MW) of the objective function                                                                                                                 |
+| [ptdf-sum-lower-bound](/parameters.md#ptdf-sum-lower-bound) | $\varepsilon_{PTDF}$ | zToz PTDF sum below this value are lifted to the ptdf-sum-lower-bound, to avoid a bad conditionning of the problem where the value of relative margins are very high. <br>*Its impact on the accuracy of the problem is insignificant, as high relative margins do not usually define the min. relative margin.* |
 
 ## Defined optimization variables
 
 | Name                       | Symbol | Details                                                                | Type       | Index                                     | Unit                                                                                                                       | Lower bound | Upper bound |
 |----------------------------|--------|------------------------------------------------------------------------|------------|-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|-------------|-------------|
-| Minimum relative margin    | $MRM$  | the minimum negative margin over all OptimizedFlowCnecs                | Real value | one scalar variable for the whole problem | Relative MW or relative AMPERE (depending on [objective-function](/parameters/parameters.md#objective-function-parameters) | 0           | $+\infty$   |
+| Minimum relative margin    | $MRM$  | the minimum negative margin over all OptimizedFlowCnecs                | Real value | one scalar variable for the whole problem | Relative MW or relative AMPERE (depending on [objective-function](/parameters.md#objective-function-parameters) | 0           | $+\infty$   |
 | Is minimum margin positive | $P$    | binary variable, equal to 1 if the min margin is positive, 0 otherwise | Binary     | one scalar variable for the whole problem | no unit                                                                                                                    | 0           | 1           |
 
 ## Used optimization variables
@@ -104,7 +104,7 @@ $$m_{max}^{relRAM} = MaxRAM / \varepsilon_{PTDF}$$
 $$m_{min}^{relRAM} = m_{max}^{relRAM} * 5$$
 
 - and the unit conversion coefficient is defined as follows:
-    - If the [objective-function](/parameters/parameters.md#objective-function-parameters) is in MW: $c^{unit}(c) = 1$
+    - If the [objective-function](/parameters.md#objective-function-parameters) is in MW: $c^{unit}(c) = 1$
     - If it is in AMPERE: $c^{unit}(c) = \frac{U_{nom}(c) \sqrt{3}}{1000}$
 
 Note that an OptimizedFlowCnec might have only one threshold (upper or lower). In that case, only one of the two
