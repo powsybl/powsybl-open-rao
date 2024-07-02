@@ -8,15 +8,15 @@ public AngleMonitoring(Crac crac, Network network, RaoResult raoResult, CimGlskD
 With:
 - crac: the CRAC object used for the RAO, and containing [AngleCnecs](/input-data/crac/json.md#angle-cnecs) to be monitored.
 - network: the network to be monitored.
-- raoResult: the [RaoResult](/output-data/rao-result/rao-result-json.md) object containing selected remedial actions (that shall
+- raoResult: the [RaoResult](/output-data/rao-result.md) object containing selected remedial actions (that shall
   be applied on the network before monitoring angle values)
-- cimGlskDocument: the [CIM GLSK document](/input-data/glsk/glsk-cim.md) that will allow proper application of re-dispatch
+- cimGlskDocument: the [CIM GLSK document](https://powsybl.readthedocs.io/projects/entsoe/en/latest/glsk/glsk-cim.html) that will allow proper application of re-dispatch
   remedial actions.
 - glskOffsetDateTime: the timestamp for which the computation is made, as it is necessary to correctly read relevant
   values from the CIM GLSK file.
 
 Otherwise, you can still run the angle monitoring algorithm, which will automatically generate a 
-**[proportional-to-target-power GLSK](/input-data/glsk.md#proportional-to-target-power-glsk)** 
+**[proportional-to-target-power GLSK](https://powsybl.readthedocs.io/projects/entsoe/en/latest/glsk/glsk.html#proportional-glsk)** 
 for its internal functioning (ie in order to re-dispatch lost generation when generator-tripping remedial actions are activated):  
 
 ~~~java
@@ -25,7 +25,7 @@ public AngleMonitoring(Crac crac, Network network, RaoResult raoResult, Set<Coun
 With:
 - crac: the CRAC object used for the RAO, and containing [AngleCnecs](/input-data/crac/json.md#angle-cnecs) to be monitored.
 - network: the network to be monitored.
-- raoResult: the [RaoResult](/output-data/rao-result/rao-result-json.md) object containing selected remedial actions (that shall
+- raoResult: the [RaoResult](/output-data/rao-result.md) object containing selected remedial actions (that shall
   be applied on the network before monitoring angle values)
 - glskCountries: the countries which might need re-dispatching, for which the algorithm should generate a proportional GLSK  
 

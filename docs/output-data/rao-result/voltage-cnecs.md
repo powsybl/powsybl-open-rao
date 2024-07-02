@@ -9,7 +9,7 @@ Access the voltage value of an VoltageCnec.
 :::{group-tab} JAVA API
 
 *Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimised
-by the RAO, but monitored by a [voltage monitoring module](/castor/voltage-monitoring/voltage-monitoring.md).*
+by the RAO, but monitored by a [voltage monitoring module](/castor/monitoring/voltage-monitoring.md).*
 
 ~~~java
 // get the voltage value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit
@@ -49,7 +49,7 @@ Access the voltage margin value of a VoltageCnec.
 :::{group-tab} JAVA API
 
 *Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimised
-by the RAO, but monitored by a [voltage monitoring module](/castor/voltage-monitoring/voltage-monitoring.md).*
+by the RAO, but monitored by a [voltage monitoring module](/castor/monitoring/voltage-monitoring.md).*
 
 ~~~java
 // get the margin value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit

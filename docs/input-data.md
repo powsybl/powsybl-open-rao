@@ -32,10 +32,10 @@ CRAC/CBCORA (Critical Branch/Critical Outages/Remedial Actions) are not yet harm
 To limit dependencies with input/output formats, OpenRAO uses its own [CRAC format](/input-data/crac/json) in order to be easily
 adaptable for any process.
 
-Please refer to the [dedicated CRAC section](/input-data/crac/introduction) for more information.
+Please refer to the [dedicated CRAC section](/input-data/crac.md) for more information.
 
 CRAC exchange formats actually supported by OpenRAO:
-- [JSON CRAC](/input-data//crac/json) (OpenRAO-specific)
+- [JSON CRAC](/input-data/crac/json.md) (OpenRAO-specific)
 - [FlowBasedConstraint CRAC](/input-data//crac/fbconstraint) (used in CORE region)
 - [CSE CRAC](/input-data//crac/cse) (used in CSE region)
 - [CIM CRAC](/input-data//crac/cim) (used in SWE region)
@@ -45,13 +45,13 @@ CRAC exchange formats actually supported by OpenRAO:
 GLSK (for "*Generation and Load Shift Keys*") are objects dedicated to define scaling strategies to simulate injections
 modification on network model.
 
-Please refer to the [dedicated documentation page](/input-data/glsk/glsk) to get more information about GLSK data model, 
+Please refer to the [dedicated documentation page](/input-data/glsk.md) to get more information about GLSK data model, 
 as well as to the dedicated [PowSyBl repository](https://github.com/powsybl/powsybl-entsoe).
 
 GLSK exchange formats supported (as part of PowSyBl project):
-- [CIM GLSK](/input-data/glsk/glsk-cim)
-- [CSE GLSK](/input-data/glsk/glsk-cse)
-- [UCTE GLSK](/input-data/glsk/glsk-ucte)
+- [CIM GLSK](https://powsybl.readthedocs.io/projects/entsoe/en/latest/glsk/glsk-cim.html)
+- [CSE GLSK](https://powsybl.readthedocs.io/projects/entsoe/en/latest/glsk/glsk-cse.html)
+- [UCTE GLSK](https://powsybl.readthedocs.io/projects/entsoe/en/latest/glsk/glsk-ucte.html)
 
 
 

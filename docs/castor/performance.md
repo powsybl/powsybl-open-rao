@@ -24,7 +24,7 @@ When performing optimisation on multiple timestamps, it is also possible to sepa
 the different studied situations on different threads.
 
 ---
-See also: [Computations parallelism parameters](/parameters/parameters.md#multi-threading-parameters)
+See also: [Computations parallelism parameters](/parameters.md#multi-threading-parameters)
 
 ---
 
@@ -50,7 +50,7 @@ by national operators due to the timing constraint for real-time operations. For
 consideration.
 
 ---
-See also: [Preventive search stop criterion parameters](/parameters/parameters.md#max-preventive-search-tree-depth), [Automaton search stop criterion parameters](/parameters/parameters.md#max-auto-search-tree-depth), [Curative search stop criterion parameters](/parameters/parameters.md#max-curative-search-tree-depth)
+See also: [Preventive search stop criterion parameters](/parameters.md#max-preventive-search-tree-depth), [Automaton search stop criterion parameters](/parameters.md#max-auto-search-tree-depth), [Curative search stop criterion parameters](/parameters.md#max-curative-search-tree-depth)
 
 ---
 
@@ -70,6 +70,6 @@ This parameter can be defined also through absolute increase :
 - minimum impact (in MW/degree or A/degree) for the use of PST/HVDC
 
 ---
-See also: [Network actions impact parameters](/parameters/parameters.md#network-actions-optimisation-parameters), [Range actions impact parameters](/parameters/parameters.md#range-actions-optimisation-parameters)
+See also: [Network actions impact parameters](/parameters.md#network-actions-optimisation-parameters), [Range actions impact parameters](/parameters.md#range-actions-optimisation-parameters)
 
 ---

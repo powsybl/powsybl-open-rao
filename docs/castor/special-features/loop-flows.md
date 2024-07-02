@@ -36,10 +36,10 @@ F_{commercial} (c) = \sum_{z \in LFC} PTDF(c,z) * NP(z)
 \end{equation}$$
 
 With:
-- LFC, the set of bidding zones for which we compute the commercial flows, set under [loop-flow-countries](/parameters/parameters.md#countries)
+- LFC, the set of bidding zones for which we compute the commercial flows, set under [loop-flow-countries](/parameters.md#countries)
 - NP, the net position of the bidding zone z, read from the [ReferenceProgram](/input-data/reference-program.md)
-- PTDF, the power transfer distribution factor of the bidding zone z on the FlowCnec c, eventually recomputed within the RAO depending on the value of the configuration parameter [loop-flow-approximation](/parameters/parameters.md#ptdf-approximation).
-The PTDF represents FlowCnec c's sensitivity to a variation of the net position on the bidding zone Z mapped on the network according to [GLSK](/input-data/glsk/glsk.md)).
+- PTDF, the power transfer distribution factor of the bidding zone z on the FlowCnec c, eventually recomputed within the RAO depending on the value of the configuration parameter [loop-flow-approximation](/parameters.md#ptdf-approximation).
+The PTDF represents FlowCnec c's sensitivity to a variation of the net position on the bidding zone Z mapped on the network according to [GLSK](/input-data/glsk.md)).
 
 
 ## Implementation

@@ -1,5 +1,5 @@
 The header contains meta-information about the process.  
-Refer to the [JAVA API](#the-java-api) section for more details.  
+Refer to the [JAVA API](/output-data/swe-cne/java-api.md) section for more details.  
 
 Example:
 

@@ -9,7 +9,7 @@ objective function (only during CRA optimization), as long as the applied CRAs d
 In other words, other TSOs' CRAs shall not be used to relieve CNECs from TSOs not sharing any CRA (unless if the former 
 TSOs' CRAs actually have a negative impact on the latter TSOs' CNECs).  
 This feature is needed in the CORE region capacity calculation process.
-(see [do-not-optimize-curative-cnecs-for-tsos-without-cras](/parameters/parameters.md#do-not-optimize-curative-cnecs-for-tsos-without-cras))  
+(see [do-not-optimize-curative-cnecs-for-tsos-without-cras](/parameters.md#do-not-optimize-curative-cnecs-for-tsos-without-cras))  
 
 ## Implementation
 

@@ -15,13 +15,13 @@
 
 | Name                                   | Details |
 |----------------------------------------|---|
-| [type](/parameters/parameters.md#type) | Used to set the unit (AMPERE/MW) of the objective function |
+| [type](/parameters.md#type) | Used to set the unit (AMPERE/MW) of the objective function |
 
 ## Defined optimization variables
 
 | Name | Symbol | Details | Type | Index | Unit | Lower bound | Upper bound |
 |---|---|---|---|---|---|---|---|
-| Minimum margin | $MM$ | the minimum margin over all OptimizedFlowCnecs | Real value | one scalar variable for the whole problem | MW or AMPERE (depending on [objective-function](/parameters/parameters.md#objective-function-parameters) unit) | $-\infty$ | $+\infty$ |
+| Minimum margin | $MM$ | the minimum margin over all OptimizedFlowCnecs | Real value | one scalar variable for the whole problem | MW or AMPERE (depending on [objective-function](/parameters.md#objective-function-parameters) unit) | $-\infty$ | $+\infty$ |
 
 ## Used optimization variables
 
@@ -33,7 +33,7 @@
 
 ### Define the minimum margin variable
 
-#### If [objective-function](/parameters/parameters.md#objective-function-parameters) is in MW
+#### If [objective-function](/parameters.md#objective-function-parameters) is in MW
 
 $$
 \begin{equation}
@@ -50,7 +50,7 @@ $$
 Note that OptimizedFlowCnec might have only one threshold (upper or lower), in that case, only one of the two above constraints is defined.
 <br>
 
-#### If [objective-function](/parameters/parameters.md#objective-function-parameters) is in AMPERE
+#### If [objective-function](/parameters.md#objective-function-parameters) is in AMPERE
 
 $$
 \begin{equation}

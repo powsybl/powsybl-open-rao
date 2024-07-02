@@ -11,11 +11,11 @@ With:
 - **crac**: the [CRAC object](/input-data/crac/json.md) used for the RAO.
 - **network**: the network used in the RAO (not modified with any remedial action).
 - **cracCreationContext**: the [CracCreationContext object](/input-data/crac/creation-context.md) generated during 
-  [CRAC creation](/input-data/crac/import.md). CORE CNE export only handles [UcteCracCreationContext](/input-data/crac/creation-context.md#ucte) 
+  [CRAC creation](/input-data/crac/import.md). CORE CNE export only handles [UcteCracCreationContext](/input-data/crac/creation-context.md#ucte-implementation) 
   subtype, because it follows the UCTE conventions.
-- **raoResult**: the [RaoResult](/output-data/rao-result/rao-result-json.md) object containing selected remedial actions and flow 
+- **raoResult**: the [RaoResult](/output-data/rao-result.md) object containing selected remedial actions and flow 
   results.
-- **raoParameters**: the [RaoParameters](/parameters/parameters.md) used in the RAO.
+- **raoParameters**: the [RaoParameters](/parameters.md) used in the RAO.
 - **exporterParameters**: a specific object that te user should define, containing meta-information that will be written 
   in the header of the CNE file:
   - **documentId**: document ID to be written in "mRID" field
