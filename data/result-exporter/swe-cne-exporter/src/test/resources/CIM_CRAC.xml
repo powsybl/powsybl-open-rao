@@ -189,7 +189,7 @@
           <mRID>RA-Series-1</mRID>
           <businessType>B56</businessType>
           <name>RA_AFTER_ALL_CONTINGENCIES</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_1</mRID>
             <name>PRA_1</name>

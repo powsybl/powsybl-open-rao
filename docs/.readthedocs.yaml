@@ -4,6 +4,13 @@ build:
   os: ubuntu-20.04
   tools:
     python: "3.9"
+  ##
+  # We need this in combination with sphinxcontrib-plantuml (python/pip
+  # dependency)so PlantUML diagrams can be generated and embedded into
+  # the output during build.
+  #
+  apt_packages:
+    - plantuml
 
 sphinx:
   configuration: docs/conf.py

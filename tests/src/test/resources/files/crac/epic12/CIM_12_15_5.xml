@@ -97,7 +97,7 @@
           <mRID>PRAList</mRID>
           <businessType>B56</businessType>
           <name>PRAList</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_OPEN_N1011_N1013</mRID>
             <name>PRA_OPEN_N1011_N1013</name>

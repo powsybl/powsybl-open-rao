@@ -40,7 +40,7 @@
             <mRID>Co-1</mRID>
             <name>Co-1-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006</mRID>
               <name>Co1NetworkElementName</name>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
@@ -50,7 +50,7 @@
             <mRID>Co-2</mRID>
             <name>Co-2-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4 + _a279a3dc-550b-426c-af3a-61b7be508dcc</mRID>
+              <mRID codingScheme="A02">_a279a3dc-550b-426c-af3a-61b7be508dcc</mRID>
               <name>Co2NetworkElementName</name>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
@@ -134,7 +134,7 @@
             <mRID>Co-1</mRID>
             <name>Co-1-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006</mRID>
               <name>Co1NetworkElementName</name>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
@@ -154,7 +154,7 @@
             <mRID>MNEC-1</mRID>
             <name>MNEC-1-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_dad02278-bd25-476f-8f58-dbe44be72586 + _ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
+              <mRID codingScheme="A02">_dad02278-bd25-476f-8f58-dbe44be72586</mRID>
               <name>CNEC-5</name>
               <in_Domain.mRID codingScheme="A01">1----0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1--0</out_Domain.mRID>

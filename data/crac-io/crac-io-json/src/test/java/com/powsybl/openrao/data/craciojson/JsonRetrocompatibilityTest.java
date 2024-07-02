@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
 import com.powsybl.openrao.data.cracapi.range.TapRange;
@@ -74,7 +75,7 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void testNoNetworkProvided() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), CracFactory.findDefault(), null));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), CracCreationParameters.load(), null, null));
         assertEquals("Network object is null but it is needed to map contingency's elements", exception.getMessage());
     }
 
@@ -84,7 +85,7 @@ class JsonRetrocompatibilityTest {
         // JSON file of open-rao v3.4.3
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.0.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -101,7 +102,7 @@ class JsonRetrocompatibilityTest {
         // addition of switch pairs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.1.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -118,7 +119,7 @@ class JsonRetrocompatibilityTest {
         // addition of injection range action
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.2.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -136,7 +137,7 @@ class JsonRetrocompatibilityTest {
         // addition of initial setpoints for InjectionRangeActions and HvdcRangeActions
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.3.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -154,7 +155,7 @@ class JsonRetrocompatibilityTest {
         // addition of angle cnecs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.4.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -173,7 +174,7 @@ class JsonRetrocompatibilityTest {
         // addition of voltage cnecs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.5.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -194,7 +195,7 @@ class JsonRetrocompatibilityTest {
 
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.6.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -215,7 +216,7 @@ class JsonRetrocompatibilityTest {
 
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.7.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -236,7 +237,7 @@ class JsonRetrocompatibilityTest {
 
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.8.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -254,7 +255,7 @@ class JsonRetrocompatibilityTest {
         // Add support for CounterTrade remedial actions
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.9.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -273,7 +274,7 @@ class JsonRetrocompatibilityTest {
         // Add support for user-defined Instants
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.0.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
         assertEquals(4, crac.getNetworkActions().size());
         testContentOfV2Point0Crac(crac);
     }
@@ -283,7 +284,7 @@ class JsonRetrocompatibilityTest {
         // Add support for CNECs' borders and relative-to-previous-time-step ranges for PSTs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
         assertEquals(6, crac.getNetworkActions().size());
         testContentOfV2Point2Crac(crac);
     }
@@ -293,7 +294,7 @@ class JsonRetrocompatibilityTest {
         // Add support for unified onConstraint usage rules
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.3.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
         assertEquals(6, crac.getNetworkActions().size());
         testContentOfV2Point3Crac(crac);
     }
@@ -303,7 +304,7 @@ class JsonRetrocompatibilityTest {
         // Add support for contingency in OnFlowConstraintInCountry
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
         assertEquals(6, crac.getNetworkActions().size());
         testContentOfV2Point4Crac(crac);
     }

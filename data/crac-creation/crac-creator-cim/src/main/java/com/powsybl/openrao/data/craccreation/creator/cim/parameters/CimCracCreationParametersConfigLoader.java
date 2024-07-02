@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cim.parameters;
 
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.AbstractAlignedRaCracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.parameters.AbstractAlignedRaCracCreationParameters;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;

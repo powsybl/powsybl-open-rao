@@ -45,7 +45,7 @@
         </Outages>
         <CriticalBranches>
             <BaseCaseBranches>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Branch>
                     <Name v="basecase_branch_1"/>
                     <FromNode v="FFR2AA1 "/>
@@ -63,6 +63,19 @@
                     <Direction v="OPPOSITE"/>
                 </Branch>
             </BaseCaseBranches>
+            <CriticalBranch>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
+                <Outage v="outage_2"/>
+                <Branch>
+                    <Name v="French line 2"/>
+                    <FromNode v="FFRFAK2 "/>
+                    <ToNode v="FFRFAK1 "/>
+                    <Order v="1"/>
+                    <ImaxAfterOutage unit="A" v="3071"/>
+                    <ImaxAfterCRA unit="A" v="2585"/>
+                    <Direction v="DIRECT"/>
+                </Branch>
+            </CriticalBranch>
         </CriticalBranches>
     </CRACSeries>
 </CRACDocument>

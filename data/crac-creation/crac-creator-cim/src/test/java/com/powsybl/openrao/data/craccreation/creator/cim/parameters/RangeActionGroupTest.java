@@ -7,7 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.cim.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.RangeActionGroup;
+import com.powsybl.openrao.data.cracapi.parameters.RangeActionGroup;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
