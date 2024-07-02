@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
@@ -89,7 +89,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(LinearProblem linearProblem, Set<FlowCnec> validLoopFlowCnecs, FlowResult flowResult) {
 
         for (FlowCnec cnec : validLoopFlowCnecs) {
-            for (Side side : cnec.getMonitoredSides()) {
+            for (TwoSides side : cnec.getMonitoredSides()) {
 
                 // build loopFlow upper bound, with inputThreshold, initial loop-flows, and configuration parameters
                 double loopFlowUpperBound = getLoopFlowUpperBound(cnec, side);
@@ -148,7 +148,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         }
 
         for (FlowCnec loopFlowCnec : validLoopFlowCnecs) {
-            for (Side side : loopFlowCnec.getMonitoredSides()) {
+            for (TwoSides side : loopFlowCnec.getMonitoredSides()) {
                 double loopFlowUpperBound = getLoopFlowUpperBound(loopFlowCnec, side);
                 if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
                     continue;
@@ -164,7 +164,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         }
     }
 
-    private double getLoopFlowUpperBound(FlowCnec loopFlowCnec, Side side) {
+    private double getLoopFlowUpperBound(FlowCnec loopFlowCnec, TwoSides side) {
         double loopFlowThreshold = loopFlowCnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
         double initialLoopFlow = initialFlowResult.getLoopFlow(loopFlowCnec, side, Unit.MEGAWATT);
         // The first term ensures that the initial situation is always feasible, whatever the configuration parameters.

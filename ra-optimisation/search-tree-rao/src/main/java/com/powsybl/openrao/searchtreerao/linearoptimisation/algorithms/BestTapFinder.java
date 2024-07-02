@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
@@ -234,7 +234,7 @@ public final class BestTapFinder {
         double minMargin1 = Double.MAX_VALUE;
         double minMargin2 = Double.MAX_VALUE;
         for (FlowCnec flowCnec : linearOptimizationResult.getMostLimitingElements(10)) {
-            for (Side side : flowCnec.getMonitoredSides()) {
+            for (TwoSides side : flowCnec.getMonitoredSides()) {
                 double sensitivity = linearOptimizationResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
                 double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
                 double referenceFlow = linearOptimizationResult.getFlow(flowCnec, side, unit) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, unit, MEGAWATT);

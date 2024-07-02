@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.craccreation.creator.cim.importer.CimCracImporte
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.data.raoresultjson.RaoResultImporter;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
 import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultImporter;
@@ -45,7 +44,7 @@ class SweCneDivergentAngleMonitoringTest {
     private RaoResultWithAngleMonitoring raoResultWithAngleMonitoring;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
         CimCracImporter cracImporter = new CimCracImporter();
@@ -67,7 +66,7 @@ class SweCneDivergentAngleMonitoringTest {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+        RaoResult raoResult = RaoResult.read(inputStream, crac);
         InputStream inputStream2 = null;
         try {
             inputStream2 = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/AngleMonitoringDivergentResult.json").getFile());

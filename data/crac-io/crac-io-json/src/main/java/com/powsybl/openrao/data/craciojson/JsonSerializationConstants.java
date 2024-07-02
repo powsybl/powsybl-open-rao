@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.craciojson;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
@@ -45,6 +45,7 @@ public final class JsonSerializationConstants {
     v2.1: addition of ra-usage-limits
     v2.2: addition of contingency id in on-flow-constraint-in-country
     v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
+    v2.4: new names for onConstraint and cnecId + side left/right -> one/two
      */
 
     // headers
@@ -173,7 +174,8 @@ public final class JsonSerializationConstants {
     // threshold side
     public static final String LEFT_SIDE = "left";
     public static final String RIGHT_SIDE = "right";
-
+    public static final int SIDE_ONE = 1;
+    public static final int SIDE_TWO = 2;
     // usage methods
     public static final String UNAVAILABLE_USAGE_METHOD = "unavailable";
     public static final String FORCED_USAGE_METHOD = "forced";
@@ -281,55 +283,56 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static String serializeSide(Side side) {
-        switch (side) {
-            case LEFT:
-                return LEFT_SIDE;
-            case RIGHT:
-                return RIGHT_SIDE;
-            default:
-                throw new OpenRaoException(String.format("Unsupported side %s", side));
-        }
+    public static int serializeSide(TwoSides side) {
+        return switch (side) {
+            case ONE -> SIDE_ONE;
+            case TWO -> SIDE_TWO;
+        };
     }
 
-    public static Side deserializeSide(String stringValue) {
-        switch (stringValue) {
-            case LEFT_SIDE:
-                return Side.LEFT;
-            case RIGHT_SIDE:
-                return Side.RIGHT;
-            default:
-                throw new OpenRaoException(String.format("Unrecognized side %s", stringValue));
-        }
+    public static TwoSides deserializeSide(int value) {
+        return switch (value) {
+            case SIDE_ONE -> TwoSides.ONE;
+            case SIDE_TWO -> TwoSides.TWO;
+            default -> throw new OpenRaoException(String.format("Unrecognized side %d", value));
+        };
+    }
+
+    public static TwoSides deserializeSide(String stringValue) {
+        return switch (stringValue) {
+            case LEFT_SIDE -> TwoSides.ONE;
+            case RIGHT_SIDE -> TwoSides.TWO;
+            default -> throw new OpenRaoException(String.format("Unrecognized side %s", stringValue));
+        };
     }
 
     /**
-     * Converts old BranchThresholdRule to Side
+     * Converts old BranchThresholdRule to TwoSides
      * For retro-compatibility purposes only
      */
-    public static Side convertBranchThresholdRuleToSide(String branchThresholdRule, Pair<Double, Double> nominalV) {
+    public static TwoSides convertBranchThresholdRuleToSide(String branchThresholdRule, Pair<Double, Double> nominalV) {
         switch (branchThresholdRule) {
             case ON_LEFT_SIDE_RULE, ON_REGULATED_SIDE_RULE: // This is true only when the network is in UCTE format
-                return Side.LEFT;
+                return TwoSides.ONE;
             case ON_RIGHT_SIDE_RULE, ON_NON_REGULATED_SIDE_RULE: // This is true only when the network is in UCTE format.
-                return Side.RIGHT;
+                return TwoSides.TWO;
             case ON_LOW_VOLTAGE_LEVEL_RULE:
                 if (Objects.isNull(nominalV) || Objects.isNull(nominalV.getLeft()) || Objects.isNull(nominalV.getRight()) || Double.isNaN(nominalV.getLeft()) || Double.isNaN(nominalV.getRight())) {
                     throw new OpenRaoException("ON_LOW_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
                 }
                 if (nominalV.getLeft() <= nominalV.getRight()) {
-                    return Side.LEFT;
+                    return TwoSides.ONE;
                 } else {
-                    return Side.RIGHT;
+                    return TwoSides.TWO;
                 }
             case ON_HIGH_VOLTAGE_LEVEL_RULE:
                 if (Objects.isNull(nominalV) || Objects.isNull(nominalV.getLeft()) || Objects.isNull(nominalV.getRight()) || Double.isNaN(nominalV.getLeft()) || Double.isNaN(nominalV.getRight())) {
                     throw new OpenRaoException("ON_HIGH_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
                 }
                 if (nominalV.getLeft() < nominalV.getRight()) {
-                    return Side.RIGHT;
+                    return TwoSides.TWO;
                 } else {
-                    return Side.LEFT;
+                    return TwoSides.ONE;
                 }
             default:
                 throw new OpenRaoException(String.format("Rule %s is not yet handled for thresholds on FlowCnec", branchThresholdRule));
@@ -426,7 +429,7 @@ public final class JsonSerializationConstants {
             if (unit1.equals(unit2)) {
                 if (o1 instanceof BranchThreshold bt1 && o2 instanceof BranchThreshold bt2 &&
                     !bt1.getSide().equals(bt2.getSide())) {
-                    return serializeSide(bt1.getSide()).compareTo(serializeSide(bt2.getSide()));
+                    return Integer.compare(serializeSide(bt1.getSide()), serializeSide(bt2.getSide()));
                 }
                 if (o1.min().isPresent()) {
                     return -1;
