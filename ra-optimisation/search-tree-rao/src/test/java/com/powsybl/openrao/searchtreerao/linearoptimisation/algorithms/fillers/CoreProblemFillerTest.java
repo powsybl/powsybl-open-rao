@@ -379,8 +379,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
         initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
-        when(flowResult.getFlow(cnec1, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT2);
-        when(flowResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT2);
+        when(flowResult.getFlow(cnec1, TwoSides.ONE, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(REF_FLOW_CNEC1_IT2);
+        when(flowResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT, cnec2.getState().getInstant())).thenReturn(REF_FLOW_CNEC2_IT2);
         when(sensitivityResult.getSensitivityValue(cnec1, TwoSides.ONE, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT2);
         when(sensitivityResult.getSensitivityValue(cnec2, TwoSides.TWO, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
 

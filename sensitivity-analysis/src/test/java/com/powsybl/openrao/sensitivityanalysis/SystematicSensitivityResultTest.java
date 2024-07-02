@@ -88,17 +88,17 @@ class SystematicSensitivityResultTest {
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
 
         // Before postTreating intensities
-        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE), EPSILON);
-        assertEquals(200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE), EPSILON);
-        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
-        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO), EPSILON);
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
 
         // After postTreating intensities
         result.postTreatIntensities();
-        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE), EPSILON);
-        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE), EPSILON);
-        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
-        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO), EPSILON);
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
     }
 
     @Test
@@ -117,20 +117,20 @@ class SystematicSensitivityResultTest {
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus());
 
         //  in basecase
-        assertEquals(10, result.getReferenceFlow(nStateCnec, TwoSides.ONE), EPSILON);
-        assertEquals(25, result.getReferenceIntensity(nStateCnec, TwoSides.ONE), EPSILON);
-        assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec, TwoSides.ONE), EPSILON);
-        assertEquals(-15, result.getReferenceFlow(nStateCnec, TwoSides.TWO), EPSILON);
-        assertEquals(-30, result.getReferenceIntensity(nStateCnec, TwoSides.TWO), EPSILON);
-        assertEquals(-0.55, result.getSensitivityOnFlow(rangeAction, nStateCnec, TwoSides.TWO), EPSILON);
+        assertEquals(10, result.getReferenceFlow(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(25, result.getReferenceIntensity(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec, TwoSides.ONE, null), EPSILON);
+        assertEquals(-15, result.getReferenceFlow(nStateCnec, TwoSides.TWO, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(-30, result.getReferenceIntensity(nStateCnec, TwoSides.TWO, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(-0.55, result.getSensitivityOnFlow(rangeAction, nStateCnec, TwoSides.TWO, null), EPSILON);
 
         //  after contingency
-        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE), EPSILON);
-        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE), EPSILON);
-        assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, TwoSides.ONE), EPSILON);
-        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
-        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO), EPSILON);
-        assertEquals(5.5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, TwoSides.TWO), EPSILON);
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(5.5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
     }
 
     @Test
@@ -148,15 +148,15 @@ class SystematicSensitivityResultTest {
         assertTrue(result.isSuccess());
 
         //  in basecase
-        assertEquals(10, result.getReferenceFlow(nStateCnec, TwoSides.ONE), EPSILON);
+        assertEquals(10, result.getReferenceFlow(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
         assertEquals(0.140, result.getSensitivityOnFlow(linearGlsk, nStateCnec, TwoSides.ONE), EPSILON);
-        assertEquals(-15, result.getReferenceFlow(nStateCnec, TwoSides.TWO), EPSILON);
+        assertEquals(-15, result.getReferenceFlow(nStateCnec, TwoSides.TWO, nStateCnec.getState().getInstant()), EPSILON);
         assertEquals(-0.19, result.getSensitivityOnFlow(linearGlsk, nStateCnec, TwoSides.TWO), EPSILON);
 
         //  after contingency
-        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE), EPSILON);
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE, contingencyCnec.getState().getInstant()), EPSILON);
         assertEquals(6, result.getSensitivityOnFlow(linearGlsk, contingencyCnec, TwoSides.ONE), EPSILON);
-        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
         assertEquals(-6.5, result.getSensitivityOnFlow(linearGlsk, contingencyCnec, TwoSides.TWO), EPSILON);
     }
 
@@ -220,13 +220,13 @@ class SystematicSensitivityResultTest {
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
-        assertEquals(30., result.getReferenceFlow(nStateCnec, TwoSides.ONE), EPSILON);
-        assertEquals(40., result.getReferenceIntensity(nStateCnec, TwoSides.ONE), EPSILON);
-        assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, TwoSides.ONE), EPSILON);
+        assertEquals(30., result.getReferenceFlow(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(40., result.getReferenceIntensity(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, TwoSides.ONE, null), EPSILON);
 
-        assertEquals(26., result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
-        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, TwoSides.TWO), EPSILON);
-        assertEquals(-7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, TwoSides.TWO), EPSILON);
+        assertEquals(26., result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, TwoSides.TWO, null), EPSILON);
     }
 
     @Test
@@ -244,13 +244,13 @@ class SystematicSensitivityResultTest {
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
-        assertEquals(30., result.getReferenceFlow(nStateCnec, TwoSides.ONE), EPSILON);
-        assertEquals(40., result.getReferenceIntensity(nStateCnec, TwoSides.ONE), EPSILON);
-        assertEquals(-0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, TwoSides.ONE), EPSILON);
+        assertEquals(30., result.getReferenceFlow(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(40., result.getReferenceIntensity(nStateCnec, TwoSides.ONE, nStateCnec.getState().getInstant()), EPSILON);
+        assertEquals(-0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, TwoSides.ONE, null), EPSILON);
 
-        assertEquals(26., result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
-        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, TwoSides.TWO), EPSILON);
-        assertEquals(7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, TwoSides.TWO), EPSILON);
+        assertEquals(26., result.getReferenceFlow(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, TwoSides.TWO, contingencyCnec.getState().getInstant()), EPSILON);
+        assertEquals(7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, TwoSides.TWO, null), EPSILON);
     }
 
 }

@@ -79,8 +79,8 @@ abstract class AbstractFillerTest {
         pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
 
         flowResult = Mockito.mock(FlowResult.class);
-        when(flowResult.getFlow(cnec1, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(flowResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
+        when(flowResult.getFlow(cnec1, TwoSides.ONE, Unit.MEGAWATT, cnec1.getState().getInstant())).thenReturn(REF_FLOW_CNEC1_IT1);
+        when(flowResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT, cnec2.getState().getInstant())).thenReturn(REF_FLOW_CNEC2_IT1);
 
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityValue(cnec1, TwoSides.ONE, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);

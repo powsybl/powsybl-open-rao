@@ -58,11 +58,11 @@ class HvdcRangeActionSensiHandlerTest {
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
         SystematicSensitivityResult sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA11 FFR3AA11 1", flowCnec, TwoSides.ONE)).thenReturn(-12.56);
-        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA11 FFR3AA11 1", flowCnec, TwoSides.TWO)).thenReturn(-10.56);
+        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA11 FFR3AA11 1", flowCnec, TwoSides.ONE, null)).thenReturn(-12.56);
+        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA11 FFR3AA11 1", flowCnec, TwoSides.TWO, null)).thenReturn(-10.56);
 
-        assertEquals(-12.56, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.ONE, sensiResult), 1e-3);
-        assertEquals(-10.56, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.TWO, sensiResult), 1e-3);
+        assertEquals(-12.56, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.ONE, sensiResult, null), 1e-3);
+        assertEquals(-10.56, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.TWO, sensiResult, null), 1e-3);
     }
 
     @Test

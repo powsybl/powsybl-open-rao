@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.TWO;
 import static com.powsybl.iidm.network.TwoSides.ONE;
@@ -49,7 +50,12 @@ class UnoptimizedRaoResultImplTest {
         curativeInstant = Mockito.mock(Instant.class);
         initialResult = Mockito.mock(PrePerimeterResult.class);
         output = new UnoptimizedRaoResultImpl(initialResult);
+
+        Instant instant = mock(Instant.class);
+        State state = mock(State.class);
+        when(state.getInstant()).thenReturn(instant);
         flowCnec = Mockito.mock(FlowCnec.class);
+        when(flowCnec.getState()).thenReturn(state);
     }
 
     @Test
@@ -60,8 +66,8 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetFlow() {
-        when(initialResult.getFlow(flowCnec, ONE, AMPERE)).thenReturn(100.);
-        when(initialResult.getFlow(flowCnec, ONE, MEGAWATT)).thenReturn(1000.);
+        when(initialResult.getFlow(flowCnec, ONE, AMPERE, flowCnec.getState().getInstant())).thenReturn(100.);
+        when(initialResult.getFlow(flowCnec, ONE, MEGAWATT, flowCnec.getState().getInstant())).thenReturn(1000.);
 
         assertEquals(100., output.getFlow(null, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(100., output.getFlow(preventiveInstant, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);

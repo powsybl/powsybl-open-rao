@@ -51,15 +51,14 @@ class CurativeWithSecondPraoResultTest {
         FlowCnec cnec1 = mockFlowCnec(state1, "cnec1");
         FlowCnec cnec2 = mockFlowCnec(state2, "cnec2");
         PrePerimeterResult postCraPrePerimeterResult = mock(PrePerimeterResult.class);
-        when(postCraPrePerimeterResult.getFlow(eq(cnec1), any(), any())).thenReturn(135.4);
         when(postCraPrePerimeterResult.getFlow(eq(cnec1), any(), any(), any())).thenReturn(135.4);
 
         CurativeWithSecondPraoResult result = new CurativeWithSecondPraoResult(state1, null, null, null, postCraPrePerimeterResult);
 
-        assertEquals(135.4, result.getFlow(cnec1, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(135.4, result.getFlow(cnec1, TwoSides.TWO, Unit.MEGAWATT, cnec1.getState().getInstant()), DOUBLE_TOLERANCE);
         assertEquals(135.4, result.getFlow(cnec1, TwoSides.ONE, Unit.AMPERE, mock(Instant.class)), DOUBLE_TOLERANCE);
 
-        Exception e = assertThrows(OpenRaoException.class, () -> result.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT));
+        Exception e = assertThrows(OpenRaoException.class, () -> result.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT, cnec2.getState().getInstant()));
         assertEquals("Cnec cnec2 has a different contingency than this result's state (state1)", e.getMessage());
 
         e = assertThrows(OpenRaoException.class, () -> result.getFlow(cnec2, TwoSides.ONE, Unit.AMPERE, mock(Instant.class)));

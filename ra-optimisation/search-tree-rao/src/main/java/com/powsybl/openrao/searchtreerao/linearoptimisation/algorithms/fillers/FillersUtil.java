@@ -58,7 +58,7 @@ public final class FillersUtil {
         // TODO : add a computation status per state to FlowResult and filter on states, like with SensitivityComputationResult
         return flowCnecs.stream().filter(cnec ->
             cnec.getMonitoredSides().stream().noneMatch(side ->
-                Double.isNaN(flowResult.getFlow(cnec, side, Unit.MEGAWATT)))
+                Double.isNaN(flowResult.getFlow(cnec, side, Unit.MEGAWATT, cnec.getState().getInstant())))
         ).collect(Collectors.toSet());
     }
 }

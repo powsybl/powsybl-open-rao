@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
@@ -42,9 +44,15 @@ class FlowResultImplTest {
 
     @BeforeEach
     public void setUp() {
+        Instant instant = mock(Instant.class);
+        State state = mock(State.class);
+        when(state.getInstant()).thenReturn(instant);
+
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         loopFlowCnec = Mockito.mock(FlowCnec.class);
+        when(loopFlowCnec.getState()).thenReturn(state);
         optimizedCnec = Mockito.mock(FlowCnec.class);
+        when(optimizedCnec.getState()).thenReturn(state);
 
         FlowResult fixedCommercialFlows = Mockito.mock(FlowResult.class);
         when(fixedCommercialFlows.getCommercialFlow(loopFlowCnec, ONE, Unit.MEGAWATT)).thenReturn(200.);
@@ -56,23 +64,23 @@ class FlowResultImplTest {
         when(fixedPtdfs.getPtdfZonalSum(loopFlowCnec, ONE)).thenThrow(new OpenRaoException("a mock of what would happen if trying to access ptdf sum"));
 
         branchResult = new FlowResultImpl(
-                systematicSensitivityResult,
-                fixedCommercialFlows,
-                fixedPtdfs
+            systematicSensitivityResult,
+            fixedCommercialFlows,
+            fixedPtdfs
         );
     }
 
     @Test
     void testBasicReturns() {
-        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, ONE)).thenReturn(200.);
-        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, ONE)).thenReturn(58.);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO)).thenReturn(500.);
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO)).thenReturn(235.);
+        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, ONE, loopFlowCnec.getState().getInstant())).thenReturn(200.);
+        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, ONE, loopFlowCnec.getState().getInstant())).thenReturn(58.);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, loopFlowCnec.getState().getInstant())).thenReturn(500.);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, loopFlowCnec.getState().getInstant())).thenReturn(235.);
 
-        assertEquals(200, branchResult.getFlow(loopFlowCnec, ONE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(58, branchResult.getFlow(loopFlowCnec, ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(500, branchResult.getFlow(optimizedCnec, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(235, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(200, branchResult.getFlow(loopFlowCnec, ONE, Unit.MEGAWATT, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(58, branchResult.getFlow(loopFlowCnec, ONE, Unit.AMPERE, loopFlowCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(500, branchResult.getFlow(optimizedCnec, TWO, Unit.MEGAWATT, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
+        assertEquals(235, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
 
         assertThrows(OpenRaoException.class, () -> branchResult.getPtdfZonalSum(loopFlowCnec, ONE));
         assertEquals(30., branchResult.getPtdfZonalSum(optimizedCnec, TWO), DOUBLE_TOLERANCE);
@@ -100,29 +108,29 @@ class FlowResultImplTest {
 
     @Test
     void testNanFlow() {
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO)).thenReturn(Double.NaN);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO)).thenReturn(500.);
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, optimizedCnec.getState().getInstant())).thenReturn(Double.NaN);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, optimizedCnec.getState().getInstant())).thenReturn(500.);
         when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
 
-        assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
 
         Instant instant = Mockito.mock(Instant.class);
         when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, instant)).thenReturn(Double.NaN);
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, instant)).thenReturn(500.);
         when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
 
-        assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE, instant), DOUBLE_TOLERANCE);
+        assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE, optimizedCnec.getState().getInstant()), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testWrongFlowUnit() {
-        Exception e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.KILOVOLT));
+        Exception e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.KILOVOLT, optimizedCnec.getState().getInstant()));
         assertEquals("Unknown unit for flow.", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.DEGREE));
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.DEGREE, optimizedCnec.getState().getInstant()));
         assertEquals("Unknown unit for flow.", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.PERCENT_IMAX));
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.PERCENT_IMAX, optimizedCnec.getState().getInstant()));
         assertEquals("Unknown unit for flow.", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.TAP));
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.TAP, optimizedCnec.getState().getInstant()));
         assertEquals("Unknown unit for flow.", e.getMessage());
 
         Instant instant = Mockito.mock(Instant.class);

@@ -61,16 +61,16 @@ class FlowResultAdapterImplTest {
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
                 .build();
 
-        when(systematicSensitivityResult.getReferenceFlow(cnec1, ONE)).thenReturn(200.);
-        when(systematicSensitivityResult.getReferenceIntensity(cnec1, ONE)).thenReturn(58.);
-        when(systematicSensitivityResult.getReferenceFlow(cnec2, TWO)).thenReturn(500.);
-        when(systematicSensitivityResult.getReferenceIntensity(cnec2, TWO)).thenReturn(235.);
+        when(systematicSensitivityResult.getReferenceFlow(cnec1, ONE, null)).thenReturn(200.);
+        when(systematicSensitivityResult.getReferenceIntensity(cnec1, ONE, null)).thenReturn(58.);
+        when(systematicSensitivityResult.getReferenceFlow(cnec2, TWO, null)).thenReturn(500.);
+        when(systematicSensitivityResult.getReferenceIntensity(cnec2, TWO, null)).thenReturn(235.);
         FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
-        assertEquals(200., flowResult.getFlow(cnec1, ONE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(58., flowResult.getFlow(cnec1, ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(500., flowResult.getFlow(cnec2, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(235., flowResult.getFlow(cnec2, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(200., flowResult.getFlow(cnec1, ONE, Unit.MEGAWATT, null), DOUBLE_TOLERANCE);
+        assertEquals(58., flowResult.getFlow(cnec1, ONE, Unit.AMPERE, null), DOUBLE_TOLERANCE);
+        assertEquals(500., flowResult.getFlow(cnec2, TWO, Unit.MEGAWATT, null), DOUBLE_TOLERANCE);
+        assertEquals(235., flowResult.getFlow(cnec2, TWO, Unit.AMPERE, null), DOUBLE_TOLERANCE);
         assertTrue(Double.isNaN(flowResult.getPtdfZonalSum(cnec1, ONE)));
     }
 

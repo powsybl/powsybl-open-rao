@@ -61,11 +61,11 @@ class InjectionRangeActionSensiHandlerTest {
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
         SystematicSensitivityResult sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.ONE)).thenReturn(-1.56);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.TWO)).thenReturn(-0.56);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.ONE, null)).thenReturn(-1.56);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.TWO, null)).thenReturn(-0.56);
 
-        assertEquals(-1.56, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.ONE, sensiResult), 1e-3);
-        assertEquals(-0.56, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.TWO, sensiResult), 1e-3);
+        assertEquals(-1.56, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.ONE, sensiResult, null), 1e-3);
+        assertEquals(-0.56, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.TWO, sensiResult, null), 1e-3);
     }
 
     @Test
@@ -84,13 +84,13 @@ class InjectionRangeActionSensiHandlerTest {
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
         SystematicSensitivityResult sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.ONE)).thenReturn(4.);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", flowCnec, TwoSides.ONE)).thenReturn(7.);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.TWO)).thenReturn(10.);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", flowCnec, TwoSides.TWO)).thenReturn(30.);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.ONE, null)).thenReturn(4.);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", flowCnec, TwoSides.ONE, null)).thenReturn(7.);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, TwoSides.TWO, null)).thenReturn(10.);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", flowCnec, TwoSides.TWO, null)).thenReturn(30.);
 
-        assertEquals(4 * 0.8 - 7 * 0.5, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.ONE, sensiResult), 1e-3);
-        assertEquals(10 * 0.8 - 30 * 0.5, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.TWO, sensiResult), 1e-3);
+        assertEquals(4 * 0.8 - 7 * 0.5, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.ONE, sensiResult, null), 1e-3);
+        assertEquals(10 * 0.8 - 30 * 0.5, sensiHandler.getSensitivityOnFlow(flowCnec, TwoSides.TWO, sensiResult, null), 1e-3);
     }
 
     @Test

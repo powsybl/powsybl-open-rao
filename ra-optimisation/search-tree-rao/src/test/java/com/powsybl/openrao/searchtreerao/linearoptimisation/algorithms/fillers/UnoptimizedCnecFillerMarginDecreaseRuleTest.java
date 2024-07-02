@@ -105,8 +105,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         when(initialFlowResult.getMargin(cnecNl, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(400.);
         when(initialFlowResult.getMargin(cnecFr, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(600.);
         if (initialFlowsAreNan) {
-            when(initialFlowResult.getFlow(cnecNl, TwoSides.TWO, MEGAWATT)).thenReturn(Double.NaN);
-            when(initialFlowResult.getFlow(cnecFr, TwoSides.ONE, MEGAWATT)).thenReturn(Double.NaN);
+            when(initialFlowResult.getFlow(cnecNl, TwoSides.TWO, MEGAWATT, cnecNl.getState().getInstant())).thenReturn(Double.NaN);
+            when(initialFlowResult.getFlow(cnecFr, TwoSides.ONE, MEGAWATT, cnecFr.getState().getInstant())).thenReturn(Double.NaN);
         }
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
                 Set.of(cnecNl, cnecFr),

@@ -8,6 +8,8 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -36,7 +38,11 @@ class SensitivityResultImplTest {
 
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec, ONE)).thenReturn(8.);
+        State state = Mockito.mock(State.class);
+        Instant instant = Mockito.mock(Instant.class);
+        when(state.getInstant()).thenReturn(instant);
+        when(cnec.getState()).thenReturn(state);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec, ONE, cnec.getState().getInstant())).thenReturn(8.);
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, ONE, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
 

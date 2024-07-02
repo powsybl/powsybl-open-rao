@@ -419,11 +419,11 @@ final class ExampleGenerator {
         SystematicSensitivityResult sensisResults = Mockito.mock(SystematicSensitivityResult.class);
 
         // flow results
-        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE)).thenReturn(30.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE)).thenReturn(280.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("FR-DE"), TwoSides.TWO)).thenReturn(170.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("BE2-NL"), TwoSides.ONE)).thenReturn(30.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO)).thenReturn(170.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE, crac.getFlowCnec("FR-BE1").getState().getInstant())).thenReturn(30.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE, crac.getFlowCnec("BE1-BE2").getState().getInstant())).thenReturn(280.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("FR-DE"), TwoSides.TWO, crac.getFlowCnec("FR-DE").getState().getInstant())).thenReturn(170.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("BE2-NL"), TwoSides.ONE, crac.getFlowCnec("BE2-NL").getState().getInstant())).thenReturn(30.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, crac.getFlowCnec("DE-NL").getState().getInstant())).thenReturn(170.);
 
         // sensi results
         SensitivityVariableSet glskFr = glsk.getData("10YFR-RTE------C");

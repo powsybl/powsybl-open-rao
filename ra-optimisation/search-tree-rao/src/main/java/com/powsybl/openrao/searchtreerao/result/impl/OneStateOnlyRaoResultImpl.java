@@ -95,7 +95,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit, optimizedInstant);
     }
 
     @Override
