@@ -18,10 +18,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -46,7 +43,7 @@ public class VoltageCnecsCreator {
     public void createAndAddCnecs() {
         Map<String, Double> elementsAndNominalV = filterMonitoredNetworkElementsAndFetchNominalV();
         for (Map.Entry<String, VoltageMonitoredContingenciesAndThresholds> entry : voltageCnecsCreationParameters.getMonitoredStatesAndThresholds().entrySet()) {
-            Set<String> filteredContingencies = new HashSet<>();
+            Set<String> filteredContingencies = new LinkedHashSet<>();
             if (!cracCreationContext.getCrac().getInstant(entry.getKey()).isPreventive()) {
                 filteredContingencies = filterContingencies(entry.getValue().getContingencyNames());
             }
@@ -55,7 +52,7 @@ public class VoltageCnecsCreator {
     }
 
     private Map<String, Double> filterMonitoredNetworkElementsAndFetchNominalV() {
-        Map<String, Double> elementsAndNominalV = new HashMap<>();
+        Map<String, Double> elementsAndNominalV = new TreeMap<>();
         voltageCnecsCreationParameters.getMonitoredNetworkElements().forEach(neId -> {
                 Identifiable<?> identifiable = network.getIdentifiable(neId);
                 if (identifiable == null) {
@@ -83,7 +80,7 @@ public class VoltageCnecsCreator {
                 .collect(Collectors.toMap(CimContingencyCreationContext::getCreatedContingencyId, CimContingencyCreationContext::getNativeName));
             return contingencyNativeNamePerId.keySet();
         }
-        Set<String> filteredContingencies = new HashSet<>();
+        Set<String> filteredContingencies = new LinkedHashSet<>();
         contingencyNames.forEach(contingencyName -> {
                 CimContingencyCreationContext contingencyCreationContext = cracCreationContext.getContingencyCreationContextByName(contingencyName);
                 if (contingencyCreationContext == null || !contingencyCreationContext.isImported()) {

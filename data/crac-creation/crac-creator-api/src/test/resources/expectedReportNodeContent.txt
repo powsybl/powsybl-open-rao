@@ -1,0 +1,7 @@
++ This is a parent report node for report tests
+   [WARN] message1
+   [ERROR] message2
+   [INFO] message3
+   [ADDED] message4
+   [ALTERED] message5
+   [REMOVED] message6

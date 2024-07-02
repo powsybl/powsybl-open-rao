@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.*;
@@ -42,6 +43,10 @@ import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,6 +83,10 @@ class CastorFullOptimizationTest {
     private Instant autoInstant;
     private Instant curativeInstant;
 
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     @BeforeEach
     public void setup() throws IOException {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
@@ -93,23 +102,23 @@ class CastorFullOptimizationTest {
 
     @Test
     void testShouldRunSecondPreventiveRaoSimple() {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
         Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         // No SearchTreeRaoParameters extension
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
 
         // Deactivated in parameters
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
 
         // CurativeStopCriterion.MIN_OBJECTIVE
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
 
         // CurativeStopCriterion.SECURE, secure case
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
@@ -117,17 +126,17 @@ class CastorFullOptimizationTest {
         Mockito.doReturn(-10.).when(optimizationResult2).getFunctionalCost();
         Mockito.doReturn(0.).when(optimizationResult1).getVirtualCost();
         Mockito.doReturn(0.).when(optimizationResult2).getVirtualCost();
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
         // CurativeStopCriterion.SECURE, unsecure case 1
         Mockito.doReturn(0.).when(optimizationResult1).getFunctionalCost();
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
         // CurativeStopCriterion.SECURE, unsecure case 2
         Mockito.doReturn(5.).when(optimizationResult1).getFunctionalCost();
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
         // CurativeStopCriterion.SECURE, unsecure case 3
         Mockito.doReturn(-10.).when(optimizationResult1).getFunctionalCost();
         Mockito.doReturn(9.).when(optimizationResult1).getVirtualCost();
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
     }
 
     private void setCost(OptimizationResult optimizationResultMock, double cost) {
@@ -138,7 +147,7 @@ class CastorFullOptimizationTest {
 
     @Test
     void testShouldRunSecondPreventiveRaoAdvanced() {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         RaoResult postFirstPreventiveRaoResult = Mockito.mock(RaoResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
@@ -155,13 +164,13 @@ class CastorFullOptimizationTest {
         setCost(preventiveResult, -100.);
         // case 1 : final cost is better than preventive (cost < preventive cost - minObjImprovement)
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-200.);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
         // case 2 : final cost = preventive cost - minObjImprovement
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-110.);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
         // case 3 : final cost > preventive cost - minObjImprovement
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-109.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
 
         // CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
@@ -169,28 +178,28 @@ class CastorFullOptimizationTest {
         setCost(optimizationResult1, -200.);
         setCost(optimizationResult2, -300.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-200.);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
         setCost(optimizationResult1, -110.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-110.);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
         // case 2 : all curatives are better than preventive (cost < preventive cost - minObjImprovement), UNSECURE
         setCost(preventiveResult, -500.);
         setCost(optimizationResult1, -200.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(0.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
         setCost(optimizationResult1, 10.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(10.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
         // case 3 : one curative has cost > preventive cost - minObjImprovement, SECURE
         setCost(preventiveResult, -100.);
         setCost(optimizationResult1, -109.);
         when(postFirstPreventiveRaoResult.getCost(curativeInstant)).thenReturn(-109.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
     }
 
     @Test
-    void testShouldRunSecondPreventiveRaoTime() {
-        RaoParameters parameters = new RaoParameters();
+    void testShouldRunSecondPreventiveRaoTime() throws IOException, URISyntaxException {
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
@@ -200,17 +209,22 @@ class CastorFullOptimizationTest {
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
 
         // Enough time
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 100, crac.getInstant(InstantKind.CURATIVE)));
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 199, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 100, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 199, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
 
         // Not enough time
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 201, crac.getInstant(InstantKind.CURATIVE)));
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 400, crac.getInstant(InstantKind.CURATIVE)));
+        ReportNode reportNode = buildNewRootNode();
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 201, crac.getInstant(InstantKind.CURATIVE), reportNode));
+        assertEquals(1, reportNode.getChildren().size());
+        assertTrue(reportNode.getChildren().get(0).getMessage().contains("There is not enough time to run a 2nd preventive RAO (target end time: "));
+        assertTrue(reportNode.getChildren().get(0).getMessage().contains(", estimated time needed based on first preventive RAO: 201 seconds)"));
+        assertEquals(0, reportNode.getChildren().get(0).getChildren().size());
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 400, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
     }
 
     @Test
     void testShouldRunSecondPreventiveRaoCostIncrease() {
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
@@ -224,13 +238,17 @@ class CastorFullOptimizationTest {
         when(postFirstRaoResult.getCost(preventiveInstant)).thenReturn(-10.);
         when(postFirstRaoResult.getCost(curativeInstant)).thenReturn(-120.);
 
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        ReportNode reportNode = buildNewRootNode();
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), reportNode));
+        assertEquals(1, reportNode.getChildren().size());
+        assertEquals("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO", reportNode.getChildren().get(0).getMessage());
+        assertEquals(0, reportNode.getChildren().get(0).getChildren().size());
 
         when(postFirstRaoResult.getCost(curativeInstant)).thenReturn(-100.);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
 
         when(postFirstRaoResult.getCost(curativeInstant)).thenReturn(-95.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE)));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0, crac.getInstant(InstantKind.CURATIVE), ReportNode.NO_OP));
     }
 
     private void setUpCracWithRAs() {
@@ -571,18 +589,26 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void smallRaoWithDivergingInitialSensi() throws IOException {
+    void smallRaoWithDivergingInitialSensi() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         // Small RAO with diverging initial sensi
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_oneIteration_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_oneIteration_v2.json"), ReportNode.NO_OP);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(reportNode).join();
         assertTrue(raoResult instanceof FailedRaoResultImpl);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSmallRaoWithDivergingInitialSensi.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -593,10 +619,10 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(493.56, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(256.78, raoResult.getFunctionalCost(curativeInstant), 1.);
@@ -612,13 +638,13 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         // Activate 2P
         raoParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
@@ -630,20 +656,21 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void smallRaoWithGlobal2P() throws IOException {
+    void smallRaoWithGlobal2P() throws IOException, URISyntaxException {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         // Activate global 2P
         raoParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         raoParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        ReportNode reportNode = buildNewRootNode();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(reportNode).join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
@@ -652,10 +679,18 @@ class CastorFullOptimizationTest {
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSmallRaoWithGlobal2P.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testOptimizationStepsExecutedAndLogsWhenFallbackOnFirstPrev() throws IOException {
+    void testOptimizationStepsExecutedAndLogsWhenFallbackOnFirstPrev() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         // Catch future logs
         Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessLogs.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
@@ -666,9 +701,9 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-2P_cost_increase.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), reportNode);
         raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(reportNode).join();
 
         // Test Optimization steps executed
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
@@ -679,6 +714,13 @@ class CastorFullOptimizationTest {
         listAppender.stop();
         List<ILoggingEvent> logsList = listAppender.list;
         assert logsList.get(logsList.size() - 1).toString().equals("[INFO] Cost before RAO = 371.88 (functional: 371.88, virtual: 0.00), cost after RAO = 371.88 (functional: 371.88, virtual: 0.00)");
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeOptimizationStepsExecutedAndLogsWhenFallbackOnFirstPrev.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -722,10 +764,10 @@ class CastorFullOptimizationTest {
             .add();
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         assertEquals(Set.of(pstPrev), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(naCur1), raoResult.getActivatedNetworkActionsDuringState(crac.getState(co, crac.getInstant("curative1"))));
@@ -816,10 +858,10 @@ class CastorFullOptimizationTest {
             .add();
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         assertEquals(Set.of(pstPrev), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(naCur1), raoResult.getActivatedNetworkActionsDuringState(crac.getState(co, crac.getInstant("curative1"))));
@@ -882,9 +924,9 @@ class CastorFullOptimizationTest {
         Crac crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-available-aras.json"), network);
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"), ReportNode.NO_OP);
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         // One FORCED topological ARA is simulated
         // Two AVAILABLE topological ARA are present in the CRAC but one is enough to secure the network
@@ -904,14 +946,20 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void optimizationWithAutoSearchTreeAndAutoPsts() throws IOException {
+    void optimizationWithAutoSearchTreeAndAutoPsts() throws IOException, URISyntaxException {
         Network network = Network.read("12Nodes_2_twin_lines.uct", getClass().getResourceAsStream("/network/12Nodes_2_twin_lines.uct"));
         Crac crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-available-aras-low-limits-thresholds.json"), network);
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+        ReportNode parameterReportNode = buildNewRootNode();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"), parameterReportNode);
+        assertEquals(1, parameterReportNode.getChildren().size());
+        assertEquals("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible. HvdcAcEmulation parameter set to false.", parameterReportNode.getChildren().get(0).getMessage());
+        assertEquals(0, parameterReportNode.getChildren().get(0).getChildren().size());
+        // TODO check if this is OK to have this error xD
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        ReportNode reportNode = buildNewRootNode();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(reportNode).join();
 
         State automatonState = crac.getState("Contingency DE2 NL3 1", crac.getInstant("auto"));
         List<NetworkAction> appliedNetworkAras = raoResult.getActivatedNetworkActionsDuringState(automatonState).stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
@@ -928,6 +976,13 @@ class CastorFullOptimizationTest {
         assertEquals(-1000.0, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"), TwoSides.ONE, Unit.MEGAWATT), 1.);
         assertEquals(-131.0, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"), TwoSides.ONE, Unit.MEGAWATT), 1.);
         assertEquals(-131.0, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"), TwoSides.ONE, Unit.MEGAWATT), 1.);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeOptimizationWithAutoSearchTreeAndAutoPsts.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -939,9 +994,9 @@ class CastorFullOptimizationTest {
         );
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"), ReportNode.NO_OP);
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied during the first curative instant
         // Yet, the number of RAs that can be applied is restricted to 1 (resp. 2) in total for curative1 (resp. curative2)
@@ -958,9 +1013,9 @@ class CastorFullOptimizationTest {
         );
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"), ReportNode.NO_OP);
 
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
 
         // SearchTree stop criterion is MIN_OBJECTIVE so all 3 remedial actions should be applied during the first curative instant
         // Yet, the number of RAs that can be applied is restricted to 2 (resp. 1) in total for curative1 (resp. curative2)
@@ -970,18 +1025,26 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void curativeOptimizationShouldNotBeDoneIfPreventiveUnsecure() throws IOException {
+    void curativeOptimizationShouldNotBeDoneIfPreventiveUnsecure() throws IOException, URISyntaxException {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(false);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        ReportNode reportNode = buildNewRootNode();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(reportNode).join();
         assertEquals(Collections.emptySet(), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeCurativeOptimizationShouldNotBeDoneIfPreventiveUnsecure.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -989,13 +1052,13 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(false);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
@@ -1004,12 +1067,12 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(false);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
@@ -1018,13 +1081,13 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
@@ -1033,13 +1096,13 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-secure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
@@ -1048,12 +1111,12 @@ class CastorFullOptimizationTest {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read(getClass().getResourceAsStream("/crac/small-crac-to-check-curative-optimization-if-preventive-unsecure.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
 
         raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
 
         // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run(ReportNode.NO_OP).join();
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 

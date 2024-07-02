@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.GlskRegisteredResource;
 import com.powsybl.glsk.api.GlskShiftKey;
@@ -45,7 +46,7 @@ public class RedispatchActionWithGlskPoint extends AbstractRedispatchAction {
     }
 
     @Override
-    public void apply(Network network, double powerToRedispatch) {
-        super.apply(network, powerToRedispatch, GlskPointScalableConverter.convert(network, glskPoint));
+    public void apply(Network network, double powerToRedispatch, ReportNode reportNode) {
+        super.apply(network, powerToRedispatch, GlskPointScalableConverter.convert(network, glskPoint), reportNode);
     }
 }

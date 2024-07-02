@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.fbconstraint.craccreator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.ElementaryCreationContext;
@@ -27,7 +28,7 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     private final String networkName;
     private final Map<String, CriticalBranchCreationContext> criticalBranchCreationContexts;
     private final Map<String, ComplexVariantCreationContext> complexVariantCreationContexts;
-    private final CracCreationReport creationReport;
+    private final ReportNode reportNode;
 
     @Override
     public boolean isCreationSuccessful() {
@@ -60,11 +61,6 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public CracCreationReport getCreationReport() {
-        return creationReport;
-    }
-
-    @Override
     public CriticalBranchCreationContext getBranchCnecCreationContext(String criticalBranchId) {
         return criticalBranchCreationContexts.get(criticalBranchId);
     }
@@ -82,13 +78,13 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
         complexVariantCreationContexts.put(cvcc.getNativeId(), cvcc);
     }
 
-    FbConstraintCreationContext(OffsetDateTime timeStamp, String networkName) {
+    FbConstraintCreationContext(OffsetDateTime timeStamp, String networkName, ReportNode reportNode) {
         this.criticalBranchCreationContexts = new HashMap<>();
         this.complexVariantCreationContexts = new HashMap<>();
         this.isCreationSuccessful = false;
         this.timeStamp = timeStamp;
         this.networkName = networkName;
-        this.creationReport = new CracCreationReport();
+        this.reportNode = reportNode;
     }
 
     protected FbConstraintCreationContext(FbConstraintCreationContext toCopy) {
@@ -97,7 +93,7 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
         this.isCreationSuccessful = toCopy.isCreationSuccessful;
         this.timeStamp = toCopy.timeStamp;
         this.networkName = toCopy.networkName;
-        this.creationReport = new CracCreationReport(toCopy.creationReport);
+        this.reportNode = toCopy.reportNode;
         this.crac = toCopy.crac;
     }
 
@@ -120,10 +116,10 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            CracCreationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            CracCreationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
         );
     }
 }

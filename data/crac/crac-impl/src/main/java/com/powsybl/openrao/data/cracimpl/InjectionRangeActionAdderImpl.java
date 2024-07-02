@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
 
 import java.util.*;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotEmpty;
 import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNull;
 
@@ -30,8 +30,8 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         return INJECTION_RANGE_ACTION;
     }
 
-    InjectionRangeActionAdderImpl(CracImpl owner) {
-        super(owner);
+    InjectionRangeActionAdderImpl(CracImpl owner, ReportNode reportNode) {
+        super(owner, CracImplReports.reportNewInjectionRangeAction(reportNode));
         distributionKeys = new ArrayList<>();
     }
 
@@ -63,7 +63,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
         // check usage rules
         if (usageRules.isEmpty()) {
-            BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            CracImplReports.reportActionWithoutAnyUsageRule(reportNode, "InjectionRangeAction", id);
         }
 
         Map<NetworkElement, Double> neAndDk = addNetworkElements();

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.ElementaryCreationContext;
@@ -38,13 +39,11 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         this.crac = crac;
         this.timestamp = timestamp;
         this.networkName = networkName;
-        creationReport = new CracCreationReport();
     }
 
     protected CseCracCreationContext(CseCracCreationContext toCopy) {
         this.crac = toCopy.crac;
         this.isCreationSuccessful = toCopy.isCreationSuccessful;
-        this.creationReport = new CracCreationReport(toCopy.creationReport);
         this.criticalBranchCreationContexts = new HashMap<>(toCopy.criticalBranchCreationContexts);
         this.monitoredElementCreationContexts = new HashMap<>(toCopy.monitoredElementCreationContexts);
         this.outageCreationContexts = new HashMap<>(toCopy.outageCreationContexts);
@@ -85,29 +84,24 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         return crac;
     }
 
-    void buildCreationReport() {
-        addToReport(outageCreationContexts.values(), "Outage");
-        addToReport(criticalBranchCreationContexts.values(), "Critical branch");
-        addToReport(monitoredElementCreationContexts.values(), "Monitored element");
-        addToReport(remedialActionCreationContexts.values(), "Remedial action");
+    void buildCreationReport(ReportNode reportNode) {
+        addToReport(outageCreationContexts.values(), "Outage", reportNode);
+        addToReport(criticalBranchCreationContexts.values(), "Critical branch", reportNode);
+        addToReport(monitoredElementCreationContexts.values(), "Monitored element", reportNode);
+        addToReport(remedialActionCreationContexts.values(), "Remedial action", reportNode);
     }
 
-    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
+    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier, ReportNode reportNode) {
         contexts.stream().filter(ElementaryCreationContext::isAltered)
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
             .forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            CracCreationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
         );
         contexts.stream().filter(context -> !context.isImported())
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
             .forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            CracCreationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
         );
-    }
-
-    @Override
-    public CracCreationReport getCreationReport() {
-        return creationReport;
     }
 
     public void addCriticalBranchCreationContext(CseCriticalBranchCreationContext cseCriticalBranchCreationContext) {

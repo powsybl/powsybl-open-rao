@@ -6,9 +6,11 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch.TCriticalBranchesAdder;
@@ -41,27 +43,29 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
     }
 
     @Override
-    public CseCracCreationContext createCrac(CseCrac cseCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    public CseCracCreationContext createCrac(CseCrac cseCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode) {
         // Set attributes
-        Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV());
+        ReportNode cseCracCreatorReportNode = CseCracReports.reportCseCracCreator(reportNode);
+        ReportNode cseCracCreationReportReportNode = CseCracReports.reportCseCracCreationReport(cseCracCreatorReportNode);
+        Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV(), cseCracCreatorReportNode);
         addCseInstants(crac);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
         this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
         // Check timestamp field
         if (offsetDateTime != null) {
-            creationContext.getCreationReport().warn("Timestamp filtering is not implemented for cse crac creator. The timestamp will be ignored.");
+            CracCreationReport.warn("Timestamp filtering is not implemented for cse crac creator. The timestamp will be ignored.", cseCracCreationReportReportNode);
         }
 
         // Get warning messages from parameters parsing
         CseCracCreationParameters cseCracCreationParameters = cracCreationParameters.getExtension(CseCracCreationParameters.class);
         if (cseCracCreationParameters != null) {
-            cseCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message));
+            cseCracCreationParameters.getFailedParseWarnings().forEach(message -> CracCreationReport.warn(message, cseCracCreationReportReportNode));
         }
 
         // Check for UCTE compatibility
         if (!network.getSourceFormat().equals("UCTE")) {
-            creationContext.getCreationReport().error("CSE CRAC creation is only possible with a UCTE network");
+            CracCreationReport.error("CSE CRAC creation is only possible with a UCTE network", cseCracCreationReportReportNode);
             return creationContext.creationFailure();
         }
 
@@ -76,17 +80,17 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             TCriticalBranchesAdder tCriticalBranchesAdder = new TCriticalBranchesAdder(tcracSeries, crac, ucteNetworkAnalyzer, creationContext, cracCreationParameters.getDefaultMonitoredSides());
             tCriticalBranchesAdder.add();
             // Add remedial actions
-            new TRemedialActionAdder(tcracSeries, crac, network, ucteNetworkAnalyzer, tCriticalBranchesAdder.getRemedialActionsForCnecsMap(), creationContext, cseCracCreationParameters).add();
+            new TRemedialActionAdder(tcracSeries, crac, network, ucteNetworkAnalyzer, tCriticalBranchesAdder.getRemedialActionsForCnecsMap(), creationContext, cseCracCreationParameters, cseCracCreationReportReportNode).add();
             // Add monitored elements
             TMonitoredElementsAdder tMonitoredElementsAdder = new TMonitoredElementsAdder(tcracSeries, crac, ucteNetworkAnalyzer, creationContext, cracCreationParameters.getDefaultMonitoredSides());
             tMonitoredElementsAdder.add();
 
-            creationContext.buildCreationReport();
-            CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
+            creationContext.buildCreationReport(cseCracCreationReportReportNode);
+            CracValidator.validateCrac(crac, network).forEach(addedReason -> CracCreationReport.added(addedReason, cseCracCreationReportReportNode));
             // TODO : add unit test for CracValidator.validateCrac step when auto RAs are handled
             return creationContext.creationSuccess(crac);
         } catch (OpenRaoException e) {
-            creationContext.getCreationReport().error(String.format("CRAC could not be created: %s", e.getMessage()));
+            CracCreationReport.error(String.format("CRAC could not be created: %s", e.getMessage()), cseCracCreationReportReportNode);
             return creationContext.creationFailure();
         }
     }

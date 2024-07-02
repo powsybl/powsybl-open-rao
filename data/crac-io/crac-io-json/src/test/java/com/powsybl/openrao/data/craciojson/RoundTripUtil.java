@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craciojson;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
@@ -63,7 +64,7 @@ public final class RoundTripUtil {
         }
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            return new JsonImport().importData(inputStream, CracFactory.findDefault(), network);
+            return new JsonImport().importData(inputStream, CracFactory.findDefault(), network, ReportNode.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.api.mock;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.google.auto.service.AutoService;
@@ -26,7 +27,7 @@ public class CracCreatorMock implements CracCreator<NativeCracMock, CracCreation
     }
 
     @Override
-    public CracCreationContextMock createCrac(NativeCracMock nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    public CracCreationContextMock createCrac(NativeCracMock nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode) {
         return new CracCreationContextMock(nativeCrac.isOk());
     }
 }

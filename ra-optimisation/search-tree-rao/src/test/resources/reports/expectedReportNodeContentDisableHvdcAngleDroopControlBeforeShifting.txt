@@ -1,0 +1,16 @@
++ This is a parent report node for report tests
+   + Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.
+      + Load flow on network 'TestCase16Nodes'
+         + Network CC0 SC0
+            + Network info
+               Network has 17 buses and 26 branches
+               Network balance: active generation=30500.0 MW, active load=30500.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+            + Outer loop DistributedSlack
+               + Outer loop iteration 1
+                  Failed to distribute slack bus active power mismatch, 6450.340783231482 MW remains
+            Outer loop VoltageMonitoring
+            Outer loop ReactiveLimits
+            AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+   Disabling HvdcAngleDroopActivePowerControl on HVDC line BBE2AA11 FFR3AA11 1 and setting its set-point to 2450.8702268769744.
+   Disabling HvdcAngleDroopActivePowerControl on HVDC line BBE2AA12 FFR3AA12 1 and setting its set-point to -46.60660706433589.
+   Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.

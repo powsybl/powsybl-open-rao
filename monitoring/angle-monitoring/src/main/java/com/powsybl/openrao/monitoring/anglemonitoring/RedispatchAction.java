@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -20,5 +21,12 @@ public interface RedispatchAction {
     /**
      * Scales power to redispatch (positive for generation, negative for load) on network.
      */
-    void apply(Network network, double powerToRedispatch);
+    default void apply(Network network, double powerToRedispatch) {
+        apply(network, powerToRedispatch, ReportNode.NO_OP);
+    }
+
+    /**
+     * Scales power to redispatch (positive for generation, negative for load) on network.
+     */
+    void apply(Network network, double powerToRedispatch, ReportNode reportNode);
 }

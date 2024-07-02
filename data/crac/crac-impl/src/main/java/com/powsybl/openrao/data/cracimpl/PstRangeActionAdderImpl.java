@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -18,7 +19,6 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 import java.util.*;
 
 import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNull;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -38,8 +38,8 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         return PST_RANGE_ACTION;
     }
 
-    PstRangeActionAdderImpl(CracImpl owner) {
-        super(owner);
+    PstRangeActionAdderImpl(CracImpl owner, ReportNode reportNode) {
+        super(owner, CracImplReports.reportNewPstRangeAction(reportNode));
         this.ranges = new ArrayList<>();
     }
 
@@ -94,7 +94,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         checkTapToAngleConversionMap();
 
         if (usageRules.isEmpty()) {
-            BUSINESS_WARNS.warn("PstRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            CracImplReports.reportActionWithoutAnyUsageRule(reportNode, "PstRangeAction", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
@@ -119,7 +119,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         if (usageRules.stream().allMatch(this::isPreventiveUsageRule)) {
             ranges.forEach(range -> {
                 if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {
-                    BUSINESS_WARNS.warn("RELATIVE_TO_PREVIOUS_INSTANT range has been filtered from PstRangeAction {}, as it is a preventive RA", id);
+                    CracImplReports.reportPstRangeActionPreventiveRaFiltered(reportNode, id);
                 } else {
                     validRanges.add(range);
                 }
@@ -129,7 +129,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         }
 
         if (validRanges.isEmpty()) {
-            BUSINESS_WARNS.warn("PstRangeAction {} does not contain any valid range, by default the range of the network will be used", id);
+            CracImplReports.reportPstRangeActionInvalidRange(reportNode, id);
         }
         return validRanges;
     }

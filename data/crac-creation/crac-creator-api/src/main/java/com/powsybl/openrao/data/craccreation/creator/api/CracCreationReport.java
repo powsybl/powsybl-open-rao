@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.craccreation.creator.api;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
@@ -18,61 +18,61 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class CracCreationReport {
-    private List<String> creationReport;
-
-    public CracCreationReport() {
-        creationReport = new ArrayList<>();
+    private CracCreationReport() {
+        // utility class
     }
 
-    public CracCreationReport(CracCreationReport toCopy) {
-        this.creationReport = new ArrayList<>(toCopy.creationReport);
+    public static void error(String errorReason, ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("cracCreationError", "[ERROR] ${reason}")
+                .withUntypedValue("reason", errorReason)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+        BUSINESS_LOGS.error("[ERROR] {}", errorReason);
     }
 
-    public void error(String errorReason) {
-        String message = String.format("[ERROR] %s", errorReason);
-        creationReport.add(message);
-        BUSINESS_LOGS.error(message);
+    public static void removed(String removedReason, ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("cracCreationRemoved", "[REMOVED] ${removedReason}")
+                .withUntypedValue("removedReason", removedReason)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+        BUSINESS_WARNS.warn("[REMOVED] {}", removedReason);
     }
 
-    public void removed(String removedReason) {
-        String message = String.format("[REMOVED] %s", removedReason);
-        creationReport.add(message);
-        BUSINESS_WARNS.warn(message);
+    public static void added(String addedReason, ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("cracCreationAdded", "[ADDED] ${addedReason}")
+                .withUntypedValue("addedReason", addedReason)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+        BUSINESS_WARNS.warn("[ADDED] {}", addedReason);
     }
 
-    public void added(String addedReason) {
-        String message = String.format("[ADDED] %s", addedReason);
-        creationReport.add(message);
-        BUSINESS_WARNS.warn(message);
+    public static void altered(String alteredReason, ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("cracCreationAltered", "[ALTERED] ${alteredReason}")
+                .withUntypedValue("alteredReason", alteredReason)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+        BUSINESS_WARNS.warn("[ALTERED] {}", alteredReason);
     }
 
-    public void altered(String alteredReason) {
-        String message = String.format("[ALTERED] %s", alteredReason);
-        creationReport.add(message);
-        BUSINESS_WARNS.warn(message);
+    public static void warn(String warnReason, ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("cracCreationWarn", "[WARN] ${warnReason}")
+                .withUntypedValue("warnReason", warnReason)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+        BUSINESS_WARNS.warn("[WARN] {}", warnReason);
     }
 
-    public void warn(String warnReason) {
-        String message = String.format("[WARN] %s", warnReason);
-        creationReport.add(message);
-        BUSINESS_WARNS.warn(message);
-    }
-
-    public void info(String infoReason) {
-        String message = String.format("[INFO] %s", infoReason);
-        creationReport.add(message);
-        TECHNICAL_LOGS.info(message);
-    }
-
-    public void printCreationReport() {
-        creationReport.forEach(BUSINESS_LOGS::info);
-    }
-
-    public List<String> getReport() {
-        return creationReport;
-    }
-
-    public String toString() {
-        return String.join("\n", creationReport);
+    public static void info(String infoReason, ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("cracCreationInfo", "[INFO] ${infoReason}")
+                .withUntypedValue("infoReason", infoReason)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+        TECHNICAL_LOGS.info("[INFO] {}", infoReason);
     }
 }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -53,8 +54,8 @@ public class PrePerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
     }
 
-    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
+    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac, ReportNode reportNode) {
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder(reportNode)
             .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
@@ -64,9 +65,9 @@ public class PrePerimeterSensitivityAnalysis {
         }
 
         sensitivityComputer = sensitivityComputerBuilder.build();
-        objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters, crac, RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions));
+        objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters, crac, RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions), reportNode);
 
-        return runAndGetResult(network, objectiveFunction);
+        return runAndGetResult(network, objectiveFunction, reportNode);
     }
 
     public PrePerimeterResult runBasedOnInitialResults(Network network,
@@ -74,9 +75,10 @@ public class PrePerimeterSensitivityAnalysis {
                                                        FlowResult initialFlowResult,
                                                        RangeActionSetpointResult initialRangeActionSetpointResult,
                                                        Set<String> operatorsNotSharingCras,
-                                                       AppliedRemedialActions appliedCurativeRemedialActions) {
+                                                       AppliedRemedialActions appliedCurativeRemedialActions,
+                                                       ReportNode reportNode) {
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder(reportNode)
             .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             if (raoParameters.getExtension(LoopFlowParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
@@ -98,29 +100,29 @@ public class PrePerimeterSensitivityAnalysis {
         }
         sensitivityComputer = sensitivityComputerBuilder.build();
 
-        objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, initialRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters);
+        objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, initialRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters, reportNode);
 
-        return runAndGetResult(network, objectiveFunction);
+        return runAndGetResult(network, objectiveFunction, reportNode);
     }
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
     }
 
-    private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder() {
-        return SensitivityComputer.create()
+    private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder(ReportNode reportNode) {
+        return SensitivityComputer.create(reportNode)
                 .withToolProvider(toolProvider)
                 .withCnecs(flowCnecs)
                 .withRangeActions(rangeActions);
     }
 
-    private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction) {
-        sensitivityComputer.compute(network);
+    private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction, ReportNode reportNode) {
+        sensitivityComputer.compute(network, reportNode);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
         RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult);
+        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult, reportNode);
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
@@ -129,7 +131,7 @@ public class PrePerimeterSensitivityAnalysis {
         );
     }
 
-    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult) {
-        return objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus());
+    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ReportNode reportNode) {
+        return objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus(), reportNode);
     }
 }

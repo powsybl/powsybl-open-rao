@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.refprog.referenceprogram;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
@@ -18,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -28,22 +28,26 @@ public final class ReferenceProgramBuilder {
 
     }
 
-    private static void computeRefFlowOnCurrentNetwork(Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+    private static void computeRefFlowOnCurrentNetwork(Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters, ReportNode reportNode) {
         String errorMsg = "LoadFlow could not be computed. The ReferenceProgram will be built without a prior LoadFlow computation";
         try {
             // we need this separate load flow to get reference flow on cnec.
             // because reference flow from sensi is not yet fully implemented in powsybl
-            LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
+            LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, network.getVariantManager().getWorkingVariantId(), LocalComputationManager.getDefault(), loadFlowParameters, reportNode);
             if (!loadFlowResult.isOk()) {
-                BUSINESS_WARNS.warn(errorMsg);
+                Reports.reportLoadflowUnsecure(reportNode);
             }
         } catch (PowsyblException e) {
-            BUSINESS_WARNS.warn(String.format("%s: %s", errorMsg, e.getMessage()));
+            Reports.reportLoadflowException(reportNode, e.getMessage());
         }
     }
 
     public static ReferenceProgram buildReferenceProgram(Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
-        computeRefFlowOnCurrentNetwork(network, loadFlowProvider, loadFlowParameters);
+        return buildReferenceProgram(network, loadFlowProvider, loadFlowParameters, ReportNode.NO_OP);
+    }
+
+    public static ReferenceProgram buildReferenceProgram(Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters, ReportNode reportNode) {
+        computeRefFlowOnCurrentNetwork(network, loadFlowProvider, loadFlowParameters, reportNode);
         Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         List<ReferenceExchangeData> referenceExchangeDataList = new ArrayList<>();
 

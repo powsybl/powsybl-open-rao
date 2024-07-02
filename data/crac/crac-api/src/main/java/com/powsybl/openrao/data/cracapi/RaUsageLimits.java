@@ -7,11 +7,10 @@
 
 package com.powsybl.openrao.data.cracapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.util.*;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
@@ -30,8 +29,12 @@ public class RaUsageLimits {
     private Map<String, Integer> maxRaPerTso = DEFAULT_MAX_RA_PER_TSO;
 
     public void setMaxRa(int maxRa) {
+        setMaxRa(maxRa, ReportNode.NO_OP);
+    }
+
+    public void setMaxRa(int maxRa, ReportNode reportNode) {
         if (maxRa < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for max number of RAs is smaller than 0. It will be set to 0 instead.", maxRa);
+            CracApiReports.reportRaUsageLimitsNegativeMaxRa(reportNode, maxRa);
             this.maxRa = 0;
         } else {
             this.maxRa = maxRa;
@@ -39,8 +42,12 @@ public class RaUsageLimits {
     }
 
     public void setMaxTso(int maxTso) {
+        setMaxTso(maxTso, ReportNode.NO_OP);
+    }
+
+    public void setMaxTso(int maxTso, ReportNode reportNode) {
         if (maxTso < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for max number of TSOs is smaller than 0. It will be set to 0 instead.", maxTso);
+            CracApiReports.reportRaUsageLimitsNegativeMaxTso(reportNode, maxTso);
             this.maxTso = 0;
         } else {
             this.maxTso = maxTso;
@@ -48,30 +55,42 @@ public class RaUsageLimits {
     }
 
     public void setMaxTopoPerTso(Map<String, Integer> maxTopoPerTso) {
+        setMaxTopoPerTso(maxTopoPerTso, ReportNode.NO_OP);
+    }
+
+    public void setMaxTopoPerTso(Map<String, Integer> maxTopoPerTso, ReportNode reportNode) {
         if (Objects.isNull(maxTopoPerTso)) {
             this.maxTopoPerTso = new HashMap<>();
         } else {
-            Map<String, Integer> updatedMaxTopoPerTso = replaceNegativeValues(maxTopoPerTso);
+            Map<String, Integer> updatedMaxTopoPerTso = replaceNegativeValues(maxTopoPerTso, reportNode);
             crossCheckMaxCraPerTsoParameters(this.maxRaPerTso, updatedMaxTopoPerTso, this.maxPstPerTso);
             this.maxTopoPerTso = updatedMaxTopoPerTso;
         }
     }
 
     public void setMaxPstPerTso(Map<String, Integer> maxPstPerTso) {
+        setMaxPstPerTso(maxPstPerTso, ReportNode.NO_OP);
+    }
+
+    public void setMaxPstPerTso(Map<String, Integer> maxPstPerTso, ReportNode reportNode) {
         if (Objects.isNull(maxPstPerTso)) {
             this.maxPstPerTso = new HashMap<>();
         } else {
-            Map<String, Integer> updatedMaxPstPerTso = replaceNegativeValues(maxPstPerTso);
+            Map<String, Integer> updatedMaxPstPerTso = replaceNegativeValues(maxPstPerTso, reportNode);
             crossCheckMaxCraPerTsoParameters(this.maxRaPerTso, this.maxTopoPerTso, updatedMaxPstPerTso);
             this.maxPstPerTso = updatedMaxPstPerTso;
         }
     }
 
     public void setMaxRaPerTso(Map<String, Integer> maxRaPerTso) {
+        setMaxRaPerTso(maxRaPerTso, ReportNode.NO_OP);
+    }
+
+    public void setMaxRaPerTso(Map<String, Integer> maxRaPerTso, ReportNode reportNode) {
         if (Objects.isNull(maxRaPerTso)) {
             this.maxRaPerTso = new HashMap<>();
         } else {
-            Map<String, Integer> updatedMaxRaPerTso = replaceNegativeValues(maxRaPerTso);
+            Map<String, Integer> updatedMaxRaPerTso = replaceNegativeValues(maxRaPerTso, reportNode);
             crossCheckMaxCraPerTsoParameters(updatedMaxRaPerTso, this.maxTopoPerTso, this.maxPstPerTso);
             this.maxRaPerTso = updatedMaxRaPerTso;
         }
@@ -101,10 +120,10 @@ public class RaUsageLimits {
         return maxTsoExclusion;
     }
 
-    private Map<String, Integer> replaceNegativeValues(Map<String, Integer> limitsPerTso) {
+    private Map<String, Integer> replaceNegativeValues(Map<String, Integer> limitsPerTso, ReportNode reportNode) {
         limitsPerTso.forEach((tso, limit) -> {
             if (limit < 0) {
-                BUSINESS_WARNS.warn("The value {} provided for max number of RAs for TSO {} is smaller than 0. It will be set to 0 instead.", limit, tso);
+                CracApiReports.reportRaUsageLimitsNegativeMaxRaForTso(reportNode, limit, tso);
                 limitsPerTso.put(tso, 0);
             }
         });

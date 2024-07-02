@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
@@ -24,10 +25,12 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     protected Integer speed;
     protected Set<UsageRule> usageRules = new HashSet<>();
     private final CracImpl crac;
+    protected final ReportNode reportNode;
 
-    AbstractRemedialActionAdder(CracImpl crac) {
+    AbstractRemedialActionAdder(CracImpl crac, ReportNode reportNode) {
         Objects.requireNonNull(crac);
         this.crac = crac;
+        this.reportNode = reportNode;
     }
 
     @Override

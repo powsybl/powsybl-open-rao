@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.api;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.nativecracapi.NativeCrac;
@@ -34,5 +35,15 @@ public interface CracCreator<T extends NativeCrac, S extends CracCreationContext
      * - null offsetDateTime might be acceptable for CracCreator implementations
      * - null cracCreationParameters might be acceptatble for CracCreator implementations
      */
-    S createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters);
+    S createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode);
+
+    /**
+     * Create a Crac object from a NativeCrac, a Network, an OffsetDateTime and cracCreationParameters.
+     * Note that :
+     * - null offsetDateTime might be acceptable for CracCreator implementations
+     * - null cracCreationParameters might be acceptatble for CracCreator implementations
+     */
+    default S createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+        return createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters, ReportNode.NO_OP);
+    }
 }

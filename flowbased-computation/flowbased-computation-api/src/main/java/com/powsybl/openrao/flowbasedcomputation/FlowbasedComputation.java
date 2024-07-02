@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.flowbasedcomputation;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -43,28 +44,28 @@ public final class FlowbasedComputation {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters) {
+        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters, ReportNode reportNode) {
             Objects.requireNonNull(network);
             Objects.requireNonNull(crac);
             Objects.requireNonNull(glsk);
             Objects.requireNonNull(parameters);
-            return provider.run(network, crac, null, glsk, parameters);
+            return provider.run(network, crac, null, glsk, parameters, reportNode);
         }
 
-        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk) {
-            return runAsync(network, crac, glsk, FlowbasedComputationParameters.load());
+        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, ReportNode reportNode) {
+            return runAsync(network, crac, glsk, FlowbasedComputationParameters.load(), reportNode);
         }
 
-        public FlowbasedComputationResult run(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, RaoResult raoResult, FlowbasedComputationParameters parameters) {
+        public FlowbasedComputationResult run(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, RaoResult raoResult, FlowbasedComputationParameters parameters, ReportNode reportNode) {
             Objects.requireNonNull(network);
             Objects.requireNonNull(crac);
             Objects.requireNonNull(glsk);
             Objects.requireNonNull(parameters);
-            return provider.run(network, crac, raoResult, glsk, parameters).join();
+            return provider.run(network, crac, raoResult, glsk, parameters, reportNode).join();
         }
 
-        public FlowbasedComputationResult run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk) {
-            return run(network, crac, glsk, raoResult, FlowbasedComputationParameters.load());
+        public FlowbasedComputationResult run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk, ReportNode reportNode) {
+            return run(network, crac, glsk, raoResult, FlowbasedComputationParameters.load(), reportNode);
         }
 
         @Override
@@ -100,19 +101,19 @@ public final class FlowbasedComputation {
         return find(null);
     }
 
-    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters) {
-        return find().runAsync(network, crac, glsk, parameters);
+    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters, ReportNode reportNode) {
+        return find().runAsync(network, crac, glsk, parameters, reportNode);
     }
 
-    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk) {
-        return find().runAsync(network, crac, glsk);
+    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, ReportNode reportNode) {
+        return find().runAsync(network, crac, glsk, reportNode);
     }
 
-    public static FlowbasedComputationResult run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters) {
-        return find().run(network, crac, glsk, raoResult, parameters);
+    public static FlowbasedComputationResult run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters, ReportNode reportNode) {
+        return find().run(network, crac, glsk, raoResult, parameters, reportNode);
     }
 
-    public static FlowbasedComputationResult run(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, RaoResult raoResult) {
-        return find().run(network, crac, raoResult, glsk);
+    public static FlowbasedComputationResult run(Network network, Crac crac, ZonalData<SensitivityVariableSet> glsk, RaoResult raoResult, ReportNode reportNode) {
+        return find().run(network, crac, raoResult, glsk, reportNode);
     }
 }

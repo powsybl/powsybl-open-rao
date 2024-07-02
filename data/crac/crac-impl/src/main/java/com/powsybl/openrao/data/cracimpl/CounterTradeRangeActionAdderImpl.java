@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.CounterTradeRangeActionAdder;
@@ -13,7 +14,6 @@ import com.powsybl.iidm.network.Country;
 
 import java.util.Objects;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotEmpty;
 import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNull;
 
@@ -31,8 +31,8 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         return COUNTER_TRADE_RANGE_ACTION;
     }
 
-    CounterTradeRangeActionAdderImpl(CracImpl owner) {
-        super(owner);
+    CounterTradeRangeActionAdderImpl(CracImpl owner, ReportNode reportNode) {
+        super(owner, CracImplReports.reportNewCounterTradeRangeAction(reportNode));
     }
 
     @Override
@@ -64,7 +64,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
 
         // check usage rules
         if (usageRules.isEmpty()) {
-            BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            CracImplReports.reportActionWithoutAnyUsageRule(reportNode, "CounterTradeRangeAction", id);
         }
 
         CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, this.exportingCountry, this.importingCountry);

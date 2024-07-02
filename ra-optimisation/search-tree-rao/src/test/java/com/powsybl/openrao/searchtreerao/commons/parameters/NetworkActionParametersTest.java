@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.InstantKind;
@@ -41,7 +42,7 @@ class NetworkActionParametersTest {
 
     @Test
     void buildFromRaoParametersTestOk() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         raoParameters.getTopoOptimizationParameters().setPredefinedCombinations(Collections.singletonList(List.of("complexNetworkActionId", "switchPairRaId")));
         raoParameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20.);
@@ -49,7 +50,7 @@ class NetworkActionParametersTest {
         raoParameters.getTopoOptimizationParameters().setSkipActionsFarFromMostLimitingElement(true);
         raoParameters.getTopoOptimizationParameters().setMaxNumberOfBoundariesForSkippingActions(4);
 
-        NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
+        NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac, ReportNode.NO_OP);
 
         assertEquals(1, nap.getNetworkActionCombinations().size());
         assertEquals(2, nap.getNetworkActionCombinations().get(0).getNetworkActionSet().size());
@@ -103,7 +104,7 @@ class NetworkActionParametersTest {
                 .add();
 
         // test list
-        RaoParameters parameters = new RaoParameters();
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
 
         parameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(
                 List.of("topological-action-1", "topological-action-2"), // OK
@@ -112,7 +113,7 @@ class NetworkActionParametersTest {
                 List.of("topological-action-1"), // should be filtered (one action only)
                 new ArrayList<>())); // should be filtered
 
-        List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters.getTopoOptimizationParameters());
+        List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters.getTopoOptimizationParameters(), ReportNode.NO_OP);
 
         assertEquals(5, parameters.getTopoOptimizationParameters().getPredefinedCombinations().size());
         assertEquals(2, naCombinations.size());

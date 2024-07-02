@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craciojson.deserializers;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -38,24 +39,23 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CracDeserializer.class);
 
     private CracFactory cracFactory;
-
     private Network network;
-
+    private ReportNode reportNode;
     private final boolean headerCheckOnly;
 
     public CracDeserializer(boolean headerCheckOnly) {
         this.headerCheckOnly = headerCheckOnly;
     }
 
-    public CracDeserializer(CracFactory cracFactory, Network network) {
+    public CracDeserializer(CracFactory cracFactory, Network network, ReportNode reportNode) {
         this.cracFactory = cracFactory;
         this.network = network;
+        this.reportNode = reportNode;
         this.headerCheckOnly = false;
     }
 
     @Override
     public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-
         // check header
         String version = isValid(jsonParser);
         if (headerCheckOnly) {
@@ -70,7 +70,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             throw new OpenRaoException(String.format("The JSON Crac must contain a %s field after the %s field", NAME, ID));
         }
         String name = jsonParser.nextTextValue();
-        Crac crac = cracFactory.create(id, name);
+        Crac crac = cracFactory.create(id, name, reportNode);
         if (getPrimaryVersionNumber(version) < 2) {
             crac.newInstant("preventive", InstantKind.PREVENTIVE)
                 .newInstant("outage", InstantKind.OUTAGE)
@@ -145,7 +145,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case RA_USAGE_LIMITS_PER_INSTANT:
                     jsonParser.nextToken();
-                    RaUsageLimitsDeserializer.deserialize(jsonParser, crac);
+                    RaUsageLimitsDeserializer.deserialize(jsonParser, crac, reportNode);
                     break;
 
                 default:
@@ -184,6 +184,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
         if (getPrimaryVersionNumber(CRAC_IO_VERSION) > getPrimaryVersionNumber(cracVersion)) {
             LOGGER.warn("CRAC importer {} might not be longer compatible with json CRAC version {}, consider updating your json CRAC file", CRAC_IO_VERSION, cracVersion);
+            // TODO ?
         }
         if (getPrimaryVersionNumber(CRAC_IO_VERSION) < getPrimaryVersionNumber(cracVersion)) {
             throw new OpenRaoException(String.format("CRAC importer %s cannot handle json CRAC version %s, consider upgrading open-rao version", CRAC_IO_VERSION, cracVersion));

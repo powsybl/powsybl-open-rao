@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.CRACDocumentType;
@@ -42,7 +43,7 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
     }
 
     @Override
-    public CseCrac importNativeCrac(InputStream inputStream) {
+    public CseCrac importNativeCrac(InputStream inputStream, ReportNode reportNode) {
         CRACDocumentType cracDocumentType;
         try {
             cracDocumentType = JAXBContext.newInstance(CRACDocumentType.class)
@@ -56,7 +57,7 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
     }
 
     @Override
-    public boolean exists(String s, InputStream inputStream) {
+    public boolean exists(String s, InputStream inputStream, ReportNode reportNode) {
         Source xmlFile = new StreamSource(inputStream);
         // The following line triggers sonar issue java:S2755 which prevents us from accessing XSD schema files
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI); //NOSONAR
@@ -69,7 +70,7 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
             });
 
             schema.newValidator().validate(xmlFile);
-            OpenRaoLoggerProvider.BUSINESS_LOGS.info("CSE CRAC document is valid");
+            CseCracReports.reportCseValidCracDocument(reportNode);
             return FilenameUtils.getExtension(s).equals("xml");
         } catch (MalformedURLException e) {
             throw new OpenRaoException("URL error");

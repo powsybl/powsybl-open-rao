@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.glsk.virtual.hubs;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
@@ -15,6 +16,11 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +36,10 @@ class GlskVirtualHubsTest {
     private Network network;
     private VirtualHubsConfiguration virtualHubsConfiguration;
 
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     @BeforeEach
     private void setUp() {
         String networkFileName = "network_with_virtual_hubs.xiidm";
@@ -43,9 +53,10 @@ class GlskVirtualHubsTest {
     }
 
     @Test
-    void testGetVirtualHubsOk() {
+    void testGetVirtualHubsOk() throws IOException, URISyntaxException {
         List<String> virtualHubEiCodes = Arrays.asList("17YXTYUDHGKAAAAS", "15XGDYRHKLKAAAAS");
-        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, virtualHubEiCodes);
+        ReportNode reportNode = buildNewRootNode();
+        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, virtualHubEiCodes, reportNode);
 
         assertEquals(2, glsks.getDataPerZone().size());
 
@@ -60,12 +71,28 @@ class GlskVirtualHubsTest {
         assertEquals(1, glsks.getData("17YXTYUDHGKAAAAS").getVariables().size());
         assertTrue(glsks.getData("17YXTYUDHGKAAAAS").getVariablesById().containsKey("FFR1AA1  X_GBFR1  1"));
         assertEquals(1., glsks.getData("17YXTYUDHGKAAAAS").getVariablesById().get("FFR1AA1  X_GBFR1  1").getWeight(), DOUBLE_TOLERANCE);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVirtualHubsOk.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testGetVirtualHubsNotFound() {
+    void testGetVirtualHubsNotFound() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
+
         List<String> virtualHubEiCodes = Collections.singletonList("UNKNOWN_EICODE");
-        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, virtualHubEiCodes);
+        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, virtualHubEiCodes, reportNode);
         assertEquals(0, glsks.getDataPerZone().size());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVirtualHubsNotFound.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

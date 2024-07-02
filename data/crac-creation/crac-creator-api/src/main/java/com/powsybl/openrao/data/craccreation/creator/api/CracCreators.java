@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.api;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.nativecracapi.NativeCrac;
@@ -39,20 +40,22 @@ public final class CracCreators {
     /**
      * Flexible method to create a Crac from a native CRAC, a network and a OffsetDateTime, whatever the format of the
      * native CRAC.
-     * @param nativeCrac native CRAC object
-     * @param network network object required for the conversion of the NativeCrac into a Crac
-     * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
+     *
+     * @param nativeCrac             native CRAC object
+     * @param network                network object required for the conversion of the NativeCrac into a Crac
+     * @param offsetDateTime         timestamp for which the Crac is creator (null values might be accepted by some creators)
      * @param cracCreationParameters the configuration of the CRAC creation
+     * @param reportNode
      * @return the created {@link CracCreationContext} object
      */
-    public static CracCreationContext createCrac(NativeCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    public static CracCreationContext createCrac(NativeCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode) {
         CracCreator creator = findCreator(nativeCrac.getFormat());
 
         if (Objects.isNull(creator)) {
             throw new OpenRaoException(String.format("No CracCreator found for format %s", nativeCrac.getFormat()));
         }
 
-        return creator.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters);
+        return creator.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters, reportNode);
     }
 
     /**
@@ -63,21 +66,23 @@ public final class CracCreators {
      * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
      * @return the created {@link CracCreationContext} object
      */
-    public static CracCreationContext createCrac(NativeCrac nativeCrac, Network network, OffsetDateTime offsetDateTime) {
-        return createCrac(nativeCrac, network, offsetDateTime, new CracCreationParameters());
+    public static CracCreationContext createCrac(NativeCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, ReportNode reportNode) {
+        return createCrac(nativeCrac, network, offsetDateTime, new CracCreationParameters(), reportNode);
     }
 
     /**
      * Flexible method to import a Crac from a native CRAC file, a network and a OffsetDateTime, whatever the format of the
      * native CRAC file.
+     *
      * @param nativeCracPath {@link Path} of the native CRAC file
-     * @param network network object required for the conversion of the NativeCrac into a Crac
+     * @param network        network object required for the conversion of the NativeCrac into a Crac
      * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
+     * @param reportNode
      * @return the created {@link NativeCrac} object
      */
-    public static CracCreationContext importAndCreateCrac(Path nativeCracPath, Network network, OffsetDateTime offsetDateTime) {
-        NativeCrac nativeCrac = NativeCracImporters.importData(nativeCracPath);
-        return createCrac(nativeCrac, network, offsetDateTime);
+    public static CracCreationContext importAndCreateCrac(Path nativeCracPath, Network network, OffsetDateTime offsetDateTime, ReportNode reportNode) {
+        NativeCrac nativeCrac = NativeCracImporters.importData(nativeCracPath, reportNode);
+        return createCrac(nativeCrac, network, offsetDateTime, reportNode);
     }
 
     /**
@@ -89,9 +94,9 @@ public final class CracCreators {
      * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
      * @return the created {@link NativeCrac} object
      */
-    public static CracCreationContext importAndCreateCrac(String fileName, InputStream inputStream, Network network, OffsetDateTime offsetDateTime) {
-        NativeCrac nativeCrac = NativeCracImporters.importData(fileName, inputStream);
-        return createCrac(nativeCrac, network, offsetDateTime);
+    public static CracCreationContext importAndCreateCrac(String fileName, InputStream inputStream, Network network, OffsetDateTime offsetDateTime, ReportNode reportNode) {
+        NativeCrac nativeCrac = NativeCracImporters.importData(fileName, inputStream, reportNode);
+        return createCrac(nativeCrac, network, offsetDateTime, reportNode);
     }
 
     /**

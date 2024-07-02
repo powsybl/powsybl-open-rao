@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
@@ -124,28 +125,24 @@ public class AngleMonitoringResult {
         }
     }
 
-    public List<String> printConstraints() {
+    public void reportConstraints(ReportNode reportNode) {
         if (isDivergent()) {
-            return List.of("Load flow divergence.");
+            AngleMonitoringReports.reportLoadflowDivergence(reportNode);
+        } else if (isSecure()) {
+            AngleMonitoringReports.reportNoConstrainedElements(reportNode);
+        } else if (isUnknown()) {
+            AngleMonitoringReports.reportUnknownStatusOnAngleCnecs(reportNode);
+        } else {
+            AngleMonitoringReports.reportSomeConstrainedElements(reportNode);
+            angleCnecsWithAngle.stream()
+                .filter(angleResult -> AngleMonitoring.thresholdOvershoot(angleResult.getAngleCnec(), angleResult.getAngle()))
+                .sorted(Comparator.comparing(AngleResult::getId))
+                .forEach(angleResult -> AngleMonitoringReports.reportConstrainedElement(reportNode,
+                    angleResult.getAngleCnec().getId(),
+                    angleResult.getAngleCnec().getImportingNetworkElement().getId(),
+                    angleResult.getAngleCnec().getExportingNetworkElement().getId(),
+                    angleResult.getState().getId(),
+                    angleResult.getAngle()));
         }
-        if (isSecure()) {
-            return List.of("All AngleCnecs are secure.");
-        }
-        if (isUnknown()) {
-            return List.of("Unknown status on AngleCnecs.");
-        }
-        List<String> constraints = new ArrayList<>();
-        constraints.add("Some AngleCnecs are not secure:");
-        angleCnecsWithAngle.stream().filter(angleResult ->
-            AngleMonitoring.thresholdOvershoot(angleResult.getAngleCnec(), angleResult.getAngle()))
-                    .forEach(angleResult ->
-                constraints.add(String.format("AngleCnec %s (with importing network element %s and exporting network element %s)" +
-                                " at state %s has an angle of %.0f°.",
-                        angleResult.getAngleCnec().getId(),
-                        angleResult.getAngleCnec().getImportingNetworkElement().getId(),
-                        angleResult.getAngleCnec().getExportingNetworkElement().getId(),
-                        angleResult.getState().getId(),
-                        angleResult.getAngle())));
-        return constraints;
     }
 }

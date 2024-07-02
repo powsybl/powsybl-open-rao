@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.flowbasedcomputation;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -43,9 +44,9 @@ class FlowbasedComputationTest {
         FlowbasedComputation.Runner defaultFlowBased = FlowbasedComputation.find();
         assertEquals("FlowBasedComputationMock", defaultFlowBased.getName());
         assertEquals("1.0", defaultFlowBased.getVersion());
-        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, glsk, null);
+        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, glsk, null, ReportNode.NO_OP);
         assertNotNull(result);
-        FlowbasedComputationResult resultAsync = FlowbasedComputation.runAsync(network, crac, glsk).join();
+        FlowbasedComputationResult resultAsync = FlowbasedComputation.runAsync(network, crac, glsk, ReportNode.NO_OP).join();
         assertNotNull(resultAsync);
     }
 

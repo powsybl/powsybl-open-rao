@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
@@ -16,8 +16,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.google.auto.service.AutoService;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -44,26 +42,27 @@ public class Castor implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
-        return run(raoInput, parameters, null);
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        return run(raoInput, parameters, null, reportNode);
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
-        RaoUtil.initData(raoInput, parameters);
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+        RaoUtil.initData(raoInput, parameters, reportNode);
+        ReportNode raoReportNode = CastorAlgorithmReports.reportRao(raoInput.getNetwork().getId(), reportNode);
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {
             try {
-                return new CastorOneStateOnly(raoInput, parameters).run();
+                return new CastorOneStateOnly(raoInput, parameters).run(raoReportNode);
             } catch (Exception e) {
-                BUSINESS_LOGS.error("Optimizing state \"{}\" failed: ", raoInput.getOptimizedState().getId(), e);
+                CastorAlgorithmReports.reportRaoFailure(raoInput.getOptimizedState().getId(), e, reportNode);
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl());
             }
         } else {
 
             // else, optimization is made on all the states
-            return new CastorFullOptimization(raoInput, parameters, targetEndInstant).run();
+            return new CastorFullOptimization(raoInput, parameters, targetEndInstant).run(raoReportNode);
         }
     }
 }

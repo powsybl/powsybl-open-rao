@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
@@ -59,7 +60,7 @@ public final class SearchTreeBloomer {
      * <li>they are not too far away from the most limiting CNEC</li>
      * </ul>
      */
-    Set<NetworkActionCombination> bloom(Leaf fromLeaf, Set<NetworkAction> networkActions) {
+    Set<NetworkActionCombination> bloom(Leaf fromLeaf, Set<NetworkAction> networkActions, ReportNode reportNode) {
 
         // preDefined combinations
         Set<NetworkActionCombination> networkActionCombinations = preDefinedNaCombinations.stream()
@@ -79,7 +80,7 @@ public final class SearchTreeBloomer {
 
         // filters
         for (NetworkActionCombinationFilter networkActionCombinationFilter : networkActionCombinationFilters) {
-            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf);
+            networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf, reportNode);
         }
 
         return networkActionCombinations;

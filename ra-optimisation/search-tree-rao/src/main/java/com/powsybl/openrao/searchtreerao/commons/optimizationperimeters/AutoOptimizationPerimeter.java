@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -32,12 +33,12 @@ public class AutoOptimizationPerimeter extends AbstractOptimizationPerimeter {
         }
     }
 
-    public static AutoOptimizationPerimeter build(State automatonState, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static AutoOptimizationPerimeter build(State automatonState, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult, ReportNode reportNode) {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, prePerimeterResult, flowCnecs, network, raoParameters))
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, prePerimeterResult, flowCnecs, network, raoParameters, reportNode))
             .collect(Collectors.toSet());
 
         return new AutoOptimizationPerimeter(automatonState, flowCnecs, loopFlowCnecs, availableNetworkActions);

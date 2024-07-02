@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracapi;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.io.Importer;
 
@@ -30,7 +31,7 @@ public class MockCracImporter implements Importer {
     }
 
     @Override
-    public Crac importData(InputStream inputStream, CracFactory cracFactory, Network network) {
+    public Crac importData(InputStream inputStream, CracFactory cracFactory, Network network, ReportNode reportNode) {
         return new MockCrac("crac");
     }
 }

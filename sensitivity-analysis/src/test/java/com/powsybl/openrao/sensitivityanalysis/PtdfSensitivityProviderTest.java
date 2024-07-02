@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
@@ -20,6 +21,11 @@ import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,6 +38,10 @@ class PtdfSensitivityProviderTest {
     Network network;
     Crac crac;
     ZonalData<SensitivityVariableSet> glskMock;
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @BeforeEach
     public void setUp() {
@@ -51,7 +61,7 @@ class PtdfSensitivityProviderTest {
 
     @Test
     void getFactorsOnCommonCrac() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT), ReportNode.NO_OP);
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getBasecaseFactors(network);
         assertEquals(8, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
@@ -65,7 +75,7 @@ class PtdfSensitivityProviderTest {
 
     @Test
     void testDisableFactorForBaseCase() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT), ReportNode.NO_OP);
 
         // factors with basecase and contingency
         assertEquals(8, ptdfSensitivityProvider.getBasecaseFactors(network).size());
@@ -79,9 +89,17 @@ class PtdfSensitivityProviderTest {
     }
 
     @Test
-    void testDoNotHandleAmpere() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE));
+    void testDoNotHandleAmpere() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE), reportNode);
         assertFalse(ptdfSensitivityProvider.factorsInAmpere);
         assertTrue(ptdfSensitivityProvider.factorsInMegawatt);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodePdfSensitivityProviderDoNotHandleAmpere.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
@@ -44,10 +45,20 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, CounterTradeRangeAction> counterTradeRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
     private final Map<Instant, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
+    private ReportNode reportNode;
     private Instant lastInstantAdded = null;
 
-    public CracImpl(String id, String name) {
+    public CracImpl(String id, String name, ReportNode reportNode) {
         super(id, name);
+        this.reportNode = CracImplReports.reportNewCrac(reportNode, getId(), getName());
+    }
+
+    public CracImpl(String id, ReportNode reportNode) {
+        this(id, id, reportNode);
+    }
+
+    public CracImpl(String id, String name) {
+        this(id, name, ReportNode.NO_OP);
     }
 
     public CracImpl(String id) {
@@ -626,22 +637,22 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public PstRangeActionAdder newPstRangeAction() {
-        return new PstRangeActionAdderImpl(this);
+        return new PstRangeActionAdderImpl(this, reportNode);
     }
 
     @Override
     public HvdcRangeActionAdder newHvdcRangeAction() {
-        return new HvdcRangeActionAdderImpl(this);
+        return new HvdcRangeActionAdderImpl(this, reportNode);
     }
 
     @Override
     public InjectionRangeActionAdder newInjectionRangeAction() {
-        return new InjectionRangeActionAdderImpl(this);
+        return new InjectionRangeActionAdderImpl(this, reportNode);
     }
 
     @Override
     public CounterTradeRangeActionAdder newCounterTradeRangeAction() {
-        return new CounterTradeRangeActionAdderImpl(this);
+        return new CounterTradeRangeActionAdderImpl(this, reportNode);
     }
 
     @Override
@@ -832,7 +843,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public NetworkActionAdder newNetworkAction() {
-        return new NetworkActionAdderImpl(this);
+        return new NetworkActionAdderImpl(this, reportNode);
     }
 
     @Override
@@ -872,7 +883,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public RaUsageLimitsAdder newRaUsageLimits(String instantName) {
-        return new RaUsageLimitsAdderImpl(this, instantName);
+        return new RaUsageLimitsAdderImpl(this, instantName, reportNode);
     }
 
     @Override

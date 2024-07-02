@@ -7,12 +7,15 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
 import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.CimCrac;
+import com.powsybl.openrao.data.craccreation.creator.cim.CimCracReports;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MonitoredSeriesCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.VoltageCnecsCreator;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency.CimContingencyCreator;
@@ -45,9 +48,11 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
     }
 
     @Override
-    public CimCracCreationContext createCrac(CimCrac cimCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters parameters) {
+    public CimCracCreationContext createCrac(CimCrac cimCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters parameters, ReportNode reportNode) {
+        ReportNode cimCracCreatorReportNode = CimCracReports.reportCimCracCreator(reportNode);
+        ReportNode cimCracCreationReportReportNode = CimCracReports.reportCimCracCreationReport(cimCracCreatorReportNode);
         // Set attributes
-        this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID());
+        this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID(), cimCracCreatorReportNode);
         addCimInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
@@ -57,33 +62,33 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         // Get warning messages from parameters parsing
         CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
         if (cimCracCreationParameters != null) {
-            cimCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message));
+            cimCracCreationParameters.getFailedParseWarnings().forEach(message -> CracCreationReport.warn(message, cimCracCreationReportReportNode));
             if (!cimCracCreationParameters.getTimeseriesMrids().isEmpty()) {
                 this.cimTimeSeries.removeIf(ts -> !cimCracCreationParameters.getTimeseriesMrids().contains(ts.getMRID()));
                 cimCracCreationParameters.getTimeseriesMrids().stream()
                     .filter(mrid -> this.cimTimeSeries.stream().map(TimeSeries::getMRID).noneMatch(id -> id.equals(mrid)))
-                    .forEach(mrid -> creationContext.getCreationReport().warn(String.format("Requested TimeSeries mRID \"%s\" in CimCracCreationParameters was not found in the CRAC file.", mrid)));
+                    .forEach(mrid -> CracCreationReport.warn(String.format("Requested TimeSeries mRID \"%s\" in CimCracCreationParameters was not found in the CRAC file.", mrid), cimCracCreationReportReportNode));
             }
         }
 
         if (offsetDateTime == null) {
-            creationContext.getCreationReport().error("Timestamp is null for cim crac creator.");
+            CracCreationReport.error("Timestamp is null for cim crac creator.", cimCracCreationReportReportNode);
             return creationContext.creationFailure();
         } else {
             String cracTimePeriodStart = cimCrac.getCracDocument().getTimePeriodTimeInterval().getStart();
             String cracTimePeriodEnd = cimCrac.getCracDocument().getTimePeriodTimeInterval().getEnd();
             if (!isInTimeInterval(offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd)) {
-                creationContext.getCreationReport().error(String.format("Timestamp %s is not in time interval [%s %s].", offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd));
+                CracCreationReport.error(String.format("Timestamp %s is not in time interval [%s %s].", offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd), cimCracCreationReportReportNode);
                 return creationContext.creationFailure();
             }
         }
 
         createContingencies();
-        createCnecs(parameters.getDefaultMonitoredSides());
-        createRemedialActions(cimCracCreationParameters);
+        createCnecs(parameters.getDefaultMonitoredSides(), cimCracCreationReportReportNode);
+        createRemedialActions(cimCracCreationParameters, cimCracCreationReportReportNode);
         createVoltageCnecs(cimCracCreationParameters);
-        creationContext.buildCreationReport();
-        CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
+        creationContext.buildCreationReport(cimCracCreationReportReportNode);
+        CracValidator.validateCrac(crac, network).stream().sorted().forEach(addedReason -> CracCreationReport.added(addedReason, cimCracCreationReportReportNode));
         return creationContext.creationSuccess(crac);
     }
 
@@ -98,12 +103,12 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         new CimContingencyCreator(cimTimeSeries, crac, network, creationContext).createAndAddContingencies();
     }
 
-    private void createCnecs(Set<TwoSides> defaultMonitoredSides) {
-        new MonitoredSeriesCreator(cimTimeSeries, network, creationContext, defaultMonitoredSides).createAndAddMonitoredSeries();
+    private void createCnecs(Set<TwoSides> defaultMonitoredSides, ReportNode reportNode) {
+        new MonitoredSeriesCreator(cimTimeSeries, network, creationContext, defaultMonitoredSides).createAndAddMonitoredSeries(reportNode);
     }
 
-    private void createRemedialActions(CimCracCreationParameters cimCracCreationParameters) {
-        new RemedialActionSeriesCreator(cimTimeSeries, crac, network, creationContext, cimCracCreationParameters).createAndAddRemedialActionSeries();
+    private void createRemedialActions(CimCracCreationParameters cimCracCreationParameters, ReportNode reportNode) {
+        new RemedialActionSeriesCreator(cimTimeSeries, crac, network, creationContext, cimCracCreationParameters).createAndAddRemedialActionSeries(reportNode);
     }
 
     private void createVoltageCnecs(CimCracCreationParameters cimCracCreationParameters) {

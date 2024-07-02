@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
@@ -40,8 +41,10 @@ public class SweCne {
     private final CriticalNetworkElementMarketDocument marketDocument;
     private final SweCneHelper sweCneHelper;
     private final CimCracCreationContext cracCreationContext;
+    private final ReportNode reportNode;
 
-    public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters, ReportNode reportNode) {
+        this.reportNode = reportNode;
         marketDocument = new CriticalNetworkElementMarketDocument();
         sweCneHelper = new SweCneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         this.cracCreationContext = cracCreationContext;
@@ -101,7 +104,7 @@ public class SweCne {
 
     // Creates and fills all ConstraintSeries
     private void createAllConstraintSeries(Point point) {
-        List<ConstraintSeries> constraintSeriesList = new SweConstraintSeriesCreator(sweCneHelper, cracCreationContext).generate();
+        List<ConstraintSeries> constraintSeriesList = new SweConstraintSeriesCreator(sweCneHelper, cracCreationContext, reportNode).generate();
         point.getConstraintSeries().addAll(constraintSeriesList);
     }
 

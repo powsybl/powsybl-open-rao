@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   Scenario "preventive": no remedial actions activated
+   Scenario "contingency": 1 network action(s) activated : Open_fake_RA
+   Scenario "contingency": 2 range action(s) activated : PST_2: 4, PST_1: -2
+   Scenario "contingency": 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2

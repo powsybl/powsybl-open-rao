@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
@@ -46,7 +47,7 @@ class ToolProviderTest {
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
         State preventiveState = Mockito.mock(State.class);
@@ -70,7 +71,7 @@ class ToolProviderTest {
         Instant outageInstant = Mockito.mock(Instant.class);
         Mockito.when(outageInstant.isOutage()).thenReturn(true);
         SystematicSensitivityInterface sensitivityInterface = toolProvider.getSystematicSensitivityInterface(
-                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false, outageInstant);
+                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false, outageInstant, ReportNode.NO_OP);
         assertNotNull(sensitivityInterface);
     }
 
@@ -130,7 +131,7 @@ class ToolProviderTest {
                 .withLoopFlowComputation(Mockito.mock(ReferenceProgram.class), glskProvider, Mockito.mock(LoopFlowComputation.class))
                 .build();
 
-        ZonalData<SensitivityVariableSet> result = toolProvider.getGlskForEic(Set.of("10YFR-RTE------C", "10YES-REE------0", "absent"));
+        ZonalData<SensitivityVariableSet> result = toolProvider.getGlskForEic(Set.of("10YFR-RTE------C", "10YES-REE------0", "absent"), ReportNode.NO_OP);
         assertEquals(linearGlsk1, result.getData("10YFR-RTE------C"));
         assertEquals(linearGlsk2, result.getData("10YES-REE------0"));
         assertNull(result.getData("absent"));

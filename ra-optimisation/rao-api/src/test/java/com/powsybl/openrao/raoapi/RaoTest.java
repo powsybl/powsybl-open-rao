@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -37,6 +38,10 @@ class RaoTest {
     private InMemoryPlatformConfig platformConfig;
     private RaoInput raoInput;
 
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
     @BeforeEach
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
@@ -63,10 +68,15 @@ class RaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        RaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        ReportNode reportNodeVersion = buildNewRootNode();
+        RaoResult result = defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP), null, reportNodeVersion);
         assertNotNull(result);
+        assertEquals(1, reportNodeVersion.getChildren().size());
+        assertTrue(reportNodeVersion.getChildren().get(0).getMessage().contains("Running RAO using Open RAO version"));
+        assertTrue(reportNodeVersion.getChildren().get(0).getMessage().contains("from git commit"));
+        assertEquals(0, reportNodeVersion.getChildren().get(0).getChildren().size());
         //todo : assertEquals(RaoResultImpl.Status.DEFAULT, result.getStatus());
-        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters()).join();
+        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters(ReportNode.NO_OP)).join();
         assertNotNull(resultAsync);
         // todo: assertEquals(RaoResultImpl.Status.DEFAULT, resultAsync.getStatus());
     }

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.importer;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants;
@@ -47,11 +48,12 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
 
     /**
      * @param inputStream : zip file inputStream
+     * @param reportNode
      * @return csa profile native crac, the tripleStore contains data of every rdf file included in the zip
      * each context of the tripleStore contains one rdf file data
      */
     @Override
-    public CsaProfileCrac importNativeCrac(InputStream inputStream) {
+    public CsaProfileCrac importNativeCrac(InputStream inputStream, ReportNode reportNode) {
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
         ZipEntry zipEntry;
         Map<String, Set<String>> keywordMap = new HashMap<>();
@@ -65,7 +67,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
             while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) { //NOSONAR
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
-                    importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreCsaProfile);
+                    importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreCsaProfile, reportNode);
                 }
             }
         } catch (IOException e) {
@@ -74,8 +76,8 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
         return new CsaProfileCrac(tripleStoreCsaProfile, keywordMap);
     }
 
-    private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreCsaProfile) throws IOException {
-        OpenRaoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
+    private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreCsaProfile, ReportNode reportNode) throws IOException {
+        Reports.reportCsaProfileCracImportFile(reportNode, zipEntry.getName());
         int currentSizeEntry = 0;
         File tempFile;
         boolean tempFileOk;
@@ -130,7 +132,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
     }
 
     @Override
-    public boolean exists(String fileName, InputStream inputStream) {
+    public boolean exists(String fileName, InputStream inputStream, ReportNode reportNode) {
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
         tripleStoreCsaProfile.read(inputStream, CsaProfileConstants.RDF_BASE_URL, "");
         return FilenameUtils.getExtension(fileName).equals(CsaProfileConstants.EXTENSION_FILE_CSA_PROFILE);

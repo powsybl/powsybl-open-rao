@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -40,7 +41,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -81,12 +87,16 @@ class CimCracCreatorTest {
         hvdcNetwork = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
-    private void setUp(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) {
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
+
+    private void setUp(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters, ReportNode reportNode) {
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is, reportNode);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters, reportNode);
         importedCrac = cracCreationContext.getCrac();
         if (!Objects.isNull(importedCrac)) {
             preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
@@ -97,6 +107,10 @@ class CimCracCreatorTest {
             autoInstant = null;
             curativeInstant = null;
         }
+    }
+
+    private void setUp(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) {
+        setUp(fileName, network, parametrableOffsetDateTime, cracCreationParameters, ReportNode.NO_OP);
     }
 
     private void setUpWithGroupId(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, List<List<String>> alignedRangeActions) {
@@ -140,7 +154,7 @@ class CimCracCreatorTest {
         curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
     }
 
-    private void setUpWithTimeseriesMrids(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<String> timeseriesMrids) {
+    private void setUpWithTimeseriesMrids(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<String> timeseriesMrids, ReportNode reportNode) {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         cracCreationParameters = Mockito.spy(cracCreationParameters);
@@ -149,9 +163,9 @@ class CimCracCreatorTest {
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(timeseriesMrids);
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCrac cimCrac = cracImporter.importNativeCrac(is, reportNode);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters, reportNode);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -361,8 +375,9 @@ class CimCracCreatorTest {
     }
 
     @Test
-    void testImportContingencies() {
-        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+    void testImportContingencies() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
+        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters(), reportNode);
 
         assertEquals(3, importedCrac.getContingencies().size());
         assertContingencyImported("Co-1", "Co-1-name", Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
@@ -372,7 +387,12 @@ class CimCracCreatorTest {
         assertContingencyNotImported("Co-4", "Co-4-name", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertContingencyNotImported("Co-5", "Co-5-name", INCOMPLETE_DATA);
 
-        assertEquals(3, cracCreationContext.getCreationReport().getReport().size()); // 2 fake contingencies, 1 altered
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContent_CIM_21_1_1.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -830,20 +850,26 @@ class CimCracCreatorTest {
     }
 
     @Test
-    void testFilterOnTimeseries() {
-        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Collections.emptySet());
+    void testFilterOnTimeseries() throws IOException, URISyntaxException {
+        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Collections.emptySet(), ReportNode.NO_OP);
         assertEquals(2, importedCrac.getContingencies().size());
 
-        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries1", "TimeSeries2", "TimeSeries3"));
+        ReportNode reportNode = buildNewRootNode();
+        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries1", "TimeSeries2", "TimeSeries3"), reportNode);
         assertEquals(2, importedCrac.getContingencies().size());
-        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
-        assertEquals("[WARN] Requested TimeSeries mRID \"TimeSeries3\" in CimCracCreationParameters was not found in the CRAC file.", cracCreationContext.getCreationReport().getReport().get(0));
 
-        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries1"));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContent_CIM_2_timeseries.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
+
+        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries1"), ReportNode.NO_OP);
         assertEquals(1, importedCrac.getContingencies().size());
         assertNotNull(importedCrac.getContingency("Co-1"));
 
-        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries2"));
+        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries2"), ReportNode.NO_OP);
         assertEquals(1, importedCrac.getContingencies().size());
         assertNotNull(importedCrac.getContingency("Co-2"));
     }
@@ -874,7 +900,7 @@ class CimCracCreatorTest {
     }
 
     @Test
-    void testImportVoltageCnecs() {
+    void testImportVoltageCnecs() throws IOException, URISyntaxException {
         Set<String> monitoredElements = Set.of("_d77b61ef-61aa-4b22-95f6-b56ca080788d", "_2844585c-0d35-488d-a449-685bcd57afbf", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
 
         Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds = Map.of(
@@ -890,18 +916,21 @@ class CimCracCreatorTest {
         cimParams.setVoltageCnecsCreationParameters(voltageCnecsCreationParameters);
         params.addExtension(CimCracCreationParameters.class, cimParams);
 
-        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), params);
+        ReportNode reportNode = buildNewRootNode();
+        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), params, reportNode);
 
         assertEquals(3, importedCrac.getVoltageCnecs().size());
         assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - preventive"));
         assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - Co-1 - curative"));
         assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - Co-3 - outage"));
         assertEquals(7, cracCreationContext.getVoltageCnecCreationContexts().size());
-        assertEquals(7, cracCreationContext.getCreationReport().getReport().size());
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_2844585c-0d35-488d-a449-685bcd57afbf\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _2844585c-0d35-488d-a449-685bcd57afbf is not a voltage level."));
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _a708c3bc-465d-4fe7-b6ef-6fa6408a62b0 is not a voltage level."));
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"all\", instant \"all\" and contingency \"Co-4-name\" was not imported: OTHER. Contingency does not exist in the CRAC or could not be imported."));
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_d77b61ef-61aa-4b22-95f6-b56ca080788d\", instant \"auto\" and contingency \"Co-2-name\" was not imported: INCONSISTENCY_IN_DATA. Cannot add a threshold without min nor max values. Please use withMin() or withMax().."));
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContent_CIM_21_1_1_voltageCnec.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -1043,18 +1072,25 @@ class CimCracCreatorTest {
         assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
         assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains(String.format("[ADDED] CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", flowCnecId)));
     }
 
     @Test
-    void importAndDuplicateAutoCnecs() {
+    void importAndDuplicateAutoCnecs() throws IOException, URISyntaxException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        setUp("/cracs/CIM_21_2_1_ARA.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
+        ReportNode reportNode = buildNewRootNode();
+        setUp("/cracs/CIM_21_2_1_ARA.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters, reportNode);
 
         assertEquals(12, importedCrac.getCnecs().size());
         assertCnecHasOutageDuplicate("CNEC-4 - Co-1 - auto");
         assertCnecHasOutageDuplicate("CNEC-4 - Co-2 - auto");
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContent_CIM_21_2_1_ARA.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -1105,5 +1141,17 @@ class CimCracCreatorTest {
         assertPstRangeActionImported("AUTO_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction auto1 = importedCrac.getPstRangeAction("AUTO_1");
         assertEquals(4, auto1.getUsageRules().size());
+    }
+
+    @Test
+    void testReportNodeGenerated() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
+        setUp("/cracs/CIM_21_7_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters(), reportNode);
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCimCracCreator.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }
