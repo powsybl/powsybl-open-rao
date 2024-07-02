@@ -133,8 +133,8 @@ public class CsaProfileCracImporter implements Importer<CsaProfileCracCreationCo
     }
 
     @Override
-    public boolean exists(String fileName, InputStream inputStream) {
-        if (!FilenameUtils.getExtension(fileName).equals(CsaProfileConstants.EXTENSION_FILE_CSA_PROFILE)) {
+    public boolean exists(String filename, InputStream inputStream) {
+        if (!FilenameUtils.getExtension(filename).equals(CsaProfileConstants.EXTENSION_FILE_CSA_PROFILE)) {
             return false;
         }
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);

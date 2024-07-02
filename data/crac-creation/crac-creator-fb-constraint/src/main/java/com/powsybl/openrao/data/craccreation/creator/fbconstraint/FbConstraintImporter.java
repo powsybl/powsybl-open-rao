@@ -70,8 +70,8 @@ public class FbConstraintImporter implements Importer<FbConstraintCreationContex
     }
 
     @Override
-    public boolean exists(String s, InputStream inputStream) {
-        if (!FilenameUtils.getExtension(s).equals(XML_EXTENSION)) {
+    public boolean exists(String filename, InputStream inputStream) {
+        if (!FilenameUtils.getExtension(filename).equals(XML_EXTENSION)) {
             return false;
         }
         try {
