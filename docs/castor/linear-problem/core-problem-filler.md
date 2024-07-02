@@ -67,9 +67,6 @@ $$
 with $A(r,s')$ the setpoint of the last range action on the same element as $r$ but a state preceding $s$. If none such
 range actions exists, then $A(r,s') = \alpha_{0}(r)$
 
-### Definition of the relative setpoint variations of the RangeActions
-This constraint writing depends on the pst modelization (see )
-
 
 <br>
 
