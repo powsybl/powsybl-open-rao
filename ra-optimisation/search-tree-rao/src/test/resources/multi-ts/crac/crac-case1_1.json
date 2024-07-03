@@ -53,7 +53,7 @@
         }
       ],
       "networkElementId": "BBE2AA1  BBE3AA1  1",
-      "initialTap": 0,
+      "initialTap": 1,
       "tapToAngleConversionMap": {
         "-1": -0.3896097993971608,
         "0": 0.0,

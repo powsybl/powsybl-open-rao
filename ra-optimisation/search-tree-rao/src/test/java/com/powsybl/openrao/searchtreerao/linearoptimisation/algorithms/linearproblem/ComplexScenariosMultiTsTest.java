@@ -43,14 +43,12 @@ import java.util.*;
 import static java.util.Objects.nonNull;
 
 public class ComplexScenariosMultiTsTest {
-    static final double DOUBLE_TOLERANCE = 1e-4;
-    static final double SET_POINT_MAX_TAP = 6.2276423729910535;
     List<Network> networks;
     List<Crac> cracs;
     RangeActionSetpointResult initialSetpoints;
     List<OptimizationPerimeter> optimizationPerimeters;
     MultipleSensitivityResult initialSensiResult;
-    RangeActionsOptimizationParameters.PstModel pstModel = RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS;
+    RangeActionsOptimizationParameters.PstModel pstModel = RangeActionsOptimizationParameters.PstModel.CONTINUOUS;
     RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
 
     @BeforeEach
@@ -151,9 +149,9 @@ public class ComplexScenariosMultiTsTest {
             "multi-ts/crac/crac-2pst-ts2.json"
         );
         List<String> networksPaths = List.of(
-            "multi-ts/network/12NodesProdFR_2PST.uct",
-            "multi-ts/network/12NodesProdFR_2PST.uct",
-            "multi-ts/network/12NodesProdNL_2PST.uct"
+            "multi-ts/network/12NodesProdFR_3PST.uct",
+            "multi-ts/network/12NodesProdFR_3PST.uct",
+            "multi-ts/network/12NodesProdNL_3PST.uct"
         );
 
         cracs = new ArrayList<>();
@@ -259,7 +257,7 @@ public class ComplexScenariosMultiTsTest {
             cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
         }
 
-        List<Double> setPointsTs0 = List.of(6.227642059326172, 5.059959173202515, 0.0);
+        List<Double> setPointsTs0 = List.of(6.227642059326172, 6.227642059326172, 0.0);
         List<Double> setPointsTs1 = List.of(6.227642059326172, 6.227642059326172, 6.227642059326172);
         getMarginFromSetPointManyPst(setPointsTs0, 0);
         getMarginFromSetPointManyPst(setPointsTs1, 1);
@@ -287,9 +285,9 @@ public class ComplexScenariosMultiTsTest {
             "multi-ts/crac/crac-2pst-ts2.json"
         );
         List<String> networksPaths = List.of(
-            "multi-ts/network/12NodesProdFR_2PST.uct",
-            "multi-ts/network/12NodesProdFR_2PST.uct",
-            "multi-ts/network/12NodesProdNL_2PST.uct"
+            "multi-ts/network/12NodesProdFR_3PST.uct",
+            "multi-ts/network/12NodesProdFR_3PST.uct",
+            "multi-ts/network/12NodesProdNL_3PST.uct"
         );
         cracs = new ArrayList<>();
         networks = new ArrayList<>();
@@ -298,37 +296,30 @@ public class ComplexScenariosMultiTsTest {
             networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
             cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
         }
-        List<Double> setPoints0 = List.of(-6.2276423729910535, 0.0);
-        List<Double> setPoints1 = List.of(-6.2276423729910535, -3.1161220798131644);
-        List<Double> setPoints2 = List.of(-6.2276423729910535, -3.1161220798131644);
+        Map<Integer, Double> setPoints0 = Map.of(
+            0, 3.505407871356285
+        );
+        Map<Integer, Double> setPoints1 = Map.of(
+            0, 3.505407871356285,
+            1, -6.2276423729910535
+        );
+        Map<Integer, Double> setPoints2 = Map.of(
+            1, -6.2276423729910535,
+            2, 2.337343603803646
+        );
+
         getMarginFromSetPointOnePst(setPoints0, 0);
         getMarginFromSetPointOnePst(setPoints1, 1);
         getMarginFromSetPointOnePst(setPoints2, 2);
     }
 
-    private void getMarginFromSetPointOnePst(List<Double> setPoints, int timeStepIndex) {
-//        for (int pstIndex = 0; pstIndex < setPoints.size() ; pstIndex++) {
-//            PstRangeAction pstRangeAction = cracs.get(timeStepIndex).getPstRangeAction("pst_be - TS" + timeStepIndex);
-//            if (nonNull(pstRangeAction)) {
-//                pstRangeAction.apply(networks.get(timeStepIndex), (setPoints.get(pstIndex)));
-//            }
-//        }
-
-        if (timeStepIndex == 0) {
-            PstRangeAction pstRangeAction = cracs.get(0).getPstRangeAction("pst_be - TS0");
-            pstRangeAction.apply(networks.get(timeStepIndex), setPoints.get(0));
-
-        } else if (timeStepIndex == 1) {
-            PstRangeAction pstRangeAction0 = cracs.get(0).getPstRangeAction("pst_be - TS0");
-            pstRangeAction0.apply(networks.get(timeStepIndex), setPoints.get(0));
-            PstRangeAction pstRangeAction1 = cracs.get(1).getPstRangeAction("pst_be - TS1");
-            pstRangeAction1.apply(networks.get(timeStepIndex), setPoints.get(1));
-        } else if (timeStepIndex == 2) {
-            PstRangeAction pstRangeAction1 = cracs.get(1).getPstRangeAction("pst_be - TS1");
-            pstRangeAction1.apply(networks.get(timeStepIndex), setPoints.get(1));
-            PstRangeAction pstRangeAction2 = cracs.get(2).getPstRangeAction("pst_be - TS2");
-            pstRangeAction2.apply(networks.get(timeStepIndex), setPoints.get(0));
-        }
+    private void getMarginFromSetPointOnePst(Map<Integer, Double> setPoints, int timeStepIndex) {
+        setPoints.forEach((rangeActionIndex, setPointValue) -> {
+            PstRangeAction pstRangeAction = cracs.get(rangeActionIndex).getPstRangeAction("pst_be - TS" + rangeActionIndex);
+            if (nonNull(pstRangeAction)) {
+                pstRangeAction.apply(networks.get(timeStepIndex), setPointValue);
+            }
+        });
 
         LoadFlow.find("OpenLoadFlow").run(networks.get(timeStepIndex), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
         double p = networks.get(timeStepIndex).getLine("BBE2AA1  FFR3AA1  1").getTerminal1().getP();
@@ -344,9 +335,9 @@ public class ComplexScenariosMultiTsTest {
             "multi-ts/crac/crac-2pst-ts2.json"
         );
         List<String> networksPaths = List.of(
-            "multi-ts/network/12NodesProdFR_2PST.uct",
-            "multi-ts/network/12NodesProdFR_2PST.uct",
-            "multi-ts/network/12NodesProdNL_2PST.uct"
+            "multi-ts/network/12NodesProdFR_3PST.uct",
+            "multi-ts/network/12NodesProdFR_3PST.uct",
+            "multi-ts/network/12NodesProdNL_3PST.uct"
         );
         cracs = new ArrayList<>();
         networks = new ArrayList<>();

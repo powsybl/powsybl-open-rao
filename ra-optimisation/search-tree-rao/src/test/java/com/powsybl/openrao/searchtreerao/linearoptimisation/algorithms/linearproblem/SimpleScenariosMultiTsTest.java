@@ -214,8 +214,8 @@ public class SimpleScenariosMultiTsTest {
             "multi-ts/crac/crac-case" + caseNumber + "_1.json"
         );
         List<String> networksPaths = List.of(
-            "multi-ts/network/12NodesProdFR_2PST.uct",
-            "multi-ts/network/12NodesProdFR_2PST.uct"
+            "multi-ts/network/12NodesProdFR.uct",
+            "multi-ts/network/12NodesProdFR.uct"
         );
 
         cracs = new ArrayList<>();
@@ -230,8 +230,8 @@ public class SimpleScenariosMultiTsTest {
         optimizationPerimeters = computeOptimizationPerimeters();
         initialSensiResult = runInitialSensi();
 
-        LinearOptimizationResult resultTs0 = testProblemAlone(0);
-        LinearOptimizationResult resultTs1 = testProblemAlone(1);
+//        LinearOptimizationResult resultTs0 = testProblemAlone(0);
+//        LinearOptimizationResult resultTs1 = testProblemAlone(1);
 
         LinearOptimizationResult result = runIteratingLinearOptimization();
         System.out.println(result.getStatus());
@@ -244,13 +244,13 @@ public class SimpleScenariosMultiTsTest {
         double pstOptimizedSetPoint0 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0, state0);
         double pstOptimizedSetPoint1 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1, state1);
 
-        double pstOptimizedSetPointAlone0 = resultTs0.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0, state0);
-        double pstOptimizedSetPointAlone1 = resultTs1.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1, state1);
+//        double pstOptimizedSetPointAlone0 = resultTs0.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0, state0);
+//        double pstOptimizedSetPointAlone1 = resultTs1.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1, state1);
 
-        System.out.println("---- First problem alone -----");
-        System.out.println(pstOptimizedSetPointAlone0);
-        System.out.println("---- Second problem alone -----");
-        System.out.println(pstOptimizedSetPointAlone1);
+//        System.out.println("---- First problem alone -----");
+//        System.out.println(pstOptimizedSetPointAlone0);
+//        System.out.println("---- Second problem alone -----");
+//        System.out.println(pstOptimizedSetPointAlone1);
         System.out.println("---- Merged problem -----");
         System.out.println(pstOptimizedSetPoint0);
         System.out.println(pstOptimizedSetPoint1);

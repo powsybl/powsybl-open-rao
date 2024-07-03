@@ -113,6 +113,7 @@ public class MultiTSFiller implements ProblemFiller {
             for (PstRangeAction currentRangeAction : pstRangeActionsList.get(timeStepIndex)) {
                 // we can't use rangeActionsList instead because we need getNetworkElement()
                 for (int nextTimeStepIndex = timeStepIndex + 1; nextTimeStepIndex < pstRangeActionsList.size(); nextTimeStepIndex++) {
+                    // check if next time steps contains current pst
                     if (pstRangeActionsList.get(nextTimeStepIndex).stream().filter(pstRangeAction -> pstRangeAction.getNetworkElement().getId().equals(currentRangeAction.getNetworkElement().getId())).collect(Collectors.toSet()).isEmpty()) {
                         addImpactOfRangeActionOnLaterTimeSteps(linearProblem, sensitivityResult, currentRangeAction, timeStepIndex, nextTimeStepIndex, rangeActionActivationResult);
                     } else {
@@ -137,14 +138,10 @@ public class MultiTSFiller implements ProblemFiller {
 
                     if (isRangeActionSensitivityAboveThreshold(pstRangeAction, Math.abs(sensitivity))) {
                         double currentSetPoint = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, statesList.get(currentTimeStepIndex));
-
-                        // care : might not be robust as getCurrentValue get the current setPoint from a network variant
-                        //        we need to be sure that this variant has been properly set
                         flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentSetPoint);
                         flowConstraint.setUb(flowConstraint.ub() - sensitivity * currentSetPoint);
                         flowConstraint.setCoefficient(setPointVariable, -sensitivity);
                     } else {
-                        // We need to do this in case of an update
                         flowConstraint.setCoefficient(setPointVariable, 0);
                     }
                 });
@@ -180,7 +177,9 @@ public class MultiTSFiller implements ProblemFiller {
             statesList.get(i),
             LinearProblem.AbsExtension.NEGATIVE
         );
-
+        // variation = set_point_current - set_point_previous_variable
+        // instead of
+        // variation = set_point_current - initial_set_point_value
         varConstraintPositive.setLb(0);
         varConstraintPositive.setCoefficient(previousTSSetPointVariable, -1);
         varConstraintNegative.setLb(0);
@@ -190,7 +189,6 @@ public class MultiTSFiller implements ProblemFiller {
     /**
      * Builds constraints between time steps for every Pst that have a range "RELATIVE_TO_PREVIOUS_TIME_STEP"
      */
-
     private void buildPstConstraintsAcrossTimeSteps(LinearProblem linearProblem) {
 
         for (int i = 1; i < pstRangeActionsList.size(); i++) {
@@ -265,6 +263,8 @@ public class MultiTSFiller implements ProblemFiller {
     /**
      * Add constraint on the preivous time step for a Pst
      * Discrete case: constraint on tap variables
+     * min_tap_variation < f[t] - f[t-1] +  (F[up,t] - F[down,t]) - (F[up,t-1] - F[up,t-1])  < max_tap_variation
+     * t: timestep / f: tap position from previous iteration
      */
     private void buildConstraintOneTimeStepDiscrete(LinearProblem linearProblem, PstRangeAction currentRangeAction, PstRangeAction previousRangeAction, int timeStepIndex) {
         OpenRaoMPVariable pstTapCurrentDownwardVariationVariable = linearProblem.getPstTapVariationVariable(currentRangeAction, statesList.get(timeStepIndex), LinearProblem.VariationDirectionExtension.DOWNWARD);

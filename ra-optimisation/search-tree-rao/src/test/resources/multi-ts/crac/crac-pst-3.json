@@ -94,6 +94,10 @@
           "min": -16,
           "max": 16,
           "rangeType": "absolute"
+        }, {
+          "min" : -3,
+          "max" : 3,
+          "rangeType" : "relativeToPreviousTimeStep"
         }
       ]
     }

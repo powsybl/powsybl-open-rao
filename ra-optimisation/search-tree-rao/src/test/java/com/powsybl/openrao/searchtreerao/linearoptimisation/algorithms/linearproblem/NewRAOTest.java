@@ -56,7 +56,7 @@ public class NewRAOTest {
     public void setUp() {
         networks = new ArrayList<>();
         networks.add(Network.read("multi-ts/network/12NodesProdFR.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR.uct")));
-//        networks.add(Network.read("multi-ts/network/12NodesProdFR_2PST.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR_2PST.uct")));
+//        networks.add(Network.read("multi-ts/network/12NodesProdFR_3PST.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR_3PST.uct")));
         networks.add(Network.read("multi-ts/network/12NodesProdNL.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdNL.uct")));
 
         cracs = new ArrayList<>();
