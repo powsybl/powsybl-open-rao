@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.api;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -28,6 +29,17 @@ public interface FlowResult {
      * @return The flow on the branch in the given unit.
      */
     double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit);
+
+    /**
+     * It gives the flow on a {@link FlowCnec}, at a given {@link Instant} and in a given {@link Unit}.
+     *
+     * @param flowCnec: The branch to be studied.
+     * @param side: The side of the branch to be queried.
+     * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant: The optimization instant for which the flow is queried.
+     * @return The flow on the branch in the given unit.
+     */
+    double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant optimizedInstant);
 
     /**
      * It gives the margin on a {@link FlowCnec} in a given {@link Unit}. It is basically the difference between the

@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
+import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
@@ -77,7 +78,10 @@ class PrePerimeterSensitivityAnalysisTest {
         rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
 
         toolProvider = Mockito.mock(ToolProvider.class);
-        when(toolProvider.getLoopFlowComputation()).thenReturn(Mockito.mock(LoopFlowComputation.class));
+        LoopFlowComputation loopFlowComputation = Mockito.mock(LoopFlowComputation.class);
+        when(toolProvider.getLoopFlowComputation()).thenReturn(loopFlowComputation);
+        LoopFlowResult loopFlowResult = Mockito.mock(LoopFlowResult.class);
+        when(loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(any(), any(), any())).thenReturn(loopFlowResult);
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = Mockito.mock(AbsolutePtdfSumsComputation.class);
         when(absolutePtdfSumsComputation.computeAbsolutePtdfSums(any(), any())).thenReturn(Map.of(cnec, Map.of(TwoSides.ONE, 0.987)));
         when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(absolutePtdfSumsComputation);
