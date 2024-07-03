@@ -6,7 +6,7 @@ They are published on https://powsybl.readthedocs.org/projects/openrao and pull 
 
 ### Readthedocs & Sphinx
 The website is hosted on [readthedocs](https://readthedocs.org/). The build workflow requires a configuration file: 
-[.readthedocs.yml](./.readthedocs.yml). This platform presents many advantages,
+[.readthedocs.yml](./.readthedocs.yaml). This platform presents many advantages,
 thanks to its workflow of automatic branch/tag building & publication:
 - Multiple versions are activated: you can browse different versions of the documentation for different releases of OpenRAO
 - Pull requests are built automatically and the build status is reported in the PR's checks (["Build documentation" workflow](../.github/workflows/build_doc.yml)).  
