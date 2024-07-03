@@ -405,7 +405,7 @@ class VoltageMonitoringTest {
 
         runVoltageMonitoring();
 
-        assertEquals(UNKNOWN, voltageMonitoringResult.getStatus());
+        assertEquals(FAILURE, voltageMonitoringResult.getStatus());
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Double.NaN, voltageMonitoringResult.getMinVoltage(vcPrev));
         assertEquals(Double.NaN, voltageMonitoringResult.getMaxVoltage(vcPrev));
