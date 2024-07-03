@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cne
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
@@ -97,9 +98,12 @@ public abstract class AbstractCnecCreator {
             .withId(cnecName)
             .withName(cnecName)
             .withInstant(instantId)
-            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()))
-            .withOptimized(aeSecuredForRegion)
-            .withMonitored(aeScannedForRegion);
+            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()));
+        if (cnecAdder instanceof FlowCnecAdder) {
+            // The following 2 lines mustn't be called for angle & voltage CNECs
+            cnecAdder.withOptimized(aeSecuredForRegion)
+                .withMonitored(aeScannedForRegion);
+        }
     }
 
     protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
