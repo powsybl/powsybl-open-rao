@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -29,6 +30,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLine
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.searchtree.SearchTreeReports;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -39,8 +41,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 
 /**
@@ -148,22 +148,22 @@ public class Leaf implements OptimizationResult {
      * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
-    void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
+    void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer, ReportNode reportNode) {
         if (status.equals(Status.EVALUATED)) {
-            TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
+            SearchTreeReports.reportLeafAlreadyEvaluated(reportNode);
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus(), reportNode);
             return;
         }
-        TECHNICAL_LOGS.debug("Evaluating {}", this);
-        sensitivityComputer.compute(network);
+        SearchTreeReports.reportEvaluatingLeaf(reportNode, this.toString());
+        sensitivityComputer.compute(network, reportNode);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
-            BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
+            SearchTreeReports.reportFailedEvaluateLeafSensitivityAnalysisFailed(reportNode);
             status = Status.ERROR;
             return;
         }
         preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
         preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
+        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus(), reportNode);
         status = Status.EVALUATED;
     }
 
@@ -177,17 +177,17 @@ public class Leaf implements OptimizationResult {
      * is either the same as the initial variant ID if the optimization has not been efficient or a new ID
      * corresponding to a new variant created by the IteratingLinearOptimizer.
      */
-    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters) {
+    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters, ReportNode reportNode) {
         if (!optimizationDataPresent) {
             throw new OpenRaoException("Cannot optimize leaf, because optimization data has been deleted");
         }
         if (status.equals(Status.OPTIMIZED)) {
             // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
-            TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
+            SearchTreeReports.reportResettingRangeActionSetPointsToPreOptimValues(reportNode);
             resetPreOptimRangeActionsSetpoints(searchTreeInput.getOptimizationPerimeter());
         }
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
-            TECHNICAL_LOGS.debug("Optimizing leaf...");
+            SearchTreeReports.reportOptimizingLeaf(reportNode);
 
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
@@ -219,13 +219,13 @@ public class Leaf implements OptimizationResult {
                     .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
                     .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant());
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, searchTreeInput.getOutageInstant(), reportNode);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
-            BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation failed", this);
+            SearchTreeReports.reportEvaluationFailed(reportNode, this.toString());
         } else if (status.equals(Status.CREATED)) {
-            BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", this);
+            SearchTreeReports.reportEvaluationNotPerformed(reportNode, this.toString());
         }
     }
 

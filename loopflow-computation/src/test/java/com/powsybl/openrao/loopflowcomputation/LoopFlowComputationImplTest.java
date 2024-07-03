@@ -6,12 +6,17 @@
  */
 package com.powsybl.openrao.loopflowcomputation;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.glsk.ucte.UcteGlskDocument;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThresholdImpl;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
+import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
@@ -21,6 +26,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,6 +47,10 @@ class LoopFlowComputationImplTest {
 
     private static final double DOUBLE_TOLERANCE = 0.1;
     private Crac crac;
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @BeforeEach
     public void setUp() {
@@ -72,7 +88,7 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(mockInjection(true)).when(gen).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(load).getTerminal();
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, ReportNode.NO_OP);
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);
 
         assertEquals(-50., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE), DOUBLE_TOLERANCE);
@@ -219,7 +235,7 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(mockInjection(false)).when(loadBe).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(danglingLine).getTerminal();
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, ReportNode.NO_OP);
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);
 
         assertEquals(30., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE), DOUBLE_TOLERANCE);
@@ -248,7 +264,7 @@ class LoopFlowComputationImplTest {
         Network network = ExampleGenerator.network();
         SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
         sensitivityAnalysisParameters.getLoadFlowParameters().setDc(true);
-        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
+        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram, ReportNode.NO_OP).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
 
         assertEquals(-20., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE), DOUBLE_TOLERANCE);
         assertEquals(80., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE), DOUBLE_TOLERANCE);
@@ -267,5 +283,23 @@ class LoopFlowComputationImplTest {
         assertEquals(20., loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE2-NL"), TwoSides.ONE), DOUBLE_TOLERANCE);
         assertEquals(80., loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-DE"), TwoSides.TWO), DOUBLE_TOLERANCE);
         assertEquals(80., loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testNoGlskFoundForReferenceArea() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
+        String timestamp = "2019-01-08 12:00";
+        Network network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/IntegrationTest/TestCase12Nodes.uct"));
+        OffsetDateTime offsetDateTime = ZonedDateTime.of(LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), ZoneId.of("Europe/Brussels")).toOffsetDateTime();
+        ZonalData<SensitivityVariableSet> glsk = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/IntegrationTest/glsk_ep10us2case2.xml")).getZonalGlsks(network, offsetDateTime.toInstant());
+        ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, LoadFlow.find().getName(), new LoadFlowParameters(), reportNode);
+        LoopFlowComputationImpl loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, reportNode);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/IntegrationTest/expectedReportNodeContentNoGlskFoundForReferenceArea.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

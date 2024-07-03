@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -556,7 +557,7 @@ public interface Crac extends Identifiable<Crac> {
             .filter(importer -> importer.exists(new ByteArrayInputStream(bytes)))
             .findAny()
             .orElseThrow(() -> new OpenRaoException("No suitable CRAC importer found."))
-            .importData(new ByteArrayInputStream(bytes), cracFactory, network);
+            .importData(new ByteArrayInputStream(bytes), cracFactory, network, ReportNode.NO_OP);
     }
 
     /**

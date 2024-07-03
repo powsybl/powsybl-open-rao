@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -36,8 +37,8 @@ public final class SensitivityComputer {
         // Should not be used
     }
 
-    public void compute(Network network) {
-        result = systematicSensitivityInterface.run(network);
+    public void compute(Network network, ReportNode reportNode) {
+        result = systematicSensitivityInterface.run(network, reportNode);
     }
 
     public FlowResult getBranchResult(Network network) {
@@ -48,11 +49,12 @@ public final class SensitivityComputer {
         return new SensitivityResultImpl(result);
     }
 
-    public static SensitivityComputerBuilder create() {
-        return new SensitivityComputerBuilder();
+    public static SensitivityComputerBuilder create(ReportNode reportNode) {
+        return new SensitivityComputerBuilder(reportNode);
     }
 
     public static final class SensitivityComputerBuilder {
+        private final ReportNode reportNode;
         private ToolProvider toolProvider;
         private Set<FlowCnec> flowCnecs;
         private Set<RangeAction<?>> rangeActions;
@@ -63,6 +65,10 @@ public final class SensitivityComputer {
         private Set<FlowCnec> loopFlowCnecs;
         private AppliedRemedialActions appliedRemedialActions;
         private Instant outageInstant;
+
+        public SensitivityComputerBuilder(ReportNode reportNode) {
+            this.reportNode = reportNode;
+        }
 
         public SensitivityComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
@@ -128,7 +134,8 @@ public final class SensitivityComputer {
                     computePtdfs,
                     computeLoopFlows,
                     appliedRemedialActions,
-                    outageInstant);
+                    outageInstant,
+                    reportNode);
             BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {
                 builder.withCommercialFlowsResults(loopFlowComputation, loopFlowCnecs);

@@ -7,14 +7,15 @@
 package com.powsybl.openrao.data.craccreation.creator.api.parameters;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.commons.report.ReportNode;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CracCreationParametersJsonModule extends SimpleModule {
 
-    public CracCreationParametersJsonModule() {
-        addDeserializer(CracCreationParameters.class, new CracCreationParametersDeserializer());
+    public CracCreationParametersJsonModule(ReportNode reportNode) {
+        addDeserializer(CracCreationParameters.class, new CracCreationParametersDeserializer(reportNode));
         addSerializer(CracCreationParameters.class, new CracCreationParametersSerializer());
     }
 }

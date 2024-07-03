@@ -73,7 +73,7 @@ timestamp is ignored and a warning is logged)
 
 The final user shall check these messages to ensure that their CRAC file is well-defined.  
 ```java
-cracCreationContext.getCreationReport().printCreationReport();
+CracCreationReport.printCreationReport();
 ```
 
 ## UCTE implementation

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
@@ -19,8 +20,6 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.Objects;
 import java.util.Set;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * An interface with the engine that computes sensitivities and flows needed in the RAO.
@@ -49,12 +48,17 @@ public final class SystematicSensitivityInterface {
      * The remedialActions that are applied in the initial network or after some contingencies
      */
     private AppliedRemedialActions appliedRemedialActions;
+
+    /**
+     * The outage instant
+     */
     private Instant outageInstant;
 
     /**
      * Builder
      */
     public static final class SystematicSensitivityInterfaceBuilder {
+        private final ReportNode reportNode;
         private String sensitivityProvider;
         private SensitivityAnalysisParameters defaultParameters;
         private final MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
@@ -62,8 +66,8 @@ public final class SystematicSensitivityInterface {
         private boolean providerInitialised = false;
         private Instant outageInstant;
 
-        private SystematicSensitivityInterfaceBuilder() {
-
+        private SystematicSensitivityInterfaceBuilder(ReportNode reportNode) {
+            this.reportNode = SensitivityAnalysisReports.reportNewSystematicSensitivityInterface(reportNode);
         }
 
         public SystematicSensitivityInterfaceBuilder withSensitivityProviderName(String sensitivityProvider) {
@@ -86,15 +90,15 @@ public final class SystematicSensitivityInterface {
         }
 
         public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
-            return this.withSensitivityProvider(new PtdfSensitivityProvider(glsk, cnecs, units));
+            return this.withSensitivityProvider(new PtdfSensitivityProvider(glsk, cnecs, units, reportNode));
         }
 
         public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction<?>> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
-            return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units));
+            return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units, reportNode));
         }
 
         public SystematicSensitivityInterfaceBuilder withLoadflow(Set<FlowCnec> cnecs, Set<Unit> units) {
-            return this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
+            return this.withSensitivityProvider(new LoadflowProvider(cnecs, units, reportNode));
         }
 
         public SystematicSensitivityInterfaceBuilder withAppliedRemedialActions(AppliedRemedialActions appliedRemedialActions) {
@@ -133,8 +137,8 @@ public final class SystematicSensitivityInterface {
         }
     }
 
-    public static SystematicSensitivityInterfaceBuilder builder() {
-        return new SystematicSensitivityInterfaceBuilder();
+    public static SystematicSensitivityInterfaceBuilder builder(ReportNode reportNode) {
+        return new SystematicSensitivityInterfaceBuilder(reportNode);
     }
 
     SystematicSensitivityInterface() {
@@ -145,10 +149,10 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis on the given network and crac, and associates the
      * SystematicSensitivityResult to the given network variant.
      */
-    public SystematicSensitivityResult run(Network network) {
-        SystematicSensitivityResult result = runWithConfig(network);
+    public SystematicSensitivityResult run(Network network, ReportNode reportNode) {
+        SystematicSensitivityResult result = runWithConfig(network, reportNode);
         if (!result.isSuccess()) {
-            BUSINESS_WARNS.warn("Sensitivity analysis failed.");
+            SensitivityAnalysisReports.reportSensitivityAnalysisFailed(reportNode);
         }
         return result;
     }
@@ -157,12 +161,12 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityResult runWithConfig(Network network) {
+    private SystematicSensitivityResult runWithConfig(Network network, ReportNode reportNode) {
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, parameters, sensitivityProvider, outageInstant);
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, parameters, sensitivityProvider, outageInstant, reportNode);
 
         if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
-            TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");
+            SensitivityAnalysisReports.reportSensitivityAnalysisFailedNoOutputDataAvailable(reportNode);
         }
         return tempSystematicSensitivityAnalysisResult;
     }

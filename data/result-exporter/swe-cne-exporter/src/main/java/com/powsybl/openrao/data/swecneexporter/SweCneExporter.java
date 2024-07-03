@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
@@ -48,8 +49,8 @@ public class SweCneExporter {
     public void exportCne(Crac crac, Network network,
                           CimCracCreationContext cracCreationContext,
                           RaoResult raoResult, RaoParameters raoParameters,
-                          CneExporterParameters exporterParameters, OutputStream outputStream) {
-        SweCne cne = new SweCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
+                          CneExporterParameters exporterParameters, OutputStream outputStream, ReportNode reportNode) {
+        SweCne cne = new SweCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters, reportNode);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();

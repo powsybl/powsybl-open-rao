@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.commons.Versionable;
@@ -23,7 +24,7 @@ public interface RaoProvider extends Versionable {
      * @param parameters: RAO parameters.
      * @return A completable future of a RaoComputationResult it gathers all the optimization results.
      */
-    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters);
+    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode);
 
-    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant);
+    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode);
 }

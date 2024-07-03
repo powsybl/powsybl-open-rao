@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
 
 import java.util.HashSet;
@@ -23,8 +23,8 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
 
     private Set<ElementaryAction> elementaryActions;
 
-    NetworkActionAdderImpl(CracImpl owner) {
-        super(owner);
+    NetworkActionAdderImpl(CracImpl owner, ReportNode reportNode) {
+        super(owner, CracImplReports.reportNewNetworkAction(reportNode));
         this.elementaryActions = new HashSet<>();
     }
 
@@ -61,7 +61,7 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
         if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("NetworkAction {} does not contain any usage rule, by default it will never be available", id);
+            CracImplReports.reportActionWithoutAnyUsageRule(reportNode, "NetworkAction", id);
         }
         if (elementaryActions.isEmpty()) {
             throw new OpenRaoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
@@ -40,7 +41,6 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     CsaProfileCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName) {
         this.crac = crac;
-        this.creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.networkName = networkName;
     }
@@ -104,11 +104,6 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return new HashSet<>(this.cnecCreationContexts);
     }
 
-    @Override
-    public CracCreationReport getCreationReport() {
-        return this.creationReport;
-    }
-
     CsaProfileCracCreationContext creationFailure() {
         this.isCreationSuccessful = false;
         this.crac = null;
@@ -121,19 +116,18 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return this;
     }
 
-    public void buildCreationReport() {
-        creationReport = new CracCreationReport();
-        addToReport(contingencyCreationContexts, "Contingencies");
-        addToReport(cnecCreationContexts, "Cnecs");
-        addToReport(remedialActionCreationContexts, "RemedialActions");
+    public void buildCreationReport(ReportNode reportNode) {
+        addToReport(contingencyCreationContexts, "Contingencies", reportNode);
+        addToReport(cnecCreationContexts, "Cnecs", reportNode);
+        addToReport(remedialActionCreationContexts, "RemedialActions", reportNode);
     }
 
-    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
+    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier, ReportNode reportNode) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            CracCreationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()), reportNode)
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            CracCreationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()), reportNode)
         );
     }
 }

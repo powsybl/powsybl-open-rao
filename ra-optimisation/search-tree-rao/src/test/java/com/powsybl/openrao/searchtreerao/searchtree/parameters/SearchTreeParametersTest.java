@@ -6,6 +6,7 @@
  */
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -42,19 +43,19 @@ class SearchTreeParametersTest {
 
     @BeforeEach
     public void setup() {
-        builder = SearchTreeParameters.create();
+        builder = SearchTreeParameters.create(ReportNode.NO_OP);
     }
 
     @Test
     void testWithConstantParametersOverAllRao() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         Crac crac = Mockito.mock(Crac.class);
         builder.withConstantParametersOverAllRao(raoParameters, crac);
         SearchTreeParameters searchTreeParameters = builder.build();
         assertNotNull(searchTreeParameters);
 
         assertEquals(raoParameters.getObjectiveFunctionParameters().getType(), searchTreeParameters.getObjectiveFunction());
-        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac), searchTreeParameters.getNetworkActionParameters());
+        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac, ReportNode.NO_OP), searchTreeParameters.getNetworkActionParameters());
         assertEquals(crac.getRaUsageLimitsPerInstant(), searchTreeParameters.getRaLimitationParameters());
         assertEquals(RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getRangeActionParameters());
         assertEquals(raoParameters.getExtension(MnecParametersExtension.class), searchTreeParameters.getMnecParameters());
@@ -159,7 +160,7 @@ class SearchTreeParametersTest {
             Network.read(Paths.get(new File(Objects.requireNonNull(SearchTreeParametersTest.class.getResource("/network/small-network-2P.uct")).getFile()).toString()))
         );
 
-        SearchTreeParameters parameters = SearchTreeParameters.create()
+        SearchTreeParameters parameters = SearchTreeParameters.create(ReportNode.NO_OP)
             .withGlobalRemedialActionLimitationParameters(
                 Map.of(
                     crac.getInstant("preventive"), crac.getRaUsageLimits(crac.getInstant("preventive")),

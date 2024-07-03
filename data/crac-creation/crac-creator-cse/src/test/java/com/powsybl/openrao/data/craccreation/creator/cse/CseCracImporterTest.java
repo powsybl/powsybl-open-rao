@@ -6,9 +6,16 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.commons.report.ReportNode;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 class CseCracImporterTest {
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @Test
     void getFormat() {
@@ -37,5 +47,22 @@ class CseCracImporterTest {
         CseCracImporter importer = new CseCracImporter();
         CseCrac cseCrac = importer.importNativeCrac(is);
         assertEquals(100, cseCrac.getCracDocument().getCRACSeries().get(0).getMonitoredElements().getMonitoredElement().get(0).getBranch().get(0).getIlimitMNE().getV());
+    }
+
+    @Test
+    @Disabled("TODO find a valid CSE crac file...")
+    void testGeneratedReportNode() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
+
+        String filename = "/cracs/cse_crac_valid.xml";
+        InputStream is = getClass().getResourceAsStream(filename);
+        CseCracImporter importer = new CseCracImporter();
+        importer.exists(filename, is, reportNode);
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCseCracImporter.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

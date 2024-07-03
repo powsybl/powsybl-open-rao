@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.refprog.refprogxmlimporter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceExchangeData;
@@ -36,9 +37,13 @@ public final class RefProgImporter {
     }
 
     public static ReferenceProgram importRefProg(InputStream inputStream, OffsetDateTime dateTime) {
+        return importRefProg(inputStream, dateTime, ReportNode.NO_OP);
+    }
+
+    public static ReferenceProgram importRefProg(InputStream inputStream, OffsetDateTime dateTime, ReportNode reportNode) {
         PublicationDocument document = importXmlDocument(inputStream);
-        if (!isValidDocumentInterval(document, dateTime)) {
-            BUSINESS_LOGS.error("RefProg file is not valid for this date {}", dateTime);
+        if (!isValidDocumentInterval(document, dateTime, reportNode)) {
+            Reports.reportRefprogInvalidForDate(reportNode, dateTime);
             throw new OpenRaoException("RefProg file is not valid for this date " + dateTime);
         }
         List<ReferenceExchangeData> exchangeDataList = new ArrayList<>();
@@ -47,16 +52,20 @@ public final class RefProgImporter {
             EICode outArea = new EICode(outAreaValue);
             String inAreaValue = timeSeries.getInArea().getV();
             EICode inArea = new EICode(inAreaValue);
-            double flow = getFlow(dateTime, timeSeries);
+            double flow = getFlow(dateTime, timeSeries, reportNode);
             exchangeDataList.add(new ReferenceExchangeData(outArea, inArea, flow));
         });
-        TECHNICAL_LOGS.info("RefProg file was imported");
+        Reports.reportRefprogFileImported(reportNode);
         return new ReferenceProgram(exchangeDataList);
     }
 
     public static ReferenceProgram importRefProg(Path inputPath, OffsetDateTime dateTime) {
+        return importRefProg(inputPath, dateTime, ReportNode.NO_OP);
+    }
+
+    public static ReferenceProgram importRefProg(Path inputPath, OffsetDateTime dateTime, ReportNode reportNode) {
         try (InputStream inputStream = new FileInputStream(inputPath.toFile())) {
-            return importRefProg(inputStream, dateTime);
+            return importRefProg(inputStream, dateTime, reportNode);
         } catch (IOException e) {
             throw new OpenRaoException(e);
         }
@@ -72,7 +81,7 @@ public final class RefProgImporter {
         }
     }
 
-    private static boolean isValidDocumentInterval(PublicationDocument document, OffsetDateTime dateTime) {
+    private static boolean isValidDocumentInterval(PublicationDocument document, OffsetDateTime dateTime, ReportNode reportNode) {
         if (document.getPublicationTimeInterval() != null) {
             String interval = document.getPublicationTimeInterval().getV();
             int sepPosition = interval.indexOf("/");
@@ -80,7 +89,7 @@ public final class RefProgImporter {
             OffsetDateTime endDateTime = OffsetDateTime.parse(interval.substring(sepPosition + 1), DateTimeFormatter.ISO_DATE_TIME);
             return !dateTime.isBefore(startDateTime) && dateTime.isBefore(endDateTime);
         } else {
-            BUSINESS_LOGS.error("Cannot import RefProg file because its publication time interval is unknown");
+            Reports.reportRefprogImportFailedUnknownTimeInterval(reportNode);
             throw new OpenRaoException("Cannot import RefProg file because its publication time interval is unknown");
         }
     }
@@ -91,7 +100,7 @@ public final class RefProgImporter {
         return !dateTime.isBefore(startDateTime) && dateTime.isBefore(endDateTime);
     }
 
-    private static double getFlow(OffsetDateTime dateTime, PublicationTimeSeriesType timeSeries) {
+    private static double getFlow(OffsetDateTime dateTime, PublicationTimeSeriesType timeSeries, ReportNode reportNode) {
         String timeSeriesInterval = timeSeries.getPeriod().get(0).getTimeInterval().getV();
         OffsetDateTime timeSeriesStart = OffsetDateTime.parse(timeSeriesInterval.substring(0, timeSeriesInterval.indexOf("/")), DateTimeFormatter.ISO_DATE_TIME);
         Duration resolution = Duration.parse(timeSeries.getPeriod().get(0).getResolution().getV().toString());
@@ -100,7 +109,7 @@ public final class RefProgImporter {
         if (validIntervals.isEmpty()) {
             String outArea = timeSeries.getOutArea().getV();
             String inArea = timeSeries.getInArea().getV();
-            BUSINESS_WARNS.warn("Flow value between {} and {} is not found for this date {}", outArea, inArea, dateTime);
+            Reports.reportRefprogFlowNotFoundForDate(reportNode, outArea, inArea, dateTime);
         } else {
             IntervalType validInterval = validIntervals.get(0);
             flow = validInterval.getQty().getV().doubleValue();

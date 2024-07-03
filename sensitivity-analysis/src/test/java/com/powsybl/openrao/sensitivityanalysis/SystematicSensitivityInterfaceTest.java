@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -24,6 +25,10 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,6 +49,10 @@ class SystematicSensitivityInterfaceTest {
 
     private MockedStatic<SystematicSensitivityAdapter> systematicSensitivityAdapterMockedStatic;
     private Instant outageInstant;
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @BeforeEach
     public void setUp() {
@@ -68,19 +77,20 @@ class SystematicSensitivityInterfaceTest {
     }
 
     @Test
-    void testRunDefaultConfigOk() {
+    void testRunDefaultConfigOk() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         // mock sensi service - run OK
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
 
         // run engine
-        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder(reportNode)
             .withSensitivityProviderName("default-impl-name")
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .withOutageInstant(outageInstant)
             .build();
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, ReportNode.NO_OP);
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -97,15 +107,23 @@ class SystematicSensitivityInterfaceTest {
                 assertEquals(0., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec, TwoSides.TWO), FLOW_TOLERANCE);
             }
         }
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSystematicSensitivityRunDefaultConfigOk.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testRunDefaultConfigFails() {
+    void testRunDefaultConfigFails() throws IOException, URISyntaxException {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
-        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+        ReportNode reportNode = buildNewRootNode();
+        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder(reportNode)
             .withSensitivityProviderName("default-impl-name")
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
@@ -113,8 +131,15 @@ class SystematicSensitivityInterfaceTest {
             .build();
 
         // run - expected failure
-        SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, ReportNode.NO_OP);
         assertFalse(result.isSuccess());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeSystematicSensitivityRunDefaultConfigFails.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     private SystematicSensitivityResult buildSystematicAnalysisResultOk() {
@@ -146,7 +171,7 @@ class SystematicSensitivityInterfaceTest {
 
     @Test
     void testCannotBuildSystematicInterfaceWithoutOutageInstant() {
-        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder systematicSensitivityInterfaceBuilder = SystematicSensitivityInterface.builder()
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder systematicSensitivityInterfaceBuilder = SystematicSensitivityInterface.builder(ReportNode.NO_OP)
             .withSensitivityProviderName("default-impl-name")
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class));
@@ -157,7 +182,7 @@ class SystematicSensitivityInterfaceTest {
 
     @Test
     void testCannotUseANonOutageInstantInSystematicInterfaceBuilder() {
-        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder();
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder(ReportNode.NO_OP);
         Instant preventiveInstant = crac.getPreventiveInstant();
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> builder.withOutageInstant(preventiveInstant));
         assertEquals("Instant provided in the systematic sensitivity builder has to be an outage", exception.getMessage());

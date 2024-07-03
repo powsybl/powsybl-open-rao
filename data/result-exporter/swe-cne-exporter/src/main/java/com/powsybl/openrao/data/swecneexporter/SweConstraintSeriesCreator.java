@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
@@ -22,16 +23,18 @@ import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public final class SweConstraintSeriesCreator {
+    private final ReportNode reportNode;
     private final SweCneHelper sweCneHelper;
     private final SweMonitoredSeriesCreator monitoredSeriesCreator;
     private final SweRemedialActionSeriesCreator remedialActionSeriesCreator;
     private final SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator;
 
-    public SweConstraintSeriesCreator(SweCneHelper sweCneHelper, CimCracCreationContext cracCreationContext) {
+    public SweConstraintSeriesCreator(SweCneHelper sweCneHelper, CimCracCreationContext cracCreationContext, ReportNode rootReportNode) {
+        this.reportNode = SweCneExporterReports.reportSweConstraintSeriesCreator(rootReportNode);
         this.sweCneHelper = sweCneHelper;
         this.monitoredSeriesCreator = new SweMonitoredSeriesCreator(sweCneHelper, cracCreationContext);
         this.remedialActionSeriesCreator = new SweRemedialActionSeriesCreator(sweCneHelper, cracCreationContext);
-        this.additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
+        this.additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext, reportNode);
     }
 
     public List<ConstraintSeries> generate() {

@@ -48,9 +48,4 @@ public interface CracCreationContext {
      * @return
      */
     String getNetworkName();
-
-    /**
-     * Get a report with important information about the creation process
-     */
-    CracCreationReport getCreationReport();
 }

@@ -7,12 +7,13 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.openrao.raoapi.RaoReports;
 
 import java.util.Objects;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 /**
  * Objective function parameters for RAO
@@ -28,12 +29,17 @@ public class ObjectiveFunctionParameters {
     private static final CurativeStopCriterion DEFAULT_CURATIVE_STOP_CRITERION = CurativeStopCriterion.MIN_OBJECTIVE;
     private static final boolean DEFAULT_OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE = false;
     // Attributes
+    private final ReportNode reportNode;
     private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
     private boolean forbidCostIncrease = DEFAULT_FORBID_COST_INCREASE;
     private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
     private PreventiveStopCriterion preventiveStopCriterion = DEFAULT_PREVENTIVE_STOP_CRITERION;
     private CurativeStopCriterion curativeStopCriterion = DEFAULT_CURATIVE_STOP_CRITERION;
     private boolean optimizeCurativeIfPreventiveUnsecure = DEFAULT_OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE;
+
+    public ObjectiveFunctionParameters(ReportNode reportNode) {
+        this.reportNode = reportNode;
+    }
 
     // Enum
     public enum ObjectiveFunctionType {
@@ -114,9 +120,9 @@ public class ObjectiveFunctionParameters {
         this.optimizeCurativeIfPreventiveUnsecure = optimizeCurativeIfPreventiveUnsecure;
     }
 
-    public static ObjectiveFunctionParameters load(PlatformConfig platformConfig) {
+    public static ObjectiveFunctionParameters load(PlatformConfig platformConfig, ReportNode reportNode) {
         Objects.requireNonNull(platformConfig);
-        ObjectiveFunctionParameters parameters = new ObjectiveFunctionParameters();
+        ObjectiveFunctionParameters parameters = new ObjectiveFunctionParameters(reportNode);
         platformConfig.getOptionalModuleConfig(OBJECTIVE_FUNCTION_SECTION)
                 .ifPresent(config -> {
                     parameters.setType(config.getEnumProperty(TYPE, ObjectiveFunctionType.class,
@@ -134,7 +140,7 @@ public class ObjectiveFunctionParameters {
 
     public void setCurativeMinObjImprovement(double curativeRaoMinObjImprovement) {
         if (curativeRaoMinObjImprovement < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
+            RaoReports.reportNegativeMinimumObjectiveImprovement(reportNode, curativeRaoMinObjImprovement);
         }
         this.curativeMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
     }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.flowbasedcomputation.impl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -28,6 +29,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,6 +51,10 @@ class FlowbasedComputationImplTest {
     private Network network;
     private ZonalData<SensitivityVariableSet> glsk;
     private FlowbasedComputationParameters parameters;
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @BeforeEach
     public void setUp() {
@@ -67,38 +76,70 @@ class FlowbasedComputationImplTest {
     }
 
     @Test
-    void testRunWithCra() throws IOException {
+    void testRunWithCra() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         Crac crac = ExampleGenerator.crac("crac.json", network);
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters, reportNode).join();
         checkAssertions(result);
         checkCurativeAssertions(result);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCra.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testRunWithCraRaoResult() throws IOException {
+    void testRunWithCraRaoResult() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         Crac crac = ExampleGenerator.crac("crac_for_rao_result.json", network);
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
         RaoResult raoResult = createRaoResult(crac, crac.getFlowCnecs(), crac.getNetworkAction("Open line FR-BE"));
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, raoResult, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, raoResult, glsk, parameters, reportNode).join();
         checkAssertions(result);
         checkCurativeAssertions(result);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCraRaoResult.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testRunPraWithForced() throws IOException {
+    void testRunPraWithForced() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         Crac crac = ExampleGenerator.crac("crac_with_forced.json", network);
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters, reportNode).join();
         checkAssertions(result);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentPraWithForced.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testRunPraWithExtension() throws IOException {
+    void testRunPraWithExtension() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         Crac crac = ExampleGenerator.crac("crac_with_extension.json", network);
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters, reportNode).join();
         checkAssertions(result);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentPraWithExtension.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     private void checkAssertions(FlowbasedComputationResult result) {

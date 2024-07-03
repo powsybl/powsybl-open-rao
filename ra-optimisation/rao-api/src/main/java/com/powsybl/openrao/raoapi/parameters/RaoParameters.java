@@ -14,6 +14,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.report.ReportNode;
 
 import java.util.Objects;
 
@@ -22,13 +23,23 @@ import java.util.Objects;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
-    private ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
-    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
-    private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
-    private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
-    private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
-    private NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
-    private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
+    private ObjectiveFunctionParameters objectiveFunctionParameters;
+    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
+    private TopoOptimizationParameters topoOptimizationParameters;
+    private MultithreadingParameters multithreadingParameters;
+    private SecondPreventiveRaoParameters secondPreventiveRaoParameters;
+    private NotOptimizedCnecsParameters notOptimizedCnecsParameters;
+    private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters;
+
+    public RaoParameters(ReportNode reportNode) {
+        this.objectiveFunctionParameters = new ObjectiveFunctionParameters(reportNode);
+        this.rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
+        this.topoOptimizationParameters = new TopoOptimizationParameters(reportNode);
+        this.multithreadingParameters = new MultithreadingParameters();
+        this.secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
+        this.notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
+        this.loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters(reportNode);
+    }
 
     // Getters and setters
     public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -104,33 +115,35 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     /**
      * @return RaoParameters from platform default config.
+     * @param reportNode
      */
-    public static RaoParameters load() {
-        return load(PlatformConfig.defaultConfig());
+    public static RaoParameters load(ReportNode reportNode) {
+        return load(PlatformConfig.defaultConfig(), reportNode);
     }
 
     /**
      * @param platformConfig PlatformConfig where the RaoParameters should be read from
+     * @param reportNode
      * @return RaoParameters from the provided platform config
      */
-    public static RaoParameters load(PlatformConfig platformConfig) {
+    public static RaoParameters load(PlatformConfig platformConfig, ReportNode reportNode) {
         Objects.requireNonNull(platformConfig);
-        RaoParameters parameters = new RaoParameters();
-        load(parameters, platformConfig);
+        RaoParameters parameters = new RaoParameters(reportNode);
+        load(parameters, platformConfig, reportNode);
         parameters.loadExtensions(platformConfig);
         return parameters;
     }
 
-    public static void load(RaoParameters parameters, PlatformConfig platformConfig) {
+    public static void load(RaoParameters parameters, PlatformConfig platformConfig, ReportNode reportNode) {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);
-        parameters.setObjectiveFunctionParameters(ObjectiveFunctionParameters.load(platformConfig));
+        parameters.setObjectiveFunctionParameters(ObjectiveFunctionParameters.load(platformConfig, reportNode));
         parameters.setRangeActionsOptimizationParameters(RangeActionsOptimizationParameters.load(platformConfig));
-        parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig));
+        parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig, reportNode));
         parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
         parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
         parameters.setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters.load(platformConfig));
-        parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));
+        parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig, reportNode));
     }
 
     private void loadExtensions(PlatformConfig platformConfig) {

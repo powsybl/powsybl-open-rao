@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -21,8 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * RA optimisation main API. It is a utility class (so with only static methods) used as an entry point for running
@@ -51,14 +50,19 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
+            Objects.requireNonNull(reportNode, "Report node should nod be null");
 
             Version openRaoVersion = ServiceLoader.load(Version.class).findFirst().orElseThrow();
-            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+            RaoReports.reportRaoVersionAndCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            return provider.run(raoInput, parameters, targetEndInstant);
+            return provider.run(raoInput, parameters, targetEndInstant, reportNode);
+        }
+
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
+            return runAsync(raoInput, parameters, targetEndInstant, ReportNode.NO_OP);
         }
 
         public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
@@ -70,17 +74,15 @@ public final class Rao {
         }
 
         public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, Instant targetEndInstant) {
-            return runAsync(raoInput, RaoParameters.load(), targetEndInstant);
+            return runAsync(raoInput, RaoParameters.load(ReportNode.NO_OP), targetEndInstant);
+        }
+
+        public RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+            return runAsync(raoInput, parameters, targetEndInstant, reportNode).join();
         }
 
         public RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
-            Objects.requireNonNull(raoInput, "RAO input should not be null");
-            Objects.requireNonNull(parameters, "parameters should not be null");
-
-            Version openRaoVersion = ServiceLoader.load(Version.class).findFirst().orElseThrow();
-            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
-
-            return provider.run(raoInput, parameters, targetEndInstant).join();
+            return run(raoInput, parameters, targetEndInstant, ReportNode.NO_OP);
         }
 
         public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
@@ -88,7 +90,7 @@ public final class Rao {
         }
 
         public RaoResult run(RaoInput raoInput) {
-            return run(raoInput, RaoParameters.load(), null);
+            return run(raoInput, RaoParameters.load(ReportNode.NO_OP), null);
         }
 
         @Override
@@ -168,12 +170,20 @@ public final class Rao {
         return new Runner(provider);
     }
 
+    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+        return find().runAsync(raoInput, parameters, targetEndInstant, reportNode);
+    }
+
     public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         return find().runAsync(raoInput, parameters, targetEndInstant);
     }
 
     public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, Instant targetEndInstant) {
         return find().runAsync(raoInput, targetEndInstant);
+    }
+
+    public static RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+        return find().run(raoInput, parameters, targetEndInstant, reportNode);
     }
 
     public static RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {

@@ -7,8 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -46,30 +47,32 @@ public final class RaoLogger {
                                                      RangeActionActivationResult rangeActionActivationResult,
                                                      PrePerimeterResult sensitivityAnalysisResult,
                                                      RaoParameters raoParameters,
-                                                     int numberOfLoggedLimitingElements) {
+                                                     int numberOfLoggedLimitingElements,
+                                                     ReportNode reportNode) {
 
-        if (!BUSINESS_LOGS.isInfoEnabled()) {
+        if (!BUSINESS_LOGS.isInfoEnabled()) { // TODO: should we remove this ?
             return;
         }
 
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
-            sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
+            sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus(), reportNode);
+        ReportNode reportSensitivityAnalysisResults = RaoCommonsReports.reportSensitivityAnalysisResults(reportNode,
+            prefix,
+            prePerimeterObjectiveFunctionResult.getCost(),
+            prePerimeterObjectiveFunctionResult.getFunctionalCost(),
+            prePerimeterObjectiveFunctionResult.getVirtualCost());
 
-        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
-            formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
-            formatDouble(prePerimeterObjectiveFunctionResult.getFunctionalCost()),
-            formatDouble(prePerimeterObjectiveFunctionResult.getVirtualCost()));
-
-        RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
-            sensitivityAnalysisResult,
+        RaoLogger.logMostLimitingElementsResults(
+                sensitivityAnalysisResult,
             raoParameters.getObjectiveFunctionParameters().getType(),
-            numberOfLoggedLimitingElements);
+            numberOfLoggedLimitingElements,
+            reportSensitivityAnalysisResults, TypedValue.INFO_SEVERITY);
     }
 
-    public static void logRangeActions(OpenRaoLogger logger,
-                                       Leaf leaf,
-                                       OptimizationPerimeter
-                                           optimizationContext, String prefix) {
+    public static ReportNode logRangeActions(Leaf leaf,
+                                             OptimizationPerimeter optimizationContext,
+                                             String prefix,
+                                             ReportNode reportNode) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
@@ -83,65 +86,66 @@ public final class RaoLogger {
 
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
         if (isRangeActionSetPointEmpty) {
-            logger.info("{}No range actions activated", prefix == null ? "" : prefix);
+            return RaoCommonsReports.reportSearchTreeOneLeafNoRangeActionActivated(reportNode, prefix);
         } else {
-            logger.info("{}range action(s): {}", prefix == null ? "" : prefix, String.join(", ", rangeActionSetpoints));
+            return RaoCommonsReports.reportSearchTreeOneLeafRangeActionActivated(reportNode, prefix, rangeActionSetpoints.stream().sorted().collect(Collectors.joining(", ")));
         }
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger, OptimizationResult optimizationResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
-        logMostLimitingElementsResults(logger, optimizationResult, optimizationResult, null, objectiveFunction, numberOfLoggedElements);
+    public static void logMostLimitingElementsResults(OptimizationResult optimizationResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements, ReportNode reportNode, TypedValue severity) {
+        logMostLimitingElementsResults(optimizationResult, optimizationResult, null, objectiveFunction, numberOfLoggedElements, reportNode, severity);
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, Set<State> states, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
-        logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, states, objectiveFunction, numberOfLoggedElements);
+    public static void logMostLimitingElementsResults(PrePerimeterResult prePerimeterResult, Set<State> states, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements, ReportNode reportNode, TypedValue severity) {
+        logMostLimitingElementsResults(prePerimeterResult, prePerimeterResult, states, objectiveFunction, numberOfLoggedElements, reportNode, severity);
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
-        logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, null, objectiveFunction, numberOfLoggedElements);
+    public static void logMostLimitingElementsResults(PrePerimeterResult prePerimeterResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements, ReportNode reportNode, TypedValue severity) {
+        logMostLimitingElementsResults(prePerimeterResult, prePerimeterResult, null, objectiveFunction, numberOfLoggedElements, reportNode, severity);
     }
 
-    private static void logMostLimitingElementsResults(OpenRaoLogger logger,
-                                                       ObjectiveFunctionResult objectiveFunctionResult,
-                                                       FlowResult flowResult,
-                                                       Set<State> states,
-                                                       ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
-                                                       int numberOfLoggedElements) {
-        getMostLimitingElementsResults(objectiveFunctionResult, flowResult, states, objectiveFunction, numberOfLoggedElements)
-            .forEach(logger::info);
-    }
-
-    static List<String> getMostLimitingElementsResults(ObjectiveFunctionResult objectiveFunctionResult,
-                                                       FlowResult flowResult,
-                                                       Set<State> states,
-                                                       ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
-                                                       int numberOfLoggedElements) {
-        List<String> summary = new ArrayList<>();
+    static void logMostLimitingElementsResults(ObjectiveFunctionResult objectiveFunctionResult,
+                                               FlowResult flowResult,
+                                               Set<State> states,
+                                               ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+                                               int numberOfLoggedElements,
+                                               ReportNode reportNode,
+                                               TypedValue reportSeverity) {
         Unit unit = objectiveFunction.getUnit();
         boolean relativePositiveMargins = objectiveFunction.relativePositiveMargins();
 
-        List<FlowCnec> sortedCnecs = getMostLimitingElements(objectiveFunctionResult, states, numberOfLoggedElements);
+        List<FlowCnec> sortedCnecs = getMostLimitingElements(objectiveFunctionResult, states, numberOfLoggedElements).stream()
+            .sorted((cnec1, cnec2) -> compareTwoFlowCnecs(flowResult, cnec1, cnec2, relativePositiveMargins, unit))
+            .toList();
 
         for (int i = 0; i < sortedCnecs.size(); i++) {
             FlowCnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
-            double cnecMargin = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, unit) : flowResult.getMargin(cnec, unit);
+            double cnecMargin = getCnecMargin(flowResult, cnec, relativePositiveMargins, unit);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             TwoSides mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
-                i + 1,
-                isRelativeMargin,
-                cnecMargin,
-                unit,
-                ptdfIfRelative,
-                cnecNetworkElementName,
-                cnecStateId,
-                cnec.getId()));
+            RaoCommonsReports.reportMostLimitingElement(reportNode, reportSeverity, i + 1, isRelativeMargin, cnecMargin, unit, ptdfIfRelative, cnecNetworkElementName, cnecStateId, cnec.getId());
         }
-        return summary;
+    }
+
+    private static int compareTwoFlowCnecs(FlowResult flowResult, FlowCnec cnec1, FlowCnec cnec2, boolean relativePositiveMargins, Unit unit) {
+        double cnecMargin1 = getCnecMargin(flowResult, cnec1, relativePositiveMargins, unit);
+        double cnecMargin2 = getCnecMargin(flowResult, cnec2, relativePositiveMargins, unit);
+        return compareCnecMarginsAndIds(cnec1, cnec2, cnecMargin1, cnecMargin2);
+    }
+
+    private static double getCnecMargin(FlowResult flowResult, FlowCnec cnec1, boolean relativePositiveMargins, Unit unit) {
+        return relativePositiveMargins ? flowResult.getRelativeMargin(cnec1, unit) : flowResult.getMargin(cnec1, unit);
+    }
+
+    private static int compareCnecMarginsAndIds(FlowCnec cnec1, FlowCnec cnec2, Double cnecMargin1, Double cnecMargin2) {
+        if (Objects.equals(cnecMargin1, cnecMargin2)) {
+            return cnec1.getId().compareTo(cnec2.getId());
+        }
+        return Double.compare(cnecMargin1, cnecMargin2);
     }
 
     private static TwoSides getMostConstrainedSide(FlowCnec cnec,
@@ -157,24 +161,13 @@ public final class RaoLogger {
         return marginRight < marginLeft ? TwoSides.TWO : TwoSides.ONE;
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger,
-                                                      Perimeter preventivePerimeter,
-                                                      OptimizationResult basecaseOptimResult,
-                                                      Set<ContingencyScenario> contingencyScenarios,
-                                                      Map<State, OptimizationResult> contingencyOptimizationResults,
-                                                      ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
-                                                      int numberOfLoggedElements) {
-        getMostLimitingElementsResults(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunction, numberOfLoggedElements)
-            .forEach(logger::info);
-    }
-
-    public static List<String> getMostLimitingElementsResults(Perimeter preventivePerimeter,
+    public static void logMostLimitingElementsResults(Perimeter preventivePerimeter,
                                                               OptimizationResult basecaseOptimResult,
                                                               Set<ContingencyScenario> contingencyScenarios,
                                                               Map<State, OptimizationResult> contingencyOptimizationResults,
                                                               ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
-                                                              int numberOfLoggedElements) {
-        List<String> summary = new ArrayList<>();
+                                                              int numberOfLoggedElements,
+                                                              ReportNode reportNode) {
         Unit unit = objectiveFunction.getUnit();
         boolean relativePositiveMargins = objectiveFunction.relativePositiveMargins();
 
@@ -195,7 +188,7 @@ public final class RaoLogger {
         });
 
         List<FlowCnec> sortedCnecs = mostLimitingElementsAndMargins.keySet().stream()
-            .sorted(Comparator.comparing(mostLimitingElementsAndMargins::get))
+            .sorted((cnec1, cnec2) -> compareCnecMarginsAndIds(cnec1, cnec2, mostLimitingElementsAndMargins.get(cnec1), mostLimitingElementsAndMargins.get(cnec2)))
             .toList();
         sortedCnecs = sortedCnecs.subList(0, Math.min(sortedCnecs.size(), numberOfLoggedElements));
 
@@ -206,16 +199,8 @@ public final class RaoLogger {
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
-                i + 1,
-                isRelativeMargin,
-                cnecMargin,
-                unit,
-                cnecNetworkElementName,
-                cnecStateId,
-                cnec.getId()));
+            RaoCommonsReports.reportMostLimitingElement(reportNode, TypedValue.INFO_SEVERITY, i + 1, isRelativeMargin, cnecMargin, unit, "", cnecNetworkElementName, cnecStateId, cnec.getId());
         }
-        return summary;
     }
 
     private static List<FlowCnec> getMostLimitingElements(ObjectiveFunctionResult objectiveFunctionResult,
@@ -240,35 +225,41 @@ public final class RaoLogger {
         Map<FlowCnec, Double> mostLimitingElementsAndMargins = new HashMap<>();
         List<FlowCnec> cnecs = getMostLimitingElements(optimizationResult, states, maxNumberOfElements);
         cnecs.forEach(cnec -> {
-            double cnecMargin = relativePositiveMargins ? optimizationResult.getRelativeMargin(cnec, unit) : optimizationResult.getMargin(cnec, unit);
+            double cnecMargin = getCnecMargin(optimizationResult, cnec, relativePositiveMargins, unit);
             mostLimitingElementsAndMargins.put(cnec, cnecMargin);
         });
         return mostLimitingElementsAndMargins;
     }
 
-    public static void logFailedOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
+    public static void logFailedOptimizationSummary(State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ReportNode reportNode) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
-        logger.info("Scenario \"{}\": {}", scenarioName, raResult);
+        RaoCommonsReports.reportFailedOptimizationSummary(reportNode, scenarioName, raResult);
     }
 
-    public static void logOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective) {
+    public static void logOptimizationSummary(State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective, ReportNode reportNode) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
         Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalObjective);
-        String initialCostString;
-        if (preOptimObjectiveFunctionResult == null) {
-            initialCostString = "";
+        String finalVirtualCostDetailedString = finalVirtualCostDetailed.isEmpty() ? "null" : finalVirtualCostDetailed.toString();
+
+        Map<String, Double> initialVirtualCostDetailed;
+        String preOptimObjectiveFunctionResultCost;
+        String preOptimObjectiveFunctionResultFunctionalCost;
+        String preOptimObjectiveFunctionResultVirtualCost;
+        if (Objects.isNull(preOptimObjectiveFunctionResult)) {
+            initialVirtualCostDetailed = Collections.emptyMap();
+            preOptimObjectiveFunctionResultCost = "null";
+            preOptimObjectiveFunctionResultFunctionalCost = "null";
+            preOptimObjectiveFunctionResultVirtualCost = "null";
         } else {
-            Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(preOptimObjectiveFunctionResult);
-            if (initialVirtualCostDetailed.isEmpty()) {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
-            } else {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
-            }
+            initialVirtualCostDetailed = getVirtualCostDetailed(preOptimObjectiveFunctionResult);
+            preOptimObjectiveFunctionResultCost = formatDouble(preOptimObjectiveFunctionResult.getCost());
+            preOptimObjectiveFunctionResultFunctionalCost = formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost());
+            preOptimObjectiveFunctionResultVirtualCost = formatDouble(preOptimObjectiveFunctionResult.getVirtualCost());
         }
-        logger.info("Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, optimizedState.getInstant(),
-            formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
+        String initialVirtualCostDetailedString = initialVirtualCostDetailed.isEmpty() ? "null" : initialVirtualCostDetailed.toString();
+        RaoCommonsReports.reportOptimizationSummaryOnScenario(reportNode, scenarioName, preOptimObjectiveFunctionResultCost, preOptimObjectiveFunctionResultFunctionalCost, preOptimObjectiveFunctionResultVirtualCost, initialVirtualCostDetailedString, raResult, optimizedState.getInstant().toString(), finalObjective.getCost(), finalObjective.getFunctionalCost(), finalObjective.getVirtualCost(), finalVirtualCostDetailedString);
     }
 
     public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse.remedialaction;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -18,6 +19,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.cse.*;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.*;
@@ -46,10 +48,11 @@ public class TRemedialActionAdder {
     private final CseCracCreationContext cseCracCreationContext;
     private final Map<String, Set<String>> remedialActionsForCnecsMap;
     private final CseCracCreationParameters cseCracCreationParameters;
+    private final ReportNode reportNode;
 
     private static final String ABSOLUTE_VARIATION_TYPE = "ABSOLUTE";
 
-    public TRemedialActionAdder(TCRACSeries tcracSeries, Crac crac, Network network, UcteNetworkAnalyzer ucteNetworkAnalyzer, Map<String, Set<String>> remedialActionsForCnecsMap, CseCracCreationContext cseCracCreationContext, CseCracCreationParameters cseCracCreationParameters) {
+    public TRemedialActionAdder(TCRACSeries tcracSeries, Crac crac, Network network, UcteNetworkAnalyzer ucteNetworkAnalyzer, Map<String, Set<String>> remedialActionsForCnecsMap, CseCracCreationContext cseCracCreationContext, CseCracCreationParameters cseCracCreationParameters, ReportNode reportNode) {
         this.tcracSeries = tcracSeries;
         this.crac = crac;
         this.network = network;
@@ -57,6 +60,7 @@ public class TRemedialActionAdder {
         this.cseCracCreationContext = cseCracCreationContext;
         this.remedialActionsForCnecsMap = remedialActionsForCnecsMap;
         this.cseCracCreationParameters = cseCracCreationParameters;
+        this.reportNode = reportNode;
     }
 
     public void add() {
@@ -290,7 +294,7 @@ public class TRemedialActionAdder {
                 injectionRangeActionAdder.withGroupId(groups.get(0).toString());
             } else if (groups.size() > 1) {
                 injectionRangeActionAdder.withGroupId(groups.get(0).toString());
-                cseCracCreationContext.getCreationReport().warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.get(0)));
+                CracCreationReport.warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.get(0)), reportNode);
             }
         }
 
@@ -362,7 +366,7 @@ public class TRemedialActionAdder {
         try {
             country = Country.valueOf(sharedWithId);
         } catch (IllegalArgumentException e) {
-            cseCracCreationContext.getCreationReport().removed(String.format("RA %s has a non-UCTE sharedWith country : %s. The usage rule was not created.", tRemedialAction.getName().getV(), sharedWithId));
+            CracCreationReport.removed(String.format("RA %s has a non-UCTE sharedWith country : %s. The usage rule was not created.", tRemedialAction.getName().getV(), sharedWithId), reportNode);
             return;
         }
 

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
@@ -119,7 +120,7 @@ class IteratingLinearOptimizerTest {
         outageInstant = Mockito.mock(Instant.class);
         when(outageInstant.isOutage()).thenReturn(true);
         SystematicSensitivityResult sensi = Mockito.mock(SystematicSensitivityResult.class, "only sensi computation");
-        when(systematicSensitivityInterface.run(network)).thenReturn(sensi);
+        when(systematicSensitivityInterface.run(network, ReportNode.NO_OP)).thenReturn(sensi);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(branchResultAdapter.getResult(sensi, network)).thenReturn(flowResult);
         when(sensitivityComputer.getBranchResult(network)).thenReturn(flowResult);
@@ -130,9 +131,9 @@ class IteratingLinearOptimizerTest {
 
         linearProblemMockedStatic = Mockito.mockStatic(LinearProblem.class);
         sensitivityComputerMockedStatic = Mockito.mockStatic(SensitivityComputer.class);
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = Mockito.spy(SensitivityComputer.SensitivityComputerBuilder.class);
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = Mockito.spy(new SensitivityComputer.SensitivityComputerBuilder(ReportNode.NO_OP));
         doReturn(sensitivityComputer).when(sensitivityComputerBuilder).build();
-        sensitivityComputerMockedStatic.when(SensitivityComputer::create).thenReturn(sensitivityComputerBuilder);
+        sensitivityComputerMockedStatic.when(() -> SensitivityComputer.create(any())).thenReturn(sensitivityComputerBuilder);
 
         when(input.getOutageInstant()).thenReturn(outageInstant);
     }
@@ -153,7 +154,7 @@ class IteratingLinearOptimizerTest {
         ObjectiveFunctionResult initialObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
         when(initialObjectiveFunctionResult.getFunctionalCost()).thenReturn(initialFunctionalCost);
         if (iterationFunctionalCosts.length == 0) {
-            when(objectiveFunction.evaluate(any(), any(), any(), any())).thenReturn(initialObjectiveFunctionResult);
+            when(objectiveFunction.evaluate(any(), any(), any(), any(), any())).thenReturn(initialObjectiveFunctionResult);
         } else {
             ObjectiveFunctionResult[] objectiveFunctionResults = new ObjectiveFunctionResult[iterationFunctionalCosts.length];
             for (int i = 0; i < iterationFunctionalCosts.length; i++) {
@@ -161,7 +162,7 @@ class IteratingLinearOptimizerTest {
                 when(objectiveFunctionResult.getFunctionalCost()).thenReturn(iterationFunctionalCosts[i]);
                 objectiveFunctionResults[i] = objectiveFunctionResult;
             }
-            when(objectiveFunction.evaluate(any(), any(), any(), any())).thenReturn(
+            when(objectiveFunction.evaluate(any(), any(), any(), any(), any())).thenReturn(
                     initialObjectiveFunctionResult,
                     objectiveFunctionResults
             );
@@ -191,7 +192,7 @@ class IteratingLinearOptimizerTest {
         mockLinearProblem(List.of(LinearProblemStatus.INFEASIBLE), Collections.emptyList());
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.INFEASIBLE, result.getStatus());
     }
@@ -203,7 +204,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -217,7 +218,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -232,7 +233,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -246,7 +247,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -261,7 +262,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -275,7 +276,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 90., 80., 70., 60., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -289,7 +290,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.FEASIBLE, result.getStatus());
         assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -302,12 +303,12 @@ class IteratingLinearOptimizerTest {
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        Mockito.doNothing().when(sensitivityComputer).compute(network);
+        Mockito.doNothing().when(sensitivityComputer).compute(network, ReportNode.NO_OP);
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
 
         assertEquals(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -336,7 +337,7 @@ class IteratingLinearOptimizerTest {
         when(input.getRaActivationFromParentLeaf()).thenReturn(rangeActionActivationResult);
         prepareLinearProblemBuilder();
 
-        IteratingLinearOptimizer.optimize(input, parameters, outageInstant);
+        IteratingLinearOptimizer.optimize(input, parameters, outageInstant, ReportNode.NO_OP);
         assertEquals(3, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 }

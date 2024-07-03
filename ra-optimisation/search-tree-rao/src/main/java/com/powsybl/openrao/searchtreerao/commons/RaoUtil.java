@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
@@ -41,8 +41,8 @@ public final class RaoUtil {
     private RaoUtil() {
     }
 
-    public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
-        checkParameters(raoParameters, raoInput);
+    public static void initData(RaoInput raoInput, RaoParameters raoParameters, ReportNode reportNode) {
+        checkParameters(raoParameters, raoInput, reportNode);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
     }
 
@@ -50,7 +50,7 @@ public final class RaoUtil {
         network.getVariantManager().setWorkingVariant(networkVariantId);
     }
 
-    public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput, ReportNode reportNode) {
         if (raoParameters.getObjectiveFunctionParameters().getType().getUnit().equals(Unit.AMPERE)
                 && raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
             throw new OpenRaoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getType().toString()));
@@ -68,16 +68,15 @@ public final class RaoUtil {
         if ((raoParameters.hasExtension(LoopFlowParametersExtension.class)
                 || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
                 && (Objects.isNull(raoInput.getReferenceProgram()))) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
-            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters()));
+            RaoCommonsReports.reportReferenceProgramWillBeGeneratedFromNetwork(reportNode);
+            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters(), reportNode));
         }
 
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class) && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
-            String msg = format(
+            RaoCommonsReports.reportLoopflowComputationErrorLackOfReferenceProgramOrGlskProvider(reportNode, raoInput.getCrac().getId());
+            throw new OpenRaoException(format(
                     "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                    raoInput.getCrac().getId());
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+                    raoInput.getCrac().getId()));
         }
     }
 
@@ -112,8 +111,8 @@ public final class RaoUtil {
      * 3) It computes the "strongest" usage method.
      * The remedial action is available if and only if the usage method is "AVAILABLE".
      */
-    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters, ReportNode reportNode) {
+        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters, reportNode);
         return finalUsageMethod != null && finalUsageMethod.equals(UsageMethod.AVAILABLE);
     }
 
@@ -126,22 +125,22 @@ public final class RaoUtil {
      * For automatonState, the remedial action is forced if and only if the usage method is "FORCED".
      * For non-automaton states, a forced remedial action is not supported and the remedial action is ignored.
      */
-    public static boolean isRemedialActionForced(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+    public static boolean isRemedialActionForced(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters, ReportNode reportNode) {
+        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters, reportNode);
         if (finalUsageMethod == null) {
             return false;
         }
         if (!state.getInstant().isAuto() && finalUsageMethod.equals(UsageMethod.FORCED)) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
+            RaoCommonsReports.reportForceUsageMethodForAutomatonOnly(reportNode, remedialAction.getName(), state.getId());
             return false;
         }
         return finalUsageMethod.equals(UsageMethod.FORCED);
     }
 
-    private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+    private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters, ReportNode reportNode) {
         Set<UsageRule> usageRules = remedialAction.getUsageRules();
         if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
+            RaoCommonsReports.reportRemedialActionWithoutUsageRule(reportNode, remedialAction.getName());
             return null;
         }
 

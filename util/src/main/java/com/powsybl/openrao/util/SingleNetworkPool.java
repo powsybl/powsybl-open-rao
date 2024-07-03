@@ -32,7 +32,7 @@ public class SingleNetworkPool extends AbstractNetworkPool {
         if (cloneInitialised) {
             return;
         }
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant);
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant); // TODO
         network.getVariantManager().setWorkingVariant(targetVariant);
         network.getVariantManager().cloneVariant(networkInitialVariantId, Arrays.asList(stateSaveVariant, workingVariant), true);
         boolean isSuccess = networksQueue.offer(network);

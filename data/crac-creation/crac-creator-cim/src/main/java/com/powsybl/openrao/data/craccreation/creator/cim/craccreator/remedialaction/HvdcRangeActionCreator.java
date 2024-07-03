@@ -45,12 +45,12 @@ public class HvdcRangeActionCreator {
     private final AngleCnec angleCnec;
     private final Country sharedDomain;
     private final CimCracCreationParameters cimCracCreationParameters;
-    private final Map<String, HvdcRangeActionAdder> hvdcRangeActionAdders = new HashMap<>();
-    private final Map<String, List<Integer>> rangeMin = new HashMap<>();
-    private final Map<String, List<Integer>> rangeMax = new HashMap<>();
-    private final Map<String, Boolean> isDirectionInverted = new HashMap<>();
+    private final Map<String, HvdcRangeActionAdder> hvdcRangeActionAdders = new TreeMap<>();
+    private final Map<String, List<Integer>> rangeMin = new TreeMap<>();
+    private final Map<String, List<Integer>> rangeMax = new TreeMap<>();
+    private final Map<String, Boolean> isDirectionInverted = new TreeMap<>();
     private final List<String> raSeriesIds = new ArrayList<>();
-    private final Map<String, OpenRaoImportException> exceptions = new HashMap<>();
+    private final Map<String, OpenRaoImportException> exceptions = new TreeMap<>();
 
     public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
         this.crac = crac;
@@ -71,7 +71,7 @@ public class HvdcRangeActionCreator {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s registered resources were defined in HVDC instead of 4", remedialActionSeries.getRegisteredResource().size()));
             }
 
-            Set<String> networkElementIds = new HashSet<>();
+            Set<String> networkElementIds = new LinkedHashSet<>();
             Boolean isRemedialActionSeriesInverted = null;
 
             for (RemedialActionRegisteredResource registeredResource : remedialActionSeries.getRegisteredResource()) {
@@ -133,7 +133,7 @@ public class HvdcRangeActionCreator {
             return setFromExceptions;
         }
 
-        Set<String> createdRaIds = new HashSet<>();
+        Set<String> createdRaIds = new LinkedHashSet<>();
         String groupId = hvdcRangeActionAdders.keySet().stream().sorted().collect(Collectors.joining(" + "));
         for (Map.Entry<String, List<Integer>> rangeEntry : rangeMin.entrySet()) {
             String neId = rangeEntry.getKey();

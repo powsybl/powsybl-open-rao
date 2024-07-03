@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -71,7 +72,7 @@ class RaoUtilTest {
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
             .withNetworkVariantId(variantId)
             .build();
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
     }
 
     private void addGlskProvider() {
@@ -88,7 +89,7 @@ class RaoUtilTest {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires glsks", exception.getMessage());
     }
 
@@ -96,7 +97,7 @@ class RaoUtilTest {
     void testExceptionForNoPtdfParametersOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
     }
 
@@ -104,7 +105,7 @@ class RaoUtilTest {
     void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
     }
 
@@ -114,7 +115,7 @@ class RaoUtilTest {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT requires a config with a non empty boundary set", exception.getMessage());
     }
 
@@ -122,7 +123,7 @@ class RaoUtilTest {
     void testAmpereWithDc() {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE cannot be calculated with a DC default sensitivity engine", exception.getMessage());
     }
 
@@ -196,7 +197,7 @@ class RaoUtilTest {
             .add();
 
         // Asserts that the method returns True when given an empty set
-        assertTrue(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
@@ -205,32 +206,32 @@ class RaoUtilTest {
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
         when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
-        assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
         when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
-        assertTrue(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
         when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
-        assertTrue(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
 
         optimizedState = crac.getPreventiveState();
-        assertFalse(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
-        assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
+        assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
 
         // asserts that a preventive remedial action with forced usage rule cannot be available
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
-        assertFalse(isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
 
         // asserts that a remedial action with no usage rule cannot be available
         NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
         when(networkActionWhithoutUsageRule.getName()).thenReturn("ra without usage rule");
         when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(Set.of());
-        assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
 
         // mock AUTO state for the next assertions
         NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
@@ -244,16 +245,16 @@ class RaoUtilTest {
         // remedial action with OnInstant Usage Rule
         when(automatonRa.getUsageRules()).thenReturn(Set.of(onInstant));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
-        assertTrue(isRemedialActionForced(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(isRemedialActionForced(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
-        assertTrue(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
 
         // remedial action with OnFlowConstraint Usage Rule
         when(automatonRa.getUsageRules()).thenReturn(Set.of(onFlowConstraint));
         when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
-        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
         when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
-        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters, ReportNode.NO_OP));
     }
 
     @Test
@@ -342,6 +343,6 @@ class RaoUtilTest {
     }
 
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
-        assertEquals(available, isRemedialActionAvailable(ra, optimizedState, flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
+        assertEquals(available, isRemedialActionAvailable(ra, optimizedState, flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters, ReportNode.NO_OP));
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.openrao.tests.utils;
 
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.commons.ZonalData;
@@ -88,8 +89,8 @@ public final class Helpers {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
 
         NativeCracImporter<?> nativeCracImporter = NativeCracImporters.findImporter(cracFile.getName(), new ByteArrayInputStream(cracBytes));
-        NativeCrac nativeCrac = nativeCracImporter.importNativeCrac(new ByteArrayInputStream(cracBytes));
-        CracCreationContext cracCreationContext = CracCreators.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters);
+        NativeCrac nativeCrac = nativeCracImporter.importNativeCrac(new ByteArrayInputStream(cracBytes), ReportNode.NO_OP);
+        CracCreationContext cracCreationContext = CracCreators.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters, ReportNode.NO_OP);
         // round-trip CRAC json export/import to test it implicitly
         return roundTripOnCracCreationContext(cracCreationContext, network);
     }
@@ -171,7 +172,7 @@ public final class Helpers {
 
         InputStream refProgInputStream = new FileInputStream(refProgFile);
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        return RefProgImporter.importRefProg(refProgInputStream, offsetDateTime);
+        return RefProgImporter.importRefProg(refProgInputStream, offsetDateTime, ReportNode.NO_OP);
     }
 
     public static RaoResult importRaoResult(File raoResultFile) throws IOException {

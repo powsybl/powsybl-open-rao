@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(-500.);
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(-500.);
-        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
+        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());
         assertEquals(Set.of(pState, cState1), optPerimeter.getRangeActionOptimizationStates());
