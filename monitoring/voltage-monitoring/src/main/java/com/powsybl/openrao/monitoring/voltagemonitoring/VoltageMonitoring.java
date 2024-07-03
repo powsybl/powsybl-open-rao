@@ -166,7 +166,7 @@ public class VoltageMonitoring {
     private VoltageMonitoringResult monitorVoltageCnecs(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone) {
         //First load flow with only preventive action, it is supposed to converge
         if (!computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.UNKNOWN);
+            return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.FAILURE);
         }
         // Check for threshold overshoot for the voltages of each cnec
         Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
@@ -319,7 +319,7 @@ public class VoltageMonitoring {
 
     private VoltageMonitoringResult.Status concatenateSpecificResults() {
         if (stateSpecificResults.isEmpty()) {
-            return VoltageMonitoringResult.Status.UNKNOWN;
+            return VoltageMonitoringResult.Status.FAILURE;
         }
         AtomicBoolean atLeastOneHigh = new AtomicBoolean(false);
         AtomicBoolean atLeastOneLow = new AtomicBoolean(false);
@@ -333,7 +333,7 @@ public class VoltageMonitoring {
                         atLeastOneHigh.set(true);
                         atLeastOneLow.set(true);
                     }
-                    case UNKNOWN -> atLeastOneUnknown.set(true);
+                    case FAILURE -> atLeastOneUnknown.set(true);
                     case SECURE -> { }
                 }
             }
@@ -349,7 +349,7 @@ public class VoltageMonitoring {
             return VoltageMonitoringResult.Status.LOW_VOLTAGE_CONSTRAINT;
         }
         if (atLeastOneUnknown.get()) {
-            return VoltageMonitoringResult.Status.UNKNOWN;
+            return VoltageMonitoringResult.Status.FAILURE;
         }
         return VoltageMonitoringResult.Status.SECURE;
     }

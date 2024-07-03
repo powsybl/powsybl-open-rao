@@ -1,6 +1,6 @@
 {
   "type" : "VOLTAGE_MONITORING_RESULT",
-  "status" : "UNKNOWN",
+  "status" : "FAILURE",
   "extreme-voltage-values-in-kilovolts" : [ {
     "cnec-id" : "voltageCnecId",
     "min" : 144.383355903481,

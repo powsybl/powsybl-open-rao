@@ -14,7 +14,7 @@ Here is a detailed description of how the voltage monitoring algorithm operates:
     - If it diverges, return a VoltageMonitoringResult with the following content for this state, then move on to the next state:
       - the voltages of the VoltageCnecs equal to NaN
       - no applied remedial actions
-      - security status UNKNOWN
+      - security status FAILURE
   - Compute the voltages for all VoltageCnecs (computeVoltages method)
   - Compare the voltages to their thresholds. For the VoltageCnecs that have a voltage overshoot, get the associated remedial actions (with
     an OnVoltageConstraint usage rule containing the VoltageCnec and the state's instant)
