@@ -68,7 +68,7 @@ with $A(r,s')$ the setpoint of the last range action on the same element as $r$ 
 range actions exists, then $A(r,s') = \alpha_{0}(r)$
 
 This equation always applies, except for PSTs when modeling them as [APPROXIMATED_INTEGERS](/parameters.md#pst-model).
-If so, this constraint will be modeled directly via PST taps, see [here](/castor/linear-problem/discrete-pst-tap-filler.md#rangeactions-relative-tap-variations) as it gives better result [^3].
+If so, this constraint will be modeled directly via PST taps, see [here](/castor/linear-problem/discrete-pst-tap-filler.md#rangeactions-relative-tap-variations) as it gives better results [^3].
 
 <br>
 

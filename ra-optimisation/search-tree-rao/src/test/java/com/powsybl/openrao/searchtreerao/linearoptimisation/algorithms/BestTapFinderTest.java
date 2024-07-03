@@ -297,8 +297,8 @@ class BestTapFinderTest {
             activatedRangeActionOtherThanPst, startingSetPoint
         ));
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(activatedRangeActionOtherThanPst, optimizedState, 200.);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
@@ -328,8 +328,8 @@ class BestTapFinderTest {
             activatedRangeActionOtherThanPst, startingSetPoint
         ));
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(activatedRangeActionOtherThanPst, optimizedState, 200.);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
@@ -360,8 +360,8 @@ class BestTapFinderTest {
             activatedRangeActionOtherThanPst, startingSetPoint
         ));
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(activatedRangeActionOtherThanPst, optimizedState, 200.);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
@@ -396,9 +396,9 @@ class BestTapFinderTest {
             pstGroup2, startingSetPoint
         ));
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstGroup1, optimizedState, groupNotRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstGroup2, optimizedState, groupNotRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstGroup1, optimizedState, groupNotRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstGroup2, optimizedState, groupNotRoundedSetpoint);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, pstGroup1, pstGroup2)
         ));

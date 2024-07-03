@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 
 /**
@@ -66,8 +67,8 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + SET_POINT + SEPARATOR + raRangeShrinking.toString() + CONSTRAINT_SUFFIX;
     }
 
-    public static String rangeActionRelativeTapConstraintId(RangeAction<?> rangeAction, State state) {
-        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + TAP + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String pstRangeActionRelativeTapConstraintId(PstRangeAction pstRangeAction, State state) {
+        return pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + TAP + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String pstTapVariableVariationId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {

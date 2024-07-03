@@ -29,10 +29,10 @@ import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.li
  */
 public final class LinearProblem {
 
-    public static final double LP_INFINITY = 1e10;
+    public static final int LP_INFINITY = (int) 1e10;
     private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
 
-    private OpenRaoMPSolver solver;
+    private final OpenRaoMPSolver solver;
     private final List<ProblemFiller> fillerList;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
@@ -161,12 +161,12 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }
 
-    public OpenRaoMPConstraint addRangeActionRelativeTapConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
-        return solver.makeConstraint(lb, ub, rangeActionRelativeTapConstraintId(rangeAction, state));
+    public OpenRaoMPConstraint addPstRelativeTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(lb, ub, pstRangeActionRelativeTapConstraintId(pstRangeAction, state));
     }
 
-    public OpenRaoMPConstraint getRangeActionRelativeTapConstraint(RangeAction<?> rangeAction, State state) {
-        return solver.getConstraint(rangeActionRelativeTapConstraintId(rangeAction, state));
+    public OpenRaoMPConstraint getPstRelativeTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.getConstraint(pstRangeActionRelativeTapConstraintId(pstRangeAction, state));
     }
 
     public OpenRaoMPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
@@ -430,7 +430,7 @@ public final class LinearProblem {
         return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
-    public static double infinity() {
+    public static int infinity() {
         return LP_INFINITY;
     }
 

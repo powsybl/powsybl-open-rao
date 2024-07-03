@@ -88,13 +88,13 @@ public class DiscretePstTapFiller implements ProblemFiller {
         OpenRaoMPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
         OpenRaoMPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
 
-        // build integer constraint as it wasn't build in CoreProblemFiller
+        // build integer constraint as it wasn't built in CoreProblemFiller
         if (lastAvailableRangeAction != null) {
             RangeAction<?> preventiveRangeAction = lastAvailableRangeAction.getKey();
             Pair<Integer, Integer> pstLimits = getMinAndMaxRelativeTaps(pstRangeAction);
             int maxRelativeTap = pstLimits.getRight();
             int minRelativeTap = pstLimits.getLeft();
-            OpenRaoMPConstraint relativeTapConstraint = linearProblem.addRangeActionRelativeTapConstraint(minRelativeTap, maxRelativeTap, pstRangeAction, state);
+            OpenRaoMPConstraint relativeTapConstraint = linearProblem.addPstRelativeTapConstraint(minRelativeTap, maxRelativeTap, pstRangeAction, state);
             OpenRaoMPVariable preventivePstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable((PstRangeAction) preventiveRangeAction, optimizationPerimeter.getMainOptimizationState(), LinearProblem.VariationDirectionExtension.UPWARD);
             OpenRaoMPVariable preventivePstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable((PstRangeAction) preventiveRangeAction, optimizationPerimeter.getMainOptimizationState(), LinearProblem.VariationDirectionExtension.DOWNWARD);
             relativeTapConstraint.setCoefficient(pstTapUpwardVariationVariable, 1);
@@ -213,8 +213,8 @@ public class DiscretePstTapFiller implements ProblemFiller {
     }
 
     private Pair<Integer, Integer> getMinAndMaxRelativeTaps(PstRangeAction pstRangeAction) {
-        int minRelativeTap = (int) -LinearProblem.infinity();
-        int maxRelativeTap = (int) LinearProblem.infinity();
+        int minRelativeTap = -LinearProblem.infinity();
+        int maxRelativeTap = LinearProblem.infinity();
         List<TapRange> ranges = pstRangeAction.getRanges();
         for (TapRange range : ranges) {
             if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {

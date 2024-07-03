@@ -76,10 +76,10 @@ public final class BestTapFinder {
                 if (rangeAction instanceof PstRangeAction pstRangeAction && linearProblemResult.getActivatedRangeActions(state).contains(rangeAction)) {
                     Optional<String> optGroupId = pstRangeAction.getGroupId();
                     if (optGroupId.isPresent()) {
-                        roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTapPerPstGroup.get(optGroupId.get())));
+                        roundedResult.putResult(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTapPerPstGroup.get(optGroupId.get())));
                     } else {
                         int bestTap = minMarginPerTap.get(pstRangeAction).entrySet().stream().max(Comparator.comparing(Map.Entry<Integer, Double>::getValue)).orElseThrow().getKey();
-                        roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTap));
+                        roundedResult.putResult(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTap));
                     }
                 }
             }
