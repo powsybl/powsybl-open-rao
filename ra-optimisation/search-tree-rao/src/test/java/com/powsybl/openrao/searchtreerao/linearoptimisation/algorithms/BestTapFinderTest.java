@@ -127,14 +127,13 @@ class BestTapFinderTest {
     }
 
     private RangeActionActivationResult computeUpdatedRangeActionResult() {
-        RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        BestTapFinder.round(
+        RangeActionActivationResultImpl roundedResult = BestTapFinder.round(
             rangeActionActivationResult,
             network,
             optimizationPerimeter,
+            rangeActionSetpointResult,
             linearOptimizationResult,
-            Unit.MEGAWATT,
-            roundedResult
+            Unit.MEGAWATT
         );
         roundOtherRas(rangeActionActivationResult, optimizationPerimeter, roundedResult);
         return roundedResult;

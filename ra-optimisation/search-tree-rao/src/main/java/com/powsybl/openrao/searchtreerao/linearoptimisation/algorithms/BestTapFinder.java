@@ -46,13 +46,15 @@ public final class BestTapFinder {
      * taps in the linear optimization, rather than relying on the best tap finder to round the taps.
      *
      */
-    public static void round(RangeActionActivationResult linearProblemResult,
+    public static RangeActionActivationResultImpl round(RangeActionActivationResult linearProblemResult,
                                                     Network network,
                                                     OptimizationPerimeter optimizationContext,
+                                                    RangeActionSetpointResult prePerimeterSetpoint,
                                                     LinearOptimizationResult linearOptimizationResult,
-                                                    Unit unit,
-                                                    RangeActionActivationResultImpl roundedResult) {
+                                                    Unit unit) {
+        RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoint);
         findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit);
+        return roundedResult;
     }
 
     private static void findBestTapOfPstRangeActions(RangeActionActivationResult linearProblemResult,

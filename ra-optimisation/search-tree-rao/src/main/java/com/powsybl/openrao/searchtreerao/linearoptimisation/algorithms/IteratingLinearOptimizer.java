@@ -234,27 +234,28 @@ public final class IteratingLinearOptimizer {
     }
 
     private static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
-        RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(input.getPrePerimeterSetpoints());
-        roundPsts(linearProblemResult, previousResult, input, parameters, roundedResult);
+        RangeActionActivationResultImpl roundedResult = roundPsts(linearProblemResult, previousResult, input, parameters);
         roundOtherRas(linearProblemResult, input.getOptimizationPerimeter(), roundedResult);
         return roundedResult;
     }
 
-    private static void roundPsts(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, RangeActionActivationResultImpl roundedResult) {
+    private static RangeActionActivationResultImpl roundPsts(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         if (parameters.getRangeActionParameters().getPstModel().equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS)) {
-            BestTapFinder.round(
+            return BestTapFinder.round(
                 linearProblemResult,
                 input.getNetwork(),
                 input.getOptimizationPerimeter(),
+                input.getPrePerimeterSetpoints(),
                 previousResult,
-                parameters.getObjectiveFunctionUnit(), roundedResult
-            );
-        } else {
-            input.getOptimizationPerimeter().getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state)
-                .stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
-                .forEach(pst -> roundedResult.putResult(pst, state, pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
+                parameters.getObjectiveFunctionUnit()
             );
         }
+        RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(input.getPrePerimeterSetpoints());
+        input.getOptimizationPerimeter().getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state)
+            .stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
+            .forEach(pst -> roundedResult.putResult(pst, state, pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
+        );
+        return roundedResult;
     }
 
     static void roundOtherRas(RangeActionActivationResult linearProblemResult,
