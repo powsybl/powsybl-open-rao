@@ -4,13 +4,13 @@
 When OpenRAO tries to import a native CRAC file ([FlowBasedConstraint](fbconstraint), [CSE](cse), [CIM](cim), ...) 
 into an [internal CRAC format](json), some data transformation can happen, and data present in the final CRAC object 
 will not be a "one-to-one" exact representation of the data in the original file.  
-This can be an issue for the final user, as [querying the RAO result file or object](/output-data/rao-result/rao-result-json.md#contents-of-the-rao-result) 
+This can be an issue for the final user, as [querying the RAO result file or object](/output-data/rao-result.md#contents-of-the-rao-result) 
 needs knowledge of the artefacts OpenRAO created during CRAC creation.  
 The [CracCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/CracCreationContext.java) 
 classes produced by the different CRAC creators allow the user to access meta-information 
 about the CRAC creation process, and to map the original file to the created artifacts in the OpenRAO object, or to 
 error messages if some objects could not be imported.  
-This is particularly useful if the user needs to export the RAO result in a format different from [OpenRAO's internal format](/output-data/rao-result/rao-result-json.md), 
+This is particularly useful if the user needs to export the RAO result in a format different from [OpenRAO's internal format](/output-data/rao-result.md), 
 and to reference CNECs and remedial actions as they were defined in the original (native) CRAC file.  
 Many implementations of CracCreationContext exist, depending on the original format. Every implementation has its own 
 specific API. CracCreationContexts are the main output of CracCreators.  
@@ -139,8 +139,8 @@ void printSomeResults(BranchCnecCreationContext context, CracCreationContext cra
     context.getCreatedCnecsIds().entrySet().forEach(entry -> {
             System.out.println(String.format("Created CNEC for instant %s: %s", entry.getKey(), entry.getValue()));
             FlowCnec flowCnec = cracCreationContext.getCrac().getFlowCnec(entry.getValue());
-            System.out.println(String.format("The left-side flow on this native critical branch after RAO is: %.2f A", flowMultiplier * raoResult.getFlow(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, Side.LEFT, Unit.AMPERE)));
-            System.out.println(String.format("The right-side flow on this native critical branch after RAO is: %.2f A", flowMultiplier * raoResult.getFlow(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, Side.RIGHT, Unit.AMPERE)));
+            System.out.println(String.format("The left-side flow on this native critical branch after RAO is: %.2f A", flowMultiplier * raoResult.getFlow(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, TwoSides.ONE, Unit.AMPERE)));
+            System.out.println(String.format("The right-side flow on this native critical branch after RAO is: %.2f A", flowMultiplier * raoResult.getFlow(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, TwoSides.TWO, Unit.AMPERE)));
             System.out.println(String.format("The flow margin on this native critical branch after RAO is: %.2f A", raoResult.getMargin(OptimizationState.afterOptimizing(flowCnec.getState()), flowCnec, Unit.AMPERE)));
         }
     );

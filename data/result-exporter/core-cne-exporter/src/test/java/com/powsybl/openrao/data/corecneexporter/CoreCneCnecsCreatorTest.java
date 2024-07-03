@@ -17,7 +17,7 @@ import com.powsybl.openrao.data.cneexportercommons.CneUtil;
 import com.powsybl.openrao.data.corecneexporter.xsd.*;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -133,7 +133,7 @@ class CoreCneCnecsCreatorTest {
     }
 
     private void mockCnecResult(FlowCnec cnec, double flowMw, double marginA, double marginMw, double relMarginA, double relMarginMw, double ptdf) {
-        Side monitoredSide = cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
+        TwoSides monitoredSide = cnec.getMonitoredSides().contains(TwoSides.ONE) ? TwoSides.ONE : TwoSides.TWO;
         Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
         Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.MEGAWATT))).thenReturn(flowMw);
         Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
@@ -153,7 +153,7 @@ class CoreCneCnecsCreatorTest {
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(TwoSides.TWO).add()
             .add();
 
         mockCnecResult(cnec1, 80, 10, 20, 100, 200, .1);
@@ -166,7 +166,7 @@ class CoreCneCnecsCreatorTest {
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(10.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.TWO).add()
             .add();
 
         mockCnecResult(cnec2, 800, -100, -200, -99999999, -999999999, .2);
@@ -218,7 +218,7 @@ class CoreCneCnecsCreatorTest {
             .withMonitored()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(TwoSides.TWO).add()
             .add();
 
         mockCnecResult(cnec1, 80, 10, 20, 100, 200, .1);
@@ -256,7 +256,7 @@ class CoreCneCnecsCreatorTest {
             .withMonitored()
             .withNominalVoltage(400.)
             .withReliabilityMargin(10.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(TwoSides.TWO).add()
             .add();
 
         mockCnecResult(cnec1, 80, 10, 20, 100, 200, .1);
@@ -308,7 +308,7 @@ class CoreCneCnecsCreatorTest {
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(30.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(TwoSides.TWO).add()
             .add();
         FlowCnec cnecOutage = crac.newFlowCnec()
             .withId("cnec1 - Outage")
@@ -319,7 +319,7 @@ class CoreCneCnecsCreatorTest {
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(20.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(200.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(200.).withSide(TwoSides.TWO).add()
             .add();
         FlowCnec cnecCur = crac.newFlowCnec()
             .withId("cnec1 - Curative")
@@ -330,7 +330,7 @@ class CoreCneCnecsCreatorTest {
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(20.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(150.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(150.).withSide(TwoSides.TWO).add()
             .add();
 
         mockCnecResult(cnecPrev, 80, 10, 20, 100, 200, .1);
@@ -384,12 +384,12 @@ class CoreCneCnecsCreatorTest {
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(TwoSides.TWO).add()
             .add();
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(321.).withUnit(Unit.MEGAWATT).add();
 
         mockCnecResult(cnec1, 80, 10, 20, 100, 200, .1);
-        Mockito.when(raoResult.getLoopFlow(any(), eq(cnec1), eq(Side.RIGHT), eq(Unit.MEGAWATT))).thenReturn(123.);
+        Mockito.when(raoResult.getLoopFlow(any(), eq(cnec1), eq(TwoSides.TWO), eq(Unit.MEGAWATT))).thenReturn(123.);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());

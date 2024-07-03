@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresultapi;
 
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -16,12 +17,20 @@ import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresultapi.io.Exporter;
+import com.powsybl.openrao.data.raoresultapi.io.Importer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,7 +64,7 @@ public interface RaoResult {
      * @param unit:             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
-    double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
+    double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
@@ -148,7 +157,7 @@ public interface RaoResult {
      * @param unit:             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
-    double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
+    double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
      * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -160,7 +169,7 @@ public interface RaoResult {
      * @param unit:             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
-    double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit);
+    double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 
     /**
      * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
@@ -171,7 +180,7 @@ public interface RaoResult {
      * @param flowCnec:         The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
-    double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side);
+    double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
 
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
@@ -437,5 +446,64 @@ public interface RaoResult {
      */
     default boolean isSecure() {
         return isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
+    }
+
+    /**
+     * Import RaoResult from a file
+     *
+     * @param importers   candidates RaoResult importers to process the data
+     * @param inputStream RaoResult data
+     * @param crac        the crac on which the RaoResult data is based
+     * @return RaoResult object
+     */
+    private static RaoResult read(List<Importer> importers, InputStream inputStream, Crac crac) throws IOException {
+        byte[] bytes = getBytesFromInputStream(inputStream);
+        return importers.stream()
+            .filter(importer -> importer.exists(new ByteArrayInputStream(bytes)))
+            .findAny()
+            .orElseThrow(() -> new OpenRaoException("No suitable RaoResult importer found."))
+            .importData(new ByteArrayInputStream(bytes), crac);
+    }
+
+    /**
+     * Import RaoResult from a file
+     *
+     * @param inputStream RaoResult data
+     * @param crac        the crac on which the RaoResult data is based
+     * @return RaoResult object
+     */
+    static RaoResult read(InputStream inputStream, Crac crac) throws IOException {
+        return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, crac);
+    }
+
+    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        org.apache.commons.io.IOUtils.copy(inputStream, baos);
+        return baos.toByteArray();
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param exporters    candidate CRAC exporters
+     * @param format       desired output CRAC data type
+     * @param outputStream file where to write the CRAC data
+     */
+    private void write(List<Exporter> exporters, String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
+        exporters.stream()
+            .filter(ex -> format.equals(ex.getFormat()))
+            .findAny()
+            .orElseThrow(() -> new OpenRaoException("Export format " + format + " not supported"))
+            .exportData(this, crac, flowUnits, outputStream);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param format       desired output CRAC data type
+     * @param outputStream file where to write the CRAC data
+     */
+    default void write(String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
+        write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, crac, flowUnits, outputStream);
     }
 }

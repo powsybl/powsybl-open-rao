@@ -32,6 +32,6 @@ Here is a detailed description of how the voltage monitoring algorithm operates:
   - Create a state-specific voltage monitoring result with voltages, list of applied remedial actions , and secure flag set to SECURE if there is
     no more overshoot (after re-verifying thresholds)
   - Move on to next state (Go to (A)).
-- Assemble all the state-specific results in one overall result, and [update the RAO result object](#the-voltage-monitoring-result)
+- Assemble all the state-specific results in one overall result, and [update the RAO result object](/castor/monitoring/voltage-monitoring.md#the-voltage-monitoring-result)
   
 ![Voltage monitoring algorithm](/_static/img/voltage_monitoring_algorithm.png){.forced-white-background}

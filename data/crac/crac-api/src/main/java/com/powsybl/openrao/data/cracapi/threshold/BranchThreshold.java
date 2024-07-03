@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.cracapi.threshold;
 
 import com.powsybl.openrao.data.cracapi.cnec.BranchCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 
 /**
  * Specific {@link Threshold} for {@link BranchCnec}
@@ -20,8 +20,8 @@ import com.powsybl.openrao.data.cracapi.cnec.Side;
  */
 public interface BranchThreshold extends Threshold {
     /**
-     * Get the {@link Side} of the Branch on which the threshold is defined, which is
+     * Get the {@link TwoSides} of the Branch on which the threshold is defined, which is
      * implicitly deduced from the rule of the threshold
      */
-    Side getSide();
+    TwoSides getSide();
 }

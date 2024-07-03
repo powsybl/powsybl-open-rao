@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 
 /**
@@ -23,19 +23,19 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
     /**
      * Side of the network element which is monitored
      */
-    protected Side side;
+    protected TwoSides side;
 
     /**
      * Direction in which the flow is monitored
      */
 
-    BranchThresholdImpl(Side side, Unit unit, Double min, Double max) {
+    BranchThresholdImpl(TwoSides side, Unit unit, Double min, Double max) {
         super(unit, min, max);
         this.side = side;
     }
 
     @Override
-    public Side getSide() {
+    public TwoSides getSide() {
         return side;
     }
 

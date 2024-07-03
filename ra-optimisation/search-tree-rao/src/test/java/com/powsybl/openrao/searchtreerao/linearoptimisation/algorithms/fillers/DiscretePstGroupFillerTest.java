@@ -24,6 +24,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultIm
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class DiscretePstGroupFillerTest extends AbstractFillerTest {
 
     @Test
-    void testFillAndUpdateMethods() {
+    void testFillAndUpdateMethods() throws IOException {
 
         // prepare data
         init();
@@ -71,7 +72,7 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
         pstRangeActions.put(state, Set.of(pstRa1, pstRa2));
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
             network,
-            state,
+            optimizationPerimeter,
             pstRangeActions,
             initialRangeActionSetpointResult);
 

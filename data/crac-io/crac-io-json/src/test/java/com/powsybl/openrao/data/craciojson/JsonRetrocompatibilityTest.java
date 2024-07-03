@@ -7,11 +7,12 @@
 package com.powsybl.openrao.data.craciojson;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
@@ -67,12 +68,23 @@ class JsonRetrocompatibilityTest {
     }
 
     @Test
+    void testFormat() {
+        assertEquals("JSON", new JsonImport().getFormat());
+    }
+
+    @Test
+    void testNoNetworkProvided() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), CracFactory.findDefault(), null));
+        assertEquals("Network object is null but it is needed to map contingency's elements", exception.getMessage());
+    }
+
+    @Test
     void importV1Point0Test() {
 
         // JSON file of open-rao v3.4.3
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.0.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -89,7 +101,7 @@ class JsonRetrocompatibilityTest {
         // addition of switch pairs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.1.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -106,7 +118,7 @@ class JsonRetrocompatibilityTest {
         // addition of injection range action
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.2.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -124,7 +136,7 @@ class JsonRetrocompatibilityTest {
         // addition of initial setpoints for InjectionRangeActions and HvdcRangeActions
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.3.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -142,7 +154,7 @@ class JsonRetrocompatibilityTest {
         // addition of angle cnecs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.4.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -161,7 +173,7 @@ class JsonRetrocompatibilityTest {
         // addition of voltage cnecs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.5.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -182,7 +194,7 @@ class JsonRetrocompatibilityTest {
 
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.6.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -203,7 +215,7 @@ class JsonRetrocompatibilityTest {
 
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.7.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -224,7 +236,7 @@ class JsonRetrocompatibilityTest {
 
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.8.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -242,7 +254,7 @@ class JsonRetrocompatibilityTest {
         // Add support for CounterTrade remedial actions
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.9.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
 
         assertEquals(2, crac.getContingencies().size());
         assertEquals(7, crac.getFlowCnecs().size());
@@ -261,7 +273,7 @@ class JsonRetrocompatibilityTest {
         // Add support for user-defined Instants
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.0.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
         assertEquals(4, crac.getNetworkActions().size());
         testContentOfV2Point0Crac(crac);
     }
@@ -271,7 +283,7 @@ class JsonRetrocompatibilityTest {
         // Add support for CNECs' borders and relative-to-previous-time-step ranges for PSTs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
         assertEquals(6, crac.getNetworkActions().size());
         testContentOfV2Point2Crac(crac);
     }
@@ -281,7 +293,7 @@ class JsonRetrocompatibilityTest {
         // Add support for unified onConstraint usage rules
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.3.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
         assertEquals(6, crac.getNetworkActions().size());
         testContentOfV2Point3Crac(crac);
     }
@@ -291,7 +303,7 @@ class JsonRetrocompatibilityTest {
         // Add support for contingency in OnFlowConstraintInCountry
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json");
 
-        Crac crac = new JsonImport().importCrac(cracFile, network);
+        Crac crac = new JsonImport().importData(cracFile, CracFactory.findDefault(), network);
         assertEquals(6, crac.getNetworkActions().size());
         testContentOfV2Point4Crac(crac);
     }
@@ -355,29 +367,29 @@ class JsonRetrocompatibilityTest {
         assertEquals("operator4", crac.getFlowCnec("cnec4prevId").getOperator());
 
         // check iMax and nominal voltage
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(Side.LEFT), 1e-3);
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(Side.RIGHT), 1e-3);
-        assertEquals(380., crac.getFlowCnec("cnec2prevId").getNominalVoltage(Side.LEFT), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec2prevId").getNominalVoltage(Side.RIGHT), 1e-3);
-        assertEquals(Double.NaN, crac.getFlowCnec("cnec1prevId").getIMax(Side.LEFT), 1e-3);
-        assertEquals(1000., crac.getFlowCnec("cnec1prevId").getIMax(Side.RIGHT), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(Side.LEFT), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(Side.RIGHT), 1e-3);
+        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE), 1e-3);
+        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO), 1e-3);
+        assertEquals(380., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
+        assertEquals(220., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
+        assertEquals(Double.NaN, crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE), 1e-3);
+        assertEquals(1000., crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO), 1e-3);
+        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
+        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 
         // check threshold
         assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
         BranchThreshold threshold = crac.getFlowCnec("cnec4prevId").getThresholds().iterator().next();
         assertEquals(Unit.MEGAWATT, threshold.getUnit());
-        assertEquals(Side.LEFT, threshold.getSide());
+        assertEquals(TwoSides.ONE, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
         assertEquals(500., threshold.max().orElse(0.0), 1e-3);
         assertEquals(3, crac.getFlowCnec("cnec2prevId").getThresholds().size());
         assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(Side.LEFT) && thr.getUnit().equals(Unit.AMPERE) && thr.min().orElse(-999.).equals(-800.)));
+            .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.AMPERE) && thr.min().orElse(-999.).equals(-800.)));
         assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(Side.LEFT) && thr.getUnit().equals(Unit.PERCENT_IMAX) && thr.min().orElse(-999.).equals(-0.3)));
+            .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.PERCENT_IMAX) && thr.min().orElse(-999.).equals(-0.3)));
         assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(Side.RIGHT) && thr.getUnit().equals(Unit.AMPERE) && thr.max().orElse(-999.).equals(1200.)));
+            .anyMatch(thr -> thr.getSide().equals(TwoSides.TWO) && thr.getUnit().equals(Unit.AMPERE) && thr.max().orElse(-999.).equals(1200.)));
 
         // ---------------------------
         // --- test NetworkActions ---
