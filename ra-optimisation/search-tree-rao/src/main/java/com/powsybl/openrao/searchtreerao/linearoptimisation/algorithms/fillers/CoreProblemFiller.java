@@ -50,12 +50,15 @@ public class CoreProblemFiller implements ProblemFiller {
     private static final double RANGE_SHRINK_RATE = 0.667;
     private final boolean raRangeShrinking;
 
+    private final RangeActionsOptimizationParameters.PstModel pstModel;
+
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              RangeActionActivationResult raActivationFromParentLeaf,
                              RangeActionsOptimizationParameters rangeActionParameters,
                              Unit unit,
-                             boolean raRangeShrinking) {
+                             boolean raRangeShrinking,
+                             RangeActionsOptimizationParameters.PstModel pstModel) {
         this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
@@ -64,6 +67,7 @@ public class CoreProblemFiller implements ProblemFiller {
         this.rangeActionParameters = rangeActionParameters;
         this.unit = unit;
         this.raRangeShrinking = raRangeShrinking;
+        this.pstModel = pstModel;
     }
 
     @Override
@@ -240,8 +244,8 @@ public class CoreProblemFiller implements ProblemFiller {
     private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration) {
         double previousSetPointValue = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
-        double minAbsoluteSetpoint = Math.max(minAndMaxAbsoluteAndRelativeSetpoints.get(0), -LinearProblem.infinity());
-        double maxAbsoluteSetpoint = Math.min(minAndMaxAbsoluteAndRelativeSetpoints.get(1), LinearProblem.infinity());
+        double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
+        double maxAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
         double constrainedSetPointRange = (maxAbsoluteSetpoint - minAbsoluteSetpoint) * Math.pow(RANGE_SHRINK_RATE, iteration);
         double lb = previousSetPointValue - constrainedSetPointRange;
         double ub = previousSetPointValue + constrainedSetPointRange;
@@ -315,13 +319,11 @@ public class CoreProblemFiller implements ProblemFiller {
             double maxRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(3);
 
             // relative range
-            minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, -LinearProblem.infinity());
-            maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, LinearProblem.infinity());
-            minRelativeSetpoint = Math.max(minRelativeSetpoint, -LinearProblem.infinity());
-            maxRelativeSetpoint = Math.min(maxRelativeSetpoint, LinearProblem.infinity());
-            OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
-            relSetpointConstraint.setCoefficient(setPointVariable, 1);
-            relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
+            if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS) || !(rangeAction instanceof PstRangeAction)) {
+                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
+                relSetpointConstraint.setCoefficient(setPointVariable, 1);
+                relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
+            }
 
             // absolute range
             setPointVariable.setLb(minAbsoluteSetpoint - RANGE_ACTION_SETPOINT_EPSILON);
@@ -343,18 +345,18 @@ public class CoreProblemFiller implements ProblemFiller {
     private List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction) {
 
         // if relative to previous instant range
-        double minAbsoluteSetpoint = Double.NEGATIVE_INFINITY;
-        double maxAbsoluteSetpoint = Double.POSITIVE_INFINITY;
-        double minRelativeSetpoint = Double.NEGATIVE_INFINITY;
-        double maxRelativeSetpoint = Double.POSITIVE_INFINITY;
+        double minAbsoluteSetpoint = -LinearProblem.infinity();
+        double maxAbsoluteSetpoint = LinearProblem.infinity();
+        double minRelativeSetpoint = -LinearProblem.infinity();
+        double maxRelativeSetpoint = LinearProblem.infinity();
         if (rangeAction instanceof PstRangeAction pstRangeAction) {
             Map<Integer, Double> tapToAngleMap = pstRangeAction.getTapToAngleConversionMap();
             List<TapRange> ranges = pstRangeAction.getRanges();
 
             int minAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).min().orElseThrow();
             int maxAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).max().orElseThrow();
-            int minRelativeTap = Integer.MIN_VALUE;
-            int maxRelativeTap = Integer.MAX_VALUE;
+            int minRelativeTap = -LinearProblem.infinity();
+            int maxRelativeTap = LinearProblem.infinity();
             for (TapRange range : ranges) {
                 RangeType rangeType = range.getRangeType();
                 switch (rangeType) {

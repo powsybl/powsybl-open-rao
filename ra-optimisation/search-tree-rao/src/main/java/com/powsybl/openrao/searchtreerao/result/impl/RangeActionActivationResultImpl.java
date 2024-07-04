@@ -40,7 +40,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             this.setPointPerState = new HashMap<>();
         }
 
-        private void activate(State state, Double setpoint) {
+        private void put(State state, Double setpoint) {
             setPointPerState.put(state, setpoint);
         }
 
@@ -78,9 +78,9 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
         rangeActionSetpointResult.getRangeActions().forEach(ra -> elementaryResultMap.put(ra, new ElementaryResult(rangeActionSetpointResult.getSetpoint(ra))));
     }
 
-    public void activate(RangeAction<?> rangeAction, State state, double setpoint) {
+    public void putResult(RangeAction<?> rangeAction, State state, double setpoint) {
         shouldRecomputeSetpointsPerState = true;
-        elementaryResultMap.get(rangeAction).activate(state, setpoint);
+        elementaryResultMap.get(rangeAction).put(state, setpoint);
     }
 
     private synchronized void computeSetpointsPerStatePerPst() {

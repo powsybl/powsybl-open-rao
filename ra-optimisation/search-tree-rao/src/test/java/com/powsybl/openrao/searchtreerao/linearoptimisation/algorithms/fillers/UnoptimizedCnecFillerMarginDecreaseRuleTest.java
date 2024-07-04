@@ -50,8 +50,6 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     private FlowCnec cnecNl;
     private FlowCnec cnecFr;
     private double constraintCoeff;
-    private OptimizationPerimeter optimizationPerimeter;
-    private RangeActionsOptimizationParameters rangeActionParameters;
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -72,7 +70,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
 
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());
 
-        optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnecNl, cnecFr));
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
@@ -83,7 +81,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
-        rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
+        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
@@ -91,7 +89,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
             MEGAWATT,
-            false);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
     }
 
     private void buildLinearProblemWithMaxMinMargin() {

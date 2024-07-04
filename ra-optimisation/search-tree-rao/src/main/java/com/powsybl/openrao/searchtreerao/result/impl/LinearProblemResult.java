@@ -23,7 +23,7 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
             rangeActions.forEach(rangeAction -> {
                 if (linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue() > 1e-6) {
                     double setpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state).solutionValue();
-                    activate(rangeAction, state, setpoint);
+                    putResult(rangeAction, state, setpoint);
                 }
             })
         );
