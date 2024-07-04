@@ -25,8 +25,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-
 /**
  * RefProg xml file importer
  *
@@ -43,7 +41,7 @@ public final class RefProgImporter {
     public static ReferenceProgram importRefProg(InputStream inputStream, OffsetDateTime dateTime, ReportNode reportNode) {
         PublicationDocument document = importXmlDocument(inputStream);
         if (!isValidDocumentInterval(document, dateTime, reportNode)) {
-            Reports.reportRefprogInvalidForDate(reportNode, dateTime);
+            RefProgReports.reportRefprogInvalidForDate(reportNode, dateTime);
             throw new OpenRaoException("RefProg file is not valid for this date " + dateTime);
         }
         List<ReferenceExchangeData> exchangeDataList = new ArrayList<>();
@@ -55,7 +53,7 @@ public final class RefProgImporter {
             double flow = getFlow(dateTime, timeSeries, reportNode);
             exchangeDataList.add(new ReferenceExchangeData(outArea, inArea, flow));
         });
-        Reports.reportRefprogFileImported(reportNode);
+        RefProgReports.reportRefprogFileImported(reportNode);
         return new ReferenceProgram(exchangeDataList);
     }
 
@@ -89,7 +87,7 @@ public final class RefProgImporter {
             OffsetDateTime endDateTime = OffsetDateTime.parse(interval.substring(sepPosition + 1), DateTimeFormatter.ISO_DATE_TIME);
             return !dateTime.isBefore(startDateTime) && dateTime.isBefore(endDateTime);
         } else {
-            Reports.reportRefprogImportFailedUnknownTimeInterval(reportNode);
+            RefProgReports.reportRefprogImportFailedUnknownTimeInterval(reportNode);
             throw new OpenRaoException("Cannot import RefProg file because its publication time interval is unknown");
         }
     }
@@ -109,7 +107,7 @@ public final class RefProgImporter {
         if (validIntervals.isEmpty()) {
             String outArea = timeSeries.getOutArea().getV();
             String inArea = timeSeries.getInArea().getV();
-            Reports.reportRefprogFlowNotFoundForDate(reportNode, outArea, inArea, dateTime);
+            RefProgReports.reportRefprogFlowNotFoundForDate(reportNode, outArea, inArea, dateTime);
         } else {
             IntervalType validInterval = validIntervals.get(0);
             flow = validInterval.getQty().getV().doubleValue();

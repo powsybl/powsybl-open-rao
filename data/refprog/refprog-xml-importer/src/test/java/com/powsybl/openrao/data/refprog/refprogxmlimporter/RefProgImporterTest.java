@@ -50,9 +50,16 @@ class RefProgImporterTest {
     }
 
     @Test
-    void testRefProgWithoutInterval() {
+    void testRefProgWithoutInterval() throws IOException, URISyntaxException {
         InputStream inputStream = getClass().getResourceAsStream("/refProg_noInterval.xml");
-        assertThrows(OpenRaoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
+        ReportNode reportNode = buildNewRootNode();
+        assertThrows(OpenRaoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime, reportNode));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentRefProgWithoutInterval.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -79,9 +86,10 @@ class RefProgImporterTest {
     }
 
     @Test
-    void testImportSimpleFileWithoutFlowForTimestamp() {
+    void testImportSimpleFileWithoutFlowForTimestamp() throws IOException, URISyntaxException {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 19, 00, 0, 0, ZoneOffset.UTC);
-        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime);
+        ReportNode reportNode = buildNewRootNode();
+        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime, reportNode);
         assertEquals(4, referenceProgram.getReferenceExchangeDataList().size());
         assertEquals(4, referenceProgram.getListOfAreas().size());
         assertEquals(0, referenceProgram.getExchange("10YBE----------2", "10YFR-RTE------C"), DOUBLE_TOLERANCE);
@@ -92,6 +100,12 @@ class RefProgImporterTest {
         assertEquals(0, referenceProgram.getGlobalNetPosition("10YFR-RTE------C"), DOUBLE_TOLERANCE);
         assertEquals(-0, referenceProgram.getGlobalNetPosition("10YCB-GERMANY--8"), DOUBLE_TOLERANCE);
         assertEquals(-0, referenceProgram.getGlobalNetPosition("10YNL----------L"), DOUBLE_TOLERANCE);
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentRefProgImportSimpleFileWithoutFlowForTimestamp.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test

@@ -1,0 +1,2 @@
++ This is a parent report node for report tests
+   Cannot import RefProg file because its publication time interval is unknown

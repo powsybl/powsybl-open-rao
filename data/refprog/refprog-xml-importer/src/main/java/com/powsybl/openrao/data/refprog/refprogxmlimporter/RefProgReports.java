@@ -7,8 +7,8 @@ import java.time.OffsetDateTime;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
-public final class Reports {
-    private Reports() {
+public final class RefProgReports {
+    private RefProgReports() {
     }
 
     public static ReportNode reportRefprogInvalidForDate(ReportNode reportNode, OffsetDateTime dateTime) {
@@ -35,19 +35,19 @@ public final class Reports {
                 .withMessageTemplate("refprogImportFailedUnknownTimeInterval", "Cannot import RefProg file because its publication time interval is unknown")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
-        BUSINESS_LOGS.error("Cannot import RefProg file because its publication time interval is unknown"); // TODO test this
+        BUSINESS_LOGS.error("Cannot import RefProg file because its publication time interval is unknown");
         return addedNode;
     }
 
     public static ReportNode reportRefprogFlowNotFoundForDate(ReportNode reportNode, String outArea, String inArea, OffsetDateTime dateTime) {
         ReportNode addedNode = reportNode.newReportNode()
-                .withMessageTemplate("refprogFlowNotFoundForDate", "Flow value between ${outArea} and ${inArea} is not found for this date ${date}")
+                .withMessageTemplate("refprogFlowNotFoundForDate", "Flow value between ${outArea} and ${inArea} is not found for this date ${dateTime}")
                 .withUntypedValue("outArea", outArea)
                 .withUntypedValue("inArea", inArea)
                 .withUntypedValue("dateTime", dateTime.toString())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("Flow value between {} and {} is not found for this date {}", outArea, inArea, dateTime); // TODO test this
+        BUSINESS_WARNS.warn("Flow value between {} and {} is not found for this date {}", outArea, inArea, dateTime);
         return addedNode;
     }
 }

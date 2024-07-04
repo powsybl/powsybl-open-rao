@@ -1,0 +1,6 @@
++ This is a parent report node for report tests
+   Flow value between 10YBE----------2 and 10YFR-RTE------C is not found for this date 2020-01-06T19:00Z
+   Flow value between 10YBE----------2 and 10YNL----------L is not found for this date 2020-01-06T19:00Z
+   Flow value between 10YCB-GERMANY--8 and 10YFR-RTE------C is not found for this date 2020-01-06T19:00Z
+   Flow value between 10YCB-GERMANY--8 and 10YNL----------L is not found for this date 2020-01-06T19:00Z
+   RefProg file was imported
