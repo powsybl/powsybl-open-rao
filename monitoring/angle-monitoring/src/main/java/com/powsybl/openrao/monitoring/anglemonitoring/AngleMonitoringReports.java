@@ -16,45 +16,45 @@ public final class AngleMonitoringReports {
     }
 
     public static ReportNode reportAngleMonitoringStart(ReportNode reportNode) {
-        return MonitoringCommonReports.reportMonitoringStart(reportNode, ANGLE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportMonitoringStart(reportNode, ANGLE_CAMEL_CASE);
     }
 
     public static ReportNode reportAngleMonitoringEnd(ReportNode reportNode) {
-        return MonitoringCommonReports.reportMonitoringEnd(reportNode, ANGLE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportMonitoringEnd(reportNode, ANGLE_CAMEL_CASE);
     }
 
     public static ReportNode reportNoAngleCnecsDefined(ReportNode reportNode) {
-        return MonitoringCommonReports.reportNoCnecsDefined(reportNode, ANGLE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportNoCnecsDefined(reportNode, ANGLE_CAMEL_CASE);
     }
 
     public static ReportNode reportMonitoringAnglesAtState(ReportNode reportNode, State state) {
-        return MonitoringCommonReports.reportMonitoringAtState(reportNode, state, ANGLE_LOWER_CASE); // TODO test this
+        return MonitoringCommonReports.reportMonitoringAtState(reportNode, state, ANGLE_LOWER_CASE);
     }
 
     public static ReportNode reportMonitoringAnglesAtStateEnd(ReportNode reportNode, State state) {
-        return MonitoringCommonReports.reportMonitoringAtStateEnd(reportNode, state, ANGLE_LOWER_CASE); // TODO test this
+        return MonitoringCommonReports.reportMonitoringAtStateEnd(reportNode, state, ANGLE_LOWER_CASE);
     }
 
     public static ReportNode reportNoConstrainedElements(ReportNode reportNode) {
-        return MonitoringCommonReports.reportNoConstrainedElements(reportNode, ANGLE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportNoConstrainedElements(reportNode, ANGLE_CAMEL_CASE);
     }
 
     public static ReportNode reportUnknownStatusOnAngleCnecs(ReportNode reportNode) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("unknownStatusAngleCnecs", "Unknown status on AngleCnecs.")
+            .withMessageTemplate("unknownStatusAngleCnecs", "Unknown status on Angle Cnecs.")
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("Unknown status on AngleCnecs."); // TODO test this
+        BUSINESS_LOGS.info("Unknown status on Angle Cnecs."); // TODO test this
         return addedNode;
     }
 
     public static ReportNode reportSomeConstrainedElements(ReportNode reportNode) {
-        return MonitoringCommonReports.reportSomeConstrainedElements(reportNode, ANGLE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportSomeConstrainedElements(reportNode, ANGLE_CAMEL_CASE);
     }
 
     public static ReportNode reportConstrainedElement(ReportNode reportNode, String angleCnecId, String importingNetworkElementId, String exportingNetworkElementId, String stateId, double angle) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("angleMonitoringConstrainedElement", "AngleCnec ${angleCnecId} (with importing network element ${importingNetworkElementId} and exporting network element ${exportingNetworkElementId})" +
+            .withMessageTemplate("angleMonitoringConstrainedElement", "Angle Cnec ${angleCnecId} (with importing network element ${importingNetworkElementId} and exporting network element ${exportingNetworkElementId})" +
                 " at state ${stateId} has an angle of ${angle}°.")
             .withUntypedValue("angleCnecId", angleCnecId)
             .withUntypedValue("importingNetworkElementId", importingNetworkElementId)
@@ -64,7 +64,7 @@ public final class AngleMonitoringReports {
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
         BUSINESS_LOGS.info(
-            String.format("AngleCnec %s (with importing network element %s and exporting network element %s)" +
+            String.format("Angle Cnec %s (with importing network element %s and exporting network element %s)" +
                     " at state %s has an angle of %.0f°.",
                 angleCnecId,
                 importingNetworkElementId,
@@ -76,11 +76,11 @@ public final class AngleMonitoringReports {
     }
 
     public static ReportNode reportNoRaAvailable(ReportNode reportNode, String cnecId, String stateId) {
-        return MonitoringCommonReports.reportNoRaAvailable(reportNode, cnecId, stateId, ANGLE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportNoRaAvailable(reportNode, cnecId, stateId, ANGLE_CAMEL_CASE);
     }
 
     public static ReportNode reportConstraintInPreventive(ReportNode reportNode, String cnecId) {
-        return MonitoringCommonReports.reportConstraintInPreventive(reportNode, cnecId, ANGLE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportConstraintInPreventive(reportNode, cnecId, ANGLE_CAMEL_CASE);
     }
 
     public static ReportNode reportIgnoredRemedialActionForState(ReportNode reportNode, String remedialActionId, String cnecId, String stateId) {
@@ -89,18 +89,18 @@ public final class AngleMonitoringReports {
 
     public static ReportNode reportIgnoredRemedialAction(ReportNode reportNode, String remedialActionId, String cnecId, String cause) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("ignoredRemedialAction", "Remedial action ${remedialActionId} of AngleCnec ${cnecId} is ignored : ${cause}.")
+            .withMessageTemplate("ignoredRemedialAction", "Remedial action ${remedialActionId} of Angle Cnec ${cnecId} is ignored : ${cause}.")
             .withUntypedValue("remedialActionId", remedialActionId)
             .withUntypedValue("cnecId", cnecId)
             .withUntypedValue("cause", cause)
             .withSeverity(TypedValue.WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : {}.", remedialActionId, cnecId, cause);
+        BUSINESS_WARNS.warn("Remedial action {} of Angle Cnec {} is ignored : {}.", remedialActionId, cnecId, cause);
         return addedNode;
     }
 
     static ReportNode reportPostContingencyTask(State state, ReportNode rootReportNode) {
-        return MonitoringCommonReports.reportPostContingencyTask(state, rootReportNode, ANGLE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportPostContingencyTask(state, rootReportNode, ANGLE_CAMEL_CASE);
     }
 
     static ReportNode generatePostContingencyRootReportNode() {

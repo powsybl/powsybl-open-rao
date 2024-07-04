@@ -136,7 +136,7 @@ class RefProgImporterTest {
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 19, 15, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refProg.xml"), offsetDateTime, reportNode);
 
-        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentRefProgImporter.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();
@@ -152,7 +152,7 @@ class RefProgImporterTest {
         InputStream inputStream = getClass().getResourceAsStream("/refProg_12nodes.xml");
         assertThrows(OpenRaoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime, reportNode));
 
-        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContentWrongTimestamp.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentWrongTimestamp.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();

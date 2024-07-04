@@ -12,8 +12,8 @@
                   Outer loop ReactiveLimits
                   AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
             End of load-flow computation
+         All Voltage Cnecs are secure.
          End of monitoring voltages at state "preventive"
-      All voltage CNECs are secure.
       + Voltage monitoring post-contingency coL1.
          + Monitoring voltages at state "coL1 - curative"
             + Load-flow computation
@@ -27,10 +27,10 @@
                      Outer loop ReactiveLimits
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
-            VoltageCnec vc1 in state coL1 - curative has no associated RA. Voltage constraint cannot be secured.
+            Voltage Cnec vc1 in state coL1 - curative has no associated RA. Voltage constraint cannot be secured.
+            + Some Voltage Cnecs are not secure:
+               Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.
             End of monitoring voltages at state "coL1 - curative"
-         Some voltage CNECs are not secure:
-         Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.
       + Voltage monitoring post-contingency coL1L2.
          + Monitoring voltages at state "coL1L2 - curative"
             + Load-flow computation
@@ -53,10 +53,10 @@
                      Outer loop ReactiveLimits
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
-            VoltageCnec vc2b in state coL1L2 - curative has no associated RA. Voltage constraint cannot be secured.
+            Voltage Cnec vc2b in state coL1L2 - curative has no associated RA. Voltage constraint cannot be secured.
+            + Some Voltage Cnecs are not secure:
+               Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV.
             End of monitoring voltages at state "coL1L2 - curative"
-         Some voltage CNECs are not secure:
-         Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV.
       + Voltage monitoring post-contingency coL2.
          + Monitoring voltages at state "coL2 - curative"
             + Load-flow computation
@@ -70,12 +70,12 @@
                      Outer loop ReactiveLimits
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
-            VoltageCnec vc2 in state coL2 - curative has no associated RA. Voltage constraint cannot be secured.
+            Voltage Cnec vc2 in state coL2 - curative has no associated RA. Voltage constraint cannot be secured.
+            + Some Voltage Cnecs are not secure:
+               Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.
             End of monitoring voltages at state "coL2 - curative"
-         Some voltage CNECs are not secure:
+      + Some Voltage Cnecs are not secure:
+         Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.
          Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.
-      Some voltage CNECs are not secure:
-      Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.
-      Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.
-      Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV.
+         Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV.
       End of voltage monitoring

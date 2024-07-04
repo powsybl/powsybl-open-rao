@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.monitoring.voltagemonitoring.VoltageMonitoringResult.Status.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -147,7 +146,7 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getConstrainedElements().isEmpty());
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("All voltage CNECs are secure."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
+        assertEquals(List.of("All Voltage Cnecs are secure."), reportNode.getChildren().stream().map(ReportNode::getMessage).toList());
         assertTrue(voltageMonitoringResult.isSecure());
     }
 
@@ -162,12 +161,12 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getConstrainedElements().isEmpty());
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("All voltage CNECs are secure."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
+        assertEquals(List.of("All Voltage Cnecs are secure."), reportNode.getChildren().stream().map(ReportNode::getMessage).toList());
         assertTrue(voltageMonitoringResult.isSecure());
     }
 
     @Test
-    void testOneHighVoltagePreventiveCnec() {
+    void testOneHighVoltagePreventiveCnec() throws IOException, URISyntaxException {
         addVoltageCnec("vc", PREVENTIVE_INSTANT_ID, null, "VL1", 300., 350.);
         runVoltageMonitoring();
         assertEquals(400., voltageMonitoringResult.getMinVoltage("vc"), VOLTAGE_TOLERANCE);
@@ -176,13 +175,17 @@ class VoltageMonitoringTest {
         assertEquals(Set.of(crac.getVoltageCnec("vc")), voltageMonitoringResult.getConstrainedElements());
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Some voltage CNECs are not secure:",
-                "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringOneHighVoltagePreventiveCnec.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testOneLowVoltagePreventiveCnec() {
+    void testOneLowVoltagePreventiveCnec() throws IOException, URISyntaxException {
         addVoltageCnec("vc", PREVENTIVE_INSTANT_ID, null, "VL1", 401., 410.);
         runVoltageMonitoring();
         assertEquals(400., voltageMonitoringResult.getMinVoltage("vc"), VOLTAGE_TOLERANCE);
@@ -191,13 +194,17 @@ class VoltageMonitoringTest {
         assertEquals(Set.of(crac.getVoltageCnec("vc")), voltageMonitoringResult.getConstrainedElements());
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Some voltage CNECs are not secure:",
-                "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringOneLowVoltagePreventiveCnec.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testPrevNetworkActionMakesVoltageLowOn1Cnec() {
+    void testPrevNetworkActionMakesVoltageLowOn1Cnec() throws IOException, URISyntaxException {
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL1));
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
@@ -214,13 +221,17 @@ class VoltageMonitoringTest {
         assertEquals(383., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Some voltage CNECs are not secure:",
-                "Network element VL2 at state preventive has a voltage of 368 - 368 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringPrevNetworkActionMakesVoltageLowOn1Cnec.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testPrevNetworkActionMakesVoltageLowOn2Cnecs() {
+    void testPrevNetworkActionMakesVoltageLowOn2Cnecs() throws IOException, URISyntaxException {
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL1));
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
@@ -237,13 +248,17 @@ class VoltageMonitoringTest {
         assertEquals(383., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Some voltage CNECs are not secure:",
-                "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 383 - 383 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringPrevNetworkActionMakesVoltageLowOn2Cnecs.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testPrevNetworkActionMakesVoltageHighOn1Cnec() {
+    void testPrevNetworkActionMakesVoltageHighOn1Cnec() throws IOException, URISyntaxException {
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL2));
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
@@ -260,13 +275,17 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Some voltage CNECs are not secure:",
-                "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringPrevNetworkActionMakesVoltageHighOn1Cnec.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testPrevNetworkActionMakesHighAndLowConstraints() {
+    void testPrevNetworkActionMakesHighAndLowConstraints() throws IOException, URISyntaxException {
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL2));
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
@@ -283,13 +302,17 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Some voltage CNECs are not secure:",
-                "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringPrevNetworkActionMakesHighAndLowConstraints.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testPrevPstMakesVoltageLowOn1Cnec() {
+    void testPrevPstMakesVoltageLowOn1Cnec() throws IOException, URISyntaxException {
         when(raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(pst));
         when(raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst)).thenReturn(-20.);
 
@@ -307,13 +330,17 @@ class VoltageMonitoringTest {
         assertEquals(387., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Some voltage CNECs are not secure:",
-                "Network element VL2 at state preventive has a voltage of 379 - 379 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringPrevPstMakesVoltageLowOn1Cnec.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testCurativeStatesConstraints() {
+    void testCurativeStatesConstraints() throws IOException, URISyntaxException {
         // In this test, L1 and L2 are open by contingencies
         // We define CNECs on these contingencies, one should have low voltage and one should have high voltage
         VoltageCnec vc1 = addVoltageCnec("vc1", CURATIVE_INSTANT_ID, "coL1", "VL2", 375., 395.);
@@ -334,11 +361,13 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2b), VOLTAGE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Some voltage CNECs are not secure:",
-                "Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.",
-                "Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.",
-                "Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringCurativeStatesConstraints.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -366,12 +395,12 @@ class VoltageMonitoringTest {
         assertEquals(393., voltageMonitoringResult.getMaxVoltage(vc2b), VOLTAGE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("All voltage CNECs are secure."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
+        assertEquals(List.of("All Voltage Cnecs are secure."), reportNode.getChildren().stream().map(ReportNode::getMessage).toList());
         assertTrue(voltageMonitoringResult.isSecure());
     }
 
     @Test
-    void testCurPstMakesVoltageLowOn1Cnec() {
+    void testCurPstMakesVoltageLowOn1Cnec() throws IOException, URISyntaxException {
         crac.newContingency().withId("co3").withContingencyElement("L3", ContingencyElementType.LINE).add();
 
         VoltageCnec vc = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co3", "VL2", 375., 395.);
@@ -387,13 +416,17 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc), VOLTAGE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Some voltage CNECs are not secure:",
-                "Network element VL2 at state co3 - curative has a voltage of 368 - 368 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringCurPstMakesVoltageLowOn1Cnec.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testMultipleVoltageValuesPerVoltageLevel() {
+    void testMultipleVoltageValuesPerVoltageLevel() throws IOException, URISyntaxException {
         network = Network.read("ieee14.xiidm", getClass().getResourceAsStream("/ieee14.xiidm"));
         // VL45 : Min = 144.38, Max = 148.41
         // VL46 : Min = 143.10, Max = 147.66
@@ -411,11 +444,13 @@ class VoltageMonitoringTest {
         assertEquals(147.7, voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of(
-                "Some voltage CNECs are not secure:",
-                "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
-                "Network element VL46 at state preventive has a voltage of 143 - 148 kV."), reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList()));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringMultipleVoltageValuesPerVoltageLevel.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     public void setUpCracFactory(String networkFileName) {
@@ -438,21 +473,28 @@ class VoltageMonitoringTest {
     }
 
     @Test
-    void testDivergentLoadFlowDuringInitialLoadFlow() {
+    void testDivergentLoadFlowDuringInitialLoadFlow() throws IOException, URISyntaxException {
         setUpCracFactory("networkKO.xiidm");
         mockPreventiveState();
 
-        runVoltageMonitoring();
+        ReportNode reportNode = buildNewRootNode();
+        runVoltageMonitoring(reportNode);
 
         assertEquals(UNKNOWN, voltageMonitoringResult.getStatus());
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Double.NaN, voltageMonitoringResult.getMinVoltage(vcPrev));
         assertEquals(Double.NaN, voltageMonitoringResult.getMaxVoltage(vcPrev));
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringDivergentLoadFlowDuringInitialLoadFlow.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testDivergentLoadFlowAfterApplicationOfRemedialAction() {
+    void testDivergentLoadFlowAfterApplicationOfRemedialAction() throws IOException, URISyntaxException {
         setUpCracFactory("network2.xiidm");
 
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
@@ -465,11 +507,18 @@ class VoltageMonitoringTest {
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        runVoltageMonitoring();
+        ReportNode reportNode = buildNewRootNode();
+        runVoltageMonitoring(reportNode);
 
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringDivergentLoadFlowAfterApplicationOfRemedialAction.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -505,7 +554,7 @@ class VoltageMonitoringTest {
     }
 
     @Test
-    void testUnsecureInitialSituationWithRemedialActionThatDoNotSolveVC() {
+    void testUnsecureInitialSituationWithRemedialActionThatDoNotSolveVC() throws IOException, URISyntaxException {
         setUpCracFactory("network.xiidm");
         vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 390., 399.);
         crac.newNetworkAction()
@@ -523,12 +572,19 @@ class VoltageMonitoringTest {
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        runVoltageMonitoring();
+        ReportNode reportNode = buildNewRootNode();
+        runVoltageMonitoring(reportNode);
 
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertFalse(voltageMonitoringResult.isSecure());
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringUnsecureInitialSituationWithRemedialActionThatDoNotSolveVC.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -601,7 +657,7 @@ class VoltageMonitoringTest {
     }
 
     @Test
-    void testVoltageMonitoringReport() throws IOException, URISyntaxException {
+    void testVoltageMonitoringFullProcess() throws IOException, URISyntaxException {
         addVoltageCnec("vc1", CURATIVE_INSTANT_ID, "coL1", "VL2", 375., 395.);
         addVoltageCnec("vc2", CURATIVE_INSTANT_ID, "coL2", "VL3", 375., 395.);
         addVoltageCnec("vc1b", CURATIVE_INSTANT_ID, "coL1L2", "VL2", 375., 395.);
@@ -609,7 +665,7 @@ class VoltageMonitoringTest {
 
         ReportNode reportNode = buildNewRootNode();
         runVoltageMonitoring(reportNode);
-        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoringFullProcess.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();

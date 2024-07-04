@@ -12,11 +12,11 @@
                   Outer loop ReactiveLimits
                   AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
             End of load-flow computation
-         AngleCnec acPrev is constrained in preventive state, it cannot be secured.
+         Angle Cnec acPrev is constrained in preventive state, it cannot be secured.
          Applying the following remedial action(s) in order to reduce constraints on CNEC "acPrev": []
-         + Some AngleCnecs are not secure:
-            AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
+         + Some Angle Cnecs are not secure:
+            Angle Cnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
          End of monitoring angles at state "preventive"
-      + Some AngleCnecs are not secure:
-         AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
+      + Some Angle Cnecs are not secure:
+         Angle Cnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
       End of angle monitoring

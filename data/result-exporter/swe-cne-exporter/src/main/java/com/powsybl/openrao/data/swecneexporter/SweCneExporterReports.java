@@ -29,7 +29,7 @@ public final class SweCneExporterReports {
     public static ReportNode reportSweAdditionalConstraintSeriesCreatorAngleCnecIgnored(ReportNode reportNode, String instantId, String nativeId) {
         ReportNode addedNode = reportNode.newReportNode()
             .withMessageTemplate("reportSweAdditionalConstraintSeriesCreatorAngleCnecIgnored", "${instantId} angle cnec \"${nativeId}\" will not be added to CNE file")
-            .withUntypedValue("instantId", Optional.ofNullable(instantId).orElse(""))
+            .withUntypedValue("instantId", Optional.ofNullable(instantId).orElse("nullInstant"))
             .withUntypedValue("nativeId", Optional.ofNullable(nativeId).orElse(""))
             .withSeverity(TypedValue.WARN_SEVERITY)
             .add();

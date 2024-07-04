@@ -1,0 +1,4 @@
++ This is a parent report node for report tests
+   + Some Voltage Cnecs are not secure:
+      Network element VL45 at state preventive has a voltage of 144 - 148 kV.
+      Network element VL46 at state co1 - curative has a voltage of 143 - 148 kV.

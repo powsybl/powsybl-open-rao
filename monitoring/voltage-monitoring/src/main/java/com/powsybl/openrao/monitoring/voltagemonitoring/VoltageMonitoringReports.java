@@ -16,31 +16,31 @@ public final class VoltageMonitoringReports {
     }
 
     public static ReportNode reportVoltageMonitoringStart(ReportNode reportNode) {
-        return MonitoringCommonReports.reportMonitoringStart(reportNode, VOLTAGE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportMonitoringStart(reportNode, VOLTAGE_CAMEL_CASE);
     }
 
     public static ReportNode reportVoltageMonitoringEnd(ReportNode reportNode) {
-        return MonitoringCommonReports.reportMonitoringEnd(reportNode, VOLTAGE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportMonitoringEnd(reportNode, VOLTAGE_CAMEL_CASE);
     }
 
     public static ReportNode reportNoVoltageCnecsDefined(ReportNode reportNode) {
-        return  MonitoringCommonReports.reportNoCnecsDefined(reportNode, VOLTAGE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportNoCnecsDefined(reportNode, VOLTAGE_CAMEL_CASE); // TODO test this
     }
 
     public static ReportNode reportMonitoringVoltagesAtState(ReportNode reportNode, State state) {
-        return MonitoringCommonReports.reportMonitoringAtState(reportNode, state, VOLTAGE_LOWER_CASE); // TODO test this
+        return MonitoringCommonReports.reportMonitoringAtState(reportNode, state, VOLTAGE_LOWER_CASE);
     }
 
     public static ReportNode reportMonitoringVoltagesAtStateEnd(ReportNode reportNode, State state) {
-        return MonitoringCommonReports.reportMonitoringAtStateEnd(reportNode, state, VOLTAGE_LOWER_CASE); // TODO test this
+        return MonitoringCommonReports.reportMonitoringAtStateEnd(reportNode, state, VOLTAGE_LOWER_CASE);
     }
 
     public static ReportNode reportNoConstrainedElements(ReportNode reportNode) {
-        return MonitoringCommonReports.reportNoConstrainedElements(reportNode, VOLTAGE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportNoConstrainedElements(reportNode, VOLTAGE_CAMEL_CASE);
     }
 
     public static ReportNode reportSomeConstrainedElements(ReportNode reportNode) {
-        return MonitoringCommonReports.reportSomeConstrainedElements(reportNode, VOLTAGE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportSomeConstrainedElements(reportNode, VOLTAGE_CAMEL_CASE);
     }
 
     public static ReportNode reportConstrainedElement(ReportNode reportNode, String networkElementId, String stateId, double min, double max) {
@@ -63,11 +63,11 @@ public final class VoltageMonitoringReports {
     }
 
     public static ReportNode reportNoRaAvailable(ReportNode reportNode, String cnecId, String stateId) {
-        return MonitoringCommonReports.reportNoRaAvailable(reportNode, cnecId, stateId, VOLTAGE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportNoRaAvailable(reportNode, cnecId, stateId, VOLTAGE_CAMEL_CASE);
     }
 
     public static ReportNode reportConstraintInPreventive(ReportNode reportNode, String cnecId) {
-        return MonitoringCommonReports.reportConstraintInPreventive(reportNode, cnecId, VOLTAGE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportConstraintInPreventive(reportNode, cnecId, VOLTAGE_CAMEL_CASE);
     }
 
     public static ReportNode reportIgnoredRemedialAction(ReportNode reportNode, String remedialActionId, String cnecId, String stateId) {
@@ -75,7 +75,7 @@ public final class VoltageMonitoringReports {
     }
 
     static ReportNode reportPostContingencyTask(State state, ReportNode rootReportNode) {
-        return MonitoringCommonReports.reportPostContingencyTask(state, rootReportNode, VOLTAGE_CAMEL_CASE); // TODO test this
+        return MonitoringCommonReports.reportPostContingencyTask(state, rootReportNode, VOLTAGE_CAMEL_CASE);
     }
 
     static ReportNode generatePostContingencyRootReportNode() {

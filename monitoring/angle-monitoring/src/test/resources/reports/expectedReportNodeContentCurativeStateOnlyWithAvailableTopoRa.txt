@@ -13,11 +13,11 @@
                      Outer loop ReactiveLimits
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
-            Remedial action Open L1 - 2 of AngleCnec acCur1 is ignored : it has an elementary action that's not an injection setpoint.
+            Remedial action Open L1 - 2 of Angle Cnec acCur1 is ignored : it has an elementary action that's not an injection setpoint.
             Applying the following remedial action(s) in order to reduce constraints on CNEC "acCur1": []
-            + Some AngleCnecs are not secure:
-               AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
+            + Some Angle Cnecs are not secure:
+               Angle Cnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
             End of monitoring angles at state "coL1 - curative"
-      + Some AngleCnecs are not secure:
-         AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
+      + Some Angle Cnecs are not secure:
+         Angle Cnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
       End of angle monitoring

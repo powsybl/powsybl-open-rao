@@ -227,7 +227,7 @@ public class AngleMonitoring {
         redispatchNetworkActions(networkClone, powerToBeRedispatched, networkElementsToBeExcluded, reportNode);
         // Recompute LoadFlow
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone, reportNode)) {
-            MonitoringCommonReports.reportLoadflowComputationFailed(reportNode, state.getId());
+            MonitoringCommonReports.reportLoadflowComputationFailedAtStateAfterRA(reportNode, state.getId());
             Set<AngleMonitoringResult.AngleResult> result = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
             angleValues.forEach((angleCnecResult, angleResult) -> result.add(new AngleMonitoringResult.AngleResult(angleCnecResult, angleResult)));
             return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.DIVERGENT);

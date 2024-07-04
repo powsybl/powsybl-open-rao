@@ -1,4 +1,4 @@
 + This is a parent report node for report tests
    + SWE additional constraint series creator
-      {} angle cnec "{}" will not be added to CNE file
-      {} angle cnec "{}" will not be added to CNE file
+      nullInstant angle cnec "" will not be added to CNE file
+      nullInstant angle cnec "" will not be added to CNE file

@@ -22,14 +22,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DecimalFormatSymbols;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.openrao.monitoring.voltagemonitoring.VoltageMonitoringResult.Status.UNKNOWN;
@@ -107,7 +105,7 @@ class JsonVoltageMonitoringResultTest {
     }
 
     @Test
-    void testRoundTrip() throws IOException {
+    void testRoundTrip() throws IOException, URISyntaxException {
         VoltageMonitoringResult voltageMonitoringResult =
             new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result.json"), crac);
 
@@ -120,17 +118,17 @@ class JsonVoltageMonitoringResultTest {
 
         ReportNode reportNode = buildNewRootNode();
         voltageMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of(
-            "Some voltage CNECs are not secure:",
-            "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
-            "Network element VL46 at state co1 - curative has a voltage of 143 - 148 kV."),
-                reportNode.getChildren().stream().map(ReportNode::getMessage).collect(Collectors.toList())
-        );
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentJsonVoltageMonitoringResultRoundTrip.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
 
         OutputStream os = new ByteArrayOutputStream();
         new VoltageMonitoringResultExporter().export(voltageMonitoringResult, os);
-        String expected = new String(getClass().getResourceAsStream("/result.json").readAllBytes());
-        assertEquals(expected.replaceAll("\r", ""), os.toString().replaceAll("\r", ""));
+        String expectedJson = new String(getClass().getResourceAsStream("/result.json").readAllBytes());
+        assertEquals(expectedJson.replaceAll("\r", ""), os.toString().replaceAll("\r", ""));
     }
 
     @ParameterizedTest

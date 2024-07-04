@@ -12,10 +12,10 @@
                   Outer loop ReactiveLimits
                   AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
             End of load-flow computation
-         AngleCnec acPrev in state preventive has no associated RA. Angle constraint cannot be secured.
+         Angle Cnec acPrev in state preventive has no associated RA. Angle constraint cannot be secured.
          Applying the following remedial action(s) in order to reduce constraints on CNEC "acPrev": []
-         + Some AngleCnecs are not secure:
-            AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
+         + Some Angle Cnecs are not secure:
+            Angle Cnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
          End of monitoring angles at state "preventive"
       + Angle monitoring post-contingency coL1.
          + Monitoring angles at state "coL1 - curative"
@@ -30,10 +30,10 @@
                      Outer loop ReactiveLimits
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
-            AngleCnec acCur1 in state coL1 - curative has no associated RA. Angle constraint cannot be secured.
+            Angle Cnec acCur1 in state coL1 - curative has no associated RA. Angle constraint cannot be secured.
             Applying the following remedial action(s) in order to reduce constraints on CNEC "acCur1": []
-            + Some AngleCnecs are not secure:
-               AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
+            + Some Angle Cnecs are not secure:
+               Angle Cnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
             End of monitoring angles at state "coL1 - curative"
       + Angle monitoring post-contingency coL1L2.
          + Monitoring angles at state "coL1L2 - curative"
@@ -57,9 +57,9 @@
                      Outer loop ReactiveLimits
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
-            All AngleCnecs are secure.
+            All Angle Cnecs are secure.
             End of monitoring angles at state "coL1L2 - curative"
-      + Some AngleCnecs are not secure:
-         AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
-         AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
+      + Some Angle Cnecs are not secure:
+         Angle Cnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
+         Angle Cnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
       End of angle monitoring

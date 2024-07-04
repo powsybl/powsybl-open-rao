@@ -7,13 +7,9 @@
 
 package com.powsybl.openrao.data.craccreation.creator.api;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -98,14 +94,6 @@ class CracCreationReportTest {
         assertEquals("[REMOVED] message6", reportNode.getChildren().get(5).getMessage());
     }
 
-    private ListAppender<ILoggingEvent> getLogs(Class clazz) {
-        Logger logger = (Logger) LoggerFactory.getLogger(clazz);
-        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-        listAppender.start();
-        logger.addAppender(listAppender);
-        return listAppender;
-    }
-
     @Test
     void testReportNode() throws IOException, URISyntaxException {
         CracCreationReport.warn("message1", reportNode);
@@ -115,7 +103,7 @@ class CracCreationReportTest {
         CracCreationReport.altered("message5", reportNode);
         CracCreationReport.removed("message6", reportNode);
 
-        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContent.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCracCreationReport.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();

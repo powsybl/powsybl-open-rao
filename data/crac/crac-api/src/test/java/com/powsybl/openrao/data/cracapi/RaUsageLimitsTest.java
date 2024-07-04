@@ -134,7 +134,7 @@ class RaUsageLimitsTest {
         raUsageLimits.setMaxRa(-2, reportNode);
         raUsageLimits.setMaxTopoPerTso(new HashMap<>(Map.of("FR", -4)), reportNode);
 
-        String expected = Files.readString(Path.of(getClass().getResource("/expectedReportNodeContentRaUsageLimits.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentRaUsageLimits.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();

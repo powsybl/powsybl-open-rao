@@ -275,7 +275,7 @@ class AngleMonitoringTest {
 
         ReportNode reportNodeReportConstraint = buildNewRootNode();
         angleMonitoringResult.reportConstraints(reportNodeReportConstraint);
-        assertEquals(List.of("All AngleCnecs are secure."), reportNodeReportConstraint.getChildren().stream().map(ReportNode::getMessage).toList());
+        assertEquals(List.of("All Angle Cnecs are secure."), reportNodeReportConstraint.getChildren().stream().map(ReportNode::getMessage).toList());
     }
 
     @Test
@@ -342,7 +342,7 @@ class AngleMonitoringTest {
     }
 
     @Test
-    void testVoltageMonitoringReport() throws IOException, URISyntaxException {
+    void testAngleMonitoringReport() throws IOException, URISyntaxException {
         setUpCracFactory("network.xiidm");
         crac.newContingency().withId("coL1").withContingencyElement("L1", ContingencyElementType.LINE).add();
         crac.newContingency().withId("coL1L2").withContingencyElement("L1", ContingencyElementType.LINE).withContingencyElement("L2", ContingencyElementType.LINE).add();
@@ -352,7 +352,7 @@ class AngleMonitoringTest {
 
         ReportNode reportNode = buildNewRootNode();
         runAngleMonitoring(reportNode);
-        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentVoltageMonitoring.txt").toURI()));
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentAngleMonitoring.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {
             reportNode.print(writer);
             String actual = writer.toString();

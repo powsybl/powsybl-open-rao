@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   + Some Voltage Cnecs are not secure:
+      Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.
+      Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.
+      Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV.

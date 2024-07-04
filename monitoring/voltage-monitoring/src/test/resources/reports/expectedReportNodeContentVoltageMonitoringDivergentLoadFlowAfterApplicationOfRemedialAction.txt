@@ -1,0 +1,32 @@
++ This is a parent report node for report tests
+   + Voltage monitoring
+      + Voltage monitoring post-contingency co.
+         + Monitoring voltages at state "co - curative"
+            + Load-flow computation
+               + Load flow on network 'phaseShifter'
+                  + Network CC0 SC0
+                     + Network info
+                        Network has 2 buses and 2 branches
+                        Network balance: active generation=100.0 MW, active load=100.0 MW, reactive generation=0.0 MVar, reactive load=50.0 MVar
+                     Outer loop DistributedSlack
+                     Outer loop VoltageMonitoring
+                     Outer loop ReactiveLimits
+                     AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+               End of load-flow computation
+            Applying the following remedial action(s) in order to reduce constraints on CNEC "vc": Open L2 - 1
+            + Load-flow computation
+               + Load flow on network 'phaseShifter'
+                  + Network CC0 SC0
+                     + Network info
+                        Network has 2 buses and 1 branches
+                        Network balance: active generation=100.0 MW, active load=100.0 MW, reactive generation=0.0 MVar, reactive load=50.0 MVar
+                     AC load flow completed with error (solverStatus=MAX_ITERATION_REACHED, outerloopStatus=STABLE)
+               LoadFlow error.
+               End of load-flow computation
+            Load-flow computation failed at state co - curative after applying RAs. Skipping this state.
+            + Some Voltage Cnecs are not secure:
+               Network element VL1 at state co - curative has a voltage of 400 - 400 kV.
+            End of monitoring voltages at state "co - curative"
+      + Some Voltage Cnecs are not secure:
+         Network element VL1 at state co - curative has a voltage of 400 - 400 kV.
+      End of voltage monitoring

@@ -171,10 +171,10 @@ public class VoltageMonitoring {
     }
 
     private VoltageMonitoringResult monitorVoltageCnecsAndLog(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone, ReportNode reportNode) {
-        ReportNode voltageMoniotoringAtStateReportNode = VoltageMonitoringReports.reportMonitoringVoltagesAtState(reportNode, state);
-        VoltageMonitoringResult result = monitorVoltageCnecs(loadFlowProvider, loadFlowParameters, state, networkClone, voltageMoniotoringAtStateReportNode);
-        result.reportConstraints(reportNode);
-        VoltageMonitoringReports.reportMonitoringVoltagesAtStateEnd(voltageMoniotoringAtStateReportNode, state);
+        ReportNode voltageMonitoringAtStateReportNode = VoltageMonitoringReports.reportMonitoringVoltagesAtState(reportNode, state);
+        VoltageMonitoringResult result = monitorVoltageCnecs(loadFlowProvider, loadFlowParameters, state, networkClone, voltageMonitoringAtStateReportNode);
+        result.reportConstraints(voltageMonitoringAtStateReportNode);
+        VoltageMonitoringReports.reportMonitoringVoltagesAtStateEnd(voltageMonitoringAtStateReportNode, state);
         return result;
     }
 
@@ -201,7 +201,7 @@ public class VoltageMonitoring {
         // If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone, reportNode)) {
             String stateId = state.getId();
-            MonitoringCommonReports.reportLoadflowComputationFailed(reportNode, stateId);
+            MonitoringCommonReports.reportLoadflowComputationFailedAtStateAfterRA(reportNode, stateId);
             return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.getUnsecureStatus(voltageValues));
         }
         Map<State, Set<RemedialAction<?>>> appliedRa = new HashMap<>();

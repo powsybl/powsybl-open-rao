@@ -33,7 +33,7 @@
                      Outer loop ReactiveLimits
                      AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
                End of load-flow computation
-            All AngleCnecs are secure.
+            All Angle Cnecs are secure.
             End of monitoring angles at state "coL1 - curative"
-      All AngleCnecs are secure.
+      All Angle Cnecs are secure.
       End of angle monitoring

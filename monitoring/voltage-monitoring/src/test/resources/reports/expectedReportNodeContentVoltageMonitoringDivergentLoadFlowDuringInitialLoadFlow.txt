@@ -1,0 +1,15 @@
++ This is a parent report node for report tests
+   + Voltage monitoring
+      + Monitoring voltages at state "preventive"
+         + Load-flow computation
+            + Load flow on network 'phaseShifter'
+               + Network CC0 SC0
+                  + Network info
+                     Network must have at least one bus with generator voltage control enabled
+            LoadFlow error.
+            End of load-flow computation
+         Load-flow computation failed at state preventive. Skipping this state.
+         All Voltage Cnecs are secure.
+         End of monitoring voltages at state "preventive"
+      All Voltage Cnecs are secure.
+      End of voltage monitoring
