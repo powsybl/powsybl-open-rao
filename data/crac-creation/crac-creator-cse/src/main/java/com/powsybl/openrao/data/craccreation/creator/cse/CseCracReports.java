@@ -15,7 +15,7 @@ public final class CseCracReports {
             .withMessageTemplate("cseValidCracDocument", "CSE CRAC document is valid")
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("CSE CRAC document is valid");
+        BUSINESS_LOGS.info("CSE CRAC document is valid"); // TODO test this
         return addedNode;
     }
 

@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   + New crac "test-crac" called "test-crac"
+      + New pst range action
+         RELATIVE_TO_PREVIOUS_INSTANT range has been filtered from PstRangeAction "id1", as it is a preventive RA
+         PstRangeAction "id1" does not contain any valid range, by default the range of the network will be used

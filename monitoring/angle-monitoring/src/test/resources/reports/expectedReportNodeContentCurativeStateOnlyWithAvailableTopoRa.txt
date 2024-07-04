@@ -1,0 +1,23 @@
++ This is a parent report node for report tests
+   + Angle monitoring
+      + Angle monitoring post-contingency coL1.
+         + Monitoring angles at state "coL1 - curative"
+            + Load-flow computation
+               + Load flow on network 'phaseShifter'
+                  + Network CC0 SC0
+                     + Network info
+                        Network has 3 buses and 3 branches
+                        Network balance: active generation=100.0 MW, active load=100.0 MW, reactive generation=0.0 MVar, reactive load=50.0 MVar
+                     Outer loop DistributedSlack
+                     Outer loop VoltageMonitoring
+                     Outer loop ReactiveLimits
+                     AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+               End of load-flow computation
+            Remedial action Open L1 - 2 of AngleCnec acCur1 is ignored : it has an elementary action that's not an injection setpoint.
+            Applying the following remedial action(s) in order to reduce constraints on CNEC "acCur1": []
+            + Some AngleCnecs are not secure:
+               AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
+            End of monitoring angles at state "coL1 - curative"
+      + Some AngleCnecs are not secure:
+         AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°.
+      End of angle monitoring

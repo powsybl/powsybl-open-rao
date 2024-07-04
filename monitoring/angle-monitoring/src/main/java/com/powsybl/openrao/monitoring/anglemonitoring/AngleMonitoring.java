@@ -195,8 +195,8 @@ public class AngleMonitoring {
     private AngleMonitoringResult monitorAngleCnecsAndLog(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone, ReportNode reportNode) {
         ReportNode angleMonitoringAtStateReportNode = AngleMonitoringReports.reportMonitoringAnglesAtState(reportNode, state);
         AngleMonitoringResult result = monitorAngleCnecs(loadFlowProvider, loadFlowParameters, state, networkClone, angleMonitoringAtStateReportNode);
-        result.reportConstraints(reportNode);
-        AngleMonitoringReports.reportMonitoringAnglesAtStateEnd(reportNode, state);
+        result.reportConstraints(angleMonitoringAtStateReportNode);
+        AngleMonitoringReports.reportMonitoringAnglesAtStateEnd(angleMonitoringAtStateReportNode, state);
         return result;
     }
 

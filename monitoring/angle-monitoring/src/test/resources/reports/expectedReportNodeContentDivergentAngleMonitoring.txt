@@ -1,0 +1,16 @@
++ This is a parent report node for report tests
+   + Angle monitoring
+      + Angle monitoring post-contingency coL1.
+         + Monitoring angles at state "coL1 - curative"
+            + Load-flow computation
+               + Load flow on network 'phaseShifter'
+                  + Network CC0 SC0
+                     + Network info
+                        Network must have at least one bus with generator voltage control enabled
+               LoadFlow error.
+               End of load-flow computation
+            Load-flow computation failed at state coL1 - curative. Skipping this state.
+            Load flow divergence.
+            End of monitoring angles at state "coL1 - curative"
+      Load flow divergence.
+      End of angle monitoring

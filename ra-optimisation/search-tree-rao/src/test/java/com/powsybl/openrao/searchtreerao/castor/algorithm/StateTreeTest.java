@@ -21,6 +21,11 @@ import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +57,10 @@ class StateTreeTest {
     private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     private void setUpCommonCrac(boolean withCra) {
         if (withCra) {
@@ -472,10 +481,11 @@ class StateTreeTest {
     // Tests with all contingency scenarios possible cases
 
     @Test
-    void multiCurativeContingencyScenarioNoArasNoAutoCnecsCase() {
+    void multiCurativeContingencyScenarioNoArasNoAutoCnecsCase() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         Crac multipleCurativeInstantsCrac = createCommonMultipleCurativeInstantsCrac();
 
-        StateTree stateTree = new StateTree(multipleCurativeInstantsCrac, ReportNode.NO_OP);
+        StateTree stateTree = new StateTree(multipleCurativeInstantsCrac, reportNode);
 
         List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
         assertEquals(8, contingencyScenarios.size());
@@ -595,6 +605,13 @@ class StateTreeTest {
         assertCurativeStateInBaseCase(stateTree, multipleCurativeInstantsCrac, "co-07", "curative1");
         assertCurativeStateInBaseCase(stateTree, multipleCurativeInstantsCrac, "co-08", "curative1");
         assertCurativeStateInBaseCase(stateTree, multipleCurativeInstantsCrac, "co-14", "curative2");
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentMultiCurativeContingencyScenarioNoArasNoAutoCnecsCase.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test

@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   Contingency co-16 has an automaton or a curative remedial action but no CNECs associated.
+   Contingency co-12 has an automaton or a curative remedial action but no CNECs associated.
+   Contingency co-15 has an automaton or a curative remedial action but no CNECs associated.
+   Contingency co-11 has an automaton or a curative remedial action but no CNECs associated.

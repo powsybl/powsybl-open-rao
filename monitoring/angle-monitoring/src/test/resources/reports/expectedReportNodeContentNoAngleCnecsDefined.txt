@@ -1,0 +1,5 @@
++ This is a parent report node for report tests
+   + Angle monitoring
+      No AngleCnecs defined.
+      All AngleCnecs are secure.
+      End of angle monitoring

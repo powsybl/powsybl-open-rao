@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
@@ -17,6 +18,11 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,10 +40,16 @@ class PstRangeActionAdderImplTest {
     private CracImpl crac;
     private String networkElementId;
     private Map<Integer, Double> validTapToAngleConversionMap;
+    private ReportNode reportNode;
+
+    private static ReportNode buildNewRootNode() {
+        return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
+    }
 
     @BeforeEach
     public void setUp() {
-        crac = new CracImpl("test-crac")
+        reportNode = buildNewRootNode();
+        crac = new CracImpl("test-crac", reportNode)
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO);
@@ -306,7 +318,7 @@ class PstRangeActionAdderImplTest {
     }
 
     @Test
-    void testPraRelativeToPreviousInstantRange() {
+    void testPraRelativeToPreviousInstantRange() throws IOException, URISyntaxException {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
@@ -317,5 +329,12 @@ class PstRangeActionAdderImplTest {
             .withTapToAngleConversionMap(validTapToAngleConversionMap)
             .add();
         assertTrue(pstRangeAction.getRanges().isEmpty());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentPstRangeActionActionAdderPraRelativeToPreviousInstantRange.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 }

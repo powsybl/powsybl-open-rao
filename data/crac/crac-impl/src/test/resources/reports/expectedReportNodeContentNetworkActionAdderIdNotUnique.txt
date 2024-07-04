@@ -1,0 +1,6 @@
++ This is a parent report node for report tests
+   + New crac "cracId" called "cracId"
+      + New pst range action
+         PstRangeAction "sameId" does not contain any valid range, by default the range of the network will be used
+         PstRangeAction "sameId" does not contain any usage rule, by default it will never be available
+      New network action

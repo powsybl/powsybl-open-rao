@@ -51,14 +51,14 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         ReportNode csaProfileCracCreatorReportNode = CsaProfileReports.reportCsaProfileCracCreator(reportNode);
         ReportNode csaProfileCracCreationReportReportNode = CsaProfileReports.reportCsaProfileCracCreationReport(csaProfileCracCreatorReportNode);
         CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
-        this.crac = cracCreationParameters.getCracFactory().create("csa-profile-crac", csaProfileCracCreatorReportNode); // TODO find a way to store a crac ID, maybe in the native crac ?
+        this.crac = cracCreationParameters.getCracFactory().create("csa-profile-crac", csaProfileCracCreationReportReportNode); // TODO find a way to store a crac ID, maybe in the native crac ?
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;
         addCsaInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 
-        this.nativeCrac.setForTimestamp(offsetDateTime, csaProfileCracCreatorReportNode);
+        this.nativeCrac.setForTimestamp(offsetDateTime, csaProfileCracCreationReportReportNode);
 
         createContingencies();
         createCnecs(cracCreationParameters);

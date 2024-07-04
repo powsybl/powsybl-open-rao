@@ -19,4 +19,11 @@ public final class Reports {
         BUSINESS_LOGS.info("csa profile crac import : import of file {}", filename);
         return addedNode;
     }
+
+    public static ReportNode reportCsaProfileCracImportNativeCrac(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("reportCsaProfileCracImportNativeCrac", "Import native Csa profile Crac")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
 }

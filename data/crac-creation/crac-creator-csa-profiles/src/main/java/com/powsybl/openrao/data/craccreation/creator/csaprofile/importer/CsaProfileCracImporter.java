@@ -54,6 +54,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
      */
     @Override
     public CsaProfileCrac importNativeCrac(InputStream inputStream, ReportNode reportNode) {
+        ReportNode nativeCracReportNode = Reports.reportCsaProfileCracImportNativeCrac(reportNode);
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
         ZipEntry zipEntry;
         Map<String, Set<String>> keywordMap = new HashMap<>();
@@ -67,7 +68,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
             while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) { //NOSONAR
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
-                    importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreCsaProfile, reportNode);
+                    importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreCsaProfile, nativeCracReportNode);
                 }
             }
         } catch (IOException e) {

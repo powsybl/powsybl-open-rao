@@ -133,11 +133,11 @@ public class AngleMonitoringResult {
         } else if (isUnknown()) {
             AngleMonitoringReports.reportUnknownStatusOnAngleCnecs(reportNode);
         } else {
-            AngleMonitoringReports.reportSomeConstrainedElements(reportNode);
+            ReportNode constrainsReportNode = AngleMonitoringReports.reportSomeConstrainedElements(reportNode);
             angleCnecsWithAngle.stream()
                 .filter(angleResult -> AngleMonitoring.thresholdOvershoot(angleResult.getAngleCnec(), angleResult.getAngle()))
                 .sorted(Comparator.comparing(AngleResult::getId))
-                .forEach(angleResult -> AngleMonitoringReports.reportConstrainedElement(reportNode,
+                .forEach(angleResult -> AngleMonitoringReports.reportConstrainedElement(constrainsReportNode,
                     angleResult.getAngleCnec().getId(),
                     angleResult.getAngleCnec().getImportingNetworkElement().getId(),
                     angleResult.getAngleCnec().getExportingNetworkElement().getId(),

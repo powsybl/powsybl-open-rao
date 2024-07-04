@@ -161,45 +161,59 @@ class AngleMonitoringTest {
     }
 
     @Test
-    void testDivergentAngleMonitoring() {
-        // LoadFlow diverges
+    void testDivergentAngleMonitoring() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         setUpCracFactory("networkKO.xiidm");
         mockCurativeStates();
-        runAngleMonitoring();
+        runAngleMonitoring(reportNode);
         assertTrue(angleMonitoringResult.isDivergent());
         angleMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertTrue(angleMonitoringResult.getAngleCnecsWithAngle().stream().allMatch(angleResult -> angleResult.getAngle().isNaN()));
-        ReportNode reportNode = buildNewRootNode();
-        angleMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of("Load flow divergence."), reportNode.getChildren().stream().map(ReportNode::getMessage).toList());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentDivergentAngleMonitoring.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testNoAngleCnecsDefined() {
+    void testNoAngleCnecsDefined() throws IOException, URISyntaxException {
         setUpCracFactory("network.xiidm");
-        runAngleMonitoring();
+        ReportNode reportNode = buildNewRootNode();
+        runAngleMonitoring(reportNode);
         assertTrue(angleMonitoringResult.isSecure());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentNoAngleCnecsDefined.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testPreventiveStateOnly() {
+    void testPreventiveStateOnly() throws IOException, URISyntaxException {
+        ReportNode reportNode = buildNewRootNode();
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
-        runAngleMonitoring();
+        runAngleMonitoring(reportNode);
         assertTrue(angleMonitoringResult.isUnsecure());
+
         angleMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        ReportNode reportNode = buildNewRootNode();
-        angleMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of(
-                "Some AngleCnecs are not secure:",
-                "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°."
-            ),
-            reportNode.getChildren().stream().map(ReportNode::getMessage).toList());
         assertEquals(angleMonitoringResult.getAngle(acPrev, Unit.DEGREE), -3.67, ANGLE_TOLERANCE);
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentPreventiveStateOnly.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testCurativeStateOnlyWithNoRa() {
+    void testCurativeStateOnlyWithNoRa() throws IOException, URISyntaxException {
         setUpCracFactory("network.xiidm");
         mockCurativeStates();
         runAngleMonitoring();
@@ -207,15 +221,17 @@ class AngleMonitoringTest {
         angleMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         ReportNode reportNode = buildNewRootNode();
         angleMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of(
-                "Some AngleCnecs are not secure:",
-                "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."
-            ),
-            reportNode.getChildren().stream().map(ReportNode::getMessage).toList());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCurativeStateOnlyWithNoRa.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
-    void testCurativeStateOnlyWithAvailableTopoRa() {
+    void testCurativeStateOnlyWithAvailableTopoRa() throws IOException, URISyntaxException {
         setUpCracFactory("network.xiidm");
         mockCurativeStates();
         naL1Cur = crac.newNetworkAction()
@@ -223,16 +239,17 @@ class AngleMonitoringTest {
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
                 .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
-        runAngleMonitoring();
+        ReportNode reportNode = buildNewRootNode();
+        runAngleMonitoring(reportNode);
         assertTrue(angleMonitoringResult.isUnsecure());
         angleMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        ReportNode reportNode = buildNewRootNode();
-        angleMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of(
-                "Some AngleCnecs are not secure:",
-                "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."
-            ),
-            reportNode.getChildren().stream().map(ReportNode::getMessage).toList());
+
+        String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCurativeStateOnlyWithAvailableTopoRa.txt").toURI()));
+        try (StringWriter writer = new StringWriter()) {
+            reportNode.print(writer);
+            String actual = writer.toString();
+            assertEquals(expected, actual);
+        }
     }
 
     @Test
@@ -315,10 +332,6 @@ class AngleMonitoringTest {
         assertEquals(5.22, angleMonitoringResult.getAngle(crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
         ReportNode reportNode = buildNewRootNode();
         angleMonitoringResult.reportConstraints(reportNode);
-        assertEquals(List.of(
-            "Some AngleCnecs are not secure:",
-            "AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5°."
-        ), reportNode.getChildren().stream().map(ReportNode::getMessage).toList());
 
         String expected = Files.readString(Path.of(getClass().getResource("/reports/expectedReportNodeContentCracCim.txt").toURI()));
         try (StringWriter writer = new StringWriter()) {

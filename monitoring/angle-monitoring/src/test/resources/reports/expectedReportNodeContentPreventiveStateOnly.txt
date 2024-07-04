@@ -1,0 +1,22 @@
++ This is a parent report node for report tests
+   + Angle monitoring
+      + Monitoring angles at state "preventive"
+         + Load-flow computation
+            + Load flow on network 'phaseShifter'
+               + Network CC0 SC0
+                  + Network info
+                     Network has 3 buses and 4 branches
+                     Network balance: active generation=100.0 MW, active load=100.0 MW, reactive generation=0.0 MVar, reactive load=50.0 MVar
+                  Outer loop DistributedSlack
+                  Outer loop VoltageMonitoring
+                  Outer loop ReactiveLimits
+                  AC load flow completed successfully (solverStatus=CONVERGED, outerloopStatus=STABLE)
+            End of load-flow computation
+         AngleCnec acPrev is constrained in preventive state, it cannot be secured.
+         Applying the following remedial action(s) in order to reduce constraints on CNEC "acPrev": []
+         + Some AngleCnecs are not secure:
+            AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
+         End of monitoring angles at state "preventive"
+      + Some AngleCnecs are not secure:
+         AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°.
+      End of angle monitoring

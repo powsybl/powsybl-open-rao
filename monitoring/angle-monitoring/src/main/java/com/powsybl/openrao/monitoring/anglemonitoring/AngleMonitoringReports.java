@@ -75,7 +75,7 @@ public final class AngleMonitoringReports {
             .withMessageTemplate("unknownStatusAngleCnecs", "Unknown status on AngleCnecs.")
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("Unknown status on AngleCnecs.");
+        BUSINESS_LOGS.info("Unknown status on AngleCnecs."); // TODO test this
         return addedNode;
     }
 
@@ -117,7 +117,7 @@ public final class AngleMonitoringReports {
                 .withUntypedValue("stateId", stateId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("Load-flow computation failed at state {} after applying RAs. Skipping this state.", stateId);
+        BUSINESS_WARNS.warn("Load-flow computation failed at state {} after applying RAs. Skipping this state.", stateId); // TODO test this
         return addedNode;
     }
 
@@ -150,7 +150,7 @@ public final class AngleMonitoringReports {
                 .withUntypedValue("stateId", stateId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} in state {} is ignored : it's not a network action.", remedialActionId, cnecId, stateId);
+        BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} in state {} is ignored : it's not a network action.", remedialActionId, cnecId, stateId); // TODO test this
         return addedNode;
     }
 
@@ -170,7 +170,7 @@ public final class AngleMonitoringReports {
         ReportNode addedNode = reportNode.newReportNode()
                 .withMessageTemplate("appliedNetworkActions", "Applying the following remedial action(s) in order to reduce constraints on CNEC \"${cnecId}\": ${appliedRasList}")
                 .withUntypedValue("cnecId", cnecId)
-                .withUntypedValue("appliedRasList", appliedRasList)
+                .withUntypedValue("appliedRasList", appliedRasList.isEmpty() ? "[]" : appliedRasList)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         BUSINESS_LOGS.info("Applying the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", cnecId, appliedRasList);
@@ -241,7 +241,7 @@ public final class AngleMonitoringReports {
 
     public static ReportNode reportRedispatchingStart(ReportNode reportNode, Double redispatchingValue, String countryId) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("redispatchingAngleMonitoring", "Redispatching ${redispatchingValue} MW in ${countryId}") // TODO check if MW in string is required
+            .withMessageTemplate("redispatchingAngleMonitoring", "Redispatching ${redispatchingValue} MW in ${countryId}")
             .withTypedValue("redispatchingValue", redispatchingValue, TypedValue.ACTIVE_POWER)
             .withUntypedValue("countryId", countryId)
             .withSeverity(TypedValue.INFO_SEVERITY)
@@ -252,7 +252,7 @@ public final class AngleMonitoringReports {
 
     public static ReportNode reportRedispatchingEnd(ReportNode reportNode, Double redispatchingValue, String countryId) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportRedispatchingEnd", "End of redispatching ${redispatchingValue} MW in ${countryId}") // TODO check if MW in string is required
+            .withMessageTemplate("reportRedispatchingEnd", "End of redispatching ${redispatchingValue} MW in ${countryId}")
             .withTypedValue("redispatchingValue", redispatchingValue, TypedValue.ACTIVE_POWER)
             .withUntypedValue("countryId", countryId)
             .withSeverity(TypedValue.INFO_SEVERITY)
@@ -263,7 +263,7 @@ public final class AngleMonitoringReports {
 
     public static ReportNode reportRedispatchingFailed(ReportNode reportNode, double powerToRedispatch, double redispatchedPower) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportRedispatchingFailed", "Redispatching failed: asked=${powerToRedispatch} MW, applied=${redispatchedPower} MW") // TODO check if MW in string is required
+            .withMessageTemplate("reportRedispatchingFailed", "Redispatching failed: asked=${powerToRedispatch} MW, applied=${redispatchedPower} MW")
             .withTypedValue("powerToRedispatch", powerToRedispatch, TypedValue.ACTIVE_POWER)
             .withTypedValue("redispatchedPower", redispatchedPower, TypedValue.ACTIVE_POWER)
             .withSeverity(TypedValue.WARN_SEVERITY)
