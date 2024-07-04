@@ -112,7 +112,7 @@ public final class SensitivityAnalysisReports {
             .withUntypedValue("unit", unit)
             .withSeverity(TypedValue.TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
+        TECHNICAL_LOGS.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit); // TODO test this
         return addedNode;
 
     }

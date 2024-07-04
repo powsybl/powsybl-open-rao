@@ -35,7 +35,7 @@ public final class Reports {
                 .withMessageTemplate("refprogImportFailedUnknownTimeInterval", "Cannot import RefProg file because its publication time interval is unknown")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
-        BUSINESS_LOGS.error("Cannot import RefProg file because its publication time interval is unknown");
+        BUSINESS_LOGS.error("Cannot import RefProg file because its publication time interval is unknown"); // TODO test this
         return addedNode;
     }
 
@@ -47,7 +47,7 @@ public final class Reports {
                 .withUntypedValue("dateTime", dateTime.toString())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("Flow value between {} and {} is not found for this date {}", outArea, inArea, dateTime);
+        BUSINESS_WARNS.warn("Flow value between {} and {} is not found for this date {}", outArea, inArea, dateTime); // TODO test this
         return addedNode;
     }
 }

@@ -133,10 +133,10 @@ public class VoltageMonitoringResult {
         if (constrainedElements.isEmpty()) {
             VoltageMonitoringReports.reportNoConstrainedElements(reportNode);
         } else {
-            VoltageMonitoringReports.reportSomeConstrainedElements(reportNode);
+            ReportNode constraintsReportNode = VoltageMonitoringReports.reportSomeConstrainedElements(reportNode);
             constrainedElements.stream()
                 .sorted(Comparator.comparing(VoltageCnec::getId)).forEach(vc ->
-                    VoltageMonitoringReports.reportConstrainedElement(reportNode, vc.getNetworkElement().getId(), vc.getState().getId(), extremeVoltageValues.get(vc).getMin(), extremeVoltageValues.get(vc).getMax())
+                    VoltageMonitoringReports.reportConstrainedElement(constraintsReportNode, vc.getNetworkElement().getId(), vc.getState().getId(), extremeVoltageValues.get(vc).getMin(), extremeVoltageValues.get(vc).getMax())
                 );
         }
     }

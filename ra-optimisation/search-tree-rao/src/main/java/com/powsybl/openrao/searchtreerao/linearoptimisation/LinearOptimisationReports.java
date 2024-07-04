@@ -25,7 +25,7 @@ public final class LinearOptimisationReports {
     }
 
     public static ReportNode reportLinearOptimization(ReportNode reportNode) {
-        return reportNode.newReportNode()
+        return reportNode.newReportNode() // TODO test this
             .withMessageTemplate("reportLinearOptimization", "Linear optimization")
             .withSeverity(INFO_SEVERITY)
             .add();
@@ -36,7 +36,7 @@ public final class LinearOptimisationReports {
             .withMessageTemplate("reportLinearOptimizationFeasible", "The solver was interrupted. A feasible solution has been produced.")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");
+        TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced."); // TODO test this
         return addedNode;
     }
 
@@ -46,7 +46,7 @@ public final class LinearOptimisationReports {
             .withUntypedValue("iteration", iteration)
             .withSeverity(ERROR_SEVERITY)
             .add();
-        BUSINESS_LOGS.error("Linear optimization failed at iteration {}", iteration);
+        BUSINESS_LOGS.error("Linear optimization failed at iteration {}", iteration); // TODO test this
         return addedNode;
     }
 
@@ -56,7 +56,7 @@ public final class LinearOptimisationReports {
             .withUntypedValue("solveStatus", solveStatus)
             .withSeverity(INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("Linear problem failed with the following status : {}, initial situation is kept.", solveStatus);
+        BUSINESS_LOGS.info("Linear problem failed with the following status : {}, initial situation is kept.", solveStatus); // TODO test this
         return addedNode;
     }
 
@@ -66,7 +66,7 @@ public final class LinearOptimisationReports {
             .withUntypedValue("iteration", iteration)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
+        TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration); // TODO test this
         return addedNode;
     }
 
@@ -76,7 +76,7 @@ public final class LinearOptimisationReports {
             .withUntypedValue("iteration", iteration)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration); // TODO test this
         return addedNode;
     }
 
@@ -86,7 +86,7 @@ public final class LinearOptimisationReports {
             .withUntypedValue("iteration", iteration)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration); // TODO test this
         return addedNode;
     }
 
@@ -96,7 +96,7 @@ public final class LinearOptimisationReports {
             .withUntypedValue("iteration", iteration)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
+        BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration); // TODO test this
         return addedNode;
     }
 
@@ -108,7 +108,7 @@ public final class LinearOptimisationReports {
             .withUntypedValue("functionalCost", formatDouble(functionalCost))
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Iteration {}: better solution found with a cost of {} (functional: {})", iteration,
+        TECHNICAL_LOGS.info("Iteration {}: better solution found with a cost of {} (functional: {})", iteration, // TODO test this
             formatDouble(cost), formatDouble(functionalCost));
         return addedNode;
     }
@@ -123,7 +123,7 @@ public final class LinearOptimisationReports {
             .withUntypedValue("currentFunctionalCost", formatDouble(currentFunctionalCost))
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Iteration {}: linear optimization found a worse result than best iteration, with a cost increasing from {} to {} (functional: from {} to {})", iteration,
+        TECHNICAL_LOGS.info("Iteration {}: linear optimization found a worse result than best iteration, with a cost increasing from {} to {} (functional: from {} to {})", iteration, // TODO test this
             formatDouble(bestCost), formatDouble(currentCost), formatDouble(bestFunctionalCost), formatDouble(currentFunctionalCost));
         return addedNode;
     }

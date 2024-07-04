@@ -37,7 +37,7 @@ public final class VoltageMonitoringReports {
                 .withMessageTemplate("noVoltageCnecsDefined", "No VoltageCnecs defined.")
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("No VoltageCnecs defined.");
+        BUSINESS_WARNS.warn("No VoltageCnecs defined."); // TODO test this
         return addedNode;
     }
 
@@ -104,7 +104,7 @@ public final class VoltageMonitoringReports {
                 .withUntypedValue("stateId", stateId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("Load-flow computation failed at state {} after applying RAs. Skipping this state.", stateId);
+        BUSINESS_WARNS.warn("Load-flow computation failed at state {} after applying RAs. Skipping this state.", stateId); // TODO test this
         return addedNode;
     }
 
@@ -125,7 +125,7 @@ public final class VoltageMonitoringReports {
                 .withUntypedValue("cnecId", cnecId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("VoltageCnec {} is constrained in preventive state, it cannot be secured.", cnecId);
+        BUSINESS_WARNS.warn("VoltageCnec {} is constrained in preventive state, it cannot be secured.", cnecId); // TODO test this
         return addedNode;
     }
 
@@ -137,7 +137,7 @@ public final class VoltageMonitoringReports {
                 .withUntypedValue("stateId", stateId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
-        BUSINESS_WARNS.warn("Remedial action {} of VoltageCnec {} in state {} is ignored : it's not a network action.", remedialActionId, cnecId, stateId);
+        BUSINESS_WARNS.warn("Remedial action {} of VoltageCnec {} in state {} is ignored : it's not a network action.", remedialActionId, cnecId, stateId); // TODO test this
         return addedNode;
     }
 

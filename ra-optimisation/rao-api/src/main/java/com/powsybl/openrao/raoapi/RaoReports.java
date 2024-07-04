@@ -28,7 +28,7 @@ public final class RaoReports {
             .withUntypedValue("positiveSensitivityFailureOvercost", -sensitivityFailureOvercost)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer to make the loadflow diverge. Thus, it will be set to + {}", sensitivityFailureOvercost, -sensitivityFailureOvercost);
+        BUSINESS_WARNS.warn("The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer to make the loadflow diverge. Thus, it will be set to + {}", sensitivityFailureOvercost, -sensitivityFailureOvercost); // TODO test this
         return addedNode;
     }
 
@@ -48,7 +48,7 @@ public final class RaoReports {
             .withUntypedValue("positiveCurativeRaoMinObjImprovement", -curativeRaoMinObjImprovement)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
+        BUSINESS_WARNS.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement); // TODO test this
         return addedNode;
     }
 
@@ -58,7 +58,7 @@ public final class RaoReports {
             .withUntypedValue("relativeMinImpactThreshold", relativeMinImpactThreshold)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("The value {} provided for relative minimum impact threshold is smaller than 0. It will be set to 0.", relativeMinImpactThreshold);
+        BUSINESS_WARNS.warn("The value {} provided for relative minimum impact threshold is smaller than 0. It will be set to 0.", relativeMinImpactThreshold); // TODO test this
         return addedNode;
     }
 
@@ -68,7 +68,7 @@ public final class RaoReports {
             .withUntypedValue("relativeMinImpactThreshold", relativeMinImpactThreshold)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("The value {} provided for relative minimum impact threshold is greater than 1. It will be set to 1.", relativeMinImpactThreshold);
+        BUSINESS_WARNS.warn("The value {} provided for relative minimum impact threshold is greater than 1. It will be set to 1.", relativeMinImpactThreshold); // TODO test this
         return addedNode;
     }
 
@@ -78,7 +78,7 @@ public final class RaoReports {
             .withUntypedValue("maxNumberOfBoundariesForSkippingActions", maxNumberOfBoundariesForSkippingActions)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("The value {} provided for max number of boundaries for skipping actions is smaller than 0. It will be set to 0.", maxNumberOfBoundariesForSkippingActions);
+        BUSINESS_WARNS.warn("The value {} provided for max number of boundaries for skipping actions is smaller than 0. It will be set to 0.", maxNumberOfBoundariesForSkippingActions); // TODO test this
         return addedNode;
     }
 }

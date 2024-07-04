@@ -46,7 +46,7 @@ public final class GlskVirtualHubsReports {
             .withUntypedValue("nodeName", nodeName)
             .withSeverity(TypedValue.WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it has no load in the network", eiCode, nodeName);
+        BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it has no load in the network", eiCode, nodeName); // TODO test this
         return addedNode;
     }
 
@@ -57,7 +57,7 @@ public final class GlskVirtualHubsReports {
             .withUntypedValue("nodeName", nodeName)
             .withSeverity(TypedValue.WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", eiCode, nodeName);
+        BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", eiCode, nodeName); // TODO test this
         return addedNode;
     }
 }

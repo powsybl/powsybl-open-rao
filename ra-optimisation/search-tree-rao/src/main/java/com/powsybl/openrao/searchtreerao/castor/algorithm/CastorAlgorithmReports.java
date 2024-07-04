@@ -30,7 +30,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("networkId", networkId)
             .withSeverity(INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("Running RAO on network \"{}\"", networkId);
+        BUSINESS_LOGS.info("Running RAO on network \"{}\"", networkId); // TODO test this
         return addedNode;
     }
 
@@ -275,7 +275,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("estimatedPreventiveRaoTimeInSeconds", estimatedPreventiveRaoTimeInSeconds)
             .withSeverity(INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)", targetEndInstant, estimatedPreventiveRaoTimeInSeconds);
+        BUSINESS_LOGS.info("There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)", targetEndInstant, estimatedPreventiveRaoTimeInSeconds); // TODO test this
         return addedNode;
     }
 
@@ -284,7 +284,7 @@ public final class CastorAlgorithmReports {
             .withMessageTemplate("noNeedSecondPreventiveBecauseCostHasNotIncreasedDuringRao", "Cost has not increased during RAO, there is no need to run a 2nd preventive RAO")
             .withSeverity(INFO_SEVERITY)
             .add();
-        BUSINESS_LOGS.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO.");
+        BUSINESS_LOGS.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO."); // TODO test this
         return addedNode;
     }
 
@@ -398,7 +398,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("networkActionName", networkActionName)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkActionId, networkActionName);
+        TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkActionId, networkActionName); // TODO test this
         return addedNode;
     }
 
@@ -459,7 +459,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("rangeActionGroupId", rangeActionGroupId)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", rangeActionGroupId);
+        BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", rangeActionGroupId); // TODO test this
         return addedNode;
     }
 
@@ -469,7 +469,7 @@ public final class CastorAlgorithmReports {
             .withUntypedValue("rangeActionGroupId", rangeActionGroupId)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Range action group {} contains range actions not all available at AUTO instant; they are not simulated", rangeActionGroupId);
+        BUSINESS_WARNS.warn("Range action group {} contains range actions not all available at AUTO instant; they are not simulated", rangeActionGroupId); // TODO test this
         return addedNode;
     }
 

@@ -16,7 +16,7 @@ public final class CimCracReports {
                         .withUntypedValue("filename", filename)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
-        BUSINESS_LOGS.info("CIM CRAC document is valid");
+        BUSINESS_LOGS.info("CIM CRAC document is valid"); // TODO test this
         return addedNode;
     }
 
@@ -27,7 +27,7 @@ public final class CimCracReports {
                 .withUntypedValue("reason", reason)
                 .withSeverity(TypedValue.TRACE_SEVERITY)
                 .add();
-        TECHNICAL_LOGS.debug("CIM CRAC document is NOT valid. Reason: {}", reason);
+        TECHNICAL_LOGS.debug("CIM CRAC document is NOT valid. Reason: {}", reason); // TODO test this
         return addedNode;
     }
 

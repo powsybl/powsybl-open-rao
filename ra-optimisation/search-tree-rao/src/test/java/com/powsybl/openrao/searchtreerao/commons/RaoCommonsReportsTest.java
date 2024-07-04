@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 public class RaoCommonsReportsTest {
+    // TODO finish these tests
+
     private static ReportNode buildNewRootNode() {
         return ReportNode.newRootReportNode().withMessageTemplate("Test report node", "This is a parent report node for report tests").build();
     }

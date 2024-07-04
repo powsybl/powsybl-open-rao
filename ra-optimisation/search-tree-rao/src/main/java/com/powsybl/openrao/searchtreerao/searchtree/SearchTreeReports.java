@@ -60,7 +60,7 @@ public final class SearchTreeReports {
             .withUntypedValue("rootLeaf", rootLeaf)
             .withSeverity(INFO_SEVERITY)
             .add();
-        logger(severity).info("Stop criterion reached on {}", rootLeaf);
+        logger(severity).info("Stop criterion reached on {}", rootLeaf); // TODO test this
         return addedNode;
     }
 
@@ -70,7 +70,7 @@ public final class SearchTreeReports {
             .withUntypedValue("rootLeaf", rootLeaf)
             .withSeverity(INFO_SEVERITY)
             .add();
-        logger(severity).info("{}", rootLeaf);
+        logger(severity).info("{}", rootLeaf); // TODO test this
         return addedNode;
     }
 
@@ -168,7 +168,7 @@ public final class SearchTreeReports {
             .withMessageTemplate("reportSearchTreeMaxDepth", "maximum search depth has been reached, exiting search tree")
             .withSeverity(INFO_SEVERITY)
             .add();
-        logger(severity).info("maximum search depth has been reached, exiting search tree");
+        logger(severity).info("maximum search depth has been reached, exiting search tree"); // TODO test this
         return addedNode;
     }
 
@@ -177,7 +177,7 @@ public final class SearchTreeReports {
             .withMessageTemplate("reportSearchTreeInterrupted", "A computation thread was interrupted")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.warn("A computation thread was interrupted");
+        TECHNICAL_LOGS.warn("A computation thread was interrupted"); // TODO test this
         return addedNode;
     }
 
@@ -222,7 +222,7 @@ public final class SearchTreeReports {
             .withUntypedValue("concatenatedId", concatenatedId)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        logger(severity).info("Skipping {} optimization because earlier combination fulfills stop criterion.", concatenatedId);
+        logger(severity).info("Skipping {} optimization because earlier combination fulfills stop criterion.", concatenatedId); // TODO test this
         return addedNode;
     }
 
@@ -233,7 +233,7 @@ public final class SearchTreeReports {
             .withUntypedValue("message", message)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", concatenatedId, message);
+        BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", concatenatedId, message); // TODO test this
         return addedNode;
     }
 
@@ -254,7 +254,7 @@ public final class SearchTreeReports {
             .withUntypedValue("message", message)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        logger(severity).info("Could not evaluate network action combination \"{}\": {}", networkActions, message);
+        logger(severity).info("Could not evaluate network action combination \"{}\": {}", networkActions, message); // TODO test this
         return addedNode;
     }
 
@@ -264,7 +264,7 @@ public final class SearchTreeReports {
             .withUntypedValue("leaf", leaf)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        logger(severity).info("Evaluated {}", leaf);
+        logger(severity).info("Evaluated {}", leaf); // TODO test this
         return addedNode;
     }
 
@@ -274,7 +274,7 @@ public final class SearchTreeReports {
             .withUntypedValue("leaf", leaf)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        logger(severity).info("Optimized {}", leaf);
+        logger(severity).info("Optimized {}", leaf); // TODO test this
         return addedNode;
     }
 
@@ -284,7 +284,7 @@ public final class SearchTreeReports {
             .withUntypedValue("leaf", leaf)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        logger(severity).info("Failed to optimize leaf: {}", leaf);
+        logger(severity).info("Failed to optimize leaf: {}", leaf); // TODO test this
         return addedNode;
     }
 
@@ -302,7 +302,7 @@ public final class SearchTreeReports {
             .withMessageTemplate("reportSearchTreeOneLeafStopCriterionReached", "Stop criterion reached, other threads may skip optimization.")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Stop criterion reached, other threads may skip optimization.");
+        TECHNICAL_LOGS.info("Stop criterion reached, other threads may skip optimization."); // TODO test this
         return addedNode;
     }
 
@@ -311,7 +311,7 @@ public final class SearchTreeReports {
             .withMessageTemplate("reportSearchTreeOneLeafPerimeterPurelyVirtual", "Perimeter is purely virtual and virtual cost is zero. Exiting search tree.")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
+        TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree."); // TODO test this
         return addedNode;
     }
 
@@ -381,7 +381,7 @@ public final class SearchTreeReports {
             .withUntypedValue("leaf", leaf)
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Evaluating {}", leaf);
+        TECHNICAL_LOGS.debug("Evaluating {}", leaf); // TODO test this
         return addedNode;
     }
 
@@ -390,7 +390,7 @@ public final class SearchTreeReports {
             .withMessageTemplate("reportFailedEvaluateLeafSensitivityAnalysisFailed", "Failed to evaluate leaf: sensitivity analysis failed")
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
+        BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed"); // TODO test this
         return addedNode;
     }
 
@@ -399,7 +399,7 @@ public final class SearchTreeReports {
             .withMessageTemplate("reportResettingRangeActionSetPointsToPreOptimValues", "Resetting range action setpoints to their pre-optim values")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
+        TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values"); // TODO test this
         return addedNode;
     }
 
@@ -408,7 +408,7 @@ public final class SearchTreeReports {
             .withMessageTemplate("reportOptimizingLeaf", "Optimizing leaf...")
             .withSeverity(TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.debug("Optimizing leaf...");
+        TECHNICAL_LOGS.debug("Optimizing leaf..."); // TODO test this
         return addedNode;
     }
 
@@ -418,7 +418,7 @@ public final class SearchTreeReports {
             .withUntypedValue("leaf", leaf)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation failed", leaf);
+        BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation failed", leaf); // TODO test this
         return addedNode;
     }
 
@@ -428,7 +428,7 @@ public final class SearchTreeReports {
             .withUntypedValue("leaf", leaf)
             .withSeverity(WARN_SEVERITY)
             .add();
-        BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", leaf);
+        BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", leaf); // TODO test this
         return addedNode;
     }
 
@@ -438,7 +438,7 @@ public final class SearchTreeReports {
             .withUntypedValue("numberOfEliminatedNetworkActions", numberOfEliminatedNetworkActions)
             .withSeverity(DEBUG_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", numberOfEliminatedNetworkActions);
+        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", numberOfEliminatedNetworkActions); // TODO test this
         return addedNode;
     }
 
@@ -448,7 +448,7 @@ public final class SearchTreeReports {
             .withUntypedValue("numberOfEliminatedNetworkActions", numberOfEliminatedNetworkActions)
             .withSeverity(DEBUG_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", numberOfEliminatedNetworkActions);
+        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", numberOfEliminatedNetworkActions); // TODO test this
         return addedNode;
     }
 
@@ -458,7 +458,7 @@ public final class SearchTreeReports {
             .withUntypedValue("numberOfEliminatedNetworkActions", numberOfEliminatedNetworkActions)
             .withSeverity(DEBUG_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", numberOfEliminatedNetworkActions);
+        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", numberOfEliminatedNetworkActions); // TODO test this
         return addedNode;
     }
 
@@ -468,7 +468,7 @@ public final class SearchTreeReports {
             .withUntypedValue("numberOfEliminatedNetworkActions", numberOfEliminatedNetworkActions)
             .withSeverity(DEBUG_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", numberOfEliminatedNetworkActions);
+        TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", numberOfEliminatedNetworkActions); // TODO test this
         return addedNode;
     }
 

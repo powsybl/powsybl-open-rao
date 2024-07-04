@@ -13,7 +13,7 @@ public final class SweCneExporterReports {
     }
 
     public static ReportNode reportSweConstraintSeriesCreator(ReportNode reportNode) {
-        return reportNode.newReportNode()
+        return reportNode.newReportNode() // TODO test this
             .withMessageTemplate("reportSweConstraintSeriesCreator", "SWE constraint series creator")
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
@@ -28,7 +28,7 @@ public final class SweCneExporterReports {
 
     public static ReportNode reportSweAdditionalConstraintSeriesCreatorAngleCnecIgnored(ReportNode reportNode, String instantId, String nativeId) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSweAdditionalConstraintSeriesCreatorAngleCnecIgnored", "{} angle cnec \"{}\" will not be added to CNE file")
+            .withMessageTemplate("reportSweAdditionalConstraintSeriesCreatorAngleCnecIgnored", "${instantId} angle cnec \"${nativeId}\" will not be added to CNE file")
             .withUntypedValue("instantId", Optional.ofNullable(instantId).orElse(""))
             .withUntypedValue("nativeId", Optional.ofNullable(nativeId).orElse(""))
             .withSeverity(TypedValue.WARN_SEVERITY)
@@ -39,7 +39,7 @@ public final class SweCneExporterReports {
 
     public static ReportNode reportSweAdditionalConstraintSeriesCreatorPreventiveAngleCnecIgnored(ReportNode reportNode, String nativeId) {
         ReportNode addedNode = reportNode.newReportNode()
-            .withMessageTemplate("reportSweAdditionalConstraintSeriesCreatorPreventiveAngleCnecIgnored", "Preventive angle cnec \"{}\" will not be added to CNE file")
+            .withMessageTemplate("reportSweAdditionalConstraintSeriesCreatorPreventiveAngleCnecIgnored", "Preventive angle cnec \"${nativeId}\" will not be added to CNE file")
             .withUntypedValue("nativeId", Optional.ofNullable(nativeId).orElse(""))
             .withSeverity(TypedValue.WARN_SEVERITY)
             .add();

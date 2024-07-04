@@ -27,7 +27,7 @@ public final class ObjectiveFunctionEvaluatorReports {
             .withUntypedValue("sensitivityFailureOvercost", sensitivityFailureOvercost)
             .withSeverity(TypedValue.TRACE_SEVERITY)
             .add();
-        TECHNICAL_LOGS.info("Sensitivity failure for state {} : assigning virtual overcost of {}", stateId, sensitivityFailureOvercost);
+        TECHNICAL_LOGS.info("Sensitivity failure for state {} : assigning virtual overcost of {}", stateId, sensitivityFailureOvercost); // TODO test this
         return addedNode;
     }
 }
