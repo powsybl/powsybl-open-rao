@@ -111,7 +111,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
                 rangeActionParameters,
                 Unit.MEGAWATT,
-            false);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
     }
 
     private void fillProblemWithFiller(Unit unit) {
