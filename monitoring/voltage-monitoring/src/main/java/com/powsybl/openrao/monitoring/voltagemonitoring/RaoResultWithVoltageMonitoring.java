@@ -42,7 +42,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (!voltageMonitoringResult.getStatus().equals(VoltageMonitoringResult.Status.UNKNOWN)) {
+        if (!voltageMonitoringResult.getStatus().equals(VoltageMonitoringResult.Status.FAILURE)) {
             return raoResult.getComputationStatus();
         } else {
             return ComputationStatus.FAILURE;
