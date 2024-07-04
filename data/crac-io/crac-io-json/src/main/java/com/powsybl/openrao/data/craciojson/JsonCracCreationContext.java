@@ -17,7 +17,6 @@ import java.time.OffsetDateTime;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-// TODO : add tests
 class JsonCracCreationContext implements CracCreationContext {
     private final boolean isCreationSuccessful;
     private final Crac crac;

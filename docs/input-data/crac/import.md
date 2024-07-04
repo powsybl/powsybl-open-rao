@@ -101,5 +101,5 @@ Where:
 Developers are welcome to add CRAC importers/exporters to handle their native formats, by implementing the`Importer`/
 `Exporter` interface of the CRAC I/O module, and add the implementations to their run-time dependencies.
 There is no obligation to publish the resulting code.  
-You can find inspiration in existing CRAC importers' code pn our [GitHub](https://github.com/powsybl/powsybl-open-rao).  
+You can find inspiration in existing CRAC importers' code on our [GitHub](https://github.com/powsybl/powsybl-open-rao).  
 You should also get familiar with our java [CRAC creation API](json).  
