@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
+import com.powsybl.openrao.monitoring.monitoringcommon.json.MonitoringCommonReports;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -127,7 +128,7 @@ public class AngleMonitoringResult {
 
     public void reportConstraints(ReportNode reportNode) {
         if (isDivergent()) {
-            AngleMonitoringReports.reportLoadflowDivergence(reportNode);
+            MonitoringCommonReports.reportLoadFlowDivergence(reportNode);
         } else if (isSecure()) {
             AngleMonitoringReports.reportNoConstrainedElements(reportNode);
         } else if (isUnknown()) {

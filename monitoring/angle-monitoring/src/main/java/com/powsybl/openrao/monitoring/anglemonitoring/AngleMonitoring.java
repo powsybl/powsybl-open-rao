@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.monitoring.monitoringcommon.json.MonitoringCommonReports;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.cim.CimGlskDocument;
@@ -226,7 +227,7 @@ public class AngleMonitoring {
         redispatchNetworkActions(networkClone, powerToBeRedispatched, networkElementsToBeExcluded, reportNode);
         // Recompute LoadFlow
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone, reportNode)) {
-            AngleMonitoringReports.reportLoadflowComputationFailed(reportNode, state.getId());
+            MonitoringCommonReports.reportLoadflowComputationFailed(reportNode, state.getId());
             Set<AngleMonitoringResult.AngleResult> result = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
             angleValues.forEach((angleCnecResult, angleResult) -> result.add(new AngleMonitoringResult.AngleResult(angleCnecResult, angleResult)));
             return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.DIVERGENT);
@@ -338,7 +339,7 @@ public class AngleMonitoring {
                 powerToBeRedispatched.putAll(tempPowerToBeRedispatched);
             }
         }
-        AngleMonitoringReports.reportAppliedNetworkActions(reportNode, angleCnecId, appliedNetworkActions.stream().map(com.powsybl.openrao.data.cracapi.Identifiable::getId).collect(Collectors.joining(", ")));
+        MonitoringCommonReports.reportAppliedNetworkActions(reportNode, angleCnecId, appliedNetworkActions.stream().map(com.powsybl.openrao.data.cracapi.Identifiable::getId).collect(Collectors.joining(", ")));
         return appliedNetworkActions;
     }
 
@@ -424,13 +425,13 @@ public class AngleMonitoring {
      * Returns false if loadFlow has not converged.
      */
     private boolean computeLoadFlow(String loadFlowProvider, LoadFlowParameters loadFlowParameters, Network networkClone, ReportNode reportNode) {
-        ReportNode loadFlowReportNode = AngleMonitoringReports.reportLoadflowComputationStart(reportNode);
+        ReportNode loadFlowReportNode = MonitoringCommonReports.reportLoadFlowComputationStart(reportNode);
         LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
             .run(networkClone, networkClone.getVariantManager().getWorkingVariantId(), LocalComputationManager.getDefault(), loadFlowParameters, loadFlowReportNode);
         if (!loadFlowResult.isOk()) {
-            AngleMonitoringReports.reportLoadflowError(loadFlowReportNode);
+            MonitoringCommonReports.reportLoadFlowError(loadFlowReportNode);
         }
-        AngleMonitoringReports.reportLoadflowComputationEnd(loadFlowReportNode);
+        MonitoringCommonReports.reportLoadFlowComputationEnd(loadFlowReportNode);
         return loadFlowResult.isOk();
     }
 
@@ -471,7 +472,7 @@ public class AngleMonitoring {
     }
 
     private AngleMonitoringResult catchAngleMonitoringResult(State state, AngleMonitoringResult.Status status, ReportNode reportNode) {
-        AngleMonitoringReports.reportAngleMonitoringFailureAtState(reportNode, state.getId());
+        MonitoringCommonReports.reportLoadFlowComputationFailureAtState(reportNode, state.getId());
         TreeSet<AngleMonitoringResult.AngleResult> result = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
         crac.getAngleCnecs(state).forEach(ac -> result.add(new AngleMonitoringResult.AngleResult(ac, Double.NaN)));
         return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), status);

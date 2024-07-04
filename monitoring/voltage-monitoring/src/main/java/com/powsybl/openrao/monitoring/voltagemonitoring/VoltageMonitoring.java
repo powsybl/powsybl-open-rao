@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.monitoring.monitoringcommon.json.MonitoringCommonReports;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
@@ -199,7 +200,8 @@ public class VoltageMonitoring {
         }
         // If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone, reportNode)) {
-            VoltageMonitoringReports.reportLoadflowComputationFailed(reportNode, state.getId());
+            String stateId = state.getId();
+            MonitoringCommonReports.reportLoadflowComputationFailed(reportNode, stateId);
             return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.getUnsecureStatus(voltageValues));
         }
         Map<State, Set<RemedialAction<?>>> appliedRa = new HashMap<>();
@@ -276,7 +278,9 @@ public class VoltageMonitoring {
                 return false;
             }
         }).map(NetworkAction.class::cast).collect(Collectors.toSet());
-        VoltageMonitoringReports.reportAppliedNetworkActions(reportNode, voltageCnec.getId(), networkActions.stream().map(com.powsybl.openrao.data.cracapi.Identifiable::getId).collect(Collectors.joining(", ")));
+        String cnecId = voltageCnec.getId();
+        String appliedRasList = networkActions.stream().map(Identifiable::getId).collect(Collectors.joining(", "));
+        MonitoringCommonReports.reportAppliedNetworkActions(reportNode, cnecId, appliedRasList);
         return networkActions;
     }
 
@@ -301,13 +305,13 @@ public class VoltageMonitoring {
      * Returns false if loadFlow has not converged.
      */
     private boolean computeLoadFlow(String loadFlowProvider, LoadFlowParameters loadFlowParameters, Network networkClone, ReportNode reportNode) {
-        ReportNode loadflowReportNode = VoltageMonitoringReports.reportLoadflowComputationStart(reportNode);
+        ReportNode loadflowReportNode = MonitoringCommonReports.reportLoadFlowComputationStart(reportNode);
         LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
             .run(networkClone, networkClone.getVariantManager().getWorkingVariantId(), LocalComputationManager.getDefault(), loadFlowParameters, loadflowReportNode);
         if (!loadFlowResult.isOk()) {
-            VoltageMonitoringReports.reportLoadflowError(loadflowReportNode);
+            MonitoringCommonReports.reportLoadFlowError(loadflowReportNode);
         }
-        VoltageMonitoringReports.reportLoadflowComputationEnd(loadflowReportNode);
+        MonitoringCommonReports.reportLoadFlowComputationEnd(loadflowReportNode);
         return loadFlowResult.isOk();
     }
 
@@ -373,7 +377,8 @@ public class VoltageMonitoring {
     }
 
     private VoltageMonitoringResult catchVoltageMonitoringResult(State state, VoltageMonitoringResult.Status securityStatus, ReportNode reportNode) {
-        VoltageMonitoringReports.reportVoltageMonitoringFailureAtState(reportNode, state.getId());
+        String stateId = state.getId();
+        MonitoringCommonReports.reportLoadFlowComputationFailureAtState(reportNode, stateId);
         Map<VoltageCnec, ExtremeVoltageValues> voltagePerCnec = new HashMap<>();
         crac.getVoltageCnecs(state).forEach(vc ->
             voltagePerCnec.put(vc, new ExtremeVoltageValues(new HashSet<>(Arrays.asList(Double.NaN))))
