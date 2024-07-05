@@ -120,7 +120,7 @@ extension to the CracCreationParameters object in order to define them.
 
 ### range-action-groups (CSE)
 
-The CSE native CRAC format does not allow defining [aligned range actions](introduction.md#range-action). This extra parameter 
+The CSE native CRAC format does not allow defining [aligned range actions](json.md#range-actions). This extra parameter 
 allows the user to do just that.  
 To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a 
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  
@@ -129,7 +129,7 @@ See [example below](#full-cse-example) for a better illustration.
 ### bus-bar-change-switches
 
 As explained in the CSE native CRAC format section [here](cse.md#bus-bar-change), bus-bar-change remedial actions are defined in OpenRAO 
-as [switch pair network actions](introduction.md#switch-pair).  
+as [switch pair network actions](/input-data/crac.md#switch-pair).  
 These switches are not defined in the native CRAC nor in the original network, they should be created artificially in the 
 network and their IDs should be sent to the RAO.  
 This parameter allows the definition of the switch(es) to open and the switch(es) to close for every bus-bar change remedial action.  
@@ -216,7 +216,7 @@ See [example below](#full-cim-example) for a better illustration.
 
 ### range-action-groups (CIM)
 
-Like the CSE native CRAC format, the CIM format does not allow defining [aligned range actions](introduction.md#range-action). 
+Like the CSE native CRAC format, the CIM format does not allow defining [aligned range actions](json.md#range-actions). 
 This extra parameter allows the user to do just that.  
 To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  

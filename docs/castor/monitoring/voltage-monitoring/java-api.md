@@ -8,7 +8,7 @@ public VoltageMonitoring(Crac crac, Network network, RaoResult raoResult)
 With:
 - crac: the CRAC object used for the RAO, and containing [VoltageCnecs](/input-data/crac/json.md#voltage-cnecs) to be monitored.
 - network: the network to be monitored.
-- raoResult: the [RaoResult](/output-data/rao-result/rao-result-json.md) object containing selected remedial actions (that shall
+- raoResult: the [RaoResult](/output-data/rao-result.md) object containing selected remedial actions (that shall
   be applied on the network before monitoring voltage values)
 
 2. Run the monitoring algorithm using the constructed object's following method:
