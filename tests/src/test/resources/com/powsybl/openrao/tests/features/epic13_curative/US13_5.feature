@@ -168,19 +168,17 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
-    And the tap of PstRangeAction "pra_pst_fr" should be -15 in preventive
-    And the tap of PstRangeAction "pra_pst_be" should be 13 in preventive
-    And the tap of PstRangeAction "cra_pst_fr" should be -15 in preventive
-    And the tap of PstRangeAction "cra_pst_be" should be 13 in preventive
+    And the tap of PstRangeAction "pra_pst_fr" should be -14 in preventive
+    And the tap of PstRangeAction "cra_pst_fr" should be -14 in preventive
+    And the tap of PstRangeAction "pra_pst_be" should be 10 in preventive
+    And the tap of PstRangeAction "cra_pst_be" should be 10 in preventive
+
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     # only one PST count as activated, as the other one didn't change its tap
     And the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "cra_pst_fr" should be -15 after "CO1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "cra_pst_be" should be 15 after "CO1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pra_pst_fr" should be -15 after "CO1_fr2_fr3_1" at "curative"
-    # And the tap of PstRangeAction "pra_pst_be" should be 15 after "CO1_fr2_fr3_1" at "curative"
-    # does not work currently: expected behaviour not clear yet in that case
-    And the worst margin is 992 A
+    And the remedial action "cra_pst_fr" is not used after "CO1_fr2_fr3_1" at "curative"
+    And the remedial action "cra_pst_be" is used after "CO1_fr2_fr3_1" at "curative"
+    And the worst margin is 996 A
     Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
 
   @fast @rao @mock @ac @second-preventive

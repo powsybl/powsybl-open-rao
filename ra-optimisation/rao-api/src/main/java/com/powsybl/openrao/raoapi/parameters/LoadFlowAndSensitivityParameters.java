@@ -86,7 +86,7 @@ public class LoadFlowAndSensitivityParameters {
         loadFlowParameters.setWriteSlackBus(false);
         // in DC, as emulation AC is supported for LF but not for sensitivity analyses, it could
         // lead to incoherence.
-        if (loadFlowParameters.isDc()) {
+        if (loadFlowParameters.isDc() && loadFlowParameters.isHvdcAcEmulation()) {
             BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible." +
                     "HvdcAcEmulation parameter set to false.");
             loadFlowParameters.setHvdcAcEmulation(false);

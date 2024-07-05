@@ -38,7 +38,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.intersphinx',
               'sphinx_tabs.tabs',
-              'myst_parser']
+              'myst_parser',
+              'sphinxcontrib.plantuml']
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
@@ -70,8 +71,7 @@ html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
 
 html_context = {
-    # TODO : replace next option with "https://powsybl.readthedocs.org" when website is published
-    "sidebar_logo_href": "https://www.powsybl.org/"
+    "sidebar_logo_href": "https://powsybl.readthedocs.io"
 }
 
 html_theme_options = {

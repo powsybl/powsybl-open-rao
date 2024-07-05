@@ -5,7 +5,7 @@ import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,7 +94,7 @@ class FlowCnecInstantHelperTest {
     void getAllTatlDurationsOnSide() {
         Branch<?> branch = Mockito.mock(Branch.class);
 
-        // No TATL on LEFT side / TATLs on RIGHT side
+        // No TATL on side ONE / TATLs on side TWO
         CurrentLimits currentLimitsRight = Mockito.mock(CurrentLimits.class);
         Mockito.when(currentLimitsRight.getTemporaryLimits()).thenReturn(mockBranchTatls(true, true, true, true, true, true));
         Mockito.when(branch.getCurrentLimits(TwoSides.ONE)).thenReturn(Optional.empty());

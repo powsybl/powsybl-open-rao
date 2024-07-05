@@ -176,7 +176,7 @@ the flow in curative would remain higher than the PATL value, which would corres
 Given the sequential nature of CASTOR's search-tree algorithm, some constraints on curative CNECs that cannot be solved
 by curative remedial actions are not seen by the preventive RAO.  
 After the curative RAO is complete, the user has the possibility
-to [run a second preventive RAO](/parameters/parameters.md#second-preventive-rao-parameters).  
+to [run a second preventive RAO](/parameters.md#second-preventive-rao-parameters).  
 The differences with the first preventive RAO are that, in this run:
 
 - **all CNECs** are optimised, whatever their state;
@@ -186,6 +186,6 @@ The differences with the first preventive RAO are that, in this run:
   the preventive RAO to focus on constraints that cannot be solved by curative actions.
 
 _* It is possible to re-optimise curative range actions during second preventive RAO
-using [this parameter](/parameters/parameters.md#re-optimize-curative-range-actions)._
+using [this parameter](/parameters.md#re-optimize-curative-range-actions)._
 
 ![PATL vs TATL](/_static/img/rao_steps.png){.forced-white-background} 

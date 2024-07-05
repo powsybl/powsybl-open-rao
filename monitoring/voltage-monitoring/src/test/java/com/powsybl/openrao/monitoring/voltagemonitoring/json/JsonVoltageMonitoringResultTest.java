@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.powsybl.openrao.monitoring.voltagemonitoring.VoltageMonitoringResult.Status.UNKNOWN;
+import static com.powsybl.openrao.monitoring.voltagemonitoring.VoltageMonitoringResult.Status.FAILURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -79,12 +79,12 @@ class JsonVoltageMonitoringResultTest {
         crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withVoltageCnec(vc1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vc1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withVoltageCnec(vc2.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc2.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         voltageMonitoringResultImporter = new VoltageMonitoringResultImporter();
     }
@@ -105,7 +105,7 @@ class JsonVoltageMonitoringResultTest {
         VoltageMonitoringResult voltageMonitoringResult =
             new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result.json"), crac);
 
-        assertEquals(UNKNOWN, voltageMonitoringResult.getStatus());
+        assertEquals(FAILURE, voltageMonitoringResult.getStatus());
         assertEquals(Set.of(vc1, vc2), voltageMonitoringResult.getConstrainedElements());
         assertEquals(144.4, voltageMonitoringResult.getMinVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(148.4, voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);

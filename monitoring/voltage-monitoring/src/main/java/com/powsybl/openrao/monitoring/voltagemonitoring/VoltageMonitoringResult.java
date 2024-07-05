@@ -27,7 +27,7 @@ public class VoltageMonitoringResult {
         HIGH_VOLTAGE_CONSTRAINT,
         LOW_VOLTAGE_CONSTRAINT,
         HIGH_AND_LOW_VOLTAGE_CONSTRAINTS,
-        UNKNOWN;
+        FAILURE;
 
         static Status fromConstraints(boolean highVoltageConstraints, boolean lowVoltageConstraints) {
             if (highVoltageConstraints && lowVoltageConstraints) {

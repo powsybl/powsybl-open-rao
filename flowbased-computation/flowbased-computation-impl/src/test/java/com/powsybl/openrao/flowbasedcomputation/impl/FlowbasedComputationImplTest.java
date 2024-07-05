@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.flowbasedcomputation.impl;
 
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -27,6 +27,7 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -66,7 +67,7 @@ class FlowbasedComputationImplTest {
     }
 
     @Test
-    void testRunWithCra() {
+    void testRunWithCra() throws IOException {
         Crac crac = ExampleGenerator.crac("crac.json", network);
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
@@ -76,7 +77,7 @@ class FlowbasedComputationImplTest {
     }
 
     @Test
-    void testRunWithCraRaoResult() {
+    void testRunWithCraRaoResult() throws IOException {
         Crac crac = ExampleGenerator.crac("crac_for_rao_result.json", network);
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
@@ -87,14 +88,14 @@ class FlowbasedComputationImplTest {
     }
 
     @Test
-    void testRunPraWithForced() {
+    void testRunPraWithForced() throws IOException {
         Crac crac = ExampleGenerator.crac("crac_with_forced.json", network);
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
     }
 
     @Test
-    void testRunPraWithExtension() {
+    void testRunPraWithExtension() throws IOException {
         Crac crac = ExampleGenerator.crac("crac_with_extension.json", network);
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
@@ -254,34 +255,34 @@ class FlowbasedComputationImplTest {
             flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
             ElementaryFlowCnecResult elementaryFlowCnecResult = flowCnecResult.getResult(null);
 
-            elementaryFlowCnecResult.setFlow(Side.LEFT, 100., MEGAWATT);
+            elementaryFlowCnecResult.setFlow(TwoSides.ONE, 100., MEGAWATT);
             elementaryFlowCnecResult.setMargin(101., MEGAWATT);
             elementaryFlowCnecResult.setRelativeMargin(102., MEGAWATT);
-            elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 103., MEGAWATT);
-            elementaryFlowCnecResult.setCommercialFlow(Side.LEFT, 104., MEGAWATT);
+            elementaryFlowCnecResult.setLoopFlow(TwoSides.ONE, 103., MEGAWATT);
+            elementaryFlowCnecResult.setCommercialFlow(TwoSides.ONE, 104., MEGAWATT);
 
-            elementaryFlowCnecResult.setFlow(Side.LEFT, 110., AMPERE);
+            elementaryFlowCnecResult.setFlow(TwoSides.ONE, 110., AMPERE);
             elementaryFlowCnecResult.setMargin(111., AMPERE);
             elementaryFlowCnecResult.setRelativeMargin(112., AMPERE);
-            elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 113., AMPERE);
-            elementaryFlowCnecResult.setCommercialFlow(Side.LEFT, 114., AMPERE);
+            elementaryFlowCnecResult.setLoopFlow(TwoSides.ONE, 113., AMPERE);
+            elementaryFlowCnecResult.setCommercialFlow(TwoSides.ONE, 114., AMPERE);
 
-            elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
+            elementaryFlowCnecResult.setPtdfZonalSum(TwoSides.ONE, 0.1);
 
             flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(curativeInstant);
             elementaryFlowCnecResult = flowCnecResult.getResult(curativeInstant);
 
-            elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
+            elementaryFlowCnecResult.setFlow(TwoSides.ONE, 200., MEGAWATT);
             elementaryFlowCnecResult.setMargin(201., MEGAWATT);
             elementaryFlowCnecResult.setRelativeMargin(202., MEGAWATT);
-            elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 203., MEGAWATT);
+            elementaryFlowCnecResult.setLoopFlow(TwoSides.ONE, 203., MEGAWATT);
 
-            elementaryFlowCnecResult.setFlow(Side.LEFT, 210., AMPERE);
+            elementaryFlowCnecResult.setFlow(TwoSides.ONE, 210., AMPERE);
             elementaryFlowCnecResult.setMargin(211., AMPERE);
             elementaryFlowCnecResult.setRelativeMargin(212., AMPERE);
-            elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 213., AMPERE);
+            elementaryFlowCnecResult.setLoopFlow(TwoSides.ONE, 213., AMPERE);
 
-            elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
+            elementaryFlowCnecResult.setPtdfZonalSum(TwoSides.ONE, 0.1);
         });
 
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", curativeInstant));

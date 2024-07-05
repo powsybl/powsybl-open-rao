@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -76,7 +76,6 @@ public final class AutomatonSimulator {
     private final PrePerimeterResult prePerimeterSensitivityOutput;
     private final Set<String> operatorsNotSharingCras;
     private final int numberLoggedElementsDuringRao;
-    private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap;
 
     public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, RangeActionSetpointResult prePerimeterRangeActionSetpointResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao) {
         this.crac = crac;
@@ -88,7 +87,6 @@ public final class AutomatonSimulator {
         this.prePerimeterSensitivityOutput = prePerimeterSensitivityOutput;
         this.operatorsNotSharingCras = operatorsNotSharingCras;
         this.numberLoggedElementsDuringRao = numberLoggedElementsDuringRao;
-        this.flowCnecRangeActionMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
     }
 
     /**
@@ -151,12 +149,14 @@ public final class AutomatonSimulator {
         }
         // Build and return optimization result
         PrePerimeterResult prePerimeterResultForOptimizedState = buildPrePerimeterResultForOptimizedState(rangeAutomatonSimulationResult.getPerimeterResult(), automatonState);
+        Map<RangeAction<?>, Double> rangeActionsWithSetpoint = rangeAutomatonSimulationResult.getRangeActionsWithSetpoint();
+        prePerimeterResultForOptimizedState.getRangeActionSetpointResult().getRangeActions().forEach(ra -> rangeActionsWithSetpoint.putIfAbsent(ra, prePerimeterResultForOptimizedState.getSetpoint(ra)));
         AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
             prePerimeterResultForOptimizedState,
             topoSimulationResult.getActivatedNetworkActions(),
             autoSearchTreeResult == null ? new HashSet<>() : new HashSet<>(autoSearchTreeResult.getActivatedNetworkActions()),
             rangeAutomatonSimulationResult.getActivatedRangeActions(),
-            rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
+            rangeActionsWithSetpoint,
             automatonState);
         TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
         RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(automatonPerimeterResultImpl, automatonState), null, automatonPerimeterResultImpl);
@@ -167,7 +167,7 @@ public final class AutomatonSimulator {
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(automatonTreeParameters)
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras(), crac))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
             .build();
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
@@ -608,10 +608,10 @@ public final class AutomatonSimulator {
                                                                          PrePerimeterResult prePerimeterSensitivityOutput,
                                                                          State automatonState) {
 
-        Set<Pair<FlowCnec, Side>> flowCnecsToBeExcluded = new HashSet<>();
+        Set<Pair<FlowCnec, TwoSides>> flowCnecsToBeExcluded = new HashSet<>();
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
         Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint = new HashMap<>();
-        List<Pair<FlowCnec, Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
+        List<Pair<FlowCnec, TwoSides>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
 
         if (alignedRangeActions.stream().allMatch(HvdcRangeAction.class::isInstance) && !flowCnecsWithNegativeMargin.isEmpty()) {
             // Disable HvdcAngleDroopActivePowerControl for HVDC lines, fetch their set-point, re-run sensitivity analysis and fetch new negative margins
@@ -640,7 +640,7 @@ public final class AutomatonSimulator {
 
             sensitivityUnderestimator = updateSensitivityUnderestimator(toBeShiftedCnec, previouslyShiftedCnec, sensitivityUnderestimator);
 
-            Side side = flowCnecsWithNegativeMargin.get(0).getRight();
+            TwoSides side = flowCnecsWithNegativeMargin.get(0).getRight();
             double sensitivityValue = computeTotalSensitivityValue(alignedRangeActions, sensitivityUnderestimator, automatonRangeActionOptimizationSensitivityAnalysisOutput, toBeShiftedCnec, side);
 
             // if sensitivity value is zero, CNEC cannot be secured. move on to the next CNEC with a negative margin
@@ -696,7 +696,7 @@ public final class AutomatonSimulator {
         }
     }
 
-    private double computeTotalSensitivityValue(List<RangeAction<?>> alignedRangeActions, double sensitivityUnderestimator, PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput, FlowCnec toBeShiftedCnec, Side side) {
+    private double computeTotalSensitivityValue(List<RangeAction<?>> alignedRangeActions, double sensitivityUnderestimator, PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput, FlowCnec toBeShiftedCnec, TwoSides side) {
         double sensitivityValue = 0;
         // Under-estimate range action sensitivity if convergence to margin = 0 is slow (ie if multiple passes
         // through this loop have been needed to secure the same CNEC)
@@ -737,17 +737,16 @@ public final class AutomatonSimulator {
     /**
      * This function builds a list of cnecs with negative margin, except cnecs in cnecsToBeExcluded.
      * N.B : margin is retrieved in MEGAWATT as only the sign matters.
-     * Returns a sorted list of FlowCnecs-Side pairs with negative margins.
+     * Returns a sorted list of FlowCnecs-TwoSides pairs with negative margins.
      */
-    List<Pair<FlowCnec, Side>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> flowCnecs,
-                                                                              Set<Pair<FlowCnec, Side>> cnecsToBeExcluded,
-                                                                              PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                              Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint) {
-        Map<Pair<FlowCnec, Side>, Double> cnecsAndMargins = new HashMap<>();
+    List<Pair<FlowCnec, TwoSides>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> flowCnecs,
+                                                                                  Set<Pair<FlowCnec, TwoSides>> cnecsToBeExcluded,
+                                                                                  PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                                  Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint) {
+        Map<Pair<FlowCnec, TwoSides>, Double> cnecsAndMargins = new HashMap<>();
         flowCnecs.forEach(flowCnec -> flowCnec.getMonitoredSides().forEach(side -> {
             double margin = prePerimeterSensitivityOutput.getMargin(flowCnec, side, flowUnit);
-            boolean cnecShouldBeOptimized = RaoUtil.cnecShouldBeOptimized(flowCnecRangeActionMap, prePerimeterSensitivityOutput, flowCnec, side, activatedRangeActionsWithSetpoint, prePerimeterRangeActionSetpointResult, prePerimeterSensitivityOutput, flowUnit);
-            if (cnecShouldBeOptimized && !cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
+            if (!cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
                 cnecsAndMargins.put(Pair.of(flowCnec, side), margin);
             }
         }));

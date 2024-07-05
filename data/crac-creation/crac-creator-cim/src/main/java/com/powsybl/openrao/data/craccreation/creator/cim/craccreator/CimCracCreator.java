@@ -7,22 +7,16 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.cim.CimCrac;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MonitoredSeriesCreator;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.VoltageCnecsCreator;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency.CimContingencyCreator;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.remedialaction.RemedialActionSeriesCreator;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
+import com.powsybl.openrao.data.craccreation.creator.cim.xsd.CRACMarketDocument;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.TimeSeries;
 import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.cracutil.CracValidator;
-import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.Network;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -32,26 +26,19 @@ import java.util.Set;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-@AutoService(CracCreator.class)
-public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationContext> {
+class CimCracCreator {
     private List<TimeSeries> cimTimeSeries;
     private Crac crac;
     private Network network;
     CimCracCreationContext creationContext;
 
-    @Override
-    public String getNativeCracFormat() {
-        return "CimCrac";
-    }
-
-    @Override
-    public CimCracCreationContext createCrac(CimCrac cimCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters parameters) {
+    CimCracCreationContext createCrac(CRACMarketDocument cimCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters parameters) {
         // Set attributes
-        this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID());
+        this.crac = parameters.getCracFactory().create(cimCrac.getMRID());
         addCimInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
-        this.cimTimeSeries = new ArrayList<>(cimCrac.getCracDocument().getTimeSeries());
+        this.cimTimeSeries = new ArrayList<>(cimCrac.getTimeSeries());
         this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
         // Get warning messages from parameters parsing
@@ -68,13 +55,15 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
 
         if (offsetDateTime == null) {
             creationContext.getCreationReport().error("Timestamp is null for cim crac creator.");
-            return creationContext.creationFailure();
+            creationContext.setCreationFailure();
+            return creationContext;
         } else {
-            String cracTimePeriodStart = cimCrac.getCracDocument().getTimePeriodTimeInterval().getStart();
-            String cracTimePeriodEnd = cimCrac.getCracDocument().getTimePeriodTimeInterval().getEnd();
+            String cracTimePeriodStart = cimCrac.getTimePeriodTimeInterval().getStart();
+            String cracTimePeriodEnd = cimCrac.getTimePeriodTimeInterval().getEnd();
             if (!isInTimeInterval(offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd)) {
                 creationContext.getCreationReport().error(String.format("Timestamp %s is not in time interval [%s %s].", offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd));
-                return creationContext.creationFailure();
+                creationContext.setCreationFailure();
+                return creationContext;
             }
         }
 
@@ -84,7 +73,8 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport();
         CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
-        return creationContext.creationSuccess(crac);
+        creationContext.setCreationSuccess(crac);
+        return creationContext;
     }
 
     private void addCimInstants() {
@@ -98,7 +88,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         new CimContingencyCreator(cimTimeSeries, crac, network, creationContext).createAndAddContingencies();
     }
 
-    private void createCnecs(Set<Side> defaultMonitoredSides) {
+    private void createCnecs(Set<TwoSides> defaultMonitoredSides) {
         new MonitoredSeriesCreator(cimTimeSeries, network, creationContext, defaultMonitoredSides).createAndAddMonitoredSeries();
     }
 

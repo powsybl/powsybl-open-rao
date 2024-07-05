@@ -101,7 +101,7 @@ These parameters (objective-function) configure the remedial action optimisation
 second preventive won't be run, even if curative cost is higher, in order to save computation time* 
 
 ### Range actions optimisation parameters
-These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem/linear-rao.md) used to optimise range actions.  
+These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem.md) used to optimise range actions.  
 (See [Modelling CNECs and range actions](/castor/linear-problem/core-problem-filler.md))
 
 #### max-mip-iterations
@@ -195,7 +195,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
   active+reactive computations, this approximation may be incorrect. The linear problem can thus find a worse solution 
   than in its previous iteration.
   - **DISABLED**: if this situation occurs, the linear problem stops and returns the previous solution,
-    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem/linear-rao.md#algorithm).
+    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem.md#algorithm).
   - **ENABLED**: this introduces two new behaviors to the iterating linear optimiser:
     1. If the linear problem finds a solution worse than in its previous iteration, it continues iterating.  
        When stop condition is met ([max-mip-iterations](#max-mip-iterations) reached, or two successive iterations have 
@@ -238,7 +238,7 @@ These are parameters that tune the solver used to solve the MIP problem.
   not enough.
 
 ### Network actions optimisation parameters
-These parameters (topological-actions-optimization) tune the [search-tree algorithm](/castor/search-tree-rao.md) 
+These parameters (topological-actions-optimization) tune the [search-tree algorithm](/castor.md#algorithm) 
 when searching for the best network actions.
 
 #### max-preventive-search-tree-depth
@@ -362,21 +362,6 @@ optimisation of specific CNECs in specific conditions.
   If it is set to false, all CNECs are treated equally in the curative RAO.  
   This parameter has no effect on the preventive RAO.  
   This parameter should be set to true for CORE CC.
-  This parameter is not compatible with [do-not-optimize-cnec-secured-by-its-pst](#do-not-optimize-cnec-secured-by-its-pst) 
-  for technical reasons.
-
-#### do-not-optimize-cnec-secured-by-its-pst
-- **Expected value**: a map with string keys and values. The keys should represent critical network element IDs, and the
-  values should represent PST network element IDs.
-- **Default value**: empty map
-- **Usage**: when a critical network element (identified by its PowSyBl ID) is associated to a PST (identified by its
-  PowSyBl ID) in this parameter, CNECs defined on the critical element will not be taken into account in the minimum
-  margin objective function, as long as they can be secured by the associated PST. In other words, they will only be
-  taken into account if the PST has too few tap positions left to reduce the flow constraints on these CNECs.  
-  This parameter affects both preventive and curative RAOs.  
-  It is actually used for the SWE CC process.
-  This parameter is not compatible with [do-not-optimize-curative-cnecs-for-tsos-without-cras](#do-not-optimize-curative-cnecs-for-tsos-without-cras)
-  for technical reasons.
 
 ### Load-flow and sensitivity computation parameters
 These parameters (load-flow-and-sensitivity-computation) configure the load-flow and sensitivity computations providers 
@@ -641,11 +626,7 @@ Zones are seperated by + or -.
     "hint-from-first-preventive-rao" : true
   },
   "not-optimized-cnecs" : {
-    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false,
-    "do-not-optimize-cnec-secured-by-its-pst" : {
-      "NE1" : "PST1",
-      "NE2" : "PST2"
-    }
+    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "load-flow-and-sensitivity-computation" : {
     "load-flow-provider" : "OpenLoadFlow",
@@ -720,7 +701,7 @@ Zones are seperated by + or -.
 :::
 :::{group-tab} iTools
 Based on PowSyBl's [configuration mechanism](https://www.powsybl.org/pages/documentation/user/configuration/).
-~~~yml
+~~~yaml
 rao-objective-function:
   type: MAX_MIN_MARGIN_IN_AMPERE
   preventive-stop-criterion: SECURE

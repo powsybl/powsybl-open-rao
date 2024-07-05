@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
@@ -59,40 +59,40 @@ class CracValidatorTest {
             .withId("auto-cnec-1")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .withContingency("co-1").withInstant(AUTO_INSTANT_ID)
-            .withNominalVoltage(400., Side.LEFT)
-            .withNominalVoltage(200., Side.RIGHT)
-            .withIMax(2000., Side.LEFT)
-            .withIMax(4000., Side.RIGHT)
+            .withNominalVoltage(400., TwoSides.ONE)
+            .withNominalVoltage(200., TwoSides.TWO)
+            .withIMax(2000., TwoSides.ONE)
+            .withIMax(4000., TwoSides.TWO)
             .withReliabilityMargin(15.)
             .withOptimized()
-            .newThreshold().withMin(-100.).withMax(100.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
-            .newThreshold().withMin(-100.).withMax(100.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
-            .newThreshold().withMin(-1.).withMax(1.).withUnit(Unit.PERCENT_IMAX).withSide(Side.LEFT).add()
+            .newThreshold().withMin(-100.).withMax(100.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
+            .newThreshold().withMin(-100.).withMax(100.).withUnit(Unit.MEGAWATT).withSide(TwoSides.TWO).add()
+            .newThreshold().withMin(-1.).withMax(1.).withUnit(Unit.PERCENT_IMAX).withSide(TwoSides.ONE).add()
             .add();
 
         crac.newFlowCnec()
             .withId("auto-cnec-2")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withContingency("co-1").withInstant(AUTO_INSTANT_ID)
-            .withNominalVoltage(300., Side.LEFT)
-            .withNominalVoltage(900., Side.RIGHT)
-            .withIMax(40, Side.LEFT)
-            .withIMax(40., Side.RIGHT)
+            .withNominalVoltage(300., TwoSides.ONE)
+            .withNominalVoltage(900., TwoSides.TWO)
+            .withIMax(40, TwoSides.ONE)
+            .withIMax(40., TwoSides.TWO)
             .withReliabilityMargin(0.)
-            .newThreshold().withMax(1000.).withUnit(Unit.AMPERE).withSide(Side.LEFT).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.AMPERE).withSide(TwoSides.ONE).add()
             .add();
 
         crac.newFlowCnec()
             .withId("auto-cnec-3")
             .withNetworkElement("BBE1AA1  BBE3AA1  1")
             .withContingency("co-2").withInstant(AUTO_INSTANT_ID)
-            .withNominalVoltage(500., Side.LEFT)
-            .withNominalVoltage(700., Side.RIGHT)
-            .withIMax(200., Side.LEFT)
-            .withIMax(400., Side.RIGHT)
+            .withNominalVoltage(500., TwoSides.ONE)
+            .withNominalVoltage(700., TwoSides.TWO)
+            .withIMax(200., TwoSides.ONE)
+            .withIMax(400., TwoSides.TWO)
             .withReliabilityMargin(1.)
             .withMonitored()
-            .newThreshold().withMin(-1.).withUnit(Unit.PERCENT_IMAX).withSide(Side.RIGHT).add()
+            .newThreshold().withMin(-1.).withUnit(Unit.PERCENT_IMAX).withSide(TwoSides.TWO).add()
             .add();
     }
 
@@ -107,10 +107,10 @@ class CracValidatorTest {
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
         assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
-        assertEquals(flowCnec.getIMax(Side.LEFT), duplicate.getIMax(Side.LEFT), 1e-6);
-        assertEquals(flowCnec.getIMax(Side.RIGHT), duplicate.getIMax(Side.RIGHT), 1e-6);
-        assertEquals(flowCnec.getNominalVoltage(Side.LEFT), duplicate.getNominalVoltage(Side.LEFT), 1e-6);
-        assertEquals(flowCnec.getNominalVoltage(Side.RIGHT), duplicate.getNominalVoltage(Side.RIGHT), 1e-6);
+        assertEquals(flowCnec.getIMax(TwoSides.ONE), duplicate.getIMax(TwoSides.ONE), 1e-6);
+        assertEquals(flowCnec.getIMax(TwoSides.TWO), duplicate.getIMax(TwoSides.TWO), 1e-6);
+        assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);
+        assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
         assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());
     }
 
@@ -150,7 +150,7 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withFlowCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
@@ -172,7 +172,7 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withFlowCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         crac.newNetworkAction()
             .withId("network-action-2")
@@ -234,7 +234,7 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withFlowCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
         CracValidator.validateCrac(crac, network);

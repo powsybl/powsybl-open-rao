@@ -299,9 +299,9 @@ The CNEC's threshold side depends on the nature of the `OperationalLimitSet`'s `
 existing line in the network and which also defines the CNEC's network element:
 
 - if the line is a `CGMES.Terminal1` or a `CGMES.Terminal_Boundary_1` in PowSyBl, the threshold of the CNEC is on the
-  **left** side
+  side **one**
 - if the line is a `CGMES.Terminal2` or a `CGMES.Terminal_Boundary_2` in PowSyBl, the threshold of the CNEC is on the
-  **right** side
+  side **two**
 
 Depending on the `OperationalLimitType`'s `kind` (PATL or TATL) and its `acceptableDuration` (if TATL), the FlowCNEC's instant can be deduced (see [this section](#tatl-to-flowcnec-instant-association) for more information).
 
@@ -928,12 +928,6 @@ The usage method depends on the value of the `combinationConstraintKind` field:
 If the remedial action is linked to an assessed element (a CNEC), its usage method is no longer onInstant and is now
 **onConstraint**. This link is created with a `AssessedElementWithRemedialAction` object that bounds together the
 assessed element and the contingency.
-
-The type of onConstraint usage rule depends on the type of the CNEC the remedial action is bounded to:
-
-- if it is a FlowCNEC, the usage rule is **onFlowConstraint**
-- if it is an AngleCNEC, the usage rule is **onAngleConstraint**
-- if it is a VoltageCNEC, the usage rule is **onVoltageConstraint**
 
 ```xml
 <!-- AE Profile -->

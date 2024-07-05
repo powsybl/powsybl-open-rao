@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -87,7 +87,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getFlow(side, unit);
     }
 
@@ -122,17 +122,17 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getLoopFlow(side, unit);
     }
 
     @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getCommercialFlow(side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getPtdfZonalSum(side);
     }
 
@@ -187,17 +187,6 @@ public class RaoResultImpl implements RaoResult {
 
     private static String getIdFromNullableInstant(Instant optimizedInstant) {
         return optimizedInstant == null ? INITIAL_INSTANT_ID : optimizedInstant.getId();
-    }
-
-    @Override
-    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction networkAction) {
-            return isActivatedDuringState(state, networkAction);
-        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
-            return isActivatedDuringState(state, rangeAction);
-        } else {
-            throw new OpenRaoException("Unrecognized remedial action type");
-        }
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
@@ -344,7 +333,12 @@ public class RaoResultImpl implements RaoResult {
         for (PhysicalParameter physicalParameter : Set.of(u)) {
             switch (physicalParameter) {
                 case ANGLE -> {
-                    if (angleCnecResults.keySet().stream()
+                    if (crac.getAngleCnecs().stream()
+                        .mapToDouble(cnec -> getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
+                        .anyMatch(Double::isNaN)) {
+                        throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
+                    }
+                    if (crac.getAngleCnecs().stream()
                             .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.DEGREE))
                             .filter(margin -> !Double.isNaN(margin))
                             .anyMatch(margin -> margin < 0)) {
@@ -357,7 +351,12 @@ public class RaoResultImpl implements RaoResult {
                     }
                 }
                 case VOLTAGE -> {
-                    if (voltageCnecResults.keySet().stream()
+                    if (crac.getVoltageCnecs().stream()
+                        .mapToDouble(cnec -> getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.KILOVOLT))
+                        .anyMatch(Double::isNaN)) {
+                        throw new OpenRaoException("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown");
+                    }
+                    if (crac.getVoltageCnecs().stream()
                             .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.KILOVOLT))
                             .filter(margin -> !Double.isNaN(margin))
                             .anyMatch(margin -> margin < 0)) {

@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnVoltageConstraint;
+import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Bus;
@@ -166,7 +166,7 @@ public class VoltageMonitoring {
     private VoltageMonitoringResult monitorVoltageCnecs(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone) {
         //First load flow with only preventive action, it is supposed to converge
         if (!computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.UNKNOWN);
+            return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.FAILURE);
         }
         // Check for threshold overshoot for the voltages of each cnec
         Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
@@ -237,9 +237,9 @@ public class VoltageMonitoring {
         Set<RemedialAction<?>> availableRemedialActions =
             crac.getRemedialActions().stream()
                 .filter(remedialAction ->
-                    remedialAction.getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
-                        .map(OnVoltageConstraint.class::cast)
-                        .anyMatch(onVoltageConstraint -> onVoltageConstraint.getVoltageCnec().equals(voltageCnec)))
+                    remedialAction.getUsageRules().stream().filter(OnConstraint.class::isInstance)
+                        .map(OnConstraint.class::cast)
+                        .anyMatch(onVoltageConstraint -> onVoltageConstraint.getCnec().equals(voltageCnec)))
                 .collect(Collectors.toSet());
         if (availableRemedialActions.isEmpty()) {
             BUSINESS_WARNS.warn("VoltageCnec {} in state {} has no associated RA. Voltage constraint cannot be secured.", voltageCnec.getId(), state.getId());
@@ -319,7 +319,7 @@ public class VoltageMonitoring {
 
     private VoltageMonitoringResult.Status concatenateSpecificResults() {
         if (stateSpecificResults.isEmpty()) {
-            return VoltageMonitoringResult.Status.UNKNOWN;
+            return VoltageMonitoringResult.Status.FAILURE;
         }
         AtomicBoolean atLeastOneHigh = new AtomicBoolean(false);
         AtomicBoolean atLeastOneLow = new AtomicBoolean(false);
@@ -333,7 +333,7 @@ public class VoltageMonitoring {
                         atLeastOneHigh.set(true);
                         atLeastOneLow.set(true);
                     }
-                    case UNKNOWN -> atLeastOneUnknown.set(true);
+                    case FAILURE -> atLeastOneUnknown.set(true);
                     case SECURE -> { }
                 }
             }
@@ -349,7 +349,7 @@ public class VoltageMonitoring {
             return VoltageMonitoringResult.Status.LOW_VOLTAGE_CONSTRAINT;
         }
         if (atLeastOneUnknown.get()) {
-            return VoltageMonitoringResult.Status.UNKNOWN;
+            return VoltageMonitoringResult.Status.FAILURE;
         }
         return VoltageMonitoringResult.Status.SECURE;
     }

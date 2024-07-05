@@ -48,8 +48,8 @@ convention), when optimizing line's flow margin.
 Note that this parameter is ignored when the line side to monitor is defined by the native CRAC itself (e.g. when a 
 cross-border tie-line is monitored by one TSO only, then the RAO will automatically detect on which side this TSO is).  
 Possible values for this parameter are:  
-- **monitor-lines-on-left-side** to monitor lines on left side only (typically to be used in DC-loadflow mode)
-- **monitor-lines-on-right-side** to monitor lines on right side only (alternatively in DC-loadflow mode)
+- **monitor-lines-on-side-one** to monitor lines on side one only (typically to be used in DC-loadflow mode)
+- **monitor-lines-on-side-two** to monitor lines on side two only (alternatively in DC-loadflow mode)
 - **monitor-lines-on-both-sides** to monitor lines on both sides; the flow limits defined in the native CRAC file will then 
 apply to both sides (typically to be used in AC-loadflow mode)
   
@@ -120,7 +120,7 @@ extension to the CracCreationParameters object in order to define them.
 
 ### range-action-groups (CSE)
 
-The CSE native CRAC format does not allow defining [aligned range actions](introduction.md#range-action). This extra parameter 
+The CSE native CRAC format does not allow defining [aligned range actions](json.md#range-actions). This extra parameter 
 allows the user to do just that.  
 To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a 
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  
@@ -129,7 +129,7 @@ See [example below](#full-cse-example) for a better illustration.
 ### bus-bar-change-switches
 
 As explained in the CSE native CRAC format section [here](cse.md#bus-bar-change), bus-bar-change remedial actions are defined in OpenRAO 
-as [switch pair network actions](introduction.md#switch-pair).  
+as [switch pair network actions](/input-data/crac.md#switch-pair).  
 These switches are not defined in the native CRAC nor in the original network, they should be created artificially in the 
 network and their IDs should be sent to the RAO.  
 This parameter allows the definition of the switch(es) to open and the switch(es) to close for every bus-bar change remedial action.  
@@ -216,7 +216,7 @@ See [example below](#full-cim-example) for a better illustration.
 
 ### range-action-groups (CIM)
 
-Like the CSE native CRAC format, the CIM format does not allow defining [aligned range actions](introduction.md#range-action). 
+Like the CSE native CRAC format, the CIM format does not allow defining [aligned range actions](json.md#range-actions). 
 This extra parameter allows the user to do just that.  
 To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  

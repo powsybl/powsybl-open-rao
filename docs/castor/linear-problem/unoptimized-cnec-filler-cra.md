@@ -1,10 +1,5 @@
 # Modelling un-optimised CNECs (CRAs)
 
-> ⚠️  **NOTE**  
-> These constraints are not compatible with [Modelling un-optimised CNECs (PSTs)](unoptimized-cnec-filler-pst.md).  
-> Only one of both features can be activated
-> through [RAO parameters](/parameters/parameters.md#cnecs-that-should-not-be-optimised).
-
 ## Used input data
 
 | Name                   | Symbol                  | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -20,9 +15,9 @@
 
 ## Used parameters
 
-| Name                                                                                                                                   | Details                                                                             |
-|----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [do-not-optimize-curative-cnecs-for-tsos-without-cras](/parameters/parameters.md#do-not-optimize-curative-cnecs-for-tsos-without-cras) | This filler is only used if this parameter is activated, and only for curative RAO. |
+| Name                                                                                                                                  | Details                                                                             |
+|---------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [do-not-optimize-curative-cnecs-for-tsos-without-cras](/parameters.md#do-not-optimize-curative-cnecs-for-tsos-without-cras) | This filler is only used if this parameter is activated, and only for curative RAO. |
 
 ## Defined optimization variables
 

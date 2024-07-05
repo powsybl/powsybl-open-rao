@@ -114,7 +114,7 @@ resulting problems on the network thanks to remedial actions.
 
 ## Create CRAC
 
-The [CRAC](/input-data/crac/introduction.md) is the data object that contains all the key information for the RAO, i.e. the
+The [CRAC](/input-data/crac.md) is the data object that contains all the key information for the RAO, i.e. the
 contingencies to simulate, the CNECs to optimise and the remedial actions to apply. The RAO's Java API allows users to
 manually fill the CRAC with all the required and desired data.
 
@@ -181,7 +181,7 @@ crac.newFlowCnec()
        .withMin(-410d)
        .withMax(+410d)
        .withUnit(Unit.MEGAWATT)
-       .withSide(Side.LEFT)
+       .withSide(TwoSides.ONE)
        .add()
     .add();
 ```
@@ -200,7 +200,7 @@ crac.newFlowCnec()
         .withMin(-1000d)
         .withMax(+1000d)
         .withUnit(Unit.MEGAWATT)
-        .withSide(Side.LEFT)
+        .withSide(TwoSides.ONE)
         .add()
     .add();
 ```
@@ -218,7 +218,7 @@ crac.newFlowCnec()
         .withMin(-410d)
         .withMax(+410d)
         .withUnit(Unit.MEGAWATT)
-        .withSide(Side.LEFT)
+        .withSide(TwoSides.ONE)
         .add()
     .add();
 ```
@@ -276,7 +276,7 @@ crac.newNetworkAction()
 
 ## RAO Parameters
 
-Next, define the parameters to run the RAO using the [RaoParameters](/parameters/parameters.md) object
+Next, define the parameters to run the RAO using the [RaoParameters](./parameters.md) object
 
 ```java
 RaoParameters raoParameters = new RaoParameters();
@@ -306,7 +306,7 @@ raoParameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOp
 
 ## Run the RAO
 
- Run the RAO using the following code to produce a [`RaoResult`](/output-data/rao-result/rao-result-json.md) object:
+ Run the RAO using the following code to produce a [`RaoResult`](/output-data/rao-result.md) object:
 
  ```java
  RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
@@ -446,7 +446,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -491,7 +491,7 @@ public class Main {
             .withMin(-410d)
             .withMax(+410d)
             .withUnit(Unit.MEGAWATT)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .add()
             .add();
 
@@ -505,7 +505,7 @@ public class Main {
             .withMin(-1000d)
             .withMax(+1000d)
             .withUnit(Unit.MEGAWATT)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .add()
             .add();
 
@@ -519,7 +519,7 @@ public class Main {
             .withMin(-410d)
             .withMax(+410d)
             .withUnit(Unit.MEGAWATT)
-            .withSide(Side.LEFT)
+            .withSide(TwoSides.ONE)
             .add()
             .add();
 

@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -129,7 +129,7 @@ public final class RaoLogger {
             double cnecMargin = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, unit) : flowResult.getMargin(cnec, unit);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            Side mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
+            TwoSides mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
             summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
@@ -144,17 +144,17 @@ public final class RaoLogger {
         return summary;
     }
 
-    private static Side getMostConstrainedSide(FlowCnec cnec,
-                                               FlowResult flowResult,
-                                               ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
+    private static TwoSides getMostConstrainedSide(FlowCnec cnec,
+                                                   FlowResult flowResult,
+                                                   ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
         if (cnec.getMonitoredSides().size() == 1) {
             return cnec.getMonitoredSides().iterator().next();
         }
         Unit unit = objectiveFunction.getUnit();
         boolean relativePositiveMargins = objectiveFunction.relativePositiveMargins();
-        double marginLeft = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, Side.LEFT, unit) : flowResult.getMargin(cnec, Side.LEFT, unit);
-        double marginRight = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, Side.RIGHT, unit) : flowResult.getMargin(cnec, Side.RIGHT, unit);
-        return marginRight < marginLeft ? Side.RIGHT : Side.LEFT;
+        double marginLeft = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, TwoSides.ONE, unit) : flowResult.getMargin(cnec, TwoSides.ONE, unit);
+        double marginRight = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, TwoSides.TWO, unit) : flowResult.getMargin(cnec, TwoSides.TWO, unit);
+        return marginRight < marginLeft ? TwoSides.TWO : TwoSides.ONE;
     }
 
     public static void logMostLimitingElementsResults(OpenRaoLogger logger,

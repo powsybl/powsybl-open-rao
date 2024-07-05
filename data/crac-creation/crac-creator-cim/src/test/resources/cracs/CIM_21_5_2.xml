@@ -96,7 +96,7 @@
             <mRID>Open-Rao-Mr-1</mRID>
             <name>ERGBS - ZEGDQ</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_dad02278-bd25-476f-8f58-dbe44be72586 + _ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
+              <mRID codingScheme="A02">_ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
               <name>ERGBS - ZEGDQ</name>
               <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>

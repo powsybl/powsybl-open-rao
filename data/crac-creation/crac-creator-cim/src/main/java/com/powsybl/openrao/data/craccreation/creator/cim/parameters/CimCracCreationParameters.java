@@ -7,7 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.cim.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.AbstractAlignedRaCracCreationParameters;
+import com.powsybl.openrao.data.cracapi.parameters.AbstractAlignedRaCracCreationParameters;
 
 import java.util.*;
 

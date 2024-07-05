@@ -97,11 +97,11 @@ The name of the CNEC as defined in the native CRAC file.
   - **Z11**: absolute zonal PTDF sum
   - **Z12**: flow margin in regard to the PATL 
   - **Z13**: objective function value for this CNEC in regard to the PATL  
-    This value is equal to Z12 unless RAO is run with [relative positive margins](/parameters/parameters.md#type), 
+    This value is equal to Z12 unless RAO is run with [relative positive margins](/parameters.md#type), 
     in which case it will be equal to Z12 / Z11 when Z12 is positive.
   - **Z14**: flow margin in regard to the TATL 
   - **Z15**: objective function value for this CNEC in regard to the TATL  
-    This value is equal to Z14 unless RAO is run with [relative positive margins](/parameters/parameters.md#type), 
+    This value is equal to Z14 unless RAO is run with [relative positive margins](/parameters.md#type), 
     in which case it will be equal to Z14 / Z11 when Z14 is positive.
   - **Z16**: loop-flow
   - **Z17**: loop-flow threshold (input data)

@@ -334,7 +334,7 @@ crac.newFlowCnec()
     .withOptimized(true)
     .newThreshold()
       .withUnit(Unit.MEGAWATT)
-      .withSide(Side.LEFT)
+      .withSide(TwoSides.ONE)
       .withMin(-1500.)
       .withMax(1500.)
       .add()
@@ -350,20 +350,20 @@ crac.newFlowCnec()
     .withBorder("border")
     .newThreshold()
       .withUnit(Unit.PERCENT_IMAX)
-      .withSide(Side.RIGHT)
+      .withSide(TwoSides.TWO)
       .withMax(0.95)
       .add()
     .newThreshold()
       .withUnit(Unit.AMPERE)
-      .withSide(Side.LEFT)
+      .withSide(TwoSides.ONE)
       .withMin(-450.)
       .add()
     .withReliabilityMargin(50.)
     .withOptimized(true)
     .withMonitored(false)
-    .withNominalVoltage(380., Side.LEFT)
-    .withNominalVoltage(220., Side.RIGHT)
-    .withIMax(500.) // this means that the value is the same on both sides, but the side could have been specified using "withImax(500., Side.RIGHT)" instead 
+    .withNominalVoltage(380., TwoSides.ONE)
+    .withNominalVoltage(220., TwoSides.TWO)
+    .withIMax(500.) // this means that the value is the same on both sides, but the side could have been specified using "withImax(500., TwoSides.TWO)" instead 
     .add();
 ~~~
 :::
@@ -383,7 +383,7 @@ crac.newFlowCnec()
     "unit" : "megawatt",
     "min" : -1500.0,
     "max" : 1500.0,
-    "side" : "left"
+    "side" : 1
   } ]
 },  {
   "id" : "curative-cnec-with-two-thresholds-id",
@@ -401,11 +401,11 @@ crac.newFlowCnec()
   "thresholds" : [ {
     "unit" : "ampere",
     "min" : -450.0,
-    "side" : "left"
+    "side" : 1
   }, {
     "unit" : "percent_imax",
     "max" : 0.95,
-    "side" : "right"
+    "side" : 2
   } ]
 } ]
 ~~~
@@ -434,7 +434,7 @@ crac.newFlowCnec()
 ::::
 
 #### Loop-flow extension
-When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters/parameters.md#loop-flow-extension)),
+When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters.md#loop-flow-extension)),
 its loop-flow is monitored by the RAO, that will keep it [under its threshold](/castor/special-features/loop-flows.md)
 when optimising remedial actions.  
 The loop-flow extension defines the loop-flow threshold to be respected by the RAO (even though the initial loop-flow
@@ -501,7 +501,7 @@ An AngleCnec has the following specificities:
 
 > 💡  **NOTE**
 > AngleCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [AngleMonitoring](/castor/angle-monitoring/angle-monitoring.md) module.
+> [AngleMonitoring](/castor/monitoring/angle-monitoring.md) module.
 
 #### Creating an AngleCnec
 In OpenRAO, AngleCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
@@ -610,7 +610,7 @@ A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has
 
 > 💡  **NOTE**
 > VoltageCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [VoltageMonitoring](/castor/voltage-monitoring/voltage-monitoring.md) module.
+> [VoltageMonitoring](/castor/monitoring/voltage-monitoring.md) module.
 
 #### Creating a VoltageCnec
 In OpenRAO, VoltageCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
@@ -728,13 +728,8 @@ OpenRAO has the following usage rules with their activation conditions:
   and an optional [contingency](#contingencies): the usage method is activated if any FlowCnec in the given country is
   constrained (ie has a flow greater than one of its thresholds) at the given instant. If a contingency is defined, then 
   only constraints on FlowCnecs with the same contingency count.  
-- the **OnFlowConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [FlowCnec](#flow-cnecs)):
-  the usage method is activated if the given FlowCnec is constrained at the given instant.
-- the **OnAngleConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [AngleCnec](#angle-cnecs)):
-  the usage method is activated if the given AngleCnec is constrained at the given instant.
-- the **OnVoltageConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [VoltageCnec](#voltage-cnecs)):
-  the usage method is activated if the given VoltageCnec is constrained at the given instant.
-
+- the **OnConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [Cnec](#cnecs)):
+  the usage method is activated if the given Cnec is constrained at the given instant.
 
 A remedial action has an operator, which is the name of the TSO which operates the remedial action.
 
@@ -757,9 +752,9 @@ crac.newNetworkAction()
         .add();
 
 crac.newNetworkAction()
-    .newOnFlowConstraintUsageRule()
+    .newOnConstraintUsageRule()
         .withInstant("auto")
-        .withFlowCnec("flow-cnec-id")
+        .withCnec("flow-cnec-id")
         .add();
 
 crac.newNetworkAction()
@@ -770,46 +765,44 @@ crac.newNetworkAction()
         .add();
 
 crac.newNetworkAction()
-    .newOnAngleConstraintUsageRule()
+    .newOnConstraintUsageRule()
         .withInstant("curative")
-        .withAngleCnec("angle-cnec-id")
+        .withCnec("angle-cnec-id")
         .add();
 
 crac.newNetworkAction()
-    .newOnVoltageConstraintUsageRule()
+    .newOnConstraintUsageRule()
         .withInstant("curative")
-        .withVoltageCnec("voltage-cnec-id")
+        .withCnec("voltage-cnec-id")
         .add();
 ~~~
 :::
 :::{group-tab} JSON file
 Complete examples of Network and Range Action in Json format are given in the following paragraphs
 ~~~json
-"freeToUseUsageRules" : [ {
+"onInstantUsageRules" : [ {
   "instant" : "preventive",
   "usageMethod" : "available"
 } ],
-"onStateUsageRules" : [ {
+"onContingencyStateUsageRules" : [ {
   "instant" : "curative",
   "contingencyId" : "contingency-id",
   "usageMethod" : "available"
 } ],
-"onFlowConstraintUsageRules" : [ {
+"onConstraintUsageRules" : [ {
     "instant" : "auto",
     "flowCnecId" : "flow-cnec-id"
+}, {
+    "instant" : "curative",
+    "angleCnecId" : "angle-cnec-id"
+}, {
+    "instant" : "curative",
+    "voltageCnecId" : "voltage-cnec-id"
 } ],
 "onFlowConstraintInCountryUsageRules" : [ {
     "instant" : "preventive",
     "contingencyId" : "contingency-id",
     "country" : "FR"
-} ],
-"onAngleConstraintUsageRules" : [ {
-    "instant" : "curative",
-    "angleCnecId" : "angle-cnec-id"
-} ],
-"onVoltageConstraintUsageRules" : [ {
-    "instant" : "curative",
-    "voltageCnecId" : "voltage-cnec-id"
 } ]
 ~~~
 :::
@@ -825,15 +818,9 @@ Complete examples of Network and Range Action in Json format are given in the fo
 🔴 **instant**  
 🔵 **contingency**: must be the id of a contingency that exists in the CRAC  
 🔴 **country**: must be the [alpha-2 code of a country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java)  
-<ins>**For OnFlowConstraint usage rules**</ins>  
+<ins>**For OnConstraint usage rules**</ins>  
 🔴 **instant**  
-🔴 **flowCnecId**: must be the id of a [FlowCnec](#flow-cnecs) that exists in the CRAC  
-<ins>**For OnAngleConstraint usage rules**</ins>  
-🔴 **instant**  
-🔴 **angleCnecId**: must be the id of an [AngleCnec](#angle-cnecs) that exists in the CRAC  
-<ins>**For OnVoltageConstraint usage rules**</ins>  
-🔴 **instant**  
-🔴 **voltageCnecId**: must be the id of an [VoltageCnec](#voltage-cnecs) that exists in the CRAC  
+🔴 **cnecId**: must be the id of a [Cnec](#cnecs) that exists in the CRAC  
 <ins>**Usage methods**</ins>  
 OpenRAO handles three different types of usage methods sorted by priority:
 1- **UNAVAILABLE**: the remedial action can not be considered by the RAO.
@@ -927,7 +914,7 @@ crac.newNetworkAction()
     "id" : "topological-na-id",
     "name" : "topological-na-name",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -942,7 +929,7 @@ crac.newNetworkAction()
     "id" : "pst-setpoint-na-id",
     "name" : "pst-setpoint-na-name",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -954,11 +941,11 @@ crac.newNetworkAction()
     "id" : "injection-setpoint-na-id",
     "name" : "injection-setpoint-na-id",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
-    "onStateUsageRules" : [ {
+    "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency-id",
       "usageMethod" : "available"
@@ -972,7 +959,7 @@ crac.newNetworkAction()
     "id" : "switch-pair-na-id",
     "name" : "switch-pair-na-id",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -990,8 +977,7 @@ crac.newNetworkAction()
 ⚪ **freeToUse usage rules**: list of 0 to N FreeToUse usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onState usage rules**: list of 0 to N OnState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onAngleConstraint usage rules**: list of 0 to N OnAngleConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 🔵 **topological actions**: list of 0 to N TopologicalAction  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **action type**  
@@ -1037,7 +1023,7 @@ TapRanges can be of different types:
 The final validity range of the PstRangeAction is the intersection of its TapRanges, with the intersection of the min/max feasible taps of the PST.  
 The PstRangeAction also requires additional data, notably to be able to interpret the TapRanges. Those additional data are: the initial tap of the PST, and a conversion map which gives for each feasible tap of the PST its corresponding angle. Utility methods have been developed in OpenRAO to ease the management of these additional data during the creation of a PstRangeAction.
 
-Two or more [aligned PST range actions](introduction.md#range-action) must have the same (random) group ID defined. The RAO will
+Two or more [aligned PST range actions](#range-actions) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
 
 If the PstRangeAction is an automaton, it has to have a speed assigned. This is an integer that defines the relative
@@ -1124,8 +1110,7 @@ group ID you like, as long as you use the same for all the range actions you wan
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onAngleConstraint usage rules**: list of 0 to N OnAngleConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 :::
 ::::
 
@@ -1136,7 +1121,7 @@ The HvdcRangeAction will be able to modify its active power set-point.
 The domain in which the HvdcRangeAction can modify the HvdcSetpoint is delimited by 'HvdcRanges'.
 An HvdcRangeAction contains a list of HvdcRanges. A range must be defined with a min and a max.
 
-Two or more [aligned HVDC range actions](introduction.md#range-action) must have the same (random) group ID defined. The RAO will
+Two or more [aligned HVDC range actions](#range-actions) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
 
 If the HvdcRangeAction is an automaton, it has to have a speed assigned. This is an integer that defines the relative
@@ -1163,7 +1148,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
     "id" : "hvdc-range-action-id",
     "name" : "hvdc-range-action-name",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -1187,7 +1172,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 :::
 ::::
 
@@ -1201,7 +1186,7 @@ replaced by two injections, one on each side of the line, with opposite keys of 
 
 ![HVDC AC model](/_static/img/HVDC_AC_model.png){.forced-white-background}
 
-Two or more [aligned injection range actions](introduction.md#range-action) must have the same (random) group ID defined. The RAO will
+Two or more [aligned injection range actions](#range-actions) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
 
 If the InjectionRangeAction is an automaton, it has to have a speed assigned. This is an integer that defines the relative
@@ -1256,7 +1241,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see paragraph on usage rules)  
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
 :::
 ::::
 
@@ -1320,9 +1305,7 @@ exported from France to Spain.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
-⚪ **onFlowConstraint usage rules**: list of 0 to N OnFlowConstraint usage rules (see paragraph on usage rules)  
-⚪ **onAngleConstraint usage rules**: list of 0 to N OnAngleConstraint usage rules (see paragraph on usage rules)  
-⚪ **onVoltageConstraint usage rules**: list of 0 to N OnVoltageConstraint usage rules (see paragraph on usage rules)  
+⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
 :::
 ::::
 

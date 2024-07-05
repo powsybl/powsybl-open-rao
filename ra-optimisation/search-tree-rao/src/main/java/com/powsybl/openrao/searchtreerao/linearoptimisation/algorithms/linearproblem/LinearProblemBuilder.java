@@ -59,8 +59,7 @@ public class LinearProblemBuilder {
 
         // unoptimized CNECs for TSOs without curative RA
         if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())) {
-            if (!Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize()) && inputs.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter
-                || !Objects.isNull(parameters.getUnoptimizedCnecParameters().getDoNotOptimizeCnecsSecuredByTheirPst())) {
+            if (!Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize()) && inputs.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
                 this.withProblemFiller(buildUnoptimizedCnecFiller());
             }
         }
@@ -117,7 +116,8 @@ public class LinearProblemBuilder {
             inputs.getRaActivationFromParentLeaf(),
             parameters.getRangeActionParameters(),
             parameters.getObjectiveFunctionUnit(),
-            parameters.getRaRangeShrinking()
+            parameters.getRaRangeShrinking(),
+            parameters.getRangeActionParameters().getPstModel()
         );
     }
 
@@ -156,18 +156,16 @@ public class LinearProblemBuilder {
 
     private ProblemFiller buildUnoptimizedCnecFiller() {
         return new UnoptimizedCnecFiller(
-                inputs.getOptimizationPerimeter(),
                 inputs.getOptimizationPerimeter().getFlowCnecs(),
                 inputs.getPrePerimeterFlowResult(),
-                parameters.getUnoptimizedCnecParameters(),
-                parameters.getRangeActionParameters()
+                parameters.getUnoptimizedCnecParameters()
         );
     }
 
     private ProblemFiller buildIntegerPstTapFiller(Map<State, Set<PstRangeAction>> pstRangeActions) {
         return new DiscretePstTapFiller(
             inputs.getNetwork(),
-            inputs.getOptimizationPerimeter().getMainOptimizationState(),
+            inputs.getOptimizationPerimeter(),
             pstRangeActions,
             inputs.getPrePerimeterSetpoints()
         );

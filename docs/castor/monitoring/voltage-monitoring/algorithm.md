@@ -14,7 +14,7 @@ Here is a detailed description of how the voltage monitoring algorithm operates:
     - If it diverges, return a VoltageMonitoringResult with the following content for this state, then move on to the next state:
       - the voltages of the VoltageCnecs equal to NaN
       - no applied remedial actions
-      - security status UNKNOWN
+      - security status FAILURE
   - Compute the voltages for all VoltageCnecs (computeVoltages method)
   - Compare the voltages to their thresholds. For the VoltageCnecs that have a voltage overshoot, get the associated remedial actions (with
     an OnVoltageConstraint usage rule containing the VoltageCnec and the state's instant)
@@ -32,6 +32,6 @@ Here is a detailed description of how the voltage monitoring algorithm operates:
   - Create a state-specific voltage monitoring result with voltages, list of applied remedial actions , and secure flag set to SECURE if there is
     no more overshoot (after re-verifying thresholds)
   - Move on to next state (Go to (A)).
-- Assemble all the state-specific results in one overall result, and [update the RAO result object](#the-voltage-monitoring-result)
+- Assemble all the state-specific results in one overall result, and [update the RAO result object](/castor/monitoring/voltage-monitoring.md#the-voltage-monitoring-result)
   
 ![Voltage monitoring algorithm](/_static/img/voltage_monitoring_algorithm.png){.forced-white-background}

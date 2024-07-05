@@ -23,7 +23,7 @@ import com.powsybl.openrao.data.craccreation.creator.cse.*;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.*;
 import com.powsybl.openrao.data.craccreation.creator.cse.parameters.BusBarChangeSwitches;
 import com.powsybl.openrao.data.craccreation.creator.cse.parameters.CseCracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.RangeActionGroup;
+import com.powsybl.openrao.data.cracapi.parameters.RangeActionGroup;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.craccreation.util.ucte.UctePstHelper;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteTopologicalElementHelper;
@@ -387,10 +387,10 @@ public class TRemedialActionAdder {
             for (String flowCnecId : remedialActionsForCnecsMap.get(tRemedialAction.getName().getV())) {
                 // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
                 if (!crac.getFlowCnec(flowCnecId).getState().getInstant().comesBefore(raApplicationInstant)) {
-                    remedialActionAdder.newOnFlowConstraintUsageRule()
+                    remedialActionAdder.newOnConstraintUsageRule()
                         .withInstant(raApplicationInstant.getId())
                         .withUsageMethod(UsageMethod.AVAILABLE)
-                        .withFlowCnec(flowCnecId)
+                        .withCnec(flowCnecId)
                         .add();
                 }
             }

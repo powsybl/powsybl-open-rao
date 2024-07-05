@@ -76,7 +76,7 @@
             <mRID>TUU_MR_31</mRID>
             <name>TUU_MR_31_GHIOL_QSDFGH_1_220</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_dad02278-bd25-476f-8f58-dbe44be72586 + _ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
+              <mRID codingScheme="A02">_ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
               <name>GHIOL_QSDFGH_1_220</name>
               <in_Domain.mRID codingScheme="A01">10YES-REE------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
@@ -107,7 +107,7 @@
           <mRID>RA-Series-2</mRID>
           <businessType>B56</businessType>
           <name>RA_SERIES_2</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <Contingency_Series>
             <mRID>Co-one-2</mRID>
             <name>OIUYTR-LKJHGOI-1 400 kV</name>
@@ -132,7 +132,7 @@
             <mRID>TUU_MR_31</mRID>
             <name>TUU_MR_31_GHIOL_QSDFGH_1_220</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_dad02278-bd25-476f-8f58-dbe44be72586 + _ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
+              <mRID codingScheme="A02">_ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
               <name>GHIOL_QSDFGH_1_220</name>
               <in_Domain.mRID codingScheme="A01">10YES-REE------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
@@ -179,7 +179,7 @@
           <mRID>RA-Series-2-bis</mRID>
           <businessType>B56</businessType>
           <name>RA_SERIES_2</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <Contingency_Series>
             <mRID>Co-one-3</mRID>
             <name>AZERTY-LKJHG-1 400 kV</name>
@@ -204,7 +204,7 @@
             <mRID>TUU_MR_31</mRID>
             <name>TUU_MR_31_GHIOL_QSDFGH_1_220</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_dad02278-bd25-476f-8f58-dbe44be72586 + _ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
+              <mRID codingScheme="A02">_ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
               <name>GHIOL_QSDFGH_1_220</name>
               <in_Domain.mRID codingScheme="A01">10YES-REE------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>

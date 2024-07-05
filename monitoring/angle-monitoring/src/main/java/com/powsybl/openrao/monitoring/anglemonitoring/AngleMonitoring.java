@@ -26,7 +26,7 @@ import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnAngleConstraint;
+import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
@@ -272,9 +272,9 @@ public class AngleMonitoring {
         Set<RemedialAction<?>> availableRemedialActions =
             crac.getRemedialActions().stream()
                 .filter(remedialAction ->
-                    remedialAction.getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
-                        .map(OnAngleConstraint.class::cast)
-                        .anyMatch(onAngleConstraint -> onAngleConstraint.getAngleCnec().equals(angleCnec)))
+                    remedialAction.getUsageRules().stream().filter(OnConstraint.class::isInstance)
+                        .map(OnConstraint.class::cast)
+                        .anyMatch(onAngleConstraint -> onAngleConstraint.getCnec().equals(angleCnec)))
                 .collect(Collectors.toSet());
         if (availableRemedialActions.isEmpty()) {
             BUSINESS_WARNS.warn("AngleCnec {} in state {} has no associated RA. Angle constraint cannot be secured.", angleCnec.getId(), state.getId());

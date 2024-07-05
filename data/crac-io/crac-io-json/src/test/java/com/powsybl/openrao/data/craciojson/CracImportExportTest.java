@@ -6,17 +6,17 @@
  */
 package com.powsybl.openrao.data.craciojson;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.NetworkElement;
-import com.powsybl.openrao.data.cracapi.RaUsageLimits;
+import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
 import com.powsybl.openrao.data.cracapi.range.TapRange;
@@ -25,8 +25,11 @@ import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,23 +46,60 @@ import static org.junit.jupiter.api.Assertions.*;
 class CracImportExportTest {
 
     @Test
-    void roundTripTest() {
+    void testExists() {
+        assertTrue(new JsonImport().exists("cracHeader.json", getClass().getResourceAsStream("/cracHeader.json")));
+        assertFalse(new JsonImport().exists("cracHeader.jjson", getClass().getResourceAsStream("/cracHeader.json")));
+        assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.json")));
+        assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.txt")));
+    }
+
+    @Test
+    void testNonNullOffsetDateTime() {
+        Network network = NetworkImportsUtil.createNetworkWithLines("ne1Id", "ne2Id", "ne3Id");
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), network, Mockito.mock(OffsetDateTime.class));
+        assertTrue(context.isCreationSuccessful());
+        assertEquals(List.of("[WARN] OffsetDateTime was ignored by the JSON CRAC importer"), context.getCreationReport().getReport());
+        assertNull(context.getTimeStamp());
+        assertEquals("test", context.getNetworkName());
+    }
+
+    @Test
+    void testImportFailure() {
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), Mockito.mock(Network.class), Mockito.mock(OffsetDateTime.class));
+        assertNotNull(context);
+        assertFalse(context.isCreationSuccessful());
+        assertNull(context.getCrac());
+        assertEquals(List.of("[ERROR] In Contingency, network element with id ne1Id does not exist in network null, so it does not have type information and can not be converted to a contingency element."), context.getCreationReport().getReport());
+    }
+
+    @Test
+    void explicitJsonRoundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
+        Crac importedCrac = RoundTripUtil.explicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+        checkContent(importedCrac);
+    }
+
+    @Test
+    void implicitJsonRoundTripTest() {
+        Crac crac = ExhaustiveCracCreation.create();
+        Crac importedCrac = RoundTripUtil.implicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+        checkContent(importedCrac);
+    }
+
+    private void checkContent(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
         Instant curativeInstant = crac.getInstant("curative");
 
-        Crac importedCrac = RoundTripUtil.roundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
-
         // check overall content
-        assertNotNull(importedCrac);
-        assertEquals(5, importedCrac.getStates().size());
-        assertEquals(2, importedCrac.getContingencies().size());
-        assertEquals(7, importedCrac.getFlowCnecs().size());
-        assertEquals(1, importedCrac.getAngleCnecs().size());
-        assertEquals(1, importedCrac.getVoltageCnecs().size());
-        assertEquals(9, importedCrac.getRangeActions().size());
-        assertEquals(4, importedCrac.getNetworkActions().size());
+        assertNotNull(crac);
+        assertEquals(5, crac.getStates().size());
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(9, crac.getRangeActions().size());
+        assertEquals(4, crac.getNetworkActions().size());
 
         // --------------------------
         // --- test Ra Usage Limits ---
@@ -128,20 +168,20 @@ class CracImportExportTest {
         assertEquals("operator4", crac.getFlowCnec("cnec4prevId").getOperator());
 
         // check iMax and nominal voltage
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(Side.LEFT), 1e-3);
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(Side.RIGHT), 1e-3);
-        assertEquals(380., crac.getFlowCnec("cnec2prevId").getNominalVoltage(Side.LEFT), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec2prevId").getNominalVoltage(Side.RIGHT), 1e-3);
-        assertEquals(Double.NaN, crac.getFlowCnec("cnec1prevId").getIMax(Side.LEFT), 1e-3);
-        assertEquals(1000., crac.getFlowCnec("cnec1prevId").getIMax(Side.RIGHT), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(Side.LEFT), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(Side.RIGHT), 1e-3);
+        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE), 1e-3);
+        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO), 1e-3);
+        assertEquals(380., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
+        assertEquals(220., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
+        assertEquals(Double.NaN, crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE), 1e-3);
+        assertEquals(1000., crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO), 1e-3);
+        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
+        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 
         // check threshold
         assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
         BranchThreshold threshold = crac.getFlowCnec("cnec4prevId").getThresholds().iterator().next();
         assertEquals(Unit.MEGAWATT, threshold.getUnit());
-        assertEquals(Side.LEFT, threshold.getSide());
+        assertEquals(TwoSides.ONE, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
         assertEquals(500., threshold.max().orElse(0.0), 1e-3);
         assertEquals(4, crac.getFlowCnec("cnec2prevId").getThresholds().size());
@@ -206,9 +246,9 @@ class CracImportExportTest {
 
         // check onContingencyState usage Rule (curative)
         OnContingencyState onContingencyState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
-                .filter(ur -> ur instanceof OnContingencyState)
-                .map(ur -> (OnContingencyState) ur)
-                .findAny().orElse(null);
+            .filter(ur -> ur instanceof OnContingencyState)
+            .map(ur -> (OnContingencyState) ur)
+            .findAny().orElse(null);
         assertNotNull(onContingencyState);
         assertEquals("contingency1Id", onContingencyState.getContingency().getId());
         assertEquals(curativeInstant, onContingencyState.getInstant());
@@ -229,9 +269,10 @@ class CracImportExportTest {
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());
         UsageRule injectionSetpointRaUsageRule = crac.getNetworkAction("injectionSetpointRaId").getUsageRules().iterator().next();
 
-        assertTrue(injectionSetpointRaUsageRule instanceof OnFlowConstraint);
-        OnFlowConstraint onFlowConstraint1 = (OnFlowConstraint) injectionSetpointRaUsageRule;
-        assertEquals("cnec3autoId", onFlowConstraint1.getFlowCnec().getId());
+        assertTrue(injectionSetpointRaUsageRule instanceof OnConstraint<?>);
+        OnConstraint<?> onFlowConstraint1 = (OnConstraint<?>) injectionSetpointRaUsageRule;
+        assertEquals("cnec3autoId", onFlowConstraint1.getCnec().getId());
+        assertTrue(onFlowConstraint1.getCnec() instanceof FlowCnec);
         assertEquals(autoInstant, onFlowConstraint1.getInstant());
         assertEquals(FORCED, onFlowConstraint1.getUsageMethod());
 
@@ -271,11 +312,11 @@ class CracImportExportTest {
         assertEquals(2, crac.getPstRangeAction("pstRange1Id").getRanges().size());
 
         TapRange absRange = crac.getPstRangeAction("pstRange1Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+            .findAny().orElse(null);
         TapRange relRange = crac.getPstRangeAction("pstRange1Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
+            .findAny().orElse(null);
 
         assertNotNull(absRange);
         assertEquals(1, absRange.getMinTap());
@@ -289,24 +330,25 @@ class CracImportExportTest {
         assertEquals(1, crac.getPstRangeAction("pstRange2Id").getUsageRules().size());
         UsageRule pstRange2UsageRule = crac.getPstRangeAction("pstRange2Id").getUsageRules().iterator().next();
 
-        assertTrue(pstRange2UsageRule instanceof OnFlowConstraint);
-        OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) pstRange2UsageRule;
+        assertTrue(pstRange2UsageRule instanceof OnConstraint<?>);
+        OnConstraint<?> onFlowConstraint2 = (OnConstraint<?>) pstRange2UsageRule;
         assertEquals(preventiveInstant, onFlowConstraint2.getInstant());
-        assertSame(crac.getCnec("cnec3prevId"), onFlowConstraint2.getFlowCnec());
+        assertSame(crac.getCnec("cnec3prevId"), onFlowConstraint2.getCnec());
+        assertTrue(onFlowConstraint2.getCnec() instanceof FlowCnec);
         assertEquals(AVAILABLE, onFlowConstraint2.getUsageMethod());
 
         // check Tap Range
         assertEquals(3, crac.getPstRangeAction("pstRange2Id").getRanges().size());
 
         absRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+            .findAny().orElse(null);
         relRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
+            .findAny().orElse(null);
         TapRange relTimestampRange = crac.getPstRangeAction("pstRange2Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
+            .findAny().orElse(null);
 
         assertNotNull(absRange);
         assertEquals(-4, absRange.getMinTap());
@@ -324,27 +366,29 @@ class CracImportExportTest {
         assertEquals(1, crac.getPstRangeAction("pstRange3Id").getUsageRules().size());
         UsageRule pstRange3UsageRule = crac.getPstRangeAction("pstRange3Id").getUsageRules().iterator().next();
 
-        assertTrue(pstRange3UsageRule instanceof OnAngleConstraint);
-        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) pstRange3UsageRule;
-        assertEquals(curativeInstant, onAngleConstraint.getInstant());
-        assertSame(crac.getCnec("angleCnecId"), onAngleConstraint.getAngleCnec());
-        assertEquals(AVAILABLE, onAngleConstraint.getUsageMethod());
+        assertTrue(pstRange3UsageRule instanceof OnConstraint<?>);
+        OnConstraint<?> onConstraint = (OnConstraint<?>) pstRange3UsageRule;
+        assertEquals(curativeInstant, onConstraint.getInstant());
+        assertSame(crac.getCnec("angleCnecId"), onConstraint.getCnec());
+        assertTrue(onConstraint.getCnec() instanceof AngleCnec);
+        assertEquals(AVAILABLE, onConstraint.getUsageMethod());
 
         // check OnVoltageConstraint usage rule
         Set<UsageRule> pstRange4IdUsageRules = crac.getPstRangeAction("pstRange4Id").getUsageRules();
         assertEquals(1, pstRange4IdUsageRules.size());
         UsageRule pstRange4IdFirstUsageRules = pstRange4IdUsageRules.iterator().next();
-        assertTrue(pstRange4IdFirstUsageRules instanceof OnVoltageConstraint);
-        OnVoltageConstraint onVoltageConstraint = (OnVoltageConstraint) pstRange4IdFirstUsageRules;
+        assertTrue(pstRange4IdFirstUsageRules instanceof OnConstraint<?>);
+        OnConstraint<?> onVoltageConstraint = (OnConstraint<?>) pstRange4IdFirstUsageRules;
         assertEquals(curativeInstant, onVoltageConstraint.getInstant());
-        assertSame(crac.getCnec("voltageCnecId"), onVoltageConstraint.getVoltageCnec());
+        assertSame(crac.getCnec("voltageCnecId"), onVoltageConstraint.getCnec());
+        assertTrue(onVoltageConstraint.getCnec() instanceof VoltageCnec);
         assertEquals(AVAILABLE, onVoltageConstraint.getUsageMethod());
 
         // check Usage Method for pst5
         PstRangeAction pst5 = crac.getPstRangeAction("pstRange5Id");
         assertEquals(2, pst5.getUsageRules().size());
 
-        List<UsageRule> onFlowConstrainRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnFlowConstraint).collect(Collectors.toList());
+        List<UsageRule> onFlowConstrainRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnConstraint<?>).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).toList();
         assertEquals(1, onFlowConstrainRule.size());
         assertEquals(UsageMethod.AVAILABLE, onFlowConstrainRule.get(0).getUsageMethod(crac.getPreventiveState()));
 
@@ -368,10 +412,11 @@ class CracImportExportTest {
 
         // check preventive OnFlowConstraint usage rule
         assertEquals(3, crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().size());
-        OnFlowConstraint onFlowConstraint3 = (OnFlowConstraint) crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).findAny().orElseThrow();
+        OnConstraint<?> onFlowConstraint3 = (OnConstraint<?>) crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().stream().filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).findAny().orElseThrow();
         assertEquals(preventiveInstant, onFlowConstraint3.getInstant());
         assertEquals(AVAILABLE, onFlowConstraint3.getUsageMethod());
-        assertSame(crac.getCnec("cnec3curId"), onFlowConstraint3.getFlowCnec());
+        assertSame(crac.getCnec("cnec3curId"), onFlowConstraint3.getCnec());
+        assertTrue(onFlowConstraint3.getCnec() instanceof FlowCnec);
 
         // check Hvdc range
         assertEquals(1, crac.getHvdcRangeAction("hvdcRange1Id").getRanges().size());
@@ -436,6 +481,5 @@ class CracImportExportTest {
         assertEquals(curativeInstant, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
         assertEquals(AVAILABLE, ur.getUsageMethod());
-
     }
 }
