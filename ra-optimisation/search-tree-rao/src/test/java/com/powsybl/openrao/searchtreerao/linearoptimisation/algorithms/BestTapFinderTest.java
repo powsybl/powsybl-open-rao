@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
+import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer.roundOtherRas;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -126,7 +127,7 @@ class BestTapFinderTest {
     }
 
     private RangeActionActivationResult computeUpdatedRangeActionResult() {
-        return BestTapFinder.round(
+        RangeActionActivationResultImpl roundedResult = BestTapFinder.round(
             rangeActionActivationResult,
             network,
             optimizationPerimeter,
@@ -134,6 +135,8 @@ class BestTapFinderTest {
             linearOptimizationResult,
             Unit.MEGAWATT
         );
+        roundOtherRas(rangeActionActivationResult, optimizationPerimeter, roundedResult);
+        return roundedResult;
     }
 
     private PstRangeAction createPstWithGroupId(String groupId) {
@@ -293,8 +296,8 @@ class BestTapFinderTest {
             activatedRangeActionOtherThanPst, startingSetPoint
         ));
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(activatedRangeActionOtherThanPst, optimizedState, 200.);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
@@ -324,8 +327,8 @@ class BestTapFinderTest {
             activatedRangeActionOtherThanPst, startingSetPoint
         ));
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(activatedRangeActionOtherThanPst, optimizedState, 200.);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
@@ -345,7 +348,7 @@ class BestTapFinderTest {
         setMarginsForTap(pstRangeAction, 1, 120, 150);
         setMarginsForTap(pstRangeAction, 2, 150, 140); // Tap 2 would be ignored even if result is better
 
-        RangeAction activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
+        RangeAction<?> activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
         when(activatedRangeActionOtherThanPst.getId()).thenReturn("notPst");
         NetworkElement networkElementOtherThanPst = Mockito.mock(NetworkElement.class);
         when(networkElementOtherThanPst.getId()).thenReturn("notPstNE");
@@ -356,8 +359,8 @@ class BestTapFinderTest {
             activatedRangeActionOtherThanPst, startingSetPoint
         ));
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(activatedRangeActionOtherThanPst, optimizedState, 200.);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(activatedRangeActionOtherThanPst, optimizedState, 200.);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, activatedRangeActionOtherThanPst)
         ));
@@ -392,9 +395,9 @@ class BestTapFinderTest {
             pstGroup2, startingSetPoint
         ));
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstRangeAction, optimizedState, notRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstGroup1, optimizedState, groupNotRoundedSetpoint);
-        ((RangeActionActivationResultImpl) rangeActionActivationResult).activate(pstGroup2, optimizedState, groupNotRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstRangeAction, optimizedState, notRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstGroup1, optimizedState, groupNotRoundedSetpoint);
+        ((RangeActionActivationResultImpl) rangeActionActivationResult).putResult(pstGroup2, optimizedState, groupNotRoundedSetpoint);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(pstRangeAction, pstGroup1, pstGroup2)
         ));

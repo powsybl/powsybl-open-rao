@@ -45,18 +45,15 @@ public final class BestTapFinder {
      * If virtual costs are an important part of the optimization, it is highly recommended to use APPROXIMATED_INTEGERS
      * taps in the linear optimization, rather than relying on the best tap finder to round the taps.
      *
-     * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
-    public static RangeActionActivationResult round(RangeActionActivationResult linearProblemResult,
+    public static RangeActionActivationResultImpl round(RangeActionActivationResult linearProblemResult,
                                                     Network network,
                                                     OptimizationPerimeter optimizationContext,
                                                     RangeActionSetpointResult prePerimeterSetpoint,
                                                     LinearOptimizationResult linearOptimizationResult,
                                                     Unit unit) {
-
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoint);
         findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit);
-        roundOtherRa(linearProblemResult, optimizationContext, roundedResult);
         return roundedResult;
     }
 
@@ -66,7 +63,6 @@ public final class BestTapFinder {
                                                      LinearOptimizationResult linearOptimizationResult,
                                                      RangeActionActivationResultImpl roundedResult,
                                                      Unit unit) {
-
         for (State state : optimizationContext.getRangeActionOptimizationStates()) {
 
             Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
@@ -82,10 +78,10 @@ public final class BestTapFinder {
                 if (rangeAction instanceof PstRangeAction pstRangeAction && linearProblemResult.getActivatedRangeActions(state).contains(rangeAction)) {
                     Optional<String> optGroupId = pstRangeAction.getGroupId();
                     if (optGroupId.isPresent()) {
-                        roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTapPerPstGroup.get(optGroupId.get())));
+                        roundedResult.putResult(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTapPerPstGroup.get(optGroupId.get())));
                     } else {
                         int bestTap = minMarginPerTap.get(pstRangeAction).entrySet().stream().max(Comparator.comparing(Map.Entry<Integer, Double>::getValue)).orElseThrow().getKey();
-                        roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTap));
+                        roundedResult.putResult(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTap));
                     }
                 }
             }
@@ -247,15 +243,5 @@ public final class BestTapFinder {
             }
         }
         return Pair.of(minMargin1, minMargin2);
-    }
-
-    private static void roundOtherRa(RangeActionActivationResult linearProblemResult,
-                                     OptimizationPerimeter optimizationContext,
-                                     RangeActionActivationResultImpl roundedResult) {
-
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.stream()
-            .filter(ra -> !(ra instanceof PstRangeAction))
-            .filter(ra -> linearProblemResult.getActivatedRangeActions(state).contains(ra))
-            .forEach(ra -> roundedResult.activate(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 }

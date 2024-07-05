@@ -20,6 +20,6 @@ class CracImportTest {
 
     @Test
     void testImportFromInputStream() throws IOException {
-        assertEquals("crac", Crac.read(getClass().getResourceAsStream("/crac.txt"), null).getId());
+        assertEquals("crac", Crac.read("crac.json", getClass().getResourceAsStream("/crac.json"), null).getId());
     }
 }

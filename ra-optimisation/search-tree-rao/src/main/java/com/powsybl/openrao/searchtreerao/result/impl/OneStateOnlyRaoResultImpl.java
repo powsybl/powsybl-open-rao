@@ -115,15 +115,13 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
 
     public PerimeterResult getPerimeterResult(State state) {
         if (!state.equals(optimizedState)) {
-            // TODO : change this when getAppropriateResult will return a PerimeterResult (maybe throw an exception)
-            return null;
+            throw new OpenRaoException(WRONG_STATE);
         }
         return new PerimeterResultImpl(initialResult, postOptimizationResult);
     }
 
     public PerimeterResult getPostPreventivePerimeterResult() {
         if (!optimizedState.getInstant().isPreventive()) {
-            // TODO : review this also
             throw new OpenRaoException(WRONG_STATE);
         }
         return new PerimeterResultImpl(initialResult, postOptimizationResult);

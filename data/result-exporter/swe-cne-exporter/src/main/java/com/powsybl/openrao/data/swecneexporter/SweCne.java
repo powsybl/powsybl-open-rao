@@ -85,7 +85,6 @@ public class SweCne {
         marketDocument.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, sweCneHelper.getExporterParameters().getReceiverId()));
         marketDocument.setReceiverMarketParticipantMarketRoleType(sweCneHelper.getExporterParameters().getReceiverRole().getCode());
         marketDocument.setCreatedDateTime(createXMLGregorianCalendarNow());
-        marketDocument.setTimePeriodTimeInterval(createEsmpDateTimeIntervalForWholeDay(sweCneHelper.getExporterParameters().getTimeInterval()));
         marketDocument.setTimePeriodTimeInterval(SweCneUtil.createEsmpDateTimeInterval(offsetDateTime));
     }
 
