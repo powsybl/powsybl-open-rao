@@ -6,14 +6,21 @@
  */
 package com.powsybl.openrao.data.cracapi;
 
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.cnec.*;
+import com.powsybl.openrao.data.cracapi.io.Exporter;
+import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
+import java.io.*;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -21,7 +28,7 @@ import static java.lang.String.format;
 /**
  * Interface to manage CRAC.
  * CRAC stands for Contingency list, Remedial Actions and additional Constraints
- *
+ * <p>
  * It involves:
  * <ul>
  *     <li>{@link Instant} objects</li>
@@ -87,7 +94,7 @@ public interface Crac extends Identifiable<Crac> {
     Instant getInstant(InstantKind instantKind);
 
     /**
-     * Gather all the instants present in the Crac with the correct instantKind.
+     * Returns all the instants present in the Crac with the correct instantKind.
      */
     SortedSet<Instant> getInstants(InstantKind instantKind);
 
@@ -162,7 +169,7 @@ public interface Crac extends Identifiable<Crac> {
      * Can return null if no matching state or contingency are found.
      *
      * @param contingency: The contingency after which we want to select the state.
-     * @param instant: The instant at which we want to select the state.
+     * @param instant:     The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant.
      */
     State getState(Contingency contingency, Instant instant);
@@ -200,7 +207,7 @@ public interface Crac extends Identifiable<Crac> {
      * Select a unique state after a contingency and at a specific instant, specified by their ids.
      *
      * @param contingencyId: The contingency id after which we want to select the state.
-     * @param instant: The instant at which we want to select the state.
+     * @param instant:       The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant. Can return null if no matching
      * state or contingency are found.
      */
@@ -254,7 +261,7 @@ public interface Crac extends Identifiable<Crac> {
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
     // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     Set<BranchCnec> getBranchCnecs();
 
     /**
@@ -264,7 +271,7 @@ public interface Crac extends Identifiable<Crac> {
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
     // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     Set<BranchCnec> getBranchCnecs(State state);
 
     /**
@@ -273,7 +280,7 @@ public interface Crac extends Identifiable<Crac> {
      * @deprecated consider using getCnec() or getFlowCnec() instead
      */
     // keep the method (might be usefuls when we will have other BranchCnec than FlowCnec)
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     BranchCnec getBranchCnec(String branchCnecId);
 
     /**
@@ -531,4 +538,105 @@ public interface Crac extends Identifiable<Crac> {
      * Get a {@link RaUsageLimitsAdder}, to add a {@link RaUsageLimits} to the crac
      */
     RaUsageLimitsAdder newRaUsageLimits(String instantName);
+
+    /**
+     * Get the CRAC format
+     *
+     * @param filename    CRAC file name
+     * @param inputStream CRAC data
+     * @return the CRAC format (if found)
+     */
+    static String getCracFormat(String filename, InputStream inputStream) throws IOException {
+        byte[] bytes = getBytesFromInputStream(inputStream);
+        return findImporter(filename, bytes).getFormat();
+    }
+
+    /**
+     * Import CRAC from a file, inside a CracCreationContext
+     *
+     * @param filename               CRAC file name
+     * @param inputStream            CRAC data
+     * @param network                the network on which the CRAC data is based
+     * @param cracCreationParameters extra CRAC creation parameters
+     * @return CracCreationContext object
+     */
+    static CracCreationContext readWithContext(String filename, InputStream inputStream, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) throws IOException {
+        byte[] bytes = getBytesFromInputStream(inputStream);
+        return findImporter(filename, bytes).importData(new ByteArrayInputStream(bytes), cracCreationParameters, network, offsetDateTime);
+    }
+
+    private static Importer<?> findImporter(String filename, byte[] bytes) throws IOException {
+        return new ServiceLoaderCache<>(Importer.class).getServices().stream()
+            .filter(importer -> importer.exists(filename, new ByteArrayInputStream(bytes)))
+            .findAny()
+            .orElseThrow(() -> new OpenRaoException("No suitable CRAC importer found."));
+    }
+
+    /**
+     * Import CRAC from a file, inside a CracCreationContext
+     *
+     * @param filename    CRAC file name
+     * @param inputStream CRAC data
+     * @param network     the network on which the CRAC data is based
+     * @return CracCreationContext object
+     */
+    static CracCreationContext readWithContext(String filename, InputStream inputStream, Network network) throws IOException {
+        return readWithContext(filename, inputStream, network, null, CracCreationParameters.load());
+    }
+
+    /**
+     * Import CRAC from a file
+     *
+     * @param filename               CRAC file name
+     * @param inputStream            CRAC data
+     * @param network                the network on which the CRAC data is based
+     * @param cracCreationParameters extra CRAC creation parameters
+     * @return CRAC object
+     */
+    static Crac read(String filename, InputStream inputStream, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) throws IOException {
+        return readWithContext(filename, inputStream, network, offsetDateTime, cracCreationParameters).getCrac();
+    }
+
+    /**
+     * Import CRAC from a file
+     *
+     * @param filename    CRAC file name
+     * @param inputStream CRAC data
+     * @param network     the network on which the CRAC data is based
+     * @return CRAC object
+     */
+    static Crac read(String filename, InputStream inputStream, Network network) throws IOException {
+        return read(filename, inputStream, network, null, CracCreationParameters.load());
+    }
+
+    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        org.apache.commons.io.IOUtils.copy(inputStream, baos);
+        return baos.toByteArray();
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param exporters    candidate CRAC exporters
+     * @param format       desired output CRAC data type
+     * @param outputStream file where to write the CRAC data
+     */
+    private void write(List<Exporter> exporters, String format, OutputStream outputStream) {
+        exporters.stream()
+            .filter(ex -> format.equals(ex.getFormat()))
+            .findAny()
+            .orElseThrow(() -> new OpenRaoException("Export format " + format + " not supported"))
+            .exportData(this, outputStream);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param format       desired output CRAC data type
+     * @param outputStream file where to write the CRAC data
+     */
+    default void write(String format, OutputStream outputStream) {
+        write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, outputStream);
+    }
 }

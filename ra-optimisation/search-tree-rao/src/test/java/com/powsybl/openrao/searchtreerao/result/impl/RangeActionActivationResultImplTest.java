@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
@@ -53,7 +53,7 @@ class RangeActionActivationResultImplTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency("Contingency FR1 FR3")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).withMin(-1500.).withMax(1500.).add()
             .add();
 
         pState = crac.getPreventiveState();
@@ -100,10 +100,10 @@ class RangeActionActivationResultImplTest {
         // pstRangeAction1 is activated in preventive, pstRangeAction3 is activated in curative
 
         RangeActionActivationResultImpl raar = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        raar.activate(pstRangeAction1, pState, 1.1);
+        raar.putResult(pstRangeAction1, pState, 1.1);
 
-        raar.activate(pstRangeAction3, pState, -2.1); // should not be taken into account as activation with same setpoint as reference
-        raar.activate(pstRangeAction3, cState2, -1.1);
+        raar.putResult(pstRangeAction3, pState, -2.1); // should not be taken into account as activation with same setpoint as reference
+        raar.putResult(pstRangeAction3, cState2, -1.1);
 
         // pstRangeAction1
         assertEquals(1.1, raar.getOptimizedSetpoint(pstRangeAction1, pState), DOUBLE_TOLERANCE);
@@ -163,15 +163,15 @@ class RangeActionActivationResultImplTest {
         // pstRangeAction3 is activated in preventive and in both curative states
 
         RangeActionActivationResultImpl raar = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        raar.activate(pstRangeAction1, pState, 3.1);
-        raar.activate(pstRangeAction1, cState2, 3.1); //should not be taken into account as activation with same setpoint as previous instant
+        raar.putResult(pstRangeAction1, pState, 3.1);
+        raar.putResult(pstRangeAction1, cState2, 3.1); //should not be taken into account as activation with same setpoint as previous instant
 
-        raar.activate(pstRangeAction2, cState1, 2.1);
-        raar.activate(pstRangeAction2, cState2, 3.1); //should not be taken into account as activation with same setpoint as previous instant
+        raar.putResult(pstRangeAction2, cState1, 2.1);
+        raar.putResult(pstRangeAction2, cState2, 3.1); //should not be taken into account as activation with same setpoint as previous instant
 
-        raar.activate(pstRangeAction3, pState, 0.0);
-        raar.activate(pstRangeAction3, cState1, -3.1);
-        raar.activate(pstRangeAction3, cState2, -2.1); //come back to initial tap, but diff compared to preventive
+        raar.putResult(pstRangeAction3, pState, 0.0);
+        raar.putResult(pstRangeAction3, cState1, -3.1);
+        raar.putResult(pstRangeAction3, cState2, -2.1); //come back to initial tap, but diff compared to preventive
 
         // pstRangeAction1
         assertEquals(3.1, raar.getOptimizedSetpoint(pstRangeAction1, pState), DOUBLE_TOLERANCE);

@@ -4,17 +4,17 @@
     <DocumentVersion v="1"/>
     <DocumentType v="Z03"/>
     <ProcessType v="Z03"/>
-    <SenderIdentification v="unit_test_sender_identification" codingScheme="A01"/>
+    <SenderIdentification v="senderEIC" codingScheme="A01"/>
     <SenderRole v="A36"/>
-    <ReceiverIdentification v="unit_test_receiver_identification" codingScheme="A01"/>
+    <ReceiverIdentification v="receiverEIC" codingScheme="A01"/>
     <ReceiverRole v="A04"/>
     <CreationDateTime v="2021-04-30T16:00:00Z"/>
-    <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+    <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
     <Domain v="unit_test_domain" codingScheme="A01"/>
     <CRACSeries>
         <CriticalBranches>
             <BaseCaseBranches>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Branch>
                     <Name v="basecase_branch_1"/>
                     <FromNode v="BBE2AA1 "/>
@@ -32,6 +32,19 @@
                     <Direction v="DIRECT"/>
                 </Branch>
             </BaseCaseBranches>
+            <CriticalBranch>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
+                <Outage v="outage_2"/>
+                <Branch>
+                    <Name v="French line 2"/>
+                    <FromNode v="FFRFAK2 "/>
+                    <ToNode v="FFRFAK1 "/>
+                    <Order v="1"/>
+                    <ImaxAfterOutage unit="A" v="3071"/>
+                    <ImaxAfterCRA unit="A" v="2585"/>
+                    <Direction v="DIRECT"/>
+                </Branch>
+            </CriticalBranch>
         </CriticalBranches>
     </CRACSeries>
 </CRACDocument>

@@ -7,23 +7,19 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.cim.CimCrac;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreator;
-import com.powsybl.openrao.data.craccreation.creator.cim.importer.CimCracImporter;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.data.raoresultjson.RaoResultImporter;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
 import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultImporter;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,12 +49,9 @@ class SweCneTest {
     private RaoResultWithAngleMonitoring raoResultFailureWithAngle;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
-        CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
-        CimCracCreator cimCracCreator = new CimCracCreator();
 
         Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2), new RangeActionSpeed("PRA_1", 3));
         CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
@@ -67,7 +60,7 @@ class SweCneTest {
         cracCreationParameters.setCracFactoryName("CracImplFactory");
         cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
 
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
+        cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
         crac = cracCreationContext.getCrac();
         InputStream inputStream = null;
         try {
@@ -75,7 +68,7 @@ class SweCneTest {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+        RaoResult raoResult = RaoResult.read(inputStream, crac);
         InputStream inputStream2 = null;
         try {
             inputStream2 = new FileInputStream(SweCneTest.class.getResource("/AngleMonitoringResult.json").getFile());
@@ -89,7 +82,7 @@ class SweCneTest {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        RaoResult raoResultWithFailure = new RaoResultImporter().importRaoResult(inputStream3, crac);
+        RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
         raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
         raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, angleMonitoringResult);
     }

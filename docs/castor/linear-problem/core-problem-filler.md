@@ -18,20 +18,20 @@
 
 ## Used parameters
 
-| Name                 | Symbol             | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Source                                                                                                                                                                                                                                                                                                                               |
-|----------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| sensitivityThreshold |                    | Set to zero the sensitivities of RangeActions below this threshold; thus avoiding the activation of RangeActions which have too small an impact on the flows (can also be achieved with penaltyCost). This simplifies & speeds up the resolution of the optimization problem (can be necessary when the problem contains integer variables). However, it also adds an approximation in the computation of the flows within the MILP, which can be tricky to handle when the MILP contains hard constraints on loop-flows or monitored FlowCnecs. | Equal to [pst-sensitivity-threshold](/parameters/parameters.md#pst-sensitivity-threshold) for PSTs, [hvdc-sensitivity-threshold](/parameters/parameters.md#hvdc-sensitivity-threshold) for HVDCs, and [injection-ra-sensitivity-threshold](/parameters/parameters.md#injection-ra-sensitivity-threshold) for injection range actions |
-| penaltyCost          | $c^{penalty}_{ra}$ | Supposedly a small penalization, in the use of the RangeActions. When several solutions are equivalent, this favours the one with the least change in the RangeActions' setpoints (compared to the initial situation). It also avoids the activation of RangeActions which have to small an impact on the objective function.                                                                                                                                                                                                                    | Equal to [pst-penalty-cost](/parameters/parameters.md#pst-penalty-cost) for PSTs, [hvdc-penalty-cost](/parameters/parameters.md#hvdc-penalty-cost) for HVDCs, and [injection-ra-penalty-cost](/parameters/parameters.md#injection-ra-penalty-cost) for injection range actions                                                       |
+| Name                 | Symbol             | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Source                                                                                                                                                                                                                                                                                                                           |
+|----------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| sensitivityThreshold |                    | Set to zero the sensitivities of RangeActions below this threshold; thus avoiding the activation of RangeActions which have too small an impact on the flows (can also be achieved with penaltyCost). This simplifies & speeds up the resolution of the optimization problem (can be necessary when the problem contains integer variables). However, it also adds an approximation in the computation of the flows within the MILP, which can be tricky to handle when the MILP contains hard constraints on loop-flows or monitored FlowCnecs. | Equal to [pst-sensitivity-threshold](/parameters.md#pst-sensitivity-threshold) for PSTs, [hvdc-sensitivity-threshold](/parameters.md#hvdc-sensitivity-threshold) for HVDCs, and [injection-ra-sensitivity-threshold](/parameters.md#injection-ra-sensitivity-threshold) for injection range actions |
+| penaltyCost          | $c^{penalty}_{ra}$ | Supposedly a small penalization, in the use of the RangeActions. When several solutions are equivalent, this favours the one with the least change in the RangeActions' setpoints (compared to the initial situation). It also avoids the activation of RangeActions which have to small an impact on the objective function.                                                                                                                                                                                                                    | Equal to [pst-penalty-cost](/parameters.md#pst-penalty-cost) for PSTs, [hvdc-penalty-cost](/parameters.md#hvdc-penalty-cost) for HVDCs, and [injection-ra-penalty-cost](/parameters.md#injection-ra-penalty-cost) for injection range actions                                                      |
 
 ## Defined optimization variables
 
 | Name                           | Symbol          | Details                                                                                                           | Type                | Index                                            | Unit                                                      | Lower bound           | Upper bound           |
 |--------------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------|---------------------|--------------------------------------------------|-----------------------------------------------------------|-----------------------|-----------------------|
 | Flow                           | $F(c)$          | flow of FlowCnec $c$                                                                                              | Real value          | One variable for every element of (FlowCnecs)    | MW                                                        | $-\infty$             | $+\infty$             |
-| RA setpoint                    | $A(r,s)$        | setpoint of RangeAction $r$ on state $s$                                                                          | Real value          | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | Range lower bound[^1] | Range upper bound[^1] |
+| RA setpoint                    | $A(r,s)$        | setpoint of RangeAction $r$ on state $s$                                                                          | Real value          | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | Range lower bound[^2] | Range upper bound[^2] |
 | RA setpoint absolute variation | $\Delta A(r,s)$ | The absolute setpoint variation of RangeAction $r$ on state $s$, from setpoint on previous state to "RA setpoint" | Real positive value | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | 0                     | $+\infty$             |
 
-[^1]: Range actions' lower & upper bounds are computed using CRAC + network + previous RAO results, depending on the
+[^2]: Range actions' lower & upper bounds are computed using CRAC + network + previous RAO results, depending on the
 types of their ranges: ABSOLUTE, RELATIVE_TO_INITIAL_NETWORK, RELATIVE_TO_PREVIOUS_INSTANT (more
 information [here](/input-data/crac/json.md#range-actions))
 
@@ -50,7 +50,7 @@ with $s$ the state on $c$ which is evaluated
 
 <br>
 
-### Definition of the absolute setpoint variations of the RangeActions
+### Definition of the setpoint variations of the RangeActions
 
 $$
 \begin{equation}
@@ -67,12 +67,19 @@ $$
 with $A(r,s')$ the setpoint of the last range action on the same element as $r$ but a state preceding $s$. If none such
 range actions exists, then $A(r,s') = \alpha_{0}(r)$
 
+This equation always applies, except for PSTs when modeling them as [APPROXIMATED_INTEGERS](/parameters.md#pst-model).
+If so, this constraint will be modeled directly via PST taps, see [here](/castor/linear-problem/discrete-pst-tap-filler.md#rangeactions-relative-tap-variations) as it gives better results [^3].
 
 <br>
 
+[^3]: Relative bounds are originally in tap.
+When converting them in angle, we take the smallest angle step between two tap changes.
+Despite artificially tightening the bounds, this is the only way to ensure we respect the tap limits as the tap to angle map is non linear.  
+With PST modeled as APPROXIMATED_INTEGERS, we can directly use the taps and therefore avoid this approximation.
+
 ### Shrinking the allowed range
 
-If parameter [ra-range-shrinking](/parameters/parameters.md#ra-range-shrinking) is enabled, the allowed range for range actions
+If parameter [ra-range-shrinking](/parameters.md#ra-range-shrinking) is enabled, the allowed range for range actions
 is shrunk after each iteration according to the following constraints:
 
 $$

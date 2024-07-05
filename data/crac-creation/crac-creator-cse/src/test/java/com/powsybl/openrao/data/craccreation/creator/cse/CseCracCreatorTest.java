@@ -6,18 +6,20 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.InjectionRangeActionCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.RemedialActionCreationContext;
@@ -25,10 +27,9 @@ import com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch.CseCriti
 import com.powsybl.openrao.data.craccreation.creator.cse.outage.CseOutageCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cse.parameters.CseCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cse.remedialaction.CsePstCreationContext;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
@@ -56,28 +57,25 @@ class CseCracCreatorTest {
     private Instant outageInstant;
     private Instant curativeInstant;
 
-    private void setUp(String cracFileName, String networkFileName) {
-        InputStream is = getClass().getResourceAsStream(cracFileName);
-        CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is);
+    private void setUp(String cracFileName, String networkFileName) throws IOException {
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
-        CseCracCreator cseCracCreator = new CseCracCreator();
-        cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters);
+        InputStream is = getClass().getResourceAsStream(cracFileName);
+        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, offsetDateTime, parameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = importedCrac.getInstant(OUTAGE_INSTANT_ID);
         curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
     }
 
-    private void setUp(String cracFileName) {
+    private void setUp(String cracFileName) throws IOException {
         setUp(cracFileName, "/networks/TestCase12Nodes_with_Xnodes.uct");
     }
 
-    private void setUpWithHvdcNetwork(String cracFileName) {
+    private void setUpWithHvdcNetwork(String cracFileName) throws IOException {
         setUp(cracFileName, "/networks/TestCase16NodesWithUcteHvdc.uct");
     }
 
-    private void setUpWithTransformer(String cracFileName) {
+    private void setUpWithTransformer(String cracFileName) throws IOException {
         setUp(cracFileName, "/networks/TestCase12NodesTransformer.uct");
     }
 
@@ -115,7 +113,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void createCrac() {
+    void createCrac() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(offsetDateTime, cracCreationContext.getTimeStamp());
@@ -123,7 +121,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void createCracWithParameters() {
+    void createCracWithParameters() throws IOException {
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         raUsageLimits.setMaxRa(4);
         parameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
@@ -135,7 +133,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void createCracWithHvdcBasicTest() {
+    void createCracWithHvdcBasicTest() throws IOException {
         parameters.addExtension(CseCracCreationParameters.class, new CseCracCreationParameters());
         parameters.getExtension(CseCracCreationParameters.class).setRangeActionGroupsAsString(List.of("PRA_HVDC + CRA_HVDC", "PRA_HVDC + CRA_HVDC_2"));
         setUpWithHvdcNetwork("/cracs/cse_crac_with_hvdc.xml");
@@ -153,7 +151,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void createCracWithHvdcWithNoCracCreationParameters() {
+    void createCracWithHvdcWithNoCracCreationParameters() throws IOException {
         parameters.addExtension(CseCracCreationParameters.class, new CseCracCreationParameters());
         setUpWithHvdcNetwork("/cracs/cse_crac_with_hvdc.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
@@ -174,7 +172,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void createCracWithHvdcWithCracCreationParameters() {
+    void createCracWithHvdcWithCracCreationParameters() throws IOException {
         parameters.addExtension(CseCracCreationParameters.class, new CseCracCreationParameters());
         parameters.getExtension(CseCracCreationParameters.class).setRangeActionGroupsAsString(List.of("PRA_HVDC + CRA_HVDC"));
         setUpWithHvdcNetwork("/cracs/cse_crac_with_hvdc.xml");
@@ -188,13 +186,13 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void createContingencies() {
+    void createContingencies() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertEquals(2, importedCrac.getContingencies().size());
     }
 
     @Test
-    void createPreventiveCnecs() {
+    void createPreventiveCnecs() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertEquals(3, importedCrac.getCnecs(importedCrac.getPreventiveState()).size());
         BranchCnecCreationContext cnec1context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_1 - NNL2AA1  - NNL3AA1  - basecase");
@@ -207,7 +205,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void checkOptimizedParameterAccordingToSelected() {
+    void checkOptimizedParameterAccordingToSelected() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         BranchCnecCreationContext cnec1context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_1 - NNL2AA1  - NNL3AA1  - basecase");
         BranchCnecCreationContext cnec2context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_2 - NNL1AA1  - NNL3AA1  - basecase");
@@ -221,7 +219,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void createCurativeCnecs() {
+    void createCurativeCnecs() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         BranchCnecCreationContext cnec2context = cracCreationContext.getBranchCnecCreationContext("French line 1 - FFR1AA1  - FFR2AA1  - outage_1");
         assertFalse(cnec2context.isBaseCase());
@@ -234,62 +232,62 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void doNotCreateAbsentFromNetworkCnec() {
+    void doNotCreateAbsentFromNetworkCnec() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
-        assertCriticalBranchNotImported("French line 2 - FFRFAK2 - FFRFAK1 - outage_2", ELEMENT_NOT_FOUND_IN_NETWORK);
+        assertCriticalBranchNotImported("French line 2 - FFRFAK2  - FFRFAK1  - outage_2", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test
-    void createNetworkActions() {
+    void createNetworkActions() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertEquals(2, importedCrac.getNetworkActions().size());
     }
 
     @Test
-    void createRangeActions() {
+    void createRangeActions() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertEquals(1, importedCrac.getRangeActions().size());
     }
 
     @Test
-    void doNotCreateAbsentFromNetworkContingency() {
+    void doNotCreateAbsentFromNetworkContingency() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertOutageNotImported("outage_3", ELEMENT_NOT_FOUND_IN_NETWORK);
 
     }
 
     @Test
-    void doNotCreateAbsentFromNetworkPstRangeAction() {
+    void doNotCreateAbsentFromNetworkPstRangeAction() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertRemedialActionNotImported("cra_4", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test
-    void doNotCreateAbsentFromNetworkTopologyAction() {
+    void doNotCreateAbsentFromNetworkTopologyAction() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertRemedialActionNotImported("cra_5", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test
-    void doNotCreateAbsentFromNetworkInjectionSetpointCurative() {
+    void doNotCreateAbsentFromNetworkInjectionSetpointCurative() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertRemedialActionNotImported("cra_6", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test
-    void doNotCreateAbsentFromNetworkInjectionSetpointPreventive() {
+    void doNotCreateAbsentFromNetworkInjectionSetpointPreventive() throws IOException {
         setUp("/cracs/cse_crac_2.xml");
         assertRemedialActionNotImported("cra_1", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test
-    void doNotCreateInjectionSetpointWithOneAbsentFromNetworkNode() {
+    void doNotCreateInjectionSetpointWithOneAbsentFromNetworkNode() throws IOException {
         setUp("/cracs/cse_crac_2.xml");
         assertRemedialActionNotImported("cra_3", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test
-    void createInjectionSetpointWithWildcard() {
+    void createInjectionSetpointWithWildcard() throws IOException {
         setUp("/cracs/cse_crac_2.xml");
         RemedialActionCreationContext raContext = cracCreationContext.getRemedialActionCreationContext("cra_4");
         assertTrue(raContext.isImported());
@@ -300,7 +298,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void cracCreationContextReport() {
+    void cracCreationContextReport() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         List<String> creationReport = cracCreationContext.getCreationReport().getReport();
         assertFalse(creationReport.isEmpty());
@@ -308,7 +306,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void cracCreationContextReport2() {
+    void cracCreationContextReport2() throws IOException {
         setUp("/cracs/cse_crac_2.xml");
         List<String> creationReport = cracCreationContext.getCreationReport().getReport();
         assertFalse(creationReport.isEmpty());
@@ -316,7 +314,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void testRaOnConstraint() {
+    void testRaOnConstraint() throws IOException {
         setUp("/cracs/cse_crac_onConstraint.xml");
 
         State preventiveState = importedCrac.getPreventiveState();
@@ -361,80 +359,80 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void testPercentageThresholdsOnLeftSide() {
-        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+    void testPercentageThresholdsOnLeftSide() throws IOException {
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         setUp("/cracs/cse_crac_pct_limit.xml");
 
         FlowCnec flowCnec1 = importedCrac.getFlowCnec("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive");
         assertEquals(1, flowCnec1.getThresholds().size());
         assertEquals(0.7, flowCnec1.getThresholds().iterator().next().max().get(), DOUBLE_TOLERANCE);
         assertTrue(flowCnec1.getThresholds().iterator().next().min().isEmpty());
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec2 = importedCrac.getFlowCnec("basecase_branch_2 - NNL1AA1 ->NNL3AA1  - preventive");
         assertEquals(1, flowCnec2.getThresholds().size());
         assertEquals(-1., flowCnec2.getThresholds().iterator().next().min().get(), DOUBLE_TOLERANCE);
         assertTrue(flowCnec2.getThresholds().iterator().next().max().isEmpty());
-        assertEquals(-5000., flowCnec2.getLowerBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-5000., flowCnec2.getLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec3 = importedCrac.getFlowCnec("basecase_branch_3 - NNL1AA1 ->NNL2AA1  - preventive");
         assertEquals(1, flowCnec3.getThresholds().size());
         assertEquals(-0.2, flowCnec3.getThresholds().iterator().next().min().get(), DOUBLE_TOLERANCE);
         assertEquals(0.2, flowCnec3.getThresholds().iterator().next().max().get(), DOUBLE_TOLERANCE);
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void testPercentageThresholdsOnRightSide() {
-        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
+    void testPercentageThresholdsOnRightSide() throws IOException {
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
         setUp("/cracs/cse_crac_pct_limit.xml");
 
         FlowCnec flowCnec1 = importedCrac.getFlowCnec("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive");
         assertEquals(1, flowCnec1.getThresholds().size());
         assertEquals(0.7, flowCnec1.getThresholds().iterator().next().max().get(), DOUBLE_TOLERANCE);
         assertTrue(flowCnec1.getThresholds().iterator().next().min().isEmpty());
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec2 = importedCrac.getFlowCnec("basecase_branch_2 - NNL1AA1 ->NNL3AA1  - preventive");
         assertEquals(1, flowCnec2.getThresholds().size());
         assertEquals(-1., flowCnec2.getThresholds().iterator().next().min().get(), DOUBLE_TOLERANCE);
         assertTrue(flowCnec2.getThresholds().iterator().next().max().isEmpty());
-        assertEquals(-5000., flowCnec2.getLowerBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-5000., flowCnec2.getLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec3 = importedCrac.getFlowCnec("basecase_branch_3 - NNL1AA1 ->NNL2AA1  - preventive");
         assertEquals(1, flowCnec3.getThresholds().size());
         assertEquals(-0.2, flowCnec3.getThresholds().iterator().next().min().get(), DOUBLE_TOLERANCE);
         assertEquals(0.2, flowCnec3.getThresholds().iterator().next().max().get(), DOUBLE_TOLERANCE);
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void testPercentageThresholdsOnBothSides() {
+    void testPercentageThresholdsOnBothSides() throws IOException {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         setUp("/cracs/cse_crac_pct_limit.xml");
 
         FlowCnec flowCnec1 = importedCrac.getFlowCnec("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive");
         assertEquals(2, flowCnec1.getThresholds().size());
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec2 = importedCrac.getFlowCnec("basecase_branch_2 - NNL1AA1 ->NNL3AA1  - preventive");
         assertEquals(2, flowCnec2.getThresholds().size());
-        assertEquals(-5000., flowCnec2.getLowerBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(-5000., flowCnec2.getLowerBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-5000., flowCnec2.getLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-5000., flowCnec2.getLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec3 = importedCrac.getFlowCnec("basecase_branch_3 - NNL1AA1 ->NNL2AA1  - preventive");
         assertEquals(2, flowCnec3.getThresholds().size());
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.LEFT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(Side.RIGHT, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void testRaOnConstraintInSpecificCountry() {
+    void testRaOnConstraintInSpecificCountry() throws IOException {
         setUp("/cracs/cse_crac_onConstraintInSpecificCountry.xml");
 
         // cra_1
@@ -477,7 +475,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void testInvertPstRangeAction() {
+    void testInvertPstRangeAction() throws IOException {
         setUp("/cracs/cse_crac_inverted_pst.xml");
 
         // ra_1 should not be inverted
@@ -515,7 +513,7 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void testImportBusBarChange() {
+    void testImportBusBarChange() throws IOException {
         parameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/CseCracCreationParameters_15_10_1_5.json"));
         setUp("/cracs/cseCrac_ep15us10-1case5.xml", "/networks/TestCase12Nodes_forCSE_3nodes.uct");
 
@@ -539,28 +537,28 @@ class CseCracCreatorTest {
     }
 
     @Test
-    void testImportBusBarChangeWithMissingSwitch() {
+    void testImportBusBarChangeWithMissingSwitch() throws IOException {
         parameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/CseCracCreationParameters_15_10_1_3.json"));
         setUp("/cracs/cseCrac_ep15us10-1case1.xml", "/networks/TestCase12Nodes_forCSE.uct");
         assertRemedialActionNotImported("Bus bar ok test", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test
-    void testImportBusBarChangeWithMissingParameter() {
+    void testImportBusBarChangeWithMissingParameter() throws IOException {
         parameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/CseCracCreationParameters_15_10_1_4.json"));
         setUp("/cracs/cseCrac_ep15us10-1case1.xml", "/networks/TestCase12Nodes_forCSE.uct");
         assertRemedialActionNotImported("Bus bar ok test", INCOMPLETE_DATA);
     }
 
     @Test
-    void testImportEmptyRa() {
+    void testImportEmptyRa() throws IOException {
         setUp("/cracs/cse_crac_empty_ra.xml");
         assertNotNull(cracCreationContext.getCrac());
         assertTrue(cracCreationContext.getCrac().getRemedialActions().isEmpty());
         assertEquals(1, cracCreationContext.getRemedialActionCreationContexts().size());
     }
 
-    private void assertHasOneThreshold(String cnecId, Side side) {
+    private void assertHasOneThreshold(String cnecId, TwoSides side) {
         FlowCnec cnec = importedCrac.getFlowCnec(cnecId);
         assertEquals(1, cnec.getThresholds().size());
         assertEquals(side, cnec.getThresholds().iterator().next().getSide());
@@ -569,51 +567,51 @@ class CseCracCreatorTest {
     private void assertHasTwoThresholds(String cnecId) {
         FlowCnec cnec = importedCrac.getFlowCnec(cnecId);
         assertEquals(2, cnec.getThresholds().size());
-        assertTrue(cnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getSide().equals(Side.LEFT)));
-        assertTrue(cnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getSide().equals(Side.RIGHT)));
+        assertTrue(cnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getSide().equals(TwoSides.ONE)));
+        assertTrue(cnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getSide().equals(TwoSides.TWO)));
     }
 
     @Test
-    void testImportThresholdOnHalfLine() {
+    void testImportThresholdOnHalfLine() throws IOException {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         setUp("/cracs/cse_crac_halflines.xml");
-        assertHasOneThreshold("basecase_branch_1 - FFR2AA1 ->X_DEFR1  - preventive", Side.RIGHT);
-        assertHasOneThreshold("basecase_branch_2 - DDE2AA1 ->X_NLDE1  - preventive", Side.LEFT);
+        assertHasOneThreshold("basecase_branch_1 - FFR2AA1 ->X_DEFR1  - preventive", TwoSides.TWO);
+        assertHasOneThreshold("basecase_branch_2 - DDE2AA1 ->X_NLDE1  - preventive", TwoSides.ONE);
 
-        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
         setUp("/cracs/cse_crac_halflines.xml");
-        assertHasOneThreshold("basecase_branch_1 - FFR2AA1 ->X_DEFR1  - preventive", Side.RIGHT);
-        assertHasOneThreshold("basecase_branch_2 - DDE2AA1 ->X_NLDE1  - preventive", Side.LEFT);
+        assertHasOneThreshold("basecase_branch_1 - FFR2AA1 ->X_DEFR1  - preventive", TwoSides.TWO);
+        assertHasOneThreshold("basecase_branch_2 - DDE2AA1 ->X_NLDE1  - preventive", TwoSides.ONE);
 
-        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         setUp("/cracs/cse_crac_halflines.xml");
-        assertHasOneThreshold("basecase_branch_1 - FFR2AA1 ->X_DEFR1  - preventive", Side.RIGHT);
-        assertHasOneThreshold("basecase_branch_2 - DDE2AA1 ->X_NLDE1  - preventive", Side.LEFT);
+        assertHasOneThreshold("basecase_branch_1 - FFR2AA1 ->X_DEFR1  - preventive", TwoSides.TWO);
+        assertHasOneThreshold("basecase_branch_2 - DDE2AA1 ->X_NLDE1  - preventive", TwoSides.ONE);
     }
 
     @Test
-    void testTransformerCnecThresholds() {
+    void testTransformerCnecThresholds() throws IOException {
         // basecase_branch_1 is in A, threshold should be defined on high voltage level side
         // basecase_branch_2 is in %Imax, thresholds should be created depending on default monitored side
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         setUpWithTransformer("/cracs/cse_crac_transformer_cnec.xml");
-        assertHasOneThreshold("basecase_branch_1 - BBE2AA1 ->BBE3AA2  - preventive", Side.LEFT);
+        assertHasOneThreshold("basecase_branch_1 - BBE2AA1 ->BBE3AA2  - preventive", TwoSides.ONE);
         assertHasTwoThresholds("basecase_branch_2 - BBE2AA1 ->BBE3AA2  - preventive");
 
-        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
         setUpWithTransformer("/cracs/cse_crac_transformer_cnec.xml");
-        assertHasOneThreshold("basecase_branch_1 - BBE2AA1 ->BBE3AA2  - preventive", Side.LEFT);
-        assertHasOneThreshold("basecase_branch_2 - BBE2AA1 ->BBE3AA2  - preventive", Side.RIGHT);
+        assertHasOneThreshold("basecase_branch_1 - BBE2AA1 ->BBE3AA2  - preventive", TwoSides.ONE);
+        assertHasOneThreshold("basecase_branch_2 - BBE2AA1 ->BBE3AA2  - preventive", TwoSides.TWO);
 
-        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         setUpWithTransformer("/cracs/cse_crac_transformer_cnec.xml");
-        assertHasOneThreshold("basecase_branch_1 - BBE2AA1 ->BBE3AA2  - preventive", Side.LEFT);
-        assertHasOneThreshold("basecase_branch_2 - BBE2AA1 ->BBE3AA2  - preventive", Side.LEFT);
+        assertHasOneThreshold("basecase_branch_1 - BBE2AA1 ->BBE3AA2  - preventive", TwoSides.ONE);
+        assertHasOneThreshold("basecase_branch_2 - BBE2AA1 ->BBE3AA2  - preventive", TwoSides.ONE);
     }
 
     @Test
-    void createCracWithAuto() {
+    void createCracWithAuto() throws IOException {
         setUp("/cracs/cse_crac_auto.xml");
         assertRemedialActionNotImported("ara_1", NOT_YET_HANDLED_BY_OPEN_RAO);
         assertEquals(9, importedCrac.getFlowCnecs().size());

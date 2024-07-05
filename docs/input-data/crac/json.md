@@ -334,7 +334,7 @@ crac.newFlowCnec()
     .withOptimized(true)
     .newThreshold()
       .withUnit(Unit.MEGAWATT)
-      .withSide(Side.LEFT)
+      .withSide(TwoSides.ONE)
       .withMin(-1500.)
       .withMax(1500.)
       .add()
@@ -350,20 +350,20 @@ crac.newFlowCnec()
     .withBorder("border")
     .newThreshold()
       .withUnit(Unit.PERCENT_IMAX)
-      .withSide(Side.RIGHT)
+      .withSide(TwoSides.TWO)
       .withMax(0.95)
       .add()
     .newThreshold()
       .withUnit(Unit.AMPERE)
-      .withSide(Side.LEFT)
+      .withSide(TwoSides.ONE)
       .withMin(-450.)
       .add()
     .withReliabilityMargin(50.)
     .withOptimized(true)
     .withMonitored(false)
-    .withNominalVoltage(380., Side.LEFT)
-    .withNominalVoltage(220., Side.RIGHT)
-    .withIMax(500.) // this means that the value is the same on both sides, but the side could have been specified using "withImax(500., Side.RIGHT)" instead 
+    .withNominalVoltage(380., TwoSides.ONE)
+    .withNominalVoltage(220., TwoSides.TWO)
+    .withIMax(500.) // this means that the value is the same on both sides, but the side could have been specified using "withImax(500., TwoSides.TWO)" instead 
     .add();
 ~~~
 :::
@@ -383,7 +383,7 @@ crac.newFlowCnec()
     "unit" : "megawatt",
     "min" : -1500.0,
     "max" : 1500.0,
-    "side" : "left"
+    "side" : 1
   } ]
 },  {
   "id" : "curative-cnec-with-two-thresholds-id",
@@ -401,11 +401,11 @@ crac.newFlowCnec()
   "thresholds" : [ {
     "unit" : "ampere",
     "min" : -450.0,
-    "side" : "left"
+    "side" : 1
   }, {
     "unit" : "percent_imax",
     "max" : 0.95,
-    "side" : "right"
+    "side" : 2
   } ]
 } ]
 ~~~
@@ -434,7 +434,7 @@ crac.newFlowCnec()
 ::::
 
 #### Loop-flow extension
-When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters/parameters.md#loop-flow-extension)),
+When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters.md#loop-flow-extension)),
 its loop-flow is monitored by the RAO, that will keep it [under its threshold](/castor/special-features/loop-flows.md)
 when optimising remedial actions.  
 The loop-flow extension defines the loop-flow threshold to be respected by the RAO (even though the initial loop-flow
@@ -501,7 +501,7 @@ An AngleCnec has the following specificities:
 
 > 💡  **NOTE**
 > AngleCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [AngleMonitoring](/castor/angle-monitoring/angle-monitoring.md) module.
+> [AngleMonitoring](/castor/monitoring/angle-monitoring.md) module.
 
 #### Creating an AngleCnec
 In OpenRAO, AngleCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
@@ -610,7 +610,7 @@ A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has
 
 > 💡  **NOTE**
 > VoltageCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [VoltageMonitoring](/castor/voltage-monitoring/voltage-monitoring.md) module.
+> [VoltageMonitoring](/castor/monitoring/voltage-monitoring.md) module.
 
 #### Creating a VoltageCnec
 In OpenRAO, VoltageCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
@@ -1023,7 +1023,7 @@ TapRanges can be of different types:
 The final validity range of the PstRangeAction is the intersection of its TapRanges, with the intersection of the min/max feasible taps of the PST.  
 The PstRangeAction also requires additional data, notably to be able to interpret the TapRanges. Those additional data are: the initial tap of the PST, and a conversion map which gives for each feasible tap of the PST its corresponding angle. Utility methods have been developed in OpenRAO to ease the management of these additional data during the creation of a PstRangeAction.
 
-Two or more [aligned PST range actions](introduction.md#range-action) must have the same (random) group ID defined. The RAO will
+Two or more [aligned PST range actions](#range-actions) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
 
 If the PstRangeAction is an automaton, it has to have a speed assigned. This is an integer that defines the relative
@@ -1121,7 +1121,7 @@ The HvdcRangeAction will be able to modify its active power set-point.
 The domain in which the HvdcRangeAction can modify the HvdcSetpoint is delimited by 'HvdcRanges'.
 An HvdcRangeAction contains a list of HvdcRanges. A range must be defined with a min and a max.
 
-Two or more [aligned HVDC range actions](introduction.md#range-action) must have the same (random) group ID defined. The RAO will
+Two or more [aligned HVDC range actions](#range-actions) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
 
 If the HvdcRangeAction is an automaton, it has to have a speed assigned. This is an integer that defines the relative
@@ -1186,7 +1186,7 @@ replaced by two injections, one on each side of the line, with opposite keys of 
 
 ![HVDC AC model](/_static/img/HVDC_AC_model.png){.forced-white-background}
 
-Two or more [aligned injection range actions](introduction.md#range-action) must have the same (random) group ID defined. The RAO will
+Two or more [aligned injection range actions](#range-actions) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
 
 If the InjectionRangeAction is an automaton, it has to have a speed assigned. This is an integer that defines the relative

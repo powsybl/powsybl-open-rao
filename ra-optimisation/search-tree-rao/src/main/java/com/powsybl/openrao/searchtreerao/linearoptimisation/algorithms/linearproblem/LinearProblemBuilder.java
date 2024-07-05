@@ -116,7 +116,8 @@ public class LinearProblemBuilder {
             inputs.getRaActivationFromParentLeaf(),
             parameters.getRangeActionParameters(),
             parameters.getObjectiveFunctionUnit(),
-            parameters.getRaRangeShrinking()
+            parameters.getRaRangeShrinking(),
+            parameters.getRangeActionParameters().getPstModel()
         );
     }
 
@@ -164,7 +165,7 @@ public class LinearProblemBuilder {
     private ProblemFiller buildIntegerPstTapFiller(Map<State, Set<PstRangeAction>> pstRangeActions) {
         return new DiscretePstTapFiller(
             inputs.getNetwork(),
-            inputs.getOptimizationPerimeter().getMainOptimizationState(),
+            inputs.getOptimizationPerimeter(),
             pstRangeActions,
             inputs.getPrePerimeterSetpoints()
         );

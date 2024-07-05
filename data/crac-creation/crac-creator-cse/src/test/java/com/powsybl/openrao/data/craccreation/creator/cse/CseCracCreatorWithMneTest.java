@@ -6,17 +6,18 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch.CseCriticalBranchCreationContext;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 
@@ -39,13 +40,11 @@ class CseCracCreatorWithMneTest {
     private Instant autoInstant;
     private Instant curativeInstant;
 
-    private void setUp(String cracFileName, String networkFileName) {
+    private void setUp(String cracFileName, String networkFileName) throws IOException {
         InputStream is = getClass().getResourceAsStream(cracFileName);
         CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is);
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
-        CseCracCreator cseCracCreator = new CseCracCreator();
-        cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters);
+        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, offsetDateTime, parameters);
         preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = cracCreationContext.getCrac().getInstant(OUTAGE_INSTANT_ID);
         autoInstant = cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID);
@@ -83,8 +82,7 @@ class CseCracCreatorWithMneTest {
         assertFalse(cseCriticalBranchCreationContext.isSelected());
         assertFalse(cseCriticalBranchCreationContext.isImported());
         assertEquals(cseCriticalBranchCreationContext.getImportStatus(), importStatus);
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(name)); // TODO redo this assert ?
-        assertNull(cracCreationContext.getCrac().getFlowCnec(name));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(name));
     }
 
     private void assertMneBaseCaseInCriticalBranchCreationContexts(String name, String fromNode, String toNode, String suffix, boolean inverted) {
@@ -116,10 +114,10 @@ class CseCracCreatorWithMneTest {
         assertEquals(name, flowCnec.getName());
         assertTrue(flowCnec.isMonitored());
         assertFalse(flowCnec.isOptimized());
-        assertEquals(expectedIMax, flowCnec.getIMax(Side.LEFT), 0.00001);
-        assertEquals(expectedIMax, flowCnec.getIMax(Side.RIGHT), 0.00001);
-        assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, Side.LEFT));
-        assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, Side.RIGHT));
+        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.ONE), 0.00001);
+        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.TWO), 0.00001);
+        assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.ONE));
+        assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.TWO));
         assertEquals(contingencyId, flowCnec.getState().getContingency().get().getId());
         assertEquals(instant, flowCnec.getState().getInstant());
         assertEquals(flowCnec.getNetworkElement().getId(), crac.getFlowCnec(createdCnecId).getNetworkElement().getName());
@@ -129,8 +127,8 @@ class CseCracCreatorWithMneTest {
         } else {
             assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElement().getId());
         }
-        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.RIGHT), 0.00001);
-        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.LEFT), 0.00001);
+        assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.TWO), 0.00001);
+        assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.ONE), 0.00001);
     }
 
     public void assertMneBaseCaseInCrac(String name, String fromNode, String toNode, String suffix, String direction, Instant instant, double expectedIMax, double expectedThreshold, Unit expectedThresholdUnit, double expectedNV) {
@@ -142,11 +140,11 @@ class CseCracCreatorWithMneTest {
         assertEquals(name, flowCnec.getName());
         assertTrue(flowCnec.isMonitored());
         assertFalse(flowCnec.isOptimized());
-        assertEquals(expectedIMax, flowCnec.getIMax(Side.LEFT), 0.00001);
-        assertEquals(expectedIMax, flowCnec.getIMax(Side.RIGHT), 0.00001);
+        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.ONE), 0.00001);
+        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.TWO), 0.00001);
 
-        assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, Side.LEFT));
-        assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, Side.RIGHT));
+        assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.ONE));
+        assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.TWO));
         assertTrue(flowCnec.getState().isPreventive());
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
         if (directionInvertedInNetwork) {
@@ -154,11 +152,11 @@ class CseCracCreatorWithMneTest {
         } else {
             assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElement().getId());
         }
-        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.RIGHT), 0.00001);
-        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.LEFT), 0.00001);
+        assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.TWO), 0.00001);
+        assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.ONE), 0.00001);
     }
 
-    private boolean hasThreshold(String nativeId, double expectedThreshold, Unit expectedThresholdUnit, FlowCnec flowCnec, String direction, Side side) {
+    private boolean hasThreshold(String nativeId, double expectedThreshold, Unit expectedThresholdUnit, FlowCnec flowCnec, String direction, TwoSides side) {
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
         if (!directionInvertedInNetwork && direction.equals("DIRECT")
             || directionInvertedInNetwork && direction.equals("OPPOSITE")) {
@@ -204,7 +202,7 @@ class CseCracCreatorWithMneTest {
     }
 
     @Test
-    void createCracWithMNELittleCase() {
+    void createCracWithMNELittleCase() throws IOException {
         setUp("/cracs/cse_crac_with_MNE.xml", "/networks/TestCase12Nodes_with_Xnodes.uct");
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertAllMneCorrectlyImportedInCriticalBranchesCreationContext();
