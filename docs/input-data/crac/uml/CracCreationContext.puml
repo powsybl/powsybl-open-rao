@@ -1,0 +1,42 @@
+@startuml(id=CracCreationContext)
+interface CracCreationContext {
++ boolean isCreationSuccessful()
++ Crac getCrac()
++ OffsetDateTime getTimeStamp()
++ String getNetworkName()
++ CracCreationReport getCreationReport()
+}
+@enduml
+
+@startuml(id=CracCreationReport)
+class CracCreationReport {
++ void printCreationReport()
++ List<String> getReport()
++ String toString()
+}
+CracCreationContext "1" *--> "1" CracCreationReport
+@enduml
+
+@startuml(id=ElementaryCreationContext)
+interface ElementaryCreationContext {
++ String getNativeId()
++ boolean isImported()
++ boolean isAltered()
++ ImportStatus getImportStatus()
++ String getImportStatusDetail()
+}
+@enduml
+
+@startuml(id=ImportStatus)
+enum ImportStatus {
++ IMPORTED
++ ELEMENT_NOT_FOUND_IN_NETWORK
++ INCOMPLETE_DATA
++ INCONSISTENCY_IN_DATA
++ NOT_YET_HANDLED_BY_OPEN_RAO
++ NOT_FOR_RAO
++ NOT_FOR_REQUESTED_TIMESTAMP
++ OTHER
+}
+ElementaryCreationContext "1" *--> "1" ImportStatus
+@enduml

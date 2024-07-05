@@ -1,104 +1,101 @@
 # CRAC creation context
 
 ## Introduction
-When OpenRAO tries to import a native CRAC file ([FlowBasedConstraint](fbconstraint), [CSE](cse), [CIM](cim), ...) 
-into an [internal CRAC format](json), some data transformation can happen, and data present in the final CRAC object 
-will not be a "one-to-one" exact representation of the data in the original file.  
+When OpenRAO tries to import a [CRAC object](json) from a business CRAC file ([FlowBasedConstraint](fbconstraint), [CSE](cse), 
+[CIM](cim), ...) or from an older version of the [JSON](json) format, some data transformation can happen, and data 
+present in the final CRAC object will not be a "one-to-one" exact representation of the data in the original file.  
 This can be an issue for the final user, as [querying the RAO result file or object](/output-data/rao-result.md#contents-of-the-rao-result) 
 needs knowledge of the artefacts OpenRAO created during CRAC creation.  
-The [CracCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/CracCreationContext.java) 
-classes produced by the different CRAC creators allow the user to access meta-information 
+The `CracCreationContext` object produced by the CRAC importer allows the user to access meta-information 
 about the CRAC creation process, and to map the original file to the created artifacts in the OpenRAO object, or to 
 error messages if some objects could not be imported.  
 This is particularly useful if the user needs to export the RAO result in a format different from [OpenRAO's internal format](/output-data/rao-result.md), 
 and to reference CNECs and remedial actions as they were defined in the original (native) CRAC file.  
 Many implementations of CracCreationContext exist, depending on the original format. Every implementation has its own 
-specific API. CracCreationContexts are the main output of CracCreators.  
+specific API. CracCreationContext can be obtained with the `readWithContext` methods, but you have to 
+explicitly cast it to its implementation, if you desire to access its class' specific methods.
+
+~~~{plantuml}
+@startuml
+CracCreationContext <|-- UcteCracCreationContext
+JsonCracCreationContext --|> CracCreationContext
+CimCracCreationContext --|> CracCreationContext
+CsaProfilesCreationContext --|> CracCreationContext
+interface UcteCracCreationContext {
+}
+interface CracCreationContext {
+}
+UcteCracCreationContext <|-- FbConstraintCreationContext
+UcteCracCreationContext <|-- CseCracCreationContext
+@enduml
+~~~
+
 ```java
-Network network = ...
-NativeCrac nativeCrac = NativeCracImporters.importData(Paths.get("/example_file.xml"));
-OffsetDateTime timestamp = ...
-CracCreationContext cracCreationContext = CracCreators.createCrac(nativeCrac, network, timestamp);
-```
-
-![CracCreationContext inheritance](/_static/img/CracCreationContext.png){.forced-white-background}
-
-## Non-specific information
-All CracCreationContext implementations present the following information.
-
-### CRAC creation success
-A simple boolean set to true if a OpenRAO CRAC could be created from the native CRAC file.
-```java
-boolean success = cracCreationContext.isCreationSuccessful();
-```
-
-### CRAC object
-The created CRAC object, to be used in the RAO.
-```java
+CracCreationContext cracCreationContext = readWithContext(filename, inputStream, network, offsetDateTime, cracCreationParameters);
 Crac crac = cracCreationContext.getCrac();
 ```
 
-### Timestamp
-When applicable, this field contains the timestamp for which the CRAC has been created from the original CRAC file (as
-some CRAC formats, such as [FlowBasedConstraint](fbconstraint), can support constraint definition for multiple timestamps).  
-This field can be useful if the timestamp needs to be exported in a custom results file.
-```java
-cracCreationContext.getTimeStamp();
-```
 
-### Network name
-Contains the name of the network that was used to create the CRAC object.
-```java
-cracCreationContext.getNetworkName();
-```
+## Non-specific information
+All `CracCreationContext` implementations present the following information.
 
-### CRAC creation report
-A textual report that can usefully be logged. It contains information about elements that were ignored or modified in the 
-original CRAC.  
-The report's lines all begin with one of these tags:
-- **[ERROR]**: happens when a CRAC could not be created (e.g. if the user tried to import a [FlowBasedConstraint](fbconstraint) 
-file without defining a timestamp, or a [CSE](cse) file with a non-UCTE network file, etc.)
-- **[REMOVED]**: happens when OpenRAO ignores elements of the CRAC because they cannot be imported, or because they are not relevant 
-for the RAO (e.g. if a contingency is defined on an element that doesn't exist in the network, or if a CNEC is neither 
-optimized nor monitored, etc.)
-- **[ADDED]**: happens if OpenRAO decides to add elements that were not explicitly defined in the original file (e.g. if the 
-CRAC contains AUTO CNECs without any remedial action associated, OpenRAO will automatically duplicate them in the outage 
-instant in order to secure them during the preventive RAO)
-- **[ALTERED]**: happens if OpenRAO imports an element after altering it or ignoring some of its components (e.g. if a monitored 
-element shall be so after multiple contingencies, among which some were not imported for any reason, then only valid 
-contingencies will be used for the created CNECs)
-- **[WARN]**: non-critical warnings (e.g. if the user defined a timestamp for a CRAC format that doesn't require one, the 
-timestamp is ignored and a warning is logged)
-- **[INFO]**: non-critical information
+~~~{plantuml}
+!include_many uml/CracCreationContext.puml!CracCreationContext
+!include_many uml/CracCreationContext.puml!CracCreationReport
+~~~
 
-The final user shall check these messages to ensure that their CRAC file is well-defined.  
-```java
-cracCreationContext.getCreationReport().printCreationReport();
-```
+- **CRAC creation success**: a simple boolean set to true if a OpenRAO CRAC could be created from the native CRAC file.
+- **CRAC**: the created CRAC object, to be used in the RAO.
+- **Timestamp**: when applicable, this field contains the timestamp for which the CRAC has been created from the original CRAC file (as
+  some CRAC formats, such as [FlowBasedConstraint](#flowbasedconstraint-implementation), can support constraint definition for multiple timestamps).  
+  This field can be useful if the timestamp needs to be exported in a custom results file.
+- **Network name**: contains the name of the network that was used to create the CRAC object.
+- **CRAC creation report**: a textual report that can usefully be logged. It contains information about elements that were ignored or modified in the 
+  original CRAC. The final user shall check these messages to ensure that their CRAC file is well-defined.  
+  The report's lines all begin with one of these tags:
+  - **[ERROR]**: happens when a CRAC could not be created (e.g. if the user tried to import a [FlowBasedConstraint](#flowbasedconstraint-implementation) 
+  file without defining a timestamp, or a [CSE](#cse-implementation) file with a non-UCTE network file, etc.)
+  - **[REMOVED]**: happens when OpenRAO ignores elements of the CRAC because they cannot be imported, or because they are not relevant 
+  for the RAO (e.g. if a contingency is defined on an element that doesn't exist in the network, or if a CNEC is neither 
+  optimized nor monitored, etc.)
+  - **[ADDED]**: happens if OpenRAO decides to add elements that were not explicitly defined in the original file (e.g. if the 
+  CRAC contains AUTO CNECs without any remedial action associated, OpenRAO will automatically duplicate them in the outage 
+  instant in order to secure them during the preventive RAO)
+  - **[ALTERED]**: happens if OpenRAO imports an element after altering it or ignoring some of its components (e.g. if a monitored 
+  element shall be so after multiple contingencies, among which some were not imported for any reason, then only valid 
+  contingencies will be used for the created CNECs)
+  - **[WARN]**: non-critical warnings (e.g. if the user defined a timestamp for a CRAC format that doesn't require one, the 
+  timestamp is ignored and a warning is logged)
+  - **[INFO]**: non-critical information
 
 ## UCTE implementation
-A common UCTE interface [UcteCracCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/stdcreationcontext/UcteCracCreationContext.java) 
-has been defined in order to collect the common fields a CracCreationContext implementation should hold when created using a **UCTE** network.  
+A common UCTE interface, `UcteCracCreationContext`, has been defined in order to collect the common fields a 
+CracCreationContext implementation should hold when created using a **UCTE** network.  
 Of course, not all CRAC formats use UCTE convention, so not all CRAC formats can implement this UCTE interface.  
-Currently, this interface is implemented by [FlowBasedConstraint](fbconstraint) and [CSE](cse) crac creators.  
+Currently, this interface is implemented by [FlowBasedConstraint](#flowbasedconstraint-implementation) and 
+[CSE](#cse-implementation) CRAC importers.  
 It has all the [non-specific](#non-specific-information) features, plus the following.
 
+~~~{plantuml}
+!include_many uml/UcteCracCreationContext.puml
+~~~
+
 ### Branch CNEC creation contexts
-The [BranchCnecCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/stdcreationcontext/BranchCnecCreationContext.java) 
-contains information about the creation of CNECs in OpenRAO. One BranchCreationContext is created for every native CNEC-equivalent 
-element in the original CRAC, that can be uniquely identified. It holds the following information:  
-- **NativeId** is the unique identifier of the native object in the original CRAC. Depending on the CRAC implementation, 
+The `BranchCnecCreationContext` contains information about the creation of CNECs in OpenRAO. One BranchCreationContext 
+is created for every native CNEC-equivalent element in the original CRAC, that can be uniquely identified. It holds the 
+following information:  
+- **NativeId**: the unique identifier of the native object in the original CRAC. Depending on the CRAC implementation, 
 OpenRAO can construct this by concatenating multiple elements in order to ensure the ID is unique in the file.
-- **isImported** is a boolean equal to true if OpenRAO was able to import one or multiple CNECs from this element.
-- **isAltered** is a boolean equal to true if OpenRAO had to alter some elements of this CNEC when importing it.
-- **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-- **ImportStatusDetail** is a user-friendly message explaining why the element has not been imported (if applicable)
-- **NativeBranch** is the UCTE branch referred to in the original CRAC, with a "from" node, a "to" node, and a suffix (order code or alias)
-- **isBaseCase** is a boolean equal to true if the CNEC has been created for the preventive instant
-- **ContingencyId** (if present) is the ID of the contingency for which the CNEc is monitored
-- **CreatedCnecIds** holds the ID(s) of the OpenRAO CNEC(s) that were created for this native critical branch. These are the 
+- **isImported**: a boolean equal to true if OpenRAO was able to import one or multiple CNECs from this element.
+- **isAltered**: a boolean equal to true if OpenRAO had to alter some elements of this CNEC when importing it.
+- **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
+- **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
+- **NativeBranch**: the UCTE branch referred to in the original CRAC, with a "from" node, a "to" node, and a suffix (order code or alias)
+- **isBaseCase**: a boolean equal to true if the CNEC has been created for the preventive instant
+- **ContingencyId** (if present): the ID of the contingency for which the CNEc is monitored
+- **CreatedCnecIds**: the ID(s) of the OpenRAO CNEC(s) that were created for this native critical branch. These are the 
 IDs the user should use to query the internal CRAC & RaoResult objects.
-- **isDirectionInvertedInNetwork** is a boolean equal to true if the from/to in the original CRAC are the inverse of the 
+- **isDirectionInvertedInNetwork**: a boolean equal to true if the from/to in the original CRAC are the inverse of the 
 PowSyBl network's from/to. This means that OpenRAO had to invert the branch when importing it (in order to be coherent with the network) 
 as well as its flow constraints, and that the flow results in the RaoResult will be inverted in regard to the original CRAC's convention. 
 The user should be careful to invert these results before exploiting them.   
@@ -106,7 +103,7 @@ The user should be careful to invert these results before exploiting them.
 Here is a complete example of BranchCnecCreationContext usage to export user-comprehensible RAO results:    
   
 ```java
-UcteCracCreationContext ucteCracCreationContext = ...
+UcteCracCreationContext ucteCracCreationContext = (UcteCracCreationContext) Crac.readWithContext( ...
 RaoResult raoResult = ...
     
 // Do a custom results export of all native CNEC results
@@ -148,17 +145,17 @@ void printSomeResults(BranchCnecCreationContext context, CracCreationContext cra
 ```
 
 ### Remedial action creation contexts
-The [RemedialActionCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/stdcreationcontext/RemedialActionCreationContext.java)
-contains information about the creation of remedial actions in OpenRAO. One RemedialActionCreationContext is created for every native 
-remedial-action element in the original CRAC, that can be uniquely identified. It holds the following information:
-- **NativeId** is the unique identifier of the native object in the original CRAC. Depending on the CRAC implementation,
+The `RemedialActionCreationContext` contains information about the creation of remedial actions in OpenRAO. One 
+RemedialActionCreationContext is created for every native remedial-action element in the original CRAC, that can be 
+uniquely identified. It holds the following information:
+- **NativeId**: the unique identifier of the native object in the original CRAC. Depending on the CRAC implementation,
   OpenRAO can construct this by concatenating multiple elements in order to ensure the ID is unique in the file.
-- **isImported** is a boolean equal to true if OpenRAO was able to import a remedial action from this element.
-- **isAltered** is a boolean equal to true if OpenRAO had to alter some elements of this remedial action when importing it.
-- **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-- **ImportStatusDetail** is a user-friendly message explaining why the element has not been imported (if applicable)
-- **CreatedRAId** holds the ID of the OpenRAO remedial action that was created from this native element. This is the 
-ID the user should use to query the internal CRAC & RaoResult objects.
+- **isImported**: a boolean equal to true if OpenRAO was able to import a remedial action from this element.
+- **isAltered**: a boolean equal to true if OpenRAO had to alter some elements of this remedial action when importing it.
+- **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
+- **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
+- **CreatedRAId**: the ID of the OpenRAO remedial action that was created from this native element. This is the 
+  ID the user should use to query the internal CRAC & RaoResult objects.
 
 Here is a complete example of RemedialActionCreationContext usage to export user-comprehensible RAO results:
   
@@ -196,24 +193,30 @@ void printSomeResults(RemedialActionCreationContext context, CracCreationContext
 ```
 
 ## FlowBasedConstraint implementation
-The [FbConstraintCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-fb-constraint/src/main/java/com/powsybl/openrao/data/craccreation/creator/fbconstraint/craccreator/FbConstraintCreationContext.java) 
-is a [UcteCracCreationContext](#ucte-implementation) implementation with no extra features.
+The `FbConstraintCreationContext` is a [UcteCracCreationContext](#ucte-implementation) implementation with no extra features.
+
+~~~{plantuml}
+!include_many uml/FbConstraintCreationContext.puml
+~~~
 
 ## CSE implementation
-The [CseCracCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cse/src/main/java/com/powsybl/openrao/data/craccreation/creator/cse/CseCracCreationContext.java) 
-is a [UcteCracCreationContext](#ucte-implementation) implementation with one extra feature for contingencies.
+The `CseCracCreationContext` is a [UcteCracCreationContext](#ucte-implementation) implementation with one extra feature for contingencies.
+
+~~~{plantuml}
+!include_many uml/CseCracCreationContext.puml
+~~~
 
 ### Outage creation contexts
-The [CseOutageCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cse/src/main/java/com/powsybl/openrao/data/craccreation/creator/cse/outage/CseOutageCreationContext.java)
-contains information about the creation of contingencies in OpenRAO. One CseOutageCreationContext is created for every native
-"Outage" element in the original CSE CRAC, that can be uniquely identified. It holds the following information:
-- **NativeId** is the unique identifier of the native Outage (contained in the "Name" tag)
-- **isImported** is a boolean equal to true if OpenRAO was able to import a contingency from this element.
-- **isAltered** is a boolean equal to true if OpenRAO had to alter some elements of this contingency when importing it.
-- **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-- **ImportStatusDetail** is a user-friendly message explaining why the element has not been imported (if applicable)
-- **CreatedContingencyId** holds the ID of the OpenRAO contingency that was created from this native element. This is the
-ID the user should use to query the internal CRAC & RaoResult objects.
+The `CseOutageCreationContext` contains information about the creation of contingencies in OpenRAO. One 
+CseOutageCreationContext is created for every native "Outage" element in the original CSE CRAC, that can be uniquely 
+identified. It holds the following information:
+- **NativeId**: the unique identifier of the native Outage (contained in the "Name" tag)
+- **isImported**: a boolean equal to true if OpenRAO was able to import a contingency from this element.
+- **isAltered**: a boolean equal to true if OpenRAO had to alter some elements of this contingency when importing it.
+- **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
+- **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
+- **CreatedContingencyId**: the ID of the OpenRAO contingency that was created from this native element. This is the
+  ID the user should use to query the internal CRAC & RaoResult objects.
 
 Here is a complete example of CseOutageCreationContext usage:
   
@@ -245,22 +248,25 @@ void printSomeInformation(CseOutageCreationContext context, CracCreationContext 
 ```
 
 ## CIM implementation
-The [CimCracCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/CimCracCreationContext.java) 
-is not a UcteCracCreationParameters implementation.  
+The `CimCracCreationContext` is a custom `CracCreationParameters` implementation.    
 It has all the [non-specific](#non-specific-information) features, plus the following.
 
+~~~{plantuml}
+!include_many uml/CimCracCreationContext.puml
+~~~
+
 ### Contingency series creation contexts
-The [CimContingencyCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/contingency/CimContingencyCreationContext.java) 
+The `CimContingencyCreationContext` 
 contains information about the creation of contingencies in OpenRAO. One CimContingencyCreationContext is created for every 
 [B55](cim.md#contingencies) "Contingency_Series" element in the original CSE CRAC, that can be uniquely identified. 
 It holds the following information:
-- **NativeId** is the unique identifier of the native Contingency_Series (contained in the "mRID" tag)
-- **NativeName** is the user-friendly name of the native Contingency_Series (contained in the "name" tag)
-- **isImported** is a boolean equal to true if OpenRAO was able to import a contingency from this element.
-- **isAltered** is a boolean equal to true if OpenRAO had to alter some elements of this contingency when importing it.
-- **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-- **ImportStatusDetail** is a user-friendly message explaining why the element has not been imported (if applicable)
-- **CreatedContingencyId** holds the ID of the OpenRAO contingency that was created from this native element. This is the
+- **NativeId**: the unique identifier of the native Contingency_Series (contained in the "mRID" tag)
+- **NativeName**: the user-friendly name of the native Contingency_Series (contained in the "name" tag)
+- **isImported**: a boolean equal to true if OpenRAO was able to import a contingency from this element.
+- **isAltered**: a boolean equal to true if OpenRAO had to alter some elements of this contingency when importing it.
+- **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
+- **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
+- **CreatedContingencyId**: the ID of the OpenRAO contingency that was created from this native element. This is the
   ID the user should use to query the internal CRAC & RaoResult objects.
 
 Here is a complete example of CimContingencyCreationContext usage:
@@ -298,34 +304,32 @@ void printSomeInformation(CimContingencyCreationContext context, CracCreationCon
 ```
 
 ### Monitored series creation contexts
-The [MonitoredSeriesCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/cnec/MonitoredSeriesCreationContext.java) 
+The `MonitoredSeriesCreationContext` 
 contains information about the creation of CNECs in OpenRAO. One MonitoredSeriesCreationContext is created for every native 
 [B57](cim.md#flowcnecs) "Monitored_Series" in the original CRAC, that can be uniquely identified. It holds the following information:
-- **NativeId** is the unique identifier of the native Monitored_Series (contained in the "mRID" tag)
-- **NativeName** is the user-friendly name of the native Monitored_Series (contained in the "name" tag)
-- **NativeResourceId** is the ID of the network element monitored by the Monitored_Series (contained in the "RegisteredResource/mRID" tag)
-- **NativeResourceName** is the user-friendly name of the network element monitored by the Monitored_Series (contained in the "RegisteredResource/name" tag)
-- **isImported** is a boolean equal to true if OpenRAO was able to import one or multiple CNECs from this element.
-- **isAltered** is a boolean equal to true if OpenRAO had to alter some elements of this CNEC when importing it.
+- **NativeId**: the unique identifier of the native Monitored_Series (contained in the "mRID" tag)
+- **NativeName**: the user-friendly name of the native Monitored_Series (contained in the "name" tag)
+- **NativeResourceId**: the ID of the network element monitored by the Monitored_Series (contained in the "RegisteredResource/mRID" tag)
+- **NativeResourceName**: the user-friendly name of the network element monitored by the Monitored_Series (contained in the "RegisteredResource/name" tag)
+- **isImported**: a boolean equal to true if OpenRAO was able to import one or multiple CNECs from this element.
+- **isAltered**: a boolean equal to true if OpenRAO had to alter some elements of this CNEC when importing it.
 - **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-- **ImportStatusDetail** is a user-friendly message explaining why the element has not been imported (if applicable)
-- **CreatedCnecIds** holds the ID(s) of the OpenRAO CNEC(s) that were created for this native critical branch. These are the
+- **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
+- **CreatedCnecIds**: the ID(s) of the OpenRAO CNEC(s) that were created for this native critical branch. These are the
   IDs the user should use to query the internal CRAC & RaoResult objects.
-- **MeasurementCreationContexts** is a set
-  of [MeasurementCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/cnec/MeasurementCreationContext.java)
+- **MeasurementCreationContexts**: a set  of `MeasurementCreationContext`
   objects. One MeasurementCreationContexts is created for every "Measurements" tag inside the Monitored_Series. In fact,
   one "Measurement" can create multiple OpenRAO CNECs, depending on the contingencies and instants defined for the
   Monitored_Series in the CIM CRAC (see [here](cim.md#flowcnecs) fore more detail). Every MeasurementCreationContext 
   contains the following information:
-  - **isImported** is a boolean equal to true if OpenRAO was able to import at least one CNEC from this "Measurements".
-  - **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-  - **ImportStatusDetail** is a user-friendly message explaining why the element has not been imported (if applicable)
-  - **CnecCreationContexts** is a map containing, for every state (i.e. (Instant, Contingency) pair), up to one 
-    [CnecCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/cnec/CnecCreationContext.java)
-    . Every CnecCreationContext holds the following information:
-    - **isImported** is a boolean equal to true if OpenRAO was able to import a CNEC from this "Measurements", for the given contingency & instant.
-    - **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-    - **CreatedCnecIds** holds the ID of the OpenRAO CNEC that was created (if applicable) from this "Measurements", for
+  - **isImported**: a boolean equal to true if OpenRAO was able to import at least one CNEC from this "Measurements".
+  - **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
+  - **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
+  - **CnecCreationContexts**: a map containing, for every state (i.e. (Instant, Contingency) pair), up to one 
+    `CnecCreationContext`. Every CnecCreationContext holds the following information:
+    - **isImported**: a boolean equal to true if OpenRAO was able to import a CNEC from this "Measurements", for the given contingency & instant.
+    - **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
+    - **CreatedCnecIds**: the ID of the OpenRAO CNEC that was created (if applicable) from this "Measurements", for
       the given contingency & instant. This is the ID the user should use to query the internal CRAC & RaoResult objects.
 
 Here is a complete example of MonitoredSeriesCreationContext usage to export user-comprehensible RAO results:
@@ -369,17 +373,17 @@ void printSomeResults(MonitoredSeriesCreationContext context, CracCreationContex
 ```
 
 ### Angle CNEC creation contexts
-The [AngleCnecCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/cnec/AngleCnecCreationContext.java)
+The `AngleCnecCreationContext` 
 contains information about the creation of angle CNECs in OpenRAO. One AngleCnecCreationContext is created for every native
 [B56](cim.md#anglecnecs) "AdditionalConstraint_Series" in the original CRAC, that can be uniquely identified. 
 It holds the following information:
-- **NativeId** is the unique identifier of the native AdditionalConstraint_Series (contained in the "mRID" tag)
-- **isImported** is a boolean equal to true if OpenRAO was able to import one or multiple CNECs from this element.
-- **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-- **ImportStatusDetail** is a user-friendly message explaining why the element has not been imported (if applicable)
-- **CreatedCnecId** is the ID of the OpenRAO angle CNEC that was created for this AdditionalConstraint_Series. 
+- **NativeId**: the unique identifier of the native AdditionalConstraint_Series (contained in the "mRID" tag)
+- **isImported**: a boolean equal to true if OpenRAO was able to import one or multiple CNECs from this element.
+- **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
+- **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
+- **CreatedCnecId**: the ID of the OpenRAO angle CNEC that was created for this AdditionalConstraint_Series. 
   This is the ID the user should use to query the internal CRAC & RaoResult objects.
-- **ContingencyId** holds the ID of the contingency for this angle CNEC. It can be used with internal objects.
+- **ContingencyId**: the ID of the contingency for this angle CNEC. It can be used with internal objects.
 
 Here is a complete example of AngleCnecCreationContext usage to export user-comprehensible RAO results:
 
@@ -409,18 +413,18 @@ void printSomeResults(AngleCnecCreationContext context, CracCreationContext crac
 ```
 
 ### Voltage CNEC creation contexts
-The [VoltageCnecCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/cnec/VoltageCnecCreationContext.java)
+The `VoltageCnecCreationContext`
 contains information about the creation of angle CNECs in OpenRAO. One VoltageCnecCreationContext is created for every voltage
 CNEC that should be created, as configured in the [CimCracCreationParameters](creation-parameters.md#voltage-cnecs-creation-parameters). 
 It holds the following information:
-- **NativeNetworkElementId** is the unique identifier of the network element that is monitored
-- **Instant** is the instant for which the CNEC is created
-- **NativeContingencyName** is the name of the contingency for which the CNEC is created (if instant is not preventive), 
+- **NativeNetworkElementId**: the unique identifier of the network element that is monitored
+- **Instant**: the instant for which the CNEC is created
+- **NativeContingencyName**: the name of the contingency for which the CNEC is created (if instant is not preventive), 
   as defined in the "name" field of the [B55](cim.md#contingencies) Contingency_Series
-- **isImported** is a boolean equal to true if OpenRAO was able to import the voltage CNEC
-- **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-- **ImportStatusDetail** is a user-friendly message explaining why the element has not been imported (if applicable)
-- **CreatedCnecId** is the ID of the OpenRAO voltage CNEC that was created. 
+- **isImported**: a boolean equal to true if OpenRAO was able to import the voltage CNEC
+- **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
+- **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
+- **CreatedCnecId**: the ID of the OpenRAO voltage CNEC that was created. 
   This is the ID the user should use to query the internal CRAC & RaoResult objects.
 
 Here is a complete example of VoltageCnecCreationContext usage to export user-comprehensible RAO results:
@@ -451,19 +455,19 @@ void printSomeResults(VoltageCnecCreationContext context, CracCreationContext cr
 ```
 
 ### Remedial action series creation contexts
-The CIM [RemedialActionSeriesCreationContext](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/craccreator/remedialaction/RemedialActionSeriesCreationContext.java)
+The CIM `RemedialActionSeriesCreationContext`
 contains information about the creation of remedial actions in OpenRAO. One RemedialActionSeriesCreationContext is created for every
 [B56](cim.md#remedial-actions) "RemedialAction_Series" element in the original CRAC, that can be uniquely identified. 
 It holds the following information:
-- **NativeId** is the unique identifier of the native RemedialAction_Series (contained in the "mRID" tag)
-- **isImported** is a boolean equal to true if OpenRAO was able to import a remedial action from this element.
-- **isAltered** is a boolean equal to true if OpenRAO had to alter some elements of this remedial action when importing it.
-- **ImportStatus** contains further information about the import status of the element (see [appendix](#elementary-import-status))
-- **ImportStatusDetail** is a user-friendly message explaining why the element has not been imported (if applicable)
-- **isInverted** is a boolean equal to true if the imported remedial action had to be inverted with regard to the original
+- **NativeId**: the unique identifier of the native RemedialAction_Series (contained in the "mRID" tag)
+- **isImported**: a boolean equal to true if OpenRAO was able to import a remedial action from this element.
+- **isAltered**: a boolean equal to true if OpenRAO had to alter some elements of this remedial action when importing it.
+- **ImportStatus**: contains further information about the import status of the element (see [appendix](#elementary-import-status))
+- **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
+- **isInverted**: a boolean equal to true if the imported remedial action had to be inverted with regard to the original
   CRAC convention, in order to comply with the PowSyBl network convention (this is especially useful for HVDC range actions).
   If this field is set to true, the user should be careful to invert results accordingly (see example below).
-- **CreatedIds** holds the IDs of the OpenRAO remedial actions that were created from this native element (generally holds up
+- **CreatedIds**: the IDs of the OpenRAO remedial actions that were created from this native element (generally holds up
   to one ID, except for HVDC range actions where it can hold multiple IDs). These are the IDs the user should use to query
   the internal CRAC & RaoResult objects.
 
@@ -506,10 +510,38 @@ void printSomeResults(RemedialActionSeriesCreationContext context, CracCreationC
 }
 ```
 
+## CSA-profiles implementation
+
+~~~{plantuml}
+!include_many uml/CsaProfileCracCreationContext.puml
+~~~
+
+_**This section is under construction**_
+
+## JSON implementation
+
+The JsonCracCreationContext is a basic implementation of CracCreationContext.  
+Since the [JSON](json) format is OpenRAO's native format, not much transformation is made when importing a json CRAC 
+file; thus, in most cases, the JSON CRAC creation context is not much of a use.  
+However, the importer does not throw exceptions, so it is important to check its success flag.  
+In the future, the object may evolve to contain information about transformations made in the rare cases where the user 
+imports an old version of the JSON file, where some transformations are needed.
+
+~~~{plantuml}
+!include_many uml/JsonCracCreationContext.puml
+~~~
+
 ## Appendix
 ### Elementary import status
-[ImportStatus](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/ImportStatus.java) 
-is an enum field that can be used in the API to filter elements that were not imported for different reasons.  
+
+~~~{plantuml}
+@startuml
+!include_many uml/CracCreationContext.puml!ElementaryCreationContext
+!include_many uml/CracCreationContext.puml!ImportStatus
+@enduml
+~~~
+
+`ImportStatus` is an enumeration that can be used in the API to filter elements that were not imported for different reasons.  
 For instance, the user may choose to write information about CNECs that were not imported because they are not useful in 
 the RAO ("NOT_FOR_RAO"), but ignore the other ones.  
 Here are the possible values of this enum:

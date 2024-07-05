@@ -1,0 +1,4 @@
+@startuml
+!include_many CracCreationContext.puml!CracCreationContext
+CracCreationContext <-- JsonCracCreationContext
+@enduml

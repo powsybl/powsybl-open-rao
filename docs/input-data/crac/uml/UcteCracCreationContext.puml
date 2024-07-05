@@ -1,0 +1,34 @@
+@startuml
+!include_many CracCreationContext.puml!CracCreationContext
+CracCreationContext <|-- UcteCracCreationContext
+
+interface UcteCracCreationContext {
++ List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts()
++ BranchCnecCreationContext getBranchCnecCreationContext(String branchCnecId)
++ List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts()
++ RemedialActionCreationContext getRemedialActionCreationContext(String remedialActionId)
+}
+@enduml
+
+@startuml
+UcteCracCreationContext "1" *--> "*" BranchCnecCreationContext
+UcteCracCreationContext "1" *--> "*" RemedialActionCreationContext
+
+interface BranchCnecCreationContext {
++ NativeBranch getNativeBranch()
++ boolean isBaseCase()
++ Optional<String> getContingencyId()
++ Map<String, String> getCreatedCnecsIds()
++ boolean isDirectionInvertedInNetwork()
+}
+
+interface RemedialActionCreationContext {
+String getCreatedRAId()
+}
+
+!include_many CracCreationContext.puml!ElementaryCreationContext
+BranchCnecCreationContext --|> ElementaryCreationContext
+RemedialActionCreationContext --|> ElementaryCreationContext
+
+!include_many CracCreationContext.puml!ImportStatus
+@enduml

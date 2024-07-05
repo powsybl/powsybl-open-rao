@@ -6,17 +6,18 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch.CseCriticalBranchCreationContext;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 
@@ -39,13 +40,11 @@ class CseCracCreatorWithMneTest {
     private Instant autoInstant;
     private Instant curativeInstant;
 
-    private void setUp(String cracFileName, String networkFileName) {
+    private void setUp(String cracFileName, String networkFileName) throws IOException {
         InputStream is = getClass().getResourceAsStream(cracFileName);
         CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is);
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
-        CseCracCreator cseCracCreator = new CseCracCreator();
-        cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters);
+        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, offsetDateTime, parameters);
         preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = cracCreationContext.getCrac().getInstant(OUTAGE_INSTANT_ID);
         autoInstant = cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID);
@@ -204,7 +203,7 @@ class CseCracCreatorWithMneTest {
     }
 
     @Test
-    void createCracWithMNELittleCase() {
+    void createCracWithMNELittleCase() throws IOException {
         setUp("/cracs/cse_crac_with_MNE.xml", "/networks/TestCase12Nodes_with_Xnodes.uct");
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertAllMneCorrectlyImportedInCriticalBranchesCreationContext();

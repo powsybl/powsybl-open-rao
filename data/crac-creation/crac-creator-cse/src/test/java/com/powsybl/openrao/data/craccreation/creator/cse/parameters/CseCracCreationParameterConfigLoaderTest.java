@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse.parameters;
 
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import org.junit.jupiter.api.Test;

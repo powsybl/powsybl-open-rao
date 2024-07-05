@@ -4,12 +4,12 @@
     <DocumentVersion v="1"/>
     <DocumentType v="Z03"/>
     <ProcessType v="Z03"/>
-    <SenderIdentification v="unit_test_sender_identification" codingScheme="A01"/>
+    <SenderIdentification v="senderEIC" codingScheme="A01"/>
     <SenderRole v="A36"/>
-    <ReceiverIdentification v="unit_test_receiver_identification" codingScheme="A01"/>
+    <ReceiverIdentification v="receiverEIC" codingScheme="A01"/>
     <ReceiverRole v="A04"/>
     <CreationDateTime v="2021-04-30T16:00:00Z"/>
-    <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+    <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
     <Domain v="unit_test_domain" codingScheme="A01"/>
     <CRACSeries>
         <Outages>
@@ -25,7 +25,7 @@
         <RemedialActions>
             <RemedialAction>
                 <Name v="cra_1"/>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Operator v="FR"/>
                 <Application v="CURATIVE"/>
                 <SharedWith v="None"/>
@@ -46,7 +46,7 @@
             </RemedialAction>
         <RemedialAction>
             <Name v="cra_2"/>
-            <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+            <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
             <Operator v="FR"/>
             <Application v="CURATIVE"/>
             <SharedWith v="CSE"/>
@@ -61,7 +61,7 @@
         </RemedialAction>
         <RemedialAction>
             <Name v="cra_3"/>
-            <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+            <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
             <Operator v="FR"/>
             <Application v="CURATIVE"/>
             <SharedWith v="FR"/>
@@ -82,7 +82,7 @@
         </RemedialAction>
             <RemedialAction>
                 <Name v="cra_4"/>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Operator v="FR"/>
                 <Application v="CURATIVE"/>
                 <SharedWith v="NL"/>
@@ -103,7 +103,7 @@
             </RemedialAction>
             <RemedialAction>
                 <Name v="cra_5"/>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Operator v="FR"/>
                 <Application v="CURATIVE"/>
                 <SharedWith v="FR"/>
@@ -118,7 +118,7 @@
             </RemedialAction>
             <RemedialAction>
                 <Name v="cra_6"/>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Operator v="FR"/>
                 <Application v="CURATIVE"/>
                 <SharedWith v="WRONG_COUNTRY"/>
@@ -134,7 +134,7 @@
         </RemedialActions>
         <CriticalBranches>
             <BaseCaseBranches>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Branch>
                     <Name v="basecase_branch_1"/>
                     <FromNode v="NNL2AA1 "/>
@@ -161,7 +161,7 @@
                 </Branch>
             </BaseCaseBranches>
             <CriticalBranch>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Outage v="outage_1"/>
                 <Branch>
                     <Name v="CNEC 1"/>
@@ -179,7 +179,7 @@
                 </Branch>
             </CriticalBranch>
             <CriticalBranch>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Outage v="outage_1"/>
                 <Branch>
                     <Name v="CNEC 2"/>
@@ -192,7 +192,7 @@
                 </Branch>
             </CriticalBranch>
             <CriticalBranch>
-                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00Z"/>
                 <Outage v="outage_1"/>
                 <Branch>
                     <Name v="CNEC 3"/>

@@ -50,7 +50,7 @@
             <mRID>Co-2</mRID>
             <name>Co-2-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <mRID codingScheme="A02">_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
               <name>Co2NetworkElementName</name>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
@@ -61,7 +61,7 @@
           <mRID>RA-Series-1</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-PST-Setpoint</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_1</mRID>
             <name>PRA_1</name>
@@ -74,8 +74,8 @@
               <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
-              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <marketObjectStatus.status>A25</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
             </RegisteredResource>
             <RegisteredResource>
@@ -131,8 +131,8 @@
               <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
-              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <marketObjectStatus.status>A25</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
             </RegisteredResource>
           </RemedialAction_Series>
@@ -148,8 +148,8 @@
               <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
-              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <marketObjectStatus.status>A25</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
             </RegisteredResource>
           </RemedialAction_Series>
@@ -165,8 +165,8 @@
               <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
-              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <marketObjectStatus.status>A25</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
             </RegisteredResource>
           </RemedialAction_Series>
@@ -175,7 +175,7 @@
           <mRID>RA-Series-2</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-PST-Setpoint-0</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_2</mRID>
             <name>Network-Action-Wrong-PST-Setpoint-1</name>
@@ -188,6 +188,7 @@
               <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A52</marketObjectStatus.status>
             </RegisteredResource>
             <RegisteredResource>
               <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
@@ -205,7 +206,7 @@
           <mRID>RA-Series-3</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-PST-Setpoint-2</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_3</mRID>
             <name>Network-Action-Wrong-PST-Setpoint-2</name>
@@ -220,7 +221,7 @@
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
               <marketObjectStatus.status>A26</marketObjectStatus.status>
               <resourceCapacity.defaultCapacity>11</resourceCapacity.defaultCapacity>
-              <resourceCapacity.unitSymbol>C63</resourceCapacity.unitSymbol>
+              <resourceCapacity.unitSymbol>AMP</resourceCapacity.unitSymbol>
             </RegisteredResource>
           </RemedialAction_Series>
         </Series>
@@ -228,7 +229,7 @@
           <mRID>RA-Series-4</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-PST-Setpoint-3</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_4</mRID>
             <name>Network-Action-Wrong-PST-Setpoint-3</name>
@@ -250,7 +251,7 @@
           <mRID>RA-Series-5</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-PST-Setpoint-4</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_5</mRID>
             <name>Network-Action-Wrong-PST-Setpoint-4</name>
@@ -273,7 +274,7 @@
           <mRID>RA-Series-6</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-PST-Setpoint-5</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_6</mRID>
             <name>Network-Action-Wrong-PST-Setpoint-5</name>
@@ -296,7 +297,7 @@
           <mRID>RA-Series-7</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Injection-1</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_7</mRID>
             <name>Network-Action-Injection-1</name>
@@ -327,7 +328,7 @@
           <mRID>RA-Series-8</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Injection-1</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_8</mRID>
             <name>Network-Action-Wrong-Injection-1</name>
@@ -358,7 +359,7 @@
         <mRID>RA-Series-9</mRID>
         <businessType>B56</businessType>
         <name>Network-Action-Wrong-Injection-2</name>
-        <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+        <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
         <RemedialAction_Series>
         <mRID>PRA_9</mRID>
         <name>Network-Action-Wrong-Injection-2</name>
@@ -380,7 +381,7 @@
           <mRID>RA-Series-10</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Injection-3</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_10</mRID>
             <name>Network-Action-Wrong-Injection-3</name>
@@ -401,7 +402,7 @@
           <mRID>RA-Series-11</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Injection-4</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_11</mRID>
             <name>Network-Action-Wrong-Injection-4</name>
@@ -423,7 +424,7 @@
           <mRID>RA-Series-12</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Injection-5</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_12</mRID>
             <name>Network-Action-Wrong-Injection-5</name>
@@ -445,7 +446,7 @@
           <mRID>RA-Series-13</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Injection-6</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_13</mRID>
             <name>Network-Action-Wrong-Injection-6</name>
@@ -467,7 +468,7 @@
           <mRID>RA-Series-14</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Injection-7</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_14</mRID>
             <name>Network-Action-Wrong-Injection-7</name>
@@ -489,7 +490,7 @@
           <mRID>RA-Series-15</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Injection-8</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_15</mRID>
             <name>Network-Action-Wrong-Injection-8</name>
@@ -512,7 +513,7 @@
           <mRID>RA-Series-16</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Injection-9</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_16</mRID>
             <name>Network-Action-Wrong-Injection-9</name>
@@ -535,7 +536,7 @@
           <mRID>RA-Series-17</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Topological</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_17</mRID>
             <name>Network-Action-Topological</name>
@@ -580,7 +581,7 @@
         <mRID>RA-Series-18</mRID>
         <businessType>B56</businessType>
         <name>Network-Action-Wrong-Topo-1</name>
-        <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+        <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
         <RemedialAction_Series>
         <mRID>PRA_18</mRID>
         <name>Network-Action-Wrong-Topo-1</name>
@@ -609,7 +610,7 @@
           <mRID>RA-Series-19</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Topo-2</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_19</mRID>
             <name>Network-Action-Wrong-Topo-2</name>
@@ -630,7 +631,7 @@
           <mRID>RA-Series-20</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Topo-3</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_20</mRID>
             <name>Network-Action-Wrong-Topo-3</name>
@@ -651,7 +652,7 @@
           <mRID>RA-Series-21</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Topo-4</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_21</mRID>
             <name>Network-Action-Wrong-Topo-4</name>
@@ -673,7 +674,7 @@
           <mRID>RA-Series-22</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Topo-5</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_22</mRID>
             <name>Network-Action-Wrong-Topo-5</name>
@@ -694,7 +695,7 @@
           <mRID>RA-Series-23</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Topo-6</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_23</mRID>
             <name>Network-Action-Wrong-Topo-6</name>
@@ -707,6 +708,7 @@
               <pSRType.psrType>B24</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A52</marketObjectStatus.status>
             </RegisteredResource>
           </RemedialAction_Series>
         </Series>
@@ -714,7 +716,7 @@
           <mRID>RA-Series-24</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Topo-7</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_24</mRID>
             <name>Network-Action-Wrong-Topo-7</name>
@@ -735,7 +737,7 @@
           <mRID>RA-Series-25</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Wrong-Topo-8</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_25</mRID>
             <name>Network-Action-Wrong-Topo-8</name>
@@ -756,7 +758,7 @@
           <mRID>RA-Series-26</mRID>
           <businessType>B56</businessType>
           <name>Network-Action-Mix</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <RemedialAction_Series>
             <mRID>PRA_26</mRID>
             <name>Network-Action-Mix</name>
@@ -769,8 +771,8 @@
               <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
-              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <marketObjectStatus.status>A25</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
             </RegisteredResource>
             <RegisteredResource>
@@ -795,7 +797,7 @@
         <mRID>RA-Series-27</mRID>
         <businessType>B56</businessType>
         <name>Network-Action-Mix-With-Contingencies</name>
-        <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+        <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
         <Contingency_Series>
           <mRID>Co-1</mRID>
           <name>Co-1-name</name>
@@ -810,7 +812,7 @@
           <mRID>Co-2</mRID>
           <name>Co-2-name</name>
           <RegisteredResource>
-            <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+            <mRID codingScheme="A02">_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
             <name>Co2NetworkElementName</name>
             <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
             <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
@@ -828,8 +830,8 @@
               <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
-              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <marketObjectStatus.status>A25</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
               <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
             </RegisteredResource>
             <RegisteredResource>

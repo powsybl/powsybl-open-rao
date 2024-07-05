@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.corecneexporter.CoreCneExporter;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;

@@ -66,7 +66,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         // import Crac
         Crac importedCrac;
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            importedCrac = Crac.read(inputStream, Network.create("test", "test"));
+            importedCrac = Crac.read("crac.json", inputStream, Network.create("test", "test"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
