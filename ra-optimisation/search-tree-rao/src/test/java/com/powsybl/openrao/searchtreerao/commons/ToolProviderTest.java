@@ -80,11 +80,10 @@ class ToolProviderTest {
         assertTrue(ToolProvider.cnecIsInCountryList(cnec1, network, Set.of(Country.BE, Country.DE)));
         assertFalse(ToolProvider.cnecIsInCountryList(cnec1, network, Set.of(Country.NL, Country.DE)));
 
-        // TODO : check this behavior
-        /*
-        assertTrue(ToolProvider.cnecIsInCountryList(cnec2, network, Set.of(Country.FR, Country.DE)));
-        assertTrue(ToolProvider.cnecIsInCountryList(cnec2, network, Set.of(Country.BE, Country.DE)));
-        assertTrue(ToolProvider.cnecIsInCountryList(cnec2, network, Set.of(Country.NL, Country.DE)));*/
+        // If country is empty, always return false
+        assertFalse(ToolProvider.cnecIsInCountryList(cnec2, network, Set.of(Country.FR, Country.DE)));
+        assertFalse(ToolProvider.cnecIsInCountryList(cnec2, network, Set.of(Country.BE, Country.DE)));
+        assertFalse(ToolProvider.cnecIsInCountryList(cnec2, network, Set.of(Country.NL, Country.DE)));
     }
 
     @Test

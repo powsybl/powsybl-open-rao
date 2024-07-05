@@ -74,7 +74,6 @@ class CseCracCreator {
 
             creationContext.buildCreationReport();
             CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
-            // TODO : add unit test for CracValidator.validateCrac step when auto RAs are handled
             return creationContext.creationSuccess(crac);
         } catch (OpenRaoException e) {
             creationContext.getCreationReport().error(String.format("CRAC could not be created: %s", e.getMessage()));

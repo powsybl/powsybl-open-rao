@@ -84,7 +84,6 @@ public class NetworkActionCreator {
                 } else if (psrType.equals(CimConstants.PsrType.GENERATION.getStatus()) || psrType.equals(CimConstants.PsrType.LOAD.getStatus())) {
                     // Injection elementary action
                     addInjectionSetpointElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
-                    // ------ TODO : Missing check : default capacity in ohms
                 } else if (psrType.equals(CimConstants.PsrType.LINE.getStatus()) && remedialActionRegisteredResource.getMarketObjectStatusStatus().equals(CimConstants.MarketObjectStatus.ABSOLUTE.getStatus())) {
                     this.networkActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format("Modify line impedance as remedial action on elementary action %s", elementaryActionId));
                     return;

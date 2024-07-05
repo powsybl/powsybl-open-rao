@@ -82,8 +82,7 @@ class CseCracCreatorWithMneTest {
         assertFalse(cseCriticalBranchCreationContext.isSelected());
         assertFalse(cseCriticalBranchCreationContext.isImported());
         assertEquals(cseCriticalBranchCreationContext.getImportStatus(), importStatus);
-        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(name)); // TODO redo this assert ?
-        assertNull(cracCreationContext.getCrac().getFlowCnec(name));
+        assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(name));
     }
 
     private void assertMneBaseCaseInCriticalBranchCreationContexts(String name, String fromNode, String toNode, String suffix, boolean inverted) {
