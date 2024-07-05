@@ -67,7 +67,7 @@ public interface CracFactory {
             }
             throw new OpenRaoException("Crac factory '" + factoryName + "' not found");
         } else {
-            throw new OpenRaoException("No CracFactory implementation found, or no default implementation set and multiple implementation found.");
+            throw new OpenRaoException("No CracFactory implementation found, or no default implementation set and multiple implementations found.");
         }
     }
 

@@ -764,7 +764,7 @@ class CastorFullOptimizationTest {
 
         assertEquals(671.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(429.22, raoResult.getFunctionalCost(crac.getInstant(InstantKind.PREVENTIVE)), 1.);
-        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative1")), 1.); // TODO
+        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative1")), 1.);
         assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative3")), 1.);
     }
 
@@ -871,8 +871,8 @@ class CastorFullOptimizationTest {
 
         assertEquals(671.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(429.22, raoResult.getFunctionalCost(crac.getInstant(InstantKind.PREVENTIVE)), 1.);
-        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative1")), 1.); // TODO
-        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative2")), 1.); // TODO
+        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative1")), 1.);
+        assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative2")), 1.);
         assertEquals(-20.30, raoResult.getFunctionalCost(crac.getInstant("curative3")), 1.);
     }
 
