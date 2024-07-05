@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext;
 
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
 
 import java.util.List;
 

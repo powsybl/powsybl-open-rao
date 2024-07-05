@@ -7,7 +7,7 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 
 import java.util.Map;
 

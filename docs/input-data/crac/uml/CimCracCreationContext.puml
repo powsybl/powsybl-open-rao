@@ -1,0 +1,73 @@
+@startuml
+!include_many CracCreationContext.puml
+
+CracCreationContext <|-- CimCracCreationContext
+
+class CimCracCreationContext {
++ Set<CimContingencyCreationContext> getContingencyCreationContexts()
++ MonitoredSeriesCreationContext getMonitoredSeriesCreationContext(String seriesId)
++ Map<String, MonitoredSeriesCreationContext> getMonitoredSeriesCreationContexts()
++ Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContexts()
++ RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId)
++ CimContingencyCreationContext getContingencyCreationContextById(String contingencyId)
++ CimContingencyCreationContext getContingencyCreationContextByName(String contingencyName)
++ Set<AngleCnecCreationContext> getAngleCnecCreationContexts()
++ AngleCnecCreationContext getAngleCnecCreationContext(String seriesId)
++ Set<VoltageCnecCreationContext> getVoltageCnecCreationContexts()
++ VoltageCnecCreationContext getVoltageCnecCreationContext(String nativeNetworkElementId, String instantId, String nativeContingencyName)
++ Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForNetworkElement(String nativeNetworkElementId)
++ Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForContingency(String nativeContingencyName)
+}
+
+CimCracCreationContext "1" *--> "*" CimContingencyCreationContext
+CimCracCreationContext "1" *--> "*" MonitoredSeriesCreationContext
+CimCracCreationContext "1" *--> "*" RemedialActionSeriesCreationContext
+CimCracCreationContext "1" *--> "*" AngleCnecCreationContext
+CimCracCreationContext "1" *--> "*" VoltageCnecCreationContext
+
+class CimContingencyCreationContext {
++ String getNativeName()
++ String getCreatedContingencyId()
+}
+
+class RemedialActionSeriesCreationContext {
++ boolean isInverted()
++ Set<String> getCreatedIds()
+}
+
+class AngleCnecCreationContext {
++ String getCreatedCnecId()
++ String getContingencyId()
++ String getSerieId()
+}
+
+class VoltageCnecCreationContext {
++ String getNativeNetworkElementId()
++ String getInstantId()
++ String getNativeContingencyName()
++ ImportStatus getImportStatus()
++ String getImportStatusDetail()
++ String getCreatedCnecId()
++ boolean isImported()
+}
+
+class MonitoredSeriesCreationContext {
++ String getNativeId()
++ String getNativeName()
++ String getNativeResourceId()
++ String getNativeResourceName()
++ boolean isImported()
++ ImportStatus getImportStatus()
++ String getImportStatusDetail()
++ Set<MeasurementCreationContext> getMeasurementCreationContexts()
++ boolean isAltered()
++ Set<String> getCreatedCnecIds()
+}
+
+!include_many CracCreationContext.puml!ElementaryCreationContext
+
+CimContingencyCreationContext --|> ElementaryCreationContext
+RemedialActionSeriesCreationContext --|> ElementaryCreationContext
+AngleCnecCreationContext --|> ElementaryCreationContext
+VoltageCnecCreationContext --|> ElementaryCreationContext
+@enduml
