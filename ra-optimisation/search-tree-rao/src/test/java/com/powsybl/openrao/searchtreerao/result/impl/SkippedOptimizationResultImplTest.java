@@ -63,10 +63,10 @@ class SkippedOptimizationResultImplTest {
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getPtdfZonalSum(flowCnec, side));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getPtdfZonalSums());
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getCostlyElements("emptyString", 10));
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction, state));
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
+        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction));
+        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpoints());
+        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction));
+        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTaps());
         assertThrows(OpenRaoException.class, skippedOptimizationResult::getObjectiveFunction);
     }
 
@@ -101,6 +101,6 @@ class SkippedOptimizationResultImplTest {
         assertTrue(skippedOptimizationResult.isActivated(na2));
         assertFalse(skippedOptimizationResult.isActivated(na3));
         assertEquals(rangeActions, skippedOptimizationResult.getRangeActions());
-        assertEquals(rangeActions, skippedOptimizationResult.getActivatedRangeActions(state));
+        assertEquals(rangeActions, skippedOptimizationResult.getActivatedRangeActions());
     }
 }

@@ -6,6 +6,7 @@
  */
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -19,7 +20,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtens
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
-import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -169,13 +170,13 @@ class SearchTreeParametersTest {
             )
             .build();
 
-        OptimizationResult preventiveOptimizationResult = Mockito.mock(OptimizationResult.class);
+        PerimeterResultWithCnecs preventiveOptimizationResult = Mockito.mock(PerimeterResultWithCnecs.class);
         when(preventiveOptimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(crac.getNetworkAction("prev-open-be-1"), crac.getNetworkAction("prev-close-be-2")));
-        when(preventiveOptimizationResult.getActivatedRangeActions(crac.getPreventiveState())).thenReturn(Set.of(crac.getPstRangeAction("prev-pst-fr")));
+        when(preventiveOptimizationResult.getActivatedRangeActions()).thenReturn(Set.of(crac.getPstRangeAction("prev-pst-fr")));
 
-        OptimizationResult curative1OptimizationResult = Mockito.mock(OptimizationResult.class);
+        PerimeterResultWithCnecs curative1OptimizationResult = Mockito.mock(PerimeterResultWithCnecs.class);
         when(curative1OptimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(crac.getNetworkAction("cur1-open-fr-1")));
-        when(curative1OptimizationResult.getActivatedRangeActions(crac.getState("contingency", crac.getInstant("curative1")))).thenReturn(Set.of(crac.getPstRangeAction("cur1-pst-be")));
+        when(curative1OptimizationResult.getActivatedRangeActions()).thenReturn(Set.of(crac.getPstRangeAction("cur1-pst-be")));
 
         parameters.decreaseRemedialActionUsageLimits(Map.of(crac.getPreventiveState(), preventiveOptimizationResult, crac.getState("contingency", crac.getInstant("curative1")), curative1OptimizationResult));
 

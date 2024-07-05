@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -39,28 +40,28 @@ class MaximumNumberOfRemedialActionsFilterTest {
         Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_BE_1, IND_NL_BE, IND_NL_1, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_DE_BE));
 
         // arrange previous Leaf -> naFr1 has already been activated
-        Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
+        OptimizationResult previousLeafResult = Mockito.mock(OptimizationResult.class);
+        Mockito.when(previousLeafResult.getActivatedNetworkActions()).thenReturn(Collections.singleton(NA_FR_1));
 
         MaximumNumberOfRemedialActionsFilter naFilter;
         Set<NetworkActionCombination> filteredNaCombination;
 
         // filter - max 4 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(4);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeafResult);
 
         assertEquals(8, filteredNaCombination.size()); // no combination filtered
 
         // filter - max 3 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(3);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeafResult);
 
         assertEquals(7, filteredNaCombination.size()); // one combination filtered
         assertFalse(filteredNaCombination.contains(COMB_3_BE));
 
         // max 2 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(2);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeafResult);
 
         assertEquals(4, filteredNaCombination.size());
         assertTrue(filteredNaCombination.contains(IND_FR_2));
@@ -70,7 +71,7 @@ class MaximumNumberOfRemedialActionsFilterTest {
 
         // max 1 RAs
         naFilter = new MaximumNumberOfRemedialActionsFilter(1);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeafResult);
 
         assertEquals(0, filteredNaCombination.size()); // all combination filtered
     }

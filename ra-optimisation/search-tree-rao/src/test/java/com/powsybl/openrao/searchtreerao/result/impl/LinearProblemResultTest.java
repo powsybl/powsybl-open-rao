@@ -10,18 +10,12 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +36,6 @@ class LinearProblemResultTest {
     private RangeAction<?> ra3;
     private RangeAction<?> ra4;
     private Map<State, Set<RangeAction<?>>> rangeActionsPerState;
-    private RangeActionResult prePerimeterRangeActionSetpoints;
 
     @BeforeEach
     public void setUp() {
@@ -85,13 +78,6 @@ class LinearProblemResultTest {
         rangeActionsPerState = Map.of(
             preventiveState, Set.of(pst1, pst2, ra4),
             aCurativeState, Set.of(pst1, ra3, ra4));
-
-        prePerimeterRangeActionSetpoints = new RangeActionResultImpl(Map.of(
-            pst1, 0.8,
-            pst2, 5.4,
-            ra3, 600.,
-            ra4, -200.
-        ));
 
         // pst1 activated in preventive
         // pst2 not activated
@@ -158,45 +144,33 @@ class LinearProblemResultTest {
 
     @Test
     void testGetOptimizedSetPointPreventivePerimeter() {
-        OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
-            preventiveState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(preventiveState));
-
-        linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
-        assertEquals(2.3, linearProblemResult.getOptimizedSetpoint(pst1, preventiveState), DOUBLE_TOLERANCE);
-        assertEquals(5.4, linearProblemResult.getOptimizedSetpoint(pst2, preventiveState), DOUBLE_TOLERANCE);
-        assertEquals(-300., linearProblemResult.getOptimizedSetpoint(ra4, preventiveState), DOUBLE_TOLERANCE);
-        assertEquals(Set.of(pst1, ra4), linearProblemResult.getActivatedRangeActions(preventiveState));
+        linearProblemResult = new LinearProblemResult(linearProblem);
+        assertEquals(2.3, linearProblemResult.getSetpointOnState(pst1, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(5.4, linearProblemResult.getSetpointOnState(pst2, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(-300., linearProblemResult.getSetpointOnState(ra4, preventiveState), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetOptimizedSetPointCurativePerimeter() {
-        OptimizationPerimeter optimizationPerimeter = new CurativeOptimizationPerimeter(
-            aCurativeState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(aCurativeState));
 
-        linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
-        assertEquals(0.8, linearProblemResult.getOptimizedSetpoint(pst1, aCurativeState), DOUBLE_TOLERANCE);
-        assertEquals(200., linearProblemResult.getOptimizedSetpoint(ra3, aCurativeState), DOUBLE_TOLERANCE);
-        assertEquals(700., linearProblemResult.getOptimizedSetpoint(ra4, aCurativeState), DOUBLE_TOLERANCE);
-        assertEquals(Set.of(ra3, ra4), linearProblemResult.getActivatedRangeActions(aCurativeState));
+        linearProblemResult = new LinearProblemResult(linearProblem);
+        assertEquals(0.8, linearProblemResult.getSetpointOnState(pst1, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(200., linearProblemResult.getSetpointOnState(ra3, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(700., linearProblemResult.getSetpointOnState(ra4, aCurativeState), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetOptimizedSetPointGlobalPerimeter() {
-        OptimizationPerimeter optimizationPerimeter = new GlobalOptimizationPerimeter(
-            aCurativeState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState);
+        linearProblemResult = new LinearProblemResult(linearProblem);
+        assertEquals(2.3, linearProblemResult.getSetpointOnState(pst1, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(5.4, linearProblemResult.getSetpointOnState(pst2, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(600., linearProblemResult.getSetpointOnState(ra3, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(-300., linearProblemResult.getSetpointOnState(ra4, preventiveState), DOUBLE_TOLERANCE);
 
-        linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
-        assertEquals(2.3, linearProblemResult.getOptimizedSetpoint(pst1, preventiveState), DOUBLE_TOLERANCE);
-        assertEquals(5.4, linearProblemResult.getOptimizedSetpoint(pst2, preventiveState), DOUBLE_TOLERANCE);
-        assertEquals(600., linearProblemResult.getOptimizedSetpoint(ra3, preventiveState), DOUBLE_TOLERANCE);
-        assertEquals(-300., linearProblemResult.getOptimizedSetpoint(ra4, preventiveState), DOUBLE_TOLERANCE);
-        assertEquals(Set.of(pst1, ra4), linearProblemResult.getActivatedRangeActions(preventiveState));
-
-        assertEquals(2.3, linearProblemResult.getOptimizedSetpoint(pst1, aCurativeState), DOUBLE_TOLERANCE);
-        assertEquals(5.4, linearProblemResult.getOptimizedSetpoint(pst2, aCurativeState), DOUBLE_TOLERANCE);
-        assertEquals(200., linearProblemResult.getOptimizedSetpoint(ra3, aCurativeState), DOUBLE_TOLERANCE);
-        assertEquals(700., linearProblemResult.getOptimizedSetpoint(ra4, aCurativeState), DOUBLE_TOLERANCE);
-        assertEquals(Set.of(ra3, ra4), linearProblemResult.getActivatedRangeActions(aCurativeState));
+        assertEquals(2.3, linearProblemResult.getSetpointOnState(pst1, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(5.4, linearProblemResult.getSetpointOnState(pst2, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(200., linearProblemResult.getSetpointOnState(ra3, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(700., linearProblemResult.getSetpointOnState(ra4, aCurativeState), DOUBLE_TOLERANCE);
     }
 
 }

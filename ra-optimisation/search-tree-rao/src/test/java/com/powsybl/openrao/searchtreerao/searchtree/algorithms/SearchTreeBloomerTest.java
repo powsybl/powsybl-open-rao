@@ -8,11 +8,11 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
-import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import org.junit.jupiter.api.Test;
@@ -38,9 +38,9 @@ class SearchTreeBloomerTest {
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
 
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
-        Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
-        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2));
+        OptimizationResult leafResult = Mockito.mock(OptimizationResult.class);
+        Mockito.when(leafResult.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leafResult, Set.of(na1, na2));
         assertEquals(2, bloomResults.size());
         assertTrue(bloomResults.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na1)));
         assertTrue(bloomResults.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na2)));
@@ -54,9 +54,9 @@ class SearchTreeBloomerTest {
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
 
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
-        Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
-        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leaf, Set.of(na1, na2));
+        OptimizationResult leafResult = Mockito.mock(OptimizationResult.class);
+        Mockito.when(leafResult.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        Set<NetworkActionCombination> bloomResults = bloomer.bloom(leafResult, Set.of(na1, na2));
         assertEquals(4, bloomResults.size());
     }
 
@@ -66,9 +66,9 @@ class SearchTreeBloomerTest {
         Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_3_FR_NL_BE));
 
         // mock Leaf
-        Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
-        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
+        OptimizationResult leafResult = Mockito.mock(OptimizationResult.class);
+        Mockito.when(leafResult.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
+        Mockito.when(leafResult.getActivatedRangeActions()).thenReturn(Set.of(RA_BE_1));
 
         // init bloomer with raUsageLimits
         RaUsageLimits raUsageLimits = new RaUsageLimits();
@@ -81,16 +81,16 @@ class SearchTreeBloomerTest {
         // 1- (maxRa): The combination has more than one network action
         // 2- (maxTso): It contains any other operator than FR or BE
         // 3- (maxRaPerTso): It cannot contain the operator BE
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_NL_1, leaf));
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_BE_1, leaf));
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_BE_NL, leaf));
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_FR_NL, leaf));
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_3_FR_NL_BE, leaf));
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_FR, leaf));
-        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_3_BE, leaf));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_NL_1, leafResult));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_BE_1, leafResult));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_BE_NL, leafResult));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_FR_NL, leafResult));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_3_FR_NL_BE, leafResult));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_FR, leafResult));
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_3_BE, leafResult));
         // otherwise they can be kept.
-        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_FR_2, leaf));
-        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_FR_DE, leaf));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_FR_2, leafResult));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_FR_DE, leafResult));
     }
 
     @Test
@@ -99,9 +99,9 @@ class SearchTreeBloomerTest {
         Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_3_FR_NL_BE));
 
         // mock Leaf
-        Leaf leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
-        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
+        OptimizationResult leafResult = Mockito.mock(OptimizationResult.class);
+        Mockito.when(leafResult.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1));
+        Mockito.when(leafResult.getActivatedRangeActions()).thenReturn(Set.of(RA_BE_1));
 
         // init bloomer with fake raUsageLimits
         Instant fakeInstant = Mockito.mock(Instant.class);
@@ -109,7 +109,7 @@ class SearchTreeBloomerTest {
 
         // asserts that no range action should be removed as there are no RaUsageLimits in preventive
         for (NetworkActionCombination na : naCombinations) {
-            assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(na, leaf));
+            assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(na, leafResult));
         }
     }
 

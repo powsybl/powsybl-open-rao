@@ -20,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.*;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
     private InjectionRangeAction injection;
     private Map<State, Set<RangeAction<?>>> rangeActionsPerState;
     private RangeActionResult prePerimeterRangeActionResult;
-    private RangeActionResult prePerimeterRangeActionResult;
+    private MultiStateRemedialActionResultImpl multiStateRemedialActionResult;
     private State state;
 
     private LinearProblem linearProblem;
@@ -85,17 +86,17 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         prePerimeterRangeActionResult = mock(RangeActionResult.class);
 
         when(prePerimeterRangeActionResult.getRangeActions()).thenReturn(rangeActions);
-        when(prePerimeterRangeActionResult.getSetpoint(pst1)).thenReturn(1.);
-        when(prePerimeterRangeActionResult.getSetpoint(pst2)).thenReturn(2.);
-        when(prePerimeterRangeActionResult.getSetpoint(pst3)).thenReturn(3.);
-        when(prePerimeterRangeActionResult.getSetpoint(hvdc)).thenReturn(4.);
-        when(prePerimeterRangeActionResult.getSetpoint(injection)).thenReturn(5.);
+        when(prePerimeterRangeActionResult.getOptimizedSetpoint(pst1)).thenReturn(1.);
+        when(prePerimeterRangeActionResult.getOptimizedSetpoint(pst2)).thenReturn(2.);
+        when(prePerimeterRangeActionResult.getOptimizedSetpoint(pst3)).thenReturn(3.);
+        when(prePerimeterRangeActionResult.getOptimizedSetpoint(hvdc)).thenReturn(4.);
+        when(prePerimeterRangeActionResult.getOptimizedSetpoint(injection)).thenReturn(5.);
 
         prePerimeterRangeActionResult = new RangeActionResultImpl(prePerimeterRangeActionResult);
 
         rangeActions.forEach(ra -> {
-            double min = -10 * prePerimeterRangeActionResult.getOptimizedSetpoint(ra, state);
-            double max = 20 * prePerimeterRangeActionResult.getOptimizedSetpoint(ra, state);
+            double min = -10 * multiStateRemedialActionResult.getOptimizedSetpointOnState(ra, state);
+            double max = 20 * multiStateRemedialActionResult.getOptimizedSetpointOnState(ra, state);
             when(ra.getMinAdmissibleSetpoint(anyDouble())).thenReturn(min);
             when(ra.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(max);
         });
@@ -110,7 +111,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             prePerimeterRangeActionResult,
-            prePerimeterRangeActionResult,
+            multiStateRemedialActionResult,
             rangeActionParameters,
             Unit.MEGAWATT,
             false);
@@ -129,7 +130,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         rangeActionsPerState.get(state).forEach(ra -> {
             Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionVariationBinary(ra, state));
@@ -151,7 +152,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         rangeActionsPerState.get(state).forEach(ra -> {
             OpenRaoMPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
@@ -161,7 +162,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertNotNull(constraint);
 
             OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
-            double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetpoint(ra, state);
+            double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetpoint(ra);
 
             assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
@@ -183,7 +184,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         rangeActionsPerState.get(state).forEach(ra -> {
             OpenRaoMPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
@@ -193,7 +194,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertNotNull(constraint);
 
             OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
-            double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetpoint(ra, state);
+            double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetpoint(ra);
             double relaxation = 1e-5;
             if (ra.getId().equals("pst1")) {
                 relaxation = 0.3 * 6.9 / 2;
@@ -223,7 +224,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxTsoConstraint(state));
         assertEquals("Constraint maxtso_preventive_constraint has not been created yet", e.getMessage());
@@ -255,7 +256,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxRaConstraint(state));
         assertEquals("Constraint maxra_preventive_constraint has not been created yet", e.getMessage());
@@ -276,7 +277,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         OpenRaoMPConstraint constraint = linearProblem.getMaxRaConstraint(state);
         assertNotNull(constraint);
@@ -309,7 +310,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         OpenRaoMPConstraint constraint = linearProblem.getMaxTsoConstraint(state);
         assertNotNull(constraint);
@@ -341,7 +342,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         OpenRaoMPConstraint constraint = linearProblem.getMaxTsoConstraint(state);
         assertNotNull(constraint);
@@ -368,7 +369,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         OpenRaoMPConstraint constraintA = linearProblem.getMaxRaPerTsoConstraint("opA", state);
         assertNotNull(constraintA);
@@ -408,7 +409,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();
-        linearProblem.fill(flowResult, sensitivityResult);
+        linearProblem.fill(flowAndSensiResult);
 
         OpenRaoMPConstraint constraintA = linearProblem.getMaxPstPerTsoConstraint("opA", state);
         assertNotNull(constraintA);
