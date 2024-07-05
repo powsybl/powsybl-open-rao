@@ -15,31 +15,23 @@ import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreators;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cse.CseCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.fbconstraint.craccreator.FbConstraintCreationContext;
-import com.powsybl.openrao.data.cracioapi.CracExporters;
-import com.powsybl.openrao.data.cracioapi.CracImporters;
-import com.powsybl.openrao.data.craciojson.JsonImport;
-import com.powsybl.openrao.data.nativecracapi.NativeCrac;
-import com.powsybl.openrao.data.nativecracioapi.NativeCracImporter;
-import com.powsybl.openrao.data.nativecracioapi.NativeCracImporters;
+import com.powsybl.openrao.data.craccreation.creator.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.data.raoresultjson.RaoResultImporter;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
 import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultImporter;
-import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCimCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCsaProfileCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCseCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripFbConstraintCreationContext;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -63,7 +55,7 @@ public final class Helpers {
         return Network.read(Paths.get(networkFile.toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
-    public static Pair<Crac, CracCreationContext> importCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) {
+    public static Pair<Crac, CracCreationContext> importCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) throws IOException {
         if (cracFile.getName().endsWith(".json")) {
             // for now, the only JSON format is the farao internal format
             return Pair.of(importCracFromInternalFormat(cracFile, network), null);
@@ -75,13 +67,13 @@ public final class Helpers {
 
     public static Crac importCracFromInternalFormat(File cracFile, Network network) {
         try {
-            return roundTripOnCrac(new JsonImport().importCrac(new FileInputStream(cracFile), network), network);
+            return roundTripOnCrac(Crac.read("crac.json", new FileInputStream(cracFile), network), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static CracCreationContext importCracFromNativeCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) {
+    public static CracCreationContext importCracFromNativeCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) throws IOException {
         byte[] cracBytes = null;
         try (InputStream cracInputStream = new BufferedInputStream(new FileInputStream(cracFile))) {
             cracBytes = getBytesFromInputStream(cracInputStream);
@@ -90,10 +82,7 @@ public final class Helpers {
             throw new OpenRaoException("Could not load CRAC file", e);
         }
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-
-        NativeCracImporter<?> nativeCracImporter = NativeCracImporters.findImporter(cracFile.getName(), new ByteArrayInputStream(cracBytes));
-        NativeCrac nativeCrac = nativeCracImporter.importNativeCrac(new ByteArrayInputStream(cracBytes));
-        CracCreationContext cracCreationContext = CracCreators.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters);
+        CracCreationContext cracCreationContext = Crac.readWithContext(cracFile.getName(), new ByteArrayInputStream(cracBytes), network, offsetDateTime, cracCreationParameters);
         // round-trip CRAC json export/import to test it implicitly
         return roundTripOnCracCreationContext(cracCreationContext, network);
     }
@@ -105,14 +94,14 @@ public final class Helpers {
         byte[] cracBytes = null;
         try (InputStream cracInputStream = new BufferedInputStream(new FileInputStream(cracFile))) {
             cracBytes = getBytesFromInputStream(cracInputStream);
+            return Crac.getCracFormat(cracFile.getName(), new ByteArrayInputStream(cracBytes));
         } catch (IOException e) {
             e.printStackTrace();
             throw new OpenRaoException("Could not load CRAC file", e);
         }
-        return NativeCracImporters.findImporter(cracFile.getName(), new ByteArrayInputStream(cracBytes)).getFormat();
     }
 
-    private static CracCreationContext roundTripOnCracCreationContext(CracCreationContext cracCreationContext, Network network) {
+    private static CracCreationContext roundTripOnCracCreationContext(CracCreationContext cracCreationContext, Network network) throws IOException {
         Crac crac = roundTripOnCrac(cracCreationContext.getCrac(), network);
         if (cracCreationContext instanceof FbConstraintCreationContext) {
             return new RoundTripFbConstraintCreationContext((FbConstraintCreationContext) cracCreationContext, crac);
@@ -127,14 +116,14 @@ public final class Helpers {
         }
     }
 
-    private static Crac roundTripOnCrac(Crac crac, Network network) {
+    private static Crac roundTripOnCrac(Crac crac, Network network) throws IOException {
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        CracExporters.exportCrac(crac, "Json", outputStream);
+        crac.write("JSON", outputStream);
 
         // import Crac
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        return CracImporters.importCrac("crac.json", inputStream, network);
+        return Crac.read("crac.json", inputStream, network);
     }
 
     public static ZonalData<SensitivityVariableSet> importUcteGlskFile(File glskFile, String timestamp, Network network) throws IOException {
@@ -180,7 +169,7 @@ public final class Helpers {
 
     public static RaoResult importRaoResult(File raoResultFile) throws IOException {
         InputStream inputStream = new FileInputStream(raoResultFile);
-        RaoResult raoResult = new RaoResultImporter().importRaoResult(inputStream, CommonTestData.getCrac());
+        RaoResult raoResult = RaoResult.read(inputStream, CommonTestData.getCrac());
         inputStream.close();
         return raoResult;
     }

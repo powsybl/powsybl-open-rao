@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A **R**emedial **A**ction **O**ptimisation process provides an optimal list of remedial actions to be applied in basecase and after contingencies listed in the [CRAC](/input-data/crac/introduction.md). The decisions are based upon the impact of these remedial actions on the CRAC's [CNECs](/input-data/crac/introduction.md#cnec).
+A **R**emedial **A**ction **O**ptimisation process provides an optimal list of remedial actions to be applied in basecase and after contingencies listed in the [CRAC](/input-data/crac.md). The decisions are based upon the impact of these remedial actions on the CRAC's [CNECs](/input-data/crac.md#cnec).
 
 A **RaoResult object model** has been designed in OpenRAO in order to hold all the important results of optimisation.
 In this page, we present:
@@ -32,7 +32,7 @@ A RaoResult JSON file can be imported into a [RaoResultImpl](https://github.com/
 Example:
 
 ~~~java
-new RaoResultExporter().export(raoResult, crac, flowUnits, outputStream);
+raoResult.write("JSON", crac, flowUnits, outputStream);
 ~~~
 
 Where:
@@ -46,7 +46,7 @@ Where:
 Example:
 
 ~~~java
-RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 ~~~
 
 Where:

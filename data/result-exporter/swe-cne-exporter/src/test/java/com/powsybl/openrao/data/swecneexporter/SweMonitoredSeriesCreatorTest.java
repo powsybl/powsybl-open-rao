@@ -11,11 +11,11 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.CnecCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MeasurementCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MonitoredSeriesCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CnecCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.MeasurementCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.MonitoredSeriesCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredSeries;
 import com.powsybl.iidm.network.Branch;
@@ -173,7 +173,7 @@ class SweMonitoredSeriesCreatorTest {
         Mockito.when(state.getContingency()).thenReturn(Objects.isNull(contingency) ? Optional.empty() : Optional.of(contingency));
         Mockito.when(cnec.getState()).thenReturn(state);
 
-        Mockito.when(cnec.getIMax(Side.LEFT)).thenReturn(1000.);
+        Mockito.when(cnec.getIMax(TwoSides.ONE)).thenReturn(1000.);
 
         NetworkElement networkElement = Mockito.mock(NetworkElement.class);
         Mockito.when(networkElement.getId()).thenReturn(resourceId);
@@ -203,10 +203,10 @@ class SweMonitoredSeriesCreatorTest {
             cnecId = mscc.getNativeName() + " - " + instant;
         }
         FlowCnec flowCnec = crac.getFlowCnec(cnecId);
-        Mockito.when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT, Side.RIGHT));
-        Mockito.when(raoResult.getFlow(instant, flowCnec, Side.LEFT, Unit.AMPERE)).thenReturn(flow);
-        Mockito.when(raoResult.getFlow(instant, flowCnec, Side.RIGHT, Unit.AMPERE)).thenReturn(flow + 10);
-        Mockito.when(flowCnec.computeMargin(flow, Side.LEFT, Unit.AMPERE)).thenReturn(1000 - flow);
-        Mockito.when(flowCnec.computeMargin(flow, Side.RIGHT, Unit.AMPERE)).thenReturn(1100 - flow);
+        Mockito.when(flowCnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE, TwoSides.TWO));
+        Mockito.when(raoResult.getFlow(instant, flowCnec, TwoSides.ONE, Unit.AMPERE)).thenReturn(flow);
+        Mockito.when(raoResult.getFlow(instant, flowCnec, TwoSides.TWO, Unit.AMPERE)).thenReturn(flow + 10);
+        Mockito.when(flowCnec.computeMargin(flow, TwoSides.ONE, Unit.AMPERE)).thenReturn(1000 - flow);
+        Mockito.when(flowCnec.computeMargin(flow, TwoSides.TWO, Unit.AMPERE)).thenReturn(1100 - flow);
     }
 }

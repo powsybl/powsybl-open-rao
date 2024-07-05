@@ -6,11 +6,11 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cse;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreator;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch.TCriticalBranchesAdder;
 import com.powsybl.openrao.data.craccreation.creator.cse.criticalbranch.TMonitoredElementsAdder;
 import com.powsybl.openrao.data.craccreation.creator.cse.outage.TOutageAdder;
@@ -22,8 +22,6 @@ import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.data.cracutil.CracValidator;
-import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.Network;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -31,19 +29,12 @@ import java.util.List;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-@AutoService(CracCreator.class)
-public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationContext> {
+class CseCracCreator {
     CseCracCreationContext creationContext;
 
-    @Override
-    public String getNativeCracFormat() {
-        return "CseCrac";
-    }
-
-    @Override
-    public CseCracCreationContext createCrac(CseCrac cseCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    CseCracCreationContext createCrac(CRACDocumentType cseCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         // Set attributes
-        Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getCracDocument().getDocumentIdentification().getV());
+        Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getDocumentIdentification().getV());
         addCseInstants(crac);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
         this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
@@ -69,7 +60,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
         try {
             UcteNetworkAnalyzer ucteNetworkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS));
 
-            TCRACSeries tcracSeries = getCracSeries(cseCrac.getCracDocument());
+            TCRACSeries tcracSeries = getCracSeries(cseCrac);
             // Add outages
             new TOutageAdder(tcracSeries, crac, ucteNetworkAnalyzer, creationContext).add();
             // Add critical branches
@@ -97,7 +88,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             .newInstant("curative", InstantKind.CURATIVE);
     }
 
-    public static TCRACSeries getCracSeries(CRACDocumentType cracDocumentType) {
+    private static TCRACSeries getCracSeries(CRACDocumentType cracDocumentType) {
         // Check that there is only one CRACSeries in the file, which defines the CRAC
         // XSD enables several CRACSeries but without any further specification it doesn't make sense.
         List<TCRACSeries> tcracSeriesList = cracDocumentType.getCRACSeries();

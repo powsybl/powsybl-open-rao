@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
@@ -45,18 +45,15 @@ public final class BestTapFinder {
      * If virtual costs are an important part of the optimization, it is highly recommended to use APPROXIMATED_INTEGERS
      * taps in the linear optimization, rather than relying on the best tap finder to round the taps.
      *
-     * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
-    public static RangeActionActivationResult round(RangeActionActivationResult linearProblemResult,
+    public static RangeActionActivationResultImpl round(RangeActionActivationResult linearProblemResult,
                                                     Network network,
                                                     OptimizationPerimeter optimizationContext,
                                                     RangeActionSetpointResult prePerimeterSetpoint,
                                                     LinearOptimizationResult linearOptimizationResult,
                                                     Unit unit) {
-
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoint);
         findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit);
-        roundOtherRa(linearProblemResult, optimizationContext, roundedResult);
         return roundedResult;
     }
 
@@ -66,7 +63,6 @@ public final class BestTapFinder {
                                                      LinearOptimizationResult linearOptimizationResult,
                                                      RangeActionActivationResultImpl roundedResult,
                                                      Unit unit) {
-
         for (State state : optimizationContext.getRangeActionOptimizationStates()) {
 
             Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
@@ -82,10 +78,10 @@ public final class BestTapFinder {
                 if (rangeAction instanceof PstRangeAction pstRangeAction && linearProblemResult.getActivatedRangeActions(state).contains(rangeAction)) {
                     Optional<String> optGroupId = pstRangeAction.getGroupId();
                     if (optGroupId.isPresent()) {
-                        roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTapPerPstGroup.get(optGroupId.get())));
+                        roundedResult.putResult(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTapPerPstGroup.get(optGroupId.get())));
                     } else {
                         int bestTap = minMarginPerTap.get(pstRangeAction).entrySet().stream().max(Comparator.comparing(Map.Entry<Integer, Double>::getValue)).orElseThrow().getKey();
-                        roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTap));
+                        roundedResult.putResult(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTap));
                     }
                 }
             }
@@ -234,7 +230,7 @@ public final class BestTapFinder {
         double minMargin1 = Double.MAX_VALUE;
         double minMargin2 = Double.MAX_VALUE;
         for (FlowCnec flowCnec : linearOptimizationResult.getMostLimitingElements(10)) {
-            for (Side side : flowCnec.getMonitoredSides()) {
+            for (TwoSides side : flowCnec.getMonitoredSides()) {
                 double sensitivity = linearOptimizationResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
                 double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
                 double referenceFlow = linearOptimizationResult.getFlow(flowCnec, side, unit) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, unit, MEGAWATT);
@@ -247,15 +243,5 @@ public final class BestTapFinder {
             }
         }
         return Pair.of(minMargin1, minMargin2);
-    }
-
-    private static void roundOtherRa(RangeActionActivationResult linearProblemResult,
-                                     OptimizationPerimeter optimizationContext,
-                                     RangeActionActivationResultImpl roundedResult) {
-
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.stream()
-            .filter(ra -> !(ra instanceof PstRangeAction))
-            .filter(ra -> linearProblemResult.getActivatedRangeActions(state).contains(ra))
-            .forEach(ra -> roundedResult.activate(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 }

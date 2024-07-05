@@ -13,13 +13,12 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 
 import java.util.*;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class OneStateOnlyRaoResultImpl implements RaoResult {
+public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     public static final String WRONG_STATE = "Trying to access perimeter result for the wrong state.";
     private final State optimizedState;
     private final PrePerimeterResult initialResult;
@@ -95,22 +94,22 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return getAppropriateResult(optimizedInstant, flowCnec).getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return getAppropriateResult(optimizedInstant, flowCnec).getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
         return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
@@ -184,17 +183,6 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
             return initialResult.getCostlyElements(virtualCostName, number);
         } else {
             return postOptimizationResult.getCostlyElements(virtualCostName, number);
-        }
-    }
-
-    @Override
-    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction networkAction) {
-            return isActivatedDuringState(state, networkAction);
-        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
-            return isActivatedDuringState(state, rangeAction);
-        } else {
-            throw new OpenRaoException("Unrecognized remedial action type");
         }
     }
 
@@ -294,14 +282,6 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         } else {
             throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
         }
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
-            return false;
-        }
-        return getFunctionalCost(optimizedInstant) < 0;
     }
 
     @Override

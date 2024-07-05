@@ -10,8 +10,6 @@ package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.MonitoredSeriesCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency.CimContingencyCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cim.xsd.*;
 import org.apache.commons.lang3.StringUtils;
 

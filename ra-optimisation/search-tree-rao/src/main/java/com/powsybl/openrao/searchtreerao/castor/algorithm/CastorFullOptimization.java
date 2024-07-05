@@ -533,7 +533,7 @@ public class CastorFullOptimization {
         // -- Gather all post contingency remedial actions
         // ---- Curative remedial actions :
         // ------ appliedCras from secondPreventiveRaoResult
-        AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedArasAndCras.copyCurative();
+        AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedArasAndCras().copyCurative();
         // ------ + curative range actions optimized during second preventive with global optimization
         if (raoParameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions()) {
             for (Map.Entry<State, OptimizationResult> entry : postContingencyResults.entrySet()) {
@@ -541,7 +541,7 @@ public class CastorFullOptimization {
                 if (!state.getInstant().isCurative()) {
                     continue;
                 }
-                secondPreventiveRaoResult.perimeterResult.getActivatedRangeActions(state)
+                secondPreventiveRaoResult.perimeterResult().getActivatedRangeActions(state)
                     .forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(state, rangeAction, secondPreventiveRaoResult.perimeterResult.getOptimizedSetpoint(rangeAction, state)));
             }
         }
@@ -571,7 +571,7 @@ public class CastorFullOptimization {
             if (entry.getValue() instanceof SkippedOptimizationResultImpl) {
                 newPostContingencyResults.put(state, new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey()), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
             } else {
-                newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult, secondPreventiveRaoResult.remedialActionsExcluded, postCraSensitivityAnalysisOutput));
+                newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult(), secondPreventiveRaoResult.remedialActionsExcluded(), postCraSensitivityAnalysisOutput));
             }
         }
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, parameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
@@ -579,26 +579,18 @@ public class CastorFullOptimization {
         return new PreventiveAndCurativesRaoResultImpl(stateTree,
             initialOutput,
             firstPreventiveResult,
-            secondPreventiveRaoResult.perimeterResult,
-            secondPreventiveRaoResult.remedialActionsExcluded,
-            secondPreventiveRaoResult.postPraSensitivityAnalysisOutput,
+            secondPreventiveRaoResult.perimeterResult(),
+            secondPreventiveRaoResult.remedialActionsExcluded(),
+            secondPreventiveRaoResult.postPraSensitivityAnalysisOutput(),
             newPostContingencyResults,
             postCraSensitivityAnalysisOutput,
             raoInput.getCrac());
     }
 
-    private static class SecondPreventiveRaoResult {
-        private final PerimeterResult perimeterResult;
-        private final PrePerimeterResult postPraSensitivityAnalysisOutput;
-        private final Set<RemedialAction<?>> remedialActionsExcluded;
-        private final AppliedRemedialActions appliedArasAndCras;
-
-        public SecondPreventiveRaoResult(PerimeterResult perimeterResult, PrePerimeterResult postPraSensitivityAnalysisOutput, Set<RemedialAction<?>> remedialActionsExcluded, AppliedRemedialActions appliedArasAndCras) {
-            this.perimeterResult = perimeterResult;
-            this.postPraSensitivityAnalysisOutput = postPraSensitivityAnalysisOutput;
-            this.remedialActionsExcluded = remedialActionsExcluded;
-            this.appliedArasAndCras = appliedArasAndCras;
-        }
+    private record SecondPreventiveRaoResult(PerimeterResult perimeterResult,
+                                             PrePerimeterResult postPraSensitivityAnalysisOutput,
+                                             Set<RemedialAction<?>> remedialActionsExcluded,
+                                             AppliedRemedialActions appliedArasAndCras) {
     }
 
     /**
@@ -621,15 +613,13 @@ public class CastorFullOptimization {
         // Get the applied network actions for every contingency perimeter
         AppliedRemedialActions appliedArasAndCras = new AppliedRemedialActions();
         Crac crac = raoInput.getCrac();
-        // TODO: see how to handle multiple curative instants here
-        Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
         if (crac.hasAutoInstant()) {
-            addAppliedNetworkActionsPostContingency(crac.getInstant(InstantKind.AUTO), appliedArasAndCras, postContingencyResults);
+            addAppliedNetworkActionsPostContingency(crac.getInstants(InstantKind.AUTO), appliedArasAndCras, postContingencyResults);
         }
-        addAppliedNetworkActionsPostContingency(curativeInstant, appliedArasAndCras, postContingencyResults);
+        addAppliedNetworkActionsPostContingency(crac.getInstants(InstantKind.CURATIVE), appliedArasAndCras, postContingencyResults);
         // Get the applied range actions for every auto contingency perimeter
         if (crac.hasAutoInstant()) {
-            addAppliedRangeActionsPostContingency(crac.getInstant(InstantKind.AUTO), appliedArasAndCras, postContingencyResults);
+            addAppliedRangeActionsPostContingency(crac.getInstants(InstantKind.AUTO), appliedArasAndCras, postContingencyResults);
         }
 
         // Apply 1st preventive results for range actions that are both preventive and auto or curative. This way we are sure
@@ -639,7 +629,7 @@ public class CastorFullOptimization {
         if (!parameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions()) { // keep old behaviour
             remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(crac, firstPreventiveResult, postContingencyResults));
             applyPreventiveResultsForAutoOrCurativeRangeActions(network, firstPreventiveResult, crac);
-            addAppliedRangeActionsPostContingency(curativeInstant, appliedArasAndCras, postContingencyResults);
+            addAppliedRangeActionsPostContingency(crac.getInstants(InstantKind.CURATIVE), appliedArasAndCras, postContingencyResults);
         }
 
         // Run a first sensitivity computation using initial network and applied CRAs
@@ -672,22 +662,26 @@ public class CastorFullOptimization {
         return new SecondPreventiveRaoResult(secondPreventiveResult, postPraSensitivityAnalysisOutput, remedialActionsExcluded, appliedArasAndCras);
     }
 
-    static void addAppliedNetworkActionsPostContingency(Instant instant, AppliedRemedialActions appliedRemedialActions, Map<State, OptimizationResult> postContingencyResults) {
-        postContingencyResults.forEach((state, optimizationResult) -> {
-            if (state.getInstant().equals(instant)) {
-                appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions());
-            }
-        });
+    static void addAppliedNetworkActionsPostContingency(Set<Instant> instants, AppliedRemedialActions appliedRemedialActions, Map<State, OptimizationResult> postContingencyResults) {
+        instants.forEach(instant ->
+            postContingencyResults.forEach((state, optimizationResult) -> {
+                if (state.getInstant().equals(instant)) {
+                    appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions());
+                }
+            })
+        );
     }
 
-    static void addAppliedRangeActionsPostContingency(Instant instant, AppliedRemedialActions appliedRemedialActions, Map<State, OptimizationResult> postContingencyResults) {
+    static void addAppliedRangeActionsPostContingency(Set<Instant> instants, AppliedRemedialActions appliedRemedialActions, Map<State, OptimizationResult> postContingencyResults) {
         // Add all range actions that were activated.
         // Curative/ preventive duplicates are handled via exclusion from 2nd preventive
-        postContingencyResults.forEach((state, optimizationResult) -> {
-            if (state.getInstant().equals(instant)) {
-                optimizationResult.getActivatedRangeActions(state).forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetpoint(rangeAction, state)));
-            }
-        });
+        instants.forEach(instant ->
+            postContingencyResults.forEach((state, optimizationResult) -> {
+                if (state.getInstant().equals(instant)) {
+                    optimizationResult.getActivatedRangeActions(state).forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetpoint(rangeAction, state)));
+                }
+            })
+        );
     }
 
     private CompletableFuture<OneStateOnlyRaoResultImpl> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, PerimeterResult firstPreventiveResult, Map<State, OptimizationResult> postContingencyResults, AppliedRemedialActions appliedCras) {

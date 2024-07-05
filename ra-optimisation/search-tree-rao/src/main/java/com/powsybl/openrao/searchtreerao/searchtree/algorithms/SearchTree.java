@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
@@ -510,7 +510,7 @@ public class SearchTree {
         List<String> logs = new ArrayList<>();
         int i = 1;
         for (FlowCnec flowCnec : leaf.getCostlyElements(virtualCostName, NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS)) {
-            Side limitingSide = leaf.getMargin(flowCnec, Side.LEFT, unit) < leaf.getMargin(flowCnec, Side.RIGHT, unit) ? Side.LEFT : Side.RIGHT;
+            TwoSides limitingSide = leaf.getMargin(flowCnec, TwoSides.ONE, unit) < leaf.getMargin(flowCnec, TwoSides.TWO, unit) ? TwoSides.ONE : TwoSides.TWO;
             double flow = leaf.getFlow(flowCnec, limitingSide, unit);
             Double limitingThreshold = flow >= 0 ? flowCnec.getUpperBound(limitingSide, unit).orElse(flowCnec.getLowerBound(limitingSide, unit).orElse(Double.NaN))
                     : flowCnec.getLowerBound(limitingSide, unit).orElse(flowCnec.getUpperBound(limitingSide, unit).orElse(Double.NaN));

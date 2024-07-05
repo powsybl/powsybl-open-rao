@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -66,32 +66,37 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+    public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+    public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
