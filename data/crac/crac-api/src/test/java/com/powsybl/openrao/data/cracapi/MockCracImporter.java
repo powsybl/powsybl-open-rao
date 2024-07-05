@@ -10,14 +10,44 @@ package com.powsybl.openrao.data.cracapi;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.io.Importer;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class MockCracImporter implements Importer {
+public class MockCracImporter implements Importer<MockCracImporter.MockCracCreationContext> {
+
+    static class MockCracCreationContext implements CracCreationContext {
+
+        @Override
+        public boolean isCreationSuccessful() {
+            return true;
+        }
+
+        @Override
+        public Crac getCrac() {
+            return new MockCrac("crac");
+        }
+
+        @Override
+        public OffsetDateTime getTimeStamp() {
+            return null;
+        }
+
+        @Override
+        public String getNetworkName() {
+            return null;
+        }
+
+        @Override
+        public CracCreationReport getCreationReport() {
+            return null;
+        }
+    }
 
     @Override
     public String getFormat() {
@@ -25,12 +55,12 @@ public class MockCracImporter implements Importer {
     }
 
     @Override
-    public boolean exists(InputStream inputStream) {
+    public boolean exists(String filename, InputStream inputStream) {
         return true;
     }
 
     @Override
-    public Crac importData(InputStream inputStream, CracFactory cracFactory, Network network) {
-        return new MockCrac("crac");
+    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
+        return new MockCracCreationContext();
     }
 }

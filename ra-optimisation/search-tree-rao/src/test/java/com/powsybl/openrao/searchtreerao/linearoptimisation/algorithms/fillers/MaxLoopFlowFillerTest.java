@@ -80,7 +80,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
             Unit.MEGAWATT,
-            false
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS
         );
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(100.).withUnit(Unit.MEGAWATT).add();
     }

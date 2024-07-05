@@ -108,7 +108,7 @@
           <mRID>CRAList</mRID>
           <businessType>B56</businessType>
           <name>CRAList</name>
-          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <Contingency_Series>
             <mRID>CO_N4011_N4021</mRID>
             <name>CO_N4011_N4021</name>

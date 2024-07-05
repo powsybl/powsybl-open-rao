@@ -6,7 +6,7 @@ They are published on https://powsybl.readthedocs.org/projects/openrao and pull 
 
 ### Readthedocs & Sphinx
 The website is hosted on [readthedocs](https://readthedocs.org/). The build workflow requires a configuration file: 
-[.readthedocs.yml](./.readthedocs.yml). This platform presents many advantages,
+[.readthedocs.yml](./.readthedocs.yaml). This platform presents many advantages,
 thanks to its workflow of automatic branch/tag building & publication:
 - Multiple versions are activated: you can browse different versions of the documentation for different releases of OpenRAO
 - Pull requests are built automatically and the build status is reported in the PR's checks (["Build documentation" workflow](../.github/workflows/build_doc.yml)).  
@@ -32,6 +32,13 @@ custom html & css code. Currently, two methods are used:
   or its theme (read more about this [here](https://www.sphinx-doc.org/en/master/development/theming.html#templating)).
   You can use this method when other, lighter methods (i.e. tweaking mkdocs.yml & CSS styles) are not enough.
 
+### Using PlantUML
+You can draw diagrams using the PlantUml plugin.  
+In markdown, use the '~~~{plantuml}' fields.  
+You can preview the diagrams in your markdown editor by removing the '{}'.
+> Note: in order to render the diagrams [locally](#building-the-website-locally), you have to install plantuml:
+> 'sudo apt install plantuml'
+
 ### Building the website locally
 
 When modifying the website content, you can easily preview the result on your PC by navigating to the root of the
@@ -40,7 +47,7 @@ project and running:
 pip install -r docs/requirements.txt
 sphinx-build -a docs ./build-docs
 ~~~
-Then open `build-docs/index.html` in your browser.  
+Then open `build-docs/index.html` in your browser.
   
 ### External links
 - [Readthedocs documentation](https://docs.readthedocs.io/en/stable/index.html)

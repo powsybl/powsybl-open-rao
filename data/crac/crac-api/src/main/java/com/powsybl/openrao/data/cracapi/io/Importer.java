@@ -8,30 +8,32 @@
 package com.powsybl.openrao.data.cracapi.io;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.CracFactory;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public interface Importer {
+public interface Importer<S extends CracCreationContext> {
 
     /**
      * Get a unique identifier of the format.
      */
     String getFormat();
 
-    boolean exists(InputStream inputStream);
+    boolean exists(String filename, InputStream inputStream);
 
     /**
      * Create a model.
      *
      * @param inputStream data input stream
-     * @param cracFactory CRAC factory
+     * @param cracCreationParameters extra CRAC creation parameters
      * @param network     network upon which the CRAC is based
      * @return the model
      */
-    Crac importData(InputStream inputStream, CracFactory cracFactory, Network network);
+    // TODO : put offset date time in CracCreationParameters
+    CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime);
 }

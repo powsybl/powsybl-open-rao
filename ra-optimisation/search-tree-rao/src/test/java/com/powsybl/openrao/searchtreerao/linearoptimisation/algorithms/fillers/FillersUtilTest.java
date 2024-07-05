@@ -26,16 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class FillersUtilTest {
-    private State state1;
-    private State state2;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private Set<FlowCnec> cnecs;
 
     @BeforeEach
     void setUp() {
-        state1 = Mockito.mock(State.class);
-        state2 = Mockito.mock(State.class);
+        State state1 = Mockito.mock(State.class);
+        State state2 = Mockito.mock(State.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         Mockito.when(cnec1.getState()).thenReturn(state1);
         Mockito.when(cnec1.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE, TwoSides.TWO));
