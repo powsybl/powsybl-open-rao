@@ -49,6 +49,7 @@ public final class CsaProfileCracCreationTestUtil {
     public static final String CURATIVE_2_INSTANT_ID = "curative 2";
     public static final String CURATIVE_3_INSTANT_ID = "curative 3";
     public static final Network NETWORK = getNetworkFromResource("/networks/16Nodes.zip");
+    public static final OffsetDateTime OFFSET_DATE_TIME = OffsetDateTime.parse("2023-03-29T12:00Z");
 
     private CsaProfileCracCreationTestUtil() {
     }
@@ -240,36 +241,33 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive) {
-        return getCsaCracCreationContext(csaProfilesArchive, cracCreationDefaultParametersWithCsaExtension());
+        return getCsaCracCreationContext(csaProfilesArchive, cracCreationDefaultParametersWithCsaExtension(OFFSET_DATE_TIME));
     }
 
-    public static CracCreationParameters cracCreationDefaultParametersWithCsaExtension() {
+    public static CracCreationParameters cracCreationDefaultParametersWithCsaExtension(OffsetDateTime offsetDateTime) {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.addExtension(CsaCracCreationParameters.class, new CsaCracCreationParameters());
+        cracCreationParameters.getExtension(CsaCracCreationParameters.class).setOffsetDateTime(offsetDateTime);
         cracCreationParameters.getExtension(CsaCracCreationParameters.class).setCapacityCalculationRegionEicCode("10Y1001C--00095L");
         cracCreationParameters.getExtension(CsaCracCreationParameters.class).setSpsMaxTimeToImplementThresholdInSeconds(0);
         return cracCreationParameters;
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationDefaultParametersWithCsaExtension());
-    }
-
-    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, CracCreationParameters cracCreationParameters) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationParameters);
+        return getCsaCracCreationContext(csaProfilesArchive, network, cracCreationDefaultParametersWithCsaExtension(OFFSET_DATE_TIME));
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, String timestamp) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse(timestamp), cracCreationDefaultParametersWithCsaExtension());
+        return getCsaCracCreationContext(csaProfilesArchive, network, cracCreationDefaultParametersWithCsaExtension(OffsetDateTime.parse(timestamp)));
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime) {
-        return getCsaCracCreationContext(csaProfilesArchive, network, offsetDateTime, cracCreationDefaultParametersWithCsaExtension());
+        return getCsaCracCreationContext(csaProfilesArchive, network, cracCreationDefaultParametersWithCsaExtension(offsetDateTime));
     }
 
-    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, CracCreationParameters cracCreationParameters) {
         try (InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive)) {
-            return (CsaProfileCracCreationContext) Crac.readWithContext(csaProfilesArchive, inputStream, network, offsetDateTime, cracCreationParameters);
+            return (CsaProfileCracCreationContext) Crac.readWithContext(csaProfilesArchive, inputStream, network, cracCreationParameters);
         } catch (IOException e) {
             throw new OpenRaoException(e);
         }

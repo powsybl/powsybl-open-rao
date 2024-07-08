@@ -16,6 +16,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ import java.util.Map;
 @AutoService(JsonCracCreationParameters.ExtensionSerializer.class)
 public class JsonCsaCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<CsaCracCreationParameters> {
 
+    private static final String OFFSET_DATE_TIME = "offset-date-time";
     private static final String CAPACITY_CALCULATION_REGION_EIC_CODE = "capacity-calculation-region-eic-code";
     private static final String SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS = "sps-max-time-to-implement-threshold-in-seconds";
     private static final String USE_PATL_IN_FINAL_STATE = "use-patl-in-final-state";
@@ -44,6 +46,10 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     public CsaCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CsaCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
+                case OFFSET_DATE_TIME:
+                    jsonParser.nextToken();
+                    parameters.setOffsetDateTime(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
+                    break;
                 case CAPACITY_CALCULATION_REGION_EIC_CODE:
                     jsonParser.nextToken();
                     parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
@@ -81,6 +87,10 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     @Override
     public Class<? super CsaCracCreationParameters> getExtensionClass() {
         return CsaCracCreationParameters.class;
+    }
+
+    private void serializeOffsetDateTime(OffsetDateTime offsetDateTime, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION_EIC_CODE, offsetDateTime.toString());
     }
 
     private void serializeCapacityCalculationRegionEicCode(String eicCode, JsonGenerator jsonGenerator) throws IOException {
