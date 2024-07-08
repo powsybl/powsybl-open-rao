@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
@@ -238,9 +238,8 @@ public class SearchTree {
                 } else {
                     // Apply range actions that have been changed by the previous leaf on the network to start next depth leaves
                     // from previous optimal leaf starting point
-                    // todo : Not sure previousDepthOptimalLeaf.getRangeActions() returns what we expect, this needs to be investigated
-                    previousDepthOptimalResult.getPerimeterResultWithCnecs().getActivatedRangeActions().forEach(
-                        ra -> ra.apply(networkClone, previousDepthOptimalResult.getPerimeterResultWithCnecs().getOptimizedSetpoint(ra))
+                    previousDepthOptimalResult.getPerimeterResultWithCnecs().getRangeActions().forEach(ra ->
+                        ra.apply(networkClone, previousDepthOptimalResult.getPerimeterResultWithCnecs().getOptimizedSetpoint(ra))
                     );
                 }
                 optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
@@ -520,7 +519,7 @@ public class SearchTree {
         List<String> logs = new ArrayList<>();
         int i = 1;
         for (FlowCnec flowCnec : perimeterResult.getCostlyElements(virtualCostName, NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS)) {
-            Side limitingSide = perimeterResult.getMargin(flowCnec, Side.LEFT, unit) < perimeterResult.getMargin(flowCnec, Side.RIGHT, unit) ? Side.LEFT : Side.RIGHT;
+            TwoSides limitingSide = perimeterResult.getMargin(flowCnec, TwoSides.ONE, unit) < perimeterResult.getMargin(flowCnec, TwoSides.TWO, unit) ? TwoSides.ONE : TwoSides.TWO;
             double flow = perimeterResult.getFlow(flowCnec, limitingSide, unit);
             Double limitingThreshold = flow >= 0 ? flowCnec.getUpperBound(limitingSide, unit).orElse(flowCnec.getLowerBound(limitingSide, unit).orElse(Double.NaN))
                     : flowCnec.getLowerBound(limitingSide, unit).orElse(flowCnec.getUpperBound(limitingSide, unit).orElse(Double.NaN));

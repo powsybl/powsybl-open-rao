@@ -14,7 +14,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -51,8 +51,8 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.RIGHT;
-import static com.powsybl.openrao.data.cracapi.cnec.Side.LEFT;
+import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.openrao.commons.Unit.*;
 import static org.mockito.Mockito.*;
 
@@ -332,16 +332,16 @@ class LeafTest {
 
         double expectedFlow = 3.;
         Unit unit = MEGAWATT;
-        when(flowResult.getFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
-        when(flowResult.getCommercialFlow(flowCnec, LEFT, unit)).thenReturn(expectedFlow);
-        assertEquals(expectedFlow, perimeterResultWithCnecs.getFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
-        assertEquals(expectedFlow, perimeterResultWithCnecs.getCommercialFlow(flowCnec, LEFT, unit), DOUBLE_TOLERANCE);
+        when(flowResult.getFlow(flowCnec, ONE, unit)).thenReturn(expectedFlow);
+        when(flowResult.getCommercialFlow(flowCnec, ONE, unit)).thenReturn(expectedFlow);
+        assertEquals(expectedFlow, perimeterResultWithCnecs.getFlow(flowCnec, ONE, unit), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, perimeterResultWithCnecs.getCommercialFlow(flowCnec, ONE, unit), DOUBLE_TOLERANCE);
 
         double expectedPtdf = 4.;
-        when(flowResult.getPtdfZonalSum(flowCnec, LEFT)).thenReturn(expectedPtdf);
-        assertEquals(expectedPtdf, perimeterResultWithCnecs.getPtdfZonalSum(flowCnec, LEFT), DOUBLE_TOLERANCE);
+        when(flowResult.getPtdfZonalSum(flowCnec, ONE)).thenReturn(expectedPtdf);
+        assertEquals(expectedPtdf, perimeterResultWithCnecs.getPtdfZonalSum(flowCnec, ONE), DOUBLE_TOLERANCE);
 
-        Map<FlowCnec, Map<Side, Double>> expectedPtdfZonalSums = new HashMap<>();
+        Map<FlowCnec, Map<TwoSides, Double>> expectedPtdfZonalSums = new HashMap<>();
         when(flowResult.getPtdfZonalSums()).thenReturn(expectedPtdfZonalSums);
         assertEquals(expectedPtdfZonalSums, perimeterResultWithCnecs.getPtdfZonalSums());
     }
@@ -461,11 +461,11 @@ class LeafTest {
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         double expectedSensi = 3.;
 
-        when(prePerimeterResult.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT)).thenReturn(expectedSensi);
-        when(prePerimeterResult.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT)).thenReturn(expectedSensi);
+        when(prePerimeterResult.getSensitivityValue(flowCnec, TWO, rangeAction, MEGAWATT)).thenReturn(expectedSensi);
+        when(prePerimeterResult.getSensitivityValue(flowCnec, TWO, linearGlsk, MEGAWATT)).thenReturn(expectedSensi);
 
-        assertEquals(expectedSensi, leaf.getResult().getPerimeterResultWithCnecs().getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(expectedSensi, leaf.getResult().getPerimeterResultWithCnecs().getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getResult().getPerimeterResultWithCnecs().getSensitivityValue(flowCnec, TWO, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getResult().getPerimeterResultWithCnecs().getSensitivityValue(flowCnec, TWO, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test

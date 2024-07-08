@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.cracimpl;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 
 import java.util.Objects;
@@ -21,7 +21,7 @@ import java.util.Objects;
 public class BranchThresholdAdderImpl extends AbstractThresholdAdderImpl<BranchThresholdAdder> implements BranchThresholdAdder {
 
     private final FlowCnecAdderImpl ownerAdder;
-    private Side side;
+    private TwoSides side;
 
     BranchThresholdAdderImpl(FlowCnecAdder ownerAdder) {
         Objects.requireNonNull(ownerAdder);
@@ -36,7 +36,7 @@ public class BranchThresholdAdderImpl extends AbstractThresholdAdderImpl<BranchT
     }
 
     @Override
-    public BranchThresholdAdder withSide(Side side) {
+    public BranchThresholdAdder withSide(TwoSides side) {
         this.side = side;
         return this;
     }

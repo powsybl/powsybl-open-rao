@@ -3,37 +3,35 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.google.common.base.Suppliers;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.iidm.network.ImportConfig;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
-import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
+import com.powsybl.openrao.data.cracapi.cnec.*;
+import com.powsybl.openrao.data.cracapi.networkaction.*;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
+import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
+import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
+import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.CsaProfileCrac;
-import com.powsybl.openrao.data.craccreation.creator.csaprofile.importer.CsaProfileCracImporter;
-import com.google.common.base.Suppliers;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
@@ -77,7 +75,7 @@ public final class CsaProfileCracCreationTestUtil {
         assertTrue(cracCreationContext.getCnecCreationContexts().stream().anyMatch(context -> !context.isImported() && assessedElementId.equals(context.getNativeId()) && importStatus.equals(context.getImportStatus()) && importStatusDetail.equals(context.getImportStatusDetail())));
     }
 
-    public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<Side> expectedThresholdSides, String expectedOperator) {
+    public static void assertFlowCnecEquality(FlowCnec flowCnec, String expectedFlowCnecIdAndName, String expectedNetworkElementId, String expectedInstant, String expectedContingencyId, Double expectedThresholdMaxLeft, Double expectedThresholdMinLeft, Double expectedThresholdMaxRight, Double expectedThresholdMinRight, Set<TwoSides> expectedThresholdSides, String expectedOperator) {
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getId());
         assertEquals(expectedFlowCnecIdAndName, flowCnec.getName());
         assertEquals(expectedNetworkElementId, flowCnec.getNetworkElement().getId());
@@ -90,9 +88,9 @@ public final class CsaProfileCracCreationTestUtil {
 
         List<BranchThreshold> thresholds = flowCnec.getThresholds().stream().sorted(Comparator.comparing(BranchThreshold::getSide)).toList();
         for (BranchThreshold threshold : thresholds) {
-            Side side = threshold.getSide();
-            assertEquals(side == Side.LEFT ? expectedThresholdMaxLeft : expectedThresholdMaxRight, threshold.max().orElse(null));
-            assertEquals(side == Side.LEFT ? expectedThresholdMinLeft : expectedThresholdMinRight, threshold.min().orElse(null));
+            TwoSides side = threshold.getSide();
+            assertEquals(side == TwoSides.ONE ? expectedThresholdMaxLeft : expectedThresholdMaxRight, threshold.max().orElse(null));
+            assertEquals(side == TwoSides.ONE ? expectedThresholdMinLeft : expectedThresholdMinRight, threshold.min().orElse(null));
         }
 
         assertEquals(expectedThresholdSides, flowCnec.getMonitoredSides());
@@ -270,16 +268,16 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
-        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
-        InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive);
-        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        return cracCreator.createCrac(nativeCrac, network, offsetDateTime, cracCreationParameters);
+        try (InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive)) {
+            return (CsaProfileCracCreationContext) Crac.readWithContext(csaProfilesArchive, inputStream, network, offsetDateTime, cracCreationParameters);
+        } catch (IOException e) {
+            throw new OpenRaoException(e);
+        }
     }
 
     public static Network getNetworkFromResource(String filename) {
         Properties importParams = new Properties();
-        importParams.put("iidm.import.cgmes.cgm-with-subnetworks", false);
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, false);
         return Network.read(Paths.get(new File(CsaProfileCracCreationTestUtil.class.getResource(filename).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 }

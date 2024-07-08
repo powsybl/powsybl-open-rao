@@ -9,7 +9,8 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 
 /**
@@ -23,6 +24,8 @@ public final class LinearProblemIdGenerator {
     private static final String FLOW = "flow";
     private static final String RELATIVE = "relative";
     private static final String SET_POINT = "setpoint";
+
+    private static final String TAP = "tap";
     private static final String TAP_VARIATION = "tapvariation";
     private static final String TAP_VARIATION_BINARY = "isvariation";
     private static final String TAP_TO_ANGLE_CONVERSION = "taptoangleconversion";
@@ -48,11 +51,11 @@ public final class LinearProblemIdGenerator {
         // Should not be instantiated
     }
 
-    public static String flowVariableId(FlowCnec flowCnec, Side side) {
+    public static String flowVariableId(FlowCnec flowCnec, TwoSides side) {
         return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), FLOW, VARIABLE_SUFFIX);
     }
 
-    public static String flowConstraintId(FlowCnec flowCnec, Side side) {
+    public static String flowConstraintId(FlowCnec flowCnec, TwoSides side) {
         return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), FLOW, CONSTRAINT_SUFFIX);
     }
 
@@ -62,6 +65,10 @@ public final class LinearProblemIdGenerator {
 
     public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.RaRangeShrinking raRangeShrinking) {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + SET_POINT + SEPARATOR + raRangeShrinking.toString() + CONSTRAINT_SUFFIX;
+    }
+
+    public static String pstRangeActionRelativeTapConstraintId(PstRangeAction pstRangeAction, State state) {
+        return pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + TAP + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String pstTapVariableVariationId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
@@ -120,7 +127,7 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String minimumMarginConstraintId(FlowCnec flowCnec, Side side, LinearProblem.MarginExtension belowOrAboveThreshold) {
+    public static String minimumMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold) {
         return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), MIN_MARGIN, belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
@@ -132,7 +139,7 @@ public final class LinearProblemIdGenerator {
         return MIN_RELATIVE_MARGIN + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String minimumRelativeMarginConstraintId(FlowCnec flowCnec, Side side, LinearProblem.MarginExtension belowOrAboveThreshold) {
+    public static String minimumRelativeMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold) {
         return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), MIN_RELATIVE_MARGIN, belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
@@ -148,27 +155,27 @@ public final class LinearProblemIdGenerator {
         return MIN_RELATIVE_MARGIN + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String maxLoopFlowConstraintId(FlowCnec flowCnec, Side side, LinearProblem.BoundExtension lbOrUb) {
+    public static String maxLoopFlowConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.BoundExtension lbOrUb) {
         return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), MAX_LOOPFLOW, lbOrUb.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
-    public static String loopflowViolationVariableId(FlowCnec flowCnec, Side side) {
+    public static String loopflowViolationVariableId(FlowCnec flowCnec, TwoSides side) {
         return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), LOOPFLOWVIOLATION, VARIABLE_SUFFIX);
     }
 
-    public static String mnecViolationVariableId(FlowCnec mnec, Side side) {
+    public static String mnecViolationVariableId(FlowCnec mnec, TwoSides side) {
         return String.join(SEPARATOR, mnec.getId(), side.toString().toLowerCase(), MNEC_VIOLATION, VARIABLE_SUFFIX);
     }
 
-    public static String mnecFlowConstraintId(FlowCnec mnec, Side side, LinearProblem.MarginExtension belowOrAboveThreshold) {
+    public static String mnecFlowConstraintId(FlowCnec mnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold) {
         return String.join(SEPARATOR, mnec.getId(), side.toString().toLowerCase(), MNEC_FLOW, belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
-    public static String optimizeCnecBinaryVariableId(FlowCnec flowCnec, Side side) {
+    public static String optimizeCnecBinaryVariableId(FlowCnec flowCnec, TwoSides side) {
         return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), OPTIMIZE_CNEC, VARIABLE_SUFFIX);
     }
 
-    public static String dontOptimizeCnecConstraintId(FlowCnec flowCnec, Side side, LinearProblem.MarginExtension belowOrAboveThreshold) {
+    public static String dontOptimizeCnecConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold) {
         return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), OPTIMIZE_CNEC + belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 

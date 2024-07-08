@@ -8,6 +8,7 @@ package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -17,14 +18,14 @@ import com.powsybl.openrao.data.cracapi.rangeaction.*;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.cse.outage.CseOutageCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.fbconstraint.craccreator.FbConstraintCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.fbconstraint.FbConstraintCreationContext;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -224,24 +225,24 @@ public class CracImportSteps {
                 .orElseThrow(Exception::new);
 
             if (expectedCnec.get("ImaxLeft") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("ImaxLeft")), flowCnec.getIMax(Side.LEFT), DOUBLE_TOLERANCE);
+                assertEquals(Double.parseDouble(expectedCnec.get("ImaxLeft")), flowCnec.getIMax(TwoSides.ONE), DOUBLE_TOLERANCE);
             } else {
-                assertNull(flowCnec.getIMax(Side.LEFT));
+                assertNull(flowCnec.getIMax(TwoSides.ONE));
             }
             if (expectedCnec.get("ImaxRight") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("ImaxRight")), flowCnec.getIMax(Side.RIGHT), DOUBLE_TOLERANCE);
+                assertEquals(Double.parseDouble(expectedCnec.get("ImaxRight")), flowCnec.getIMax(TwoSides.TWO), DOUBLE_TOLERANCE);
             } else {
-                assertNull(flowCnec.getIMax(Side.RIGHT));
+                assertNull(flowCnec.getIMax(TwoSides.TWO));
             }
             if (expectedCnec.get("NominalVoltageLeft") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("NominalVoltageLeft")), flowCnec.getNominalVoltage(Side.LEFT), DOUBLE_TOLERANCE);
+                assertEquals(Double.parseDouble(expectedCnec.get("NominalVoltageLeft")), flowCnec.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
             } else {
-                assertNull(flowCnec.getNominalVoltage(Side.LEFT));
+                assertNull(flowCnec.getNominalVoltage(TwoSides.ONE));
             }
             if (expectedCnec.get("NominalVoltageRight") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("NominalVoltageRight")), flowCnec.getNominalVoltage(Side.RIGHT), DOUBLE_TOLERANCE);
+                assertEquals(Double.parseDouble(expectedCnec.get("NominalVoltageRight")), flowCnec.getNominalVoltage(TwoSides.TWO), DOUBLE_TOLERANCE);
             } else {
-                assertNull(flowCnec.getNominalVoltage(Side.RIGHT));
+                assertNull(flowCnec.getNominalVoltage(TwoSides.TWO));
             }
         }
     }
@@ -253,14 +254,14 @@ public class CracImportSteps {
             BranchCnec<?> branchCnec = crac.getFlowCnec(expectedThreshold.get("CnecId"));
             assertNotNull(branchCnec);
             Unit expectedUnit = Unit.valueOf(expectedThreshold.get("Unit"));
-            Side side = Side.valueOf(expectedThreshold.get("Side"));
+            TwoSides side = TwoSides.valueOf(expectedThreshold.get("Side"));
             Optional<Double> min = Optional.ofNullable(expectedThreshold.get("Min").equals("None") ? null : Double.parseDouble(expectedThreshold.get("Min")));
             Optional<Double> max = Optional.ofNullable(expectedThreshold.get("Max").equals("None") ? null : Double.parseDouble(expectedThreshold.get("Max")));
             assertTrue(branchCnec.getThresholds().stream().anyMatch(threshold -> matchThreshold(threshold, expectedUnit, side, min, max)));
         }
     }
 
-    private boolean matchThreshold(BranchThreshold threshold, Unit unit, Side side, Optional<Double> min, Optional<Double> max) {
+    private boolean matchThreshold(BranchThreshold threshold, Unit unit, TwoSides side, Optional<Double> min, Optional<Double> max) {
         if (!unit.equals(threshold.getUnit())) {
             return false;
         }

@@ -8,13 +8,15 @@ package com.powsybl.openrao.loopflowcomputation;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.cnec.BranchCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -32,16 +34,38 @@ class LoopFlowResultTest {
     @Test
     void loopFlowResultTest() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        loopFlowResult.addCnecResult(cnec, Side.RIGHT, 1., 2., 3.);
-        assertEquals(1., loopFlowResult.getLoopFlow(cnec, Side.RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(2., loopFlowResult.getCommercialFlow(cnec, Side.RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(3., loopFlowResult.getReferenceFlow(cnec, Side.RIGHT), DOUBLE_TOLERANCE);
+        loopFlowResult.addCnecResult(cnec, TwoSides.TWO, 1., 2., 3.);
+        assertEquals(1., loopFlowResult.getLoopFlow(cnec, TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(2., loopFlowResult.getCommercialFlow(cnec, TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(3., loopFlowResult.getReferenceFlow(cnec, TwoSides.TWO), DOUBLE_TOLERANCE);
     }
 
     @Test
     void loopFlowResultCnecNotFound() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(cnec, Side.RIGHT));
+        assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(cnec, TwoSides.TWO));
+    }
+
+    @Test
+    void testGetCommercialFlowsMap() {
+        FlowCnec cnec1 = Mockito.mock(FlowCnec.class);
+        FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
+
+        LoopFlowResult loopFlowResult = new LoopFlowResult();
+        loopFlowResult.addCnecResult(cnec, TwoSides.TWO, 1., 2., 3.);
+        loopFlowResult.addCnecResult(cnec1, TwoSides.TWO, 1., 20., 3.);
+        loopFlowResult.addCnecResult(cnec1, TwoSides.ONE, 1., 22., 3.);
+        loopFlowResult.addCnecResult(cnec2, TwoSides.ONE, 1., 30., 3.);
+
+        Map<FlowCnec, Map<TwoSides, Double>> commercialFlowsMap = loopFlowResult.getCommercialFlowsMap();
+        assertEquals(2, commercialFlowsMap.size());
+
+        assertEquals(2, commercialFlowsMap.get(cnec1).size());
+        assertEquals(20., commercialFlowsMap.get(cnec1).get(TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertEquals(22., commercialFlowsMap.get(cnec1).get(TwoSides.ONE), DOUBLE_TOLERANCE);
+
+        assertEquals(1, commercialFlowsMap.get(cnec2).size());
+        assertEquals(30., commercialFlowsMap.get(cnec2).get(TwoSides.ONE), DOUBLE_TOLERANCE);
     }
 }
 

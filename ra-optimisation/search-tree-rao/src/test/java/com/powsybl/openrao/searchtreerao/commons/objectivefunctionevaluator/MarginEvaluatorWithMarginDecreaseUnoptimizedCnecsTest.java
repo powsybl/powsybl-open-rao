@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -42,13 +42,13 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
 
     @BeforeEach
     public void setUp() {
-        when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
+        when(flowCnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
     }
 
     @Test
     void getMarginInMegawattOnOptimizedCnec() {
         when(flowCnec.getOperator()).thenReturn("NL");
-        when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(200.);
+        when(currentFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(200.);
 
         double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, sensitivityResult, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);
@@ -57,7 +57,7 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     @Test
     void getMarginInAmpereOnOptimizedCnec() {
         when(flowCnec.getOperator()).thenReturn("NL");
-        when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.AMPERE)).thenReturn(50.);
+        when(currentFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.AMPERE)).thenReturn(50.);
 
         double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, sensitivityResult, Unit.AMPERE);
         assertEquals(50., margin, DOUBLE_TOLERANCE);
@@ -66,8 +66,8 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     @Test
     void getMarginInMegawattOnConstrainedUnoptimizedCnec() {
         when(flowCnec.getOperator()).thenReturn("FR");
-        when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(200.);
-        when(prePerimeterFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(400.);
+        when(currentFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(200.);
+        when(prePerimeterFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(400.);
 
         double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, sensitivityResult, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);
@@ -76,8 +76,8 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     @Test
     void getMarginInMegawattOnUnconstrainedUnoptimizedCnec() {
         when(flowCnec.getOperator()).thenReturn("FR");
-        when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(200.);
-        when(prePerimeterFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(100.);
+        when(currentFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(200.);
+        when(prePerimeterFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(100.);
 
         double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, sensitivityResult, Unit.MEGAWATT);
         assertEquals(Double.MAX_VALUE, margin, DOUBLE_TOLERANCE);

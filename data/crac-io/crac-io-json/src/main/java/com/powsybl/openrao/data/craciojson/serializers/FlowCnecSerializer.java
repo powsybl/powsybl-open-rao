@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.craciojson.serializers;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.craciojson.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -54,11 +54,11 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
     }
 
     private void serializeIMax(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
-        serializeDoubleValuesOnBothSide(gen, flowCnec.getIMax(Side.LEFT), flowCnec.getIMax(Side.RIGHT), I_MAX);
+        serializeDoubleValuesOnBothSide(gen, flowCnec.getIMax(TwoSides.ONE), flowCnec.getIMax(TwoSides.TWO), I_MAX);
     }
 
     private void serializeNominalVoltage(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
-        serializeDoubleValuesOnBothSide(gen, flowCnec.getNominalVoltage(Side.LEFT), flowCnec.getNominalVoltage(Side.RIGHT), NOMINAL_VOLTAGE);
+        serializeDoubleValuesOnBothSide(gen, flowCnec.getNominalVoltage(TwoSides.ONE), flowCnec.getNominalVoltage(TwoSides.TWO), NOMINAL_VOLTAGE);
     }
 
     private void serializeDoubleValuesOnBothSide(JsonGenerator gen, Double valueSideLeft, Double valueSideRight, String fieldName) throws IOException {

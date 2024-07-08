@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -46,13 +46,13 @@ class LoopFlowViolationCostEvaluatorTest {
         when(state.getContingency()).thenReturn(Optional.empty());
         LoopFlowThreshold cnec1Extension = Mockito.mock(LoopFlowThreshold.class);
         cnec1 = Mockito.mock(FlowCnec.class);
-        when(cnec1.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
+        when(cnec1.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
         when(cnec1.getExtension(LoopFlowThreshold.class)).thenReturn(cnec1Extension);
         when(cnec1.getState()).thenReturn(state);
 
         LoopFlowThreshold cnec2Extension = Mockito.mock(LoopFlowThreshold.class);
         cnec2 = Mockito.mock(FlowCnec.class);
-        when(cnec2.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
+        when(cnec2.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
         when(cnec2.getExtension(LoopFlowThreshold.class)).thenReturn(cnec2Extension);
         when(cnec2.getState()).thenReturn(state);
 
@@ -68,11 +68,11 @@ class LoopFlowViolationCostEvaluatorTest {
     }
 
     private void setInitialLoopFLow(FlowCnec branchCnec, double initialLoopFLow) {
-        when(initialLoopFlows.getLoopFlow(branchCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(initialLoopFLow);
+        when(initialLoopFlows.getLoopFlow(branchCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(initialLoopFLow);
     }
 
     private void setCurrentLoopFLow(FlowCnec branchCnec, double currentLoopFlow) {
-        when(currentLoopFlows.getLoopFlow(branchCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(currentLoopFlow);
+        when(currentLoopFlows.getLoopFlow(branchCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(currentLoopFlow);
     }
 
     private void setAcceptableAugmentationInMW(double acceptableAugmentationInMW) {

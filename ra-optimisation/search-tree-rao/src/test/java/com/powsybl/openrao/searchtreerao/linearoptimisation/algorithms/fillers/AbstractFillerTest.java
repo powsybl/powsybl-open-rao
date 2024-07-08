@@ -10,16 +10,16 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
-import com.powsybl.openrao.data.cracioapi.CracImporters;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -65,11 +65,11 @@ abstract class AbstractFillerTest {
     Crac crac;
     Network network;
 
-    void init() {
+    void init() throws IOException {
         // arrange some data for all fillers test
         // crac and network
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
+        crac = Crac.read("small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
 
         // get cnec and rangeAction
         cnec1 = crac.getFlowCnec(CNEC_1_ID);
@@ -77,11 +77,11 @@ abstract class AbstractFillerTest {
         pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
 
         flowAndSensiResult = Mockito.mock(PerimeterResultWithCnecs.class);
-        when(flowAndSensiResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(flowAndSensiResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
+        when(flowAndSensiResult.getFlow(cnec1, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
+        when(flowAndSensiResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
 
-        when(flowAndSensiResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
-        when(flowAndSensiResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
+        when(flowAndSensiResult.getSensitivityValue(cnec1, TwoSides.ONE, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
+        when(flowAndSensiResult.getSensitivityValue(cnec2, TwoSides.TWO, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
         when(flowAndSensiResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
     }
 

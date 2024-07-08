@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
@@ -46,7 +46,6 @@ public final class BestTapFinder {
      * If virtual costs are an important part of the optimization, it is highly recommended to use APPROXIMATED_INTEGERS
      * taps in the linear optimization, rather than relying on the best tap finder to round the taps.
      *
-     * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
     public static MultiStateRemedialActionResultImpl round(LinearProblemResult linearProblemResult,
                                                            Network network,
@@ -67,7 +66,6 @@ public final class BestTapFinder {
                                                      PerimeterResultWithCnecs previousBestResult,
                                                      MultiStateRemedialActionResultImpl roundedResult,
                                                      Unit unit) {
-
         for (State state : optimizationContext.getRangeActionOptimizationStates()) {
 
             Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
@@ -235,7 +233,7 @@ public final class BestTapFinder {
         double minMargin1 = Double.MAX_VALUE;
         double minMargin2 = Double.MAX_VALUE;
         for (FlowCnec flowCnec : previousBestResult.getMostLimitingElements(10)) {
-            for (Side side : flowCnec.getMonitoredSides()) {
+            for (TwoSides side : flowCnec.getMonitoredSides()) {
                 double sensitivity = previousBestResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
                 double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
                 double referenceFlow = previousBestResult.getFlow(flowCnec, side, unit) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, unit, MEGAWATT);

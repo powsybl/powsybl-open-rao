@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,7 @@ public final class RaoResultJsonConstants {
     private RaoResultJsonConstants() {
     }
 
-    public static final String RAO_RESULT_IO_VERSION = "1.4";
+    public static final String RAO_RESULT_IO_VERSION = "1.5";
 
     // header
     public static final String TYPE = "type";
@@ -99,6 +99,8 @@ public final class RaoResultJsonConstants {
     // branch side
     public static final String LEFT_SIDE = "leftSide";
     public static final String RIGHT_SIDE = "rightSide";
+    public static final String SIDE_ONE = "side1";
+    public static final String SIDE_TWO = "side2";
 
     // optimization states - for retro-compatibility only
     public static final String INITIAL_OPT_STATE = "initial";
@@ -177,26 +179,11 @@ public final class RaoResultJsonConstants {
     }
 
     // serialization of enums
-    public static String serializeSide(Side side) {
-        switch (side) {
-            case LEFT:
-                return LEFT_SIDE;
-            case RIGHT:
-                return RIGHT_SIDE;
-            default:
-                throw new OpenRaoException(String.format("Unsupported side %s", side));
-        }
-    }
-
-    public static Side deserializeSide(String stringValue) {
-        switch (stringValue) {
-            case LEFT_SIDE:
-                return Side.LEFT;
-            case RIGHT_SIDE:
-                return Side.RIGHT;
-            default:
-                throw new OpenRaoException(String.format("Unrecognized side %s", stringValue));
-        }
+    public static String serializeSide(TwoSides side) {
+        return switch (side) {
+            case ONE -> SIDE_ONE;
+            case TWO -> SIDE_TWO;
+        };
     }
 
     public static String serializeInstantId(Instant instant) {

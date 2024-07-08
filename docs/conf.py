@@ -38,7 +38,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.intersphinx',
               'sphinx_tabs.tabs',
-              'myst_parser']
+              'myst_parser',
+              'sphinxcontrib.plantuml']
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",

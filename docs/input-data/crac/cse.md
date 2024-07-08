@@ -313,7 +313,7 @@ or closed by these remedial actions.
 ![bus-bar-equivalent-model](/_static/img/busbar.png)  
 
 Using [CseCracCreationParameters](creation-parameters.md#cse-specific-parameters), OpenRAO can then map these remedial actions to the switches 
-created by the user, and interpret BusBar remedial actions as [SwitchPairs](introduction.md#switch-pair).
+created by the user, and interpret BusBar remedial actions as [SwitchPairs](/input-data/crac.md#switch-pair).
 
 ## CriticalBranches
 

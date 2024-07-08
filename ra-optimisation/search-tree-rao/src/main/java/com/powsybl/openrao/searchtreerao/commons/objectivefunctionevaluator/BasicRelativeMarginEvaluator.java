@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
@@ -30,7 +30,7 @@ public class BasicRelativeMarginEvaluator implements MarginEvaluator {
     }
 
     @Override
-    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, SensitivityResult sensitivityResult, Unit unit) {
+    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, TwoSides side, SensitivityResult sensitivityResult, Unit unit) {
         return flowResult.getRelativeMargin(flowCnec, side, unit);
     }
 }

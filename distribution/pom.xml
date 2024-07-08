@@ -49,11 +49,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-io-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-json</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -95,16 +90,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-loopflow-computation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-native-crac-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-native-crac-io-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -536,10 +536,10 @@ public final class AutomatonSimulator {
                                                                    PerimeterResultWithCnecs lastResult,
                                                                    State automatonState) {
 
-        Set<Pair<FlowCnec, Side>> flowCnecsToBeExcluded = new HashSet<>();
+        Set<Pair<FlowCnec, TwoSides>> flowCnecsToBeExcluded = new HashSet<>();
         PerimeterResultWithCnecs autoRangeActionResult = lastResult;
         Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint = new HashMap<>();
-        List<Pair<FlowCnec, Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, lastResult);
+        List<Pair<FlowCnec, TwoSides>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, lastResult);
 
         if (alignedRangeActions.stream().allMatch(HvdcRangeAction.class::isInstance) && !flowCnecsWithNegativeMargin.isEmpty()) {
             // Disable HvdcAngleDroopActivePowerControl for HVDC lines, fetch their set-point, re-run sensitivity analysis and fetch new negative margins
@@ -567,7 +567,7 @@ public final class AutomatonSimulator {
 
             sensitivityUnderestimator = updateSensitivityUnderestimator(toBeShiftedCnec, previouslyShiftedCnec, sensitivityUnderestimator);
 
-            Side side = flowCnecsWithNegativeMargin.get(0).getRight();
+            TwoSides side = flowCnecsWithNegativeMargin.get(0).getRight();
             double sensitivityValue = computeTotalSensitivityValue(alignedRangeActions, sensitivityUnderestimator, autoRangeActionResult, toBeShiftedCnec, side);
 
             // if sensitivity value is zero, CNEC cannot be secured. move on to the next CNEC with a negative margin
@@ -625,7 +625,7 @@ public final class AutomatonSimulator {
         }
     }
 
-    private double computeTotalSensitivityValue(List<RangeAction<?>> alignedRangeActions, double sensitivityUnderestimator, PerimeterResultWithCnecs automatonRangeActionOptimizationSensitivityAnalysisOutput, FlowCnec toBeShiftedCnec, Side side) {
+    private double computeTotalSensitivityValue(List<RangeAction<?>> alignedRangeActions, double sensitivityUnderestimator, PerimeterResultWithCnecs automatonRangeActionOptimizationSensitivityAnalysisOutput, FlowCnec toBeShiftedCnec, TwoSides side) {
         double sensitivityValue = 0;
         // Under-estimate range action sensitivity if convergence to margin = 0 is slow (ie if multiple passes
         // through this loop have been needed to secure the same CNEC)
@@ -666,12 +666,12 @@ public final class AutomatonSimulator {
     /**
      * This function builds a list of cnecs with negative margin, except cnecs in cnecsToBeExcluded.
      * N.B : margin is retrieved in MEGAWATT as only the sign matters.
-     * Returns a sorted list of FlowCnecs-Side pairs with negative margins.
+     * Returns a sorted list of FlowCnecs-TwoSides pairs with negative margins.
      */
-    List<Pair<FlowCnec, Side>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> flowCnecs,
-                                                                              Set<Pair<FlowCnec, Side>> cnecsToBeExcluded,
-                                                                              PerimeterResultWithCnecs lastResult) {
-        Map<Pair<FlowCnec, Side>, Double> cnecsAndMargins = new HashMap<>();
+    List<Pair<FlowCnec, TwoSides>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> flowCnecs,
+                                                                                  Set<Pair<FlowCnec, TwoSides>> cnecsToBeExcluded,
+                                                                                  PerimeterResultWithCnecs lastResult) {
+        Map<Pair<FlowCnec, TwoSides>, Double> cnecsAndMargins = new HashMap<>();
         flowCnecs.forEach(flowCnec -> flowCnec.getMonitoredSides().forEach(side -> {
             double margin = lastResult.getMargin(flowCnec, side, flowUnit);
             if (!cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {

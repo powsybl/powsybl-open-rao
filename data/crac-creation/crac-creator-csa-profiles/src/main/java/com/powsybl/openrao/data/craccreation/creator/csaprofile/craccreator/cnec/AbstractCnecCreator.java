@@ -9,7 +9,8 @@ package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.cne
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileElementaryCreationContext;
@@ -77,7 +78,7 @@ public abstract class AbstractCnecCreator {
         return "%s (%s) - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
     }
 
-    protected String getCnecName(String instantId, Contingency contingency, Side side, int acceptableDuration) {
+    protected String getCnecName(String instantId, Contingency contingency, TwoSides side, int acceptableDuration) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
         // Add TATL duration in case to CNECs of the same instant are created with different TATLs
         return "%s (%s) - %s%s - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, side.name(), acceptableDuration == Integer.MAX_VALUE ? "" : " - TATL " + acceptableDuration);
@@ -88,7 +89,7 @@ public abstract class AbstractCnecCreator {
         initCnecAdder(cnecAdder, contingency, instantId, cnecName);
     }
 
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, Side side, int acceptableDuration) {
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, TwoSides side, int acceptableDuration) {
         initCnecAdder(cnecAdder, contingency, instantId, getCnecName(instantId, contingency, side, acceptableDuration));
     }
 
@@ -97,9 +98,12 @@ public abstract class AbstractCnecCreator {
             .withId(cnecName)
             .withName(cnecName)
             .withInstant(instantId)
-            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()))
-            .withOptimized(aeSecuredForRegion)
-            .withMonitored(aeScannedForRegion);
+            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()));
+        if (cnecAdder instanceof FlowCnecAdder) {
+            // The following 2 lines mustn't be called for angle & voltage CNECs
+            cnecAdder.withOptimized(aeSecuredForRegion)
+                .withMonitored(aeScannedForRegion);
+        }
     }
 
     protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {

@@ -6,32 +6,31 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.cim.CimCrac;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.VoltageCnecCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.cnec.VoltageCnecsCreator;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.contingency.CimContingencyCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.importer.CimCracImporter;
-import com.powsybl.openrao.data.craccreation.creator.cim.parameters.VoltageCnecsCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
-import com.powsybl.openrao.data.craccreation.creator.cim.parameters.VoltageThreshold;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.cim.parameters.VoltageCnecsCreationParameters;
+import com.powsybl.openrao.data.craccreation.creator.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
+import com.powsybl.openrao.data.craccreation.creator.cim.parameters.VoltageThreshold;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,16 +51,13 @@ class VoltageCnecsCreatorTest {
     private Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         network = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
-        CimCracImporter cracImporter = new CimCracImporter();
-        CimCrac cimCrac = cracImporter.importNativeCrac(is);
-        CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext("CIM_21_1_1.xml", is, network, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         crac = cracCreationContext.getCrac();
 
         // Imported contingencies (name -> id):

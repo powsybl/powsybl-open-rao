@@ -29,7 +29,6 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     private final Map<NetworkElement, Double> injectionDistributionKeys;
     private final List<StandardRange> ranges;
     private final double initialSetpoint;
-    Map<NetworkElement, Double> initialSetpointPerInjection;
 
     InjectionRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
                              List<StandardRange> ranges, double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys, Integer speed) {
@@ -78,7 +77,6 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {
             generator.setTargetP(targetSetpoint);
-            generator.setTargetP(initialSetpointPerInjection.get(injectionId) + targetSetpoint);
             return;
         }
 
@@ -116,7 +114,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     public double getInjectionSetpoint(Network network, String injectionId, double distributionKey) {
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {
-            return (generator.getTargetP()- initialSetpointPerInjection.get(injectionId)) / distributionKey;
+            return generator.getTargetP() / distributionKey;
         }
 
         Load load = network.getLoad(injectionId);

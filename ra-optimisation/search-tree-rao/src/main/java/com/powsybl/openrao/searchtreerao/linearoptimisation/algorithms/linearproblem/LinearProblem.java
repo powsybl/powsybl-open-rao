@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -28,10 +28,10 @@ import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.li
  */
 public final class LinearProblem {
 
-    public static final double LP_INFINITY = 1e10;
+    public static final int LP_INFINITY = (int) 1e10;
     private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
 
-    private OpenRaoMPSolver solver;
+    private final OpenRaoMPSolver solver;
     private final List<ProblemFiller> fillerList;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
@@ -132,19 +132,19 @@ public final class LinearProblem {
         return solver.numConstraints();
     }
 
-    public OpenRaoMPVariable addFlowVariable(double lb, double ub, FlowCnec cnec, Side side) {
+    public OpenRaoMPVariable addFlowVariable(double lb, double ub, FlowCnec cnec, TwoSides side) {
         return solver.makeNumVar(lb, ub, flowVariableId(cnec, side));
     }
 
-    public OpenRaoMPVariable getFlowVariable(FlowCnec cnec, Side side) {
+    public OpenRaoMPVariable getFlowVariable(FlowCnec cnec, TwoSides side) {
         return solver.getVariable(flowVariableId(cnec, side));
     }
 
-    public OpenRaoMPConstraint addFlowConstraint(double lb, double ub, FlowCnec cnec, Side side) {
+    public OpenRaoMPConstraint addFlowConstraint(double lb, double ub, FlowCnec cnec, TwoSides side) {
         return solver.makeConstraint(lb, ub, flowConstraintId(cnec, side));
     }
 
-    public OpenRaoMPConstraint getFlowConstraint(FlowCnec cnec, Side side) {
+    public OpenRaoMPConstraint getFlowConstraint(FlowCnec cnec, TwoSides side) {
         return solver.getConstraint(flowConstraintId(cnec, side));
     }
 
@@ -158,6 +158,14 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
         return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
+    }
+
+    public OpenRaoMPConstraint addPstRelativeTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(lb, ub, pstRangeActionRelativeTapConstraintId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getPstRelativeTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.getConstraint(pstRangeActionRelativeTapConstraintId(pstRangeAction, state));
     }
 
     public OpenRaoMPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
@@ -268,11 +276,11 @@ public final class LinearProblem {
         return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
     }
 
-    public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public OpenRaoMPConstraint getMinimumMarginConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public OpenRaoMPConstraint getMinimumMarginConstraint(FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(minimumMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
@@ -292,11 +300,11 @@ public final class LinearProblem {
         return solver.getConstraint(minimumRelativeMarginSetToZeroConstraintId());
     }
 
-    public OpenRaoMPConstraint addMinimumRelativeMarginConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public OpenRaoMPConstraint addMinimumRelativeMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, minimumRelativeMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public OpenRaoMPConstraint getMinimumRelativeMarginConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public OpenRaoMPConstraint getMinimumRelativeMarginConstraint(FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(minimumRelativeMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
@@ -325,51 +333,51 @@ public final class LinearProblem {
     }
 
     //Begin MaxLoopFlowFiller section
-    public OpenRaoMPConstraint addMaxLoopFlowConstraint(double lb, double ub, FlowCnec cnec, Side side, BoundExtension lbOrUb) {
+    public OpenRaoMPConstraint addMaxLoopFlowConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, BoundExtension lbOrUb) {
         return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec, side, lbOrUb));
     }
 
-    public OpenRaoMPConstraint getMaxLoopFlowConstraint(FlowCnec cnec, Side side, BoundExtension lbOrUb) {
+    public OpenRaoMPConstraint getMaxLoopFlowConstraint(FlowCnec cnec, TwoSides side, BoundExtension lbOrUb) {
         return solver.getConstraint(maxLoopFlowConstraintId(cnec, side, lbOrUb));
     }
 
-    public OpenRaoMPVariable addLoopflowViolationVariable(double lb, double ub, FlowCnec cnec, Side side) {
+    public OpenRaoMPVariable addLoopflowViolationVariable(double lb, double ub, FlowCnec cnec, TwoSides side) {
         return solver.makeNumVar(lb, ub, loopflowViolationVariableId(cnec, side));
     }
 
-    public OpenRaoMPVariable getLoopflowViolationVariable(FlowCnec cnec, Side side) {
+    public OpenRaoMPVariable getLoopflowViolationVariable(FlowCnec cnec, TwoSides side) {
         return solver.getVariable(loopflowViolationVariableId(cnec, side));
     }
 
-    public OpenRaoMPVariable addMnecViolationVariable(double lb, double ub, FlowCnec mnec, Side side) {
+    public OpenRaoMPVariable addMnecViolationVariable(double lb, double ub, FlowCnec mnec, TwoSides side) {
         return solver.makeNumVar(lb, ub, mnecViolationVariableId(mnec, side));
     }
 
-    public OpenRaoMPVariable getMnecViolationVariable(FlowCnec mnec, Side side) {
+    public OpenRaoMPVariable getMnecViolationVariable(FlowCnec mnec, TwoSides side) {
         return solver.getVariable(mnecViolationVariableId(mnec, side));
     }
 
-    public OpenRaoMPConstraint addMnecFlowConstraint(double lb, double ub, FlowCnec mnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public OpenRaoMPConstraint addMnecFlowConstraint(double lb, double ub, FlowCnec mnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, mnecFlowConstraintId(mnec, side, belowOrAboveThreshold));
     }
 
-    public OpenRaoMPConstraint getMnecFlowConstraint(FlowCnec mnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public OpenRaoMPConstraint getMnecFlowConstraint(FlowCnec mnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(mnecFlowConstraintId(mnec, side, belowOrAboveThreshold));
     }
 
-    public OpenRaoMPVariable addOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
+    public OpenRaoMPVariable addOptimizeCnecBinaryVariable(FlowCnec cnec, TwoSides side) {
         return solver.makeIntVar(0, 1, optimizeCnecBinaryVariableId(cnec, side));
     }
 
-    public OpenRaoMPVariable getOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
+    public OpenRaoMPVariable getOptimizeCnecBinaryVariable(FlowCnec cnec, TwoSides side) {
         return solver.getVariable(optimizeCnecBinaryVariableId(cnec, side));
     }
 
-    public OpenRaoMPConstraint addDontOptimizeCnecConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public OpenRaoMPConstraint addDontOptimizeCnecConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public OpenRaoMPConstraint getDontOptimizeCnecConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public OpenRaoMPConstraint getDontOptimizeCnecConstraint(FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
@@ -421,7 +429,7 @@ public final class LinearProblem {
         return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
-    public static double infinity() {
+    public static int infinity() {
         return LP_INFINITY;
     }
 

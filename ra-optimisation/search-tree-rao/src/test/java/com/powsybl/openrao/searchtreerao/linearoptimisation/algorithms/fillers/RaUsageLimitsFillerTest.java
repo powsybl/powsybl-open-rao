@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +55,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
     private CoreProblemFiller coreProblemFiller;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws IOException {
         init();
         state = crac.getPreventiveState();
 
@@ -114,7 +115,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             multiStateRemedialActionResult,
             rangeActionParameters,
             Unit.MEGAWATT,
-            false);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
     }
 
     @Test

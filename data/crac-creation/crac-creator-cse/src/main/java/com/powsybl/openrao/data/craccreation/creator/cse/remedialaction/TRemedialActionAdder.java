@@ -23,7 +23,7 @@ import com.powsybl.openrao.data.craccreation.creator.cse.*;
 import com.powsybl.openrao.data.craccreation.creator.cse.xsd.*;
 import com.powsybl.openrao.data.craccreation.creator.cse.parameters.BusBarChangeSwitches;
 import com.powsybl.openrao.data.craccreation.creator.cse.parameters.CseCracCreationParameters;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.RangeActionGroup;
+import com.powsybl.openrao.data.cracapi.parameters.RangeActionGroup;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.craccreation.util.ucte.UctePstHelper;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteTopologicalElementHelper;

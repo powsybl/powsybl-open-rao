@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracapi.cnec;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 
 /**
@@ -16,11 +17,11 @@ public interface FlowCnecAdder extends CnecAdder<FlowCnecAdder> {
 
     FlowCnecAdder withIMax(double iMaxInAmpere);
 
-    FlowCnecAdder withIMax(double iMaxInAmpere, Side side);
+    FlowCnecAdder withIMax(double iMaxInAmpere, TwoSides side);
 
     FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt);
 
-    FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt, Side side);
+    FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt, TwoSides side);
 
     BranchThresholdAdder newThreshold();
 
