@@ -8,6 +8,7 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.action.LoadActionBuilder;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
@@ -85,7 +86,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
                 .withActivePowerValue(targetSetpoint)
                 .build()
                 .toModification()
-                .apply(network);
+                .apply(network, true, ReportNode.NO_OP);
             return;
         }
 
@@ -98,7 +99,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
                 .withActivePowerValue(-targetSetpoint)
                 .build()
                 .toModification()
-                .apply(network);
+                .apply(network, true, ReportNode.NO_OP);
             return;
 
         }

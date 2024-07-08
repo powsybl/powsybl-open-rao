@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.action.HvdcActionBuilder;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
@@ -86,7 +87,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
         } else {
             actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
         }
-        actionBuilder.build().toModification().apply(network);
+        actionBuilder.build().toModification().apply(network, true, ReportNode.NO_OP);
     }
 
     public void logDisableHvdcAngleDroopActivePowerControl(Network network) {
