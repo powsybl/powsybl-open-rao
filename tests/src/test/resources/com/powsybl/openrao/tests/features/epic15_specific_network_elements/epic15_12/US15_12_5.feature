@@ -4,7 +4,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.12.5: Handle HVDC range actions in RAO
-  # TODO : Setpoint values are wrong until a fix is merged in powsybl-rte-core to fix losses in adn files
 
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.12.5.1: HVDC range action with one preventive CNEC
