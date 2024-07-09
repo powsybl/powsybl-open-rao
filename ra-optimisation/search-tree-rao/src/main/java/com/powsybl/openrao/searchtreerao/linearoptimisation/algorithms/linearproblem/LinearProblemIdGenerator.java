@@ -11,7 +11,6 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 
 /**
