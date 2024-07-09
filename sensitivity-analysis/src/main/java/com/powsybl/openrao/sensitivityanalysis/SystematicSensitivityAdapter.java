@@ -130,6 +130,9 @@ final class SystematicSensitivityAdapter {
             network.getVariantManager().removeVariant(variantForState);
         }
 
+        // enable preventive factors for next iterations
+        cnecSensitivityProvider.enableFactorsForBaseCaseSituation();
+
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [end]");
 
         network.getVariantManager().setWorkingVariant(workingVariantId);

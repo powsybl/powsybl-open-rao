@@ -51,6 +51,11 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
     }
 
     @Override
+    public void enableFactorsForBaseCaseSituation() {
+        cnecSensitivityProviders.forEach(CnecSensitivityProvider::enableFactorsForBaseCaseSituation);
+    }
+
+    @Override
     public List<SensitivityFactor> getBasecaseFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
         for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
