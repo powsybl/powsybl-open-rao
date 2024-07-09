@@ -133,6 +133,11 @@ class RangeActionSensitivityProviderTest {
         // factors after disabling basecase
         assertEquals(0, provider.getBasecaseFactors(network).size());
         assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
+
+        provider.enableFactorsForBaseCaseSituation();
+        // factors are enabled back
+        assertEquals(4, provider.getBasecaseFactors(network).size());
+
     }
 
     @Test
