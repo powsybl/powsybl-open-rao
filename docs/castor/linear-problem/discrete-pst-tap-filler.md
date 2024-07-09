@@ -7,8 +7,8 @@
 | PstRangeActions                  | $r \in \mathcal{RA}^{PST}$                           | Set of PST RangeActions                                                                                   |
 | reference angle                  | $\alpha _n(r)$                                       | angle of PstRangeAction $r$ at the beginning of the current iteration of the MILP                         |
 | reference tap position           | $t_{n}(r)$                                           | tap of PstRangeAction $r$ at the beginning of the current iteration of the MILP                           |
-| PstRangeAction angle bounds      | $\alpha^{min}(r) \: , \: \alpha^{max}(r)$ | min and max angle[^1] of PstRangeAction $r$                                                               |
-| PstRangeAction tap bounds        | $t^{min}(r) \: , \: t^{max}(r)$           | min and max tap[^1] of PstRangeAction $r$                                                                 |
+| PstRangeAction angle bounds      | $\underline{\alpha(r)} \: , \: \overline{\alpha(r)}$ | min and max angle[^1] of PstRangeAction $r$                                                               |
+| PstRangeAction tap bounds        | $\underline{t(r)} \: , \: \overline{t(r)}$           | min and max tap[^1] of PstRangeAction $r$                                                                 |
 | tap-to-angle conversion function | $f_r(t) = \alpha$                                    | Discrete function $f$, which gives, for a given tap of the PstRangeAction $r$, its associated angle value |
 
 [^1]: PST range actions' lower & upper bounds are computed using CRAC + network + previous RAO results, depending on the
@@ -19,7 +19,7 @@ information [here](/input-data/crac/json.md#range-actions))
 
 | Name                                             | Details                                                                       |
 |--------------------------------------------------|-------------------------------------------------------------------------------|
-| [pst-model](/parameters/parameters.md#pst-model) | This filler is used only if this parameters is set to *APPROXIMATED_INTEGERS* |
+| [pst-model](/parameters.md#pst-model) | This filler is used only if this parameters is set to *APPROXIMATED_INTEGERS* |
 
 ## Defined optimization variables
 
@@ -106,3 +106,15 @@ $$
 \delta ^{+} (r) + \delta ^{-} (r)  \leq 1 , \forall r \in \mathcal{RA}^{PST}
 \end{equation}
 $$
+
+<br>
+
+### RangeActions relative tap variations
+
+$$
+\begin{equation}
+t^-(r) \leq \Delta t^+(r, s) + \Delta t^-(r, s) - (\Delta t^+(r, s') + \Delta t^-(r, s')) \leq t^+(r)
+\end{equation}
+$$
+
+with $\Delta t(r,s')$ the setpoint of the last range action on the same element as $r$ but a state preceding $s$.

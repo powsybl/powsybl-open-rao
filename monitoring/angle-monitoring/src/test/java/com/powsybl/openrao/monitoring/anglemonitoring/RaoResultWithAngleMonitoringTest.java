@@ -53,7 +53,7 @@ class RaoResultWithAngleMonitoringTest {
     public void setUp() throws IOException {
         InputStream raoResultFile = getClass().getResourceAsStream("/rao-result-v1.4.json");
         InputStream cracFile = getClass().getResourceAsStream("/crac-for-rao-result-v1.4.json");
-        crac = Crac.read(cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
+        crac = Crac.read("crac-for-rao-result-v1.4.json", cracFile, mockNetworkWithLines("ne1Id", "ne2Id", "ne3Id"));
         raoResult = RaoResult.read(raoResultFile, crac);
     }
 

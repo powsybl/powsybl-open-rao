@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.craccreation.util;
 
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}

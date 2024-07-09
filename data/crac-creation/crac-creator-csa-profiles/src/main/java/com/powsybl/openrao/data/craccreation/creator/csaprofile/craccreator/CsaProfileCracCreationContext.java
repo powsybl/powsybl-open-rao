@@ -8,8 +8,8 @@
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator;
 
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.CracCreationReport;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.craccreation.creator.api.ElementaryCreationContext;
 
 import java.time.OffsetDateTime;
@@ -20,6 +20,7 @@ import java.util.Set;
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
+// TODO : make all setters private package
 public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private Crac crac;

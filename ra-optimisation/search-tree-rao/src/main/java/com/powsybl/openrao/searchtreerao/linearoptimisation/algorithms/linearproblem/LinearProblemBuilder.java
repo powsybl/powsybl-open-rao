@@ -116,7 +116,8 @@ public class LinearProblemBuilder {
             inputs.getRaActivationFromParentLeaf(),
             parameters.getRangeActionParameters(),
             parameters.getObjectiveFunctionUnit(),
-            parameters.getRaRangeShrinking()
+            parameters.getRaRangeShrinking(),
+            parameters.getRangeActionParameters().getPstModel()
         );
     }
 

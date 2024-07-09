@@ -156,7 +156,7 @@ class SearchTreeParametersTest {
     @Test
     void testDecreaseRemedialActionUsageLimits() throws IOException {
         Crac crac = Crac.read(
-            SearchTreeParametersTest.class.getResourceAsStream("/crac/small-crac-with-comprehensive-usage-limits-3-curative-instants.json"),
+            "crac.json", SearchTreeParametersTest.class.getResourceAsStream("/crac/small-crac-with-comprehensive-usage-limits.json"),
             Network.read(Paths.get(new File(Objects.requireNonNull(SearchTreeParametersTest.class.getResource("/network/small-network-2P.uct")).getFile()).toString()))
         );
 
