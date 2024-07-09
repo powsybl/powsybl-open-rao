@@ -30,6 +30,8 @@ public interface CnecSensitivityProvider extends ContingenciesProvider {
 
     void disableFactorsForBaseCaseSituation();
 
+    void enableFactorsForBaseCaseSituation();
+
     List<SensitivityFactor> getBasecaseFactors(Network network);
 
     List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies);

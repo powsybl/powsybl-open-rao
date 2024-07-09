@@ -89,4 +89,9 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
     public void disableFactorsForBaseCaseSituation() {
         this.afterContingencyOnly = true;
     }
+
+    @Override
+    public void enableFactorsForBaseCaseSituation() {
+        this.afterContingencyOnly = false;
+    }
 }
