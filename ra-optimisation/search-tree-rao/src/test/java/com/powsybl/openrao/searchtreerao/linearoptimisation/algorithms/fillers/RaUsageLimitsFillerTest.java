@@ -167,7 +167,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(-LinearProblem.infinity(), constraint.lb(), INFINITY_TOLERANCE);
+            assertEquals(-linearProblem.infinity(), constraint.lb(), linearProblem.infinity() * 1e-3);
         });
     }
 
@@ -207,7 +207,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(-LinearProblem.infinity(), constraint.lb(), INFINITY_TOLERANCE);
+            assertEquals(-linearProblem.infinity(), constraint.lb(), linearProblem.infinity() * 1e-3);
         });
     }
 
@@ -292,7 +292,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint constraint = linearProblem.getTsoRaUsedConstraint(tso, ra, state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(LinearProblem.infinity(), constraint.ub(), INFINITY_TOLERANCE);
+        assertEquals(linearProblem.infinity(), constraint.ub(), linearProblem.infinity() * 1e-3);
         assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable(tso, state)), DOUBLE_TOLERANCE);
         assertEquals(-1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(ra, state)), DOUBLE_TOLERANCE);
     }

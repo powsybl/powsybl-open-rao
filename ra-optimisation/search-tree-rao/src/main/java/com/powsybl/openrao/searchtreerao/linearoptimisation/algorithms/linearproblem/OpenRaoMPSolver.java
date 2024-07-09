@@ -34,10 +34,17 @@ public class OpenRaoMPSolver {
     }
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
+    private static final double MIN_DOUBLE = 1e-6;
+    private static final Map<RangeActionsOptimizationParameters.Solver, Double> SOLVER_INFINITY = Map.of(
+        RangeActionsOptimizationParameters.Solver.CBC, Double.POSITIVE_INFINITY,
+        RangeActionsOptimizationParameters.Solver.SCIP, 1E20,
+        RangeActionsOptimizationParameters.Solver.XPRESS, 1E20
+    );
+
     private final RangeActionsOptimizationParameters.Solver solver;
     private final String optProblemName;
     private MPSolver mpSolver;
-    private MPSolverParameters solveConfiguration;
+    private final MPSolverParameters solveConfiguration;
     private String solverSpecificParameters;
     Map<String, OpenRaoMPConstraint> constraints = new TreeMap<>();
     Map<String, OpenRaoMPVariable> variables = new TreeMap<>();
@@ -147,7 +154,7 @@ public class OpenRaoMPSolver {
     }
 
     public OpenRaoMPConstraint makeConstraint(String name) {
-        return makeConstraint(-LinearProblem.infinity(), LinearProblem.infinity(), name);
+        return makeConstraint(-infinity(), infinity(), name);
     }
 
     public boolean setSolverSpecificParametersAsString(String solverSpecificParameters) {
@@ -225,10 +232,18 @@ public class OpenRaoMPSolver {
         if (Double.isNaN(value)) {
             throw new OpenRaoException("Trying to add a NaN value in MIP!");
         }
+        if (Math.abs(value) < MIN_DOUBLE) {
+            return 0.;
+        }
         double t = value * (1L << NUMBER_OF_BITS_TO_ROUND_OFF);
         if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
             return value - t + t;
         }
         return value;
+    }
+
+    public double infinity() {
+        // TODO: replace with mpsSolver.solverInfinity() when made available
+        return SOLVER_INFINITY.get(solver);
     }
 }

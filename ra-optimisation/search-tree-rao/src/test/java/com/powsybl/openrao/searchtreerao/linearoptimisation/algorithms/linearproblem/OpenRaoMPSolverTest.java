@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class OpenRaoMPSolverTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
-    static final double INFINITY_TOLERANCE = LinearProblem.infinity() * 0.001;
 
     private OpenRaoMPSolver openRaoMPSolver;
     private MPSolver mpSolver;
@@ -175,16 +174,16 @@ class OpenRaoMPSolverTest {
         OpenRaoMPConstraint const1 = openRaoMPSolver.makeConstraint(constName);
 
         // Check OpenRaoMPConstraint
-        assertEquals(-LinearProblem.infinity(), const1.lb(), INFINITY_TOLERANCE);
-        assertEquals(LinearProblem.infinity(), const1.ub(), INFINITY_TOLERANCE);
+        assertEquals(-openRaoMPSolver.infinity(), const1.lb(), openRaoMPSolver.infinity() * 1e-3);
+        assertEquals(openRaoMPSolver.infinity(), const1.ub(), openRaoMPSolver.infinity() * 1e-3);
         assertTrue(openRaoMPSolver.hasConstraint(constName));
         assertEquals(const1, openRaoMPSolver.getConstraint(constName));
 
         // Check OR-Tools object
         MPConstraint orToolsConst1 = mpSolver.lookupConstraintOrNull(constName);
         assertNotNull(orToolsConst1);
-        assertEquals(-LinearProblem.infinity(), orToolsConst1.lb(), INFINITY_TOLERANCE);
-        assertEquals(LinearProblem.infinity(), orToolsConst1.ub(), INFINITY_TOLERANCE);
+        assertEquals(-openRaoMPSolver.infinity(), orToolsConst1.lb(), openRaoMPSolver.infinity() * 1e-3);
+        assertEquals(openRaoMPSolver.infinity(), orToolsConst1.ub(), openRaoMPSolver.infinity() * 1e-3);
     }
 
     @Test
@@ -268,7 +267,7 @@ class OpenRaoMPSolverTest {
         // Should result in: x = 4, y = 6, obj = 14
         OpenRaoMPVariable x = openRaoMPSolver.makeNumVar(0, 4, "x");
         OpenRaoMPVariable y = openRaoMPSolver.makeNumVar(0, 10, "y");
-        OpenRaoMPConstraint constraint = openRaoMPSolver.makeConstraint(-LinearProblem.LP_INFINITY, 10, "constraint");
+        OpenRaoMPConstraint constraint = openRaoMPSolver.makeConstraint(-openRaoMPSolver.infinity(), 10, "constraint");
         constraint.setCoefficient(x, 1);
         constraint.setCoefficient(y, 1);
         openRaoMPSolver.getObjective().setCoefficient(x, 2);
@@ -288,5 +287,25 @@ class OpenRaoMPSolverTest {
         checkObjectiveSense(false);
         assertEquals(RangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
         assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
+    }
+
+    @Test
+    void testInfinity() {
+        OpenRaoMPSolver solver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.CBC);
+        assertEquals(Double.POSITIVE_INFINITY, solver.infinity());
+
+        solver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.SCIP);
+        assertEquals(1e20, solver.infinity());
+
+        // can't test XPRESS because we need the link to the library
+    }
+
+    @Test
+    void testRoundSmallValues() {
+        assertEquals(1e-5, OpenRaoMPSolver.roundDouble(1e-5), 1e-12);
+        assertEquals(1e-6, OpenRaoMPSolver.roundDouble(1e-6), 1e-12);
+        assertEquals(0., OpenRaoMPSolver.roundDouble(1e-6 * 0.999), 1e-12);
+        assertEquals(0., OpenRaoMPSolver.roundDouble(1e-7), 1e-12);
+        assertEquals(0., OpenRaoMPSolver.roundDouble(1e-11), 1e-12);
     }
 }

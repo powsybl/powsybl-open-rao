@@ -114,7 +114,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         // range action absolute variation <= isVariationVariable * (max setpoint - min setpoint) + initialSetpointRelaxation
         // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring that the maximum setpoint is feasible
         // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
-        OpenRaoMPConstraint constraint = linearProblem.addIsVariationConstraint(-LinearProblem.infinity(), initialSetpointRelaxation, rangeAction, state);
+        OpenRaoMPConstraint constraint = linearProblem.addIsVariationConstraint(-linearProblem.infinity(), initialSetpointRelaxation, rangeAction, state);
         constraint.setCoefficient(absoluteVariationVariable, 1);
         double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
         constraint.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - rangeAction.getMinAdmissibleSetpoint(initialSetpoint)));
@@ -153,7 +153,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
             rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
                 .forEach(ra -> {
-                    OpenRaoMPConstraint tsoRaUsedConstraint = linearProblem.addTsoRaUsedConstraint(0, LinearProblem.infinity(), tso, ra, state);
+                    OpenRaoMPConstraint tsoRaUsedConstraint = linearProblem.addTsoRaUsedConstraint(0, linearProblem.infinity(), tso, ra, state);
                     tsoRaUsedConstraint.setCoefficient(tsoRaUsedVariable, 1);
                     tsoRaUsedConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), -1);
                 });
