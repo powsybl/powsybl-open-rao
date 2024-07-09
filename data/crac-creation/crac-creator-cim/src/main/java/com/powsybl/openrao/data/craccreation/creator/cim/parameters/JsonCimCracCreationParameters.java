@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
@@ -24,6 +25,7 @@ import java.util.*;
 @AutoService(JsonCracCreationParameters.ExtensionSerializer.class)
 public class JsonCimCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<CimCracCreationParameters> {
 
+    private static final String OFFSET_DATE_TIME = "offset-date-time";
     private static final String RANGE_ACTION_GROUPS = "range-action-groups";
     private static final String RANGE_ACTION_SPEEDS = "range-action-speeds";
     private static final String RANGE_ACTION_ID = "range-action-id";
@@ -34,6 +36,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     @Override
     public void serialize(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+        serializeOffsetDateTime(cimParameters.getOffsetDateTime(), jsonGenerator);
         serializeTimeseriesMrids(cimParameters.getTimeseriesMrids(), jsonGenerator);
         serializeRangeActionGroups(cimParameters.getRangeActionGroupsAsString(), jsonGenerator);
         serializeRangeActionSpeedSet(cimParameters.getRangeActionSpeedSet(), jsonGenerator);
@@ -50,6 +53,10 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     public CimCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CimCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
+                case OFFSET_DATE_TIME:
+                    jsonParser.nextToken();
+                    parameters.setOffsetDateTime(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
+                    break;
                 case TIMESERIES_MRIDS:
                     jsonParser.nextToken();
                     parameters.setTimeseriesMrids(jsonParser.readValueAs(Set.class));
@@ -87,6 +94,12 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     @Override
     public Class<? super CimCracCreationParameters> getExtensionClass() {
         return CimCracCreationParameters.class;
+    }
+
+    private void serializeOffsetDateTime(OffsetDateTime offsetDateTime, JsonGenerator jsonGenerator) throws IOException {
+        if (offsetDateTime != null) {
+            jsonGenerator.writeStringField(OFFSET_DATE_TIME, offsetDateTime.toString());
+        }
     }
 
     private void serializeTimeseriesMrids(Set<String> timeseriesMrids, JsonGenerator jsonGenerator) throws IOException {

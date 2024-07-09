@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ class JsonCseCracCreationParametersTest {
         // prepare parameters to export
         CracCreationParameters exportedParameters = new CracCreationParameters();
         CseCracCreationParameters exportedCseParameters = new CseCracCreationParameters();
+        exportedCseParameters.setOffsetDateTime(OffsetDateTime.parse("2024-07-09T07:15:00Z"));
         exportedCseParameters.setRangeActionGroupsAsString(List.of("rangeAction3 + rangeAction4", "hvdc1 + hvdc2"));
 
         exportedCseParameters.setBusBarChangeSwitchesSet(Set.of(
@@ -56,6 +58,7 @@ class JsonCseCracCreationParametersTest {
         // test re-imported parameters
         CseCracCreationParameters cseCracCreationParameters = importedParameters.getExtension(CseCracCreationParameters.class);
         assertNotNull(cseCracCreationParameters);
+        assertEquals(OffsetDateTime.parse("2024-07-09T07:15:00Z"), cseCracCreationParameters.getOffsetDateTime());
         assertEquals(2, cseCracCreationParameters.getRangeActionGroupsAsString().size());
         assertEquals("rangeAction3 + rangeAction4", cseCracCreationParameters.getRangeActionGroupsAsString().get(0));
         assertEquals("hvdc1 + hvdc2", cseCracCreationParameters.getRangeActionGroupsAsString().get(1));

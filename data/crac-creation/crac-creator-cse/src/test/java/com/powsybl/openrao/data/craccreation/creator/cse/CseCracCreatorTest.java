@@ -60,7 +60,7 @@ class CseCracCreatorTest {
     private void setUp(String cracFileName, String networkFileName) throws IOException {
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
         InputStream is = getClass().getResourceAsStream(cracFileName);
-        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, offsetDateTime, parameters);
+        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, parameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = importedCrac.getInstant(OUTAGE_INSTANT_ID);

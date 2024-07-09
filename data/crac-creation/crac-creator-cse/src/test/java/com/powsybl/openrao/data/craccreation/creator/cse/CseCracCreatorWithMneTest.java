@@ -44,7 +44,7 @@ class CseCracCreatorWithMneTest {
         InputStream is = getClass().getResourceAsStream(cracFileName);
         CseCracImporter importer = new CseCracImporter();
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
-        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, offsetDateTime, parameters);
+        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, parameters);
         preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = cracCreationContext.getCrac().getInstant(OUTAGE_INSTANT_ID);
         autoInstant = cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID);

@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.Set;
 @AutoService(JsonCracCreationParameters.ExtensionSerializer.class)
 public class JsonCseCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<CseCracCreationParameters> {
 
+    private static final String OFFSET_DATE_TIME = "offset-date-time";
     private static final String RANGE_ACTION_GROUPS = "range-action-groups";
     private static final String BUS_BAR_CHANGE_SWITCHES = "bus-bar-change-switches";
     private static final String REMEDIAL_ACTION_ID = "remedial-action-id";
@@ -39,6 +41,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
     @Override
     public void serialize(CseCracCreationParameters cseParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+        serializeOffsetDateTime(cseParameters, jsonGenerator);
         serializeRangeActionGroups(cseParameters, jsonGenerator);
         serializeBusBarChangeSwitchesSet(cseParameters, jsonGenerator);
         jsonGenerator.writeEndObject();
@@ -53,6 +56,10 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
     public CseCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CseCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
+                case OFFSET_DATE_TIME:
+                    jsonParser.nextToken();
+                    parameters.setOffsetDateTime(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
+                    break;
                 case RANGE_ACTION_GROUPS:
                     jsonParser.nextToken();
                     parameters.setRangeActionGroupsAsString(jsonParser.readValueAs(ArrayList.class));
@@ -82,6 +89,13 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
     @Override
     public Class<? super CseCracCreationParameters> getExtensionClass() {
         return CseCracCreationParameters.class;
+    }
+
+    // TODO: use individual objects instead of full parameters
+    private void serializeOffsetDateTime(CseCracCreationParameters cseParameters, JsonGenerator jsonGenerator) throws IOException {
+        if (cseParameters.getOffsetDateTime() != null) {
+            jsonGenerator.writeStringField(OFFSET_DATE_TIME, cseParameters.getOffsetDateTime().toString());
+        }
     }
 
     private void serializeRangeActionGroups(CseCracCreationParameters cseParameters, JsonGenerator jsonGenerator) throws IOException {

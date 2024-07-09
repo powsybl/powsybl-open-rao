@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
+import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.VoltageCnecsCreationParameters;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
 import com.powsybl.openrao.data.craccreation.creator.cim.parameters.VoltageThreshold;
@@ -57,7 +58,13 @@ class VoltageCnecsCreatorTest {
         network = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext("CIM_21_1_1.xml", is, network, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+
+        CracCreationParameters parameters = new CracCreationParameters();
+        CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
+        cimCracCreationParameters.setOffsetDateTime(OffsetDateTime.parse("2021-04-01T23:00Z"));
+        parameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
+
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext("CIM_21_1_1.xml", is, network, parameters);
         crac = cracCreationContext.getCrac();
 
         // Imported contingencies (name -> id):

@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.craccreation.util.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.data.cracutil.CracValidator;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -32,20 +31,20 @@ import java.util.List;
 class CseCracCreator {
     CseCracCreationContext creationContext;
 
-    CseCracCreationContext createCrac(CRACDocumentType cseCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    CseCracCreationContext createCrac(CRACDocumentType cseCrac, Network network, CracCreationParameters cracCreationParameters) {
         // Set attributes
         Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getDocumentIdentification().getV());
         addCseInstants(crac);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
-        this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
+        CseCracCreationParameters cseCracCreationParameters = cracCreationParameters.getExtension(CseCracCreationParameters.class);
+        this.creationContext = new CseCracCreationContext(crac, cseCracCreationParameters == null ? null : cseCracCreationParameters.getOffsetDateTime(), network.getNameOrId());
 
         // Check timestamp field
-        if (offsetDateTime != null) {
+        if (cseCracCreationParameters != null && cseCracCreationParameters.getOffsetDateTime() == null) {
             creationContext.getCreationReport().warn("Timestamp filtering is not implemented for cse crac creator. The timestamp will be ignored.");
         }
 
         // Get warning messages from parameters parsing
-        CseCracCreationParameters cseCracCreationParameters = cracCreationParameters.getExtension(CseCracCreationParameters.class);
         if (cseCracCreationParameters != null) {
             cseCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message));
         }

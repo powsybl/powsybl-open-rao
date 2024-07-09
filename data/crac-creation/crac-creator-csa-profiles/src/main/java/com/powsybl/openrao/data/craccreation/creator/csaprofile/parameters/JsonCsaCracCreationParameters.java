@@ -35,6 +35,7 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     @Override
     public void serialize(CsaCracCreationParameters csaParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+        serializeOffsetDateTime(csaParameters.getOffsetDateTime(), jsonGenerator);
         serializeCapacityCalculationRegionEicCode(csaParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
         serializeSpsMaxTimeToImplementThresholdInSeconds(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds(), jsonGenerator);
         serializeUsePatlInFinalState(csaParameters.getUsePatlInFinalState(), jsonGenerator);
@@ -90,7 +91,9 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     }
 
     private void serializeOffsetDateTime(OffsetDateTime offsetDateTime, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION_EIC_CODE, offsetDateTime.toString());
+        if (offsetDateTime != null) {
+            jsonGenerator.writeStringField(OFFSET_DATE_TIME, offsetDateTime.toString());
+        }
     }
 
     private void serializeCapacityCalculationRegionEicCode(String eicCode, JsonGenerator jsonGenerator) throws IOException {

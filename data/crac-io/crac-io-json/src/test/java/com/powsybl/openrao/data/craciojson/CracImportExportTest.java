@@ -29,7 +29,6 @@ import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,7 @@ class CracImportExportTest {
     @Test
     void testNonNullOffsetDateTime() {
         Network network = NetworkImportsUtil.createNetworkWithLines("ne1Id", "ne2Id", "ne3Id");
-        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), network, Mockito.mock(OffsetDateTime.class));
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), network);
         assertTrue(context.isCreationSuccessful());
         assertEquals(List.of("[WARN] OffsetDateTime was ignored by the JSON CRAC importer"), context.getCreationReport().getReport());
         assertNull(context.getTimeStamp());
@@ -65,7 +64,7 @@ class CracImportExportTest {
 
     @Test
     void testImportFailure() {
-        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), Mockito.mock(Network.class), Mockito.mock(OffsetDateTime.class));
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), Mockito.mock(Network.class));
         assertNotNull(context);
         assertFalse(context.isCreationSuccessful());
         assertNull(context.getCrac());
