@@ -126,6 +126,37 @@ class InjectionRangeActionAdderImplTest {
     }
 
     @Test
+    void testAddDefaultKey() {
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withGroupId("groupId1")
+            .withNetworkElement(injectionId1)
+            .withNetworkElement(injectionId2, injectionName2)
+            .newRange().withMin(-5).withMax(10).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        assertEquals("id1", injectionRangeAction.getId());
+        assertEquals("id1", injectionRangeAction.getName());
+        assertEquals("BE", injectionRangeAction.getOperator());
+        assertTrue(injectionRangeAction.getGroupId().isPresent());
+        assertEquals("groupId1", injectionRangeAction.getGroupId().get());
+        assertEquals(1, injectionRangeAction.getRanges().size());
+        assertEquals(1, injectionRangeAction.getUsageRules().size());
+
+        assertEquals(2, injectionRangeAction.getInjectionDistributionKeys().size());
+        assertEquals(1., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId1)), 1e-6);
+        assertEquals(1., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId2)), 1e-6);
+
+        assertEquals(2, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement(injectionId1));
+        assertNotNull(crac.getNetworkElement(injectionId2));
+
+        assertEquals(1, crac.getRangeActions().size());
+    }
+
+    @Test
     void testAddWithoutUsageRule() {
         /*
         This behaviour is considered admissible:
