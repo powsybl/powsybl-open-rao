@@ -55,12 +55,13 @@ class SweCneTest {
 
         Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2), new RangeActionSpeed("PRA_1", 3));
         CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
+        cimCracCreationParameters.setOffsetDateTime(OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC));
         cimCracCreationParameters.setRemedialActionSpeed(rangeActionSpeeds);
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setCracFactoryName("CracImplFactory");
         cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
 
-        cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
+        cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, cracCreationParameters);
         crac = cracCreationContext.getCrac();
         InputStream inputStream = null;
         try {

@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.craccreation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,12 +81,12 @@ class AngleMonitoringTest {
         when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Collections.emptySet());
     }
 
-    public void setUpCimCrac(String fileName, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) throws IOException {
+    public void setUpCimCrac(String fileName, CracCreationParameters cracCreationParameters) throws IOException {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         network = Network.read(Paths.get(new File(AngleMonitoringTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
         InputStream is = getClass().getResourceAsStream(fileName);
-        CimCracCreationContext cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        CimCracCreationContext cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         crac = cracCreationContext.getCrac();
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45MicroGridTest.xml"));
@@ -253,9 +254,17 @@ class AngleMonitoringTest {
         assertTrue(angleMonitoringResult.isSecure());
     }
 
+    private static CracCreationParameters initCracCreationParameters(String timestamp) {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
+        cimCracCreationParameters.setOffsetDateTime(OffsetDateTime.parse(timestamp));
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
+        return cracCreationParameters;
+    }
+
     @Test
     void testCracCim() throws IOException {
-        setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-02T05:00Z"), new CracCreationParameters());
+        setUpCimCrac("/CIM_21_7_1_AngMon.xml", initCracCreationParameters("2021-04-02T05:00Z"));
         assertEquals(2, crac.getAngleCnecs().size());
         assertEquals(Set.of("AngleCnec1", "AngleCnec2"), crac.getAngleCnecs().stream().map(Identifiable::getId).collect(Collectors.toSet()));
         runAngleMonitoring();
@@ -282,7 +291,7 @@ class AngleMonitoringTest {
 
     @Test
     void testCracCimWithRaoResultUpdate() throws IOException {
-        setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-02T05:00Z"), new CracCreationParameters());
+        setUpCimCrac("/CIM_21_7_1_AngMon.xml", initCracCreationParameters("2021-04-02T05:00Z"));
         RaoResult raoResultWithAngleMonitoring = new AngleMonitoring(crac, network, raoResult, cimGlskDocument, glskOffsetDateTime).runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2);
         // Status checks
         assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
@@ -298,7 +307,7 @@ class AngleMonitoringTest {
 
     @Test
     void testCracCimWithProportionalGlsk() throws IOException {
-        setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-02T05:00Z"), new CracCreationParameters());
+        setUpCimCrac("/CIM_21_7_1_AngMon.xml", initCracCreationParameters("2021-04-02T05:00Z"));
         RaoResult raoResultWithAngleMonitoring = new AngleMonitoring(crac, network, raoResult, Set.of(Country.BE, Country.NL)).runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2);
         // Status checks
         assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
