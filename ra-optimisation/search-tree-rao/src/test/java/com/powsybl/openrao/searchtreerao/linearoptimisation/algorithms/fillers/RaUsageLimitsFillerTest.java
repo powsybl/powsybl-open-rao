@@ -288,6 +288,50 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(ra, state)), DOUBLE_TOLERANCE));
     }
 
+    @Test
+    void testSkipLargeMaxRa1() {
+        // maxRa = 5 but there are only 5 RangeActions, so skip the constraint
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxRangeAction(state, 5);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .build();
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxRaConstraint(state));
+        assertEquals("Constraint maxra_preventive_constraint has not been created yet", exception.getMessage());
+    }
+
+    @Test
+    void testSkipLargeMaxRa2() {
+        // maxRa = 6 but there are only 5 RangeActions, so skip the constraint
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxRangeAction(state, 6);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .build();
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxRaConstraint(state));
+        assertEquals("Constraint maxra_preventive_constraint has not been created yet", exception.getMessage());
+    }
+
     private void checkTsoToRaConstraint(String tso, RangeAction<?> ra) {
         OpenRaoMPConstraint constraint = linearProblem.getTsoRaUsedConstraint(tso, ra, state);
         assertNotNull(constraint);
@@ -329,7 +373,28 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    void testSkipLargeMaxTso() {
+    void testSkipLargeMaxTso1() {
+        // maxTso = 3 but there are only 3 TSOs, so no need to set the constraint
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxTso(state, 3);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .build();
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxTsoConstraint(state));
+        assertEquals("Constraint maxtso_preventive_constraint has not been created yet", e.getMessage());
+    }
+
+    @Test
+    void testSkipLargeMaxTso2() {
         // maxTso = 4 but there are only 3 TSOs, so no need to set the constraint
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxTso(state, 4);

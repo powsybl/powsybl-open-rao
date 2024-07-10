@@ -122,7 +122,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     private void addMaxRaConstraint(LinearProblem linearProblem, State state) {
         Integer maxRa = rangeActionLimitationParameters.getMaxRangeActions(state);
-        if (maxRa == null) {
+        if (maxRa == null || maxRa >= rangeActions.get(state).size()) {
             return;
         }
         OpenRaoMPConstraint maxRaConstraint = linearProblem.addMaxRaConstraint(0, maxRa, state);
@@ -143,7 +143,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             .filter(Objects::nonNull)
             .filter(tso -> !maxTsoExclusions.contains(tso))
             .collect(Collectors.toSet());
-        if (maxTso > constraintTsos.size()) {
+        if (maxTso >= constraintTsos.size()) {
             return;
         }
         OpenRaoMPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
