@@ -15,12 +15,9 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 
-import java.time.OffsetDateTime;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Encapsulates OR-Tools' MPSolver objects in order to round up doubles
@@ -84,7 +81,7 @@ public class OpenRaoMPSolver {
             case CBC -> MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING;
             case SCIP -> MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING;
             case XPRESS -> MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING;
-            default -> throw new OpenRaoException(String.format(Locale.ENGLISH, "unknown solver %s in RAO parameters", solver));
+            default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
         };
     }
 
@@ -101,7 +98,7 @@ public class OpenRaoMPSolver {
         if (hasConstraint(name)) {
             return constraints.get(name);
         } else {
-            throw new OpenRaoException(String.format(Locale.ENGLISH, "Constraint %s has not been created yet", name));
+            throw new OpenRaoException(String.format("Constraint %s has not been created yet", name));
         }
     }
 
@@ -113,7 +110,7 @@ public class OpenRaoMPSolver {
         if (hasVariable(name)) {
             return variables.get(name);
         } else {
-            throw new OpenRaoException(String.format(Locale.ENGLISH, "Variable %s has not been created yet", name));
+            throw new OpenRaoException(String.format("Variable %s has not been created yet", name));
         }
     }
 
@@ -135,7 +132,7 @@ public class OpenRaoMPSolver {
 
     OpenRaoMPVariable makeVar(double lb, double ub, boolean integer, String name) {
         if (hasVariable(name)) {
-            throw new OpenRaoException(String.format(Locale.ENGLISH, "Variable %s already exists", name));
+            throw new OpenRaoException(String.format("Variable %s already exists", name));
         }
         double roundedLb = roundDouble(lb);
         double roundedUb = roundDouble(ub);
@@ -146,13 +143,11 @@ public class OpenRaoMPSolver {
 
     public OpenRaoMPConstraint makeConstraint(double lb, double ub, String name) {
         if (hasConstraint(name)) {
-            throw new OpenRaoException(String.format(Locale.ENGLISH, "Constraint %s already exists", name));
+            throw new OpenRaoException(String.format("Constraint %s already exists", name));
         } else {
             double roundedLb = roundDouble(lb);
             double roundedUb = roundDouble(ub);
-            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(-1, 1, name));
-            constraint.setLb(roundedLb);
-            constraint.setUb(roundedUb);
+            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name));            constraint.setLb(roundedLb);
             constraints.put(name, constraint);
             return constraint;
         }
@@ -175,21 +170,11 @@ public class OpenRaoMPSolver {
         solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
     }
 
-    private static AtomicInteger lpCounter = new AtomicInteger(0);
-
     public LinearProblemStatus solve() {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
         return convertResultStatus(mpSolver.solve(solveConfiguration));
-    }
-
-    void writeLpX() {
-        int lpNumber = lpCounter.incrementAndGet();
-        if (solver == RangeActionsOptimizationParameters.Solver.XPRESS) {
-            String fileName = "/home/mitripet/tune_xpress_rao/lpX_" + lpNumber + "_" + OffsetDateTime.now() + ".lp";
-            mpSolver.write(fileName);
-        }
     }
 
     static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
@@ -200,7 +185,7 @@ public class OpenRaoMPSolver {
             case UNBOUNDED -> LinearProblemStatus.UNBOUNDED;
             case INFEASIBLE -> LinearProblemStatus.INFEASIBLE;
             case NOT_SOLVED -> LinearProblemStatus.NOT_SOLVED;
-            default -> throw new OpenRaoException(String.format(Locale.ENGLISH, "Status %s not handled.", status));
+            default -> throw new OpenRaoException(String.format("Status %s not handled.", status));
         };
     }
 
@@ -249,9 +234,6 @@ public class OpenRaoMPSolver {
         }
         if (Math.abs(value) < MIN_DOUBLE) {
             return 0.;
-        }
-        if (Math.abs(value) < 1e20 && Math.abs(value) > 1e7) {
-            throw new OpenRaoException("Trying to add a huge value in MIP!");
         }
         double t = value * (1L << NUMBER_OF_BITS_TO_ROUND_OFF);
         if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
