@@ -21,6 +21,7 @@ import java.util.TreeMap;
 
 /**
  * Encapsulates OR-Tools' MPSolver objects in order to round up doubles
+ *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-international.com>}
  */
@@ -147,7 +148,7 @@ public class OpenRaoMPSolver {
         } else {
             double roundedLb = roundDouble(lb);
             double roundedUb = roundDouble(ub);
-            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name));            constraint.setLb(roundedLb);
+            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name));
             constraints.put(name, constraint);
             return constraint;
         }
