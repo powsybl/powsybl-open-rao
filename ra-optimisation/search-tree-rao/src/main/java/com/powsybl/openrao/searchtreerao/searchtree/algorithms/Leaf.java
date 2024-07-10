@@ -172,7 +172,7 @@ public class Leaf {
         if (shouldPreviousDepthMainStateRangeActionBeRemoved || Objects.isNull(previousDepthResult)) {
             return RangeActionResultImpl.buildFromPreviousPerimeterResult(previousPerimeterResult, optimizationPerimeter.getRangeActionsPerState().get(optimizationPerimeter.getMainOptimizationState()));
         } else {
-            return previousDepthResult.getPerimeterResultWithCnecs().getRangeActionResult();
+            return previousDepthResult.getPerimeterResultWithCnecs();
 
         }
     }
@@ -279,9 +279,9 @@ public class Leaf {
 
     public RangeActionResult getRangeActionResult() {
         if (status == Status.EVALUATED) {
-            return preOptimResult.getPerimeterResultWithCnecs().getRangeActionResult();
+            return preOptimResult.getPerimeterResultWithCnecs();
         } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getPerimeterResultWithCnecs().getRangeActionResult();
+            return postOptimResult.getPerimeterResultWithCnecs();
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }

@@ -438,7 +438,7 @@ public final class AutomatonSimulator {
                 && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
             ) {
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
-                ((RangeActionResultImpl) autoRangeActionResult.getRangeActionResult()).activate(hvdcRa, activePowerSetpoint);
+                autoRangeActionResult.activate(hvdcRa, activePowerSetpoint);
                 disableHvdcAngleDroopActivePowerControl(hvdcLineId, network, activePowerSetpoint);
             } else {
                 BUSINESS_LOGS.info(String.format("HVDC range action %s could not be activated because its initial set-point (%.1f) does not fall within its allowed range (%.1f - %.1f)",
@@ -621,7 +621,7 @@ public final class AutomatonSimulator {
     private static void applyAllRangeActions(List<RangeAction<?>> alignedRangeActions, Network network, double optimalSetpoint, PerimeterResultWithCnecs autoRangeActionResult) {
         for (RangeAction<?> rangeAction : alignedRangeActions) {
             rangeAction.apply(network, optimalSetpoint);
-            ((RangeActionResultImpl) autoRangeActionResult.getRangeActionResult()).activate(rangeAction, optimalSetpoint);
+            autoRangeActionResult.activate(rangeAction, optimalSetpoint);
         }
     }
 

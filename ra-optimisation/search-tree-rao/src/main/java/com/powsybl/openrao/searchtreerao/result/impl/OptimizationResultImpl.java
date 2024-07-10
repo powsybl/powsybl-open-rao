@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class OptimizationResultImpl implements OptimizationResult, RangeActionResult {
+public class OptimizationResultImpl implements OptimizationResult {
 
     private final FlowResult flowResult;
     private final SensitivityResult sensitivityResult;
@@ -109,6 +109,11 @@ public class OptimizationResultImpl implements OptimizationResult, RangeActionRe
     @Override
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunctionResult.getObjectiveFunction();
+    }
+
+    @Override
+    public void activate(RangeAction<?> rangeAction, double setpoint) {
+        rangeActionResult.activate(rangeAction, setpoint);
     }
 
     @Override

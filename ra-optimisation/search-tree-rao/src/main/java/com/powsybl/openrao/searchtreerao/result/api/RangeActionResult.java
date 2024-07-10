@@ -18,6 +18,8 @@ import java.util.Set;
  */
 public interface RangeActionResult {
 
+    void activate(RangeAction<?> rangeAction, double setpoint);
+
     Set<RangeAction<?>> getRangeActions();
 
     Set<RangeAction<?>> getActivatedRangeActions();

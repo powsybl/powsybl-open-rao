@@ -146,6 +146,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public void activate(RangeAction<?> rangeAction, double setpoint) {
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return activatedRangeActions;
     }

@@ -25,6 +25,8 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -62,8 +64,10 @@ class AutomatonSimulatorTest {
     private HvdcRangeAction hvdcRa2;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
-    private SensitivityAnalysisRunner mockedPreAutoPerimeterSensitivityAnalysis;
+    private SensitivityAnalysisRunner mockedSensitivityAnalysisRunner;
     private PerimeterResultWithCnecs mockedPrePerimeterResult;
+    private PerimeterResultWithCnecs mockedPostSensiResult;
+    Map<RangeAction<?>, Double> optimizedSetpoints = new HashMap<>();
     private RaoParameters raoParameters;
     private ToolProvider toolProvider;
 
@@ -228,9 +232,23 @@ class AutomatonSimulatorTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
 
-        mockedPreAutoPerimeterSensitivityAnalysis = mock(SensitivityAnalysisRunner.class);
         mockedPrePerimeterResult = mock(PerimeterResultWithCnecs.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        mockedPostSensiResult = mock(PerimeterResultWithCnecs.class);
+        mockedSensitivityAnalysisRunner = mock(SensitivityAnalysisRunner.class);
+        Set<NetworkAction> activatedNetworkActions = new HashSet<>();
+        when(mockedPostSensiResult.getActivatedNetworkActions()).thenReturn(activatedNetworkActions);
+        when(mockedPostSensiResult.getOptimizedSetpoints()).thenReturn(optimizedSetpoints);
+        when(mockedPostSensiResult.getOptimizedSetpoint(any())).thenAnswer(i -> optimizedSetpoints.get(i.getArgument(0)));
+        doAnswer(i -> {
+            optimizedSetpoints.put(i.getArgument(0), i.getArgument(1));
+            return null;
+        }).when(mockedPostSensiResult).activate(any(), anyDouble());
+
+        when(mockedSensitivityAnalysisRunner.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenAnswer(i -> {
+            activatedNetworkActions.addAll(((NetworkActionsResult)i.getArgument(6)).getActivatedNetworkActions());
+            optimizedSetpoints.putAll(((RangeActionResult)i.getArgument(7)).getOptimizedSetpoints());
+            return mockedPostSensiResult;
+        });
 
         toolProvider = Mockito.mock(ToolProvider.class);
         when(toolProvider.getLoopFlowCnecs(any())).thenReturn(Collections.emptySet());
@@ -277,17 +295,13 @@ class AutomatonSimulatorTest {
 
     @Test
     void testDisableHvdcAngleDroopControl1() {
-        PerimeterResultWithCnecs prePerimeterResult = mock(PerimeterResultWithCnecs.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
-        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedSensitivityAnalysisRunner, mockedPostSensiResult, autoState);
         // check that angle-droop control was disabled on HVDC
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         // check that other HVDC was not touched
         assertTrue(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         // check that sensitivity computation has been run
-        assertEquals(mockedPrePerimeterResult, result);
-        assertEquals(1, result.getActivatedRangeActions().size());
+        assertEquals(mockedPostSensiResult, result);
         assertEquals(2450.87, result.getOptimizedSetpoint(hvdcRa1), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
         assertEquals(2450.87, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
@@ -295,11 +309,10 @@ class AutomatonSimulatorTest {
         assertEquals(0, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
 
         // run a second time => no influence + sensitivity not run
-        result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedSensitivityAnalysisRunner, mockedPostSensiResult, autoState);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertTrue(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
-        assertEquals(prePerimeterResult, result);
-        assertEquals(0, result.getActivatedRangeActions().size());
+        assertEquals(mockedPostSensiResult, result);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
         assertEquals(2450.87, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getConvertersMode());
@@ -308,15 +321,11 @@ class AutomatonSimulatorTest {
 
     @Test
     void testDisableHvdcAngleDroopControl2() {
-        PerimeterResultWithCnecs prePerimeterResult = mock(PerimeterResultWithCnecs.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
         // Test on 2 aligned HVDC RAs
-        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1, hvdcRa2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1, hvdcRa2), network, mockedSensitivityAnalysisRunner, mockedPostSensiResult, autoState);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertFalse(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
-        assertEquals(mockedPrePerimeterResult, result);
-        assertEquals(2, result.getActivatedRangeActions().size());
+        assertEquals(mockedPostSensiResult, result);
         assertEquals(2450.87, result.getOptimizedSetpoint(hvdcRa1), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
         assertEquals(2450.87, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
@@ -328,11 +337,10 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControl3() {
         PerimeterResultWithCnecs prePerimeterResult = mock(PerimeterResultWithCnecs.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // Test on an HVDC with no HvdcAngleDroopActivePowerControl
         network.getHvdcLine("BBE2AA11 FFR3AA11 1").removeExtension(HvdcAngleDroopActivePowerControl.class);
-        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedSensitivityAnalysisRunner, prePerimeterResult, autoState);
         assertEquals(prePerimeterResult, result);
         assertTrue(result.getActivatedRangeActions().isEmpty());
     }
@@ -340,10 +348,9 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControl4() {
         PerimeterResultWithCnecs prePerimeterResult = mock(PerimeterResultWithCnecs.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // Test on non-HVDC : nothing should happen
-        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(ra2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(ra2), network, mockedSensitivityAnalysisRunner, prePerimeterResult, autoState);
         assertEquals(prePerimeterResult, result);
         assertTrue(result.getActivatedRangeActions().isEmpty());
     }
@@ -351,9 +358,6 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControl5() {
         // Test with phi1 < phi2
-        PerimeterResultWithCnecs prePerimeterResult = mock(PerimeterResultWithCnecs.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
         HvdcLine hvdcLine = network.getHvdcLine("BBE2AA11 FFR3AA11 1");
         hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setP0(100f);
         network.getGenerator("BBE2AA11_generator").setTargetP(0);
@@ -364,10 +368,9 @@ class AutomatonSimulatorTest {
         network.getLoad("FFR5AA11_load").setP0(0);
         hvdcLine.setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
 
-        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedSensitivityAnalysisRunner, mockedPostSensiResult, autoState);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
-        assertEquals(mockedPrePerimeterResult, result);
-        assertEquals(1, result.getActivatedRangeActions().size());
+        assertEquals(mockedPostSensiResult, result);
         assertEquals(-813.97, result.getOptimizedSetpoint(hvdcRa1), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
         assertEquals(813.97, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
@@ -386,9 +389,8 @@ class AutomatonSimulatorTest {
             .add();
 
         PerimeterResultWithCnecs prePerimeterResult = mock(PerimeterResultWithCnecs.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
-        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        PerimeterResultWithCnecs result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedSensitivityAnalysisRunner, prePerimeterResult, autoState);
         assertTrue(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertTrue(result.getActivatedRangeActions().isEmpty());
     }
@@ -436,22 +438,20 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
         // suppose threshold is -1000, flow is -1100 then -1010 then -1000
         // getFlow is called once in every iteration
-        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-1100., -1010., -1000.);
+        when(mockedPostSensiResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-1100., -1010., -1000.);
         // getMargin is called once before loop, once in 1st iteration, once in second iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -10., 0.);
+        when(mockedPostSensiResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -10., 0.);
         // getMargin with side is called once before loop, once in 1st iteration, once in second iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
+        when(mockedPostSensiResult.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
         // suppose approx sensi is +50 on both RAs first, then +5 (so +100 then +10 total)
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(50., 5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(50., 5.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
         // so PSTs should be shifted to setpoint +1.1 on first iteration, then +3.1 on second because of under-estimator
 
         PerimeterResultWithCnecs shiftResult =
-            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
+            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedSensitivityAnalysisRunner, mockedPostSensiResult, autoState);
         assertEquals(3.1, shiftResult.getOptimizedSetpoint(ara1), DOUBLE_TOLERANCE);
         assertEquals(3.1, shiftResult.getOptimizedSetpoint(ara2), DOUBLE_TOLERANCE);
     }
@@ -461,24 +461,22 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE, TwoSides.TWO));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
         // same as case 1 but flows & sensi are inverted -> setpoints should be the same
         // getFlow is called once in every iteration
-        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(1100., 1010., 1000.);
-        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(0., 0., 0.);
+        when(mockedPostSensiResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(1100., 1010., 1000.);
+        when(mockedPostSensiResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(0., 0., 0.);
         // getMargin is called once before loop, once in 1st iteration, once in second iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -10., 0.);
+        when(mockedPostSensiResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -10., 0.);
         // getMargin with side is called once before loop, once in 1st iteration, once in second iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
-        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(100.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.ONE, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.ONE, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPostSensiResult.getMargin(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
+        when(mockedPostSensiResult.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(100.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.ONE, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.ONE, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
 
         PerimeterResultWithCnecs shiftResult =
-            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
+            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedSensitivityAnalysisRunner, mockedPostSensiResult, autoState);
         assertEquals(3.1, shiftResult.getOptimizedSetpoint(ara1), DOUBLE_TOLERANCE);
         assertEquals(3.1, shiftResult.getOptimizedSetpoint(ara2), DOUBLE_TOLERANCE);
     }
@@ -488,20 +486,18 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
         // same as case 1 but flows are inverted -> setpoints should be inverted
         // getFlow is called once in every iteration
-        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(1100., 1010., 1000.);
+        when(mockedPostSensiResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(1100., 1010., 1000.);
         // getMargin is called once before loop, once in second iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -10., 0.);
+        when(mockedPostSensiResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -10., 0.);
         // getMargin with side is called once before loop, once in 1st iteration, once in second iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.ONE, ara1, Unit.MEGAWATT)).thenReturn(50., 5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.ONE, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
+        when(mockedPostSensiResult.getMargin(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-100., -100., -10., -10., 0.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.ONE, ara1, Unit.MEGAWATT)).thenReturn(50., 5.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.ONE, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
 
         PerimeterResultWithCnecs shiftResult =
-            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
+            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedSensitivityAnalysisRunner, mockedPostSensiResult, autoState);
         assertEquals(-3.1, shiftResult.getOptimizedSetpoint(ara1), DOUBLE_TOLERANCE);
         assertEquals(-3.1, shiftResult.getOptimizedSetpoint(ara2), DOUBLE_TOLERANCE);
     }
@@ -511,30 +507,28 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
         // same as case 1 but sensi are inverted -> setpoints should be inverted
         // + added a cnec with sensi = 0
         // getFlow is called once in every iteration
-        when(mockedPrePerimeterResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-1100., -1010., -1000.);
+        when(mockedPostSensiResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-1100., -1010., -1000.);
         // getMargin is called once before loop, once in 1st iteration when most limiting cnec is different, once in second iteration, once in third iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -100., -100., -10., 0.);
+        when(mockedPostSensiResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-100., -100., -100., -10., 0.);
         // getMargin with side is called once before loop, once in 1st iteration when most limiting cnec is different, once in second iteration, once in third iteration
-        when(mockedPrePerimeterResult.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-100., -100., -100., -100., -10., -10., 0.);
+        when(mockedPostSensiResult.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-100., -100., -100., -100., -10., -10., 0.);
         // computeMargin is called once in 1st iteration, once in second iteration, once in third iteration
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
 
         FlowCnec cnec2 = mock(FlowCnec.class);
         when(cnec2.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
-        when(mockedPrePerimeterResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(2200.);
-        when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-200.);
-        when(mockedPrePerimeterResult.getMargin(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-200.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec2, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec2, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPostSensiResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(2200.);
+        when(mockedPostSensiResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-200.);
+        when(mockedPostSensiResult.getMargin(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-200.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec2, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPostSensiResult.getSensitivityValue(cnec2, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
 
         PerimeterResultWithCnecs shiftResult =
-            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
+            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec, cnec2), network, mockedSensitivityAnalysisRunner, mockedPostSensiResult, autoState);
         assertEquals(-3.1, shiftResult.getOptimizedSetpoint(ara1), DOUBLE_TOLERANCE);
         assertEquals(-3.1, shiftResult.getOptimizedSetpoint(ara2), DOUBLE_TOLERANCE);
     }
@@ -543,8 +537,6 @@ class AutomatonSimulatorTest {
     void testSimulateRangeAutomatons() {
         State curativeState = mock(State.class);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
-
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // only keep ara1 & ara2
         Set<String> toRemove = crac.getRangeActions().stream().map(Identifiable::getId).collect(Collectors.toSet());
@@ -556,8 +548,9 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-100.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPrePerimeterResult.getOptimizedSetpoints()).thenReturn(Map.of(ara1, 0.1, ara2, 0.1));
 
-        PerimeterResultWithCnecs result = automatonSimulator.simulateRangeAutomatons(autoState, Set.of(curativeState), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult);
+        PerimeterResultWithCnecs result = automatonSimulator.simulateRangeAutomatons(autoState, Set.of(curativeState), network, mockedSensitivityAnalysisRunner, mockedPrePerimeterResult);
 
         assertNotNull(result);
         assertNotNull(result.getActivatedRangeActions());
@@ -574,13 +567,13 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-100.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId);
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        PerimeterResultWithCnecs result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
+        PerimeterResultWithCnecs result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
         assertNotNull(result);
         assertEquals(Set.of(na), result.getActivatedNetworkActions());
 
         // NA already activated (stay on same variant), do not activate NA
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-100.);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
+        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
         assertNotNull(result);
         assertEquals(Set.of(), result.getActivatedNetworkActions());
 
@@ -588,7 +581,7 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(0.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId, true);
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
+        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
         assertNotNull(result);
         assertEquals(Set.of(na), result.getActivatedNetworkActions());
 
@@ -596,15 +589,15 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(1.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId, true);
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
+        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
         assertNotNull(result);
         assertEquals(Set.of(), result.getActivatedNetworkActions());
     }
 
     @Test
     void testSimulateTopologicalAutomatonsFailure() {
-        when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        PerimeterResultWithCnecs result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
+        when(mockedPostSensiResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        PerimeterResultWithCnecs result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
         assertNotNull(result);
         assertEquals(ComputationStatus.FAILURE, result.getSensitivityStatus());
     }
@@ -616,8 +609,6 @@ class AutomatonSimulatorTest {
         when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
         // only keep ara1, ara2 & na
         Set<String> toRemove = crac.getRemedialActions().stream().map(Identifiable::getId).collect(Collectors.toSet());
         toRemove.remove("ara1");
@@ -626,10 +617,10 @@ class AutomatonSimulatorTest {
         toRemove.forEach(ra -> crac.removeRemedialAction(ra));
 
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(100.);
-        when(mockedPrePerimeterResult.getFlow(cnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(1100.);
         when(mockedPrePerimeterResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-100.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPrePerimeterResult.getOptimizedSetpoints()).thenReturn(Map.of(ara1, 0.1, ara2, 0.1));
 
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(mockedPrePerimeterResult.getObjectiveFunction()).thenReturn(objectiveFunction);
@@ -646,7 +637,7 @@ class AutomatonSimulatorTest {
 
     @Test
     void testSimulateAutomatonStateFailure() {
-        when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
+        when(mockedPostSensiResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
         State curativeState = mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
         when(curativeState.getInstant()).thenReturn(curativeInstant);
@@ -661,19 +652,18 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControlBeforeShifting() {
         PerimeterResultWithCnecs prePerimeterResult = mock(PerimeterResultWithCnecs.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // check that angle-droop control was not disabled when margins are positive
         when(prePerimeterResult.getMargin(cnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(0.);
         when(prePerimeterResult.getMargin(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(100.);
-        automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedSensitivityAnalysisRunner, prePerimeterResult, autoState);
         assertTrue(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertTrue(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
 
         // check that angle-droop control is disabled when one margin is negative
         when(prePerimeterResult.getMargin(cnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-1.);
         when(prePerimeterResult.getMargin(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(100.);
-        automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedSensitivityAnalysisRunner, prePerimeterResult, autoState);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertFalse(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertEquals(2450.87, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);

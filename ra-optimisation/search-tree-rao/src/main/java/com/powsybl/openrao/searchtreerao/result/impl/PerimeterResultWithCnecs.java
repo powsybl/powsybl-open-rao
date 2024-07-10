@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -122,6 +121,11 @@ public class PerimeterResultWithCnecs implements OptimizationResult {
     }
 
     @Override
+    public void activate(RangeAction<?> rangeAction, double setpoint) {
+        optimizationResult.activate(rangeAction, setpoint);
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return optimizationResult.getRangeActions();
     }
@@ -178,9 +182,5 @@ public class PerimeterResultWithCnecs implements OptimizationResult {
 
     public PerimeterResultWithCnecs getPreviousResult() {
         return previousPerimeterResult;
-    }
-
-    public RangeActionResult getRangeActionResult() {
-        return optimizationResult.getRangeActionResult();
     }
 }
