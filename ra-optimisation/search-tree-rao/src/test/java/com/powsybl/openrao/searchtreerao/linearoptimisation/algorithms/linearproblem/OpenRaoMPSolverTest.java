@@ -295,7 +295,7 @@ class OpenRaoMPSolverTest {
         assertEquals(Double.POSITIVE_INFINITY, solver.infinity());
 
         solver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.SCIP);
-        assertEquals(1e20, solver.infinity());
+        assertEquals(1e23, solver.infinity());
 
         // can't test XPRESS because we need the link to the library
     }

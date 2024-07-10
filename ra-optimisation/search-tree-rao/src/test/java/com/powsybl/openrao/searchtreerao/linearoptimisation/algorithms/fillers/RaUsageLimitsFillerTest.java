@@ -329,6 +329,27 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
+    void testSkipLargeMaxTso() {
+        // maxTso = 4 but there are only 3 TSOs, so no need to set the constraint
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxTso(state, 4);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .build();
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxTsoConstraint(state));
+        assertEquals("Constraint maxtso_preventive_constraint has not been created yet", e.getMessage());
+    }
+
+    @Test
     void testMaxTsoWithExclusion() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxTso(state, 1);

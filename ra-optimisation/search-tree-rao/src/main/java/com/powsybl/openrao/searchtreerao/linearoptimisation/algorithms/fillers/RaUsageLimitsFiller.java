@@ -143,6 +143,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             .filter(Objects::nonNull)
             .filter(tso -> !maxTsoExclusions.contains(tso))
             .collect(Collectors.toSet());
+        if (maxTso > constraintTsos.size()) {
+            return;
+        }
         OpenRaoMPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
         constraintTsos.forEach(tso -> {
             // Create "is at least one RA for TSO used" binary variable ...

@@ -9,6 +9,8 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.google.ortools.linearsolver.MPConstraint;
 
+import java.util.Locale;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
@@ -28,6 +30,9 @@ public class OpenRaoMPConstraint {
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
+        String var = String.format(Locale.ENGLISH, "solver.LookupVariableOrNull(\"%s\")", variable.getMPVariable().name());
+        String cons = String.format(Locale.ENGLISH, "solver.LookupConstraintOrNull(\"%s\")", mpConstraint.name());
+        System.out.println(String.format(Locale.ENGLISH, "%s->SetCoefficient(%s, %.6f);", cons, var, OpenRaoMPSolver.roundDouble(coeff)));
         mpConstraint.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
     }
 
@@ -41,13 +46,19 @@ public class OpenRaoMPConstraint {
 
     public void setLb(double lb) {
         mpConstraint.setLb(OpenRaoMPSolver.roundDouble(lb));
+        String cons = String.format(Locale.ENGLISH, "solver.LookupConstraintOrNull(\"%s\")", mpConstraint.name());
+        System.out.println(String.format(Locale.ENGLISH, "%s->SetLB(%.6f);", cons, OpenRaoMPSolver.roundDouble(lb)));
     }
 
     public void setUb(double ub) {
         mpConstraint.setUb(OpenRaoMPSolver.roundDouble(ub));
+        String cons = String.format(Locale.ENGLISH, "solver.LookupConstraintOrNull(\"%s\")", mpConstraint.name());
+        System.out.println(String.format(Locale.ENGLISH, "%s->SetUB(%.6f);", cons, OpenRaoMPSolver.roundDouble(ub)));
     }
 
     public void setBounds(double lb, double ub) {
         mpConstraint.setBounds(OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub));
+        String cons = String.format(Locale.ENGLISH, "solver.LookupConstraintOrNull(\"%s\")", mpConstraint.name());
+        System.out.println(String.format(Locale.ENGLISH, "%s->SetBounds(%.6f, %.6f);", cons, OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub)));
     }
 }

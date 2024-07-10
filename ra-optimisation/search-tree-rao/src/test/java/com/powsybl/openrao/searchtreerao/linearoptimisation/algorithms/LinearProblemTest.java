@@ -149,8 +149,8 @@ class LinearProblemTest {
         e = assertThrows(OpenRaoException.class, () -> linearProblem.getTapToAngleConversionConstraint(rangeAction, state));
         assertEquals("Constraint rangeaction_id_null_taptoangleconversion_constraint has not been created yet", e.getMessage());
 
-        linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, state, PREVIOUS_ITERATION, UPWARD);
-        linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, state, PREVIOUS_ITERATION, DOWNWARD);
+        linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, rangeAction, state, PREVIOUS_ITERATION, UPWARD);
+        linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, rangeAction, state, PREVIOUS_ITERATION, DOWNWARD);
         linearProblem.addUpOrDownPstVariationConstraint(rangeAction, state);
         linearProblem.addTapToAngleConversionConstraint(LB, UB, rangeAction, state);
 
