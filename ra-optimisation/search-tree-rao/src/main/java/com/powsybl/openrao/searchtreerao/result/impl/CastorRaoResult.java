@@ -35,7 +35,7 @@ public class CastorRaoResult implements RaoResult {
     private final PerimeterResultWithCnecs initialResult;
     private final Map<Instant, Map<Contingency, PerimeterResultWithCnecs>> optimResultsPerState;
     private final State preventiveState;
-    private final OptimizationStepsExecuted optimizationStepsExecuted;
+    private OptimizationStepsExecuted optimizationStepsExecuted;
 
     public CastorRaoResult(PerimeterResultWithCnecs initialResult,
                            Map<Instant, Map<Contingency, PerimeterResultWithCnecs>> optimResultsPerState,
@@ -105,6 +105,9 @@ public class CastorRaoResult implements RaoResult {
             PerimeterResultWithCnecs previousResult = secondPreventiveResult;
             for (Instant instant : crac.getSortedInstants()) {
                 State state = crac.getState(contingency, instant);
+                if (Objects.isNull(state)) {
+                    continue;
+                }
                 if (instant.isAuto()) {
                     if (autoResults.containsKey(state)) {
                         optimResultsPerState.get(instant).put(contingency, autoResults.get(state));
@@ -364,7 +367,7 @@ public class CastorRaoResult implements RaoResult {
 
     @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        throw new OpenRaoException("The CastorRaoResult object should not be modified");
+        this.optimizationStepsExecuted = optimizationStepsExecuted;
     }
 
     @Override

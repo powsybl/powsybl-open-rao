@@ -628,6 +628,7 @@ public class CastorFullOptimization {
         raoInput.getNetwork().getVariantManager().cloneVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT, newVariant, true);
         raoInput.getNetwork().getVariantManager().setWorkingVariant(newVariant);
         SearchTreeResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult, postContingencyResults, appliedArasAndCras);
+        secondPreventiveResult.getPerimeterResultWithCnecs().getActivatedNetworkActions().forEach(na -> na.apply(raoInput.getNetwork()));
         // Re-run sensitivity computation based on PRAs without CRAs, to access after PRA results
         PerimeterResultWithCnecs postPraSensitivityAnalysisOutput = sensitivityAnalysisRunner.runBasedOnInitialResults(network, crac, initialOutput, stateTree.getOperatorsNotSharingCras(), null, initialOutput, secondPreventiveResult.getPerimeterResultWithCnecs(), secondPreventiveResult.getPerimeterResultWithCnecs());
         if (postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {

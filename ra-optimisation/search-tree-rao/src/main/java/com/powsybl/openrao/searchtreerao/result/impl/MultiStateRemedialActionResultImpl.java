@@ -43,7 +43,7 @@ public class MultiStateRemedialActionResultImpl {
                 rangeActionResultPerState.put(state, rangeActionResult);
             }
         );
-        optimizationPerimeter.getRangeActionsPerState().keySet().forEach(
+        optimizationPerimeter.getMonitoredStates().forEach(
             state -> {
                 NetworkActionResultImpl networkActionResult = new NetworkActionResultImpl(new HashSet<>());
                 appliedRemedialActions.getAppliedNetworkActions(state).forEach(networkActionResult::activate);

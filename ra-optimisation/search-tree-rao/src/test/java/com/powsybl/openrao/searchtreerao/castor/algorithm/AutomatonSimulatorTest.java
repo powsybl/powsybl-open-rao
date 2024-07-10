@@ -245,8 +245,8 @@ class AutomatonSimulatorTest {
         }).when(mockedPostSensiResult).activate(any(), anyDouble());
 
         when(mockedSensitivityAnalysisRunner.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenAnswer(i -> {
-            activatedNetworkActions.addAll(((NetworkActionsResult)i.getArgument(6)).getActivatedNetworkActions());
-            optimizedSetpoints.putAll(((RangeActionResult)i.getArgument(7)).getOptimizedSetpoints());
+            activatedNetworkActions.addAll(((NetworkActionsResult) i.getArgument(6)).getActivatedNetworkActions());
+            optimizedSetpoints.putAll(((RangeActionResult) i.getArgument(7)).getOptimizedSetpoints());
             return mockedPostSensiResult;
         });
 

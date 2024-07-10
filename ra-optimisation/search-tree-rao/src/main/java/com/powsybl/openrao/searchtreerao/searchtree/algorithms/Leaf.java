@@ -92,10 +92,10 @@ public class Leaf {
         this.shouldPreviousDepthMainStateRangeActionBeRemoved = shouldPreviousDepthMainStateRangeActionBeRemoved;
 
         networkActionsApplied.addAll(previousDepthResult.getPerimeterResultWithCnecs().getActivatedNetworkActions());
+        networkActionsApplied.addAll(newCombinationToApply.getNetworkActionSet());
 
         // apply Network Actions on initial network
-        for (NetworkAction na : newCombinationToApply.getNetworkActionSet()) {
-            networkActionsApplied.add(na);
+        for (NetworkAction na : networkActionsApplied) {
             boolean applicationSuccess = na.apply(network);
             if (!applicationSuccess) {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
@@ -133,7 +133,7 @@ public class Leaf {
     }
 
     boolean isRoot() {
-        return preOptimResult.getPerimeterResultWithCnecs().getActivatedNetworkActions().isEmpty();
+        return networkActionsApplied.isEmpty();
     }
 
     /**
@@ -302,8 +302,8 @@ public class Leaf {
             long nRangeActions = getNumberOfActivatedRangeActions();
             info += String.format(", %s range action(s) activated", nRangeActions > 0 ? nRangeActions : "no");
         }
-        PerimeterResultWithCnecs perimeterResultWithCnecs = postOptimResult.getPerimeterResultWithCnecs();
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
+            PerimeterResultWithCnecs perimeterResultWithCnecs = postOptimResult.getPerimeterResultWithCnecs();
             Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(perimeterResultWithCnecs);
             info += String.format(Locale.ENGLISH, ", cost: %.2f", perimeterResultWithCnecs.getCost());
             info += String.format(Locale.ENGLISH, " (functional: %.2f", perimeterResultWithCnecs.getFunctionalCost());
