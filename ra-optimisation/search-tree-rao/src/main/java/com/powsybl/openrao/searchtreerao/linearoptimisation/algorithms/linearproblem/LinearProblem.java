@@ -14,10 +14,9 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.MultiStateRemedialActionResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 
 import java.util.List;
 
@@ -94,21 +93,21 @@ public final class LinearProblem {
         return fillerList;
     }
 
-    public void fill(FlowResult flowResult, SensitivityResult sensitivityResult) {
-        fillerList.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult));
+    public void fill(PerimeterResultWithCnecs flowAndSensiResult) {
+        fillerList.forEach(problemFiller -> problemFiller.fill(this, flowAndSensiResult));
     }
 
-    public void updateBetweenSensiIteration(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenSensiIteration(PerimeterResultWithCnecs flowAndSensiResult, MultiStateRemedialActionResultImpl rangeActionResult) {
         // TODO: only reset if failed states have changed? Then we need access to all CRAC states in order to query the sensitivity result
         this.solver.resetModel();
-        fill(flowResult, sensitivityResult);
+        fill(flowAndSensiResult);
         // TODO: remove "update" when "rangeActionActivationResult" can be used by "fill"
         // (used in discrete PST fillers & for RA range shrinking in CoreProblemFiller)
-        fillerList.forEach(problemFiller -> problemFiller.updateBetweenSensiIteration(this, flowResult, sensitivityResult, rangeActionActivationResult));
+        fillerList.forEach(problemFiller -> problemFiller.updateBetweenSensiIteration(this, flowAndSensiResult, rangeActionResult));
     }
 
-    public void updateBetweenMipIteration(RangeActionActivationResult rangeActionActivationResult) {
-        fillerList.forEach(problemFiller -> problemFiller.updateBetweenMipIteration(this, rangeActionActivationResult));
+    public void updateBetweenMipIteration(MultiStateRemedialActionResultImpl rangeActionResult) {
+        fillerList.forEach(problemFiller -> problemFiller.updateBetweenMipIteration(this, rangeActionResult));
     }
 
     public LinearProblemStatus solve() {

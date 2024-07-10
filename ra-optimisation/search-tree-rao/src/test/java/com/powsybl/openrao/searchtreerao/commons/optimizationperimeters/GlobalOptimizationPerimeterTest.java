@@ -29,8 +29,8 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
     @Test
     void globalOptimizationPerimeterTest() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(-500.);
-        Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(-500.);
+        Mockito.when(prePerimeterResult.getOptimizedSetpoint(pRA)).thenReturn(-500.);
+        Mockito.when(prePerimeterResult.getOptimizedSetpoint(cRA)).thenReturn(-500.);
         GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());

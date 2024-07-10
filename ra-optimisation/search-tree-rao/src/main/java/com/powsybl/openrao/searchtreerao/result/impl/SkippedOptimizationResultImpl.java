@@ -81,11 +81,6 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
@@ -151,32 +146,37 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public void activate(RangeAction<?> rangeAction, double setpoint) {
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return activatedRangeActions;
     }
 
     @Override
-    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
-        return activatedRangeActions;
-    }
-
-    @Override
-    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
+    public Set<RangeAction<?>> getActivatedRangeActions() {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
+    public double getOptimizedSetpoint(RangeAction<?> rangeAction) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
+    public Map<RangeAction<?>, Double> getOptimizedSetpoints() {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
+    public int getOptimizedTap(PstRangeAction pstRangeAction) {
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public Map<PstRangeAction, Integer> getOptimizedTaps() {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 }

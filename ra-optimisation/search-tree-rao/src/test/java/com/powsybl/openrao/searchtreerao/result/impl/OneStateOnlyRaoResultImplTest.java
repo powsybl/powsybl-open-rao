@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -43,7 +42,7 @@ import static org.mockito.Mockito.when;
 class OneStateOnlyRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private State optimizedState;
-    private PrePerimeterResult initialResult;
+    private PerimeterResultWithCnecs initialResult;
     private OptimizationResult postOptimizationResult;
     private PstRangeAction pstRangeAction;
     private RangeAction<?> rangeAction;
@@ -64,7 +63,7 @@ class OneStateOnlyRaoResultImplTest {
         Mockito.when(curativeInstant.isCurative()).thenReturn(true);
         optimizedState = mock(State.class);
 
-        initialResult = mock(PrePerimeterResult.class);
+        initialResult = mock(PerimeterResultWithCnecs.class);
         postOptimizationResult = mock(OptimizationResult.class);
         pstRangeAction = mock(PstRangeAction.class);
         optimizedState = mock(State.class);
@@ -85,9 +84,9 @@ class OneStateOnlyRaoResultImplTest {
         when(initialResult.getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
         when(initialResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(cnec2));
         when(initialResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec1));
-        when(initialResult.getSetpoint(pstRangeAction)).thenReturn(6.7);
-        when(initialResult.getSetpoint(rangeAction)).thenReturn(5.6);
-        when(initialResult.getTap(pstRangeAction)).thenReturn(1);
+        when(initialResult.getOptimizedSetpoint(pstRangeAction)).thenReturn(6.7);
+        when(initialResult.getOptimizedSetpoint(rangeAction)).thenReturn(5.6);
+        when(initialResult.getOptimizedTap(pstRangeAction)).thenReturn(1);
         when(initialResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
         when(initialResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1000.);
         when(initialResult.getMargin(cnec1, Unit.AMPERE)).thenReturn(-500.);
@@ -120,12 +119,12 @@ class OneStateOnlyRaoResultImplTest {
         when(postOptimizationResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec2));
         when(postOptimizationResult.isActivated(networkAction)).thenReturn(true);
         when(postOptimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
-        when(postOptimizationResult.getOptimizedSetpoint(pstRangeAction, optimizedState)).thenReturn(8.9);
-        when(postOptimizationResult.getOptimizedSetpoint(rangeAction, optimizedState)).thenReturn(5.6);
-        when(postOptimizationResult.getOptimizedTap(pstRangeAction, optimizedState)).thenReturn(2);
+        when(postOptimizationResult.getOptimizedSetpoint(pstRangeAction)).thenReturn(8.9);
+        when(postOptimizationResult.getOptimizedSetpoint(rangeAction)).thenReturn(5.6);
+        when(postOptimizationResult.getOptimizedTap(pstRangeAction)).thenReturn(2);
         when(postOptimizationResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(postOptimizationResult.getOptimizedTapsOnState(optimizedState)).thenReturn(Map.of(pstRangeAction, 2));
-        when(postOptimizationResult.getOptimizedSetpointsOnState(optimizedState)).thenReturn(Map.of(pstRangeAction, 8.9, rangeAction, 5.6));
+        when(postOptimizationResult.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 2));
+        when(postOptimizationResult.getOptimizedSetpoints()).thenReturn(Map.of(pstRangeAction, 8.9, rangeAction, 5.6));
         when(postOptimizationResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(1000.);
         when(postOptimizationResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(500.);
         when(postOptimizationResult.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(2000.);
@@ -177,8 +176,6 @@ class OneStateOnlyRaoResultImplTest {
         when(optimizedState.isPreventive()).thenReturn(true);
 
         assertSame(initialResult, output.getInitialResult());
-        assertNotNull(output.getPostPreventivePerimeterResult());
-        assertNotNull(output.getPerimeterResult(optimizedState));
 
         assertEquals(1000., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
@@ -292,9 +289,7 @@ class OneStateOnlyRaoResultImplTest {
 
         // using another state
         State otherState = mock(State.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
         assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.isActivatedDuringState(otherState, networkAction));
         assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
@@ -325,9 +320,6 @@ class OneStateOnlyRaoResultImplTest {
     void testCurativeCase1() {
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(optimizedState.isPreventive()).thenReturn(false);
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, output::getPostPreventivePerimeterResult);
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
 
         // margins
         when(cnec1state.isPreventive()).thenReturn(true);

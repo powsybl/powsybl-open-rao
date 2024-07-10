@@ -200,8 +200,8 @@ public final class RaoUtil {
             .orElse(0.);
     }
 
-    public static void applyRemedialActions(Network network, OptimizationResult optResult, State state) {
+    public static void applyRemedialActions(Network network, OptimizationResult optResult) {
         optResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(network));
-        optResult.getActivatedRangeActions(state).forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction, state)));
+        optResult.getActivatedRangeActions().forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction)));
     }
 }

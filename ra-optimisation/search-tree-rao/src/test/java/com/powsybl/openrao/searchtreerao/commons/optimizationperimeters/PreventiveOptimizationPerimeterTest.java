@@ -31,7 +31,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
 
     @Test
     void fullPreventivePerimeter1Test() {
-        Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
+        Mockito.when(prePerimeterResult.getOptimizedSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);
@@ -56,7 +56,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
     @Test
     void fullPreventivePerimeter2Test() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(10000.);
+        Mockito.when(prePerimeterResult.getOptimizedSetpoint(pRA)).thenReturn(10000.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);
@@ -79,7 +79,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
 
     @Test
     void fullWithPreventiveCnecOnlyTest() {
-        Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
+        Mockito.when(prePerimeterResult.getOptimizedSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult);
 

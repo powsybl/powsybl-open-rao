@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -42,12 +43,12 @@ class AlreadyTestedCombinationsFilterTest {
         List<NetworkActionCombination> preDefinedNaCombinations = List.of(COMB_2_FR, COMB_3_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_2_FR_DE_BE);
 
         // arrange previous Leaf -> naFr1 has already been activated
-        Leaf previousLeaf = mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1, NA_BE_1));
+        OptimizationResult previousLeafResult = mock(OptimizationResult.class);
+        Mockito.when(previousLeafResult.getActivatedNetworkActions()).thenReturn(Set.of(NA_FR_1, NA_BE_1));
 
         // filter already tested combinations
         AlreadyTestedCombinationsFilter naFilter = new AlreadyTestedCombinationsFilter(preDefinedNaCombinations);
-        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombinations = naFilter.filter(naCombinations, previousLeafResult);
 
         assertEquals(5, filteredNaCombinations.size());
         assertFalse(filteredNaCombinations.contains(IND_NL_1)); // already tested within preDefined comb2BeNl

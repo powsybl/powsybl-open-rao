@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.CracImplFactory;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -135,12 +136,12 @@ class ElementaryActionsCompatibilityFilterTest {
         ElementaryActionsCompatibilityFilter naFilter = new ElementaryActionsCompatibilityFilter();
         Set<NetworkActionCombination> naCombinations = Set.of(networkActionCombination1, networkActionCombination2, networkActionCombination3, networkActionCombination4);
 
-        Leaf previousLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(appliedRemedialAction1, appliedRemedialAction2));
+        OptimizationResult previousLeafResult = Mockito.mock(OptimizationResult.class);
+        Mockito.when(previousLeafResult.getActivatedNetworkActions()).thenReturn(Set.of(appliedRemedialAction1, appliedRemedialAction2));
 
         assertEquals(
             Set.of(networkActionCombination2, networkActionCombination3, networkActionCombination4),
-            naFilter.filter(naCombinations, previousLeaf)
+            naFilter.filter(naCombinations, previousLeafResult)
         );
     }
 }

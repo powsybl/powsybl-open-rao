@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -140,8 +140,8 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         }
     }
 
-    static boolean doesPrePerimeterSetpointRespectRange(RangeAction<?> rangeAction, RangeActionSetpointResult prePerimeterSetpoints) {
-        double preperimeterSetPoint = prePerimeterSetpoints.getSetpoint(rangeAction);
+    static boolean doesPrePerimeterSetpointRespectRange(RangeAction<?> rangeAction, RangeActionResult prePerimeterSetpoints) {
+        double preperimeterSetPoint = prePerimeterSetpoints.getOptimizedSetpoint(rangeAction);
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
 
@@ -157,13 +157,13 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     /**
      * If aligned range actions' initial setpoint are different, this function filters them out
      */
-    static void removeAlignedRangeActionsWithDifferentInitialSetpoints(Set<RangeAction<?>> rangeActions, RangeActionSetpointResult prePerimeterSetPoints) {
+    static void removeAlignedRangeActionsWithDifferentInitialSetpoints(Set<RangeAction<?>> rangeActions, RangeActionResult prePerimeterSetPoints) {
         Set<String> groups = rangeActions.stream().map(RangeAction::getGroupId)
             .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
         for (String group : groups) {
             Set<RangeAction<?>> groupRangeActions = rangeActions.stream().filter(rangeAction -> rangeAction.getGroupId().isPresent() && rangeAction.getGroupId().get().equals(group)).collect(Collectors.toSet());
-            double preperimeterSetPoint = prePerimeterSetPoints.getSetpoint(groupRangeActions.iterator().next());
-            if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getSetpoint(rangeAction) - preperimeterSetPoint) > 1e-6)) {
+            double preperimeterSetPoint = prePerimeterSetPoints.getOptimizedSetpoint(groupRangeActions.iterator().next());
+            if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getOptimizedSetpoint(rangeAction) - preperimeterSetPoint) > 1e-6)) {
                 BUSINESS_WARNS.warn("Range actions of group {} do not have the same prePerimeter setpoint. They will be filtered out of the linear problem.", group);
                 rangeActions.removeAll(groupRangeActions);
             }

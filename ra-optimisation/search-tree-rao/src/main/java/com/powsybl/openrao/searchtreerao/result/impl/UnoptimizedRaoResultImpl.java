@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,10 +32,10 @@ import java.util.Set;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UnoptimizedRaoResultImpl implements RaoResult {
-    private final PrePerimeterResult initialResult;
+    private final PerimeterResultWithCnecs initialResult;
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
-    public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult) {
+    public UnoptimizedRaoResultImpl(PerimeterResultWithCnecs initialResult) {
         this.initialResult = initialResult;
     }
 
@@ -127,7 +126,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        return initialResult.getTap(pstRangeAction);
+        return initialResult.getOptimizedTap(pstRangeAction);
     }
 
     @Override
@@ -137,7 +136,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        return initialResult.getSetpoint(rangeAction);
+        return initialResult.getOptimizedSetpoint(rangeAction);
     }
 
     @Override
@@ -155,7 +154,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
         Map<PstRangeAction, Integer> tapPerPst = new HashMap<>();
         initialResult.getRangeActions().forEach(ra -> {
             if (ra instanceof PstRangeAction pstRangeAction) {
-                tapPerPst.put(pstRangeAction, initialResult.getTap(pstRangeAction));
+                tapPerPst.put(pstRangeAction, initialResult.getOptimizedTap(pstRangeAction));
             }
         });
         return tapPerPst;
@@ -165,7 +164,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         Map<RangeAction<?>, Double> setpointPerRa = new HashMap<>();
         initialResult.getRangeActions().forEach(ra ->
-            setpointPerRa.put(ra, initialResult.getSetpoint(ra))
+            setpointPerRa.put(ra, initialResult.getOptimizedSetpoint(ra))
         );
         return setpointPerRa;
     }

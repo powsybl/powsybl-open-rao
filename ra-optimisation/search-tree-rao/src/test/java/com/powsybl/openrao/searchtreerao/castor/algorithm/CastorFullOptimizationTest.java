@@ -35,6 +35,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PerimeterResultWithCnecs;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,10 +95,10 @@ class CastorFullOptimizationTest {
     @Test
     void testShouldRunSecondPreventiveRaoSimple() {
         RaoParameters parameters = new RaoParameters();
-        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
-        OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
-        OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PerimeterResultWithCnecs preventiveResult = Mockito.mock(PerimeterResultWithCnecs.class);
+        PerimeterResultWithCnecs optimizationResult1 = Mockito.mock(PerimeterResultWithCnecs.class);
+        PerimeterResultWithCnecs optimizationResult2 = Mockito.mock(PerimeterResultWithCnecs.class);
+        Collection<PerimeterResultWithCnecs> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         // No SearchTreeRaoParameters extension
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0, crac.getInstant(InstantKind.CURATIVE)));
@@ -139,11 +140,11 @@ class CastorFullOptimizationTest {
     @Test
     void testShouldRunSecondPreventiveRaoAdvanced() {
         RaoParameters parameters = new RaoParameters();
-        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        PerimeterResultWithCnecs preventiveResult = Mockito.mock(PerimeterResultWithCnecs.class);
         RaoResult postFirstPreventiveRaoResult = Mockito.mock(RaoResult.class);
-        OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
-        OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PerimeterResultWithCnecs optimizationResult1 = Mockito.mock(PerimeterResultWithCnecs.class);
+        PerimeterResultWithCnecs optimizationResult2 = Mockito.mock(PerimeterResultWithCnecs.class);
+        Collection<PerimeterResultWithCnecs> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(10.);
@@ -191,10 +192,10 @@ class CastorFullOptimizationTest {
     @Test
     void testShouldRunSecondPreventiveRaoTime() {
         RaoParameters parameters = new RaoParameters();
-        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
-        OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
-        OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PerimeterResultWithCnecs preventiveResult = Mockito.mock(PerimeterResultWithCnecs.class);
+        PerimeterResultWithCnecs optimizationResult1 = Mockito.mock(PerimeterResultWithCnecs.class);
+        PerimeterResultWithCnecs optimizationResult2 = Mockito.mock(PerimeterResultWithCnecs.class);
+        Collection<PerimeterResultWithCnecs> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
@@ -211,10 +212,10 @@ class CastorFullOptimizationTest {
     @Test
     void testShouldRunSecondPreventiveRaoCostIncrease() {
         RaoParameters parameters = new RaoParameters();
-        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
-        OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
-        OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PerimeterResultWithCnecs preventiveResult = Mockito.mock(PerimeterResultWithCnecs.class);
+        PerimeterResultWithCnecs optimizationResult1 = Mockito.mock(PerimeterResultWithCnecs.class);
+        PerimeterResultWithCnecs optimizationResult2 = Mockito.mock(PerimeterResultWithCnecs.class);
+        Collection<PerimeterResultWithCnecs> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE);
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
@@ -431,14 +432,13 @@ class CastorFullOptimizationTest {
     @Test
     void testGetRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
-        PerimeterResult firstPreventiveResult = Mockito.mock(PerimeterResult.class);
-        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
-        State preventiveState = crac.getPreventiveState();
+        PerimeterResultWithCnecs firstPreventiveResult = Mockito.mock(PerimeterResultWithCnecs.class);
+        PerimeterResultWithCnecs optimizationResult = Mockito.mock(PerimeterResultWithCnecs.class);
         // ra9 has different taps than ra8.
-        when(firstPreventiveResult.getOptimizedSetpoint(ra9, preventiveState)).thenReturn(2.);
+        when(firstPreventiveResult.getOptimizedSetpoint(ra9)).thenReturn(2.);
         crac.newRaUsageLimits(autoInstant.getId()).withMaxRa(0).add();
         crac.newRaUsageLimits(curativeInstant.getId()).withMaxRaPerTso(new HashMap<>(Map.of("FR", 0))).add();
-        Map<State, OptimizationResult> contingencyResult = new HashMap<>();
+        Map<State, PerimeterResultWithCnecs> contingencyResult = new HashMap<>();
         crac.getStates().forEach(state -> {
             if (!state.isPreventive()) {
                 contingencyResult.put(state, optimizationResult);
@@ -504,43 +504,43 @@ class CastorFullOptimizationTest {
 
     @Test
     void testApplyPreventiveResultsForCurativeRangeActions() {
-        PerimeterResult perimeterResult = Mockito.mock(PerimeterResult.class);
+        PerimeterResultWithCnecs perimeterResult = Mockito.mock(PerimeterResultWithCnecs.class);
         String pstNeId = "BBE2AA1  BBE3AA1  1";
 
         setUpCracWithRealRAs(false);
-        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
+        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1));
+        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions();
         CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
         assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
 
         setUpCracWithRealRAs(true);
-        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
+        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1));
+        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions();
         CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
         assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
     void testGetAppliedRemedialActionsInCurative() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        PerimeterResultWithCnecs prePerimeterResult = Mockito.mock(PerimeterResultWithCnecs.class);
 
         String pstNeId = "BBE2AA1  BBE3AA1  1";
         String naNeId = "BBE1AA1  BBE2AA1  1";
 
         setUpCracWithRealRAs(true);
-        Mockito.doReturn(0.).when(prePerimeterResult).getSetpoint(ra1);
+        Mockito.doReturn(0.).when(prePerimeterResult).getOptimizedSetpoint(ra1);
 
-        OptimizationResult optimResult1 = Mockito.mock(OptimizationResult.class);
-        Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions(Mockito.any());
-        Mockito.doReturn(-1.5583491325378418).when(optimResult1).getOptimizedSetpoint(eq(ra1), Mockito.any());
+        PerimeterResultWithCnecs optimResult1 = Mockito.mock(PerimeterResultWithCnecs.class);
+        Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions();
+        Mockito.doReturn(-1.5583491325378418).when(optimResult1).getOptimizedSetpoint(eq(ra1));
         Mockito.doReturn(Set.of()).when(optimResult1).getActivatedNetworkActions();
 
-        OptimizationResult optimResult2 = Mockito.mock(OptimizationResult.class);
-        Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions(Mockito.any());
-        Mockito.doReturn(0.).when(optimResult2).getOptimizedSetpoint(eq(ra1), Mockito.any());
+        PerimeterResultWithCnecs optimResult2 = Mockito.mock(PerimeterResultWithCnecs.class);
+        Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions();
+        Mockito.doReturn(0.).when(optimResult2).getOptimizedSetpoint(eq(ra1));
         Mockito.doReturn(Set.of(na1)).when(optimResult2).getActivatedNetworkActions();
 
-        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
+        Map<State, PerimeterResultWithCnecs> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         CastorFullOptimization.addAppliedNetworkActionsPostContingency(Set.of(autoInstant), appliedRemedialActions, curativeResults);
@@ -620,13 +620,11 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
+        assertEquals(694.3, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
-        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(FIRST_PREVENTIVE_ONLY));
-        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
     }
 
     @Test
@@ -645,13 +643,11 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
+        assertEquals(694.3, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
-        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
     }
 
     @Test
@@ -1063,15 +1059,15 @@ class CastorFullOptimizationTest {
         return state;
     }
 
-    private OptimizationResult mockOptimizationResult(Set<NetworkAction> activatedNetworkActions) {
-        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
+    private PerimeterResultWithCnecs mockOptimizationResultWithNetworkActions(Set<NetworkAction> activatedNetworkActions) {
+        PerimeterResultWithCnecs optimizationResult = Mockito.mock(PerimeterResultWithCnecs.class);
         when(optimizationResult.getActivatedNetworkActions()).thenReturn(activatedNetworkActions);
         return optimizationResult;
     }
 
-    private OptimizationResult mockOptimizationResult(Set<RangeAction<?>> activatedRangeActions, State state) {
-        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
-        when(optimizationResult.getActivatedRangeActions(state)).thenReturn(activatedRangeActions);
+    private PerimeterResultWithCnecs mockOptimizationResultWithRangeActions(Set<RangeAction<?>> activatedRangeActions) {
+        PerimeterResultWithCnecs optimizationResult = Mockito.mock(PerimeterResultWithCnecs.class);
+        when(optimizationResult.getActivatedRangeActions()).thenReturn(activatedRangeActions);
         return optimizationResult;
     }
 
@@ -1095,12 +1091,12 @@ class CastorFullOptimizationTest {
         NetworkAction na221 = Mockito.mock(NetworkAction.class);
         NetworkAction na222 = Mockito.mock(NetworkAction.class);
 
-        OptimizationResult optimizationResult11 = mockOptimizationResult(Set.of(na111, na112));
-        OptimizationResult optimizationResult12 = mockOptimizationResult(Set.of(na121));
-        OptimizationResult optimizationResult21 = mockOptimizationResult(Set.of(na211));
-        OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(na221, na222));
+        PerimeterResultWithCnecs optimizationResult11 = mockOptimizationResultWithNetworkActions(Set.of(na111, na112));
+        PerimeterResultWithCnecs optimizationResult12 = mockOptimizationResultWithNetworkActions(Set.of(na121));
+        PerimeterResultWithCnecs optimizationResult21 = mockOptimizationResultWithNetworkActions(Set.of(na211));
+        PerimeterResultWithCnecs optimizationResult22 = mockOptimizationResultWithNetworkActions(Set.of(na221, na222));
 
-        Map<State, OptimizationResult> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
+        Map<State, PerimeterResultWithCnecs> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
             state21, optimizationResult21, state22, optimizationResult22);
 
         CastorFullOptimization.addAppliedNetworkActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);
@@ -1143,12 +1139,12 @@ class CastorFullOptimizationTest {
         RangeAction<?> ra221 = Mockito.mock(RangeAction.class);
         RangeAction<?> ra222 = Mockito.mock(RangeAction.class);
 
-        OptimizationResult optimizationResult11 = mockOptimizationResult(Set.of(ra111, ra112), state11);
-        OptimizationResult optimizationResult12 = mockOptimizationResult(Set.of(ra121), state12);
-        OptimizationResult optimizationResult21 = mockOptimizationResult(Set.of(ra211), state21);
-        OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(ra221, ra222), state22);
+        PerimeterResultWithCnecs optimizationResult11 = mockOptimizationResultWithRangeActions(Set.of(ra111, ra112));
+        PerimeterResultWithCnecs optimizationResult12 = mockOptimizationResultWithRangeActions(Set.of(ra121));
+        PerimeterResultWithCnecs optimizationResult21 = mockOptimizationResultWithRangeActions(Set.of(ra211));
+        PerimeterResultWithCnecs optimizationResult22 = mockOptimizationResultWithRangeActions(Set.of(ra221, ra222));
 
-        Map<State, OptimizationResult> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
+        Map<State, PerimeterResultWithCnecs> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
             state21, optimizationResult21, state22, optimizationResult22);
 
         CastorFullOptimization.addAppliedRangeActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);

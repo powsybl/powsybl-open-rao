@@ -92,10 +92,10 @@ class FlowResultImplTest {
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, instant)).thenReturn(500.);
         when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, instant)).thenReturn(235.);
 
-        assertEquals(200, branchResult.getFlow(loopFlowCnec, ONE, Unit.MEGAWATT, instant), DOUBLE_TOLERANCE);
-        assertEquals(58, branchResult.getFlow(loopFlowCnec, ONE, Unit.AMPERE, instant), DOUBLE_TOLERANCE);
-        assertEquals(500, branchResult.getFlow(optimizedCnec, TWO, Unit.MEGAWATT, instant), DOUBLE_TOLERANCE);
-        assertEquals(235, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE, instant), DOUBLE_TOLERANCE);
+        assertEquals(200, branchResult.getFlow(loopFlowCnec, ONE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(58, branchResult.getFlow(loopFlowCnec, ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(500, branchResult.getFlow(optimizedCnec, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(235, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -111,7 +111,7 @@ class FlowResultImplTest {
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, instant)).thenReturn(500.);
         when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
 
-        assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE, instant), DOUBLE_TOLERANCE);
+        assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -126,13 +126,13 @@ class FlowResultImplTest {
         assertEquals("Unknown unit for flow.", e.getMessage());
 
         Instant instant = Mockito.mock(Instant.class);
-        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.KILOVOLT, instant));
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.KILOVOLT));
         assertEquals("Unknown unit for flow.", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.DEGREE, instant));
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.DEGREE));
         assertEquals("Unknown unit for flow.", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.PERCENT_IMAX, instant));
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.PERCENT_IMAX));
         assertEquals("Unknown unit for flow.", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.TAP, instant));
+        e = assertThrows(OpenRaoException.class, () -> branchResult.getFlow(optimizedCnec, TWO, Unit.TAP));
         assertEquals("Unknown unit for flow.", e.getMessage());
     }
 
