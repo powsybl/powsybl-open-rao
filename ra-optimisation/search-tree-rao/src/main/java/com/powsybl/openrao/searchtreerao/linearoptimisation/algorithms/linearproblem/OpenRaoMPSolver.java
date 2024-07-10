@@ -243,7 +243,9 @@ public class OpenRaoMPSolver {
     }
 
     public double infinity() {
-        // TODO: replace with mpsSolver.solverInfinity() when made available
-        return SOLVER_INFINITY.get(solver) * 100;
+        return SOLVER_INFINITY.get(solver) * 1000;
+        // we must use something greater than the solver's infinity, in case we subtract things from it, it should
+        // stay greater than infinity
+        // TODO: replace with mpsSolver.solverInfinity() * 1000 when made available
     }
 }
