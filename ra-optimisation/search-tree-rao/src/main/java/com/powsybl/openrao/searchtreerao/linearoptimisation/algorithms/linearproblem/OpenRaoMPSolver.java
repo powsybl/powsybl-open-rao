@@ -15,9 +15,6 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.Map;
@@ -144,8 +141,6 @@ public class OpenRaoMPSolver {
         double roundedUb = roundDouble(ub);
         OpenRaoMPVariable variable = new OpenRaoMPVariable(mpSolver.makeVar(roundedLb, roundedUb, integer, name));
         variables.put(name, variable);
-        System.out.println(String.format(Locale.ENGLISH, "solver.MakeVar(%.6f, %.6f, %s, \"%s\");", roundedLb, roundedUb, integer, name));
-        writeLpX();
         return variable;
     }
 
@@ -159,8 +154,6 @@ public class OpenRaoMPSolver {
             constraint.setLb(roundedLb);
             constraint.setUb(roundedUb);
             constraints.put(name, constraint);
-            System.out.println(String.format(Locale.ENGLISH, "solver.MakeRowConstraint(%.6f, %.6f, \"%s\");", roundedLb, roundedUb, name));
-            writeLpX();
             return constraint;
         }
     }
@@ -185,34 +178,9 @@ public class OpenRaoMPSolver {
     private static AtomicInteger lpCounter = new AtomicInteger(0);
 
     public LinearProblemStatus solve() {
-        System.out.println("solver.MutableObjective()->SetMinimization();");
-        System.out.println("solver.Solve();");
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
-        writeLpX();
-        int lpNumber = lpCounter.get();
-        try {
-            String lp = mpSolver.exportModelAsLpFormat();
-            BufferedWriter writer = new BufferedWriter(new FileWriter("/home/mitripet/tune_xpress_rao/lp_" + lpNumber + "_" + OffsetDateTime.now() + ".lp"));
-            writer.write(lp);
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        /*mpSolver.lookupVariableOrNull("PST_GR_ID_1_preventive_virtualtap_variable").setBounds(-3, -3);
-        mpSolver.lookupVariableOrNull("PST_DIEL_T441_preventive_virtualtap_variable").setBounds(-9, -9);
-        mpSolver.lookupVariableOrNull("PST_DIEL_T442_preventive_virtualtap_variable").setBounds(-10, -10);
-        mpSolver.lookupVariableOrNull("D4_PSTGRP_01_preventive_virtualtap_variable").setBounds(17, 17);
-        mpSolver.lookupVariableOrNull("D4_PSTGRP_02_preventive_virtualtap_variable").setBounds(1, 1);
-        mpSolver.lookupVariableOrNull("D8_PSTGRP_02_preventive_virtualtap_variable").setBounds(2, 2);
-        mpSolver.lookupVariableOrNull("D8_PSTGRP_03_preventive_virtualtap_variable").setBounds(6, 6);
-        mpSolver.lookupVariableOrNull("D8_PSTGRP_01_preventive_virtualtap_variable").setBounds(-1, -1);
-        mpSolver.lookupVariableOrNull("PL_RA_P_01_preventive_virtualtap_variable").setBounds(0, 0);
-        mpSolver.lookupVariableOrNull("PL_RA_P_02_preventive_virtualtap_variable").setBounds(0, 0);
-        mpSolver.lookupVariableOrNull("CZ_PSTGRP_01_preventive_virtualtap_variable").setBounds(-1, -1);
-        mpSolver.lookupVariableOrNull("NL_PSTGRP_01_preventive_virtualtap_variable").setBounds(0, 0);*/
-
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 
@@ -281,6 +249,9 @@ public class OpenRaoMPSolver {
         }
         if (Math.abs(value) < MIN_DOUBLE) {
             return 0.;
+        }
+        if (Math.abs(value) < 1e20 && Math.abs(value) > 1e7) {
+            throw new OpenRaoException("Trying to add a huge value in MIP!");
         }
         double t = value * (1L << NUMBER_OF_BITS_TO_ROUND_OFF);
         if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {

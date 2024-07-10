@@ -9,8 +9,6 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.Locale;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
@@ -35,20 +33,14 @@ public class OpenRaoMPVariable {
 
     public void setLb(double lb) {
         mpVariable.setLb(OpenRaoMPSolver.roundDouble(lb));
-        String var = String.format(Locale.ENGLISH, "solver.LookupVariableOrNull(\"%s\")", mpVariable.name());
-        System.out.println(String.format(Locale.ENGLISH, "%s->SetLB(%.6f);", var, OpenRaoMPSolver.roundDouble(lb)));
     }
 
     public void setUb(double ub) {
         mpVariable.setUb(OpenRaoMPSolver.roundDouble(ub));
-        String var = String.format(Locale.ENGLISH, "solver.LookupVariableOrNull(\"%s\")", mpVariable.name());
-        System.out.println(String.format(Locale.ENGLISH, "%s->SetUB(%.6f);", var, OpenRaoMPSolver.roundDouble(ub)));
     }
 
     public void setBounds(double lb, double ub) {
         mpVariable.setBounds(OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub));
-        String var = String.format(Locale.ENGLISH, "solver.LookupVariableOrNull(\"%s\")", mpVariable.name());
-        System.out.println(String.format(Locale.ENGLISH, "%s->SetBounds(%.6f);", var, OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub)));
     }
 
     MPVariable getMPVariable() {

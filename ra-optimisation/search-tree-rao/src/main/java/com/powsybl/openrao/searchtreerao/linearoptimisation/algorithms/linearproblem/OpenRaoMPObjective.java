@@ -9,8 +9,6 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.google.ortools.linearsolver.MPObjective;
 
-import java.util.Locale;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
@@ -27,7 +25,5 @@ public class OpenRaoMPObjective {
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
         mpObjective.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
-        String var = String.format(Locale.ENGLISH, "solver.LookupVariableOrNull(\"%s\")", variable.getMPVariable().name());
-        System.out.println(String.format(Locale.ENGLISH, "solver.MutableObjective()->SetCoefficient(%s, %.6f);", var, OpenRaoMPSolver.roundDouble(coeff)));
     }
 }
