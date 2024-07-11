@@ -125,10 +125,6 @@ public class PerimeterResultImpl implements PerimeterResult {
 
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
-
-        // todo: check behaviour of this method when end of POC
-        // todo: move this logics in RangeActionActivationResultImpl (?)
-
         if (optimizationResult.getRangeActions().contains(rangeAction)) {
             return optimizationResult.getOptimizedSetpoint(rangeAction, state);
         }

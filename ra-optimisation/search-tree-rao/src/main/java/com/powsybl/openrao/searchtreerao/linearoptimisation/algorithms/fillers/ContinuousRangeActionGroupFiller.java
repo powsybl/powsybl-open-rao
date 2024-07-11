@@ -57,7 +57,7 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
                 try {
                     linearProblem.getRangeActionGroupSetpointVariable(groupId, state);
                 } catch (OpenRaoException ignored) {
-                    linearProblem.addRangeActionGroupSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId, state);
+                    linearProblem.addRangeActionGroupSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId, state);
                 }
                 addRangeActionGroupConstraint(linearProblem, ra, groupId, state);
             }

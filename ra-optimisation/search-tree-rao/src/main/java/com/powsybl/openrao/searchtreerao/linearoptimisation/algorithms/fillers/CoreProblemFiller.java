@@ -108,7 +108,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void buildFlowVariables(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         validFlowCnecs.forEach(cnec ->
-            cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side))
+            cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-linearProblem.infinity(), linearProblem.infinity(), cnec, side))
         );
     }
 
@@ -129,8 +129,8 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildRangeActionVariables(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
-                linearProblem.addRangeActionSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), rangeAction, state);
-                linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction, state);
+                linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
+                linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state);
             })
         );
     }
@@ -201,7 +201,6 @@ public class CoreProblemFiller implements ProblemFiller {
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, Unit.MEGAWATT);
 
         if (isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
-            //TODO: compute this only once somehow
             double currentSetPoint = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
 
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
@@ -243,7 +242,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
     private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration) {
         double previousSetPointValue = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
-        List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
+        List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
         double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
         double maxAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
         double constrainedSetPointRange = (maxAbsoluteSetpoint - minAbsoluteSetpoint) * Math.pow(RANGE_SHRINK_RATE, iteration);
@@ -272,15 +271,15 @@ public class CoreProblemFiller implements ProblemFiller {
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
         OpenRaoMPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
-            -LinearProblem.infinity(),
-            LinearProblem.infinity(),
+            -linearProblem.infinity(),
+            linearProblem.infinity(),
             rangeAction,
             state,
             LinearProblem.AbsExtension.NEGATIVE
         );
         OpenRaoMPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
-            -LinearProblem.infinity(),
-            LinearProblem.infinity(),
+            -linearProblem.infinity(),
+            linearProblem.infinity(),
             rangeAction,
             state,
             LinearProblem.AbsExtension.POSITIVE);
@@ -312,7 +311,7 @@ public class CoreProblemFiller implements ProblemFiller {
             // getRangeActionSetpointVariable from previous instant
             OpenRaoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
 
-            List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
+            List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
             double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
             double maxAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
             double minRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(2);
@@ -342,21 +341,21 @@ public class CoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction) {
+    private List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction, double infinity) {
 
         // if relative to previous instant range
-        double minAbsoluteSetpoint = -LinearProblem.infinity();
-        double maxAbsoluteSetpoint = LinearProblem.infinity();
-        double minRelativeSetpoint = -LinearProblem.infinity();
-        double maxRelativeSetpoint = LinearProblem.infinity();
+        double minAbsoluteSetpoint = -infinity;
+        double maxAbsoluteSetpoint = infinity;
+        double minRelativeSetpoint = -infinity;
+        double maxRelativeSetpoint = infinity;
         if (rangeAction instanceof PstRangeAction pstRangeAction) {
             Map<Integer, Double> tapToAngleMap = pstRangeAction.getTapToAngleConversionMap();
             List<TapRange> ranges = pstRangeAction.getRanges();
 
             int minAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).min().orElseThrow();
             int maxAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).max().orElseThrow();
-            int minRelativeTap = -LinearProblem.infinity();
-            int maxRelativeTap = LinearProblem.infinity();
+            double minRelativeTap = -infinity;
+            double maxRelativeTap = infinity;
             for (TapRange range : ranges) {
                 RangeType rangeType = range.getRangeType();
                 switch (rangeType) {

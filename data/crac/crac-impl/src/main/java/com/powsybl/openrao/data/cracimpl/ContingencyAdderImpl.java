@@ -79,7 +79,5 @@ public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyA
             owner.addContingency(contingency);
             return owner.getContingency(id);
         }
-        // TODO : create additional states if there are RAs with "OnInstant" usage rule (on curative/auto instant)
-        // not required as as soon as there is no RA on AUTO instant
     }
 }
