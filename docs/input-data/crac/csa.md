@@ -487,7 +487,7 @@ found in the **EQ** profile (CGMES file).
 </rdf:RDF>
 ```
 
-To be valid, the VoltageCNEC's `isInfiniteDuration` field must be set to `true`. If it is missing or set to `false` it will
+The VoltageCNEC's `isInfiniteDuration` field is optional and its default value is `true`. If it is set to `false` the voltageCNEC will
 be ignored.
 
 The CNEC's threshold value (in KILOVOLTS) is determined by the `value` field of the `VoltageLimit` and must be positive.
