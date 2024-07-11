@@ -32,6 +32,7 @@ import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCsaProfileCracCr
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCseCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripFbConstraintCreationContext;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -41,6 +42,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.zip.ZipInputStream;
 
 public final class Helpers {
     private Helpers() {
@@ -168,10 +170,20 @@ public final class Helpers {
     }
 
     public static RaoResult importRaoResult(File raoResultFile) throws IOException {
-        InputStream inputStream = new FileInputStream(raoResultFile);
+        InputStream inputStream = getStreamFromZippable(raoResultFile);
         RaoResult raoResult = RaoResult.read(inputStream, CommonTestData.getCrac());
         inputStream.close();
         return raoResult;
+    }
+
+    private static InputStream getStreamFromZippable(File file) throws IOException {
+        FileInputStream fileInputStream = new FileInputStream(file);
+        if (!FilenameUtils.getExtension(file.getAbsolutePath()).equals("zip")) {
+            return fileInputStream;
+        }
+        ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
+        zipInputStream.getNextEntry();
+        return zipInputStream;
     }
 
     public static AngleMonitoringResult importAngleMonitoringResult(File angleMonitoringResultFile) throws IOException {

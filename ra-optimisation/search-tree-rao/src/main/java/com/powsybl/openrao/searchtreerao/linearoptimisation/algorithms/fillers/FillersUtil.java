@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -16,7 +17,9 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.util.Comparator;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +47,8 @@ public final class FillersUtil {
     static Set<FlowCnec> getFlowCnecsComputationStatusOk(Set<FlowCnec> flowCnecs, SensitivityResult sensitivityResult) {
         Set<State> skippedStates = flowCnecs.stream().map(Cnec::getState).distinct()
             .filter(state -> sensitivityResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE)).collect(Collectors.toSet());
-        return flowCnecs.stream().filter(cnec -> !skippedStates.contains(cnec.getState())).collect(Collectors.toSet());
+        return flowCnecs.stream().filter(cnec -> !skippedStates.contains(cnec.getState()))
+            .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Identifiable::getId))));
     }
 
     /**
@@ -59,6 +63,6 @@ public final class FillersUtil {
         return flowCnecs.stream().filter(cnec ->
             cnec.getMonitoredSides().stream().noneMatch(side ->
                 Double.isNaN(flowResult.getFlow(cnec, side, Unit.MEGAWATT)))
-        ).collect(Collectors.toSet());
+        ).collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Identifiable::getId))));
     }
 }
