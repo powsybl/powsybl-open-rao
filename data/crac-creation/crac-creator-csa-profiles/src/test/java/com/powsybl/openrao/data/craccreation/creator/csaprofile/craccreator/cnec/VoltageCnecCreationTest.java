@@ -25,7 +25,7 @@ class VoltageCnecCreationTest {
         CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/cnecs/VoltageCNECs.zip", NETWORK);
 
         List<VoltageCnec> importedVoltageCnecs = cracCreationContext.getCrac().getVoltageCnecs().stream().sorted(Comparator.comparing(VoltageCnec::getId)).toList();
-        assertEquals(4, importedVoltageCnecs.size());
+        assertEquals(5, importedVoltageCnecs.size());
 
         CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(0),
@@ -67,13 +67,22 @@ class VoltageCnecCreationTest {
             -72d,
             "RTE");
 
-        assertEquals(6, cracCreationContext.getCnecCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
+        CsaProfileCracCreationTestUtil.assertVoltageCnecEquality(
+            importedVoltageCnecs.get(4),
+            "RTE_AE7 (assessed-element-7) - preventive",
+            "BBE1AA1 ",
+            PREVENTIVE_INSTANT_ID,
+            null,
+            100d,
+            null,
+            "RTE");
+
+        assertEquals(5, cracCreationContext.getCnecCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
         assertCnecNotImported(cracCreationContext, "assessed-element-3", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-3 ignored because a voltage limit can only be of kind highVoltage or lowVoltage");
         assertCnecNotImported(cracCreationContext, "assessed-element-4", ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "AssessedElement assessed-element-4 ignored because only permanent voltage limits (with infinite duration) are currently handled");
         assertCnecNotImported(cracCreationContext, "assessed-element-5", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-5 ignored because the network element FFR1AA1 _generator is not a bus bar section");
         assertCnecNotImported(cracCreationContext, "assessed-element-6", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "AssessedElement assessed-element-6 ignored because the voltage limit equipment unknown-equipment is missing in network");
-        assertCnecNotImported(cracCreationContext, "assessed-element-7", ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "AssessedElement assessed-element-7 ignored because only permanent voltage limits (with infinite duration) are currently handled");
         assertCnecNotImported(cracCreationContext, "assessed-element-8", ImportStatus.INCOMPLETE_DATA, "AssessedElement assessed-element-8 ignored because no ConductingEquipment or OperationalLimit was provided");
 
         assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3", cracCreationContext.getCrac().getInstant(CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, VoltageCnec.class);

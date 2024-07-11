@@ -19,7 +19,7 @@ public record VoltageLimit(String mrid, double value, String equipment, String l
             Double.parseDouble(propertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_VALUE)),
             propertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_EQUIPMENT),
             propertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TYPE),
-            Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION))
+            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION, "true"))
         );
     }
 }
