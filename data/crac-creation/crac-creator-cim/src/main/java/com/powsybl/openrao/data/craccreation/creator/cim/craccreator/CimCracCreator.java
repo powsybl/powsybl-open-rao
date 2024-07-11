@@ -32,17 +32,19 @@ class CimCracCreator {
     private Network network;
     CimCracCreationContext creationContext;
 
-    CimCracCreationContext createCrac(CRACMarketDocument cimCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters parameters) {
+    CimCracCreationContext createCrac(CRACMarketDocument cimCrac, Network network, CracCreationParameters parameters) {
         // Set attributes
         this.crac = parameters.getCracFactory().create(cimCrac.getMRID());
         addCimInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getTimeSeries());
-        this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId());
+
+        CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
+
+        this.creationContext = new CimCracCreationContext(crac, cimCracCreationParameters == null ? null : cimCracCreationParameters.getOffsetDateTime(), network.getNameOrId());
 
         // Get warning messages from parameters parsing
-        CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
         if (cimCracCreationParameters != null) {
             cimCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message));
             if (!cimCracCreationParameters.getTimeseriesMrids().isEmpty()) {
@@ -53,15 +55,15 @@ class CimCracCreator {
             }
         }
 
-        if (offsetDateTime == null) {
+        if (cimCracCreationParameters.getOffsetDateTime() == null) {
             creationContext.getCreationReport().error("Timestamp is null for cim crac creator.");
             creationContext.setCreationFailure();
             return creationContext;
         } else {
             String cracTimePeriodStart = cimCrac.getTimePeriodTimeInterval().getStart();
             String cracTimePeriodEnd = cimCrac.getTimePeriodTimeInterval().getEnd();
-            if (!isInTimeInterval(offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd)) {
-                creationContext.getCreationReport().error(String.format("Timestamp %s is not in time interval [%s %s].", offsetDateTime, cracTimePeriodStart, cracTimePeriodEnd));
+            if (!isInTimeInterval(cimCracCreationParameters.getOffsetDateTime(), cracTimePeriodStart, cracTimePeriodEnd)) {
+                creationContext.getCreationReport().error(String.format("Timestamp %s is not in time interval [%s %s].", cimCracCreationParameters.getOffsetDateTime(), cracTimePeriodStart, cracTimePeriodEnd));
                 creationContext.setCreationFailure();
                 return creationContext;
             }

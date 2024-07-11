@@ -9,12 +9,14 @@ package com.powsybl.openrao.data.craccreation.creator.cim.parameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.parameters.AbstractAlignedRaCracCreationParameters;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CimCracCreationParameters extends AbstractAlignedRaCracCreationParameters {
+    private OffsetDateTime offsetDateTime = null;
     private Set<String> timeseriesMrids = new HashSet<>();
     private Set<RangeActionSpeed> speedSet = new HashSet<>();
     private VoltageCnecsCreationParameters voltageCnecsCreationParameters = null;
@@ -24,8 +26,16 @@ public class CimCracCreationParameters extends AbstractAlignedRaCracCreationPara
         return "CimCracCreatorParameters";
     }
 
+    public OffsetDateTime getOffsetDateTime() {
+        return offsetDateTime;
+    }
+
     public Set<String> getTimeseriesMrids() {
         return timeseriesMrids;
+    }
+
+    public void setOffsetDateTime(OffsetDateTime offsetDateTime) {
+        this.offsetDateTime = offsetDateTime;
     }
 
     public void setTimeseriesMrids(Set<String> timeseriesMrids) {

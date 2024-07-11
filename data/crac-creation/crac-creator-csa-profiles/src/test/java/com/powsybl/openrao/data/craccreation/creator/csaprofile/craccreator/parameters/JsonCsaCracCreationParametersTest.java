@@ -15,10 +15,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.time.OffsetDateTime;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -39,6 +41,7 @@ class JsonCsaCracCreationParametersTest {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters-json-csa-crac-creation-parameters-test.json"));
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
+        assertEquals(OffsetDateTime.parse("2024-07-09T07:15:00Z"), csaCracCreationParameters.getOffsetDateTime());
         assertEquals("10XFR-RTE------Q", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
         assertEquals(60, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         assertEquals(Map.of("REE", false, "REN", false, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
@@ -50,6 +53,7 @@ class JsonCsaCracCreationParametersTest {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters.json"));
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
+        assertNull(csaCracCreationParameters.getOffsetDateTime());
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
         assertEquals(0, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         assertEquals(Map.of("REE", false, "REN", true, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
@@ -77,6 +81,7 @@ class JsonCsaCracCreationParametersTest {
         assertEquals(1, importedParameters.getExtensions().size());
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
+        assertNull(csaCracCreationParameters.getOffsetDateTime());
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
         assertEquals(0, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         assertEquals(Map.of("REE", false, "REN", true, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());

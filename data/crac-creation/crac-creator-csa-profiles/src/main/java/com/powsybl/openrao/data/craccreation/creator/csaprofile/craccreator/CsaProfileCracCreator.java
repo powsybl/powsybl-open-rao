@@ -18,8 +18,6 @@ import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.reme
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.craccreation.util.RaUsageLimitsAdder;
 
-import java.time.OffsetDateTime;
-
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.constants.CsaProfileConstants.*;
 
 /**
@@ -32,16 +30,16 @@ class CsaProfileCracCreator {
     CsaProfileCracCreationContext creationContext;
     private CsaProfileCrac nativeCrac;
 
-    CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, CracCreationParameters cracCreationParameters) {
         CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
-        this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
+        this.creationContext = new CsaProfileCracCreationContext(crac, csaParameters.getOffsetDateTime(), network.getNameOrId());
         this.nativeCrac = nativeCrac;
         addCsaInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 
-        this.nativeCrac.setForTimestamp(offsetDateTime);
+        this.nativeCrac.setForTimestamp(csaParameters.getOffsetDateTime());
 
         createContingencies();
         createCnecs(cracCreationParameters);

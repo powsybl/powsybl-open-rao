@@ -8,6 +8,7 @@ package com.powsybl.openrao.data.craccreation.creator.cse.parameters;
 
 import com.powsybl.openrao.data.cracapi.parameters.AbstractAlignedRaCracCreationParameters;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
@@ -15,6 +16,7 @@ import java.util.*;
  */
 public class CseCracCreationParameters extends AbstractAlignedRaCracCreationParameters {
 
+    private OffsetDateTime offsetDateTime = null;
     private Map<String, BusBarChangeSwitches> busBarChangeSwitchesMap = new HashMap<>();
 
     @Override
@@ -22,9 +24,17 @@ public class CseCracCreationParameters extends AbstractAlignedRaCracCreationPara
         return "CseCracCreatorParameters";
     }
 
+    public void setOffsetDateTime(OffsetDateTime offsetDateTime) {
+        this.offsetDateTime = offsetDateTime;
+    }
+
     public void setBusBarChangeSwitchesSet(Set<BusBarChangeSwitches> busBarChangeSwitchesList) {
         this.busBarChangeSwitchesMap = new HashMap<>();
         busBarChangeSwitchesList.forEach(busBarChangeSwitches -> busBarChangeSwitchesMap.put(busBarChangeSwitches.getRemedialActionId(), busBarChangeSwitches));
+    }
+
+    public OffsetDateTime getOffsetDateTime() {
+        return offsetDateTime;
     }
 
     public Set<BusBarChangeSwitches> getBusBarChangeSwitchesSet() {

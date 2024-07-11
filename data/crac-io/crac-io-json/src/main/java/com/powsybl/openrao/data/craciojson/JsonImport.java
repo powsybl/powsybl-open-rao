@@ -22,7 +22,6 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.time.OffsetDateTime;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
@@ -56,7 +55,7 @@ public class JsonImport implements Importer<JsonCracCreationContext> {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
+    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
         if (network == null) {
             throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
         }
@@ -67,9 +66,6 @@ public class JsonImport implements Importer<JsonCracCreationContext> {
             objectMapper.registerModule(module);
             Crac crac = objectMapper.readValue(inputStream, Crac.class);
             CracCreationContext cracCreationContext = new JsonCracCreationContext(true, crac, network.getNameOrId());
-            if (offsetDateTime != null) {
-                cracCreationContext.getCreationReport().warn("OffsetDateTime was ignored by the JSON CRAC importer");
-            }
             return cracCreationContext;
         } catch (IOException e) {
             throw new UncheckedIOException(e);

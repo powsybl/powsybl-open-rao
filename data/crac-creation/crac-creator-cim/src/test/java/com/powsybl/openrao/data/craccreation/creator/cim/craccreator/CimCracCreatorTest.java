@@ -76,7 +76,8 @@ class CimCracCreatorTest {
 
     private void setUp(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) throws IOException {
         InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        addOffsetDateTimeToCracCreationParameters(parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         if (!Objects.isNull(importedCrac)) {
             preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
@@ -89,6 +90,16 @@ class CimCracCreatorTest {
         }
     }
 
+    private void addOffsetDateTimeToCracCreationParameters(OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) {
+        if (cracCreationParameters.getExtension(CimCracCreationParameters.class) != null) {
+            cracCreationParameters.getExtension(CimCracCreationParameters.class).setOffsetDateTime(parametrableOffsetDateTime);
+        } else {
+            CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
+            cimCracCreationParameters.setOffsetDateTime(parametrableOffsetDateTime);
+            cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
+        }
+    }
+
     private void setUpWithGroupId(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, List<List<String>> alignedRangeActions) throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
@@ -97,11 +108,12 @@ class CimCracCreatorTest {
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         List<RangeActionGroup> rangeActionGroups = new ArrayList<>();
         alignedRangeActions.forEach(listAlignedRangeActions -> rangeActionGroups.add(new RangeActionGroup(listAlignedRangeActions)));
+        Mockito.when(cimCracCreationParameters.getOffsetDateTime()).thenReturn(parametrableOffsetDateTime);
         Mockito.when(cimCracCreationParameters.getRangeActionGroups()).thenReturn(rangeActionGroups);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
 
         InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -114,10 +126,11 @@ class CimCracCreatorTest {
         cracCreationParameters = Mockito.spy(cracCreationParameters);
         CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+        Mockito.when(cimCracCreationParameters.getOffsetDateTime()).thenReturn(parametrableOffsetDateTime);
         Mockito.when(cimCracCreationParameters.getRangeActionSpeedSet()).thenReturn(rangeActionSpeeds);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
         InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -130,9 +143,10 @@ class CimCracCreatorTest {
         cracCreationParameters = Mockito.spy(cracCreationParameters);
         CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+        Mockito.when(cimCracCreationParameters.getOffsetDateTime()).thenReturn(parametrableOffsetDateTime);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(timeseriesMrids);
         InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
