@@ -131,7 +131,7 @@ public class OpenRaoMPSolver {
         return makeVar(0, 1, true, name);
     }
 
-    OpenRaoMPVariable makeVar(double lb, double ub, boolean integer, String name) {
+    private OpenRaoMPVariable makeVar(double lb, double ub, boolean integer, String name) {
         if (hasVariable(name)) {
             throw new OpenRaoException(String.format("Variable %s already exists", name));
         }

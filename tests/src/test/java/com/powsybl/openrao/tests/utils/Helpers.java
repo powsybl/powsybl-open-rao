@@ -178,7 +178,6 @@ public final class Helpers {
 
     private static InputStream getStreamFromZippable(File file) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(file);
-
         if (!FilenameUtils.getExtension(file.getAbsolutePath()).equals("zip")) {
             return fileInputStream;
         }
