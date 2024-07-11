@@ -102,7 +102,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
                 OpenRaoMPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
                     0,
-                    LinearProblem.infinity(),
+                    linearProblem.infinity(),
                     cnec,
                     side
                 );
@@ -114,7 +114,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
                 OpenRaoMPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
-                    LinearProblem.infinity(),
+                    linearProblem.infinity(),
                     cnec,
                     side,
                     LinearProblem.BoundExtension.LOWER_BOUND
@@ -123,7 +123,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1.0);
 
                 OpenRaoMPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
-                    -LinearProblem.infinity(),
+                    -linearProblem.infinity(),
                     loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
                     cnec,
                     side,
