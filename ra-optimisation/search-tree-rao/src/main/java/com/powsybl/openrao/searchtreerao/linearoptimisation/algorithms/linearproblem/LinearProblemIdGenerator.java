@@ -12,6 +12,8 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 
+import java.util.UUID;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -30,6 +32,8 @@ public final class LinearProblemIdGenerator {
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
     private static final String VIRTUAL_TAP = "virtualtap";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
+    private static final String SIGNED_VARIATION = "signedvariation";
+    private static final String INJECTION_BALANCE = "injectionbalance";
     private static final String MIN_MARGIN = "minmargin";
     private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
     private static final String MIN_RELATIVE_MARGIN_SIGN_BINARY = "minrelmarginispositive";
@@ -116,8 +120,20 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
     }
 
+    public static String signedRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SIGNED_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
     public static String absoluteRangeActionVariationConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.AbsExtension positiveOrNegative) {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String signedRangeActionVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SIGNED_VARIATION + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String injectionBalanceVariationConstraintId(State state) {
+        return INJECTION_BALANCE + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR + UUID.randomUUID();
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, Side side, LinearProblem.MarginExtension belowOrAboveThreshold) {

@@ -31,6 +31,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -127,6 +128,10 @@ public class CoreProblemFiller implements ProblemFiller {
             rangeActions.forEach(rangeAction -> {
                 linearProblem.addRangeActionSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), rangeAction, state);
                 linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction, state);
+                if (rangeAction instanceof InjectionRangeAction) {
+                    //signed variation variable needed for balance contraint
+                    linearProblem.addSignedRangeActionVariationVariable(-LinearProblem.infinity(), LinearProblem.infinity(), rangeAction, state);
+                }
             })
         );
     }
@@ -227,8 +232,21 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
-            .forEach(entry ->
-                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())));
+            .forEach(entry -> {
+                Set<RangeAction<?>> injectionRangeActions = entry.getValue().stream().filter(rangeAction ->
+                    rangeAction instanceof InjectionRangeAction
+                ).collect(Collectors.toSet());
+                if (!injectionRangeActions.isEmpty()) {
+                    // all injection variation = 0
+                    OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.addInjectionBalanceVariationConstraint(0., 0., entry.getKey());
+                    entry.getValue().forEach(rangeAction -> {
+                        if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
+                            buildInjectionBalanceConstraint(linearProblem, injectionRangeAction, entry.getKey(), injectionBalanceConstraint);
+                        }
+                    });
+                }
+                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey()));
+            });
     }
 
     private void updateRangeActionConstraints(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
@@ -338,6 +356,22 @@ public class CoreProblemFiller implements ProblemFiller {
             varConstraintPositive.setCoefficient(setPointVariable, 1);
             varConstraintPositive.setCoefficient(previousSetpointVariable, -1);
         }
+    }
+
+    /**
+     * Adds signed variation variable of given InjectionRangeAction to balance constraint
+     */
+    private void buildInjectionBalanceConstraint(LinearProblem linearProblem, InjectionRangeAction rangeAction, State state, OpenRaoMPConstraint injectionBalanceConstraint) {
+        OpenRaoMPVariable signedInjectionVariationVariable = linearProblem.getSignedRangeActionVariationVariable(rangeAction, state);
+        injectionBalanceConstraint.setCoefficient(signedInjectionVariationVariable, 1);
+
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+
+        double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+        OpenRaoMPConstraint injectionRelativeVariationConstraint = linearProblem.addSignedRangeActionVariationConstraint(-prePerimeterSetPoint, -prePerimeterSetPoint, rangeAction, state);
+        injectionRelativeVariationConstraint.setCoefficient(signedInjectionVariationVariable, 1);
+        injectionRelativeVariationConstraint.setCoefficient(setPointVariable, -1);
+
     }
 
     private List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction) {
