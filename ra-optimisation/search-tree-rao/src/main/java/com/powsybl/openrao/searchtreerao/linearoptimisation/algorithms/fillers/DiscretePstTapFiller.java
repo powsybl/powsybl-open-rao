@@ -91,9 +91,9 @@ public class DiscretePstTapFiller implements ProblemFiller {
         // build integer constraint as it wasn't built in CoreProblemFiller
         if (lastAvailableRangeAction != null) {
             RangeAction<?> preventiveRangeAction = lastAvailableRangeAction.getKey();
-            Pair<Integer, Integer> pstLimits = getMinAndMaxRelativeTaps(pstRangeAction);
-            int maxRelativeTap = pstLimits.getRight();
-            int minRelativeTap = pstLimits.getLeft();
+            Pair<Double, Double> pstLimits = getMinAndMaxRelativeTaps(pstRangeAction, linearProblem.infinity());
+            double maxRelativeTap = pstLimits.getRight();
+            double minRelativeTap = pstLimits.getLeft();
             OpenRaoMPConstraint relativeTapConstraint = linearProblem.addPstRelativeTapConstraint(minRelativeTap, maxRelativeTap, pstRangeAction, state);
             OpenRaoMPVariable preventivePstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable((PstRangeAction) preventiveRangeAction, optimizationPerimeter.getMainOptimizationState(), LinearProblem.VariationDirectionExtension.UPWARD);
             OpenRaoMPVariable preventivePstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable((PstRangeAction) preventiveRangeAction, optimizationPerimeter.getMainOptimizationState(), LinearProblem.VariationDirectionExtension.DOWNWARD);
@@ -135,11 +135,11 @@ public class DiscretePstTapFiller implements ProblemFiller {
         upOrDownConstraint.setUb(1);
 
         // variation can be made in one direction, only if it is authorized by the binary variable
-        OpenRaoMPConstraint downAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPConstraint downAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationVariable, 1);
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationBinary, -maxDownwardTapVariation);
 
-        OpenRaoMPConstraint upAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPConstraint upAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationVariable, 1);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
     }
@@ -212,9 +212,9 @@ public class DiscretePstTapFiller implements ProblemFiller {
         return Pair.of(minAdmissibleTap, maxAdmissibleTap);
     }
 
-    private Pair<Integer, Integer> getMinAndMaxRelativeTaps(PstRangeAction pstRangeAction) {
-        int minRelativeTap = -LinearProblem.infinity();
-        int maxRelativeTap = LinearProblem.infinity();
+    private Pair<Double, Double> getMinAndMaxRelativeTaps(PstRangeAction pstRangeAction, double infinity) {
+        double minRelativeTap = -infinity;
+        double maxRelativeTap = infinity;
         List<TapRange> ranges = pstRangeAction.getRanges();
         for (TapRange range : ranges) {
             if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {

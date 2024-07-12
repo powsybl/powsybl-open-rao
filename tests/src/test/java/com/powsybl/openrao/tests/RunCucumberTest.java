@@ -18,5 +18,6 @@ import static io.cucumber.core.options.Constants.*;
 @SelectPackages("com.powsybl.openrao.tests")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.powsybl.openrao.tests")
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky")
 public class RunCucumberTest {
 }

@@ -29,7 +29,6 @@ import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.li
  */
 public final class LinearProblem {
 
-    public static final int LP_INFINITY = (int) 1e10;
     private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
 
     private final OpenRaoMPSolver solver;
@@ -454,8 +453,7 @@ public final class LinearProblem {
         return solver.getConstraint(maxElementaryActionsPerTsoConstraintId(operator, state));
     }
 
-    public static int infinity() {
-        return LP_INFINITY;
+    public double infinity() {
+        return solver.infinity();
     }
-
 }

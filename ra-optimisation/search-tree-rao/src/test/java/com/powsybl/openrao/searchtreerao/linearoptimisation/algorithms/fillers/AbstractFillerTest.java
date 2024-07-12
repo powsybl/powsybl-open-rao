@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.mockito.Mockito;
@@ -32,7 +31,6 @@ import static org.mockito.Mockito.when;
  */
 abstract class AbstractFillerTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
-    static final double INFINITY_TOLERANCE = LinearProblem.infinity() * 0.001;
 
     static final String PREVENTIVE_INSTANT_ID = "preventive";
 
