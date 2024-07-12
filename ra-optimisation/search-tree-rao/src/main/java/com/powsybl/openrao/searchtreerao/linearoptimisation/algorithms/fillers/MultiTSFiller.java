@@ -3,6 +3,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -73,7 +74,7 @@ public class MultiTSFiller implements ProblemFiller {
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         updateFlowConstraints(linearProblem, sensitivityResult, raActivationFromParentLeaf);
-        buildPstConstraintsAcrossTimeSteps(linearProblem);
+        buildRangeActionConstraintsAcrossTimeSteps(linearProblem);
     }
 
     @Override
@@ -109,12 +110,21 @@ public class MultiTSFiller implements ProblemFiller {
      * Update flow constraints to take into account the range actions of previous time steps
      */
     private void updateFlowConstraints(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        for (int timeStepIndex = 0; timeStepIndex < pstRangeActionsList.size() - 1; timeStepIndex++) {
-            for (PstRangeAction currentRangeAction : pstRangeActionsList.get(timeStepIndex)) {
+        for (int timeStepIndex = 0; timeStepIndex < rangeActionsList.size() - 1; timeStepIndex++) {
+            for (RangeAction <?> currentRangeAction : rangeActionsList.get(timeStepIndex)) {
                 // we can't use rangeActionsList instead because we need getNetworkElement()
-                for (int nextTimeStepIndex = timeStepIndex + 1; nextTimeStepIndex < pstRangeActionsList.size(); nextTimeStepIndex++) {
+                for (int nextTimeStepIndex = timeStepIndex + 1; nextTimeStepIndex < rangeActionsList.size(); nextTimeStepIndex++) {
                     // check if next time steps contains current pst
-                    if (pstRangeActionsList.get(nextTimeStepIndex).stream().filter(pstRangeAction -> pstRangeAction.getNetworkElement().getId().equals(currentRangeAction.getNetworkElement().getId())).collect(Collectors.toSet()).isEmpty()) {
+                    boolean futureRangeActionFound = false;
+                    for (RangeAction <?> previousRangeAction : rangeActionsList.get(nextTimeStepIndex)) {
+                        boolean hasSameNetworksElements = currentRangeAction.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet())
+                            .equals(previousRangeAction.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet()));
+                        if (hasSameNetworksElements) {
+                            futureRangeActionFound = true;
+                            break;
+                        }
+                    }
+                    if (!futureRangeActionFound) {
                         addImpactOfRangeActionOnLaterTimeSteps(linearProblem, sensitivityResult, currentRangeAction, timeStepIndex, nextTimeStepIndex, rangeActionActivationResult);
                     } else {
                         break;
@@ -127,7 +137,8 @@ public class MultiTSFiller implements ProblemFiller {
     /**
      * Add variable from previous time step to constraint and update sensi
      */
-    private void addImpactOfRangeActionOnLaterTimeSteps(LinearProblem linearProblem, SensitivityResult sensitivityResult, PstRangeAction pstRangeAction, int currentTimeStepIndex, int nextTimeStepIndex, RangeActionActivationResult rangeActionActivationResult) {
+    //TODO: check if only works for pst or all range acitons
+    private void addImpactOfRangeActionOnLaterTimeSteps(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction <?> pstRangeAction, int currentTimeStepIndex, int nextTimeStepIndex, RangeActionActivationResult rangeActionActivationResult) {
         cnecsList.get(nextTimeStepIndex).forEach(cnec -> {
             Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(cnecsList.get(nextTimeStepIndex), sensitivityResult);
             if (validFlowCnecs.contains(cnec)) {
@@ -189,46 +200,54 @@ public class MultiTSFiller implements ProblemFiller {
     /**
      * Builds constraints between time steps for every Pst that have a range "RELATIVE_TO_PREVIOUS_TIME_STEP"
      */
-    private void buildPstConstraintsAcrossTimeSteps(LinearProblem linearProblem) {
+    private void buildRangeActionConstraintsAcrossTimeSteps(LinearProblem linearProblem) {
 
-        for (int i = 1; i < pstRangeActionsList.size(); i++) {
-            for (PstRangeAction currentRangeAction : pstRangeActionsList.get(i)) {
-                Set<PstRangeAction> previousRangeActionSet = new HashSet<>();
-                int timeStepIndex = i - 1;
-                // currentRangeAction may be only defined several time steps before the current one
-                // so we need to check every time step until we find it
-                while (previousRangeActionSet.isEmpty() && timeStepIndex >= 0) {
-                    previousRangeActionSet = pstRangeActionsList.get(timeStepIndex)
-                        .stream()
-                        .filter(rangeAction -> rangeAction.getNetworkElement().getId().equals(currentRangeAction.getNetworkElement().getId()))
-                        .collect(Collectors.toSet());
-                    --timeStepIndex;
-                }
+        for (int timeStepIndex = 1; timeStepIndex < rangeActionsList.size(); timeStepIndex++) {
+            buildPstConstraints(linearProblem, timeStepIndex);
+        }
+    }
 
-                if (previousRangeActionSet.size() == 1) {
-                    PstRangeAction previousRangeAction = previousRangeActionSet.stream().findAny().orElse(null);
-                    if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.CONTINUOUS) {
-                        buildConstraintOneTimeStepContinuous(
-                            linearProblem,
-                            currentRangeAction,
-                            previousRangeAction,
-                            i);
-                    } else if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
-                        buildConstraintOneTimeStepDiscrete(
-                            linearProblem,
-                            currentRangeAction,
-                            previousRangeAction,
-                            i);
+    private void buildPstConstraints(LinearProblem linearProblem, int timeStepIndex) {
+        for (RangeAction<?> currentRangeAction : pstRangeActionsList.get(timeStepIndex)) {
+            Set<RangeAction<?>> previousRangeActionSet = new HashSet<>();
+            int pastTimeStepIndex = timeStepIndex - 1;
+            // currentRangeAction may be only defined several time steps before the current one
+            // so we need to check every time step until we find it
+
+//            while (previousRangeActionSet.isEmpty() && timeStepIndex >= 0) {
+//                previousRangeActionSet = pstRangeActionsList.get(timeStepIndex)
+//                    .stream()
+//                    .filter(rangeAction -> rangeAction.getNetworkElement().getId().equals(currentRangeAction.getNetworkElement().getId()))
+//                    .collect(Collectors.toSet());
+//                --timeStepIndex;
+//            }
+            while (previousRangeActionSet.isEmpty() && pastTimeStepIndex >= 0) {
+                for (RangeAction <?> previousRangeAction : pstRangeActionsList.get(pastTimeStepIndex)) {
+                    boolean hasSameNetworksElements = currentRangeAction.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet())
+                        .equals(previousRangeAction.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet()));
+                    if (hasSameNetworksElements) {
+                        previousRangeActionSet.add(previousRangeAction);
                     }
-
-                    updateObjectivePenaltyCost(linearProblem, currentRangeAction, previousRangeAction, i);
-                } else if (previousRangeActionSet.size() > 1) {
-                    throw new NotImplementedException(
-                        previousRangeActionSet.size()
-                            + " PST found for the same network element: "
-                            + currentRangeAction.getNetworkElement().getName()
-                    );
                 }
+                --pastTimeStepIndex;
+            }
+
+            if (previousRangeActionSet.size() == 1) {
+                if (currentRangeAction instanceof PstRangeAction pstCurrentRangeAction) {
+                    PstRangeAction previousRangeAction = (PstRangeAction) previousRangeActionSet.stream().findAny().orElse(null);
+                    if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.CONTINUOUS) {
+                        buildConstraintOneTimeStepContinuous(linearProblem, pstCurrentRangeAction, previousRangeAction, timeStepIndex);
+                    } else if (rangeActionParameters.getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) {
+                        buildConstraintOneTimeStepDiscrete(linearProblem, pstCurrentRangeAction, previousRangeAction, timeStepIndex);
+                    }
+                    updateObjectivePenaltyCost(linearProblem, pstCurrentRangeAction, previousRangeAction, timeStepIndex);
+                }
+            } else if (previousRangeActionSet.size() > 1) {
+                throw new NotImplementedException(
+                    previousRangeActionSet.size()
+                        + " Range action found for the same network elements: "
+                        + currentRangeAction.getNetworkElements().toString()
+                );
             }
         }
     }
