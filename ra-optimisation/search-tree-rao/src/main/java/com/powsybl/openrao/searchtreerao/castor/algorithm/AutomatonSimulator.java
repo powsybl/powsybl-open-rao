@@ -249,7 +249,7 @@ public final class AutomatonSimulator {
     TopoAutomatonSimulationResult simulateTopologicalAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPstOptimizationSensitivityAnalysis) {
         // -- Apply network actions
         // -- First get forced network actions
-        Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
+        Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions().stream()
             .filter(ra -> RaoUtil.isRemedialActionForced(ra, automatonState, prePerimeterSensitivityOutput, flowCnecs, network, raoParameters))
             .peek(networkAction -> {
