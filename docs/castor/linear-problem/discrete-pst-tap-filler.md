@@ -24,8 +24,8 @@ information [here](/input-data/crac/json.md#range-actions))
 
 | Name                                         | Symbol             | Details                                                                                                   | Type    | Index                                             | Unit                     | Lower bound | Upper bound |
 |----------------------------------------------|--------------------|-----------------------------------------------------------------------------------------------------------|---------|---------------------------------------------------|--------------------------|-------------|-------------|
-| PstRangeAction tap upward variation          | $\Delta t^{+} (r)$ | upward tap variation of PstRangeAction $r$, between two iterations of the optimisation                    | Integer | One variable for every element of PstRangeActions | No unit (number of taps) | $-\infty$   | $+\infty$   |
-| PstRangeAction tap downward variation        | $\Delta t^{-} (r)$ | downward tap variation of PstRangeAction $r$, between two iterations of the optimisation                  | Integer | One variable for every element of PstRangeActions | No unit (number of taps) | $-\infty$   | $+\infty$   |
+| PstRangeAction tap upward variation          | $\Delta t^{+} (r)$ | upward tap variation of PstRangeAction $r$, between two iterations of the optimisation                    | Integer | One variable for every element of PstRangeActions | No unit (number of taps) | 0           | $+\infty$   |
+| PstRangeAction tap downward variation        | $\Delta t^{-} (r)$ | downward tap variation of PstRangeAction $r$, between two iterations of the optimisation                  | Integer | One variable for every element of PstRangeActions | No unit (number of taps) | 0           | $+\infty$   |
 | PstRangeAction tap upward variation binary   | $\delta ^{+} (r)$  | indicates whether the tap of PstRangeAction $r$ has increased, between two iterations of the optimisation | Binary  | One variable for every element of PstRangeActions | No unit                  | 0           | 1           |
 | PstRangeAction tap downward variation binary | $\delta ^{-} (r)$  | indicates whether the tap of PstRangeAction $r$ has decreased, between two iterations of the optimisation | Binary  | One variable for every element of PstRangeActions | No unit                  | 0           | 1           |
 
@@ -112,8 +112,14 @@ $$
 
 $$
 \begin{equation}
-t^-(r) \leq \Delta t^+(r, s) + \Delta t^-(r, s) - (\Delta t^+(r, s') + \Delta t^-(r, s')) \leq t^+(r)
+0 \leq \Delta t^+(r, s) - \Delta t^+(r, s') \leq t^+(r)
 \end{equation}
 $$
 
-with $\Delta t(r,s')$ the setpoint of the last range action on the same element as $r$ but a state preceding $s$.
+$$
+\begin{equation}
+0 \leq \Delta t^-(r, s) - \Delta t^-(r, s') \leq t^-(r)
+\end{equation}
+$$
+
+with $\Delta t(r,s')$ the tap variation of the last range action on the same element as $r$ but in the state preceding $s$.
