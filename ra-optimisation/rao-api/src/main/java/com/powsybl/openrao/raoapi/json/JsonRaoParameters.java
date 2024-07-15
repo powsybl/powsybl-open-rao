@@ -63,6 +63,22 @@ public final class JsonRaoParameters {
 
     /**
      * @param jsonFile Path where the RaoParameters should be read from
+     * @return parameters from a JSON file (will NOT rely on platform config).
+     */
+    public static RaoParameters read(Path jsonFile) {
+        return update(new RaoParameters(ReportNode.NO_OP), jsonFile, ReportNode.NO_OP);
+    }
+
+    /**
+     * @param jsonStream InputStream where the RaoParameters are
+     * @return  parameters from a JSON file (will NOT rely on platform config).
+     */
+    public static RaoParameters read(InputStream jsonStream) {
+        return update(new RaoParameters(ReportNode.NO_OP), jsonStream, ReportNode.NO_OP);
+    }
+
+    /**
+     * @param jsonFile Path where the RaoParameters should be read from
      * @param reportNode
      * @return parameters from a JSON file (will NOT rely on platform config).
      */

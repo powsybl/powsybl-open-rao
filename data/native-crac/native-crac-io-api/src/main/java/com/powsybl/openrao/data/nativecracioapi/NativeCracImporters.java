@@ -77,7 +77,7 @@ public final class NativeCracImporters {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
-            NativeCracImporter importer = findImporter(fileName, new ByteArrayInputStream(bytes));
+            NativeCracImporter importer = findImporter(fileName, new ByteArrayInputStream(bytes), reportNode);
             if (importer == null) {
                 throw new OpenRaoException("No importer found for this file");
             }
@@ -94,12 +94,23 @@ public final class NativeCracImporters {
      * @return the importer if one exists for the given file or <code>null</code> otherwise.
      */
     public static NativeCracImporter findImporter(String fileName, InputStream inputStream) {
+        return findImporter(fileName, inputStream, ReportNode.NO_OP);
+    }
+
+    /**
+     * Find an importer for a specified file, trying to guess its format
+     * @param fileName name of the native CRAC file
+     * @param inputStream input stream of the native CRAC file
+     * @param reportNode
+     * @return the importer if one exists for the given file or <code>null</code> otherwise.
+     */
+    public static NativeCracImporter findImporter(String fileName, InputStream inputStream, ReportNode reportNode) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
             for (NativeCracImporter importer : NATIVE_CRAC_IMPORTERS.get()) {
                 ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-                if (importer.exists(fileName, bais)) {
+                if (importer.exists(fileName, bais, reportNode)) {
                     return importer;
                 }
             }

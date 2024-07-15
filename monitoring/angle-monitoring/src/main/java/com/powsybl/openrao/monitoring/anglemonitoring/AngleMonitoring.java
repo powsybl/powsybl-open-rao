@@ -38,8 +38,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-
 /**
  * Monitors AngleCnecs' angles.
  * To remedy AngleCnecs with angles past their thresholds, corresponding remedial actions are applied.
@@ -162,7 +160,7 @@ public class AngleMonitoring {
             applyOptimalRemedialActionsOnContingencyState(state, networkClone);
             stateSpecificResults.add(monitorAngleCnecsAndLog(loadFlowProvider, loadFlowParameters, state, networkClone, scenarioReportNode));
         } catch (Exception e) {
-            BUSINESS_WARNS.warn(e.getMessage()); // TODO: The thread is interrupted in the Voltage monitoring and there is no business warn
+            AngleMonitoringReports.reportExceptionInAngleMonitoring(scenarioReportNode, e); // TODO: The thread is interrupted in the Voltage monitoring and there is no business warn
             stateSpecificResults.add(catchAngleMonitoringResult(state, AngleMonitoringResult.Status.UNKNOWN, scenarioReportNode));
         }
         networkPool.releaseUsedNetwork(networkClone);

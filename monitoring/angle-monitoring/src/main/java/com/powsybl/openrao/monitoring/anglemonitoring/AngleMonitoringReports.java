@@ -139,4 +139,15 @@ public final class AngleMonitoringReports {
         BUSINESS_WARNS.warn("Redispatching failed: asked={} MW, applied={} MW", powerToRedispatch, redispatchedPower);
         return addedNode;
     }
+
+    public static ReportNode reportExceptionInAngleMonitoring(ReportNode reportNode, Exception exception) {
+        String exceptionMessage = exception.getMessage();
+        ReportNode addedNode = reportNode.newReportNode()
+                .withMessageTemplate("reportExceptionInAngleMonitoring", "Exception thrown during angle monitoring: ${exceptionMessage}")
+                .withUntypedValue("exceptionMessage", exceptionMessage)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+        BUSINESS_WARNS.warn(exceptionMessage);
+        return addedNode;
+    }
 }

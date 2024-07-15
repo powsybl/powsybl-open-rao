@@ -549,15 +549,16 @@ public interface Crac extends Identifiable<Crac> {
      * @param inputStream CRAC data
      * @param cracFactory CRAC factory
      * @param network     the network on which the CRAC data is based
+     * @param reportNode
      * @return CRAC object
      */
-    private static Crac read(List<Importer> importers, InputStream inputStream, CracFactory cracFactory, Network network) throws IOException {
+    private static Crac read(List<Importer> importers, InputStream inputStream, CracFactory cracFactory, Network network, ReportNode reportNode) throws IOException {
         byte[] bytes = getBytesFromInputStream(inputStream);
         return importers.stream()
             .filter(importer -> importer.exists(new ByteArrayInputStream(bytes)))
             .findAny()
             .orElseThrow(() -> new OpenRaoException("No suitable CRAC importer found."))
-            .importData(new ByteArrayInputStream(bytes), cracFactory, network, ReportNode.NO_OP);
+            .importData(new ByteArrayInputStream(bytes), cracFactory, network, reportNode);
     }
 
     /**
@@ -566,10 +567,11 @@ public interface Crac extends Identifiable<Crac> {
      * @param inputStream CRAC data
      * @param cracFactory CRAC factory
      * @param network     the network on which the CRAC data is based
+     * @param reportNode
      * @return CRAC object
      */
-    static Crac read(InputStream inputStream, CracFactory cracFactory, Network network) throws IOException {
-        return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, cracFactory, network);
+    static Crac read(InputStream inputStream, CracFactory cracFactory, Network network, ReportNode reportNode) throws IOException {
+        return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, cracFactory, network, reportNode);
     }
 
     /**
@@ -580,7 +582,19 @@ public interface Crac extends Identifiable<Crac> {
      * @return CRAC object
      */
     static Crac read(InputStream inputStream, Network network) throws IOException {
-        return read(inputStream, CracFactory.findDefault(), network);
+        return read(inputStream, CracFactory.findDefault(), network, ReportNode.NO_OP);
+    }
+
+    /**
+     * Import CRAC from a file
+     *
+     * @param inputStream CRAC data
+     * @param network     the network on which the CRAC data is based
+     * @param reportNode
+     * @return CRAC object
+     */
+    static Crac read(InputStream inputStream, Network network, ReportNode reportNode) throws IOException {
+        return read(inputStream, CracFactory.findDefault(), network, reportNode);
     }
 
     private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
