@@ -240,12 +240,12 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 OpenRaoMPVariable pstTapVariationUpwardVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
                 OpenRaoMPVariable pstTapVariationDownwardVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
-                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraintPositive = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) currentTap - initialTap, LinearProblem.infinity(), pstRangeAction, state, LinearProblem.AbsExtension.POSITIVE);
+                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraintPositive = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) currentTap - initialTap, linearProblem.infinity(), pstRangeAction, state, LinearProblem.AbsExtension.POSITIVE);
                 pstAbsoluteVariationFromInitialTapConstraintPositive.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
                 pstAbsoluteVariationFromInitialTapConstraintPositive.setCoefficient(pstTapVariationUpwardVariable, -1d);
                 pstAbsoluteVariationFromInitialTapConstraintPositive.setCoefficient(pstTapVariationDownwardVariable, 1d);
 
-                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraintNegative = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) initialTap - currentTap, LinearProblem.infinity(), pstRangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
+                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraintNegative = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) initialTap - currentTap, linearProblem.infinity(), pstRangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
                 pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
                 pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstTapVariationUpwardVariable, 1d);
                 pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstTapVariationDownwardVariable, -1d);
