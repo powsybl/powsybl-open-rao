@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
 import com.powsybl.openrao.data.cracapi.range.StandardRangeAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.*;
@@ -24,10 +25,13 @@ public class StandardRangeAdderImpl<T extends StandardRangeActionAdder<T>> imple
     private Double min;
     private Double max;
 
+    private RangeType rangeType;
+
     StandardRangeAdderImpl(AbstractStandardRangeActionAdder<T> ownerAdder) {
         this.ownerAdder = ownerAdder;
         this.min = Double.MIN_VALUE;
         this.max = Double.MAX_VALUE;
+        this.rangeType = RangeType.ABSOLUTE;
     }
 
     @Override
@@ -43,9 +47,16 @@ public class StandardRangeAdderImpl<T extends StandardRangeActionAdder<T>> imple
     }
 
     @Override
+    public StandardRangeAdder<T> withRangeType(RangeType rangeType) {
+        this.rangeType = rangeType;
+        return this;
+    }
+
+    @Override
     public T add() {
         AdderUtils.assertAttributeNotNull(min, CLASS_NAME, "min value", "withMin()");
         AdderUtils.assertAttributeNotNull(max, CLASS_NAME, "max value", "withMax()");
+        AdderUtils.assertAttributeNotNull(rangeType, CLASS_NAME, "range type", "withRangeType()");
 
         if (max == Double.MAX_VALUE) {
             throw new OpenRaoException("StandardRange max value was not defined.");
@@ -57,7 +68,7 @@ public class StandardRangeAdderImpl<T extends StandardRangeActionAdder<T>> imple
             throw new OpenRaoException("Max value of StandardRange must be equal or greater than min value.");
         }
 
-        StandardRange standardRange = new StandardRangeImpl(min, max);
+        StandardRange standardRange = new StandardRangeImpl(min, max, rangeType);
 
         ownerAdder.addRange(standardRange);
         return (T) ownerAdder;

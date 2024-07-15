@@ -38,6 +38,10 @@ public final class StandardRangeArrayDeserializer {
                         jsonParser.nextToken();
                         adder.withMax(jsonParser.getDoubleValue());
                         break;
+                    case RANGE_TYPE:
+                        jsonParser.nextToken();
+                        adder.withRangeType(deserializeRangeType(jsonParser.getText()));
+                        break;
                     default:
                         throw new OpenRaoException("Unexpected field in StandardRange: " + jsonParser.getCurrentName());
                 }
