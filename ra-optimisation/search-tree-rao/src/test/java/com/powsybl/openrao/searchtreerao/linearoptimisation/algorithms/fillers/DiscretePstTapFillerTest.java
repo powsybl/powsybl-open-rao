@@ -158,12 +158,12 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         assertEquals(-15, downVariationC.getCoefficient(binaryDownV), 1e-6);
 
         assertEquals(7, craRelativeTapUpC.ub(), 1e-6);
-        assertEquals(0, craRelativeTapUpC.lb(), 1e-6);
+        assertEquals(-linearProblem.infinity(), craRelativeTapUpC.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(1, craRelativeTapUpC.getCoefficient(craVariationUpV));
         assertEquals(-1, craRelativeTapUpC.getCoefficient(variationUpV));
 
         assertEquals(10, craRelativeTapDownC.ub(), 1e-6);
-        assertEquals(0, craRelativeTapDownC.lb(), 1e-6);
+        assertEquals(-linearProblem.infinity(), craRelativeTapDownC.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(1, craRelativeTapDownC.getCoefficient(craVariationDownV));
         assertEquals(-1, craRelativeTapDownC.getCoefficient(variationDownV));
 

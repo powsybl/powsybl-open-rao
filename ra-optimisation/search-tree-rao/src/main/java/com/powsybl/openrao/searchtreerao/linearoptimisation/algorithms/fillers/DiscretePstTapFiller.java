@@ -95,12 +95,12 @@ public class DiscretePstTapFiller implements ProblemFiller {
             double maxRelativeTap = Math.max(0, pstLimits.getRight());
             double minRelativeTap = -Math.min(0, pstLimits.getLeft());
 
-            OpenRaoMPConstraint relativeTapConstraintUpward = linearProblem.addPstRelativeTapConstraint(0, maxRelativeTap, pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+            OpenRaoMPConstraint relativeTapConstraintUpward = linearProblem.addPstRelativeTapConstraint(-linearProblem.infinity(), maxRelativeTap, pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
             OpenRaoMPVariable preventivePstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable((PstRangeAction) preventiveRangeAction, optimizationPerimeter.getMainOptimizationState(), LinearProblem.VariationDirectionExtension.UPWARD);
             relativeTapConstraintUpward.setCoefficient(pstTapUpwardVariationVariable, 1);
             relativeTapConstraintUpward.setCoefficient(preventivePstTapUpwardVariationVariable, -1);
 
-            OpenRaoMPConstraint relativeTapConstraintDownard = linearProblem.addPstRelativeTapConstraint(0, minRelativeTap, pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+            OpenRaoMPConstraint relativeTapConstraintDownard = linearProblem.addPstRelativeTapConstraint(-linearProblem.infinity(), minRelativeTap, pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
             OpenRaoMPVariable preventivePstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable((PstRangeAction) preventiveRangeAction, optimizationPerimeter.getMainOptimizationState(), LinearProblem.VariationDirectionExtension.DOWNWARD);
             relativeTapConstraintDownard.setCoefficient(pstTapDownwardVariationVariable, 1);
             relativeTapConstraintDownard.setCoefficient(preventivePstTapDownwardVariationVariable, -1);
