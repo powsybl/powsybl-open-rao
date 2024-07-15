@@ -34,12 +34,7 @@ public final class TerminalsConnectionActionArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case NETWORK_ELEMENT_ID:
-                        String networkElementId = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                            adder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                        } else {
-                            adder.withNetworkElement(networkElementId);
-                        }
+                        deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
                         break;
                     case ACTION_TYPE:
                         adder.withActionType(deserializeActionType(jsonParser.nextTextValue()));

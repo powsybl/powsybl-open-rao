@@ -7,11 +7,12 @@
 
 package com.powsybl.openrao.data.cracio.json;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -479,4 +481,13 @@ public final class JsonSerializationConstants {
             throw new OpenRaoException(String.format("Unknown usage rule type: %s", o1.getClass()));
         }
     }
+
+    public static void deserializeNetworkElement(String networkElementId, Map<String, String> networkElementsNamesPerId, SingleNetworkElementActionAdder<?> adder) {
+        if (networkElementsNamesPerId.containsKey(networkElementId)) {
+            adder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
+        } else {
+            adder.withNetworkElement(networkElementId);
+        }
+    }
+
 }

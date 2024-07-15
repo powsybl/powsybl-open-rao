@@ -11,13 +11,8 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public interface TerminalsConnectionActionAdder {
-
-    TerminalsConnectionActionAdder withNetworkElement(String networkElementId);
-
-    TerminalsConnectionActionAdder withNetworkElement(String networkElementId, String networkElementName);
+public interface TerminalsConnectionActionAdder extends SingleNetworkElementActionAdder<TerminalsConnectionActionAdder> {
 
     TerminalsConnectionActionAdder withActionType(ActionType actionType);
 
-    NetworkActionAdder add();
 }
