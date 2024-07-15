@@ -17,7 +17,11 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     And the tap of PstRangeAction "pst_fr" should be 13 after "co1_fr2_fr3_1" at "curative"
     And the worst margin is -218.5 A
 
-  @fast @rao @second-preventive
+  @fast @rao @second-preventive @flaky
+  # this test is flaky because one of its MIPs is numerically unstable, making XPRESS sometimes find a sub-optimal solution.
+  # the way to correct it is to use 1e20 instead of 1e10 as "infinity" in the linear problem, but we cannot do this yet
+  # because the OR-Tools/XPRESS interface has a bug that appears when using solver infinity.
+  # TODO : reactivate this test when OR-Tools is fixed
   Scenario: US.19.11.9.bis: Same case with global optimization: should have the same results
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/SL_ep19us11case9.json"
