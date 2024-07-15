@@ -14,7 +14,7 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,11 +32,11 @@ public interface CostEvaluator {
      * @param flowResult : the flow computation result
      * @param sensitivityResult : the sensitivity computation result
      */
-    default Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult) {
+    default Pair<Double, Map<FlowCnec, Double>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult) {
         return computeCostAndLimitingElements(flowResult, sensitivityResult, new HashSet<>());
     }
 
-    Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude);
+    Pair<Double, Map<FlowCnec, Double>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude);
 
     Unit getUnit();
 

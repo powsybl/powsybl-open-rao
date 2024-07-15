@@ -30,4 +30,9 @@ public interface NetworkActionsResult {
      * @return The set of activated network actions.
      */
     Set<NetworkAction> getActivatedNetworkActions();
+
+    /**
+     * Updates the status of networkAction to activated in the result.
+     */
+    void activate(NetworkAction networkAction);
 }

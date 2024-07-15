@@ -86,11 +86,12 @@ class MinMarginEvaluatorTest {
 
     @Test
     void getMostLimitingElements() {
-        List<FlowCnec> costlyElements = minMarginEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult).getRight();
+        Map<FlowCnec, Double> costlyElements = minMarginEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult).getRight();
         assertEquals(3, costlyElements.size());
-        assertSame(cnec3, costlyElements.get(0));
-        assertSame(cnec1, costlyElements.get(1));
-        assertSame(cnec2, costlyElements.get(2));
+        Iterator<FlowCnec> iterator = costlyElements.keySet().iterator();
+        assertSame(cnec3, iterator.next());
+        assertSame(cnec1, iterator.next());
+        assertSame(cnec2, iterator.next());
     }
 
     @Test
@@ -130,7 +131,7 @@ class MinMarginEvaluatorTest {
 
     @Test
     void testAllCnecsUnoptimized() {
-        when(marginEvaluator.getMargin(eq(flowResult), any(), any(), any(), eq(MEGAWATT))).thenReturn(Double.MAX_VALUE);
+        when(marginEvaluator.getMargin(eq(flowResult), any(), any(), eq(MEGAWATT))).thenReturn(Double.MAX_VALUE);
         mockCnecThresholds(cnec1, 1000);
         mockCnecThresholds(cnec2, 2000);
         mockCnecThresholds(cnec3, 3000);

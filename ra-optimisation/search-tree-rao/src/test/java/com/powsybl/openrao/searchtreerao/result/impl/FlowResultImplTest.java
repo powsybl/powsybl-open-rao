@@ -84,31 +84,9 @@ class FlowResultImplTest {
     }
 
     @Test
-    void testGetFlowWithInstant() {
-        Instant instant = Mockito.mock(Instant.class);
-
-        when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, ONE, instant)).thenReturn(200.);
-        when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, ONE, instant)).thenReturn(58.);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, instant)).thenReturn(500.);
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, instant)).thenReturn(235.);
-
-        assertEquals(200, branchResult.getFlow(loopFlowCnec, ONE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(58, branchResult.getFlow(loopFlowCnec, ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(500, branchResult.getFlow(optimizedCnec, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(235, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     void testNanFlow() {
         when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO)).thenReturn(Double.NaN);
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO)).thenReturn(500.);
-        when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
-
-        assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
-
-        Instant instant = Mockito.mock(Instant.class);
-        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, TWO, instant)).thenReturn(Double.NaN);
-        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, TWO, instant)).thenReturn(500.);
         when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
 
         assertEquals(721.69, branchResult.getFlow(optimizedCnec, TWO, Unit.AMPERE), DOUBLE_TOLERANCE);

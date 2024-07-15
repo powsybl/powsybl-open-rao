@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.*;
@@ -54,19 +55,16 @@ public class CastorRaoResult implements RaoResult {
         preventiveMap.put(null, preventiveResult);
         optimResultsPerState.put(crac.getPreventiveInstant(), preventiveMap);
 
-        Instant previousInstant = crac.getPreventiveInstant();
         for (Instant instant : crac.getSortedInstants()) {
             if (instant.isAuto() || instant.isCurative()) {
-                optimResultsPerState.put(instant, createInstantResultsPerContingencyOnlyPreventive(instant, previousInstant, crac, preventiveResult, optimResultsPerState));
+                optimResultsPerState.put(instant, createInstantResultsPerContingencyOnlyPreventive(instant, crac, preventiveResult, optimResultsPerState));
             }
-            previousInstant = instant;
         }
         return new CastorRaoResult(initialResult, optimResultsPerState, crac.getPreventiveState(), OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY);
     }
 
     private static Map<Contingency, PerimeterResultWithCnecs> createInstantResultsPerContingencyOnlyPreventive(
         Instant instant,
-        Instant previousInstant,
         Crac crac,
         PerimeterResultWithCnecs preventiveResult,
         Map<Instant, Map<Contingency, PerimeterResultWithCnecs>> optimResultsPerState) {
@@ -75,6 +73,10 @@ public class CastorRaoResult implements RaoResult {
 
         crac.getStates(instant).forEach(state -> {
             Contingency contingency = state.getContingency().get();
+            Instant previousInstant = optimResultsPerState.keySet().stream()
+                .filter(inst -> Objects.nonNull(optimResultsPerState.get(inst).get(contingency)))
+                .max(Comparator.comparingInt(Instant::getOrder)).orElse(crac.getPreventiveInstant());
+
             if (previousInstant.isPreventive()) {
                 resultsPerContingency.put(contingency, PerimeterResultWithCnecs.buildFromPreviousResult(preventiveResult));
             } else {
@@ -247,10 +249,20 @@ public class CastorRaoResult implements RaoResult {
         if (Objects.isNull(optimizedInstant)) {
             return initialResult.getFunctionalCost();
         } else {
-            return optimResultsPerState.get(optimizedInstant).values().stream()
-                .map(PerimeterResultWithCnecs::getFunctionalCost)
-                .max(Double::compareTo)
+            double functionalCost = optimResultsPerState.get(optimizedInstant).values().stream()
+                .mapToDouble(PerimeterResultWithCnecs::getFunctionalCost)
+                .max()
                 .orElse(-Double.MAX_VALUE);
+
+            functionalCost = Math.max(functionalCost,
+                optimResultsPerState.entrySet().stream()
+                    .filter(e -> e.getKey().comesBefore(optimizedInstant))
+                    .map(Map.Entry::getValue)
+                    .flatMap(map -> map.values().stream())
+                    .mapToDouble(ObjectiveFunctionResult::getInstantFunctionalCost)
+                    .max().orElse(-Double.MAX_VALUE));
+
+            return functionalCost;
         }
     }
 
@@ -259,9 +271,18 @@ public class CastorRaoResult implements RaoResult {
         if (Objects.isNull(optimizedInstant)) {
             return initialResult.getVirtualCost();
         } else {
-            return optimResultsPerState.get(optimizedInstant).values().stream()
+            double virtualCost = optimResultsPerState.get(optimizedInstant).values().stream()
                 .mapToDouble(PerimeterResultWithCnecs::getVirtualCost)
                 .sum();
+
+            virtualCost += optimResultsPerState.entrySet().stream()
+                .filter(e -> e.getKey().comesBefore(optimizedInstant))
+                .map(Map.Entry::getValue)
+                .flatMap(map -> map.values().stream())
+                .mapToDouble(ObjectiveFunctionResult::getInstantVirtualCost)
+                .sum();
+
+            return virtualCost;
         }
     }
 

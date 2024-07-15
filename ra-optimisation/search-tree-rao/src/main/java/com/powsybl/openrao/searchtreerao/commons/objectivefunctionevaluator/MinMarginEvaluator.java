@@ -16,6 +16,8 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -41,7 +43,7 @@ public class MinMarginEvaluator implements CostEvaluator {
         return unit;
     }
 
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
+    private Map<FlowCnec, Double> getCostlyElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
         Map<FlowCnec, Double> margins = new HashMap<>();
 
         flowCnecs.stream()
@@ -52,8 +54,12 @@ public class MinMarginEvaluator implements CostEvaluator {
         return margins.keySet().stream()
             .filter(Cnec::isOptimized)
             .sorted(Comparator.comparing(margins::get))
-            .toList();
-
+            .collect(Collectors.toMap(
+                Function.identity(),
+                cnec -> -margins.get(cnec),
+                (x, y) -> y,
+                LinkedHashMap::new
+            ));
     }
 
     @Override
@@ -62,13 +68,13 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, sensitivityResult, contingenciesToExclude);
+    public Pair<Double, Map<FlowCnec, Double>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
+        Map<FlowCnec, Double> costlyElements = getCostlyElements(flowResult, sensitivityResult, contingenciesToExclude);
         FlowCnec limitingElement;
         if (costlyElements.isEmpty()) {
             limitingElement = null;
         } else {
-            limitingElement = costlyElements.get(0);
+            limitingElement = costlyElements.keySet().iterator().next();
         }
         if (limitingElement == null) {
             // In case there is no limiting element (may happen in perimeters where only MNECs exist),

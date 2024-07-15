@@ -244,31 +244,11 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).get(side);
     }
 
-    public double getReferenceFlow(FlowCnec cnec, TwoSides side, Instant instant) {
-        StateResult stateResult = getCnecStateResult(cnec, instant);
-        if (stateResult == null ||
-            !stateResult.getReferenceFlows().containsKey(cnec.getNetworkElement().getId()) ||
-            !stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).containsKey(side)) {
-            return 0.0;
-        }
-        return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).get(side);
-    }
-
     public double getReferenceIntensity(FlowCnec cnec, TwoSides side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
                 !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId()) ||
                 !stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).containsKey(side)) {
-            return 0.0;
-        }
-        return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).get(side);
-    }
-
-    public double getReferenceIntensity(FlowCnec cnec, TwoSides side, Instant instant) {
-        StateResult stateResult = getCnecStateResult(cnec, instant);
-        if (stateResult == null ||
-            !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId()) ||
-            !stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).containsKey(side)) {
             return 0.0;
         }
         return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).get(side);

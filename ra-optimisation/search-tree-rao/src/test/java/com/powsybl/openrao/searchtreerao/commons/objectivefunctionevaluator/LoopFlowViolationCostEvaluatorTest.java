@@ -18,9 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -234,10 +232,11 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, sensitivityResult).getRight();
+        Map<FlowCnec, Double> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, sensitivityResult).getRight();
         assertEquals(2, costlyElements.size());
-        assertSame(cnec1, costlyElements.get(0));
-        assertSame(cnec2, costlyElements.get(1));
+        Iterator<FlowCnec> iterator = costlyElements.keySet().iterator();
+        assertSame(cnec1, iterator.next());
+        assertSame(cnec2, iterator.next());
     }
 
     @Test
@@ -257,8 +256,8 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, sensitivityResult).getRight();
+        Map<FlowCnec, Double> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, sensitivityResult).getRight();
         assertEquals(1, costlyElements.size());
-        assertSame(cnec2, costlyElements.get(0));
+        assertSame(cnec2, costlyElements.keySet().iterator().next());
     }
 }

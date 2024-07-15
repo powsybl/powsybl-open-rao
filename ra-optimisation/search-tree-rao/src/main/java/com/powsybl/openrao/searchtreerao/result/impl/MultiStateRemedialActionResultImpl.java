@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class MultiStateRemedialActionResultImpl {
     private final Map<State, RangeActionResultImpl> rangeActionResultPerState = new HashMap<>();
     private final Map<State, NetworkActionResultImpl> networkActionResultPerState = new HashMap<>();
 
-    public MultiStateRemedialActionResultImpl(PerimeterResultWithCnecs previousPerimeterResult, OptimizationPerimeter optimizationPerimeter) {
+    public MultiStateRemedialActionResultImpl(RangeActionResult previousPerimeterResult, OptimizationPerimeter optimizationPerimeter) {
         optimizationPerimeter.getRangeActionsPerState().keySet().forEach(
             state -> rangeActionResultPerState.put(state, RangeActionResultImpl.buildFromPreviousPerimeterResult(previousPerimeterResult, optimizationPerimeter.getRangeActionsPerState().get(state)))
         );
@@ -35,7 +36,7 @@ public class MultiStateRemedialActionResultImpl {
         );
     }
 
-    public MultiStateRemedialActionResultImpl(PerimeterResultWithCnecs previousPerimeterResult, AppliedRemedialActions appliedRemedialActions, OptimizationPerimeter optimizationPerimeter) {
+    public MultiStateRemedialActionResultImpl(RangeActionResult previousPerimeterResult, AppliedRemedialActions appliedRemedialActions, OptimizationPerimeter optimizationPerimeter) {
         optimizationPerimeter.getRangeActionsPerState().keySet().forEach(
             state -> {
                 RangeActionResultImpl rangeActionResult = RangeActionResultImpl.buildFromPreviousPerimeterResult(previousPerimeterResult, optimizationPerimeter.getRangeActionsPerState().get(state));

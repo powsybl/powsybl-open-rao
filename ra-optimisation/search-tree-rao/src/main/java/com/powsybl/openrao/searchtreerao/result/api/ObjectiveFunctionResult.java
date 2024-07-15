@@ -37,6 +37,8 @@ public interface ObjectiveFunctionResult {
      */
     double getFunctionalCost();
 
+    double getInstantFunctionalCost();
+
     // A voir dans l'implem si on stocke ou non
     List<FlowCnec> getMostLimitingElements(int number);
 
@@ -47,6 +49,8 @@ public interface ObjectiveFunctionResult {
      * @return The global virtual cost of the situation.
      */
     double getVirtualCost();
+
+    double getInstantVirtualCost();
 
     /**
      * It gives the names of the different virtual cost implied in the objective function defined in
@@ -65,6 +69,8 @@ public interface ObjectiveFunctionResult {
      * @return The specific virtual cost of the situation.
      */
     double getVirtualCost(String virtualCostName);
+
+    double getInstantVirtualCost(String virtualCostName);
 
     /**
      * It gives an ordered list of the costly {@link FlowCnec} according to the specified virtual cost. If the

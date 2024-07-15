@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionResult;
 import com.powsybl.iidm.network.Network;
 
@@ -36,12 +37,14 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     private final Set<FlowCnec> loopFlowCnecs;
     private final Set<NetworkAction> availableNetworkActions;
     private final Map<State, Set<RangeAction<?>>> availableRangeActions;
+    private final ObjectiveFunction objectiveFunction;
 
     protected AbstractOptimizationPerimeter(State mainOptimizationState,
                                          Set<FlowCnec> flowCnecs,
                                          Set<FlowCnec> loopFlowCnecs,
                                          Set<NetworkAction> availableNetworkActions,
-                                         Map<State, Set<RangeAction<?>>> availableRangeActions) {
+                                         Map<State, Set<RangeAction<?>>> availableRangeActions,
+                                            ) {
         this.mainOptimizationState = mainOptimizationState;
 
         this.monitoredStates = flowCnecs.stream().map(FlowCnec::getState).collect(Collectors.toSet());
@@ -67,6 +70,8 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
             rangeActionSet.addAll(availableRangeActions.get(state));
             this.availableRangeActions.put(state, rangeActionSet);
         });
+
+        this.objectiveFunction = ObjectiveFunction.create().build(flowCnecs, loopFlowCnecs, initialResults, initialResults, operatorsNotToOptimize, raoParameters)
     }
 
     @Override
@@ -117,6 +122,11 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     @Override
     public Set<RangeAction<?>> getRangeActions() {
         return availableRangeActions.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
+    @Override
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunction;
     }
 
     static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {

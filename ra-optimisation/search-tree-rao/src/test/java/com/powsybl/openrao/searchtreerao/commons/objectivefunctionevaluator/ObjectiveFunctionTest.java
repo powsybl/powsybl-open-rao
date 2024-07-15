@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
@@ -15,9 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -38,25 +38,34 @@ class ObjectiveFunctionTest {
 
     @BeforeEach
     public void setUp() {
+        State preventiveState = Mockito.mock(State.class);
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        when(preventiveState.getInstant()).thenReturn(preventiveInstant);
+        when(preventiveInstant.isPreventive()).thenReturn(true);
         flowResult = Mockito.mock(FlowResult.class);
         cnec1 = Mockito.mock(FlowCnec.class);
+        when(cnec1.getState()).thenReturn(preventiveState);
         cnec2 = Mockito.mock(FlowCnec.class);
+        when(cnec2.getState()).thenReturn(preventiveState);
 
         sensitivityResult = Mockito.mock(SensitivityResult.class);
 
         minMarginEvaluator = Mockito.mock(MinMarginEvaluator.class);
-        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult)).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));
-        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult, new HashSet<>())).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));
+        Map<FlowCnec, Double> minMarginMap = new LinkedHashMap<>();
+        minMarginMap.put(cnec1, -300.);
+        minMarginMap.put(cnec2, -400.);
+        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult)).thenReturn(Pair.of(-300., minMarginMap));
+        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult, new HashSet<>())).thenReturn(Pair.of(-300., minMarginMap));
 
         mnecViolationCostEvaluator = Mockito.mock(MnecViolationCostEvaluator.class);
         when(mnecViolationCostEvaluator.getName()).thenReturn("mnec-cost");
-        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult)).thenReturn(Pair.of(1000., List.of(cnec1)));
-        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult, new HashSet<>())).thenReturn(Pair.of(1000., List.of(cnec1)));
+        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult)).thenReturn(Pair.of(1000., Map.of(cnec1, 1000.)));
+        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult, new HashSet<>())).thenReturn(Pair.of(1000., Map.of(cnec1, 1000.)));
 
         loopFlowViolationCostEvaluator = Mockito.mock(LoopFlowViolationCostEvaluator.class);
         when(loopFlowViolationCostEvaluator.getName()).thenReturn("loop-flow-cost");
-        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult)).thenReturn(Pair.of(100., List.of(cnec2)));
-        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult, new HashSet<>())).thenReturn(Pair.of(100., List.of(cnec2)));
+        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult)).thenReturn(Pair.of(100., Map.of(cnec2, 100.)));
+        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult, new HashSet<>())).thenReturn(Pair.of(100., Map.of(cnec2, 100.)));
     }
 
     @Test
@@ -65,9 +74,12 @@ class ObjectiveFunctionTest {
                 .withFunctionalCostEvaluator(minMarginEvaluator)
                 .build();
 
+        Pair<Double, Map<FlowCnec, Double>> costAndMostLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityResult);
         // functional cost
-        assertEquals(-300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityResult).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityResult).getRight());
+        assertEquals(-300., costAndMostLimitingElements.getLeft(), DOUBLE_TOLERANCE);
+        Iterator<FlowCnec> iterator = costAndMostLimitingElements.getRight().keySet().iterator();
+        assertEquals(cnec1, iterator.next());
+        assertEquals(cnec2, iterator.next());
 
         // virtual cost
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
@@ -98,9 +110,12 @@ class ObjectiveFunctionTest {
                 .withVirtualCostEvaluator(loopFlowViolationCostEvaluator)
                 .build();
 
+        Pair<Double, Map<FlowCnec, Double>> costAndMostLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityResult);
         // functional cost
-        assertEquals(-300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityResult).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityResult).getRight());
+        assertEquals(-300., costAndMostLimitingElements.getLeft(), DOUBLE_TOLERANCE);
+        Iterator<FlowCnec> iterator = costAndMostLimitingElements.getRight().keySet().iterator();
+        assertEquals(cnec1, iterator.next());
+        assertEquals(cnec2, iterator.next());
 
         // virtual cost sum
         assertEquals(2, objectiveFunction.getVirtualCostNames().size());
@@ -108,11 +123,11 @@ class ObjectiveFunctionTest {
 
         // mnec virtual cost
         assertEquals(1000., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityResult, "mnec-cost").getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityResult, "mnec-cost").getRight());
+        assertEquals(Map.of(cnec1, 1000.), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityResult, "mnec-cost").getRight());
 
         // loopflow virtual cost
         assertEquals(100., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityResult, "loop-flow-cost").getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec2), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityResult, "loop-flow-cost").getRight());
+        assertEquals(Map.of(cnec2, 100.), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityResult, "loop-flow-cost").getRight());
 
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, sensitivityResult);

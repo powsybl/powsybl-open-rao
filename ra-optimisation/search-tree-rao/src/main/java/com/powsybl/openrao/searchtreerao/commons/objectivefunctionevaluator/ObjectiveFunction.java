@@ -44,11 +44,11 @@ public final class ObjectiveFunction {
         return allFlowCnecs;
     }
 
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public Pair<Double, Map<FlowCnec, Double>> getFunctionalCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult) {
         return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult);
     }
 
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
+    public Pair<Double, Map<FlowCnec, Double>> getFunctionalCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
         return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult, contingenciesToExclude);
     }
 
@@ -56,16 +56,16 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, SensitivityResult sensitivityResult, String virtualCostName) {
+    public Pair<Double, Map<FlowCnec, Double>> getVirtualCostAndCostlyElements(FlowResult flowResult, SensitivityResult sensitivityResult, String virtualCostName) {
         return getVirtualCostAndCostlyElements(flowResult, sensitivityResult, virtualCostName, new HashSet<>());
     }
 
-    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, SensitivityResult sensitivityResult, String virtualCostName, Set<String> contingenciesToExclude) {
+    public Pair<Double, Map<FlowCnec, Double>> getVirtualCostAndCostlyElements(FlowResult flowResult, SensitivityResult sensitivityResult, String virtualCostName, Set<String> contingenciesToExclude) {
         return virtualCostEvaluators.stream()
             .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
             .findAny()
             .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, sensitivityResult, contingenciesToExclude))
-            .orElse(Pair.of(Double.NaN, new ArrayList<>()));
+            .orElse(Pair.of(Double.NaN, new HashMap<>()));
     }
 
     public static class ObjectiveFunctionBuilder {

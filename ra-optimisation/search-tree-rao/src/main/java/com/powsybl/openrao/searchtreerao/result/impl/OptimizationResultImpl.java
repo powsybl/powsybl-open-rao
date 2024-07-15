@@ -72,8 +72,18 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public void activate(NetworkAction networkAction) {
+        networkActionsResult.activate(networkAction);
+    }
+
+    @Override
     public double getFunctionalCost() {
         return objectiveFunctionResult.getFunctionalCost();
+    }
+
+    @Override
+    public double getInstantFunctionalCost() {
+        return objectiveFunctionResult.getInstantFunctionalCost();
     }
 
     @Override
@@ -87,6 +97,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getInstantVirtualCost() {
+        return objectiveFunctionResult.getInstantVirtualCost();
+    }
+
+    @Override
     public Set<String> getVirtualCostNames() {
         return objectiveFunctionResult.getVirtualCostNames();
     }
@@ -94,6 +109,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     @Override
     public double getVirtualCost(String virtualCostName) {
         return objectiveFunctionResult.getVirtualCost(virtualCostName);
+    }
+
+    @Override
+    public double getInstantVirtualCost(String virtualCostName) {
+        return objectiveFunctionResult.getInstantVirtualCost(virtualCostName);
     }
 
     @Override

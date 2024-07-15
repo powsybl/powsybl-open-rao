@@ -44,9 +44,9 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
-        double cost = costlyElements
+    public Pair<Double, Map<FlowCnec, Double>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
+        Map<FlowCnec, Double> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
+        double cost = costlyElements.keySet()
             .stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
             .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)
@@ -64,8 +64,8 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         return Unit.MEGAWATT;
     }
 
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = loopflowCnecs.stream()
+    private Map<FlowCnec, Double> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+        return loopflowCnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
             .collect(Collectors.toMap(
                 Function.identity(),
@@ -73,12 +73,12 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
             ))
             .entrySet().stream()
             .filter(entry -> entry.getValue() != 0)
-            .sorted(Comparator.comparingDouble(Map.Entry::getValue))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
-
-        Collections.reverse(costlyElements);
-        return costlyElements;
+            .sorted(Comparator.comparingDouble(entry -> -entry.getValue()))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue,
+                (x, y) -> y,
+                LinkedHashMap::new));
     }
 
     @Override

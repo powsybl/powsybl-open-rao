@@ -28,10 +28,12 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     private final double sensitivityFailureOvercost;
     private final Set<State> states;
+    private final Set<FlowCnec> flowCnecs;
 
     public SensitivityFailureOvercostEvaluator(Set<FlowCnec> flowCnecs, double sensitivityFailureOvercost) {
         this.sensitivityFailureOvercost = sensitivityFailureOvercost;
         this.states = flowCnecs.stream().map(Cnec::getState).collect(Collectors.toSet());
+        this.flowCnecs = flowCnecs;
     }
 
     @Override
@@ -40,20 +42,27 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
+    public Pair<Double, Map<FlowCnec, Double>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
         if (sensitivityResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
             TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
-            return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
+            FlowCnec preventiveFlowCnec = flowCnecs.stream().filter(c -> c.getState().isPreventive()).iterator().next();
+            return Pair.of(sensitivityFailureOvercost, Map.of(preventiveFlowCnec, sensitivityFailureOvercost));
         }
+        Map<FlowCnec, Double> cnecMap = new HashMap<>();
         for (State state : states) {
             Optional<Contingency> contingency = state.getContingency();
             if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
                     sensitivityResult.getSensitivityStatus(state) == ComputationStatus.FAILURE) {
                 TECHNICAL_LOGS.info(String.format("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost));
-                return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
+                FlowCnec stateFlowCnec = flowCnecs.stream().filter(c -> c.getState().equals(state)).iterator().next();
+                cnecMap.put(stateFlowCnec, sensitivityFailureOvercost);
             }
         }
-        return Pair.of(0., new ArrayList<>());
+        if (cnecMap.isEmpty()) {
+            return Pair.of(0., new HashMap<>());
+        } else {
+            return Pair.of(sensitivityFailureOvercost, cnecMap);
+        }
     }
 
     @Override

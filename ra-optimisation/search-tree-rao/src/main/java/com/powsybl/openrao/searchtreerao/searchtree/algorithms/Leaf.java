@@ -115,17 +115,13 @@ public class Leaf {
         this.previousDepthResult = null;
         this.shouldPreviousDepthMainStateRangeActionBeRemoved = true;
 
-        this.preOptimResult = new SearchTreeResult(PerimeterResultWithCnecs.buildFromPreviousResult(previousPerimeterResult), new MultiStateRemedialActionResultImpl(previousPerimeterResult, appliedRemedialActionsInSecondaryStates, optimizationPerimeter));
+        this.preOptimResult = new SearchTreeResult(PerimeterResultWithCnecs.buildFromPreviousResultWithNewObjectiveFunction(previousPerimeterResult, optimizationPerimeter.getObjectiveFunction()), new MultiStateRemedialActionResultImpl(previousPerimeterResult, appliedRemedialActionsInSecondaryStates, optimizationPerimeter));
         this.postOptimResult = preOptimResult;
         this.status = Status.EVALUATED;
     }
 
-    public FlowResult getPreOptimBranchResult() {
-        return preOptimResult.getPerimeterResultWithCnecs();
-    }
-
-    public ObjectiveFunctionResult getPreOptimObjectiveFunctionResult() {
-        return preOptimResult.getPerimeterResultWithCnecs();
+    public SearchTreeResult getPreOptimResult() {
+        return preOptimResult;
     }
 
     public Status getStatus() {

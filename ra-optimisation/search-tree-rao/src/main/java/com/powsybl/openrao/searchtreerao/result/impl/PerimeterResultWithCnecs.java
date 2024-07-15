@@ -41,6 +41,12 @@ public class PerimeterResultWithCnecs implements OptimizationResult {
         );
     }
 
+    public static PerimeterResultWithCnecs buildFromPreviousResultWithNewObjectiveFunction(PerimeterResultWithCnecs previousResult, ObjectiveFunction objectiveFunction) {
+        return new PerimeterResultWithCnecs(previousResult,
+            new OptimizationResultImpl(previousResult, previousResult, new NetworkActionResultImpl(Collections.emptySet()), RangeActionResultImpl.buildFromPreviousPerimeterResult(previousResult), objectiveFunction.evaluate(previousResult, previousResult))
+        );
+    }
+
     public static PerimeterResultWithCnecs buildFromSensiResultAndAppliedRas(PerimeterResultWithCnecs sensiResult, AppliedRemedialActions appliedArasAndCras, State state, PerimeterResultWithCnecs previousResult) {
         RangeActionResultImpl rangeActionResult = RangeActionResultImpl.buildFromPreviousPerimeterResult(previousResult);
         appliedArasAndCras.getAppliedRangeActions(state).forEach(rangeActionResult::activate);
@@ -81,8 +87,18 @@ public class PerimeterResultWithCnecs implements OptimizationResult {
     }
 
     @Override
+    public void activate(NetworkAction networkAction) {
+        optimizationResult.activate(networkAction);
+    }
+
+    @Override
     public double getFunctionalCost() {
         return optimizationResult.getFunctionalCost();
+    }
+
+    @Override
+    public double getInstantFunctionalCost() {
+        return optimizationResult.getInstantFunctionalCost();
     }
 
     @Override
@@ -96,6 +112,11 @@ public class PerimeterResultWithCnecs implements OptimizationResult {
     }
 
     @Override
+    public double getInstantVirtualCost() {
+        return optimizationResult.getInstantVirtualCost();
+    }
+
+    @Override
     public Set<String> getVirtualCostNames() {
         return optimizationResult.getVirtualCostNames();
     }
@@ -103,6 +124,11 @@ public class PerimeterResultWithCnecs implements OptimizationResult {
     @Override
     public double getVirtualCost(String virtualCostName) {
         return optimizationResult.getVirtualCost(virtualCostName);
+    }
+
+    @Override
+    public double getInstantVirtualCost(String virtualCostName) {
+        return optimizationResult.getInstantVirtualCost(virtualCostName);
     }
 
     @Override

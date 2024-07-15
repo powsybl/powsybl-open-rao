@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
@@ -14,6 +15,7 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -24,9 +26,11 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final SensitivityResult sensitivityResult;
     private boolean areCostsComputed;
     private Double functionalCost;
+    private Double instantFunctionalCost;
     private Map<String, Double> virtualCosts;
-    private List<FlowCnec> orderedLimitingElements;
-    private Map<String, List<FlowCnec>> orderedCostlyElements;
+    private Map<String, Double> instantVirtualCosts;
+    private Map<FlowCnec, Double> orderedLimitingElementsAndCost;
+    private Map<String, Map<FlowCnec, Double>> orderedCostlyElements;
 
     private Set<String> excludedContingencies;
 
@@ -53,11 +57,19 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     }
 
     @Override
+    public double getInstantFunctionalCost() {
+        if (!areCostsComputed) {
+            computeCosts(new HashSet<>());
+        }
+        return instantFunctionalCost;
+    }
+
+    @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
         if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
-        return orderedLimitingElements.subList(0, Math.min(orderedLimitingElements.size(), number));
+        return orderedLimitingElementsAndCost.keySet().stream().limit(number).collect(Collectors.toList());
     }
 
     @Override
@@ -67,6 +79,17 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
         }
         if (virtualCosts.size() > 0) {
             return virtualCosts.values().stream().mapToDouble(v -> v).sum();
+        }
+        return 0;
+    }
+
+    @Override
+    public double getInstantVirtualCost() {
+        if (!areCostsComputed) {
+            computeCosts(new HashSet<>());
+        }
+        if (instantVirtualCosts.size() > 0) {
+            return instantVirtualCosts.values().stream().mapToDouble(v -> v).sum();
         }
         return 0;
     }
@@ -85,11 +108,19 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     }
 
     @Override
+    public double getInstantVirtualCost(String virtualCostName) {
+        if (!areCostsComputed) {
+            computeCosts(new HashSet<>());
+        }
+        return instantVirtualCosts.getOrDefault(virtualCostName, Double.NaN);
+    }
+
+    @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
-        return orderedCostlyElements.get(virtualCostName).subList(0, Math.min(orderedCostlyElements.get(virtualCostName).size(), number));
+        return orderedCostlyElements.get(virtualCostName).keySet().stream().limit(number).collect(Collectors.toList());
     }
 
     @Override
@@ -100,15 +131,43 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     }
 
     private void computeCosts(Set<String> contingenciesToExclude) {
-        Pair<Double, List<FlowCnec>> functionalCostAndLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityResult, contingenciesToExclude);
+        Pair<Double, Map<FlowCnec, Double>> functionalCostAndLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityResult, contingenciesToExclude);
+        Instant firstInstant = functionalCostAndLimitingElements.getRight().keySet().stream().map(flowCnec -> flowCnec.getState().getInstant()).min(Comparator.comparingInt(Instant::getOrder)).orElseThrow();
         functionalCost = functionalCostAndLimitingElements.getLeft();
-        orderedLimitingElements = functionalCostAndLimitingElements.getRight();
+        if (firstInstant.isPreventive()) {
+            instantFunctionalCost = functionalCostAndLimitingElements.getRight().entrySet().stream()
+                .filter(e -> e.getKey().getState().getInstant().isPreventive() || e.getKey().getState().getInstant().isOutage())
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElse(-Double.MAX_VALUE);
+        } else {
+            instantFunctionalCost = functionalCostAndLimitingElements.getRight().entrySet().stream()
+                .filter(e -> e.getKey().getState().getInstant().equals(firstInstant))
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElse(-Double.MAX_VALUE);
+        }
+        orderedLimitingElementsAndCost = functionalCostAndLimitingElements.getRight();
         virtualCosts = new HashMap<>();
         orderedCostlyElements = new HashMap<>();
         getVirtualCostNames().forEach(vcn -> {
-            Pair<Double, List<FlowCnec>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityResult, vcn, contingenciesToExclude);
+            Pair<Double, Map<FlowCnec, Double>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityResult, vcn, contingenciesToExclude);
             virtualCosts.put(vcn, virtualCostAndCostlyElements.getLeft());
             orderedCostlyElements.put(vcn, virtualCostAndCostlyElements.getRight());
+        });
+        instantVirtualCosts = new HashMap<>();
+        getVirtualCostNames().forEach(vcn -> {
+            if (firstInstant.isPreventive()) {
+                instantVirtualCosts.put(vcn, orderedCostlyElements.get(vcn).entrySet().stream()
+                    .filter(e -> e.getKey().getState().getInstant().isPreventive() || e.getKey().getState().getInstant().isOutage())
+                    .mapToDouble(Map.Entry::getValue)
+                    .sum());
+            } else {
+                instantVirtualCosts.put(vcn, orderedCostlyElements.get(vcn).entrySet().stream()
+                    .filter(e -> e.getKey().getState().getInstant().equals(firstInstant))
+                    .mapToDouble(Map.Entry::getValue)
+                    .sum());
+            }
         });
         areCostsComputed = true;
         excludedContingencies = contingenciesToExclude;

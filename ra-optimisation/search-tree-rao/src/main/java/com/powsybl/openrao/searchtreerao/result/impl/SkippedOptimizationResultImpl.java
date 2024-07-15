@@ -106,7 +106,17 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public void activate(NetworkAction networkAction) {
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
     public double getFunctionalCost() {
+        return -1.0;
+    }
+
+    @Override
+    public double getInstantFunctionalCost() {
         return -1.0;
     }
 
@@ -121,12 +131,22 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getInstantVirtualCost() {
+        return sensitivityFailureOverCost;
+    }
+
+    @Override
     public Set<String> getVirtualCostNames() {
         return Set.of(SENSITIVITY_FAILURE_COST);
     }
 
     @Override
     public double getVirtualCost(String virtualCostName) {
+        return virtualCostName.equals(SENSITIVITY_FAILURE_COST) ? sensitivityFailureOverCost : 0;
+    }
+
+    @Override
+    public double getInstantVirtualCost(String virtualCostName) {
         return virtualCostName.equals(SENSITIVITY_FAILURE_COST) ? sensitivityFailureOverCost : 0;
     }
 

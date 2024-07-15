@@ -97,7 +97,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionResult,
-            new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter),
+            new MultiStateRemedialActionResultImpl(initialRangeActionResult, optimizationPerimeter),
             rangeActionParameters,
             Unit.MEGAWATT, raRangeShrinking, pstModel);
         buildLinearProblem();
@@ -400,7 +400,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
         // update the problem
         RangeActionResult rangeActionResult = RangeActionResultImpl.buildWithSetpointsFromNetwork(network, Set.of(pstRangeAction));
-        linearProblem.updateBetweenSensiIteration(flowAndSensiResult, new MultiStateRemedialActionResultImpl(flowAndSensiResult, optimizationPerimeter));
+        linearProblem.updateBetweenSensiIteration(flowAndSensiResult, new MultiStateRemedialActionResultImpl(rangeActionResult, optimizationPerimeter));
     }
 
     @Test

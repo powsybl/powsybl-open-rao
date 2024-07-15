@@ -52,13 +52,13 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
+    public Pair<Double, Map<FlowCnec, Double>> computeCostAndLimitingElements(FlowResult flowResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
         if (Math.abs(mnecViolationCost) < 1e-10) {
-            return Pair.of(0., new ArrayList<>());
+            return Pair.of(0., new HashMap<>());
         }
         double totalMnecMarginViolation = 0;
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
-        for (FlowCnec mnec : costlyElements) {
+        Map<FlowCnec, Double> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
+        for (FlowCnec mnec : costlyElements.keySet()) {
             Optional<Contingency> contingency = mnec.getState().getContingency();
             if (mnec.isMonitored() && (mnec.getState().getContingency().isEmpty() || contingency.isPresent() && !contingenciesToExclude.contains(contingency.get().getId()))) {
                 totalMnecMarginViolation += computeCost(flowResult, mnec);
@@ -72,8 +72,8 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         return unit;
     }
 
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> sortedElements = flowCnecs.stream()
+    private Map<FlowCnec, Double> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+        Map<FlowCnec, Double> sortedElements = flowCnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
             .filter(Cnec::isMonitored)
             .collect(Collectors.toMap(
@@ -82,10 +82,13 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             ))
             .entrySet().stream()
             .filter(entry -> entry.getValue() != 0)
-            .sorted(Comparator.comparingDouble(Map.Entry::getValue))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
-        Collections.reverse(sortedElements);
+            .sorted(Comparator.comparingDouble(e -> -e.getValue()))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue,
+                (x, y) -> y,
+                LinkedHashMap::new
+            ));
 
         return sortedElements;
     }

@@ -16,9 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -117,10 +115,11 @@ class MnecViolationCostEvaluatorTest {
     void getCostlyElements() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.MEGAWATT);
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult, sensitivityResult).getRight();
+        Map<FlowCnec, Double> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult, sensitivityResult).getRight();
         assertEquals(2, costlyElements.size());
-        assertSame(mnec2, costlyElements.get(0));
-        assertSame(mnec1, costlyElements.get(1));
+        Iterator<FlowCnec> iterator = costlyElements.keySet().iterator();
+        assertSame(mnec2, iterator.next());
+        assertSame(mnec1, iterator.next());
     }
 
     @Test
@@ -167,10 +166,11 @@ class MnecViolationCostEvaluatorTest {
     void testAmperes() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.AMPERE);
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult, sensitivityResult).getRight();
+        Map<FlowCnec, Double> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult, sensitivityResult).getRight();
         assertEquals(2, costlyElements.size());
-        assertSame(mnec2, costlyElements.get(0));
-        assertSame(mnec1, costlyElements.get(1));
+        Iterator<FlowCnec> iterator = costlyElements.keySet().iterator();
+        assertSame(mnec2, iterator.next());
+        assertSame(mnec1, iterator.next());
 
         assertEquals(Unit.AMPERE, evaluator.getUnit());
     }

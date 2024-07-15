@@ -23,6 +23,8 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
+import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
@@ -231,6 +233,9 @@ class AutomatonSimulatorTest {
         raoParameters = new RaoParameters();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
+        RelativeMarginsParametersExtension relativeMarginsParameters = Mockito.mock(RelativeMarginsParametersExtension.class);
+        when(relativeMarginsParameters.getPtdfApproximation()).thenReturn(PtdfApproximation.FIXED_PTDF);
+        raoParameters.addExtension(RelativeMarginsParametersExtension.class, relativeMarginsParameters);
 
         mockedPrePerimeterResult = mock(PerimeterResultWithCnecs.class);
         mockedPostSensiResult = mock(PerimeterResultWithCnecs.class);
@@ -637,14 +642,14 @@ class AutomatonSimulatorTest {
 
     @Test
     void testSimulateAutomatonStateFailure() {
-        when(mockedPostSensiResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
+        when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
         State curativeState = mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
         when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
         PerimeterResultWithCnecs result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null);
         assertNotNull(result);
-        assertEquals(ComputationStatus.FAILURE, result.getSensitivityStatus());
+        assertEquals(ComputationStatus.FAILURE, result.getSensitivityStatus(autoState));
         assertEquals(Set.of(), result.getActivatedRangeActions());
         assertEquals(Set.of(), result.getActivatedNetworkActions());
     }
