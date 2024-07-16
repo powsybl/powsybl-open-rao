@@ -55,13 +55,15 @@ public class DiscretePstTapFiller implements ProblemFiller {
 
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        rangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
-            refineTapToAngleConversionCoefficientAndUpdateBounds(linearProblem, rangeAction, rangeActionActivationResult, state)
-        ));
+        update(linearProblem, rangeActionActivationResult);
     }
 
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+        update(linearProblem, rangeActionActivationResult);
+    }
+
+    private void update(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
         rangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
             refineTapToAngleConversionCoefficientAndUpdateBounds(linearProblem, rangeAction, rangeActionActivationResult, state)
         ));

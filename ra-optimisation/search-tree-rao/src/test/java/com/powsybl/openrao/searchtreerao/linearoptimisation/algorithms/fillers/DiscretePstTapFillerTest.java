@@ -198,11 +198,16 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         // update linear problem, with a new PST tap equal to -4
         double alphaBeforeUpdate = tapToAngle.get(-4);
-        RangeActionActivationResult rangeActionActivationResultBeforeUpdate = new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(this.pstRangeAction, alphaBeforeUpdate, cra, alphaBeforeUpdate)));
+        RangeActionActivationResultImpl rangeActionActivationResultBeforeUpdate = new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(this.pstRangeAction, alphaBeforeUpdate, cra, alphaBeforeUpdate)));
+        // Update between sensi iterations considering the following optimal result of the 1st iteration:
+        // pra optimal tap = -4, cra optimal tap = -6
+        rangeActionActivationResultBeforeUpdate.putResult(pra, preventiveState, tapToAngle.get(-4));
+        rangeActionActivationResultBeforeUpdate.putResult(cra, curativeState, tapToAngle.get(-6));
         discretePstTapFiller.updateBetweenSensiIteration(linearProblem, flowResult, sensitivityResult, rangeActionActivationResultBeforeUpdate);
 
         checkContent(pra, preventiveState, -4, -15, 15, false);
-        checkPstRelativeTapConstraint(-10, 7);
+        checkContent(cra, curativeState, -6, -16, 16, false);
+        checkPstRelativeTapConstraint(-8, 9);
     }
 
     @Test
