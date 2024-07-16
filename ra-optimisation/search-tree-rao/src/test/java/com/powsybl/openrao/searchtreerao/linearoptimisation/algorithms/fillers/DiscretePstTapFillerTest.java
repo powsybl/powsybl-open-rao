@@ -110,8 +110,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint upOrDownC = linearProblem.getUpOrDownPstVariationConstraint(pstRangeAction, state);
         OpenRaoMPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
         OpenRaoMPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPConstraint craRelativeTapUpC = linearProblem.getPstRelativeTapConstraint(cra, curativeState);
-        OpenRaoMPConstraint craRelativeTapDownC = linearProblem.getPstRelativeTapConstraint(cra, curativeState);
+        OpenRaoMPConstraint craRelativeTapC = linearProblem.getPstRelativeTapConstraint(cra, curativeState);
 
         assertNotNull(setpointV);
         assertNotNull(variationUpV);
@@ -122,8 +121,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         assertNotNull(upOrDownC);
         assertNotNull(upVariationC);
         assertNotNull(downVariationC);
-        assertNotNull(craRelativeTapUpC);
-        assertNotNull(craRelativeTapDownC);
+        assertNotNull(craRelativeTapC);
 
         // check variable bounds
         assertEquals(0, variationUpV.lb(), 1e-6);
@@ -157,15 +155,12 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         assertEquals(1, downVariationC.getCoefficient(variationDownV), 1e-6);
         assertEquals(-15, downVariationC.getCoefficient(binaryDownV), 1e-6);
 
-        assertEquals(7, craRelativeTapUpC.ub(), 1e-6);
-        assertEquals(-linearProblem.infinity(), craRelativeTapUpC.lb(), linearProblem.infinity() * 1e-3);
-        assertEquals(1, craRelativeTapUpC.getCoefficient(craVariationUpV));
-        assertEquals(-1, craRelativeTapUpC.getCoefficient(variationUpV));
-
-        assertEquals(10, craRelativeTapDownC.ub(), 1e-6);
-        assertEquals(-linearProblem.infinity(), craRelativeTapDownC.lb(), linearProblem.infinity() * 1e-3);
-        assertEquals(1, craRelativeTapDownC.getCoefficient(craVariationDownV));
-        assertEquals(-1, craRelativeTapDownC.getCoefficient(variationDownV));
+        assertEquals(7, craRelativeTapC.ub(), 1e-6);
+        assertEquals(-10, craRelativeTapC.lb(), linearProblem.infinity() * 1e-3);
+        assertEquals(1, craRelativeTapC.getCoefficient(craVariationUpV));
+        assertEquals(-1, craRelativeTapC.getCoefficient(craVariationDownV));
+        assertEquals(-1, craRelativeTapC.getCoefficient(variationUpV));
+        assertEquals(1, craRelativeTapC.getCoefficient(variationDownV));
 
         // update linear problem, with a new PST tap equal to -4
         double alphaBeforeUpdate = tapToAngle.get(-4);
