@@ -48,19 +48,19 @@ $$
 
 <br>
 
-Where the computation of the conversion depends from the context in which the optimization problem is solved.
+Where the computation of the conversion depends on the context in which the optimization problem is solved.
 
 For the **first solve**, the coefficients are calibrated on the maximum possible variations of the PST:
 
 $$
 \begin{equation}
-c^{+}_{tap \rightarrow a}(r) = \frac{f_r(\overline{t(r)}) - f_r(t_{n}(r))}{\overline{t(r)} - t_{n}(r)}
+c^{+}_{tap \rightarrow a}(r) = \frac{f_r(t^+(r)) - f_r(t_{n}(r))}{t^+(r) - t_{n}(r)}
 \end{equation}
 $$
 
 $$
 \begin{equation}
-c^{-}_{tap \rightarrow a}(r) = \frac{f_r(t_{n}(r)) - f_r(\underline{t(r)})}{t_{n}(r) - \underline{t(r)}}
+c^{-}_{tap \rightarrow a}(r) = \frac{f_r(t_{n}(r)) - f_r(t^-(r))}{t_{n}(r) - t^-(r)}
 \end{equation}
 $$
 
@@ -81,7 +81,7 @@ $$
 
 <br>
 
-*Note that if $t_n(r)$ is equal to its bound $\overline{t(r)}$ (resp. $\underline{t(r)}$), then the coefficient
+*Note that if $t_n(r)$ is equal to its bound $t^+(r)$ (resp. $t^-(r)$), then the coefficient
 $c^{+}_{tap \rightarrow a}(r)$ (resp. $c^{-}_{tap \rightarrow a}(r)$) is set equal to 0 instead.*
 
 <br>
@@ -90,13 +90,13 @@ $c^{+}_{tap \rightarrow a}(r)$ (resp. $c^{-}_{tap \rightarrow a}(r)$) is set equ
 
 $$
 \begin{equation}
-\Delta t^{+} (r) \leq \delta ^{+} (r) [\overline{t(r)} - t_{n}(r)] , \forall r \in \mathcal{RA}^{PST}
+\Delta t^{+} (r) \leq \delta ^{+} (r) [t^+(r) - t_{n}(r)] , \forall r \in \mathcal{RA}^{PST}
 \end{equation}
 $$
 
 $$
 \begin{equation}
-\Delta t^{-} (r) \leq \delta ^{-} (r) [t_{n}(r) - \underline{t(r)}] , \forall r \in \mathcal{RA}^{PST}
+\Delta t^{-} (r) \leq \delta ^{-} (r) [t_{n}(r) - t^-(r)] , \forall r \in \mathcal{RA}^{PST}
 \end{equation}
 $$
 

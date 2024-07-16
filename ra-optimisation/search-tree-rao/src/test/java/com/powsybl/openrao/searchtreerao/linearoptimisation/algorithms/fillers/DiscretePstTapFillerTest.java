@@ -110,8 +110,8 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         OpenRaoMPConstraint upOrDownC = linearProblem.getUpOrDownPstVariationConstraint(pstRangeAction, state);
         OpenRaoMPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
         OpenRaoMPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPConstraint craRelativeTapUpC = linearProblem.getPstRelativeTapConstraint(cra, curativeState, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPConstraint craRelativeTapDownC = linearProblem.getPstRelativeTapConstraint(cra, curativeState, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPConstraint craRelativeTapUpC = linearProblem.getPstRelativeTapConstraint(cra, curativeState);
+        OpenRaoMPConstraint craRelativeTapDownC = linearProblem.getPstRelativeTapConstraint(cra, curativeState);
 
         assertNotNull(setpointV);
         assertNotNull(variationUpV);
