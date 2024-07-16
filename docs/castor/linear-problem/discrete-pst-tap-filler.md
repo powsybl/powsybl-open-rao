@@ -2,13 +2,14 @@
 
 ## Used input data
 
-| Name                             | Symbol                            | Details                                                                                                   |
-|----------------------------------|-----------------------------------|-----------------------------------------------------------------------------------------------------------|
-| PstRangeActions                  | $r \in \mathcal{RA}^{PST}$        | Set of PST RangeActions                                                                                   |
-| reference angle                  | $\alpha _n(r)$                    | angle of PstRangeAction $r$ at the beginning of the current iteration of the MILP                         |
-| reference tap position           | $t_{n}(r)$                        | tap of PstRangeAction $r$ at the beginning of the current iteration of the MILP                           |
-| PstRangeAction tap bounds        | $t^-(r) \: , \: t^+(r)$           | min and max tap[^1] of PstRangeAction $r$                                                                 |
-| tap-to-angle conversion function | $f_r(t) = \alpha$                 | Discrete function $f$, which gives, for a given tap of the PstRangeAction $r$, its associated angle value |
+| Name                             | Symbol                        | Details                                                                                                   |
+|----------------------------------|-------------------------------|-----------------------------------------------------------------------------------------------------------|
+| PstRangeActions                  | $r \in \mathcal{RA}^{PST}$    | Set of PST RangeActions                                                                                   |
+| PstRangeActions                  | $r,s \in \mathcal{RA}^{PST}$  | set of PST RangeActions and state on which they are applied                                               |
+| reference angle                  | $\alpha _n(r, s)$             | angle of PstRangeAction $r$ at state $s$, at the beginning of the current iteration of the MILP           |
+| reference tap position           | $t_{n}(r, s)$                 | tap of PstRangeAction $r$ at state $s$, at the beginning of the current iteration of the MILP             |
+| PstRangeAction tap bounds        | $t^-(r) \: , \: t^+(r)$       | min and max tap[^1] of PstRangeAction $r$                                                                 |
+| tap-to-angle conversion function | $f_r(t) = \alpha$             | Discrete function $f$, which gives, for a given tap of the PstRangeAction $r$, its associated angle value |
 
 [^1]: PST range actions' lower & upper bounds are computed using CRAC + network + previous RAO results, depending on the
 types of their ranges: ABSOLUTE, RELATIVE_TO_INITIAL_NETWORK, RELATIVE_TO_PREVIOUS_INSTANT (more
@@ -22,18 +23,18 @@ information [here](/input-data/crac/json.md#range-actions))
 
 ## Defined optimization variables
 
-| Name                                         | Symbol             | Details                                                                                                   | Type    | Index                                             | Unit                     | Lower bound | Upper bound |
-|----------------------------------------------|--------------------|-----------------------------------------------------------------------------------------------------------|---------|---------------------------------------------------|--------------------------|-------------|-------------|
-| PstRangeAction tap upward variation          | $\Delta t^{+} (r)$ | upward tap variation of PstRangeAction $r$, between two iterations of the optimisation                    | Integer | One variable for every element of PstRangeActions | No unit (number of taps) | 0           | $+\infty$   |
-| PstRangeAction tap downward variation        | $\Delta t^{-} (r)$ | downward tap variation of PstRangeAction $r$, between two iterations of the optimisation                  | Integer | One variable for every element of PstRangeActions | No unit (number of taps) | 0           | $+\infty$   |
-| PstRangeAction tap upward variation binary   | $\delta ^{+} (r)$  | indicates whether the tap of PstRangeAction $r$ has increased, between two iterations of the optimisation | Binary  | One variable for every element of PstRangeActions | No unit                  | 0           | 1           |
-| PstRangeAction tap downward variation binary | $\delta ^{-} (r)$  | indicates whether the tap of PstRangeAction $r$ has decreased, between two iterations of the optimisation | Binary  | One variable for every element of PstRangeActions | No unit                  | 0           | 1           |
+| Name                                         | Symbol                | Details                                                                                                                 | Type    | Index                                                                                         | Unit                     | Lower bound | Upper bound |
+|----------------------------------------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------|---------|-----------------------------------------------------------------------------------------------|--------------------------|-------------|-------------|
+| PstRangeAction tap upward variation          | $\Delta t^{+} (r, s)$ | upward tap variation of PstRangeAction $r$, at state $s$, between two iterations of the optimisation                    | Integer | One variable for every element of PstRangeActions and for evey state in which it is optimized | No unit (number of taps) | 0           | $+\infty$   |
+| PstRangeAction tap downward variation        | $\Delta t^{-} (r, s)$ | downward tap variation of PstRangeAction $r$, at state $s$, between two iterations of the optimisation                  | Integer | One variable for every element of PstRangeActions and for evey state in which it is optimized | No unit (number of taps) | 0           | $+\infty$   |
+| PstRangeAction tap upward variation binary   | $\delta ^{+} (r, s)$  | indicates whether the tap of PstRangeAction $r$ has increased, at state $s$, between two iterations of the optimisation | Binary  | One variable for every element of PstRangeActions and for evey state in which it is optimized | No unit                  | 0           | 1           |
+| PstRangeAction tap downward variation binary | $\delta ^{-} (r, s)$  | indicates whether the tap of PstRangeAction $r$ has decreased, at state $s$, between two iterations of the optimisation | Binary  | One variable for every element of PstRangeActions and for evey state in which it is optimized | No unit                  | 0           | 1           |
 
 ## Used optimization variables
 
 | Name        | Symbol | Defined in                                                                 |
 |-------------|--------|----------------------------------------------------------------------------|
-| RA setpoint | $A(r)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
+| RA setpoint | $A(r, s)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 
@@ -41,26 +42,27 @@ information [here](/input-data/crac/json.md#range-actions))
 
 $$
 \begin{equation}
-A(r) = \alpha_{n}(r) + c^{+}_{tap \rightarrow a}(r) * \Delta t^{+} (r) - c^{-}_{tap \rightarrow a}(r) * \Delta t^{-} (
-r), \forall r \in \mathcal{RA}^{PST}
+A(r, s) = \alpha_{n}(r, s) + c^{+}_{tap \rightarrow a}(r, s) * \Delta t^{+} (r, s) - 
+c^{-}_{tap \rightarrow a}(r, s) * \Delta t^{-} (r, s)
+, \forall (r,s) \in \mathcal{RA}^{PST}
 \end{equation}
 $$
 
 <br>
 
-Where the computation of the conversion depends from the context in which the optimization problem is solved.
+Where the computation of the conversion depends on the context in which the optimization problem is solved.
 
 For the **first solve**, the coefficients are calibrated on the maximum possible variations of the PST:
 
 $$
 \begin{equation}
-c^{+}_{tap \rightarrow a}(r) = \frac{f_r(\overline{t(r)}) - f_r(t_{n}(r))}{\overline{t(r)} - t_{n}(r)}
+c^{+}_{tap \rightarrow a}(r, s) = \frac{f_r(t^+(r)) - f_r(t_{n}(r, s))}{t^+(r) - t_{n}(r, s)}
 \end{equation}
 $$
 
 $$
 \begin{equation}
-c^{-}_{tap \rightarrow a}(r) = \frac{f_r(t_{n}(r)) - f_r(\underline{t(r)})}{t_{n}(r) - \underline{t(r)}}
+c^{-}_{tap \rightarrow a}(r, s) = \frac{f_r(t_{n}(r, s)) - f_r(t^-(r))}{t_{n}(r, s) - t^-(r)}
 \end{equation}
 $$
 
@@ -69,20 +71,20 @@ a small variation of 1 tap:
 
 $$
 \begin{equation}
-c^{+}_{tap \rightarrow a}(r) = f_r(t_{n}(r) + 1) - f_r(t_{n}(r))
+c^{+}_{tap \rightarrow a}(r, s) = f_r(t_{n}(r, s) + 1) - f_r(t_{n}(r, s))
 \end{equation}
 $$
 
 $$
 \begin{equation}
-c^{-}_{tap \rightarrow a}(r) = f_r(t_{n}(r)) - f_r(t_{n}(r) - 1)
+c^{-}_{tap \rightarrow a}(r, s) = f_r(t_{n}(r, s)) - f_r(t_{n}(r, s) - 1)
 \end{equation}
 $$
 
 <br>
 
-*Note that if $t_n(r)$ is equal to its bound $\overline{t(r)}$ (resp. $\underline{t(r)}$), then the coefficient
-$c^{+}_{tap \rightarrow a}(r)$ (resp. $c^{-}_{tap \rightarrow a}(r)$) is set equal to 0 instead.*
+*Note that if $t_n(r, s)$ is equal to its bound $t^+(r)$ (resp. $t^-(r)$), then the coefficient
+$c^{+}_{tap \rightarrow a}(r, s)$ (resp. $c^{-}_{tap \rightarrow a}(r, s)$) is set equal to 0 instead.*
 
 <br>
 
@@ -90,19 +92,19 @@ $c^{+}_{tap \rightarrow a}(r)$ (resp. $c^{-}_{tap \rightarrow a}(r)$) is set equ
 
 $$
 \begin{equation}
-\Delta t^{+} (r) \leq \delta ^{+} (r) [\overline{t(r)} - t_{n}(r)] , \forall r \in \mathcal{RA}^{PST}
+\Delta t^{+} (r) \leq \delta ^{+} (r, s) [t^+(r) - t_{n}(r, s)] , \forall (r, s) \in \mathcal{RA}^{PST}
 \end{equation}
 $$
 
 $$
 \begin{equation}
-\Delta t^{-} (r) \leq \delta ^{-} (r) [t_{n}(r) - \underline{t(r)}] , \forall r \in \mathcal{RA}^{PST}
+\Delta t^{-} (r) \leq \delta ^{-} (r, s) [t_{n}(r, s) - t^-(r)] , \forall (r, s) \in \mathcal{RA}^{PST}
 \end{equation}
 $$
 
 $$
 \begin{equation}
-\delta ^{+} (r) + \delta ^{-} (r)  \leq 1 , \forall r \in \mathcal{RA}^{PST}
+\delta ^{+} (r, s) + \delta ^{-} (r, s)  \leq 1 , \forall (r, s) \in \mathcal{RA}^{PST}
 \end{equation}
 $$
 
@@ -110,16 +112,13 @@ $$
 
 ### RangeActions relative tap variations
 
-$$
-\begin{equation}
-0 \leq \Delta t^+(r, s) - \Delta t^+(r, s') \leq t^+(r)
-\end{equation}
-$$
+If PST $r$ has a `RELATIVE_TO_PREVIOUS_INSTANT` range constraints, between $t^-_{rel}(r)$ and $t^+_{rel}(r)$, the
+following constraint is added:  
 
 $$
 \begin{equation}
-0 \leq \Delta t^-(r, s) - \Delta t^-(r, s') \leq t^-(r)
+t^-_{rel}(r) \leq (t_{n}(r, s) + \Delta t^+(r, s) - \Delta t^-(r, s)) - (t_{n}(r, s') + \Delta t^+(r, s') - \Delta t^-(r, s')) \leq t^+_{rel}(r)
 \end{equation}
 $$
 
-with $\Delta t(r,s')$ the tap variation of the last range action on the same element as $r$ but in the state preceding $s$.
+where $s'$ is the last state preceding $s$ where $r$ is also optimized.
