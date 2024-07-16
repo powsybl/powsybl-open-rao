@@ -72,6 +72,7 @@ class AutomatonSimulatorTest {
     Map<RangeAction<?>, Double> optimizedSetpoints = new HashMap<>();
     private RaoParameters raoParameters;
     private ToolProvider toolProvider;
+    private ObjectiveFunction objectiveFunction;
 
     private static final double DOUBLE_TOLERANCE = 0.01;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
@@ -117,6 +118,7 @@ class AutomatonSimulatorTest {
             .withInstant(AUTO_INSTANT_ID)
             .withNominalVoltage(220.)
             .newThreshold().withSide(TwoSides.TWO).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .withOptimized()
             .add();
         cnec2 = crac.newFlowCnec()
             .withId("cnec2")
@@ -125,6 +127,7 @@ class AutomatonSimulatorTest {
             .withInstant(AUTO_INSTANT_ID)
             .withNominalVoltage(220.)
             .newThreshold().withSide(TwoSides.TWO).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .withOptimized()
             .add();
         Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         autoState = crac.getState(contingency1, autoInstant);
@@ -248,6 +251,8 @@ class AutomatonSimulatorTest {
             optimizedSetpoints.put(i.getArgument(0), i.getArgument(1));
             return null;
         }).when(mockedPostSensiResult).activate(any(), anyDouble());
+
+        objectiveFunction = Mockito.mock(ObjectiveFunction.class);
 
         when(mockedSensitivityAnalysisRunner.runBasedOnInitialResults(any(), any(), any(), any(), any(), any(), any(), any())).thenAnswer(i -> {
             activatedNetworkActions.addAll(((NetworkActionsResult) i.getArgument(6)).getActivatedNetworkActions());
@@ -572,13 +577,13 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-100.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId);
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        PerimeterResultWithCnecs result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
+        PerimeterResultWithCnecs result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner, objectiveFunction);
         assertNotNull(result);
         assertEquals(Set.of(na), result.getActivatedNetworkActions());
 
         // NA already activated (stay on same variant), do not activate NA
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-100.);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
+        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner, objectiveFunction);
         assertNotNull(result);
         assertEquals(Set.of(), result.getActivatedNetworkActions());
 
@@ -586,7 +591,7 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(0.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId, true);
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
+        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner, objectiveFunction);
         assertNotNull(result);
         assertEquals(Set.of(na), result.getActivatedNetworkActions());
 
@@ -594,7 +599,7 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(1.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId, true);
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
+        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner, objectiveFunction);
         assertNotNull(result);
         assertEquals(Set.of(), result.getActivatedNetworkActions());
     }
@@ -602,7 +607,7 @@ class AutomatonSimulatorTest {
     @Test
     void testSimulateTopologicalAutomatonsFailure() {
         when(mockedPostSensiResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        PerimeterResultWithCnecs result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner);
+        PerimeterResultWithCnecs result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedSensitivityAnalysisRunner, objectiveFunction);
         assertNotNull(result);
         assertEquals(ComputationStatus.FAILURE, result.getSensitivityStatus());
     }
@@ -633,7 +638,10 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getRangeActions()).thenReturn(Collections.emptySet());
         when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.DEFAULT);
 
-        PerimeterResultWithCnecs result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null);
+        StateTree stateTree = Mockito.mock(StateTree.class);
+        when(stateTree.getOperatorsNotSharingCras()).thenReturn(new HashSet<>());
+
+        PerimeterResultWithCnecs result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, stateTree, null);
         assertNotNull(result);
         assertEquals(Set.of(), result.getActivatedNetworkActions());
         assertEquals(Set.of(), result.getActivatedRangeActions());
@@ -647,7 +655,7 @@ class AutomatonSimulatorTest {
         Instant curativeInstant = Mockito.mock(Instant.class);
         when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
-        PerimeterResultWithCnecs result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null);
+        PerimeterResultWithCnecs result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, Mockito.mock(StateTree.class), null);
         assertNotNull(result);
         assertEquals(ComputationStatus.FAILURE, result.getSensitivityStatus(autoState));
         assertEquals(Set.of(), result.getActivatedRangeActions());

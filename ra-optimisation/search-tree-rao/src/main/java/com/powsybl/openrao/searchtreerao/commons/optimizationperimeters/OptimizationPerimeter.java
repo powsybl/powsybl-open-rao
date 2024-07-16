@@ -10,7 +10,6 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 
 import java.util.Map;
 import java.util.Set;
@@ -87,7 +86,5 @@ public interface OptimizationPerimeter {
      Returns a set of all the RangeActions that will be optimized on any state
      */
     Set<RangeAction<?>> getRangeActions();
-
-    ObjectiveFunction getObjectiveFunction();
 
 }

@@ -72,6 +72,6 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
 
     @Override
     public Set<FlowCnec> getFlowCnecs() {
-        return Collections.emptySet();
+        return flowCnecs;
     }
 }

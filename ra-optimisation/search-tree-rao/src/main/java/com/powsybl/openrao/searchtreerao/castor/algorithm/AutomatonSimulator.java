@@ -94,6 +94,7 @@ public final class AutomatonSimulator {
      */
     PerimeterResultWithCnecs simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network, StateTree stateTree, TreeParameters automatonTreeParameters) {
         OptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, network, raoParameters, previousPerimeterResult);
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(autoOptimizationPerimeter.getFlowCnecs(), autoOptimizationPerimeter.getLoopFlowCnecs(), initialFlowResult, previousPerimeterResult, stateTree.getOperatorsNotSharingCras(), raoParameters);
 
         TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonState.getId());
         TECHNICAL_LOGS.info("Initial situation:");
@@ -120,7 +121,7 @@ public final class AutomatonSimulator {
         PerimeterResultWithCnecs postAutoSearchTreeResult = topoSimulationResult;
 
         if (!autoOptimizationPerimeter.getNetworkActions().isEmpty()) {
-            autoSearchTreeResult = runAutoSearchTree(automatonState, network, stateTree, automatonTreeParameters, autoOptimizationPerimeter, topoSimulationResult.getActivatedNetworkActions());
+            autoSearchTreeResult = runAutoSearchTree(automatonState, network, stateTree, automatonTreeParameters, autoOptimizationPerimeter, topoSimulationResult.getActivatedNetworkActions(), objectiveFunction);
             if (autoSearchTreeResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return createFailedAutomatonPerimeterResult(automatonState, autoSearchTreeResult, autoSearchTreeResult.getActivatedNetworkActions(), "during");
             }
@@ -140,12 +141,12 @@ public final class AutomatonSimulator {
             RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, rangeAutomatonSimulationResult.getActivatedNetworkActions(), getRangeActionsAndTheirTapsApplied(rangeAutomatonSimulationResult));
         } else {
             TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
-            RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, rangeAutomatonSimulationResult.getActivatedNetworkActions(), getRangeActionsAndTheirTapsApplied(rangeAutomatonSimulationResult), null, rangeAutomatonSimulationResult);
+            RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, rangeAutomatonSimulationResult.getActivatedNetworkActions(), getRangeActionsAndTheirTapsApplied(rangeAutomatonSimulationResult), previousPerimeterResult, rangeAutomatonSimulationResult);
         }
         return rangeAutomatonSimulationResult;
     }
 
-    private OptimizationResult runAutoSearchTree(State automatonState, Network network, StateTree stateTree, TreeParameters automatonTreeParameters, OptimizationPerimeter autoOptimizationPerimeter, Set<NetworkAction> forcedNetworkActions) {
+    private OptimizationResult runAutoSearchTree(State automatonState, Network network, StateTree stateTree, TreeParameters automatonTreeParameters, OptimizationPerimeter autoOptimizationPerimeter, Set<NetworkAction> forcedNetworkActions, ObjectiveFunction objectiveFunction) {
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(automatonTreeParameters)
@@ -161,7 +162,7 @@ public final class AutomatonSimulator {
             .withInitialFlowResult(initialFlowResult)
             .withPrePerimeterResult(previousPerimeterResult)
             .withPreOptimizationAppliedNetworkActions(appliedRemedialActions)
-            .withObjectiveFunction(autoOptimizationPerimeter.getObjectiveFunction())
+            .withObjectiveFunction(objectiveFunction)
             .withToolProvider(toolProvider)
             .withOutageInstant(crac.getOutageInstant())
             .build();

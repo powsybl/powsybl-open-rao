@@ -107,7 +107,8 @@ public class Leaf {
     Leaf(OptimizationPerimeter optimizationPerimeter,
          Network network,
          PerimeterResultWithCnecs previousPerimeterResult,
-         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates,
+         ObjectiveFunction objectiveFunction) {
         this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
         this.previousPerimeterResult = previousPerimeterResult;
@@ -115,7 +116,7 @@ public class Leaf {
         this.previousDepthResult = null;
         this.shouldPreviousDepthMainStateRangeActionBeRemoved = true;
 
-        this.preOptimResult = new SearchTreeResult(PerimeterResultWithCnecs.buildFromPreviousResultWithNewObjectiveFunction(previousPerimeterResult, optimizationPerimeter.getObjectiveFunction()), new MultiStateRemedialActionResultImpl(previousPerimeterResult, appliedRemedialActionsInSecondaryStates, optimizationPerimeter));
+        this.preOptimResult = new SearchTreeResult(PerimeterResultWithCnecs.buildFromPreviousResultWithNewObjectiveFunction(previousPerimeterResult, objectiveFunction), new MultiStateRemedialActionResultImpl(previousPerimeterResult, appliedRemedialActionsInSecondaryStates, optimizationPerimeter));
         this.postOptimResult = preOptimResult;
         this.status = Status.EVALUATED;
     }
