@@ -22,7 +22,7 @@
   "contingencies": [],
   "flowCnecs": [
     {
-      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS0",
+      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS2",
       "name": "BBE2AA1  FFR3AA1  1 - preventive",
       "networkElementId": "BBE2AA1  FFR3AA1  1",
       "operator": "BE",
@@ -40,8 +40,8 @@
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -500.0,
-          "max": 500.0,
+          "min": -200.0,
+          "max": 200.0,
           "side": "left"
         }
       ]
@@ -51,7 +51,7 @@
   "hvdcRangeActions": [],
   "injectionRangeActions": [
     {
-      "id": "injectionRangeActionGenerator - TS0",
+      "id": "injectionRangeActionGenerator - TS2",
       "name": "injectionRangeActionName",
       "operator": null,
       "speed": 30,
@@ -67,13 +67,18 @@
       "initialSetpoint": 500,
       "ranges": [
         {
-          "min": 300.0,
+          "min": -500.0,
           "max": 1000.0
+        },
+        {
+          "min": -400.0,
+          "max": 400.0,
+          "rangeType" : "relativeToPreviousTimeStep"
         }
       ]
     },
     {
-      "id": "injectionRangeActionLoad - TS0",
+      "id": "injectionRangeActionLoad - TS2",
       "name": "injectionRangeActionName",
       "operator": null,
       "speed": 30,
@@ -86,11 +91,16 @@
       "networkElementIdsAndKeys": {
         "DDE1AA1 _load": 1.0
       },
-      "initialSetpoint": 500,
+      "initialSetpoint": -500,
       "ranges": [
         {
           "min": -1000.0,
-          "max": -300.0
+          "max": 500.0
+        },
+        {
+          "min": -400.0,
+          "max": 400.0,
+          "rangeType" : "relativeToPreviousTimeStep"
         }
       ]
     }

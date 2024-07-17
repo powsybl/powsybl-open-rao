@@ -192,7 +192,6 @@ public class NewRAOTest {
 
         linearProblemMerge.fill(initialSensiResult, initialSensiResult);
         linearProblemMerge.solve();
-        System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
         // Pour avoir le setpoint après résolution du problème
         PstRangeAction pstRa0 = cracs.get(0).getPstRangeActions().iterator().next();
         PstRangeAction pstRa1 = cracs.get(1).getPstRangeActions().iterator().next();

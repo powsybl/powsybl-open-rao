@@ -204,8 +204,8 @@ public class ComplexScenariosMultiTsTest {
     public void testFourTimestepsOnePst() {
         List<String> cracsPaths = List.of(
             "multi-ts/crac/crac-case0_0.json",
-            "multi-ts/crac/crac-no-pst-1.json",
-            "multi-ts/crac/crac-no-pst-2.json",
+            "multi-ts/crac/crac-no-ra-1.json",
+            "multi-ts/crac/crac-no-ra-2.json",
             "multi-ts/crac/crac-pst-3.json"
         );
         List<String> networksPaths = List.of(

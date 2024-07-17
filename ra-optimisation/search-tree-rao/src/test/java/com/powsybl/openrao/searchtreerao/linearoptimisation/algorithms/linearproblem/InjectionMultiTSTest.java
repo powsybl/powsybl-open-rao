@@ -190,7 +190,6 @@ public class InjectionMultiTSTest {
 
         linearProblemMerge.fill(initialSensiResult, initialSensiResult);
         linearProblemMerge.solve();
-        System.out.println(orMpSolver.getMpSolver().exportModelAsLpFormat());
 
         InjectionRangeAction injectionGenRa0 = cracs.get(0).getInjectionRangeAction("injectionRangeActionGenerator - TS0");
         InjectionRangeAction injectionGenRa1 = cracs.get(1).getInjectionRangeAction("injectionRangeActionGenerator - TS1");
@@ -203,8 +202,10 @@ public class InjectionMultiTSTest {
         double setpointMergeLoad0 = linearProblemMerge.getRangeActionSetpointVariable(injectionLoadRa0, state0).solutionValue();
         double setpointMergeLoad1 = linearProblemMerge.getRangeActionSetpointVariable(injectionLoadRa1, state1).solutionValue();
 
+        System.out.println("--------TS0---------");
         System.out.println(setpointMergeGen0);
         System.out.println(setpointMergeLoad0);
+        System.out.println("--------TS1---------");
         System.out.println(setpointMergeGen1);
         System.out.println(setpointMergeLoad1);
     }

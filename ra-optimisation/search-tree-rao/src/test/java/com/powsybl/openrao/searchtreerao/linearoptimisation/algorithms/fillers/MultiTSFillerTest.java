@@ -101,8 +101,8 @@ class MultiTSFillerTest {
         // crac and network
         List<String> cracsPaths = List.of(
             "multi-ts/crac/crac-case1_0.json",
-            "multi-ts/crac/crac-no-pst-1.json",
-            "multi-ts/crac/crac-no-pst-2.json",
+            "multi-ts/crac/crac-no-ra-1.json",
+            "multi-ts/crac/crac-no-ra-2.json",
             "multi-ts/crac/crac-pst-3.json"
         );
         List<String> networksPaths = Collections.nCopies(4, "multi-ts/network/12NodesProdFR.uct");
@@ -232,9 +232,6 @@ class MultiTSFillerTest {
 
     private void initializeContinuous() {
         initTwoTimesteps();
-        // arrange some additional data
-//        networks.get(0).getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-//        networks.get(1).getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
         raoParameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         buildLinearProblem();
@@ -242,9 +239,6 @@ class MultiTSFillerTest {
 
     private void initializeDiscrete() {
         initTwoTimesteps();
-        // arrange some additional data
-//        networks.get(0).getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-//        networks.get(1).getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
         raoParameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         buildLinearProblem();
@@ -294,7 +288,7 @@ class MultiTSFillerTest {
     }
 
     @Test
-    void testFillContinuous() {
+    void testFillPstContinuous() {
         initializeContinuous();
         State state0 = cnecs.get(0).getState();
         State state1 = cnecs.get(1).getState();
@@ -360,7 +354,7 @@ class MultiTSFillerTest {
     }
 
     @Test
-    void testFillDiscrete() {
+    void testFillPstDiscrete() {
         initializeDiscrete();
         State state0 = cnecs.get(0).getState();
         State state1 = cnecs.get(1).getState();

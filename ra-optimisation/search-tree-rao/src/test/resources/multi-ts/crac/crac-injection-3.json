@@ -22,7 +22,7 @@
   "contingencies": [],
   "flowCnecs": [
     {
-      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS0",
+      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS3",
       "name": "BBE2AA1  FFR3AA1  1 - preventive",
       "networkElementId": "BBE2AA1  FFR3AA1  1",
       "operator": "BE",
@@ -51,7 +51,7 @@
   "hvdcRangeActions": [],
   "injectionRangeActions": [
     {
-      "id": "injectionRangeActionGenerator - TS0",
+      "id": "injectionRangeActionGenerator - TS3",
       "name": "injectionRangeActionName",
       "operator": null,
       "speed": 30,
@@ -73,7 +73,7 @@
       ]
     },
     {
-      "id": "injectionRangeActionLoad - TS0",
+      "id": "injectionRangeActionLoad - TS3",
       "name": "injectionRangeActionName",
       "operator": null,
       "speed": 30,

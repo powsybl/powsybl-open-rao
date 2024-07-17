@@ -22,7 +22,11 @@ public class SimpleInjectionRaoTest {
     @BeforeEach
     public void setUp() {
         network = Network.read("network/12Nodes_3gen_BE.uct", getClass().getResourceAsStream("/network/12Nodes_3gen_BE.uct"));
+        raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
+    }
 
+    @Test
+    public void testRunRaoInjection0() {
         crac = CracImporters.importCrac("crac/small-crac-no-range-action.json",
             getClass().getResourceAsStream("/crac/small-crac-no-range-action.json"),
             network);
@@ -50,11 +54,16 @@ public class SimpleInjectionRaoTest {
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInput, raoParameters);
     }
 
     @Test
-    public void testRunRaoInjection() {
+    public void testRunRaoInjection1() {
+        crac = CracImporters.importCrac("multi-ts/crac/crac-injection-ts1.json",
+            getClass().getResourceAsStream("/multi-ts/crac/crac-injection-ts1.json"),
+            network);
+
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInput, raoParameters);
     }

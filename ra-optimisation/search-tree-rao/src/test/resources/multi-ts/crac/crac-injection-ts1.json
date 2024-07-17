@@ -40,8 +40,8 @@
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -500.0,
-          "max": 500.0,
+          "min": -200.0,
+          "max": 200.0,
           "side": "left"
         }
       ]
@@ -67,8 +67,13 @@
       "initialSetpoint": 500,
       "ranges": [
         {
-          "min": 100.0,
+          "min": -500.0,
           "max": 1000.0
+        },
+        {
+          "min": -400.0,
+          "max": 400.0,
+          "rangeType" : "relativeToPreviousTimeStep"
         }
       ]
     },
@@ -86,11 +91,16 @@
       "networkElementIdsAndKeys": {
         "DDE1AA1 _load": 1.0
       },
-      "initialSetpoint": 500,
+      "initialSetpoint": -500,
       "ranges": [
         {
           "min": -1000.0,
-          "max": -100.0
+          "max": 500.0
+        },
+        {
+          "min": -400.0,
+          "max": 400.0,
+          "rangeType" : "relativeToPreviousTimeStep"
         }
       ]
     }
