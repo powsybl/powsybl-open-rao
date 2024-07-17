@@ -71,21 +71,4 @@ public class AppliedNetworkActionsResult {
         return powerToBeRedispatched;
     }
 
-    public void addAll(AppliedNetworkActionsResult result) {
-        // Create new collections to hold the combined results
-        Set<RemedialAction> combinedNetworkActions = new HashSet<>(this.appliedNetworkActions);
-        combinedNetworkActions.addAll(result.getAppliedNetworkActions());
-        Set<String> combinedNetworkElements = new HashSet<>(this.networkElementsToBeExcluded);
-        combinedNetworkElements.addAll(result.getNetworkElementsToBeExcluded());
-        Map<Country, Double> combinedPowerToBeRedispatched = new HashMap<>(this.powerToBeRedispatched);
-        combinedPowerToBeRedispatched.putAll(result.getPowerToBeRedispatched());
-
-        // Return a new instance using the builder
-        new AppliedNetworkActionsResultBuilder()
-            .withAppliedNetworkActions(combinedNetworkActions)
-            .withNetworkElementsToBeExcluded(combinedNetworkElements)
-            .withPowerToBeRedispatched(combinedPowerToBeRedispatched)
-            .build();
-    }
-
 }
