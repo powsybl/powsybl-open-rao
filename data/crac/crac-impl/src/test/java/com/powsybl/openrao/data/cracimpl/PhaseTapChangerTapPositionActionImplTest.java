@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -104,12 +103,7 @@ class PhaseTapChangerTapPositionActionImplTest {
             .withTapPosition(17)
             .add()
             .add();
-        try {
-            pstSetpoint.apply(network);
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("2 windings transformer 'BBE2AA1  BBE3AA1  1': incorrect tap position 17 [-16, 16]", e.getMessage());
-        }
+        assertFalse(pstSetpoint.apply(network));
     }
 
     @Test
@@ -122,12 +116,7 @@ class PhaseTapChangerTapPositionActionImplTest {
             .withTapPosition(50)
             .add()
             .add();
-        try {
-            pstSetpoint.apply(network);
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("2 windings transformer 'BBE2AA1  BBE3AA1  1': incorrect tap position 50 [-16, 16]", e.getMessage());
-        }
+        assertFalse(pstSetpoint.apply(network));
     }
 
     @Test

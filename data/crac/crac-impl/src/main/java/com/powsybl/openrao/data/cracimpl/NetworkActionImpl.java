@@ -103,14 +103,15 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
                 return shuntCompensatorPositionAction.getSectionCount() <= shuntCompensator.getMaximumSectionCount();
             } else if (elementaryAction instanceof GeneratorAction || elementaryAction instanceof LoadAction || elementaryAction instanceof DanglingLineAction) {
                 return true;
-            } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction) {
-                // TODO : setpoint out of range ?
-                return true;
+            } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
+                // hypothesis: transformer is a two windings transformer
+                PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(phaseTapChangerTapPositionAction.getTransformerId()).getPhaseTapChanger();
+                int tapPosition = phaseTapChangerTapPositionAction.getTapPosition();
+                return tapPosition >= phaseTapChanger.getLowTapPosition() && tapPosition <= phaseTapChanger.getHighTapPosition();
             } else if (elementaryAction instanceof SwitchPair switchPair) {
                 // It is only applicable if, initially, one switch was closed and the other was open.
                 return network.getSwitch(switchPair.getSwitchToOpen().getId()).isOpen() != network.getSwitch(switchPair.getSwitchToClose().getId()).isOpen();
             } else if (elementaryAction instanceof TerminalsConnectionAction || elementaryAction instanceof SwitchAction) {
-                // TODO : always true ?
                 return true;
             } else {
                 throw new NotImplementedException();

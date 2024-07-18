@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation.createCracWithRemedialActions;
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,21 +25,23 @@ import static org.junit.jupiter.api.Assertions.*;
 class SwitchActionImplTest {
     private NetworkAction topologyOpen;
     private NetworkAction topologyClose;
+    private Network network;
 
     @BeforeEach
     public void setUp() {
+        network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
         Crac crac = new CracImplFactory().create("cracId");
         topologyOpen = crac.newNetworkAction()
             .withId("topologyOpen")
             .newSwitchAction()
-                .withNetworkElement("FFR2AA1  DDE3AA1  1")
+                .withNetworkElement("NNL3AA11 NNL3AA12 1")
                 .withActionType(ActionType.OPEN)
                 .add()
             .add();
         topologyClose = crac.newNetworkAction()
             .withId("topologyClose")
             .newSwitchAction()
-                .withNetworkElement("FFR2AA1  DDE3AA1  1")
+                .withNetworkElement("NNL3AA11 NNL3AA12 1")
                 .withActionType(ActionType.CLOSE)
                 .add()
             .add();
@@ -49,8 +50,8 @@ class SwitchActionImplTest {
     @Test
     void basicMethods() {
         assertEquals(1, topologyOpen.getNetworkElements().size());
-        assertEquals("FFR2AA1  DDE3AA1  1", topologyOpen.getNetworkElements().iterator().next().getId());
-        assertTrue(topologyOpen.canBeApplied(Mockito.mock(Network.class)));
+        assertEquals("NNL3AA11 NNL3AA12 1", topologyOpen.getNetworkElements().iterator().next().getId());
+        assertTrue(topologyOpen.canBeApplied(network));
     }
 
     @Test
@@ -115,7 +116,7 @@ class SwitchActionImplTest {
         NetworkAction similarTopologyClose = crac.newNetworkAction()
             .withId("topologyClose")
             .newSwitchAction()
-            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withNetworkElement("NNL3AA11 NNL3AA12 1")
             .withActionType(ActionType.CLOSE)
             .add()
             .add();
