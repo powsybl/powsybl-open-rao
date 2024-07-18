@@ -23,10 +23,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
-import com.powsybl.openrao.monitoring.results.AngleCnecResult;
-import com.powsybl.openrao.monitoring.results.CnecResult;
-import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.VoltageCnecResult;
+import com.powsybl.openrao.monitoring.results.*;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.util.*;
@@ -45,6 +42,24 @@ public class Monitoring {
     public Monitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
         this.loadFlowParameters = loadFlowParameters;
+    }
+
+    /**
+     * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
+     * Returns an RaoResult enhanced with AngleMonitoringResult
+     */
+    public RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
+        // TODO add min(numberOfLoadFlowsInParallel, contingencyStates.size())
+        return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput));
+    }
+
+    /**
+     * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
+     * Returns an RaoResult enhanced with VoltageMonitoringResult
+     */
+    public RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) {
+        // TODO add min(numberOfLoadFlowsInParallel, contingencyStates.size())
+        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput));
     }
 
     public MonitoringResult runMonitoring(MonitoringInput monitoringInput) {
