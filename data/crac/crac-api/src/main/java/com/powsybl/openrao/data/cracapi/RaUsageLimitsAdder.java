@@ -24,5 +24,7 @@ public interface RaUsageLimitsAdder {
 
     RaUsageLimitsAdder withMaxRaPerTso(Map<String, Integer> maxRaPerTso);
 
+    RaUsageLimitsAdder withMaxElementaryActionPerTso(Map<String, Integer> maxRaPerTso);
+
     RaUsageLimits add();
 }

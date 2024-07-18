@@ -61,6 +61,12 @@ public class RaUsageLimitsAdderImpl implements RaUsageLimitsAdder {
     }
 
     @Override
+    public RaUsageLimitsAdder withMaxElementaryActionPerTso(Map<String, Integer> maxElementaryActionPerTso) {
+        raUsageLimits.setMaxElementaryActionsPerTso(maxElementaryActionPerTso);
+        return this;
+    }
+
+    @Override
     public RaUsageLimits add() {
         owner.addRaUsageLimits(instant, raUsageLimits);
         return raUsageLimits;

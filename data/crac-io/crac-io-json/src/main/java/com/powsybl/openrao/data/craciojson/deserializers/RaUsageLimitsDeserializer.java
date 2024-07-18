@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.INSTANT;
+import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.MAX_ELEMENTARY_ACTIONS_PER_TSO;
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.MAX_RA;
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.MAX_TSO;
 import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.MAX_TOPO_PER_TSO;
@@ -44,6 +45,7 @@ public final class RaUsageLimitsDeserializer {
                 .withMaxRaPerTso(raUsageLimits.getMaxRaPerTso())
                 .withMaxPstPerTso(raUsageLimits.getMaxPstPerTso())
                 .withMaxTopoPerTso(raUsageLimits.getMaxTopoPerTso())
+                .withMaxElementaryActionPerTso(raUsageLimits.getMaxElementaryActionsPerTso())
                 .add();
         }
     }
@@ -90,6 +92,10 @@ public final class RaUsageLimitsDeserializer {
                 case MAX_RA_PER_TSO -> {
                     jsonParser.nextToken();
                     raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser));
+                }
+                case MAX_ELEMENTARY_ACTIONS_PER_TSO -> {
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxElementaryActionsPerTso(readStringToPositiveIntMap(jsonParser));
                 }
                 default ->
                     throw new OpenRaoException(String.format("Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)", RA_USAGE_LIMITS_PER_INSTANT, jsonParser.getCurrentName()));

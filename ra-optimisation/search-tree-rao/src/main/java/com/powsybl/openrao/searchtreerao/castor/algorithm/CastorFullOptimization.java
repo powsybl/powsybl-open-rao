@@ -366,14 +366,16 @@ public class CastorFullOptimization {
             PrePerimeterResult previousPerimeterResult = preCurativeResult;
             // Optimize curative perimeters
             Map<State, OptimizationResult> resultsPerPerimeter = new HashMap<>();
+            Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter = new HashMap<>();
             for (Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
                 State curativeState = curativePerimeter.getRaOptimisationState();
                 if (previousPerimeterResult == null) {
                     previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(crac, curativePerimeter, toolProvider).runBasedOnInitialResults(networkClone, raoInput.getCrac(), previousPerimeterResult, previousPerimeterResult, stateTree.getOperatorsNotSharingCras(), null);
                 }
+                prePerimeterResultPerPerimeter.put(curativePerimeter.getRaOptimisationState(), previousPerimeterResult);
                 if (allPreviousPerimetersSucceded) {
                     OptimizationResult curativeResult = optimizeCurativePerimeter(curativePerimeter, crac, networkClone,
-                        raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, previousPerimeterResult, resultsPerPerimeter);
+                        raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, previousPerimeterResult, resultsPerPerimeter, prePerimeterResultPerPerimeter);
                     allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
                     contingencyScenarioResults.put(curativeState, curativeResult);
                     applyRemedialActions(networkClone, curativeResult, curativeState);
@@ -409,7 +411,8 @@ public class CastorFullOptimization {
                                                          TreeParameters curativeTreeParameters,
                                                          PrePerimeterResult initialSensitivityOutput,
                                                          PrePerimeterResult prePerimeterSensitivityOutput,
-                                                         Map<State, OptimizationResult> resultsPerPerimeter) {
+                                                         Map<State, OptimizationResult> resultsPerPerimeter,
+                                                         Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter) {
         State curativeState = curativePerimeter.getRaOptimisationState();
         TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
 
@@ -421,7 +424,7 @@ public class CastorFullOptimization {
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
             .build();
 
-        searchTreeParameters.decreaseRemedialActionUsageLimits(resultsPerPerimeter);
+        searchTreeParameters.decreaseRemedialActionUsageLimits(resultsPerPerimeter, prePerimeterResultPerPerimeter);
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
