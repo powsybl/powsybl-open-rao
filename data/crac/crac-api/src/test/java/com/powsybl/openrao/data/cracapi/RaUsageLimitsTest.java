@@ -35,6 +35,7 @@ class RaUsageLimitsTest {
         assertTrue(raUsageLimits.getMaxRaPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxPstPerTso().isEmpty());
         assertTrue(raUsageLimits.getMaxTopoPerTso().isEmpty());
+        assertTrue(raUsageLimits.getMaxElementaryActionsPerTso().isEmpty());
         // set regular values
         raUsageLimits.setMaxRa(4);
         assertEquals(4, raUsageLimits.getMaxRa());
@@ -49,6 +50,9 @@ class RaUsageLimitsTest {
         Map<String, Integer> raMap = Map.of("FR", 7, "DE", 10);
         raUsageLimits.setMaxRaPerTso(raMap);
         assertEquals(raMap, raUsageLimits.getMaxRaPerTso());
+        Map<String, Integer> elementaryActionsMap = Map.of("FR", 3, "DE", 2);
+        raUsageLimits.setMaxElementaryActionsPerTso(elementaryActionsMap);
+        assertEquals(elementaryActionsMap, raUsageLimits.getMaxElementaryActionsPerTso());
     }
 
     @Test
@@ -63,6 +67,7 @@ class RaUsageLimitsTest {
         raUsageLimits1.setMaxRaPerTso(Map.of("FR", 4));
         raUsageLimits1.setMaxTopoPerTso(Map.of("FR", 2));
         raUsageLimits1.setMaxPstPerTso(Map.of("FR", 3));
+        raUsageLimits1.setMaxElementaryActionsPerTso(Map.of("FR", 3));
         assertNotEquals(raUsageLimits1, raUsageLimits2);
         // applies the same modification to the second object
         raUsageLimits2.setMaxRa(3);
@@ -70,6 +75,7 @@ class RaUsageLimitsTest {
         raUsageLimits2.setMaxRaPerTso(Map.of("FR", 4));
         raUsageLimits2.setMaxTopoPerTso(Map.of("FR", 2));
         raUsageLimits2.setMaxPstPerTso(Map.of("FR", 3));
+        raUsageLimits2.setMaxElementaryActionsPerTso(Map.of("FR", 3));
         assertEquals(raUsageLimits1, raUsageLimits2);
     }
 
@@ -109,6 +115,8 @@ class RaUsageLimitsTest {
         assertTrue(raUsageLimits.getMaxTopoPerTso().isEmpty());
         raUsageLimits.setMaxRaPerTso(null);
         assertTrue(raUsageLimits.getMaxRaPerTso().isEmpty());
+        raUsageLimits.setMaxElementaryActionsPerTso(null);
+        assertTrue(raUsageLimits.getMaxElementaryActionsPerTso().isEmpty());
         // check logs
         assertEquals(3, logsList.size());
         assertEquals("The value -3 provided for max number of TSOs is smaller than 0. It will be set to 0 instead.", logsList.get(0).getFormattedMessage());

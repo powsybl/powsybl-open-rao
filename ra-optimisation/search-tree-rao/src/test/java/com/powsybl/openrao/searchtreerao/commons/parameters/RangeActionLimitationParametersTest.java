@@ -47,6 +47,7 @@ class RangeActionLimitationParametersTest {
         ralp.setMaxTsoExclusion(state2, Set.of("DE"));
         ralp.setMaxPstPerTso(state1, Map.of("BE", 1));
         ralp.setMaxRangeActionPerTso(state1, Map.of("FR", 3));
+        ralp.setMaxElementaryActionsPerTso(state1, Map.of("FR", 7));
 
         assertNull(ralp.getMaxRangeActions(state0));
         assertEquals(Integer.valueOf(2), ralp.getMaxRangeActions(state1));
@@ -67,6 +68,10 @@ class RangeActionLimitationParametersTest {
         assertTrue(ralp.getMaxRangeActionPerTso(state0).isEmpty());
         assertEquals(Map.of("FR", 3), ralp.getMaxRangeActionPerTso(state1));
         assertTrue(ralp.getMaxRangeActionPerTso(state2).isEmpty());
+
+        assertTrue(ralp.getMaxRangeActionPerTso(state0).isEmpty());
+        assertEquals(Map.of("FR", 7), ralp.getMaxElementaryActionsPerTso(state1));
+        assertTrue(ralp.getMaxElementaryActionsPerTso(state2).isEmpty());
 
         assertFalse(ralp.areRangeActionLimitedForState(state0));
         assertTrue(ralp.areRangeActionLimitedForState(state1));
