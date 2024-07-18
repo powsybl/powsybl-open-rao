@@ -123,14 +123,15 @@ public class Monitoring {
         if (!lfSuccess) {
             return makeResultWhenLoadFlowFails(monitoringInput.getPhysicalParameter(), state, monitoringInput.getCrac());
         }
+
         // compute cnec results
         Set<? extends CnecResult> cnecResults = monitoringInput.getPhysicalParameter().equals(PhysicalParameter.ANGLE) ? computeAngles((Set<AngleCnec>) cnecs, network) : computeVoltages((Set<VoltageCnec>) cnecs, network);
-        // Check for threshold overshoot for the voltages/angles of each cnec
 
+        // Check for threshold overshoot for the voltages/angles of each cnec
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
         cnecResults.forEach(cnecResult -> {
             if (cnecResult.thresholdOvershoot()) {
-                // 2) For Cnecs with overshoot, get associated remedial actions
+                // For Cnecs with overshoot, get associated remedial actions
                 Set<NetworkAction> availableNetworkActions = getNetworkActionsAssociatedToCnec(state, monitoringInput.getCrac(), cnecResult.getCnec(), monitoringInput.getPhysicalParameter());
                 // and apply them
                 AppliedNetworkActionsResult appliedNetworkActionsResult = applyNetworkActions(network, availableNetworkActions, cnecResult.getCnec().getId(), monitoringInput);
@@ -148,7 +149,6 @@ public class Monitoring {
             boolean loadFlowIsOk = computeLoadFlow(network);
             if (!loadFlowIsOk) {
                 BUSINESS_WARNS.warn("Load-flow computation failed at state {} after applying RAs. Skipping this state.", state);
-                // TODO FAILURE or VoltageMonitoringResult.getUnsecureStatus(voltageValues)
                 return new MonitoringResult(monitoringInput.getPhysicalParameter(), cnecResults, Map.of(state, Collections.emptySet()), MonitoringResult.Status.FAILURE);
             }
         }
@@ -205,12 +205,12 @@ public class Monitoring {
             crac.getVoltageCnecs(state).forEach(vc ->
                 voltageCnecResults.add(new VoltageCnecResult(vc, new VoltageCnecResult.ExtremeVoltageValues(new HashSet<>(List.of(Double.NaN))))
                 ));
-            return new MonitoringResult(physicalParameter, voltageCnecResults, new HashMap<>(), MonitoringResult.Status.DIVERGENT);
+            return new MonitoringResult(physicalParameter, voltageCnecResults, new HashMap<>(), MonitoringResult.Status.FAILURE);
         } else {
             // ANGLE
             Set<AngleCnecResult> angleCnecResults = new HashSet<>();
             crac.getAngleCnecs(state).forEach(ac -> angleCnecResults.add(new AngleCnecResult(ac, Double.NaN)));
-            return new MonitoringResult(physicalParameter, angleCnecResults, new HashMap<>(), MonitoringResult.Status.DIVERGENT);
+            return new MonitoringResult(physicalParameter, angleCnecResults, new HashMap<>(), MonitoringResult.Status.FAILURE);
         }
     }
 

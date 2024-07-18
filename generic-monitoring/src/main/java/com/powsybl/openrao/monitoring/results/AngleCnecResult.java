@@ -4,6 +4,8 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 
+import static com.powsybl.openrao.monitoring.results.MonitoringResult.Status.*;
+
 /**
  * Utility class to hold results for a single angleCnec
  */
@@ -48,7 +50,23 @@ public class AngleCnecResult implements CnecResult {
     @Override
     public MonitoringResult.Status getStatus() {
         if (thresholdOvershoot()) {
-            return MonitoringResult.Status.FAILURE;
+            boolean highVoltageConstraints = false;
+            boolean lowVoltageConstraints = false;
+            if (angleCnec.getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMax() && angle > threshold.max().orElseThrow())) {
+                highVoltageConstraints = true;
+            }
+            if (angleCnec.getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMin() && angle < threshold.min().orElseThrow())) {
+                lowVoltageConstraints = true;
+            }
+            if (highVoltageConstraints && lowVoltageConstraints) {
+                return HIGH_AND_LOW_CONSTRAINTS;
+            } else if (highVoltageConstraints) {
+                return HIGH_CONSTRAINT;
+            } else {
+                return LOW_CONSTRAINT;
+            }
         } else {
             return MonitoringResult.Status.SECURE;
         }

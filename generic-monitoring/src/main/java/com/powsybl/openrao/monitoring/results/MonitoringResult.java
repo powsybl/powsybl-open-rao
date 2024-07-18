@@ -56,8 +56,8 @@ public class MonitoringResult {
     }
 
     public List<String> printConstraints() {
-        if (isDivergent()) {
-            return List.of("Load flow divergence.");
+        if (status.equals(FAILURE)) {
+            return List.of(physicalParameter + " monitoring failed due to a load flow divergence or an inconsistency in the crac.");
         }
         List<String> constraints = new ArrayList<>();
         if (physicalParameter.equals(PhysicalParameter.ANGLE)) {
@@ -81,9 +81,6 @@ public class MonitoringResult {
         return constraints;
     }
 
-    public boolean isDivergent() {
-        return getStatus() == Status.DIVERGENT;
-    }
 
     public enum Status {
         SECURE,
@@ -91,7 +88,6 @@ public class MonitoringResult {
         LOW_CONSTRAINT,
         HIGH_AND_LOW_CONSTRAINTS,
         FAILURE,
-        DIVERGENT;
     }
 
     public void combine(MonitoringResult monitoringResult) {
@@ -120,11 +116,6 @@ public class MonitoringResult {
     }
 
     public static Status combineStatuses(Status... status) {
-        boolean atLeastOneDivergent = Arrays.asList(status).contains(DIVERGENT);
-        if (atLeastOneDivergent) {
-            return DIVERGENT;
-        }
-
         boolean atLeastOneFailed = Arrays.asList(status).contains(FAILURE);
         if (atLeastOneFailed) {
             return FAILURE;

@@ -432,7 +432,7 @@ public class VoltageMonitoringTest {
 
         runVoltageMonitoring();
 
-        assertEquals(DIVERGENT, voltageMonitoringResult.getStatus());
+        assertEquals(FAILURE, voltageMonitoringResult.getStatus());
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
         VoltageCnecResult.ExtremeVoltageValues extremeVoltageValuesVcPrev = voltageMonitoringResult.getCnecResults().stream().filter(VoltageCnecResult.class::isInstance).filter(cnec -> ((VoltageCnecResult) cnec).getId().equals("vcPrev")).map(cnecResult -> ((VoltageCnecResult) cnecResult).getExtremeVoltageValues()).findFirst().get();
 
