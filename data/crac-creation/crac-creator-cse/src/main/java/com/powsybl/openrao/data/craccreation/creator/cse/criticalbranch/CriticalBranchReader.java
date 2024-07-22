@@ -117,7 +117,7 @@ public class CriticalBranchReader {
                 // curative
                 this.isBaseCase = false;
                 this.contingencyId = outage;
-                if(importCurativeCnecs(tBranch, branchHelper, outage, crac, isMonitored)) {
+                if (importCurativeCnecs(tBranch, branchHelper, outage, crac, isMonitored)) {
                     this.criticalBranchImportStatus = ImportStatus.IMPORTED;
                     this.isImported = true;
                 } else {
