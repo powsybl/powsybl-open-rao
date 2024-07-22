@@ -69,6 +69,7 @@ public final class ExhaustiveCracCreation {
             .withMaxPstPerTso(new HashMap<>(Map.of("FR", 7)))
             .withMaxTopoPerTso(new HashMap<>(Map.of("FR", 5, "BE", 6)))
             .withMaxRaPerTso(new HashMap<>(Map.of("FR", 12)))
+            .withMaxElementaryActionPerTso(new HashMap<>(Map.of("FR", 21)))
             .add();
 
         String contingency1Id = "contingency1Id";

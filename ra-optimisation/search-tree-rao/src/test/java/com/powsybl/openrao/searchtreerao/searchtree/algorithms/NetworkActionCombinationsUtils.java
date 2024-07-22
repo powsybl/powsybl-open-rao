@@ -98,4 +98,20 @@ public final class NetworkActionCombinationsUtils {
         conversionMap.put(1, 1.);
         return CRAC.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
     }
+
+    static PstRangeAction addPstRangeActionToCrac() {
+        CommonCracCreation.IidmPstHelper iidmPstHelper = new CommonCracCreation.IidmPstHelper("BBE2AA1  BBE3AA1  1", NETWORK);
+
+        Crac crac = CommonCracCreation.create();
+        crac.newPstRangeAction()
+            .withId("pst-range-action")
+            .withName("pst-range-action")
+            .withOperator("BE")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1")
+            .withInitialTap(iidmPstHelper.getInitialTap())
+            .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap())
+            .add();
+
+        return crac.getPstRangeAction("pst-range-action");
+    }
 }

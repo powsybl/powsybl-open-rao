@@ -160,12 +160,12 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }
 
-    public OpenRaoMPConstraint addPstRelativeTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state, VariationDirectionExtension variation) {
-        return solver.makeConstraint(lb, ub, pstRangeActionRelativeTapConstraintId(pstRangeAction, state, variation));
+    public OpenRaoMPConstraint addPstRelativeTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(lb, ub, pstRangeActionRelativeTapConstraintId(pstRangeAction, state));
     }
 
-    public OpenRaoMPConstraint getPstRelativeTapConstraint(PstRangeAction pstRangeAction, State state, VariationDirectionExtension variation) {
-        return solver.getConstraint(pstRangeActionRelativeTapConstraintId(pstRangeAction, state, variation));
+    public OpenRaoMPConstraint getPstRelativeTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.getConstraint(pstRangeActionRelativeTapConstraintId(pstRangeAction, state));
     }
 
     public OpenRaoMPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
@@ -427,6 +427,30 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction, State state) {
         return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
+    }
+
+    public OpenRaoMPVariable addPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
+        return solver.makeIntVar(0, infinity(), pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPVariable getPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
+        return solver.getVariable(pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addPstAbsoluteVariationFromInitialTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state, AbsExtension positiveOrNegative) {
+        return solver.makeConstraint(lb, ub, pstAbsoluteVariationFromInitialTapConstraintId(pstRangeAction, state, positiveOrNegative));
+    }
+
+    public OpenRaoMPConstraint getPstAbsoluteVariationFromInitialTapConstraint(PstRangeAction pstRangeAction, State state, AbsExtension positiveOrNegative) {
+        return solver.getConstraint(pstAbsoluteVariationFromInitialTapConstraintId(pstRangeAction, state, positiveOrNegative));
+    }
+
+    public OpenRaoMPConstraint addTsoMaxElementaryActionsConstraint(double lb, double ub, String operator, State state) {
+        return solver.makeConstraint(lb, ub, maxElementaryActionsPerTsoConstraintId(operator, state));
+    }
+
+    public OpenRaoMPConstraint getTsoMaxElementaryActionsConstraint(String operator, State state) {
+        return solver.getConstraint(maxElementaryActionsPerTsoConstraintId(operator, state));
     }
 
     public double infinity() {

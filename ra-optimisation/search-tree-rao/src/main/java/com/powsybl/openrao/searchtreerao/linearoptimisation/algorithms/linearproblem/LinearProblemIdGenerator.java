@@ -9,8 +9,8 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 
 /**
@@ -46,6 +46,8 @@ public final class LinearProblemIdGenerator {
     private static final String MAX_RA_PER_TSO = "maxrapertso";
     private static final String MAX_PST_PER_TSO = "maxpstpertso";
     private static final String TSO_RA_USED = "tsoraused";
+    private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
+    private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -67,8 +69,8 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + SET_POINT + SEPARATOR + raRangeShrinking.toString() + CONSTRAINT_SUFFIX;
     }
 
-    public static String pstRangeActionRelativeTapConstraintId(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
-        return pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + TAP + SEPARATOR + upwardOrDownward.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String pstRangeActionRelativeTapConstraintId(PstRangeAction pstRangeAction, State state) {
+        return pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + TAP + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String pstTapVariableVariationId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
@@ -201,5 +203,17 @@ public final class LinearProblemIdGenerator {
 
     public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction, State state) {
         return TSO_RA_USED + SEPARATOR + operator + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String pstAbsoluteVariationFromInitialTapVariableId(PstRangeAction pstRangeAction, State state) {
+        return PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP + SEPARATOR + pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String pstAbsoluteVariationFromInitialTapConstraintId(PstRangeAction pstRangeAction, State state, LinearProblem.AbsExtension positiveOrNegative) {
+        return PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP + SEPARATOR + pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR + positiveOrNegative;
+    }
+
+    public static String maxElementaryActionsPerTsoConstraintId(String operator, State state) {
+        return MAX_ELEMENTARY_ACTIONS_PER_TSO + SEPARATOR + operator + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 }

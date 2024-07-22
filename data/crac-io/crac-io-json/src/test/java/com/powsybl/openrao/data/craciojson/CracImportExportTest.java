@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -108,9 +107,10 @@ class CracImportExportTest {
         RaUsageLimits expectedUsageLimits = crac.getRaUsageLimits(curativeInstant);
         assertEquals(4, expectedUsageLimits.getMaxRa());
         assertEquals(2, expectedUsageLimits.getMaxTso());
-        assertEquals(new HashMap<>(Map.of("FR", 12)), expectedUsageLimits.getMaxRaPerTso());
-        assertEquals(new HashMap<>(Map.of("FR", 7)), expectedUsageLimits.getMaxPstPerTso());
-        assertEquals(new HashMap<>(Map.of("FR", 5, "BE", 6)), expectedUsageLimits.getMaxTopoPerTso());
+        assertEquals(Map.of("FR", 12), expectedUsageLimits.getMaxRaPerTso());
+        assertEquals(Map.of("FR", 7), expectedUsageLimits.getMaxPstPerTso());
+        assertEquals(Map.of("FR", 5, "BE", 6), expectedUsageLimits.getMaxTopoPerTso());
+        assertEquals(Map.of("FR", 21), expectedUsageLimits.getMaxElementaryActionsPerTso());
         // check instant with no limits
         assertEquals(new RaUsageLimits(), crac.getRaUsageLimits(preventiveInstant));
 
