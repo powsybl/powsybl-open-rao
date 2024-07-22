@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -87,16 +88,16 @@ class PstRangeActionImplTest {
     @Test
     void applyOnUnknownPst() {
         PstRangeAction pstRa = pstRangeActionAdder.withNetworkElement("unknownNetworkElement").add();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> pstRa.apply(network, 50));
-        assertEquals("PST unknownNetworkElement does not exist in the current network", exception.getMessage());
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> pstRa.apply(network, 5));
+        assertEquals("No matching transformer found with ID:unknownNetworkElement", exception.getMessage());
     }
 
     @Test
     void applyOnTransformerWithNoPhaseShifter() {
         Network network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         PstRangeAction pstRa = pstRangeActionAdder.add();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> pstRa.apply(network, 50));
-        assertEquals("Transformer BBE2AA1  BBE3AA1  1 is not a PST but is defined as a TapRange", exception.getMessage());
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> pstRa.apply(network, 5));
+        assertEquals("Transformer 'BBE2AA1  BBE3AA1  1' does not have a PhaseTapChanger", exception.getMessage());
     }
 
     @Test
