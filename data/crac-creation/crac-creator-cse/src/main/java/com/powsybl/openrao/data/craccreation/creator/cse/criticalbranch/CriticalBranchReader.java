@@ -122,7 +122,7 @@ public class CriticalBranchReader {
                     this.isImported = true;
                 } else {
                     this.criticalBranchImportStatus = ImportStatus.INCOMPLETE_DATA;
-                    this.invalidBranchReason = "Incomplete Imax data to create at least one preventive CNEC for the branch.";
+                    this.invalidBranchReason = "Incomplete Imax data to create at least one post-outage CNEC for the branch.";
                     this.isImported = false;
                 }
             }
