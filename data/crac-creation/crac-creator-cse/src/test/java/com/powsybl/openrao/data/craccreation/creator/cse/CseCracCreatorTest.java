@@ -48,6 +48,7 @@ class CseCracCreatorTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String CURATIVE_INSTANT_ID = "curative";
+    private static final String AUTO_INSTANT_ID = "auto";
 
     private final OffsetDateTime offsetDateTime = null;
     private CracCreationParameters parameters = new CracCreationParameters();
@@ -226,9 +227,10 @@ class CseCracCreatorTest {
         assertTrue(cnec2context.isImported());
         assertFalse(cnec2context.isDirectionInvertedInNetwork());
         assertEquals("outage_1", cnec2context.getContingencyId().get());
-        assertEquals(2, cnec2context.getCreatedCnecsIds().size());
+        assertEquals(3, cnec2context.getCreatedCnecsIds().size());
         assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(OUTAGE_INSTANT_ID));
         assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(CURATIVE_INSTANT_ID));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - auto", cnec2context.getCreatedCnecsIds().get(AUTO_INSTANT_ID));
     }
 
     @Test
@@ -323,22 +325,28 @@ class CseCracCreatorTest {
 
         FlowCnec outageCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage");
         FlowCnec curativeCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative");
+        FlowCnec autoCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - auto");
 
         // PRA
         RemedialAction<?> ra = importedCrac.getRangeAction("PST_pra_3_BBE2AA1  BBE3AA1  1");
-        assertEquals(2, ra.getUsageRules().size());
+        assertEquals(3, ra.getUsageRules().size());
         List<UsageRule> usageRuleList = ra.getUsageRules().stream().toList();
 
         UsageRule usageRule1 = usageRuleList.get(0);
         UsageRule usageRule2 = usageRuleList.get(1);
+        UsageRule usageRule3 = usageRuleList.get(2);
         assertTrue(usageRule1 instanceof OnConstraint<?>);
         assertTrue(usageRule2 instanceof OnConstraint<?>);
+        assertTrue(usageRule3 instanceof OnConstraint<?>);
         assertEquals(preventiveInstant, usageRule1.getInstant());
         assertEquals(preventiveInstant, usageRule2.getInstant());
-        assertTrue(((OnConstraint<?>) usageRule1).getCnec().equals(outageCnec) || ((OnConstraint<?>) usageRule2).getCnec().equals(outageCnec));
-        assertTrue(((OnConstraint<?>) usageRule1).getCnec().equals(curativeCnec) || ((OnConstraint<?>) usageRule2).getCnec().equals(curativeCnec));
+        assertEquals(preventiveInstant, usageRule3.getInstant());
+        assertTrue(((OnConstraint<?>) usageRule1).getCnec().equals(outageCnec) || ((OnConstraint<?>) usageRule2).getCnec().equals(outageCnec) || ((OnConstraint<?>) usageRule3).getCnec().equals(outageCnec));
+        assertTrue(((OnConstraint<?>) usageRule1).getCnec().equals(curativeCnec) || ((OnConstraint<?>) usageRule2).getCnec().equals(curativeCnec) || ((OnConstraint<?>) usageRule3).getCnec().equals(curativeCnec));
+        assertTrue(((OnConstraint<?>) usageRule1).getCnec().equals(autoCnec) || ((OnConstraint<?>) usageRule2).getCnec().equals(autoCnec) || ((OnConstraint<?>) usageRule3).getCnec().equals(autoCnec));
         System.out.println(usageRule1.getUsageMethod(preventiveState));
         System.out.println(usageRule2.getUsageMethod(preventiveState));
+        System.out.println(usageRule3.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.AVAILABLE, usageRule2.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));

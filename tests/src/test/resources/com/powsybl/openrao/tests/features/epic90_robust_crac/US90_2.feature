@@ -20,7 +20,7 @@ Feature: US 90.2: asterisks* as wildcards in UCTE CRACs importers
     Given network file is "crac90/TestCase_severalVoltageLevels_Xnodes_8characters.uct"
     Given crac file is "crac90/cseCrac_ep90us2case2.xml"
     When I import crac
-    Then it should have 8 cnecs
+    Then it should have 11 cnecs
     And the native CNEC "basecase_branch_3 - DDE1AA1* - DDE2AA1* - basecase" should not be imported
     And the native CNEC "basecase_branch_4 - XFRDE111 - FFR2AA12 - basecase" should not be imported
     And the native remedial action "cra_2" should not be imported because of "INCONSISTENCY_IN_DATA"

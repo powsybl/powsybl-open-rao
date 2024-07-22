@@ -104,10 +104,10 @@ public class CriticalBranchReader {
             this.criticalBranchImportStatus = ImportStatus.INCOMPLETE_DATA;
             this.invalidBranchReason = String.format("CNEC is defined on outage %s which is not defined", outage);
         } else {
-            this.isImported = true;
             this.isDirectionInverted = branchHelper.isInvertedInNetwork();
             this.selected = !isMonitored && isSelected(tBranch);
             if (tOutage == null) {
+                this.isImported = true;
                 // preventive
                 this.isBaseCase = true;
                 this.contingencyId = null;
@@ -117,8 +117,14 @@ public class CriticalBranchReader {
                 // curative
                 this.isBaseCase = false;
                 this.contingencyId = outage;
-                this.criticalBranchImportStatus = ImportStatus.IMPORTED;
-                importCurativeCnecs(tBranch, branchHelper, outage, crac, isMonitored);
+                if(importCurativeCnecs(tBranch, branchHelper, outage, crac, isMonitored)) {
+                    this.criticalBranchImportStatus = ImportStatus.IMPORTED;
+                    this.isImported = true;
+                } else {
+                    this.criticalBranchImportStatus = ImportStatus.INCOMPLETE_DATA;
+                    this.invalidBranchReason = "Incomplete Imax data to create at least one preventive CNEC for the branch.";
+                    this.isImported = false;
+                }
             }
         }
     }
@@ -134,12 +140,37 @@ public class CriticalBranchReader {
         importCnec(crac, tBranch, branchHelper, isMonitored ? tBranch.getIlimitMNE() : tBranch.getImax(), null, crac.getPreventiveInstant().getId(), isMonitored);
     }
 
-    private void importCurativeCnecs(TBranch tBranch, UcteFlowElementHelper branchHelper, String outage, Crac crac, boolean isMonitored) {
+    /**
+     * Returns true if at least one CNEC has been correctly imported.
+     * @param tBranch
+     * @param branchHelper
+     * @param outage
+     * @param crac
+     * @param isMonitored
+     * @return
+     */
+    private boolean importCurativeCnecs(TBranch tBranch, UcteFlowElementHelper branchHelper, String outage, Crac crac, boolean isMonitored) {
         HashMap<Instant, TImax> cnecCaracs = new HashMap<>();
         cnecCaracs.put(crac.getOutageInstant(), isMonitored ? tBranch.getIlimitMNEAfterOutage() : tBranch.getImaxAfterOutage());
-        cnecCaracs.put(crac.getInstant(InstantKind.AUTO), isMonitored ? tBranch.getIlimitMNEAfterSPS() : tBranch.getImaxAfterSPS());
-        cnecCaracs.put(crac.getInstant(InstantKind.CURATIVE), isMonitored ? tBranch.getIlimitMNEAfterCRA() : tBranch.getImaxAfterCRA());
+        cnecCaracs.put(crac.getInstant(InstantKind.AUTO), isMonitored ? tBranch.getIlimitMNEAfterSPS() : findTargetImaxAfterSPS(tBranch));
+        cnecCaracs.put(crac.getInstant(InstantKind.CURATIVE), isMonitored ? tBranch.getIlimitMNEAfterCRA() : findTargetImaxAfterCRA(tBranch.getImaxAfterCRA()));
         cnecCaracs.forEach((instant, iMax) -> importCnec(crac, tBranch, branchHelper, iMax, outage, instant.getId(), isMonitored));
+        return cnecCaracs.values().stream().anyMatch(Objects::nonNull);
+    }
+
+    private TImax findTargetImaxAfterCRA(final TImax imaxAfterCRA) {
+        return imaxAfterCRA != null ? imaxAfterCRA : createDefaultImaxAfterCRA();
+    }
+
+    private TImax createDefaultImaxAfterCRA() {
+        final TImax tempImax = new TImax();
+        tempImax.setUnit("Pct");
+        tempImax.setV((short) 100);
+        return tempImax;
+    }
+
+    private TImax findTargetImaxAfterSPS(final TBranch tBranch) {
+        return tBranch.getImaxAfterSPS() != null ? tBranch.getImaxAfterSPS() : tBranch.getImaxAfterOutage();
     }
 
     private void importCnec(Crac crac, TBranch tBranch, UcteFlowElementHelper branchHelper, @Nullable TImax tImax, String outage, String instantId, boolean isMonitored) {
