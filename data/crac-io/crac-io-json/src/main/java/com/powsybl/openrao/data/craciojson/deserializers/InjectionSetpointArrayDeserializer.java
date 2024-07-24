@@ -40,7 +40,7 @@ public final class InjectionSetpointArrayDeserializer {
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String networkElementId = null;
-            Integer setpoint = null;
+            Double setpoint = null;
             Unit unit = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
@@ -49,7 +49,7 @@ public final class InjectionSetpointArrayDeserializer {
                         break;
                     case SETPOINT:
                         jsonParser.nextToken();
-                        setpoint = jsonParser.getIntValue();
+                        setpoint = jsonParser.getDoubleValue();
                         break;
                     case UNIT:
                         unit = deserializeUnit(jsonParser.nextTextValue());
@@ -71,7 +71,9 @@ public final class InjectionSetpointArrayDeserializer {
                     } else {
                         generatorActionAdder.withNetworkElement(networkElementId);
                     }
-                    generatorActionAdder.withActivePowerValue(setpoint);
+                    if (setpoint != null) {
+                        generatorActionAdder.withActivePowerValue(setpoint);
+                    }
                     generatorActionAdder.add();
                     break;
                 case LOAD:
@@ -82,7 +84,9 @@ public final class InjectionSetpointArrayDeserializer {
                     } else {
                         loadActionAdder.withNetworkElement(networkElementId);
                     }
-                    loadActionAdder.withActivePowerValue(setpoint);
+                    if (setpoint != null) {
+                        loadActionAdder.withActivePowerValue(setpoint);
+                    }
                     loadActionAdder.add();
                     break;
                 case DANGLING_LINE:
@@ -93,7 +97,9 @@ public final class InjectionSetpointArrayDeserializer {
                     } else {
                         danglingLineActionAdder.withNetworkElement(networkElementId);
                     }
-                    danglingLineActionAdder.withActivePowerValue(setpoint);
+                    if (setpoint != null) {
+                        danglingLineActionAdder.withActivePowerValue(setpoint);
+                    }
                     danglingLineActionAdder.add();
                     break;
                 case SHUNT_COMPENSATOR:
@@ -104,7 +110,9 @@ public final class InjectionSetpointArrayDeserializer {
                     } else {
                         shuntCompensatorPositionActionAdder.withNetworkElement(networkElementId);
                     }
-                    shuntCompensatorPositionActionAdder.withSectionCount(setpoint);
+                    if (setpoint != null) {
+                        shuntCompensatorPositionActionAdder.withSectionCount(setpoint.intValue());
+                    }
                     shuntCompensatorPositionActionAdder.add();
                     break;
                 default:
