@@ -28,6 +28,7 @@ public class StandardRangeSerializer extends AbstractJsonSerializer<StandardRang
         if (value.getMax() < Integer.MAX_VALUE) {
             gen.writeNumberField(MAX, value.getMax());
         }
+        gen.writeStringField(RANGE_TYPE, serializeRangeType(value.getRangeType()));
         gen.writeEndObject();
     }
 }

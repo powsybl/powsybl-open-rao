@@ -35,8 +35,8 @@
       "nominalV" : [ 400.0 ],
       "thresholds" : [ {
         "unit" : "megawatt",
-        "min" : -500.0,
-        "max" : 500.0,
+        "min" : -550.0,
+        "max" : 550.0,
         "side" : "left"
       } ]
     }
@@ -53,7 +53,7 @@
         }
       ],
       "networkElementId": "BBE2AA1  BBE3AA1  1",
-      "initialTap": 0,
+      "initialTap": 1,
       "tapToAngleConversionMap": {
         "-1": -0.3896097993971608,
         "0": 0.0,
@@ -94,6 +94,10 @@
           "min": -16,
           "max": 16,
           "rangeType": "absolute"
+        }, {
+          "min" : -3,
+          "max" : 3,
+          "rangeType" : "relativeToPreviousTimeStep"
         }
       ]
     }

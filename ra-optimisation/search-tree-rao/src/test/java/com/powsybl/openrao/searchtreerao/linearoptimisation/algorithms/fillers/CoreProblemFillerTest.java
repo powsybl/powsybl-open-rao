@@ -99,6 +99,34 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         buildLinearProblem();
     }
 
+    private void initializeForInjection(Set<FlowCnec> cnecs, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold, State mainState, boolean raRangeShrinking) {
+        RangeAction<?> injGen = crac.getRangeAction(INJECTION_RANGE_ACTION_ID_0);
+        RangeAction<?> injLoad = crac.getRangeAction(INJECTION_RANGE_ACTION_ID_1);
+
+        initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(injGen, 500., injLoad, -500.));
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
+        Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(mainState);
+
+        Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
+        cnecs.forEach(cnec -> rangeActions.put(cnec.getState(), Set.of(injGen, injLoad)));
+        Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
+
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(pstSensitivityThreshold);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(hvdcSensitivityThreshold);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(injectionSensitivityThreshold);
+        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
+
+        coreProblemFiller = new CoreProblemFiller(
+            optimizationPerimeter,
+            initialRangeActionSetpointResult,
+            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
+            rangeActionParameters,
+            Unit.MEGAWATT, raRangeShrinking);
+        buildLinearProblem();
+    }
+
     @Test
     void fillTestOnPreventive() {
         initializeForPreventive(1e-6, 1e-6, 1e-6);
@@ -623,5 +651,24 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(REF_FLOW_CNEC1_IT2 - currentAlpha * SENSI_CNEC1_IT2, flowConstraint1.ub(), DOUBLE_TOLERANCE);
         assertEquals(1, flowConstraint1.getCoefficient(flowVariable1), DOUBLE_TOLERANCE);
         assertEquals(-SENSI_CNEC1_IT2, flowConstraint1.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testInjectionBalance() {
+        addPairInjectionsInCrac();
+
+        initializeForInjection(Set.of(cnec1), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), false);
+        State state = cnec1.getState();
+
+        // update the problem with new data
+        RangeAction<?> injectionRangeActionGen = crac.getRangeAction(INJECTION_RANGE_ACTION_ID_0);
+        RangeAction<?> injectionRangeActionLoad = crac.getRangeAction(INJECTION_RANGE_ACTION_ID_1);
+
+        OpenRaoMPConstraint balanceConstraint = linearProblem.getInjectionBalanceVariationConstraint(state);
+        OpenRaoMPVariable genSignedVariationVariable = linearProblem.getSignedRangeActionVariationVariable(injectionRangeActionGen, state);
+        OpenRaoMPVariable loadSignedVariationVariable = linearProblem.getSignedRangeActionVariationVariable(injectionRangeActionLoad, state);
+        assertNotNull(balanceConstraint);
+        assertEquals(1, balanceConstraint.getCoefficient(genSignedVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(1, balanceConstraint.getCoefficient(loadSignedVariationVariable), DOUBLE_TOLERANCE);
     }
 }

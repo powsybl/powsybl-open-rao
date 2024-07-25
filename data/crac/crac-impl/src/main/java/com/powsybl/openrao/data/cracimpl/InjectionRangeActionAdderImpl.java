@@ -47,6 +47,16 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     }
 
     @Override
+    public InjectionRangeActionAdder withNetworkElement(String networkElementId) {
+        return withNetworkElementAndKey(1.0, networkElementId, networkElementId);
+    }
+
+    @Override
+    public InjectionRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
+        return withNetworkElementAndKey(1.0, networkElementId, networkElementName);
+    }
+
+    @Override
     public InjectionRangeAction add() {
         checkId();
         checkAutoUsageRules();

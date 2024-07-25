@@ -26,6 +26,12 @@ public class StandardRangeImpl extends AbstractRange implements StandardRange {
         this.max = max;
     }
 
+    StandardRangeImpl(double min, double max, RangeType rangeType) {
+        super(rangeType, Unit.MEGAWATT);
+        this.min = min;
+        this.max = max;
+    }
+
     @Override
     public double getMin() {
         return min;

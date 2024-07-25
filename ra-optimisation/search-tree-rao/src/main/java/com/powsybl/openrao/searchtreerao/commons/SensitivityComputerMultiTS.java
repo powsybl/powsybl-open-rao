@@ -23,9 +23,6 @@ import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
 import java.util.*;
 
-/**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
- */
 public final class SensitivityComputerMultiTS {
     private List<SystematicSensitivityInterface> systematicSensitivityInterfaces;
     private List<BranchResultAdapter> branchResultAdapters;
@@ -62,7 +59,7 @@ public final class SensitivityComputerMultiTS {
     public static final class SensitivityComputerBuilder {
         private ToolProvider toolProvider;
         private List<Set<FlowCnec>> flowCnecsList;
-        private List<Set<RangeAction<?>>> rangeActionsList;
+        private Set<RangeAction<?>> rangeActions;
         private FlowResult fixedPtdfs;
         private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
         private FlowResult fixedCommercialFlows;
@@ -81,8 +78,8 @@ public final class SensitivityComputerMultiTS {
             return this;
         }
 
-        public SensitivityComputerBuilder withRangeActions(List<Set<RangeAction<?>>> rangeActionsList) {
-            this.rangeActionsList = rangeActionsList;
+        public SensitivityComputerBuilder withRangeActions(Set<RangeAction<?>> rangeActions) {
+            this.rangeActions = rangeActions;
             return this;
         }
 
@@ -124,7 +121,7 @@ public final class SensitivityComputerMultiTS {
         public SensitivityComputerMultiTS build() {
             Objects.requireNonNull(toolProvider);
             Objects.requireNonNull(flowCnecsList);
-            Objects.requireNonNull(rangeActionsList);
+            Objects.requireNonNull(rangeActions);
             Objects.requireNonNull(outageInstant);
             SensitivityComputerMultiTS sensitivityComputer = new SensitivityComputerMultiTS();
             boolean computePtdfs = absolutePtdfSumsComputation != null;
@@ -137,7 +134,7 @@ public final class SensitivityComputerMultiTS {
             for (int i = 0; i < flowCnecsList.size(); i++) {
                 sensitivityComputer.systematicSensitivityInterfaces.add(toolProvider.getSystematicSensitivityInterface(
                     flowCnecsList.get(i),
-                    rangeActionsList.get(i),
+                    rangeActions,
                     computePtdfs,
                     computeLoopFlows,
                     appliedRemedialActions,

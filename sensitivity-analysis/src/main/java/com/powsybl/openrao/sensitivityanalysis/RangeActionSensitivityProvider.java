@@ -83,9 +83,14 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     private void fillSensitivityVariablesAndGlskIds(Network network, Map<String, SensitivityVariableType> sensitivityVariables, Set<String> glskIds) {
         for (RangeAction<?> ra : rangeActions) {
             if (ra instanceof PstRangeAction pstRangeAction) {
-                sensitivityVariables.put(pstRangeAction.getNetworkElement().getId(), SensitivityVariableType.TRANSFORMER_PHASE);
+                // Ignore if current ra does not exist in network (should not happen if crac and network are written correctly)
+                if (Objects.nonNull(network.getIdentifiable(pstRangeAction.getNetworkElement().getId()))) {
+                    sensitivityVariables.put(pstRangeAction.getNetworkElement().getId(), SensitivityVariableType.TRANSFORMER_PHASE);
+                }
             } else if (ra instanceof HvdcRangeAction hvdcRangeAction) {
-                sensitivityVariables.put(hvdcRangeAction.getNetworkElement().getId(), SensitivityVariableType.HVDC_LINE_ACTIVE_POWER);
+                if (Objects.nonNull(network.getIdentifiable(hvdcRangeAction.getNetworkElement().getId()))) {
+                    sensitivityVariables.put(hvdcRangeAction.getNetworkElement().getId(), SensitivityVariableType.HVDC_LINE_ACTIVE_POWER);
+                }
             } else if (ra instanceof InjectionRangeAction injectionRangeAction) {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
             } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {

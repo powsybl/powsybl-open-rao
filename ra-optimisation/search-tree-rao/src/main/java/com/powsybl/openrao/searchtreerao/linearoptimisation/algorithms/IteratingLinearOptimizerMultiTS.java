@@ -26,16 +26,10 @@ import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
-/**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
- */
 public final class IteratingLinearOptimizerMultiTS {
 
     private IteratingLinearOptimizerMultiTS() {
@@ -93,7 +87,7 @@ public final class IteratingLinearOptimizerMultiTS {
             }
 
             IteratingLinearOptimizationResultImpl currentResult = createResult(
-                sensitivityComputerMultiTS.getBranchResult(input.getNetwork(0), 0), // TODO: network is only useful for loopflows
+                sensitivityComputerMultiTS.getSensitivityResults(),
                 sensitivityComputerMultiTS.getSensitivityResults(),
                 currentRangeActionActivationResult,
                 iteration,
@@ -170,9 +164,14 @@ public final class IteratingLinearOptimizerMultiTS {
         // apply RangeAction from first optimization state
         for (int i = 0; i < optimizationPerimeters.size(); i++) {
             OptimizationPerimeter optimizationPerimeter = optimizationPerimeters.get(i);
-            int finalI = i;
-            optimizationPerimeter.getRangeActionsPerState().get(optimizationPerimeter.getMainOptimizationState())
-                .forEach(ra -> ra.apply(input.getNetwork(finalI), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationPerimeter.getMainOptimizationState())));
+            //apply for the next time steps (wil be overridden if appear in next time steps)
+            for (int j = i; j < optimizationPerimeters.size(); j++) {
+                int finalJ = j;
+                if (!optimizationPerimeter.getRangeActionsPerState().isEmpty()) {
+                    optimizationPerimeter.getRangeActionsPerState().get(optimizationPerimeter.getMainOptimizationState())
+                        .forEach(ra -> ra.apply(input.getNetwork(finalJ), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationPerimeter.getMainOptimizationState())));
+                }
+            }
 
             // add RangeAction activated in the following states
             if (optimizationPerimeter instanceof GlobalOptimizationPerimeter) {
@@ -190,16 +189,16 @@ public final class IteratingLinearOptimizerMultiTS {
         //TODO : adapt sensitivity computer
         List<Set<FlowCnec>> cnecsList = new ArrayList<>();
         List<Set<FlowCnec>> loopFlowCnecsList = new ArrayList<>();
-        List<Set<RangeAction<?>>> rangeActionsList = new ArrayList<>();
+        Set<RangeAction<?>> rangeActions = new HashSet<>();
         for (OptimizationPerimeter perimeter : input.getOptimizationPerimeters()) {
             cnecsList.add(perimeter.getFlowCnecs());
-            rangeActionsList.add(perimeter.getRangeActions());
+            rangeActions.addAll(perimeter.getRangeActions());
             loopFlowCnecsList.add(perimeter.getLoopFlowCnecs());
         }
 
         SensitivityComputerMultiTS.SensitivityComputerBuilder builder = SensitivityComputerMultiTS.create()
             .withCnecs(cnecsList)
-            .withRangeActions(rangeActionsList)
+            .withRangeActions(rangeActions)
             .withAppliedRemedialActions(appliedRemedialActions)
             .withToolProvider(input.getToolProvider())
             .withOutageInstant(input.getOutageInstant());

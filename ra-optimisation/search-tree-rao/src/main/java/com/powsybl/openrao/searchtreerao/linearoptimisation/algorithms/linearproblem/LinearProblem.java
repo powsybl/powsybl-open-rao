@@ -20,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.*;
 
@@ -271,6 +272,32 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
         return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
+    }
+
+    public OpenRaoMPVariable addSignedRangeActionVariationVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeNumVar(lb, ub, signedRangeActionVariationVariableId(rangeAction, state));
+    }
+
+    public OpenRaoMPVariable getSignedRangeActionVariationVariable(RangeAction<?> rangeAction, State state) {
+        return solver.getVariable(signedRangeActionVariationVariableId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addSignedRangeActionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, signedRangeActionVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addInjectionBalanceVariationConstraint(double lb, double ub, State state) {
+        String constraintName = injectionBalanceVariationConstraintId(state);
+        //Only add random Id if multiple time steps
+        if (solver.hasConstraint(constraintName)) {
+            constraintName += UUID.randomUUID();
+        }
+        return solver.makeConstraint(lb, ub, constraintName);
+    }
+
+    //Only returns contraint from first time step. Method only used for testing
+    public OpenRaoMPConstraint getInjectionBalanceVariationConstraint(State state) {
+        return solver.getConstraint(injectionBalanceVariationConstraintId(state));
     }
 
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {

@@ -35,8 +35,8 @@
       "nominalV" : [ 400.0 ],
       "thresholds" : [ {
         "unit" : "megawatt",
-        "min" : -600.0,
-        "max" : 600.0,
+        "min" : -500.0,
+        "max" : 500.0,
         "side" : "left"
       } ]
     }
@@ -95,8 +95,8 @@
           "max": 16,
           "rangeType": "absolute"
         }, {
-          "min" : -7,
-          "max" : 7,
+          "min" : -3,
+          "max" : 3,
           "rangeType" : "relativeToPreviousTimeStep"
         }
       ]

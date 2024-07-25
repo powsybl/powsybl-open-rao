@@ -22,7 +22,7 @@
   "contingencies": [],
   "flowCnecs": [
     {
-      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS2",
+      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS0",
       "name": "BBE2AA1  FFR3AA1  1 - preventive",
       "networkElementId": "BBE2AA1  FFR3AA1  1",
       "operator": "BE",
@@ -35,15 +35,15 @@
       "nominalV" : [ 400.0 ],
       "thresholds" : [ {
         "unit" : "megawatt",
-        "min" : -600.0,
-        "max" : 600.0,
+        "min" : -500.0,
+        "max" : 500.0,
         "side" : "left"
       } ]
     }
   ],
   "pstRangeActions": [
     {
-      "id": "pst_be - TS2",
+      "id": "pst_be - TS0",
       "name": "pst_be",
       "operator": "BE",
       "onInstantUsageRules": [
@@ -53,7 +53,7 @@
         }
       ],
       "networkElementId": "BBE2AA1  BBE3AA1  1",
-      "initialTap": 0,
+      "initialTap": 7,
       "tapToAngleConversionMap": {
         "-1": -0.3896097993971608,
         "0": 0.0,
@@ -94,16 +94,36 @@
           "min": -16,
           "max": 16,
           "rangeType": "absolute"
-        }, {
-          "min" : -3,
-          "max" : 3,
-          "rangeType" : "relativeToPreviousTimeStep"
         }
       ]
     }
   ],
   "hvdcRangeActions": [],
   "injectionRangeActions": [],
-  "networkActions": [],
+  "networkActions" : [ {
+    "id" : "close-fr3-be2-2 - TS0",
+    "name" : "close-fr3-be2-2",
+    "operator" : null,
+    "onInstantUsageRules" : [ {
+      "instant" : "preventive",
+      "usageMethod" : "available"
+    } ],
+    "topologicalActions" : [ {
+      "networkElementId" : "BBE2AA1  FFR3AA1  2",
+      "actionType" : "close"
+    } ]
+  }, {
+    "id" : "close-fr3-be2-3 - TS0",
+    "name" : "close-fr3-be2-3",
+    "operator" : null,
+    "onInstantUsageRules" : [ {
+      "instant" : "preventive",
+      "usageMethod" : "available"
+    } ],
+    "topologicalActions" : [ {
+      "networkElementId" : "BBE2AA1  FFR3AA1  3",
+      "actionType" : "close"
+    } ]
+  } ],
   "ra-usage-limits-per-instant" : []
 }
