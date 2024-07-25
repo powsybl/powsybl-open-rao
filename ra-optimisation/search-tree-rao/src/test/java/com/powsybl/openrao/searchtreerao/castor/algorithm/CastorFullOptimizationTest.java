@@ -342,7 +342,7 @@ class CastorFullOptimizationTest {
         // na1 : preventive + curative
         na1 = crac.newNetworkAction()
                 .withId("na1")
-                .newTopologicalAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
+                .newSwitchAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
@@ -493,7 +493,7 @@ class CastorFullOptimizationTest {
         // na1 : preventive + curative
         na1 = crac.newNetworkAction()
                 .withId("na1")
-                .newTopologicalAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
+                .newTerminalsConnectionAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
@@ -709,15 +709,15 @@ class CastorFullOptimizationTest {
             .withOptimized().add();
 
         NetworkAction pstPrev = crac.newNetworkAction().withId("pst_fr@10-prev")
-            .newPstSetPoint().withNetworkElement("FFR2AA1  FFR4AA1  1").withSetpoint(10).add()
+            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(10).add()
             .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         NetworkAction naCur1 = crac.newNetworkAction().withId("open_fr1_fr3-cur1")
-            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
+            .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
             .newOnInstantUsageRule().withInstant("curative1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         NetworkAction pstCur = crac.newNetworkAction().withId("pst_fr@-16-cur3")
-            .newPstSetPoint().withNetworkElement("FFR2AA1  FFR4AA1  1").withSetpoint(-16).add()
+            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-16).add()
             .newOnInstantUsageRule().withInstant("curative3").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -799,19 +799,19 @@ class CastorFullOptimizationTest {
             .withOptimized().add();
 
         NetworkAction pstPrev = crac.newNetworkAction().withId("pst_fr@10-prev")
-            .newPstSetPoint().withNetworkElement("FFR2AA1  FFR4AA1  1").withSetpoint(10).add()
+            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(10).add()
             .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         NetworkAction naCur1 = crac.newNetworkAction().withId("open_fr1_fr3-cur1")
-            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
+            .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
             .newOnInstantUsageRule().withInstant("curative1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         NetworkAction pstCur2 = crac.newNetworkAction().withId("pst_fr@-3-cur2")
-            .newPstSetPoint().withNetworkElement("FFR2AA1  FFR4AA1  1").withSetpoint(-3).add()
+            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-3).add()
             .newOnInstantUsageRule().withInstant("curative2").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         NetworkAction pstCur = crac.newNetworkAction().withId("pst_fr@-16-cur3")
-            .newPstSetPoint().withNetworkElement("FFR2AA1  FFR4AA1  1").withSetpoint(-16).add()
+            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-16).add()
             .newOnInstantUsageRule().withInstant("curative3").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 

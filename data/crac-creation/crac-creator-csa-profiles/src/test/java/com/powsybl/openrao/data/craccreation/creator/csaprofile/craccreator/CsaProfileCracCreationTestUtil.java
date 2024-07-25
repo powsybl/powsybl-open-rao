@@ -6,19 +6,23 @@ import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.contingency.Contingency;
+import com.powsybl.action.*;
 import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
-import com.powsybl.openrao.data.cracapi.cnec.*;
-import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
+import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
@@ -203,22 +207,43 @@ public final class CsaProfileCracCreationTestUtil {
         assertEquals(raId, networkAction.getId());
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = networkAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof TopologicalAction);
-        assertEquals(switchId, ((TopologicalAction) elementaryAction).getNetworkElement().getId());
-        assertEquals(actionType, ((TopologicalAction) elementaryAction).getActionType());
+        Action elementaryAction = networkAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof SwitchAction);
+        assertEquals(switchId, ((SwitchAction) elementaryAction).getSwitchId());
+        assertEquals(actionType == ActionType.OPEN, ((SwitchAction) elementaryAction).isOpen());
         assertEquals(expectedOperator, networkAction.getOperator());
     }
 
-    public static void assertSimpleInjectionSetpointActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, Unit unit, String expectedOperator) {
+    public static void assertSimpleGeneratorActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, String expectedOperator) {
         assertEquals(raId, networkAction.getId());
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
-        ElementaryAction elementaryAction = networkAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof InjectionSetpoint);
-        assertEquals(networkElementId, ((InjectionSetpoint) elementaryAction).getNetworkElement().getId());
-        assertEquals(setpoint, ((InjectionSetpoint) elementaryAction).getSetpoint());
-        assertEquals(unit, ((InjectionSetpoint) elementaryAction).getUnit());
+        Action elementaryAction = networkAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof GeneratorAction);
+        assertEquals(networkElementId, ((GeneratorAction) elementaryAction).getGeneratorId());
+        assertEquals(setpoint, ((GeneratorAction) elementaryAction).getActivePowerValue().getAsDouble());
+        assertEquals(expectedOperator, networkAction.getOperator());
+    }
+
+    public static void assertSimpleLoadActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, String expectedOperator) {
+        assertEquals(raId, networkAction.getId());
+        assertEquals(raName, networkAction.getName());
+        assertEquals(1, networkAction.getElementaryActions().size());
+        Action elementaryAction = networkAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof LoadAction);
+        assertEquals(networkElementId, ((LoadAction) elementaryAction).getLoadId());
+        assertEquals(setpoint, ((LoadAction) elementaryAction).getActivePowerValue().getAsDouble());
+        assertEquals(expectedOperator, networkAction.getOperator());
+    }
+
+    public static void assertSimpleShuntCompensatorActionImported(NetworkAction networkAction, String raId, String raName, String networkElementId, double setpoint, String expectedOperator) {
+        assertEquals(raId, networkAction.getId());
+        assertEquals(raName, networkAction.getName());
+        assertEquals(1, networkAction.getElementaryActions().size());
+        Action elementaryAction = networkAction.getElementaryActions().iterator().next();
+        assertTrue(elementaryAction instanceof ShuntCompensatorPositionAction);
+        assertEquals(networkElementId, ((ShuntCompensatorPositionAction) elementaryAction).getShuntCompensatorId());
+        assertEquals(setpoint, ((ShuntCompensatorPositionAction) elementaryAction).getSectionCount());
         assertEquals(expectedOperator, networkAction.getOperator());
     }
 

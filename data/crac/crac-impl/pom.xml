@@ -59,7 +59,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-action-api</artifactId>
-            <version>${powsybl.core.version}</version>
         </dependency>
 
         <!--test-->

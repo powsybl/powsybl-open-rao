@@ -6,20 +6,16 @@
  */
 package com.powsybl.openrao.data.cracapi.networkaction;
 
-import com.powsybl.openrao.commons.Unit;
-
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface InjectionSetpointAdder {
+public interface LoadActionAdder {
 
-    InjectionSetpointAdder withNetworkElement(String networkElementId);
+    LoadActionAdder withNetworkElement(String networkElementId);
 
-    InjectionSetpointAdder withNetworkElement(String networkElementId, String networkElementName);
+    LoadActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    InjectionSetpointAdder withSetpoint(double setPoint);
-
-    InjectionSetpointAdder withUnit(Unit unit);
+    LoadActionAdder withActivePowerValue(double setPoint);
 
     NetworkActionAdder add();
 

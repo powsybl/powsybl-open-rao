@@ -1,11 +1,14 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
+
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
@@ -15,9 +18,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-class TopologicalActionAdderImplTest {
+class TerminalsConnectionActionAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
@@ -33,15 +36,15 @@ class TopologicalActionAdderImplTest {
 
     @Test
     void testOk() {
-        NetworkAction networkAction = networkActionAdder.newTopologicalAction()
+        NetworkAction networkAction = networkActionAdder.newTerminalsConnectionAction()
             .withNetworkElement("branchNetworkElementId")
             .withActionType(ActionType.OPEN)
             .add()
             .add();
 
-        TopologicalAction topologicalAction = (TopologicalAction) networkAction.getElementaryActions().iterator().next();
-        assertEquals("branchNetworkElementId", topologicalAction.getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, topologicalAction.getActionType());
+        TerminalsConnectionAction terminalsConnectionAction = (TerminalsConnectionAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("branchNetworkElementId", terminalsConnectionAction.getElementId());
+        assertTrue(terminalsConnectionAction.isOpen());
 
         // check that network element has been added in CracImpl
         assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
@@ -50,15 +53,15 @@ class TopologicalActionAdderImplTest {
 
     @Test
     void testNoNetworkElement() {
-        TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
+        TerminalsConnectionActionAdder terminalsConnectionActionAdder = networkActionAdder.newTerminalsConnectionAction()
             .withActionType(ActionType.OPEN);
-        assertThrows(OpenRaoException.class, topologicalActionAdder::add);
+        assertThrows(OpenRaoException.class, terminalsConnectionActionAdder::add);
     }
 
     @Test
     void testNoActionType() {
-        TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
+        TerminalsConnectionActionAdder terminalsConnectionActionAdder = networkActionAdder.newTerminalsConnectionAction()
             .withNetworkElement("branchNetworkElementId");
-        assertThrows(OpenRaoException.class, topologicalActionAdder::add);
+        assertThrows(OpenRaoException.class, terminalsConnectionActionAdder::add);
     }
 }

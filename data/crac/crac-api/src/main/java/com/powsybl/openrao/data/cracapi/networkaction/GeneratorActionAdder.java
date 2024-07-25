@@ -9,13 +9,14 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface PstSetpointAdder {
+public interface GeneratorActionAdder {
 
-    PstSetpointAdder withNetworkElement(String networkElementId, String networkElementName);
+    GeneratorActionAdder withNetworkElement(String networkElementId);
 
-    PstSetpointAdder withNetworkElement(String networkElementId);
+    GeneratorActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    PstSetpointAdder withSetpoint(int setPoint);
+    GeneratorActionAdder withActivePowerValue(double setPoint);
 
     NetworkActionAdder add();
+
 }

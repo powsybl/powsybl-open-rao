@@ -222,7 +222,7 @@ class PstRangeActionAdderImplTest {
         crac.newNetworkAction()
             .withId("sameId")
             .withOperator("BE")
-            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add()
+            .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add()
             .add();
 
         PstRangeActionAdder adder = crac.newPstRangeAction()
