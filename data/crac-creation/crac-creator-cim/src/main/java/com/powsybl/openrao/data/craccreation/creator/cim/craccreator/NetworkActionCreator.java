@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.craccreation.creator.cim.xsd.RemedialActionRegis
 import com.powsybl.openrao.data.craccreation.util.PstHelper;
 import com.powsybl.openrao.data.craccreation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.openrao.data.craccreation.util.iidm.IidmPstHelper;
-import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -81,15 +80,17 @@ public class NetworkActionCreator {
                 if (psrType.equals(CimConstants.PsrType.PST.getStatus())) {
                     // PST setpoint elementary action
                     addPstSetpointElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
-                } else if (psrType.equals(CimConstants.PsrType.GENERATION.getStatus()) || psrType.equals(CimConstants.PsrType.LOAD.getStatus())) {
-                    // Injection elementary action
-                    addInjectionSetpointElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
+                } else if (psrType.equals(CimConstants.PsrType.GENERATION.getStatus())) {
+                    addGeneratorElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
+                } else if (psrType.equals(CimConstants.PsrType.LOAD.getStatus())) {
+                    addLoadElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
                 } else if (psrType.equals(CimConstants.PsrType.LINE.getStatus()) && remedialActionRegisteredResource.getMarketObjectStatusStatus().equals(CimConstants.MarketObjectStatus.ABSOLUTE.getStatus())) {
                     this.networkActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format("Modify line impedance as remedial action on elementary action %s", elementaryActionId));
                     return;
-                } else if (psrType.equals(CimConstants.PsrType.TIE_LINE.getStatus()) || psrType.equals(CimConstants.PsrType.LINE.getStatus()) || psrType.equals(CimConstants.PsrType.CIRCUIT_BREAKER.getStatus()) || psrType.equals(CimConstants.PsrType.TRANSFORMER.getStatus())) {
-                    // Topological elementary action
-                    addTopologicalElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
+                } else if (psrType.equals(CimConstants.PsrType.TIE_LINE.getStatus()) || psrType.equals(CimConstants.PsrType.LINE.getStatus()) || psrType.equals(CimConstants.PsrType.TRANSFORMER.getStatus())) {
+                    addTerminalsConnectionElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
+                } else if (psrType.equals(CimConstants.PsrType.CIRCUIT_BREAKER.getStatus())) {
+                    addSwitchElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
                 } else if (psrType.equals(CimConstants.PsrType.DEPRECATED_LINE.getStatus())) {
                     this.networkActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong psrType: %s, deprecated LINE psrType on elementary action %s", psrType, elementaryActionId));
                     return;
@@ -127,13 +128,13 @@ public class NetworkActionCreator {
         } else {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on elementary action %s", marketObjectStatusStatus, elementaryActionId));
         }
-        networkActionAdder.newPstSetPoint()
+        networkActionAdder.newPhaseTapChangerTapPositionAction()
             .withNetworkElement(networkElementId)
-            .withSetpoint(setpoint)
+            .withTapPosition((pstHelper.getLowTapPosition() + pstHelper.getHighTapPosition()) / 2 + setpoint)
             .add();
     }
 
-    private void addInjectionSetpointElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+    private int checkAndComputeSetpointForInjectionElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource) {
         // Injection range actions aren't handled
         if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity())) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s should not have a min or max capacity defined", elementaryActionId));
@@ -143,7 +144,6 @@ public class NetworkActionCreator {
         if (Objects.isNull(marketObjectStatusStatus)) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on injection setpoint elementary action %s", elementaryActionId));
         }
-        int setpoint;
         if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.ABSOLUTE.getStatus())) {
             if (Objects.isNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())
                 || Objects.isNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
@@ -152,50 +152,70 @@ public class NetworkActionCreator {
             if (!remedialActionRegisteredResource.getResourceCapacityUnitSymbol().equals(MEGAWATT_UNIT_SYMBOL)) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol for injection setpoint elementary action %s with ABSOLUTE marketObjectStatus : %s", elementaryActionId, remedialActionRegisteredResource.getResourceCapacityUnitSymbol()));
             }
-            setpoint = remedialActionRegisteredResource.getResourceCapacityDefaultCapacity().intValue();
+            return remedialActionRegisteredResource.getResourceCapacityDefaultCapacity().intValue();
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.STOP.getStatus())) {
             if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())
                 || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s with STOP marketObjectStatus shouldn't have a defaultCapacity nor a unitSymbol", elementaryActionId));
             }
-            setpoint = 0;
+            return 0;
         } else {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on injection setpoint elementary action %s", marketObjectStatusStatus, elementaryActionId));
         }
+    }
 
+    private Identifiable<?> checkAndComputeNetworkElementForInjectionElementaryAction(RemedialActionRegisteredResource remedialActionRegisteredResource) {
         String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
-        checkGeneratorOrLoad(networkElementId);
+        Identifiable<?> networkElement = network.getIdentifiable(networkElementId);
+        if (Objects.isNull(networkElement)) {
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not found in network", networkElementId));
+        }
+        return networkElement;
+    }
 
-        networkActionAdder.newInjectionSetPoint()
-            .withNetworkElement(networkElementId)
-            .withSetpoint(setpoint)
-            .withUnit(Unit.MEGAWATT)
+    private void addGeneratorElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+        int setpoint = checkAndComputeSetpointForInjectionElementaryAction(elementaryActionId, remedialActionRegisteredResource);
+        Identifiable<?> networkElement = checkAndComputeNetworkElementForInjectionElementaryAction(remedialActionRegisteredResource);
+        if (networkElement.getType() != IdentifiableType.GENERATOR) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s is not a generator but a %s while psrType is %s", networkElement.getId(), networkElement.getType(), CimConstants.PsrType.GENERATION.getStatus()));
+        }
+        networkActionAdder.newGeneratorAction()
+            .withNetworkElement(networkElement.getId())
+            .withActivePowerValue(setpoint)
             .add();
     }
 
-    private void checkGeneratorOrLoad(String networkElementId) {
-        if (Objects.isNull(network.getGenerator(networkElementId)) && Objects.isNull(network.getLoad(networkElementId))) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is neither a generator nor a load", networkElementId));
+    private void addLoadElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+        int setpoint = checkAndComputeSetpointForInjectionElementaryAction(elementaryActionId, remedialActionRegisteredResource);
+        Identifiable<?> networkElement = checkAndComputeNetworkElementForInjectionElementaryAction(remedialActionRegisteredResource);
+        if (networkElement.getType() != IdentifiableType.LOAD) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s is not a load but a %s while psrType is %s", networkElement.getId(), networkElement.getType(), CimConstants.PsrType.LOAD.getStatus()));
         }
+        networkActionAdder.newLoadAction()
+            .withNetworkElement(networkElement.getId())
+            .withActivePowerValue(setpoint)
+            .add();
     }
 
-    private void addTopologicalElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+    private ActionType checkAndComputeActionTypeForTopologicalElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource) {
         if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Topological elementary action %s should not have any resource capacity defined", elementaryActionId));
         }
         // Market object status
         String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
-        ActionType actionType;
         if (Objects.isNull(marketObjectStatusStatus)) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on topological elementary action %s", elementaryActionId));
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.OPEN.getStatus())) {
-            actionType = ActionType.OPEN;
+            return ActionType.OPEN;
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.CLOSE.getStatus())) {
-            actionType = ActionType.CLOSE;
+            return ActionType.CLOSE;
         } else {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on topological elementary action %s", marketObjectStatusStatus, elementaryActionId));
         }
+    }
 
+    private void addTerminalsConnectionElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+        ActionType actionType = checkAndComputeActionTypeForTopologicalElementaryAction(elementaryActionId, remedialActionRegisteredResource);
         String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
         Identifiable<?> element = network.getIdentifiable(networkElementId);
         if (Objects.isNull(element)) {
@@ -207,14 +227,31 @@ public class NetworkActionCreator {
             networkElementId = branchHelper.getIdInNetwork();
             element = branchHelper.getBranch();
         }
-        if (!(element instanceof Branch) && !(element instanceof Switch)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId));
+        if (element instanceof Branch) {
+            networkActionAdder.newTerminalsConnectionAction()
+                .withNetworkElement(networkElementId)
+                .withActionType(actionType)
+                .add();
+        } else {
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is not branch but a %s", networkElementId, element.getType()));
         }
+    }
 
-        networkActionAdder.newTopologicalAction()
-            .withNetworkElement(networkElementId)
-            .withActionType(actionType)
-            .add();
+    private void addSwitchElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+        ActionType actionType = checkAndComputeActionTypeForTopologicalElementaryAction(elementaryActionId, remedialActionRegisteredResource);
+        String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
+        Identifiable<?> element = network.getIdentifiable(networkElementId);
+        if (Objects.isNull(element)) {
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not found in network %s", networkElementId, network.getId()));
+        }
+        if (element.getType() == IdentifiableType.SWITCH) {
+            networkActionAdder.newSwitchAction()
+                .withNetworkElement(networkElementId)
+                .withActionType(actionType)
+                .add();
+        } else {
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is not a switch but a %s", networkElementId, element.getType()));
+        }
     }
 
     public void addNetworkAction() {

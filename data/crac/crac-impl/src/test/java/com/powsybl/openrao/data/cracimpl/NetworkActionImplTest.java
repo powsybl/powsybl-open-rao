@@ -8,14 +8,16 @@
 package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.openrao.data.cracapi.Identifiable;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
+import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,100 +30,79 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class NetworkActionImplTest {
 
-    private ElementaryAction mockedElementaryAction1;
-    private ElementaryAction mockedElementaryAction2;
-    private UsageRule mockedUsageRule1;
-    private UsageRule mockedUsageRule2;
+    private Network network;
+    private Switch switchToOpen;
+    private Switch switchToClose;
+    private Generator generator;
+    private NetworkAction networkAction1;
+    private NetworkAction networkAction2;
 
     @BeforeEach
     public void setUp() {
-        mockedUsageRule1 = Mockito.mock(UsageRule.class);
-        mockedUsageRule2 = Mockito.mock(UsageRule.class);
-        mockedElementaryAction1 = Mockito.mock(ElementaryAction.class);
-        mockedElementaryAction2 = Mockito.mock(ElementaryAction.class);
-        Mockito.when(mockedElementaryAction1.getNetworkElements()).thenReturn(Set.of(new NetworkElementImpl("ne1")));
-        Mockito.when(mockedElementaryAction2.getNetworkElements()).thenReturn(Set.of(new NetworkElementImpl("ne2"), new NetworkElementImpl("ne3")));
+        network = Network.read("TestCase12NodesWith2Switches.uct", getClass().getResourceAsStream("/TestCase12NodesWith2Switches.uct"));
+        generator = network.getGenerator("BBE1AA1 _generator");
+        switchToOpen = network.getSwitch("NNL3AA11 NNL3AA12 1");
+        switchToClose = network.getSwitch("NNL3AA13 NNL3AA14 1");
+
+        Crac crac = new CracImplFactory().create("cracId");
+        crac.newInstant("now", InstantKind.PREVENTIVE);
+        crac.newInstant("after", InstantKind.OUTAGE);
+        crac.newInstant("then", InstantKind.AUTO);
+
+        NetworkActionAdder networkActionAdder1 = crac.newNetworkAction().withId("id1").withName("name").withOperator("operator").withSpeed(10);
+        networkActionAdder1.newOnInstantUsageRule().withInstant("now").withUsageMethod(UsageMethod.UNDEFINED).add();
+        networkActionAdder1.newGeneratorAction().withNetworkElement(generator.getId()).withActivePowerValue(0).add();
+        networkAction1 = networkActionAdder1.add();
+
+        NetworkActionAdder networkActionAdder2 = crac.newNetworkAction().withId("id2").withName("name").withOperator("operator").withSpeed(10);
+        networkActionAdder2.newOnInstantUsageRule().withInstant("now").withUsageMethod(UsageMethod.UNDEFINED).add();
+        networkActionAdder2.newOnInstantUsageRule().withInstant("then").withUsageMethod(UsageMethod.UNDEFINED).add();
+        networkActionAdder2.newGeneratorAction().withNetworkElement(generator.getId()).withActivePowerValue(10.0).add();
+        networkActionAdder2.newSwitchPair().withSwitchToOpen(switchToOpen.getId()).withSwitchToClose(switchToClose.getId()).add();
+        networkAction2 = networkActionAdder2.add();
     }
 
     @Test
     void networkActionWithOneElementaryAction() {
-        NetworkAction networkAction = new NetworkActionImpl(
-            "id",
-            "name",
-            "operator",
-            new HashSet<>(Collections.singleton(mockedUsageRule1)),
-            Collections.singleton(mockedElementaryAction1),
-                10
-        );
-
-        assertEquals("id", networkAction.getId());
-        assertEquals("name", networkAction.getName());
-        assertEquals("operator", networkAction.getOperator());
-        assertEquals(1, networkAction.getUsageRules().size());
-        assertEquals(1, networkAction.getElementaryActions().size());
-        assertEquals("ne1", networkAction.getElementaryActions().iterator().next().getNetworkElements().iterator().next().getId());
+        assertEquals("id1", networkAction1.getId());
+        assertEquals("name", networkAction1.getName());
+        assertEquals("operator", networkAction1.getOperator());
+        assertEquals(1, networkAction1.getUsageRules().size());
+        assertEquals(1, networkAction1.getElementaryActions().size());
+        assertEquals(generator.getId(), networkAction1.getNetworkElements().iterator().next().getId());
     }
 
     @Test
     void networkActionWithTwoElementaryActions() {
-        NetworkAction networkAction = new NetworkActionImpl(
-            "id",
-            "name",
-            "operator",
-                new HashSet<>(Arrays.asList(mockedUsageRule1, mockedUsageRule2)),
-                new HashSet<>(Arrays.asList(mockedElementaryAction1, mockedElementaryAction2)),
-                10
-        );
-
-        assertEquals("id", networkAction.getId());
-        assertEquals("name", networkAction.getName());
-        assertEquals("operator", networkAction.getOperator());
-        assertEquals(2, networkAction.getUsageRules().size());
-        assertEquals(2, networkAction.getElementaryActions().size());
-        assertEquals(Set.of("ne1", "ne2", "ne3"), networkAction.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet()));
+        assertEquals("id2", networkAction2.getId());
+        assertEquals("name", networkAction2.getName());
+        assertEquals("operator", networkAction2.getOperator());
+        assertEquals(2, networkAction2.getUsageRules().size());
+        assertEquals(2, networkAction2.getElementaryActions().size());
+        assertEquals(Set.of(generator.getId(), switchToOpen.getId(), switchToClose.getId()), networkAction2.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet()));
     }
 
     @Test
-    void testApply() {
-        Network network = Mockito.mock(Network.class);
-        NetworkAction networkAction = new NetworkActionImpl(
-            "id",
-            "name",
-            "operator",
-            new HashSet<>(List.of(mockedUsageRule1, mockedUsageRule2)),
-            Set.of(mockedElementaryAction1, mockedElementaryAction2),
-                10
-        );
+    void testCanBeApplied() {
+        assertTrue(networkAction1.canBeApplied(network)); // true for generator
+        switchToOpen.setOpen(true);
+        switchToClose.setOpen(true);
+        assertFalse(networkAction2.canBeApplied(network)); // true for generator but false for switch pair
 
-        Mockito.when(mockedElementaryAction1.canBeApplied(Mockito.any())).thenReturn(false);
-        Mockito.when(mockedElementaryAction2.canBeApplied(Mockito.any())).thenReturn(false);
-        assertFalse(networkAction.apply(network));
-
-        Mockito.when(mockedElementaryAction1.canBeApplied(Mockito.any())).thenReturn(true);
-        assertFalse(networkAction.apply(network));
-
-        Mockito.when(mockedElementaryAction2.canBeApplied(Mockito.any())).thenReturn(true);
-        assertTrue(networkAction.apply(network));
+        switchToOpen.setOpen(false); // now it is true for switch pair
+        assertTrue(networkAction2.canBeApplied(network));
     }
 
     @Test
     void testHasImpactOnNetworkAction() {
-        Network network = Mockito.mock(Network.class);
-        NetworkAction networkAction = new NetworkActionImpl(
-            "id",
-            "name",
-            "operator",
-            new HashSet<>(List.of(mockedUsageRule1, mockedUsageRule2)),
-            Set.of(mockedElementaryAction1, mockedElementaryAction2),
-                10
-        );
+        // generator action set target P to 10.0
+        generator.setTargetP(5.0); // impact on network yes
+        switchToOpen.setOpen(true); // impact on network no
+        switchToClose.setOpen(false); // impact on network no
+        assertTrue(networkAction2.hasImpactOnNetwork(network)); // generatorAction yes and switchAction no
 
-        Mockito.when(mockedElementaryAction1.hasImpactOnNetwork(Mockito.any())).thenReturn(true);
-        Mockito.when(mockedElementaryAction2.hasImpactOnNetwork(Mockito.any())).thenReturn(false);
-        assertTrue(networkAction.hasImpactOnNetwork(network));
-
-        Mockito.when(mockedElementaryAction1.hasImpactOnNetwork(Mockito.any())).thenReturn(false);
-        assertFalse(networkAction.hasImpactOnNetwork(network));
+        generator.setTargetP(10.0); // impact on network no
+        assertFalse(networkAction2.hasImpactOnNetwork(network)); // generatorAction no and switchAction no
     }
 
     @Test

@@ -89,7 +89,7 @@ public final class NetworkActionCombinationsUtils {
     }
 
     static NetworkAction createNetworkActionWithOperator(String networkElementId, String operator) {
-        return CRAC.newNetworkAction().withId("na - " + networkElementId).withOperator(operator).newTopologicalAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add().add();
+        return CRAC.newNetworkAction().withId("na - " + networkElementId).withOperator(operator).newTerminalsConnectionAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add().add();
     }
 
     static PstRangeAction createPstRangeActionWithOperator(String networkElementId, String operator) {

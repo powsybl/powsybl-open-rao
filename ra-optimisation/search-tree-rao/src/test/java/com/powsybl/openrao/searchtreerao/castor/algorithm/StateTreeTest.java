@@ -1251,7 +1251,7 @@ class StateTreeTest {
     private static void addTopologicalActionToCrac(Crac crac, String instantId, String contingencyId) {
         crac.newNetworkAction()
             .withId(String.format("onContingency topo - %s - %s", contingencyId, instantId))
-            .newTopologicalAction()
+            .newSwitchAction()
                 .withActionType(ActionType.OPEN)
                 .withNetworkElement("switch")
                 .add()

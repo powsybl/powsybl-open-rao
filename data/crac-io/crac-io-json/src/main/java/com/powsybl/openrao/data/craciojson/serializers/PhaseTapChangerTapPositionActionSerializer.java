@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.craciojson.serializers;
 
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
 
 import java.io.IOException;
 
@@ -18,13 +18,12 @@ import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class InjectionSetpointSerializer extends AbstractJsonSerializer<InjectionSetpoint> {
+public class PhaseTapChangerTapPositionActionSerializer extends AbstractJsonSerializer<PhaseTapChangerTapPositionAction> {
     @Override
-    public void serialize(InjectionSetpoint value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(PhaseTapChangerTapPositionAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
-        gen.writeNumberField(SETPOINT, value.getSetpoint());
-        gen.writeStringField(UNIT, serializeUnit(value.getUnit()));
+        gen.writeStringField(NETWORK_ELEMENT_ID, value.getTransformerId());
+        gen.writeNumberField(SETPOINT, value.getTapPosition());
         gen.writeEndObject();
     }
 }

@@ -204,7 +204,7 @@ class AutomatonSimulatorTest {
         // Add a network action
         na = crac.newNetworkAction()
             .withId("na")
-            .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("DDE3AA11 DDE4AA11 1").add()
+            .newSwitchAction().withActionType(ActionType.CLOSE).withNetworkElement("DDE3AA11 DDE4AA11 1").add()
             .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec2").withUsageMethod(UsageMethod.FORCED).add()
             .add();
 

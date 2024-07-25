@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.data.cracapi.networkaction;
 
+import com.powsybl.action.*;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Set;
 
@@ -16,9 +18,9 @@ import java.util.Set;
  * Remedial action interface specifying a direct action on the network.
  * <p>
  * The Network Action is completely defined by itself.
- * It involves a Set of {@link ElementaryAction}.
- * When the apply method is called, an action is triggered on each of these Elementary
- * Actions.
+ * It involves a Set of {@link Action}.
+ * When the apply method is called, a {@link com.powsybl.iidm.modification.NetworkModification}
+ * is triggered on each of these elementary remedial actions.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -44,7 +46,7 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
     /**
      * Get the set of the elementary actions constituting then network action
      */
-    Set<ElementaryAction> getElementaryActions();
+    Set<Action> getElementaryActions();
 
     /**
      * States if the network action can be applied without infringing on another network action's scope.
@@ -53,13 +55,48 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      * @return true if both network actions can be applied without any conflictual behaviour
      */
     default boolean isCompatibleWith(NetworkAction otherNetworkAction) {
-        for (ElementaryAction elementaryAction1 : getElementaryActions()) {
-            for (ElementaryAction elementaryAction2 : otherNetworkAction.getElementaryActions()) {
-                if (!elementaryAction1.isCompatibleWith(elementaryAction2)) {
-                    return false;
-                }
+        return getElementaryActions().stream().allMatch(elementaryAction -> {
+            if (elementaryAction instanceof SwitchPair switchPair) {
+                return otherNetworkAction.getElementaryActions().stream().allMatch(switchPair::isCompatibleWith);
+            } else {
+                // FIXME: Action equals is only implemented for Action currently used in Rao,
+                //  so the code above is not working for all Action but only for:
+                //  GeneratorAction, LoadAction, DanglingLineAction, ShuntCompensatorPositionAction,
+                //  PhaseTapChangerTapPositionAction, TerminalsConnectionAction, SwitchAction
+                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
+                    if (otherElementaryAction instanceof SwitchPair) {
+                        return true;
+                    } else {
+                        return !getNetworkElementId(elementaryAction).equals(getNetworkElementId(otherElementaryAction)) || elementaryAction.equals(otherElementaryAction);
+                    }
+                });
             }
+        });
+    }
+
+    /**
+     * Returns true if all the elementary actions can be applied to the given network
+     */
+    boolean canBeApplied(Network network);
+
+    // FIXME: to remove after getElementId is added to core Action interface
+    static String getNetworkElementId(Action elementaryAction) {
+        if (elementaryAction instanceof GeneratorAction generatorAction) {
+            return generatorAction.getGeneratorId();
+        } else if (elementaryAction instanceof LoadAction loadAction) {
+            return loadAction.getLoadId();
+        } else if (elementaryAction instanceof DanglingLineAction danglingLineAction) {
+            return danglingLineAction.getDanglingLineId();
+        } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
+            return shuntCompensatorPositionAction.getShuntCompensatorId();
+        } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
+            return phaseTapChangerTapPositionAction.getTransformerId();
+        } else if (elementaryAction instanceof TerminalsConnectionAction terminalsConnectionAction) {
+            return terminalsConnectionAction.getElementId();
+        } else if (elementaryAction instanceof SwitchAction switchAction) {
+            return switchAction.getSwitchId();
+        } else {
+            throw new NotImplementedException();
         }
-        return true;
     }
 }

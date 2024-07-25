@@ -9,6 +9,9 @@ package com.powsybl.openrao.data.craccreation.creator.cim.craccreator;
 
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.ImportConfig;
@@ -635,14 +638,14 @@ class CimCracCreatorTest {
         assertEquals(Country.PT, ((OnFlowConstraintInCountry) ra1.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra1.getElementaryActions().size());
         assertTrue(ra1.getElementaryActions().stream()
-            .filter(InjectionSetpoint.class::isInstance)
-            .map(InjectionSetpoint.class::cast)
-            .anyMatch(is -> is.getNetworkElement().getId().equals("_2844585c-0d35-488d-a449-685bcd57afbf") && is.getSetpoint() == 380)
+            .filter(GeneratorAction.class::isInstance)
+            .map(GeneratorAction.class::cast)
+            .anyMatch(is -> is.getGeneratorId().equals("_2844585c-0d35-488d-a449-685bcd57afbf") && is.getActivePowerValue().getAsDouble() == 380)
         );
         assertTrue(ra1.getElementaryActions().stream()
-            .filter(TopologicalAction.class::isInstance)
-            .map(TopologicalAction.class::cast)
-            .anyMatch(ta -> ta.getNetworkElement().getId().equals("_ffbabc27-1ccd-4fdc-b037-e341706c8d29") && ta.getActionType().equals(ActionType.CLOSE))
+            .filter(TerminalsConnectionAction.class::isInstance)
+            .map(TerminalsConnectionAction.class::cast)
+            .anyMatch(ta -> ta.getElementId().equals("_ffbabc27-1ccd-4fdc-b037-e341706c8d29") && !ta.isOpen())
         );
 
         // RA_2
@@ -654,14 +657,14 @@ class CimCracCreatorTest {
         assertEquals(Country.ES, ((OnFlowConstraintInCountry) ra2.getUsageRules().iterator().next()).getCountry());
         assertEquals(2, ra2.getElementaryActions().size());
         assertTrue(ra2.getElementaryActions().stream()
-            .filter(PstSetpoint.class::isInstance)
-            .map(PstSetpoint.class::cast)
-            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_e8a7eaec-51d6-4571-b3d9-c36d52073c33") && ps.getSetpoint() == -19)
+            .filter(PhaseTapChangerTapPositionAction.class::isInstance)
+            .map(PhaseTapChangerTapPositionAction.class::cast)
+            .anyMatch(ps -> ps.getTransformerId().equals("_e8a7eaec-51d6-4571-b3d9-c36d52073c33") && ps.getTapPosition() == -19) // before it was the tap position before normalization, now it is after normalization
         );
         assertTrue(ra2.getElementaryActions().stream()
-            .filter(TopologicalAction.class::isInstance)
-            .map(TopologicalAction.class::cast)
-            .anyMatch(ta -> ta.getNetworkElement().getId().equals("_b58bf21a-096a-4dae-9a01-3f03b60c24c7") && ta.getActionType().equals(ActionType.OPEN))
+            .filter(TerminalsConnectionAction.class::isInstance)
+            .map(TerminalsConnectionAction.class::cast)
+            .anyMatch(ta -> ta.getElementId().equals("_b58bf21a-096a-4dae-9a01-3f03b60c24c7") && ta.isOpen())
         );
 
         // RA_3
@@ -682,14 +685,14 @@ class CimCracCreatorTest {
         );
         assertEquals(2, ra3.getElementaryActions().size());
         assertTrue(ra3.getElementaryActions().stream()
-            .filter(PstSetpoint.class::isInstance)
-            .map(PstSetpoint.class::cast)
-            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
+            .filter(PhaseTapChangerTapPositionAction.class::isInstance)
+            .map(PhaseTapChangerTapPositionAction.class::cast)
+            .anyMatch(ps -> ps.getTransformerId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getTapPosition() == 13) // before it was the tap position before normalization, now it is after normalization
         );
         assertTrue(ra3.getElementaryActions().stream()
-            .filter(InjectionSetpoint.class::isInstance)
-            .map(InjectionSetpoint.class::cast)
-            .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
+            .filter(GeneratorAction.class::isInstance)
+            .map(GeneratorAction.class::cast)
+            .anyMatch(is -> is.getGeneratorId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getActivePowerValue().getAsDouble() == 480)
         );
 
         // RA_4
@@ -710,14 +713,14 @@ class CimCracCreatorTest {
         );
         assertEquals(2, ra4.getElementaryActions().size());
         assertTrue(ra4.getElementaryActions().stream()
-            .filter(PstSetpoint.class::isInstance)
-            .map(PstSetpoint.class::cast)
-            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
+            .filter(PhaseTapChangerTapPositionAction.class::isInstance)
+            .map(PhaseTapChangerTapPositionAction.class::cast)
+            .anyMatch(ps -> ps.getTransformerId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getTapPosition() == 13) // before it was the tap position before normalization, now it is after normalization
         );
         assertTrue(ra4.getElementaryActions().stream()
-            .filter(InjectionSetpoint.class::isInstance)
-            .map(InjectionSetpoint.class::cast)
-            .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
+            .filter(GeneratorAction.class::isInstance)
+            .map(GeneratorAction.class::cast)
+            .anyMatch(is -> is.getGeneratorId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getActivePowerValue().getAsDouble() == 480)
         );
 
         // RA_5
@@ -744,14 +747,14 @@ class CimCracCreatorTest {
         );
         assertEquals(2, ra5.getElementaryActions().size());
         assertTrue(ra5.getElementaryActions().stream()
-            .filter(PstSetpoint.class::isInstance)
-            .map(PstSetpoint.class::cast)
-            .anyMatch(ps -> ps.getNetworkElement().getId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getSetpoint() == 0)
+            .filter(PhaseTapChangerTapPositionAction.class::isInstance)
+            .map(PhaseTapChangerTapPositionAction.class::cast)
+            .anyMatch(ps -> ps.getTransformerId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getTapPosition() == 13) // before it was the tap position before normalization, now it is after normalization
         );
         assertTrue(ra5.getElementaryActions().stream()
-            .filter(InjectionSetpoint.class::isInstance)
-            .map(InjectionSetpoint.class::cast)
-            .anyMatch(is -> is.getNetworkElement().getId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getSetpoint() == 480)
+            .filter(GeneratorAction.class::isInstance)
+            .map(GeneratorAction.class::cast)
+            .anyMatch(is -> is.getGeneratorId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getActivePowerValue().getAsDouble() == 480)
         );
     }
 

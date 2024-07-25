@@ -55,7 +55,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
             .withId("networkActionId")
             .withName("networkActionName")
             .withOperator("operator")
-            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add()
+            .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add()
             .add();
     }
 

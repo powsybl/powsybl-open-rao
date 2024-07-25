@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
+import com.powsybl.action.Action;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
@@ -33,7 +33,7 @@ public class MaximumNumberOfElementaryActionsFilter implements NetworkActionComb
         naCombinations.stream().forEach(networkActionCombination -> {
             // TODO: do the same for removePsts
             // we use a set of elementary actions in case some network actions share the same elementary action which should thus only be counted once
-            Map<String, Set<ElementaryAction>> elementaryActionsPerTso = new HashMap<>();
+            Map<String, Set<Action>> elementaryActionsPerTso = new HashMap<>();
             networkActionCombination.getNetworkActionSet().forEach(networkAction -> elementaryActionsPerTso.computeIfAbsent(networkAction.getOperator(), e -> new HashSet<>()).addAll(networkAction.getElementaryActions()));
             if (networkActionCombination.getOperators().stream().anyMatch(operator -> elementaryActionsPerTso.getOrDefault(operator, Set.of()).size() > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE))) {
                 TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of elementary actions has been exceeded for one of its operators", naCombinations.size() - filteredNaCombinations.size());

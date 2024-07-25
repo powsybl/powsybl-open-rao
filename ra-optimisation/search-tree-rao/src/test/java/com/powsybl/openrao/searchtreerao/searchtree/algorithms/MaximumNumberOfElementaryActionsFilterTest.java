@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.junit.jupiter.api.Test;
@@ -30,23 +30,23 @@ class MaximumNumberOfElementaryActionsFilterTest {
         PstRangeAction pstRangeAction = NetworkActionCombinationsUtils.addPstRangeActionToCrac();
         pstRangeAction.apply(NETWORK, pstRangeAction.getTapToAngleConversionMap().get(3));
 
-        TopologicalAction topoFr1 = Mockito.mock(TopologicalAction.class);
-        TopologicalAction topoFr2 = Mockito.mock(TopologicalAction.class);
+        TerminalsConnectionAction topoFr1 = Mockito.mock(TerminalsConnectionAction.class);
+        TerminalsConnectionAction topoFr2 = Mockito.mock(TerminalsConnectionAction.class);
         NetworkAction naFr = Mockito.mock(NetworkAction.class);
         Mockito.when(naFr.getOperator()).thenReturn("FR");
         Mockito.when(naFr.getElementaryActions()).thenReturn(Set.of(topoFr1, topoFr2));
 
-        TopologicalAction topoNl = Mockito.mock(TopologicalAction.class);
+        TerminalsConnectionAction topoNl = Mockito.mock(TerminalsConnectionAction.class);
         NetworkAction naNl = Mockito.mock(NetworkAction.class);
         Mockito.when(naNl.getOperator()).thenReturn("NL");
         Mockito.when(naNl.getElementaryActions()).thenReturn(Set.of(topoNl));
 
-        TopologicalAction topoBe = Mockito.mock(TopologicalAction.class);
+        TerminalsConnectionAction topoBe = Mockito.mock(TerminalsConnectionAction.class);
         NetworkAction naBe = Mockito.mock(NetworkAction.class);
         Mockito.when(naBe.getOperator()).thenReturn("BE");
         Mockito.when(naBe.getElementaryActions()).thenReturn(Set.of(topoBe));
 
-        TopologicalAction topoDe = Mockito.mock(TopologicalAction.class);
+        TerminalsConnectionAction topoDe = Mockito.mock(TerminalsConnectionAction.class);
         NetworkAction naDe = Mockito.mock(NetworkAction.class);
         Mockito.when(naDe.getOperator()).thenReturn("DE");
         Mockito.when(naDe.getElementaryActions()).thenReturn(Set.of(topoDe));
@@ -70,13 +70,13 @@ class MaximumNumberOfElementaryActionsFilterTest {
         PstRangeAction pstRangeAction = NetworkActionCombinationsUtils.addPstRangeActionToCrac();
         pstRangeAction.apply(NETWORK, pstRangeAction.getTapToAngleConversionMap().get(3));
 
-        TopologicalAction topoFr1 = Mockito.mock(TopologicalAction.class);
-        TopologicalAction topoFr2 = Mockito.mock(TopologicalAction.class);
+        TerminalsConnectionAction topoFr1 = Mockito.mock(TerminalsConnectionAction.class);
+        TerminalsConnectionAction topoFr2 = Mockito.mock(TerminalsConnectionAction.class);
         NetworkAction naFr = Mockito.mock(NetworkAction.class);
         Mockito.when(naFr.getOperator()).thenReturn("FR");
         Mockito.when(naFr.getElementaryActions()).thenReturn(Set.of(topoFr1, topoFr2));
 
-        TopologicalAction topoNl = Mockito.mock(TopologicalAction.class);
+        TerminalsConnectionAction topoNl = Mockito.mock(TerminalsConnectionAction.class);
         NetworkAction naNlFr = Mockito.mock(NetworkAction.class);
         Mockito.when(naNlFr.getOperator()).thenReturn("FR");
         Mockito.when(naNlFr.getElementaryActions()).thenReturn(Set.of(topoNl, topoFr1));

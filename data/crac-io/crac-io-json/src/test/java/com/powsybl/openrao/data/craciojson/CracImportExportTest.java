@@ -8,13 +8,12 @@ package com.powsybl.openrao.data.craciojson;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.action.*;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -32,8 +31,8 @@ import org.mockito.Mockito;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.AVAILABLE;
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.FORCED;
@@ -54,7 +53,7 @@ class CracImportExportTest {
 
     @Test
     void testNonNullOffsetDateTime() {
-        Network network = NetworkImportsUtil.createNetworkWithLines("ne1Id", "ne2Id", "ne3Id");
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json"), new CracCreationParameters(), network, Mockito.mock(OffsetDateTime.class));
         assertTrue(context.isCreationSuccessful());
         assertEquals(List.of("[WARN] OffsetDateTime was ignored by the JSON CRAC importer"), context.getCreationReport().getReport());
@@ -98,7 +97,7 @@ class CracImportExportTest {
         assertEquals(1, crac.getAngleCnecs().size());
         assertEquals(1, crac.getVoltageCnecs().size());
         assertEquals(9, crac.getRangeActions().size());
-        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(5, crac.getNetworkActions().size());
 
         // --------------------------
         // --- test Ra Usage Limits ---
@@ -223,13 +222,23 @@ class CracImportExportTest {
         assertNotNull(crac.getNetworkAction("injectionSetpointRaId"));
         assertNotNull(crac.getNetworkAction("complexNetworkActionId"));
         assertNotNull(crac.getNetworkAction("switchPairRaId"));
+        assertNotNull(crac.getNetworkAction("complexNetworkAction2Id"));
 
         // check elementaryActions
         assertEquals(1, crac.getNetworkAction("pstSetpointRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next() instanceof PstSetpoint);
+        assertTrue(crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next() instanceof PhaseTapChangerTapPositionAction);
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof InjectionSetpoint);
+        assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof GeneratorAction);
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
+        Iterator<Action> raComplexIt = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().iterator();
+        assertTrue(raComplexIt.next() instanceof PhaseTapChangerTapPositionAction);
+        assertTrue(raComplexIt.next() instanceof TerminalsConnectionAction);
+        assertEquals(4, crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().size());
+        Iterator<Action> ra2It = crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().iterator();
+        assertTrue(ra2It.next() instanceof DanglingLineAction);
+        assertTrue(ra2It.next() instanceof LoadAction);
+        assertTrue(ra2It.next() instanceof SwitchAction);
+        assertTrue(ra2It.next() instanceof ShuntCompensatorPositionAction);
 
         // check onInstant usage rule
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
@@ -283,9 +292,7 @@ class CracImportExportTest {
 
         SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
         assertEquals("to-open", switchPair.getSwitchToOpen().getId());
-        assertEquals("to-open", switchPair.getSwitchToOpen().getName());
         assertEquals("to-close", switchPair.getSwitchToClose().getId());
-        assertEquals("to-close-name", switchPair.getSwitchToClose().getName());
 
         // ----------------------------
         // --- test PstRangeActions ---
@@ -392,7 +399,7 @@ class CracImportExportTest {
         assertEquals(1, onFlowConstrainRule.size());
         assertEquals(UsageMethod.AVAILABLE, onFlowConstrainRule.get(0).getUsageMethod(crac.getPreventiveState()));
 
-        List<UsageRule> onInstantRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnInstant).collect(Collectors.toList());
+        List<UsageRule> onInstantRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnInstant).toList();
         assertEquals(1, onInstantRule.size());
         assertEquals(UsageMethod.FORCED, onInstantRule.get(0).getUsageMethod(crac.getPreventiveState()));
 

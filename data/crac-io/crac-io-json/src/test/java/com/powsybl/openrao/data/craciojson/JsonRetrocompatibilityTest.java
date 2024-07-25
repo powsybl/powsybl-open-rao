@@ -6,6 +6,8 @@
  */
 package com.powsybl.openrao.data.craciojson;
 
+import com.powsybl.action.*;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.iidm.network.TwoSides;
@@ -14,8 +16,6 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -25,12 +25,12 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,7 +65,7 @@ class JsonRetrocompatibilityTest {
 
     @BeforeEach
     public void setUp() {
-        network = NetworkImportsUtil.createNetworkWithLines("ne1Id", "ne2Id", "ne3Id");
+        network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
     }
 
     @Test
@@ -305,7 +305,7 @@ class JsonRetrocompatibilityTest {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json");
 
         Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
-        assertEquals(6, crac.getNetworkActions().size());
+        assertEquals(7, crac.getNetworkActions().size());
         testContentOfV2Point4Crac(crac);
     }
 
@@ -403,9 +403,9 @@ class JsonRetrocompatibilityTest {
 
         // check elementaryActions
         assertEquals(1, crac.getNetworkAction("pstSetpointRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next() instanceof PstSetpoint);
+        assertTrue(crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next() instanceof PhaseTapChangerTapPositionAction);
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof InjectionSetpoint);
+        assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof GeneratorAction);
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
 
         // check onInstant usage rule
@@ -530,9 +530,7 @@ class JsonRetrocompatibilityTest {
 
         SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
         assertEquals("to-open", switchPair.getSwitchToOpen().getId());
-        assertEquals("to-open", switchPair.getSwitchToOpen().getName());
         assertEquals("to-close", switchPair.getSwitchToClose().getId());
-        assertEquals("to-close-name", switchPair.getSwitchToClose().getName());
     }
 
     void testContentOfV1Point2Crac(Crac crac) {
@@ -648,10 +646,8 @@ class JsonRetrocompatibilityTest {
     }
 
     void testContentOfV1Point8Crac(Crac crac) {
-
         testContentOfV1Point7Crac(crac);
-        // test new injection setpoint unit
-        assertEquals(Unit.MEGAWATT, ((InjectionSetpoint) crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().stream().filter(InjectionSetpoint.class::isInstance).findFirst().orElseThrow()).getUnit());
+        // Unit no longer exist so nothing specific to test for this version
     }
 
     void testContentOfV1Point9Crac(Crac crac) {
@@ -763,5 +759,17 @@ class JsonRetrocompatibilityTest {
 
     private void testContentOfV2Point4Crac(Crac crac) {
         testContentOfV2Point3Crac(crac);
+
+        // check (new) elementaryActions
+        assertEquals(4, crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().size());
+        Iterator<Action> ra2It = crac.getNetworkAction("complexNetworkAction2Id").getElementaryActions().iterator();
+        assertTrue(ra2It.next() instanceof DanglingLineAction);
+        assertTrue(ra2It.next() instanceof LoadAction);
+        assertTrue(ra2It.next() instanceof SwitchAction);
+        assertTrue(ra2It.next() instanceof ShuntCompensatorPositionAction);
+        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
+        Iterator<Action> raComplexIt = crac.getNetworkAction("complexNetworkActionId").getElementaryActions().iterator();
+        assertTrue(raComplexIt.next() instanceof PhaseTapChangerTapPositionAction);
+        assertTrue(raComplexIt.next() instanceof TerminalsConnectionAction);
     }
 }

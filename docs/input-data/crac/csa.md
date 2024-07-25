@@ -624,9 +624,9 @@ and/or maximum tap.
 
 ### Network Actions
 
-#### Topological Action
+#### Switch Action
 
-A [topological action](json.md#network-actions) is described by a `TopologyAction` object which references its parent
+A [switch action](json.md#network-actions) is described by a `TopologyAction` object which references its parent
 remedial action (`GridStateAlterationRemedialAction`) and the switch affected by the action.
 
 ```xml
@@ -649,7 +649,7 @@ remedial action (`GridStateAlterationRemedialAction`) and the switch affected by
 
 The topological action is considered only if the `normalEnabled` field is set to `true`. Besides, the `Switch` must
 reference an existing switch in the network and the `PropertyReference` must necessarily be `Switch.open` since a
-topology action is about opening or closing such a switch.
+topological action is about opening or closing such a switch.
 
 > The topological action can still be imported if `normalEnabled` is set to `false` if the TopologyAction is also
 > defined in the SSI profile with its field `enabled` set to `true`.
@@ -686,18 +686,11 @@ state. Finally, the `normalValue` field sets the behaviour of the switch:
 > the `StaticPropertyRange` is defined. In that case, the field `value` of the `RangeConstraint` will be considered
 > instead.
 
-#### Injection Set-point Action
+#### Generator Action and Load Action
 
-An [injection set-point action](json.md#network-actions) is described by a `SetPointAction` object which references its
-parent remedial action (`GridStateAlterationRemedialAction`) and the network element affected by the action, and which
-is itself referenced by a `StaticPropertyRange` object to provide the numerical value of the set-point. Currently, OpenRAO
-handles three types of CSA set-point actions: the **rotating machine actions**, the **power electronics connection
-actions** and the **shunt compensator modifications**. All three are handled similarly by OpenRAO but their respective
-descriptions in the CSA profiles differ from one another.
-
-::::{tabs}
-:::{group-tab} RotatingMachineAction
-A rotating machine action is described with a `RotatingMachineAction` object in the RA profile.
+A [generator action](json.md#network-actions) or a [load action](json.md#network-actions) is described by a
+`RotatingMachineAction` object which references its parent remedial action (`GridStateAlterationRemedialAction`) and
+the network element affected by the action (a generator or a load).
 
 ```xml
 <!-- RA Profile -->
@@ -718,14 +711,14 @@ A rotating machine action is described with a `RotatingMachineAction` object in 
 ```
 
 The rotating machine action is considered only if the `normalEnabled` field is set to `true`. Besides,
-the `RotatingMachine` must reference an existing generator in the network and the `PropertyReference` must necessarily
-be `RotatingMachine.p` since the remedial action acts on the generator's power.
+the `RotatingMachine` must reference an existing generator or load in the network and the `PropertyReference` must
+necessarily be `RotatingMachine.p` since the remedial action acts on the generator or load's power.
 
 > The rotating machine action can still be imported if `normalEnabled` is set to `false` if the RotatingMachineAction is
 > also defined in the SSI profile with its field `enabled` set to `true`.
 
-To be valid, the `RotatingMachineAction` must itself be referenced by a `StaticPropertyRange` which provides the value
-of the set-point.
+To be valid, the `RotatingMachineAction` must itself be referenced by a `StaticPropertyRange` which provides the targeted
+active power value.
 
 ```xml
 <!-- RA Profile -->
@@ -745,76 +738,19 @@ of the set-point.
 </rdf:RDF>
 ```
 
-For the `StaticPropertyRange`, the `PropertyReference` must also be `RotatingMachine.p`. The value of the set-point (in
-MW) is determined by the `normalValue` given that the `valueKind` is `absolute` and that the `direction` is none to
-indicate that the set-point is an imposed value without any degree of freedom for the RAO.
+For the `StaticPropertyRange`, the `PropertyReference` must also be `RotatingMachine.p`. The value of the active power
+(in MW) is determined by the `normalValue` given that the `valueKind` is `absolute` and that the `direction` is none to
+indicate that the active power is an imposed value without any degree of freedom for the RAO.
 
 > The `normalValue` can be overridden in the SSI profile if a `RangeConstraint` with the same mRID as
 > the `StaticPropertyRange` is defined. In that case, the field `value` of the `RangeConstraint` will be considered
 > instead.
-:::
-:::{group-tab} PowerElectronicsConnectionAction
-A power electronics connection action is described with a `PowerElectronicsConnectionAction` object in the RA profile.
 
-```xml
-<!-- RA Profile -->
-<rdf:RDF>
-    ...
-    <nc:PowerElectronicsConnectionAction rdf:ID="_power-electronics-connection-action">
-        <cim:IdentifiedObject.mRID>power-electronics-connection-action</cim:IdentifiedObject.mRID>
-        <cim:IdentifiedObject.name>Power electronics connection action</cim:IdentifiedObject.name>
-        <cim:IdentifiedObject.description>Example of power electronics connection action
-        </cim:IdentifiedObject.description>
-        <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
-        <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_remedial-action"/>
-        <nc:GridStateAlteration.PropertyReference
-                rdf:resource="http://energy.referencedata.eu/PropertyReference/PowerElectronicsConnection.p"/>
-        <nc:PowerElectronicsConnectionAction.PowerElectronicsConnection rdf:resource="#_power-electronics-connection"/>
-    </nc:PowerElectronicsConnectionAction>
-    ...
-</rdf:RDF>
-```
+#### Shunt Compensator Position Action
 
-The power electronics connection action is considered only if the `normalEnabled` field is set to `true`. Besides,
-the `PowerElectronicsConnection` must reference an existing power electronics connection in the network and
-the `PropertyReference` must necessarily be `PowerElectronicsConnection.p` since the remedial action acts on the power
-electronics connection's power.
-
-> The power electronics connection action can still be imported if `normalEnabled` is set to `false` if the
-> PowerElectronicsConnectionAction is also defined in the SSI profile with its field `enabled` set to `true`.
-
-To be valid, the `PowerElectronicsConnectionAction` must itself be referenced by a `StaticPropertyRange` which provides
-the value of the set-point.
-
-```xml
-<!-- RA Profile -->
-<rdf:RDF>
-    ...
-    <nc:StaticPropertyRange rdf:ID="_static-property-range-for-power-electronics-connection-action">
-        <cim:IdentifiedObject.mRID>static-property-range-for-power-electronics-connection-action
-        </cim:IdentifiedObject.mRID>
-        <cim:IdentifiedObject.name>Set-point in MW</cim:IdentifiedObject.name>
-        <nc:RangeConstraint.GridStateAlteration rdf:resource="#_power-electronics-connection-action"/>
-        <nc:RangeConstraint.normalValue>75.0</nc:RangeConstraint.normalValue>
-        <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
-        <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
-        <nc:StaticPropertyRange.PropertyReference
-                rdf:resource="http://energy.referencedata.eu/PropertyReference/PowerElectronicsConnection.p"/>
-    </nc:StaticPropertyRange>
-    ...
-</rdf:RDF>
-```
-
-For the `StaticPropertyRange`, the `PropertyReference` must also be `PowerElectronicsConnection.p`. The value of the
-set-point (in MW) is determined by the `normalValue` given that the `valueKind` is `absolute` and that the `direction`
-is none to indicate that the set-point is an imposed value without any degree of freedom for the RAO.
-
-> The `normalValue` can be overridden in the SSI profile if a `RangeConstraint` with the same mRID as
-> the `StaticPropertyRange` is defined. In that case, the field `value` of the `RangeConstraint` will be considered
-> instead.
-:::
-:::{group-tab} ShuntCompensatorModification
-A shunt compensator modification is described with a `ShuntCompensatorModification` object in the RA profile.
+A [shunt compensator position action](json.md#network-actions) is described by a `ShuntCompensatorModification` object
+which references its parent remedial action (`GridStateAlterationRemedialAction`) and the network element affected by
+the action (a shunt compensator).
 
 ```xml
 <!-- RA Profile -->
@@ -842,7 +778,7 @@ be `ShuntCompensator.sections` since the remedial action acts on the number of s
 > ShuntCompensatorModification is also defined in the SSI profile with its field `enabled` set to `true`.
 
 To be valid, the `ShuntCompensatorModification` must itself be referenced by a `StaticPropertyRange` which provides the
-value of the set-point.
+value of the targeted section count.
 
 ```xml
 <!-- RA Profile -->
@@ -863,7 +799,7 @@ value of the set-point.
 ```
 
 For the `StaticPropertyRange`, the `PropertyReference` must also be `ShuntCompensator.sections`. The value of the
-set-point (in SECTION_COUNT) is determined by the `normalValue` given that the `valueKind` is `absolute` and that
+section count is determined by the `normalValue` given that the `valueKind` is `absolute` and that
 the `direction`is none to indicate that the number of section is an imposed value without any degree of freedom for the
 RAO. Note that `normalValue` must be integer-*castable* (i.e. a float number with null decimal part) to model a number
 of sections.
