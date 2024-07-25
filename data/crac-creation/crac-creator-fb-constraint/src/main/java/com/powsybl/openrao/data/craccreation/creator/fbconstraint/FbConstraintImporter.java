@@ -59,7 +59,6 @@ public class FbConstraintImporter implements Importer<FbConstraintCreationContex
     private FlowBasedConstraintDocument importNativeCrac(InputStream inputStream) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
-            int flowBasedDocumentVersion = flowBasedDocumentVersion(new ByteArrayInputStream(bytes));
             JAXBContext jaxbContext = JAXBContext.newInstance(FlowBasedConstraintDocument.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             FlowBasedConstraintDocument document = (FlowBasedConstraintDocument) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(bytes));

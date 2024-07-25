@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.HvdcActionBuilder;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
@@ -74,20 +76,24 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
 
     @Override
     public void apply(Network network, double targetSetpoint) {
-        findAndDisableHvdcAngleDroopActivePowerControl(network);
+        logDisableHvdcAngleDroopActivePowerControl(network);
+        HvdcActionBuilder actionBuilder = new HvdcActionBuilder()
+            .withId("")
+            .withHvdcId(networkElement.getId())
+            .withActivePowerSetpoint(Math.abs(targetSetpoint))
+            .withAcEmulationEnabled(false);
         if (targetSetpoint < 0) {
-            getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+            actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         } else {
-            getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+            actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
         }
-        getHvdcLine(network).setActivePowerSetpoint(Math.abs(targetSetpoint));
+        actionBuilder.build().toModification().apply(network, true, ReportNode.NO_OP);
     }
 
-    public void findAndDisableHvdcAngleDroopActivePowerControl(Network network) {
+    public void logDisableHvdcAngleDroopActivePowerControl(Network network) {
         if (isAngleDroopActivePowerControlEnabled(network)) {
             HvdcLine hvdcLine = getHvdcLine(network);
             TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {}", hvdcLine.getId());
-            hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(false);
         }
     }
 
