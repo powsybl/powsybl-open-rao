@@ -98,6 +98,9 @@ public class ComplexScenariosMultiTsTest {
         return sensitivityComputerMultiTS.getSensitivityResults();
     }
 
+    //This test highlights a problem about optimizing multiple time steps at once:
+    //The RAO does not try to optimize a TS if a worse TS exists
+    //Here pst2 from TS1 could have a setpoint of 6.22, but it keeps it to 0.0 (initial setpoint) because TS0 is worse
     @Test
     public void testTwoTimestepsThreePst() {
         networks = new ArrayList<>();

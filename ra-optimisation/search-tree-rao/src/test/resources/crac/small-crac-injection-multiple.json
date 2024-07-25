@@ -22,7 +22,7 @@
   "contingencies": [],
   "flowCnecs": [
     {
-      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS1",
+      "id": "BBE2AA1  FFR3AA1  1 - preventive - TS0",
       "name": "BBE2AA1  FFR3AA1  1 - preventive",
       "networkElementId": "BBE2AA1  FFR3AA1  1",
       "operator": "BE",
@@ -40,8 +40,8 @@
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -200.0,
-          "max": 200.0,
+          "min": -500.0,
+          "max": 500.0,
           "side": "left"
         }
       ]
@@ -51,8 +51,8 @@
   "hvdcRangeActions": [],
   "injectionRangeActions": [
     {
-      "id": "injectionRangeActionGenerator - TS1",
-      "name": "injectionRangeActionName",
+      "id": "injectionRangeActionGenerator0",
+      "name": "injectionRangeActionGenerator0",
       "operator": null,
       "speed": 30,
       "onInstantUsageRules": [
@@ -67,19 +67,14 @@
       "initialSetpoint": 500,
       "ranges": [
         {
-          "min": -500.0,
+          "min": 300.0,
           "max": 1000.0
-        },
-        {
-          "min": -400.0,
-          "max": 400.0,
-          "rangeType" : "relativeToPreviousTimeStep"
         }
       ]
     },
     {
-      "id": "injectionRangeActionLoad - TS1",
-      "name": "injectionRangeActionName",
+      "id": "injectionRangeActionLoad0",
+      "name": "injectionRangeActionLoad0",
       "operator": null,
       "speed": 30,
       "onInstantUsageRules": [
@@ -91,44 +86,59 @@
       "networkElementIdsAndKeys": {
         "DDE1AA1 _load": 1.0
       },
-      "initialSetpoint": -500,
+      "initialSetpoint": 500,
       "ranges": [
         {
           "min": -1000.0,
-          "max": 500.0
-        },
+          "max": -300.0
+        }
+      ]
+    },
+    {
+      "id": "injectionRangeActionGenerator1",
+      "name": "injectionRangeActionGenerator1",
+      "operator": null,
+      "speed": 30,
+      "onInstantUsageRules": [
         {
-          "min": -400.0,
-          "max": 400.0,
-          "rangeType" : "relativeToPreviousTimeStep"
+          "instant": "preventive",
+          "usageMethod": "available"
+        }
+      ],
+      "networkElementIdsAndKeys": {
+        "BBE2AA1 _generator": 1.0
+      },
+      "initialSetpoint": 500,
+      "ranges": [
+        {
+          "min": 300.0,
+          "max": 1000.0
+        }
+      ]
+    },
+    {
+      "id": "injectionRangeActionLoad1",
+      "name": "injectionRangeActionLoad1",
+      "operator": null,
+      "speed": 30,
+      "onInstantUsageRules": [
+        {
+          "instant": "preventive",
+          "usageMethod": "available"
+        }
+      ],
+      "networkElementIdsAndKeys": {
+        "DDE2AA1 _load": 1.0
+      },
+      "initialSetpoint": 500,
+      "ranges": [
+        {
+          "min": -1000.0,
+          "max": -300.0
         }
       ]
     }
   ],
-  "networkActions": [{
-    "id" : "close-fr3-be2-2 - TS0",
-    "name" : "close-fr3-be2-2",
-    "operator" : null,
-    "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
-    } ],
-    "topologicalActions" : [ {
-      "networkElementId" : "BBE2AA1  FFR3AA1  2",
-      "actionType" : "close"
-    } ]
-  }, {
-    "id" : "close-fr3-be2-3 - TS0",
-    "name" : "close-fr3-be2-3",
-    "operator" : null,
-    "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
-    } ],
-    "topologicalActions" : [ {
-      "networkElementId" : "BBE2AA1  FFR3AA1  3",
-      "actionType" : "close"
-    } ]
-  }],
+  "networkActions": [],
   "ra-usage-limits-per-instant": []
 }

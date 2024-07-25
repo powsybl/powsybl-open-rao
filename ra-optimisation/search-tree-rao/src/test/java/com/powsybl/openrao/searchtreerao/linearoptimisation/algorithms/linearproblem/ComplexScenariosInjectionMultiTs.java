@@ -5,8 +5,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracioapi.CracImporters;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -175,6 +173,60 @@ public class ComplexScenariosInjectionMultiTs {
 
         System.out.println("---- TS0 ----");
         System.out.println(injGenOptimizedSetTs0);
+    }
+
+    @Test
+    public void testInjectionAndPst() {
+        List<String> cracsPaths = List.of(
+            "multi-ts/crac/crac-injection-pst-ts0.json",
+            "multi-ts/crac/crac-injection-pst-ts1.json"
+        );
+        List<String> networksPaths = List.of(
+            "multi-ts/network/12NodesProdBE.uct",
+            "multi-ts/network/12NodesProdDE.uct"
+        );
+
+        cracs = new ArrayList<>();
+        networks = new ArrayList<>();
+
+        for (int i = 0; i < networksPaths.size(); i++) {
+            networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
+            cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
+        }
+
+        initialSetpoints = computeInitialSetpointsResults();
+        optimizationPerimeters = computeOptimizationPerimeters();
+        initialSensiResult = runInitialSensi();
+        LinearOptimizationResult result = runIteratingLinearOptimization();
+        System.out.println(result.getStatus());
+
+        RangeAction<?> injectionGenRa0 = cracs.get(0).getRangeAction("injectionRangeActionGenerator - TS0");
+        RangeAction<?> injectionLoadRa0 = cracs.get(0).getRangeAction("injectionRangeActionLoad - TS0");
+        RangeAction<?> injectionGenRa1 = cracs.get(1).getRangeAction("injectionRangeActionGenerator - TS1");
+        RangeAction<?> injectionLoadRa1 = cracs.get(1).getRangeAction("injectionRangeActionLoad - TS1");
+        State state0 = optimizationPerimeters.get(0).getMainOptimizationState();
+        State state1 = optimizationPerimeters.get(1).getMainOptimizationState();
+        double injGenOptimizedSetPoint0 = result.getRangeActionActivationResult().getOptimizedSetpoint(injectionGenRa0, state0);
+        double injLoadOptimizedSetPoint0 = result.getRangeActionActivationResult().getOptimizedSetpoint(injectionLoadRa0, state0);
+        double injGenOptimizedSetPoint1 = result.getRangeActionActivationResult().getOptimizedSetpoint(injectionGenRa1, state1);
+        double injLoadOptimizedSetPoint1 = result.getRangeActionActivationResult().getOptimizedSetpoint(injectionLoadRa1, state1);
+
+        RangeAction<?> pstRa0 = cracs.get(0).getRangeAction("pst_be - TS0");
+        RangeAction<?> pstRa1 = cracs.get(1).getRangeAction("pst_be - TS1");
+        double pstOptimizedSetPoint0 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0, state0);
+        double pstOptimizedSetPoint1 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa1, state1);
+
+        System.out.println("--------TS0 Injection---------");
+        System.out.println(injGenOptimizedSetPoint0);
+        System.out.println(injLoadOptimizedSetPoint0);
+        System.out.println("--------TS1 Injection---------");
+        System.out.println(injGenOptimizedSetPoint1);
+        System.out.println(injLoadOptimizedSetPoint1);
+        System.out.println("--------TS0 Pst---------");
+        System.out.println(pstOptimizedSetPoint0);
+        System.out.println("--------TS1 Pst---------");
+        System.out.println(pstOptimizedSetPoint1);
+
     }
 
     public LinearOptimizationResult runIteratingLinearOptimization() {

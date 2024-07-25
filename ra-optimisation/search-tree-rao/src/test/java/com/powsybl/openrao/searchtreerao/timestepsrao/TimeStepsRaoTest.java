@@ -24,7 +24,7 @@ public class TimeStepsRaoTest {
     RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
 
     @Test
-    void raoTwoTimeStepsWithNetworkActions() {
+    void raoTwoTimeStepsPstWithNetworkActions() {
         List<String> cracsPaths = List.of(
             "multi-ts/crac/crac-network-action-0.json",
             "multi-ts/crac/crac-network-action-1.json"
@@ -48,7 +48,6 @@ public class TimeStepsRaoTest {
 
         // Run RAO
         LinearOptimizationResult raoResult = TimeStepsRao.launchMultiRao(raoInputsList, raoParameters);
-        System.out.println(raoResult);
     }
 
     @Test
@@ -99,5 +98,33 @@ public class TimeStepsRaoTest {
             marginsMap.put(tap, margin);
         }
         return marginsMap;
+    }
+
+    @Test
+    void raoTwoTimeStepsInjectionWithNetworkActions() {
+
+        List<String> cracsPaths = List.of(
+            "multi-ts/crac/crac-injection-pst-ts0.json",
+            "multi-ts/crac/crac-injection-pst-ts1.json"
+        );
+        List<String> networksPaths = List.of(
+            "multi-ts/network/12NodesProdBE.uct",
+            "multi-ts/network/12NodesProdBE.uct"
+        );
+
+        cracs = new ArrayList<>();
+        networks = new ArrayList<>();
+        List<RaoInput> raoInputsList = new ArrayList<>();
+
+        for (int i = 0; i < networksPaths.size(); i++) {
+            Network network = Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i)));
+            networks.add(network);
+            Crac crac = CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), network);
+            cracs.add(crac);
+            raoInputsList.add(RaoInput.build(network, crac).build());
+        }
+
+        // Run RAO
+        LinearOptimizationResult raoResult = TimeStepsRao.launchMultiRao(raoInputsList, raoParameters);
     }
 }

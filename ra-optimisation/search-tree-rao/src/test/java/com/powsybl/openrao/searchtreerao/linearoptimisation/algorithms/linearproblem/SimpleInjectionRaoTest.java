@@ -67,4 +67,14 @@ public class SimpleInjectionRaoTest {
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInput, raoParameters);
     }
+
+    @Test
+    public void testRunRaoInjection2() {
+        crac = CracImporters.importCrac("crac/small-crac-injection-multiple.json",
+            getClass().getResourceAsStream("/crac/small-crac-injection-multiple.json"),
+            network);
+
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInput, raoParameters);
+    }
 }

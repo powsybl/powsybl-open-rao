@@ -12,8 +12,6 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 
-import java.util.UUID;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -133,7 +131,7 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String injectionBalanceVariationConstraintId(State state) {
-        return INJECTION_BALANCE + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR + UUID.randomUUID();
+        return INJECTION_BALANCE + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR;
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, Side side, LinearProblem.MarginExtension belowOrAboveThreshold) {

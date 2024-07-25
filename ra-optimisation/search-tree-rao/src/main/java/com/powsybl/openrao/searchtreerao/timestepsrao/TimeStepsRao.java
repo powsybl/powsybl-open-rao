@@ -90,8 +90,6 @@ public class TimeStepsRao implements RaoProvider {
         List<OptimizationPerimeter> optimizationPerimeters = computeOptimizationPerimeters(cracs);
         MultipleSensitivityResult initialSensiResult = runInitialSensi(cracs, networks);
 
-        //        raoParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
-
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
             allCnecs,
             Collections.emptySet(), // loopflows

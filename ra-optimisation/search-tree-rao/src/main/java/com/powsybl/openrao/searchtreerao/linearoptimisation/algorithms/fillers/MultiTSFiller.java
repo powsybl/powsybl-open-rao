@@ -157,7 +157,8 @@ public class MultiTSFiller implements ProblemFiller {
     }
 
     /**
-     * Update penalty cost for PSTs in order to compare to previous TS and not initial value
+     * Update penalty cost for range actions in order to compare to previous TS and not initial value.
+     * The goal is to have closer setpoints between time steps.
      */
     private void updateObjectivePenaltyCost(LinearProblem linearProblem, RangeAction<?> currentRangeAction, RangeAction<?> previousRangeAction, Integer i) {
         OpenRaoMPVariable previousTSSetPointVariable = linearProblem.getRangeActionSetpointVariable(previousRangeAction, statesList.get(i - 1));
