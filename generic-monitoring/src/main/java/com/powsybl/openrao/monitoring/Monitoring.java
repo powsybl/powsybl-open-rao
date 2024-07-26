@@ -1,5 +1,6 @@
 package com.powsybl.openrao.monitoring;
 
+import com.powsybl.action.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.CountryEICode;
@@ -17,8 +18,6 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -336,7 +335,7 @@ public class Monitoring {
             Set<String> networkElementsToBeExcluded = new HashSet<>();
             for (NetworkAction na : availableNetworkActions) {
                 EnumMap<Country, Double> tempPowerToBeRedispatched = new EnumMap<>(powerToBeRedispatched);
-                for (ElementaryAction ea : na.getElementaryActions()) {
+                for (Action ea : na.getElementaryActions()) {
                     networkActionOk = checkElementaryActionAndStoreInjection(ea, network, cnecId, na.getId(), networkElementsToBeExcluded, tempPowerToBeRedispatched, monitoringInput.getScalableZonalData());
                     if (!networkActionOk) {
                         break;
@@ -359,13 +358,13 @@ public class Monitoring {
      * 2) Stores applied injections on network
      * Returns false if network action must be filtered.
      */
-    private boolean checkElementaryActionAndStoreInjection(ElementaryAction ea, Network network, String angleCnecId, String naId, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched, ZonalData<Scalable> scalableZonalData) {
-        if (!(ea instanceof InjectionSetpoint)) {
+    private boolean checkElementaryActionAndStoreInjection(Action ea, Network network, String angleCnecId, String naId, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched, ZonalData<Scalable> scalableZonalData) {
+        if (!(ea instanceof LoadAction) && !(ea instanceof GeneratorAction)) {
             BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that's not an injection setpoint.", naId, angleCnecId);
             return false;
         }
-        // Elementary actions are either generators or loads
-        Identifiable<?> ne = network.getIdentifiable(((InjectionSetpoint) ea).getNetworkElement().getId());
+        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
+
         Optional<Substation> substation = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation();
         if (substation.isEmpty()) {
             BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that doesn't have a substation.", naId, angleCnecId);
@@ -378,9 +377,9 @@ public class Monitoring {
             } else {
                 checkGlsks(country.get(), naId, angleCnecId, scalableZonalData);
                 if (ne.getType().equals(IdentifiableType.GENERATOR)) {
-                    powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP() - ((InjectionSetpoint) ea).getSetpoint(), Double::sum);
+                    powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP() - ((GeneratorAction) ea).getActivePowerValue().getAsDouble(), Double::sum);
                 } else if (ne.getType().equals(IdentifiableType.LOAD)) {
-                    powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0() + ((InjectionSetpoint) ea).getSetpoint(), Double::sum);
+                    powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0() + ((LoadAction) ea).getActivePowerValue().getAsDouble(), Double::sum);
                 } else {
                     BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an injection setpoint that's neither a generator nor a load.", naId, angleCnecId);
                     return false;
@@ -389,6 +388,22 @@ public class Monitoring {
             }
         }
         return true;
+    }
+
+    private Identifiable<?> getInjectionSetpointIdentifiable(Action ea, Network network) {
+        if (ea instanceof GeneratorAction generatorAction) {
+            return network.getIdentifiable(generatorAction.getGeneratorId());
+        }
+        if (ea instanceof LoadAction loadAction) {
+            return network.getIdentifiable(loadAction.getLoadId());
+        }
+        if (ea instanceof DanglingLineAction danglingLineAction) {
+            return network.getIdentifiable(danglingLineAction.getDanglingLineId());
+        }
+        if (ea instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
+            return network.getIdentifiable(shuntCompensatorPositionAction.getShuntCompensatorId());
+        }
+        return null;
     }
 
     /**

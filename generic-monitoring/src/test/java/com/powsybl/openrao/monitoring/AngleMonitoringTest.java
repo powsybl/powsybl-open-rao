@@ -101,7 +101,7 @@ public class AngleMonitoringTest {
         acPrev = addAngleCnec("acPrev", PREVENTIVE_INSTANT_ID, null, "VL1", "VL2", -2., 500.);
         crac.newNetworkAction()
             .withId("Open L1 - 1")
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(acPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
     }
@@ -195,7 +195,7 @@ public class AngleMonitoringTest {
         mockCurativeStates();
         naL1Cur = crac.newNetworkAction()
             .withId("Open L1 - 2")
-            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
@@ -214,15 +214,15 @@ public class AngleMonitoringTest {
         mockCurativeStatesSecure();
         naL1Cur = crac.newNetworkAction()
             .withId("Injection L1 - 2")
-            .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
+            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(50.).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
         assertEquals(SECURE, angleMonitoringResult.getStatus());
-        assertEquals(List.of("All ANGLE Cnecs are secure."), angleMonitoringResult.printConstraints());
         assertEquals(Set.of(naL1Cur.getId()), angleMonitoringResult.getAppliedRas("coL1 - curative"));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of("All ANGLE Cnecs are secure."));
     }
 
     @Test
