@@ -475,6 +475,33 @@
       "unit" : "megawatt"
     }]
   }, {
+    "id" : "complexNetworkAction2Id",
+    "name" : "complexNetworkAction2Name",
+    "operator" : "RTE",
+    "onFlowConstraintInCountryUsageRules" : [ {
+      "instant" : "curative",
+      "contingencyId" : "contingency2Id",
+      "country" : "FR",
+      "usageMethod" : "available"
+    } ],
+    "injectionSetpoints" : [ {
+      "networkElementId" : "LD1",
+      "setpoint" : 260.0,
+      "unit" : "megawatt"
+    },{
+      "networkElementId" : "DL1",
+      "setpoint" : -120.0,
+      "unit" : "megawatt"
+    }, {
+      "networkElementId" : "SC1",
+      "setpoint" : 13,
+      "unit" : "section_count"
+    }],
+    "topologicalActions" : [ {
+      "networkElementId" : "BR1",
+      "actionType" : "open"
+    } ]
+  }, {
     "id" : "pstSetpointRaId",
     "name" : "pstSetpointRaName",
     "operator" : "RTE",

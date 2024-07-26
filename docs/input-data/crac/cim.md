@@ -318,7 +318,7 @@ PST Range Actions have a unique RegisteredResource with A06 psrType, that stands
 ### Network Actions
 
 Network actions have one or more registered resources, that represent elementary actions. Each elementary action's type is defined by its psrType :  
-- **pst set-point** elementary actions have a A06 psrType, that stands for phase shift transformer. They differ from range actions as they have a specific set-point instead of an allowed range. That's why they have a default capacity tag instead of a minimumCapacity and/or a maximumCapacity tag.  
+- **phase tap changer tap position actions** have a A06 psrType, that stands for phase shift transformer. They differ from range actions as they have a specific set-point instead of an allowed range. That's why they have a default capacity tag instead of a minimumCapacity and/or a maximumCapacity tag.
 
 ```xml
 <Series>
@@ -344,7 +344,7 @@ Network actions have one or more registered resources, that represent elementary
 </Series>
 ```
 
-- **injection set-point** elementary actions have a A04 or a A05 psrType, that respectively stand for generation and load. In a similar way to pst set-points, injection set-points do not have a minimumCapacity nor a maximumCapacity, but they have a defaultCapacity when the marketObjectStatus is A26 (stands for ABSOLUTE) with unitSymbol MAW. The marketObjectStatus may also be A23 for STOP. In that case, no defaultCapacity may be present. 
+- **generator actions** have a A04 psrType, that stand for generation. In a similar way to pst set-points, generator actions do not have a minimumCapacity nor a maximumCapacity, but they have a defaultCapacity when the marketObjectStatus is A26 (stands for ABSOLUTE) with unitSymbol MAW. The marketObjectStatus may also be A23 for STOP. In that case, no defaultCapacity may be present.
 
 ```xml
 <Series>
@@ -370,7 +370,33 @@ Network actions have one or more registered resources, that represent elementary
 </Series>
 ```
 
-- **topological** elementary actions have a A01, A02, A07 or a B24 psrType, that respectively stand for tie-line, line, circuit breaker and transformer. In a similar way to other elementary actions, topological elementary actions do not have a minimumCapacity nor a maximumCapacity. Since they aren't defined by a set-point, they don't have a defaultCapacity either. They are entirely defined by the marketObjectStatus : A21 for OPEN, and A22 for CLOSE.
+- **load actions** have a A05 psrType, that stand for load. They are similar to generator actions.
+
+```xml
+<Series>
+    <mRID>RA-Series-1</mRID>
+    <businessType>B56</businessType>
+    <name>RA_1</name>
+    <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+    <RemedialAction_Series>
+      ...
+      <RegisteredResource>
+        <mRID codingScheme="A02">networkElementId</mRID>
+        <name>RA1-name</name>
+       <pSRType.psrType>A05</pSRType.psrType>
+        <in_Domain.mRID codingScheme="A01">10YPT-XXX------W</in_Domain.mRID>
+        <out_Domain.mRID codingScheme="A01">10YPT-XXX------W</out_Domain.mRID>
+        <marketObjectStatus.status>A26</marketObjectStatus.status>
+        <resourceCapacity.defaultCapacity>100</resourceCapacity.defaultCapacity>
+        <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+        </RegisteredResource>
+      ...
+      </RemedialAction_Series>
+        ...
+</Series>
+```
+
+- **switch actions** have A07 psrType, that stand for circuit breaker. In a similar way to other elementary actions, switch actions do not have a minimumCapacity nor a maximumCapacity. Since they aren't defined by a set-point, they don't have a defaultCapacity either. They are entirely defined by the marketObjectStatus : A21 for OPEN, and A22 for CLOSE.
 
 ```xml
 <Series>
@@ -393,6 +419,31 @@ Network actions have one or more registered resources, that represent elementary
         ...
 </Series>
 ```
+
+- **terminals connection actions** have a A01, A02 or a B24 psrType, that respectively stand for tie-line, line and transformer. They are similar to switch actions.
+
+```xml
+<Series>
+    <mRID>RA-Series-1</mRID>
+    <businessType>B56</businessType>
+    <name>RA_1</name>
+    <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+    <RemedialAction_Series>
+      ...
+      <RegisteredResource>
+        <mRID codingScheme="A02">networkElementId</mRID>
+        <name>RA1-name</name>
+        <pSRType.psrType>A01</pSRType.psrType>
+        <in_Domain.mRID codingScheme="A01">10YES-XXX------0</in_Domain.mRID>
+        <out_Domain.mRID codingScheme="A01">10YES-XXX------0</out_Domain.mRID>
+        <marketObjectStatus.status>A21</marketObjectStatus.status>
+        </RegisteredResource>
+      ...
+      </RemedialAction_Series>
+        ...
+</Series>
+```
+
 A network action is imported if all of its elementary actions are imported.
 
 ### HVDC Range Actions

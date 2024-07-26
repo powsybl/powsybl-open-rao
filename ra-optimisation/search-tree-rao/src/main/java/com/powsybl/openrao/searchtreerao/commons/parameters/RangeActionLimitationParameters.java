@@ -26,6 +26,7 @@ public class RangeActionLimitationParameters {
         private Set<String> maxTsoExclusion = new HashSet<>();
         private Map<String, Integer> maxPstPerTso = new HashMap<>();
         private Map<String, Integer> maxRangeActionPerTso = new HashMap<>();
+        private Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>();
     }
 
     public RangeActionLimitationParameters() {
@@ -37,7 +38,8 @@ public class RangeActionLimitationParameters {
             rangeActionLimitationPerState.get(state).maxRangeActions != null
             || rangeActionLimitationPerState.get(state).maxTso != null
             || !rangeActionLimitationPerState.get(state).maxPstPerTso.isEmpty()
-            || !rangeActionLimitationPerState.get(state).maxRangeActionPerTso.isEmpty());
+            || !rangeActionLimitationPerState.get(state).maxRangeActionPerTso.isEmpty()
+            || !rangeActionLimitationPerState.get(state).maxElementaryActionsPerTso.isEmpty());
     }
 
     public Integer getMaxRangeActions(State state) {
@@ -80,6 +82,14 @@ public class RangeActionLimitationParameters {
         }
     }
 
+    public Map<String, Integer> getMaxElementaryActionsPerTso(State state) {
+        if (rangeActionLimitationPerState.containsKey(state)) {
+            return rangeActionLimitationPerState.get(state).maxElementaryActionsPerTso;
+        } else {
+            return new HashMap<>();
+        }
+    }
+
     public void setMaxRangeAction(State state, int maxRangeActions) {
         createIfAbsent(state);
         rangeActionLimitationPerState.get(state).maxRangeActions = maxRangeActions;
@@ -103,6 +113,11 @@ public class RangeActionLimitationParameters {
     public void setMaxRangeActionPerTso(State state, Map<String, Integer> maxRangeActionPerTso) {
         createIfAbsent(state);
         rangeActionLimitationPerState.get(state).maxRangeActionPerTso = maxRangeActionPerTso;
+    }
+
+    public void setMaxElementaryActionsPerTso(State state, Map<String, Integer> maxRangeActionPerTso) {
+        createIfAbsent(state);
+        rangeActionLimitationPerState.get(state).maxElementaryActionsPerTso = maxRangeActionPerTso;
     }
 
     private void createIfAbsent(State state) {

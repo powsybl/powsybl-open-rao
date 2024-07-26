@@ -63,19 +63,19 @@ If the given instant contains multiple states (possible for auto and curative in
 The RAs usage limits contain the following fields :
 
  - **max-ra :**
-    - Expected value: integer
-    - Default value: 2^32 -1 (max integer value)
-    - Usage: It defines the maximum number of remedial actions allowed for the given instant. The RAO will prioritize remedial actions that have the best impact on the minimum margin.
+    - _Expected value:_ integer
+    - _Default value:_ 2^32 -1 (max integer value)
+    - _Usage:_ It defines the maximum number of remedial actions allowed for the given instant. The RAO will prioritize remedial actions that have the best impact on the minimum margin.
 
   - **max-tso :**
-    - Expected value: integer
-    - Default value: 2^32 -1 (max integer value)
-    - Usage: It defines the maximum number of TSOs that can apply remedial actions for the given instant. The RAO will choose the best TSOs combination to maximize the minimum margin.
+    - _Expected value:_ integer
+    - _Default value:_ 2^32 -1 (max integer value)
+    - _Usage:_ It defines the maximum number of TSOs that can apply remedial actions for the given instant. The RAO will choose the best TSOs combination to maximize the minimum margin.
 
   - **max-ra-per-tso :**
-    - Expected value: a map with string keys and integer values. The keys should be the same as the RAs’ operators as written in the CRAC file
-    - Default value: empty map
-    - Usage: It defines the maximum number of remedial actions allowed for each TSO, for the given instant.
+    - _Expected value:_ a map with string keys and integer values. The keys should be the same as the RAs’ operators as written in the CRAC file
+    - _Default value:_ empty map
+    - _Usage:_ It defines the maximum number of remedial actions allowed for each TSO, for the given instant.
     The TSOs should be identified using the same IDs as in the CRAC. If a TSO is not listed in this map, then the number of its allowed RAs is supposed infinite.
 
   - **max-topo-per-tso :**  
@@ -83,6 +83,13 @@ The RAs usage limits contain the following fields :
 
   - **max-pst-per-tso :**  
     Exactly the same as **max-ra-per-tso** but it only concerns PST RAs
+
+  - **max-elementary-actions-per-tso :**  
+    - _Expected value:_ a map with string keys and integer values. The keys should be RAs’ operators as written in the CRAC file
+    - _Default value:_ empty map
+    - _Usage:_ It defines the maximum number of elementary actions allowed for each TSO, for the given instant. For PST range actions, moving one tap is considered to be an elementary action.
+    The TSOs should be identified using the same IDs as in the CRAC. If a TSO is not listed in this map, then the number of its allowed RAs is supposed infinite.
+    _⚠️ This usage limit is only applicable if PSTs are approximated as integer taps (see [APPROXIMATED_INTEGERS](/parameters.md#pst-model))._
 
 ### complete example
 ::::{tabs}

@@ -127,7 +127,7 @@ class CracValidatorTest {
         // Auto RAs in CRAC but useless for 3 CNECs => duplicate all 3 auto CNECs
         crac.newNetworkAction()
             .withId("network-action-1")
-            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         List<String> report = CracValidator.validateCrac(crac, network);
@@ -149,7 +149,7 @@ class CracValidatorTest {
         // 1 auto RA in CRAC for auto-cnec-1 => duplicate other 2 CNECs
         crac.newNetworkAction()
             .withId("network-action-1")
-            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
@@ -171,12 +171,12 @@ class CracValidatorTest {
         // 2 auto RA in CRAC for auto-cnec-1 & auto-cnec-2 => duplicate other auto-cnec-3
         crac.newNetworkAction()
             .withId("network-action-1")
-            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         crac.newNetworkAction()
             .withId("network-action-2")
-            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.DE).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
@@ -196,12 +196,12 @@ class CracValidatorTest {
         // 2 auto RA in CRAC for contingency of auto-cnec-1 & auto-cnec-2 => duplicate other auto-cnec-3
         crac.newNetworkAction()
             .withId("network-action-1")
-            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         crac.newNetworkAction()
             .withId("network-action-2")
-            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnContingencyStateUsageRule().withContingency("co-1").withUsageMethod(UsageMethod.FORCED).withInstant(AUTO_INSTANT_ID).add()
             .add();
 
@@ -220,7 +220,7 @@ class CracValidatorTest {
         // 1 auto RA in CRAC forced after all contingencies => no duplicate
         crac.newNetworkAction()
             .withId("network-action-1")
-            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnContingencyStateUsageRule().withContingency("co-1").withUsageMethod(UsageMethod.FORCED).withInstant(AUTO_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withContingency("co-2").withUsageMethod(UsageMethod.FORCED).withInstant(AUTO_INSTANT_ID).add()
             .add();
@@ -233,7 +233,7 @@ class CracValidatorTest {
     void testDuplicateCnecsWithOnFlowConstraints() {
         crac.newNetworkAction()
             .withId("network-action-1")
-            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
@@ -247,7 +247,7 @@ class CracValidatorTest {
     void testDuplicateCnecsWithOnFlowConstraintInCountries() {
         crac.newNetworkAction()
             .withId("network-action-1")
-            .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.BE).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 

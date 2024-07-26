@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracapi.networkaction;
 
+import com.powsybl.action.Action;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 
 /***
@@ -15,7 +16,7 @@ import com.powsybl.openrao.data.cracapi.NetworkElement;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface SwitchPair extends ElementaryAction {
+public interface SwitchPair extends Action {
     /**
      * Get the switch that should be opened by the elementary action
      */
@@ -26,8 +27,7 @@ public interface SwitchPair extends ElementaryAction {
      */
     NetworkElement getSwitchToClose();
 
-    @Override
-    default boolean isCompatibleWith(ElementaryAction otherElementaryAction) {
+    default boolean isCompatibleWith(Action otherElementaryAction) {
         if (otherElementaryAction instanceof SwitchPair switchPair) {
             return getSwitchToOpen().equals(switchPair.getSwitchToOpen()) && getSwitchToClose().equals(switchPair.getSwitchToClose())
                 || !getSwitchToOpen().equals(switchPair.getSwitchToOpen()) && !getSwitchToOpen().equals(switchPair.getSwitchToClose()) && !getSwitchToClose().equals(switchPair.getSwitchToClose()) && !getSwitchToClose().equals(switchPair.getSwitchToOpen());

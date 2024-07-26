@@ -22,12 +22,14 @@ public class RaUsageLimits {
     private static final Map<String, Integer> DEFAULT_MAX_TOPO_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_PST_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_RA_PER_TSO = new HashMap<>();
+    private static final Map<String, Integer> DEFAULT_MAX_ELEMENTARY_ACTIONS_PER_TSO = new HashMap<>();
     private int maxRa = DEFAULT_MAX_RA;
     private int maxTso = DEFAULT_MAX_TSO;
     private final Set<String> maxTsoExclusion = new HashSet<>();
     private Map<String, Integer> maxTopoPerTso = DEFAULT_MAX_TOPO_PER_TSO;
     private Map<String, Integer> maxPstPerTso = DEFAULT_MAX_PST_PER_TSO;
     private Map<String, Integer> maxRaPerTso = DEFAULT_MAX_RA_PER_TSO;
+    private Map<String, Integer> maxElementaryActionsPerTso = DEFAULT_MAX_ELEMENTARY_ACTIONS_PER_TSO;
 
     public void setMaxRa(int maxRa) {
         if (maxRa < 0) {
@@ -77,6 +79,10 @@ public class RaUsageLimits {
         }
     }
 
+    public void setMaxElementaryActionsPerTso(Map<String, Integer> maxElementaryActionsPerTso) {
+        this.maxElementaryActionsPerTso = Objects.isNull(maxElementaryActionsPerTso) ? new HashMap<>() : replaceNegativeValues(maxElementaryActionsPerTso);
+    }
+
     public int getMaxRa() {
         return maxRa;
     }
@@ -95,6 +101,10 @@ public class RaUsageLimits {
 
     public Map<String, Integer> getMaxRaPerTso() {
         return maxRaPerTso;
+    }
+
+    public Map<String, Integer> getMaxElementaryActionsPerTso() {
+        return maxElementaryActionsPerTso;
     }
 
     public Set<String> getMaxTsoExclusion() {

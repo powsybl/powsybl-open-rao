@@ -6,18 +6,17 @@
  */
 package com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.remedialaction;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
-import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
 import com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.cracimpl.InjectionSetpointImpl;
 import com.powsybl.openrao.data.cracimpl.OnContingencyStateImpl;
-import com.powsybl.openrao.data.cracimpl.TopologicalActionImpl;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
@@ -27,6 +26,7 @@ import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreat
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.assertRaNotImported;
 import static com.powsybl.openrao.data.craccreation.creator.csaprofile.craccreator.CsaProfileCracCreationTestUtil.getCsaCracCreationContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AutoRemedialActionTest {
 
@@ -49,15 +49,15 @@ class AutoRemedialActionTest {
 
         NetworkAction networkSps = cracCreationContext.getCrac().getNetworkAction("network-sps");
         OnContingencyStateImpl networkSpsUsageRule = (OnContingencyStateImpl) networkSps.getUsageRules().iterator().next();
-        List<ElementaryAction> elementaryActions = networkSps.getElementaryActions().stream().sorted(Comparator.comparing(ElementaryAction::toString)).toList();
-        InjectionSetpointImpl injectionSetpoint = (InjectionSetpointImpl) elementaryActions.get(0);
-        TopologicalActionImpl topologicalAction = (TopologicalActionImpl) elementaryActions.get(1);
+        List<Action> elementaryActions = networkSps.getElementaryActions().stream().sorted(Comparator.comparing(Action::toString)).toList();
+        GeneratorAction injectionSetpoint = (GeneratorAction) elementaryActions.get(0);
+        SwitchAction topologicalAction = (SwitchAction) elementaryActions.get(1);
         assertEquals("Network SPS", networkSps.getName());
         assertEquals(2, elementaryActions.size());
-        assertEquals("BBE1AA1  BBE4AA1  1", topologicalAction.getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, topologicalAction.getActionType());
-        assertEquals("FFR1AA1 _generator", injectionSetpoint.getNetworkElement().getId());
-        assertEquals(75.0, injectionSetpoint.getSetpoint());
+        assertEquals("BBE1AA1  BBE4AA1  1", topologicalAction.getSwitchId());
+        assertTrue(topologicalAction.isOpen());
+        assertEquals("FFR1AA1 _generator", injectionSetpoint.getGeneratorId());
+        assertEquals(75.0, injectionSetpoint.getActivePowerValue().getAsDouble());
         assertEquals("contingency", networkSpsUsageRule.getContingency().getId());
         assertEquals(InstantKind.AUTO, networkSpsUsageRule.getInstant().getKind());
         assertEquals(UsageMethod.FORCED, networkSpsUsageRule.getUsageMethod());

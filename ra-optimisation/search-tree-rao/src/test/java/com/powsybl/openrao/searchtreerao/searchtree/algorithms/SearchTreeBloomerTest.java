@@ -10,9 +10,11 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import org.junit.jupiter.api.Test;
@@ -20,8 +22,19 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
-import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.*;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_BE_NL;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR_NL;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_BE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_FR_NL_BE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_BE_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_2;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_DE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_NL_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.NA_FR_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.P_STATE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.RA_BE_1;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.addPstRangeActionToCrac;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -94,6 +107,34 @@ class SearchTreeBloomerTest {
     }
 
     @Test
+    void testRangeActionRemoverWithMaxElementaryActionsRaUsageLimit() {
+        // arrange naCombination list
+        Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_3_FR_NL_BE));
+
+        // mock Leaf -> simulate a tap change from 0 to 3
+        Leaf leaf = Mockito.mock(Leaf.class);
+        Mockito.when(leaf.getActivatedRangeActions(Mockito.any(State.class))).thenReturn(Set.of(RA_BE_1));
+        Mockito.when(leaf.getOptimizedTap(RA_BE_1, P_STATE)).thenReturn(3);
+
+        // init bloomer with raUsageLimits
+        RaUsageLimits raUsageLimits = new RaUsageLimits();
+        raUsageLimits.setMaxElementaryActionsPerTso(new HashMap<>(Map.of("be", 4)));
+        SearchTreeBloomer bloomer = initBloomer(naCombinations.stream().toList(), Map.of(P_STATE.getInstant(), raUsageLimits));
+
+        // If a network action combination has more than 2 elementary actions and is operated by "be" then PST range actions must be removed
+        assertTrue(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_3_BE, leaf));
+        // otherwise they can be kept.
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_BE_NL, leaf));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_3_FR_NL_BE, leaf));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_FR, leaf));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(COMB_2_FR_NL, leaf));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_BE_1, leaf));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_NL_1, leaf));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_FR_2, leaf));
+        assertFalse(bloomer.shouldRangeActionsBeRemovedToApplyNa(IND_FR_DE, leaf));
+    }
+
+    @Test
     void testRangeActionRemoverWithoutRaUsageLimits() {
         // arrange naCombination list
         Set<NetworkActionCombination> naCombinations = new HashSet<>(Set.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_FR_DE, COMB_2_FR, COMB_3_BE, COMB_2_BE_NL, COMB_2_FR_NL, COMB_3_FR_NL_BE));
@@ -116,9 +157,12 @@ class SearchTreeBloomerTest {
     private SearchTreeBloomer initBloomer(List<NetworkActionCombination> naCombinations, Map<Instant, RaUsageLimits> raUsageLimits) {
         OptimizationPerimeter perimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(perimeter.getMainOptimizationState()).thenReturn(P_STATE);
+        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        Mockito.when(prePerimeterResult.getTap(Mockito.any())).thenReturn(0);
         SearchTreeInput input = SearchTreeInput.create()
             .withNetwork(NetworkActionCombinationsUtils.NETWORK)
             .withOptimizationPerimeter(perimeter)
+            .withPrePerimeterResult(prePerimeterResult)
             .build();
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         Mockito.when(networkActionParameters.getNetworkActionCombinations()).thenReturn(naCombinations);
@@ -128,5 +172,17 @@ class SearchTreeBloomerTest {
         Mockito.when(parameters.getRaLimitationParameters()).thenReturn(raUsageLimits);
         Mockito.when(parameters.getNetworkActionParameters()).thenReturn(networkActionParameters);
         return new SearchTreeBloomer(input, parameters);
+    }
+
+    @Test
+    void testGetNumberOfPstTapsMovedByTso() {
+        PstRangeAction pstRangeAction = addPstRangeActionToCrac();
+        SearchTreeBloomer bloomer = initBloomer(List.of(), Map.of());
+
+        Leaf leaf = Mockito.mock(Leaf.class);
+        Mockito.when(leaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(pstRangeAction));
+        Mockito.when(leaf.getOptimizedTap(pstRangeAction, P_STATE)).thenReturn(10);
+
+        assertEquals(Map.of("BE", 10), bloomer.getNumberOfPstTapsMovedByTso(leaf));
     }
 }

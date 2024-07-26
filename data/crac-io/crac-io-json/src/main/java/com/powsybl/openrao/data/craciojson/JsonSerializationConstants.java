@@ -123,6 +123,7 @@ public final class JsonSerializationConstants {
 
     public static final String RANGES = "ranges";
     public static final String SETPOINT = "setpoint";
+
     public static final String OPERATOR = "operator";
     public static final String BORDER = "border";
     public static final String ACTION_TYPE = "actionType";
@@ -152,6 +153,7 @@ public final class JsonSerializationConstants {
     public static final String MAX_TOPO_PER_TSO = "max-topo-per-tso";
     public static final String MAX_PST_PER_TSO = "max-pst-per-tso";
     public static final String MAX_RA_PER_TSO = "max-ra-per-tso";
+    public static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "max-elementary-actions-per-tso";
 
     // units
     public static final String AMPERE_UNIT = "ampere";

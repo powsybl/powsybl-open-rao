@@ -89,7 +89,7 @@ public final class NetworkActionCombinationsUtils {
     }
 
     static NetworkAction createNetworkActionWithOperator(String networkElementId, String operator) {
-        return CRAC.newNetworkAction().withId("na - " + networkElementId).withOperator(operator).newTopologicalAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add().add();
+        return CRAC.newNetworkAction().withId("na - " + networkElementId).withOperator(operator).newTerminalsConnectionAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add().add();
     }
 
     static PstRangeAction createPstRangeActionWithOperator(String networkElementId, String operator) {
@@ -97,5 +97,21 @@ public final class NetworkActionCombinationsUtils {
         conversionMap.put(0, 0.);
         conversionMap.put(1, 1.);
         return CRAC.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
+    }
+
+    static PstRangeAction addPstRangeActionToCrac() {
+        CommonCracCreation.IidmPstHelper iidmPstHelper = new CommonCracCreation.IidmPstHelper("BBE2AA1  BBE3AA1  1", NETWORK);
+
+        Crac crac = CommonCracCreation.create();
+        crac.newPstRangeAction()
+            .withId("pst-range-action")
+            .withName("pst-range-action")
+            .withOperator("BE")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1")
+            .withInitialTap(iidmPstHelper.getInitialTap())
+            .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap())
+            .add();
+
+        return crac.getPstRangeAction("pst-range-action");
     }
 }

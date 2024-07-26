@@ -269,11 +269,11 @@
       "usageMethod" : "available"
     } ],
     "topologicalActions" : [ {
-      "networkElementId" : "ne1Id",
+      "networkElementId" : "FFR2AA1H DDE3AA1F 1",
       "actionType" : "close"
     } ],
     "pstSetpoints" : [ {
-      "networkElementId" : "pst",
+      "networkElementId" : "BBE2AA1  BBE3AA1  1",
       "setpoint" : 5
     } ],
     "extensions" : {
