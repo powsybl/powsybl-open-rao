@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2022, RTE (http://www.rte-france.com)
+  ~ Copyright (c) 2021, RTE (http://www.rte-france.com)
   ~ This Source Code Form is subject to the terms of the Mozilla Public
   ~ License, v. 2.0. If a copy of the MPL was not distributed with this
   ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -10,15 +10,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>open-rao-crac-creation</artifactId>
+        <artifactId>open-rao-crac-io</artifactId>
         <groupId>com.powsybl</groupId>
         <version>6.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>open-rao-crac-creator-cim</artifactId>
-    <name>CRAC creator - SWE zone</name>
-    <description>CRAC creator implementation for CRAC specific to SWE zone format</description>
+    <artifactId>open-rao-crac-io-cse</artifactId>
+    <name>CRAC creator - CSE CC zone</name>
+    <description>CRAC creator implementation for CSE CC zone format</description>
     <packaging>jar</packaging>
 
     <build>
@@ -37,15 +37,15 @@
                             <version>${maven.jvnet.jaxb2-basics.version}</version>
                         </plugin>
                     </plugins>
+                    <generatePackage>com.powsybl.openrao.data.craccreation.creator.cse.xsd</generatePackage>
+                    <schemaDirectory>src/main/resources/com/powsybl/openrao/data/craccreation/creator/cse/xsd</schemaDirectory>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <excludePackageNames>
-                        com.powsybl.openrao.data.craccreation.creator.cim.xsd.*:com.powsybl.openrao.data.craccreation.creator.cim.xsd:eu.entsoe.*
-                    </excludePackageNames>
+                    <excludePackageNames>com.powsybl.openrao.data.craccreation.creator.cse.xsd</excludePackageNames>
                 </configuration>
             </plugin>
         </plugins>
@@ -54,12 +54,17 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-creator-api</artifactId>
+            <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-creation-util</artifactId>
+            <artifactId>open-rao-crac-io-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-crac-io-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -70,12 +75,6 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>4.1</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- Runtime dependencies -->
@@ -104,18 +103,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-cgmes-conversion</artifactId>
-            <version>${powsybl.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
-            <version>${powsybl.core.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

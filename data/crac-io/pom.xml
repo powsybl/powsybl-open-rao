@@ -18,5 +18,11 @@
 
     <modules>
         <module>crac-io-json</module>
+        <module>crac-io-util</module>
+        <module>crac-io-api</module>
+        <module>crac-io-cse</module>
+        <module>crac-io-cim</module>
+        <module>crac-io-csa-profiles</module>
+        <module>crac-io-fb-constraint</module>
     </modules>
 </project>
