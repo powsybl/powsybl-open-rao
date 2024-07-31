@@ -234,7 +234,7 @@ public class CastorFullOptimization {
         double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
         double finalVirtualCost = finalRaoResult.getVirtualCost(lastInstant);
 
-        if (objectiveFunctionParameters.getForbidCostIncrease() && finalCost > initialCost) {
+        if (finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
                 formatDouble(initialCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
                 formatDouble(finalCost), formatDouble(finalFunctionalCost), formatDouble(finalVirtualCost));

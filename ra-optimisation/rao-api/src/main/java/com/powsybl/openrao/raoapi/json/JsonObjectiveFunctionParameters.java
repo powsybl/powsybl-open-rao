@@ -27,7 +27,6 @@ final class JsonObjectiveFunctionParameters {
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(OBJECTIVE_FUNCTION);
         jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getType());
-        jsonGenerator.writeBooleanField(FORBID_COST_INCREASE, parameters.getObjectiveFunctionParameters().getForbidCostIncrease());
         jsonGenerator.writeObjectField(PREVENTIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         jsonGenerator.writeObjectField(CURATIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
         jsonGenerator.writeNumberField(CURATIVE_MIN_OBJ_IMPROVEMENT, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement());
@@ -40,10 +39,6 @@ final class JsonObjectiveFunctionParameters {
             switch (jsonParser.getCurrentName()) {
                 case TYPE:
                     raoParameters.getObjectiveFunctionParameters().setType(stringToObjectiveFunction(jsonParser.nextTextValue()));
-                    break;
-                case FORBID_COST_INCREASE:
-                    jsonParser.nextToken();
-                    raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(jsonParser.getBooleanValue());
                     break;
                 case PREVENTIVE_STOP_CRITERION:
                     raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(stringToPreventiveStopCriterion(jsonParser.nextTextValue()));
