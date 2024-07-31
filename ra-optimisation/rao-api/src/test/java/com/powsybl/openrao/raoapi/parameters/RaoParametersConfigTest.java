@@ -41,7 +41,6 @@ class RaoParametersConfigTest {
     void checkObjectiveFunctionConfig() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE");
-        objectiveFunctionModuleConfig.setStringProperty("forbid-cost-increase", Objects.toString(true));
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         objectiveFunctionModuleConfig.setStringProperty("preventive-stop-criterion", "MIN_OBJECTIVE");
         objectiveFunctionModuleConfig.setStringProperty("curative-stop-criterion", "PREVENTIVE_OBJECTIVE");
@@ -50,7 +49,6 @@ class RaoParametersConfigTest {
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        assertTrue(objectiveFunctionParameters.getForbidCostIncrease());
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, objectiveFunctionParameters.getType());
         assertEquals(123, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());

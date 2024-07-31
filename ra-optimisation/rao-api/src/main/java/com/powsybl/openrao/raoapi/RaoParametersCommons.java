@@ -16,7 +16,7 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "2.4";
+    public static final String RAO_PARAMETERS_VERSION = "2.5";
 
     // header
     public static final String VERSION = "version";
@@ -25,7 +25,6 @@ public final class RaoParametersCommons {
     public static final String OBJECTIVE_FUNCTION = "objective-function";
     public static final String OBJECTIVE_FUNCTION_SECTION = "rao-objective-function";
     public static final String TYPE = "type";
-    public static final String FORBID_COST_INCREASE = "forbid-cost-increase";
     public static final String CURATIVE_MIN_OBJ_IMPROVEMENT = "curative-min-obj-improvement";
     public static final String PREVENTIVE_STOP_CRITERION = "preventive-stop-criterion";
     public static final String CURATIVE_STOP_CRITERION = "curative-stop-criterion";

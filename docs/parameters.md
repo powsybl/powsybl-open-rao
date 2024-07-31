@@ -40,17 +40,6 @@ These parameters (objective-function) configure the remedial action optimisation
   - **MAX_MIN_RELATIVE_MARGIN_IN_AMPERE**: same as MAX_MIN_MARGIN_IN_AMPERE, but the margins will be relative (divided
     by the absolute sum of PTDFs) when they are positive.
 
-#### forbid-cost-increase
-- **Expected value**: true/false
-- **Default value**: false
-- **Usage**: if this parameter is set to true, OpenRAO will post-check the results after optimisation. If the value of
-  the objective function is worse after optimisation than before optimisation, then it will return the initial
-  solution (i.e. no PRA and no CRA applied).  
-  This can happen for example if the preventive RAO decreases the margin on a curative CNEC, which cannot be reverted
-  during curative RAO.  
-  If this parameter is set to false, OpenRAO will return the real result of optimisation, which has a worse result
-  than the initial situation.
-
 #### preventive-stop-criterion
 - **Expected value**: one of the following:
   - "MIN_OBJECTIVE"
@@ -584,7 +573,6 @@ Zones are seperated by + or -.
   "version" : "2.4",
   "objective-function" : {
     "type" : "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE",
-    "forbid-cost-increase" : false,
     "curative-min-obj-improvement" : 0.0,
     "preventive-stop-criterion" : "SECURE",
     "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE",
