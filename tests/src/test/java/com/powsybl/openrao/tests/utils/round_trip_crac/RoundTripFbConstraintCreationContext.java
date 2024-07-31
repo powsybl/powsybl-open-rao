@@ -7,7 +7,7 @@
 package com.powsybl.openrao.tests.utils.round_trip_crac;
 
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.fbconstraint.FbConstraintCreationContext;
+import com.powsybl.openrao.data.cracio.fbconstraint.FbConstraintCreationContext;
 
 public class RoundTripFbConstraintCreationContext extends FbConstraintCreationContext {
     private Crac overridingCrac;

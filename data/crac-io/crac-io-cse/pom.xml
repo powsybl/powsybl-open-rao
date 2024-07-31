@@ -38,7 +38,7 @@
                         </plugin>
                     </plugins>
                     <generatePackage>com.powsybl.openrao.data.craccreation.creator.cse.xsd</generatePackage>
-                    <schemaDirectory>src/main/resources/com/powsybl/openrao/data/craccreation/creator/cse/xsd</schemaDirectory>
+                    <schemaDirectory>src/main/resources/com/powsybl/openrao/data/cracio/cse/xsd</schemaDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -59,17 +59,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-io-util</artifactId>
+            <artifactId>open-rao-crac-io-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
