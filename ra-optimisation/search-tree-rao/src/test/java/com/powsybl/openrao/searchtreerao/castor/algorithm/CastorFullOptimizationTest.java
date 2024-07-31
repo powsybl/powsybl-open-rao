@@ -673,7 +673,6 @@ class CastorFullOptimizationTest {
         crac = Crac.read("small-crac-2P_cost_increase.json", getClass().getResourceAsStream("/crac/small-crac-2P_cost_increase.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
-        raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
 
         // Test Optimization steps executed
