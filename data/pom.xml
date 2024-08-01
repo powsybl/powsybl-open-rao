@@ -17,7 +17,6 @@
 
     <modules>
         <module>crac</module>
-        <module>crac-creation</module>
         <module>crac-io</module>
         <module>flowbased-domain</module>
         <module>glsk</module>

@@ -21,9 +21,9 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.PstRangeActionCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.RemedialActionCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.PstRangeActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 
 import java.util.*;
 

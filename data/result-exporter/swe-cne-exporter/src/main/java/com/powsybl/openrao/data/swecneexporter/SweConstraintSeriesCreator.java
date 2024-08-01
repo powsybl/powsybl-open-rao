@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.swecneexporter;
 
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.swecneexporter.xsd.*;
 
 import java.util.*;

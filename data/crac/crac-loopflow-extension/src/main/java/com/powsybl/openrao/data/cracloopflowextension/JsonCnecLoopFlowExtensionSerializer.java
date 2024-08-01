@@ -14,12 +14,12 @@ import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.craciojson.ExtensionsHandler;
+import com.powsybl.openrao.data.cracio.json.ExtensionsHandler;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.deserializeUnit;
-import static com.powsybl.openrao.data.craciojson.JsonSerializationConstants.serializeUnit;
+import static com.powsybl.openrao.data.cracio.json.JsonSerializationConstants.deserializeUnit;
+import static com.powsybl.openrao.data.cracio.json.JsonSerializationConstants.serializeUnit;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
