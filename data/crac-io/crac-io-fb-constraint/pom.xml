@@ -46,7 +46,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <excludePackageNames>com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd:com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd.*</excludePackageNames>
+                    <excludePackageNames>com.powsybl.openrao.data.cracio.fbconstraint.xsd:com.powsybl.openrao.data.cracio.fbconstraint.xsd.*</excludePackageNames>
                 </configuration>
             </plugin>
         </plugins>

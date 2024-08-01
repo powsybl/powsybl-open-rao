@@ -5,17 +5,17 @@
               xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <jxb:bindings schemaLocation="../xsd/flowbasedconstraintdocument-18.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd" />
+            <jxb:package name="com.powsybl.openrao.data.cracio.fbconstraint.xsd" />
         </jxb:schemaBindings>
     </jxb:bindings>
     <jxb:bindings schemaLocation="../xsd/etso-code-lists.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd.etso" />
+            <jxb:package name="com.powsybl.openrao.data.cracio.fbconstraint.xsd.etso" />
         </jxb:schemaBindings>
     </jxb:bindings>
     <jxb:bindings schemaLocation="../xsd/etso-core-cmpts.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.powsybl.openrao.data.craccreation.creator.fbconstraint.xsd.etso" />
+            <jxb:package name="com.powsybl.openrao.data.cracio.fbconstraint.xsd.etso" />
         </jxb:schemaBindings>
     </jxb:bindings>
 </jxb:bindings>
