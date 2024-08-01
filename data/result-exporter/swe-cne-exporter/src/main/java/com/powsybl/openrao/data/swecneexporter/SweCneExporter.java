@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.swecneexporter;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.openrao.data.cracapi.Crac;

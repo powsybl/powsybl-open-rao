@@ -63,7 +63,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-creator-api</artifactId>
+            <artifactId>open-rao-crac-io-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
