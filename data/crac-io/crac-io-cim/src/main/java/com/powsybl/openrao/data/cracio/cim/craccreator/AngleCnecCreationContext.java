@@ -47,11 +47,6 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
     }
 
     @Override
-    public boolean isImported() {
-        return angleCnecImportStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    @Override
     public boolean isAltered() {
         return false;
     }

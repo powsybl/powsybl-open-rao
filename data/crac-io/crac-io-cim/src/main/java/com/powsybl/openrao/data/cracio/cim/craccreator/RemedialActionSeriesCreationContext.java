@@ -51,11 +51,6 @@ public class RemedialActionSeriesCreationContext implements ElementaryCreationCo
     }
 
     @Override
-    public boolean isImported() {
-        return importStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    @Override
     public ImportStatus getImportStatus() {
         return importStatus;
     }

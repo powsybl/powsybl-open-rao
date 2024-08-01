@@ -51,11 +51,6 @@ public class CseRemedialActionCreationContext implements RemedialActionCreationC
     }
 
     @Override
-    public boolean isImported() {
-        return importStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    @Override
     public boolean isAltered() {
         return isAltered;
     }

@@ -50,11 +50,6 @@ public final class CimContingencyCreationContext implements ElementaryCreationCo
     }
 
     @Override
-    public boolean isImported() {
-        return importStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    @Override
     public boolean isAltered() {
         return isAltered;
     }

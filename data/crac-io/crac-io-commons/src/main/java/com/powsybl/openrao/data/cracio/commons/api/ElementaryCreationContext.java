@@ -25,7 +25,9 @@ public interface ElementaryCreationContext {
     /**
      * Indicates if element has been imported.
      */
-    boolean isImported();
+    default boolean isImported() {
+        return ImportStatus.IMPORTED.equals(getImportStatus());
+    }
 
     /**
      * Indicates if element has been altered.

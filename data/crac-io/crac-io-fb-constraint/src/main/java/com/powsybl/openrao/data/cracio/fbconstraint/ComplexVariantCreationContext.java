@@ -25,11 +25,6 @@ public class ComplexVariantCreationContext implements RemedialActionCreationCont
     }
 
     @Override
-    public boolean isImported() {
-        return importStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    @Override
     public boolean isAltered() {
         return false;
     }

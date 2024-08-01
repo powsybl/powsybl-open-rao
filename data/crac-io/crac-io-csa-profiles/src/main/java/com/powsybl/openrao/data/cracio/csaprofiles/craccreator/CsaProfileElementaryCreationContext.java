@@ -37,11 +37,6 @@ public final class CsaProfileElementaryCreationContext implements ElementaryCrea
     }
 
     @Override
-    public boolean isImported() {
-        return ImportStatus.IMPORTED.equals(this.importStatus);
-    }
-
-    @Override
     public boolean isAltered() {
         return this.isAltered;
     }

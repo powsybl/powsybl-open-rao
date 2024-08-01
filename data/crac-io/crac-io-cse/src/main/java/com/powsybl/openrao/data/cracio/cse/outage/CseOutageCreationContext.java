@@ -33,11 +33,6 @@ public class CseOutageCreationContext implements ElementaryCreationContext {
     }
 
     @Override
-    public boolean isImported() {
-        return this.importStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    @Override
     public boolean isAltered() {
         return false;
     }
