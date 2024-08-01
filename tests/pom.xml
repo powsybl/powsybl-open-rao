@@ -82,7 +82,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-crac-io-common</artifactId>
+            <artifactId>open-rao-crac-io-commons</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
