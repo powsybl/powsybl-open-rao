@@ -63,7 +63,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-io-api</artifactId>
+            <artifactId>open-rao-crac-io-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -134,12 +134,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-crac-io-common</artifactId>
-            <version>6.1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
