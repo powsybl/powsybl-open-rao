@@ -28,8 +28,7 @@ import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.cim.parameters.*;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageCnecsCreationParameters;
@@ -47,7 +46,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.cracio.common.api.ImportStatus.*;
+import static com.powsybl.openrao.data.cracio.commons.api.ImportStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

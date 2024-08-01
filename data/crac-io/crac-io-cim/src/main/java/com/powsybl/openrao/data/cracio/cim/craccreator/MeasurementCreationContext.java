@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.cracio.cim.craccreator;
 
 import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.MultiKeyMap;
 

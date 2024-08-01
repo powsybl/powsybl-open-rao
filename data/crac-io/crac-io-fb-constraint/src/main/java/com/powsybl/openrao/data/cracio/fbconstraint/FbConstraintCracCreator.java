@@ -11,13 +11,13 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.CriticalBranchType;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.IndependantComplexVariant;
-import com.powsybl.openrao.data.cracio.common.RaUsageLimitsAdder;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzerProperties;
+import com.powsybl.openrao.data.cracio.commons.RaUsageLimitsAdder;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzerProperties;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Iterables.isEmpty;
-import static com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
+import static com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}

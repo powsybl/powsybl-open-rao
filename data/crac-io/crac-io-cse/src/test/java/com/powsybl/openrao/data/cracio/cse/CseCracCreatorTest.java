@@ -19,10 +19,10 @@ import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.InjectionRangeActionCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.RemedialActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.InjectionRangeActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.cse.criticalbranch.CseCriticalBranchCreationContext;
 import com.powsybl.openrao.data.cracio.cse.outage.CseOutageCreationContext;
 import com.powsybl.openrao.data.cracio.cse.parameters.CseCracCreationParameters;
@@ -37,7 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.cracio.common.api.ImportStatus.*;
+import static com.powsybl.openrao.data.cracio.commons.api.ImportStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

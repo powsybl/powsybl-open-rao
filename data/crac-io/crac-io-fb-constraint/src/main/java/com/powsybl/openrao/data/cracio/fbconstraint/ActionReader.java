@@ -12,13 +12,13 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.ActionType;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.RangeType;
-import com.powsybl.openrao.data.cracio.common.OpenRaoImportException;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
-import com.powsybl.openrao.data.cracio.common.ucte.UctePstHelper;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteTopologicalElementHelper;
+import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UctePstHelper;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteTopologicalElementHelper;
 
 import javax.xml.bind.JAXBElement;
 import java.util.ArrayList;

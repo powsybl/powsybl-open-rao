@@ -11,8 +11,8 @@ import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.OutageType;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteContingencyElementHelper;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteContingencyElementHelper;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 

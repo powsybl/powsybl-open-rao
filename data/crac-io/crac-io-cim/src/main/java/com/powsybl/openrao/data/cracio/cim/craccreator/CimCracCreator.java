@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.xsd.CRACMarketDocument;
 import com.powsybl.openrao.data.cracio.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.xsd.TimeSeries;
-import com.powsybl.openrao.data.cracio.common.RaUsageLimitsAdder;
+import com.powsybl.openrao.data.cracio.commons.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.cracutil.CracValidator;
 
 import java.time.OffsetDateTime;

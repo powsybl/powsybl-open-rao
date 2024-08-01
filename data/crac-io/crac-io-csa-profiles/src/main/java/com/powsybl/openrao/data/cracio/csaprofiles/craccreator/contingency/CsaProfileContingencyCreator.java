@@ -12,7 +12,7 @@ import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
@@ -20,7 +20,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElement
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.Contingency;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyEquipment;
-import com.powsybl.openrao.data.cracio.common.OpenRaoImportException;
+import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 
 import java.util.ArrayList;
 import java.util.HashSet;

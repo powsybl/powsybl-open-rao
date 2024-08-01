@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.cse.remedialaction;
 
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.RemedialActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.cse.xsd.TRemedialAction;
 
 /**

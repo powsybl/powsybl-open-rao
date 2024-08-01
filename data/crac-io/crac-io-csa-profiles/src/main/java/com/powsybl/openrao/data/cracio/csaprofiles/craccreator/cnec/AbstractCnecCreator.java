@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCre
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
-import com.powsybl.openrao.data.cracio.common.cgmes.CgmesBranchHelper;
+import com.powsybl.openrao.data.cracio.commons.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;

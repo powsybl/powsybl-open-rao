@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
@@ -22,7 +22,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.LimitTy
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.CurrentLimit;
-import com.powsybl.openrao.data.cracio.common.OpenRaoImportException;
+import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -8,10 +8,10 @@ package com.powsybl.openrao.data.cracio.cse;
 
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
-import com.powsybl.openrao.data.cracio.common.api.ElementaryCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.RemedialActionCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.criticalbranch.CseCriticalBranchCreationContext;
 import com.powsybl.openrao.data.cracio.cse.outage.CseOutageCreationContext;
 import com.powsybl.openrao.data.cracio.cse.remedialaction.CseRemedialActionCreationContext;

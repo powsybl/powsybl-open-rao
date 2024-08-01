@@ -56,7 +56,7 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-io-common</artifactId>
+            <artifactId>open-rao-crac-io-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

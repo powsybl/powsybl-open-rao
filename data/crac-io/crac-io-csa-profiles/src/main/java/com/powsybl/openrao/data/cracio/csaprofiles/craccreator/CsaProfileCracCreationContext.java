@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
-import com.powsybl.openrao.data.cracio.common.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;

@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.fbconstraint;
 
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.PstRangeActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.PstRangeActionCreationContext;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}

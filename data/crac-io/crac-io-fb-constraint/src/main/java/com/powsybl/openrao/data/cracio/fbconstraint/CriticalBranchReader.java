@@ -13,11 +13,11 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.NativeBranch;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.NativeBranch;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.CriticalBranchType;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteFlowElementHelper;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteFlowElementHelper;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.iidm.network.Country;
 

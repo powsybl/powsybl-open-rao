@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.cse.outage;
 
-import com.powsybl.openrao.data.cracio.common.api.ElementaryCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}

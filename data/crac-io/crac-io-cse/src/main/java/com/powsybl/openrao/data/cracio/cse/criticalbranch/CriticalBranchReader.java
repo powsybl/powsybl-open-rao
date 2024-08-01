@@ -13,13 +13,13 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.NativeBranch;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.NativeBranch;
 import com.powsybl.openrao.data.cracio.cse.xsd.TBranch;
 import com.powsybl.openrao.data.cracio.cse.xsd.TImax;
 import com.powsybl.openrao.data.cracio.cse.xsd.TOutage;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteFlowElementHelper;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteFlowElementHelper;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
 
 import javax.annotation.Nullable;
 import java.util.*;

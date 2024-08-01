@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.cim.xsd.AdditionalConstraintRegisteredResource;
 import com.powsybl.openrao.data.cracio.cim.xsd.AdditionalConstraintSeries;
 import com.powsybl.iidm.network.Network;

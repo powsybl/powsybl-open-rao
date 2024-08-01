@@ -9,12 +9,12 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TsoEICode;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileKeyword;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.OverridingObjectsFields;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.PropertyReference;
-import com.powsybl.openrao.data.cracio.common.OpenRaoImportException;
+import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 

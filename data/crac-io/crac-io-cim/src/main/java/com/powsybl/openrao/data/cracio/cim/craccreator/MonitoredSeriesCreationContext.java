@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.cracio.cim.craccreator;
 
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 
 import java.util.LinkedHashSet;
 import java.util.Objects;

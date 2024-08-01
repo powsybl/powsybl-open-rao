@@ -6,9 +6,9 @@
  */
 package com.powsybl.openrao.data.cracio.cse.remedialaction;
 
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzerProperties;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;

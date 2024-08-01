@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.remedialaction;
 
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
@@ -24,7 +24,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.nc.Stage;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.StaticPropertyRange;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.TapPositionAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.TopologyAction;
-import com.powsybl.openrao.data.cracio.common.OpenRaoImportException;
+import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 
 import java.util.List;
 import java.util.Map;

@@ -10,15 +10,15 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.TapRangeAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.PropertyReference;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.RelativeDirectionKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ValueOffsetKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.StaticPropertyRange;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.TapPositionAction;
-import com.powsybl.openrao.data.cracio.common.OpenRaoImportException;
-import com.powsybl.openrao.data.cracio.common.iidm.IidmPstHelper;
+import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.cracio.commons.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;

@@ -8,15 +8,14 @@ package com.powsybl.openrao.data.cracio.cse.outage;
 
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.cse.*;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.xsd.TBranch;
 import com.powsybl.openrao.data.cracio.cse.xsd.TCRACSeries;
 import com.powsybl.openrao.data.cracio.cse.xsd.TOutage;
 import com.powsybl.openrao.data.cracio.cse.xsd.TOutages;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteContingencyElementHelper;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteContingencyElementHelper;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
 
 import java.util.ArrayList;
 import java.util.List;

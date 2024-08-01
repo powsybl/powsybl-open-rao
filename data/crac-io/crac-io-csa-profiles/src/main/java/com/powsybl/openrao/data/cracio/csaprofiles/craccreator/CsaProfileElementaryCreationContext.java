@@ -1,7 +1,7 @@
 package com.powsybl.openrao.data.cracio.csaprofiles.craccreator;
 
-import com.powsybl.openrao.data.cracio.common.api.ElementaryCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 
 public final class CsaProfileElementaryCreationContext implements ElementaryCreationContext {
     private final String nativeId;

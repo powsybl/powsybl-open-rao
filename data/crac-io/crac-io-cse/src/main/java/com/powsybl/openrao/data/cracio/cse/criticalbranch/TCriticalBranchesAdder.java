@@ -8,9 +8,7 @@ package com.powsybl.openrao.data.cracio.cse.criticalbranch;
 
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracio.cse.*;
-import com.powsybl.openrao.data.cracio.cse.xsd.*;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.cracio.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.xsd.TBaseCaseBranches;
 import com.powsybl.openrao.data.cracio.cse.xsd.TBranch;

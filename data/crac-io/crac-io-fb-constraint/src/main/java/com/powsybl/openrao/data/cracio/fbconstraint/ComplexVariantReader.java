@@ -9,10 +9,10 @@ package com.powsybl.openrao.data.cracio.fbconstraint;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.ActionsSetType;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.IndependantComplexVariant;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
 
 import java.util.*;
 

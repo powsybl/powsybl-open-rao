@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.openrao.data.cracio.common.cgmes.CgmesBranchHelper;
+import com.powsybl.openrao.data.cracio.commons.cgmes.CgmesBranchHelper;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;

@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
@@ -25,7 +25,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElementWithContingency;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
-import com.powsybl.openrao.data.cracio.common.OpenRaoImportException;
+import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 
 import java.util.*;
 import java.util.stream.Collectors;

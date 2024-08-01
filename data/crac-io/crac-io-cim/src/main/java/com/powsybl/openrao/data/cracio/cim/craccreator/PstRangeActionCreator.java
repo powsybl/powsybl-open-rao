@@ -14,13 +14,13 @@ import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracapi.parameters.RangeActionGroup;
-import com.powsybl.openrao.data.cracio.common.OpenRaoImportException;
+import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.cracio.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.xsd.RemedialActionRegisteredResource;
-import com.powsybl.openrao.data.cracio.common.PstHelper;
-import com.powsybl.openrao.data.cracio.common.iidm.IidmPstHelper;
+import com.powsybl.openrao.data.cracio.commons.PstHelper;
+import com.powsybl.openrao.data.cracio.commons.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 

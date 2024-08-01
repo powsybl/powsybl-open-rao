@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.cnec.CsaProfileCn
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.contingency.CsaProfileContingencyCreator;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.remedialaction.CsaProfileRemedialActionsCreator;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
-import com.powsybl.openrao.data.cracio.common.RaUsageLimitsAdder;
+import com.powsybl.openrao.data.cracio.commons.RaUsageLimitsAdder;
 
 import java.time.OffsetDateTime;
 

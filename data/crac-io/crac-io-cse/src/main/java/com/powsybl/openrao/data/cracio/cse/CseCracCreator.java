@@ -18,9 +18,9 @@ import com.powsybl.openrao.data.cracio.cse.parameters.CseCracCreationParameters;
 import com.powsybl.openrao.data.cracio.cse.remedialaction.TRemedialActionAdder;
 import com.powsybl.openrao.data.cracio.cse.xsd.CRACDocumentType;
 import com.powsybl.openrao.data.cracio.cse.xsd.TCRACSeries;
-import com.powsybl.openrao.data.cracio.common.RaUsageLimitsAdder;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzer;
-import com.powsybl.openrao.data.cracio.common.ucte.UcteNetworkAnalyzerProperties;
+import com.powsybl.openrao.data.cracio.commons.RaUsageLimitsAdder;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.data.cracutil.CracValidator;
 
 import java.time.OffsetDateTime;

@@ -6,9 +6,9 @@
  */
 package com.powsybl.openrao.data.cracio.cse.criticalbranch;
 
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.NativeBranch;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.NativeBranch;
 
 import java.util.Map;
 import java.util.Optional;

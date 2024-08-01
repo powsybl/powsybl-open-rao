@@ -8,9 +8,9 @@ package com.powsybl.openrao.data.cracio.fbconstraint;
 
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.NativeBranch;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.NativeBranch;
 
 import java.util.HashMap;
 import java.util.Map;

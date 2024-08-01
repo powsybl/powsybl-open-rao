@@ -22,9 +22,9 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.cracio.common.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.common.api.stdcreationcontext.RemedialActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracimpl.NetworkActionImpl;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.cracio.common.api.ImportStatus.*;
+import static com.powsybl.openrao.data.cracio.commons.api.ImportStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
