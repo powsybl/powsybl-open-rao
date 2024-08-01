@@ -15,7 +15,7 @@ public interface ElementaryCreationContext {
     /**
      * Get a unique identifier of the element in the native Crac.
      */
-    String getNativeId();
+    String getNativeObjectId();
 
     /**
      * Get a unique identifier of the element in the created Crac.

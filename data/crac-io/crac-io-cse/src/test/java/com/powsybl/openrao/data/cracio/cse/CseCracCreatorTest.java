@@ -483,7 +483,7 @@ class CseCracCreatorTest {
         CsePstCreationContext pstContext = (CsePstCreationContext) cracCreationContext.getRemedialActionCreationContext("ra_1");
         assertTrue(pstContext.isImported());
         assertFalse(pstContext.isAltered());
-        assertEquals("ra_1", pstContext.getNativeId());
+        assertEquals("ra_1", pstContext.getNativeObjectId());
         assertEquals("PST_ra_1_BBE2AA1  BBE3AA1  1", pstContext.getCreatedObjectId());
         assertFalse(pstContext.isInverted());
         assertFalse(pstContext.isAltered());
@@ -499,7 +499,7 @@ class CseCracCreatorTest {
         assertTrue(cracCreationContext.getRemedialActionCreationContext("ra_2") instanceof CsePstCreationContext);
         pstContext = (CsePstCreationContext) cracCreationContext.getRemedialActionCreationContext("ra_2");
         assertTrue(pstContext.isImported());
-        assertEquals("ra_2", pstContext.getNativeId());
+        assertEquals("ra_2", pstContext.getNativeObjectId());
         assertEquals("PST_ra_2_BBE2AA1  BBE3AA1  1", pstContext.getCreatedObjectId());
         assertFalse(pstContext.isInverted());
         assertFalse(pstContext.isAltered());

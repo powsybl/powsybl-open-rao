@@ -31,7 +31,7 @@ public final class OnConstraintUsageRuleHelper {
     }
 
     public static Set<Cnec> getImportedCnecFromAssessedElementId(String assessedElementId, Crac crac, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
-        return cnecCreationContexts.stream().filter(context -> context.isImported() && assessedElementId.equals(context.getNativeId())).map(context -> crac.getCnec(context.getCreatedObjectId())).collect(Collectors.toSet());
+        return cnecCreationContexts.stream().filter(context -> context.isImported() && assessedElementId.equals(context.getNativeObjectId())).map(context -> crac.getCnec(context.getCreatedObjectId())).collect(Collectors.toSet());
     }
 
     public static Set<Cnec> getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(Crac crac, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, Set<AssessedElement> nativeAssessedElements) {

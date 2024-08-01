@@ -20,7 +20,7 @@ public class ComplexVariantCreationContext implements RemedialActionCreationCont
     private final String importStatusDetail;
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return complexVariantId;
     }
 

@@ -50,7 +50,7 @@ public class SweAdditionalConstraintSeriesCreator {
         if (contingency == null) {
             sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
                 .forEach(angleCnecCreationContext ->
-                    BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeId()));
+                    BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeObjectId()));
             return Collections.emptyList();
         } else {
             return sortedAngleCnecs.stream()
@@ -65,7 +65,7 @@ public class SweAdditionalConstraintSeriesCreator {
         Crac crac = sweCneHelper.getCrac();
         AngleCnec angleCnec = crac.getAngleCnec(angleCnecCreationContext.getCreatedObjectId());
         if (!angleCnec.getState().getInstant().isCurative()) {
-            BUSINESS_WARNS.warn("{} angle cnec {} will not be added to CNE file", angleCnec.getState().getInstant(), angleCnecCreationContext.getNativeId());
+            BUSINESS_WARNS.warn("{} angle cnec {} will not be added to CNE file", angleCnec.getState().getInstant(), angleCnecCreationContext.getNativeObjectId());
             return null;
         }
         RaoResult raoResult = sweCneHelper.getRaoResult();

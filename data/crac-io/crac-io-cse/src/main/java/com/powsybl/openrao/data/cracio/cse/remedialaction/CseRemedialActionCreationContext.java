@@ -46,7 +46,7 @@ public class CseRemedialActionCreationContext implements RemedialActionCreationC
     }
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return nativeId;
     }
 

@@ -37,7 +37,7 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
     }
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return getCreatedObjectId();
     }
 

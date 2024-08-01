@@ -132,7 +132,7 @@ class SweRemedialActionSeriesCreatorTest {
         } else {
             rascc = Mockito.mock(RemedialActionSeriesCreationContext.class);
         }
-        Mockito.when(rascc.getNativeId()).thenReturn(nativeId);
+        Mockito.when(rascc.getNativeObjectId()).thenReturn(nativeId);
         Mockito.when(rascc.getCreatedIds()).thenReturn(createdIds);
         Mockito.when(rascc.isInverted()).thenReturn(isInverted);
         Mockito.when(rascc.isImported()).thenReturn(isImported);

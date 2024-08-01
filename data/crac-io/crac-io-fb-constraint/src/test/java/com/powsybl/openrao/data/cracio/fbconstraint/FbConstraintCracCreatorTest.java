@@ -216,7 +216,7 @@ class FbConstraintCracCreatorTest {
         ComplexVariantCreationContext pstContext = creationContext.getRemedialActionCreationContext("RA_BE_0001");
         assertNotNull(pstContext);
         assertEquals(ImportStatus.IMPORTED, pstContext.getImportStatus());
-        assertEquals("RA_BE_0001", pstContext.getNativeId());
+        assertEquals("RA_BE_0001", pstContext.getNativeObjectId());
         assertEquals("RA_BE_0001", pstContext.getCreatedObjectId());
         assertTrue(pstContext.isImported());
         assertFalse(pstContext.isAltered());
@@ -227,7 +227,7 @@ class FbConstraintCracCreatorTest {
         ComplexVariantCreationContext topoContext = creationContext.getRemedialActionCreationContext("RA_FR_0001");
         assertNotNull(topoContext);
         assertEquals(ImportStatus.IMPORTED, topoContext.getImportStatus());
-        assertEquals("RA_FR_0001", topoContext.getNativeId());
+        assertEquals("RA_FR_0001", topoContext.getNativeObjectId());
         assertEquals("RA_FR_0001", topoContext.getCreatedObjectId());
         assertTrue(topoContext.isImported());
         assertFalse(topoContext.isAltered());
@@ -468,7 +468,7 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getRemedialActionCreationContext("RA_BE_0001") instanceof PstComplexVariantCreationContext);
         PstComplexVariantCreationContext pstContext = (PstComplexVariantCreationContext) creationContext.getRemedialActionCreationContext("RA_BE_0001");
         assertTrue(pstContext.isImported());
-        assertEquals("RA_BE_0001", pstContext.getNativeId());
+        assertEquals("RA_BE_0001", pstContext.getNativeObjectId());
         assertEquals("RA_BE_0001", pstContext.getCreatedObjectId());
         assertFalse(pstContext.isInverted());
         assertEquals("BBE2AA1  BBE3AA1  PST BE", pstContext.getNativeNetworkElementId());
@@ -483,7 +483,7 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getRemedialActionCreationContext("RA_BE_0002") instanceof PstComplexVariantCreationContext);
         pstContext = (PstComplexVariantCreationContext) creationContext.getRemedialActionCreationContext("RA_BE_0002");
         assertTrue(pstContext.isImported());
-        assertEquals("RA_BE_0002", pstContext.getNativeId());
+        assertEquals("RA_BE_0002", pstContext.getNativeObjectId());
         assertEquals("RA_BE_0002", pstContext.getCreatedObjectId());
         assertTrue(pstContext.isInverted());
         assertFalse(pstContext.isAltered());

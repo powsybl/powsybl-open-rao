@@ -27,7 +27,7 @@ public final class CsaProfileElementaryCreationContext implements ElementaryCrea
     }
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return this.nativeId;
     }
 

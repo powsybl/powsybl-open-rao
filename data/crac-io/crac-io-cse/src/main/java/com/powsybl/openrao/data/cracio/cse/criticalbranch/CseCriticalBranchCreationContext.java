@@ -46,7 +46,7 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
     }
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return criticalBranchName;
     }
 

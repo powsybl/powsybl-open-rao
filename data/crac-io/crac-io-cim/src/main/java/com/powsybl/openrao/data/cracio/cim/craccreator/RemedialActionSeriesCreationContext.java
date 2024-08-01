@@ -46,7 +46,7 @@ public class RemedialActionSeriesCreationContext implements ElementaryCreationCo
     }
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return nativeId;
     }
 

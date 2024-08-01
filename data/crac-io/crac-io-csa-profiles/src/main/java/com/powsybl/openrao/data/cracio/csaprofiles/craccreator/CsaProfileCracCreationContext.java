@@ -90,7 +90,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     }
 
     public CsaProfileElementaryCreationContext getRemedialActionCreationContext(String nativeId) {
-        return remedialActionCreationContexts.stream().filter(rac -> rac.getNativeId().equals(nativeId)).findFirst().orElse(null);
+        return remedialActionCreationContexts.stream().filter(rac -> rac.getNativeObjectId().equals(nativeId)).findFirst().orElse(null);
     }
 
     public void setRemedialActionCreationContexts(Set<CsaProfileElementaryCreationContext> remedialActionCreationContexts) {
@@ -131,10 +131,10 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatusDetail()))
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatus(), context.getImportStatusDetail()))
         );
     }
 }

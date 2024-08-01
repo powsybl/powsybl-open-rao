@@ -58,7 +58,7 @@ public class CimContingencyCreator {
     }
 
     private void addContingency(ContingencySeries cimContingency) {
-        if (cimContingencyCreationContexts.stream().anyMatch(ccc -> ccc.getNativeId().equals(cimContingency.getMRID()))) {
+        if (cimContingencyCreationContexts.stream().anyMatch(ccc -> ccc.getNativeObjectId().equals(cimContingency.getMRID()))) {
             return;
         }
 

@@ -41,7 +41,7 @@ public final class CimContingencyCreationContext implements ElementaryCreationCo
     }
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return contingencyID;
     }
 

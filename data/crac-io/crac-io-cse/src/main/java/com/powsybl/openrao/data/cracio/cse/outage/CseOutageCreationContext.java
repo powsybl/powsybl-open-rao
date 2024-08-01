@@ -24,11 +24,11 @@ public class CseOutageCreationContext implements ElementaryCreationContext {
     }
 
     public String getName() {
-        return getNativeId();
+        return getNativeObjectId();
     }
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return outageID;
     }
 

@@ -33,7 +33,7 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     private final boolean isDirectionInverted;
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return criticalBranchId;
     }
 

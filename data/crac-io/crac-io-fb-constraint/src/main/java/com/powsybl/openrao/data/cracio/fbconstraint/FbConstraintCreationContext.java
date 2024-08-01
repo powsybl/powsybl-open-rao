@@ -75,11 +75,11 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     }
 
     void addCriticalBranchCreationContext(CriticalBranchCreationContext cbcc) {
-        criticalBranchCreationContexts.put(cbcc.getNativeId(), cbcc);
+        criticalBranchCreationContexts.put(cbcc.getNativeObjectId(), cbcc);
     }
 
     void addComplexVariantCreationContext(ComplexVariantCreationContext cvcc) {
-        complexVariantCreationContexts.put(cvcc.getNativeId(), cvcc);
+        complexVariantCreationContexts.put(cvcc.getNativeObjectId(), cvcc);
     }
 
     FbConstraintCreationContext(OffsetDateTime timeStamp, String networkName) {
@@ -120,10 +120,10 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatusDetail()))
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatus(), context.getImportStatusDetail()))
         );
     }
 }
