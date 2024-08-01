@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
@@ -52,6 +53,7 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, networkAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedNetworkActionsDuringState(state));
 
+        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, (RemedialAction<?>) rangeAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, rangeAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getPreOptimizationTapOnState(state, pstRangeAction));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedTapOnState(state, pstRangeAction));
