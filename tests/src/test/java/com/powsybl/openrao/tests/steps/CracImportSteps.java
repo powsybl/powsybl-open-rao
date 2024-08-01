@@ -122,7 +122,7 @@ public class CracImportSteps {
             CseOutageCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
             assertNotNull(creationContext);
             assertFalse(creationContext.isImported());
-            assertNull(creationContext.getCreatedContingencyId());
+            assertNull(creationContext.getCreatedObjectId());
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -398,7 +398,7 @@ public class CracImportSteps {
             RemedialActionCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
             assertNotNull(remedialActionCreationContext);
             assertTrue(remedialActionCreationContext.isImported());
-            assertEquals(createdRaId, remedialActionCreationContext.getCreatedRAId());
+            assertEquals(createdRaId, remedialActionCreationContext.getCreatedObjectId());
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -412,7 +412,7 @@ public class CracImportSteps {
             RemedialActionCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
             assertNotNull(remedialActionCreationContext);
             assertFalse(remedialActionCreationContext.isImported());
-            assertNull(remedialActionCreationContext.getCreatedRAId());
+            assertNull(remedialActionCreationContext.getCreatedObjectId());
             assertEquals(ImportStatus.valueOf(importStatus), remedialActionCreationContext.getImportStatus());
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));

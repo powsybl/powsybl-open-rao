@@ -78,7 +78,7 @@ public class VoltageCnecsCreator {
         if (contingencyNames == null || contingencyNames.isEmpty()) {
             // return all contingencies in the crac
             contingencyNativeNamePerId = cracCreationContext.getContingencyCreationContexts().stream().filter(CimContingencyCreationContext::isImported)
-                .collect(Collectors.toMap(CimContingencyCreationContext::getCreatedContingencyId, CimContingencyCreationContext::getNativeName));
+                .collect(Collectors.toMap(CimContingencyCreationContext::getCreatedObjectId, CimContingencyCreationContext::getNativeName));
             return contingencyNativeNamePerId.keySet();
         }
         Set<String> filteredContingencies = new HashSet<>();
@@ -89,8 +89,8 @@ public class VoltageCnecsCreator {
                         VoltageCnecCreationContext.notImported(null, null, contingencyName, ImportStatus.OTHER, "Contingency does not exist in the CRAC or could not be imported")
                     );
                 } else {
-                    contingencyNativeNamePerId.put(contingencyCreationContext.getCreatedContingencyId(), contingencyName);
-                    filteredContingencies.add(contingencyCreationContext.getCreatedContingencyId());
+                    contingencyNativeNamePerId.put(contingencyCreationContext.getCreatedObjectId(), contingencyName);
+                    filteredContingencies.add(contingencyCreationContext.getCreatedObjectId());
                 }
             }
         );

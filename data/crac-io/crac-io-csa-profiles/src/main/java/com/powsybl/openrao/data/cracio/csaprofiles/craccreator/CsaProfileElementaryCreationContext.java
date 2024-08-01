@@ -6,26 +6,24 @@ import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 public final class CsaProfileElementaryCreationContext implements ElementaryCreationContext {
     private final String nativeId;
     private final String elementId;
-    private final String elementName;
     private final ImportStatus importStatus;
     private final String importStatusDetail;
     private final boolean isAltered;
 
-    private CsaProfileElementaryCreationContext(String nativeId, String elementId, String elementName, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
+    private CsaProfileElementaryCreationContext(String nativeId, String elementId, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
         this.nativeId = nativeId;
         this.elementId = elementId;
-        this.elementName = elementName;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
         this.isAltered = isAltered;
     }
 
     public static CsaProfileElementaryCreationContext imported(String nativeId, String elementId, String elementName, String importStatusDetail, boolean isAltered) {
-        return new CsaProfileElementaryCreationContext(nativeId, elementId, elementName, ImportStatus.IMPORTED, importStatusDetail, isAltered);
+        return new CsaProfileElementaryCreationContext(nativeId, elementId, ImportStatus.IMPORTED, importStatusDetail, isAltered);
     }
 
     public static CsaProfileElementaryCreationContext notImported(String nativeId, ImportStatus importStatus, String importStatusDetail) {
-        return new CsaProfileElementaryCreationContext(nativeId, null, null, importStatus, importStatusDetail, false);
+        return new CsaProfileElementaryCreationContext(nativeId, null, importStatus, importStatusDetail, false);
     }
 
     @Override
@@ -33,12 +31,9 @@ public final class CsaProfileElementaryCreationContext implements ElementaryCrea
         return this.nativeId;
     }
 
-    public String getElementId() {
+    @Override
+    public String getCreatedObjectId() {
         return this.elementId;
-    }
-
-    public String getElementName() {
-        return this.elementName;
     }
 
     @Override

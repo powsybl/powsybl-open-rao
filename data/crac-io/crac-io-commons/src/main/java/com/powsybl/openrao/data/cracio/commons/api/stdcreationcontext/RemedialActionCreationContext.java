@@ -12,9 +12,4 @@ import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface RemedialActionCreationContext extends ElementaryCreationContext {
-    /**
-     * Get the id of the created remedial action
-     * Underlying assumption: one native RA has been converted into one created RA
-     */
-    String getCreatedRAId();
 }

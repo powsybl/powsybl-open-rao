@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.cse.criticalbranch;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.NativeBranch;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Map;
 import java.util.Optional;
@@ -72,6 +73,11 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
     @Override
     public boolean isDirectionInvertedInNetwork() {
         return isDirectionInverted;
+    }
+
+    @Override
+    public String getCreatedObjectId() {
+        throw new NotImplementedException("Please use getCreatedCnecsIds instead.");
     }
 
     @Override

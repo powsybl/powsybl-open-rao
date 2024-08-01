@@ -18,6 +18,11 @@ public interface ElementaryCreationContext {
     String getNativeId();
 
     /**
+     * Get a unique identifier of the element in the created Crac.
+     */
+    String getCreatedObjectId();
+
+    /**
      * Indicates if element has been imported.
      */
     boolean isImported();

@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.cracio.cim.craccreator;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracio.cim.xsd.*;
 import com.powsybl.openrao.data.cracio.cim.xsd.Point;
 import com.powsybl.openrao.data.cracio.cim.xsd.ContingencySeries;
 import com.powsybl.openrao.data.cracio.cim.xsd.MonitoredSeries;
@@ -42,7 +41,7 @@ public final class CimCracUtils {
         if (ccc == null || !ccc.isImported()) {
             return null;
         }
-        return cracCreationContext.getCrac().getContingency(ccc.getCreatedContingencyId());
+        return cracCreationContext.getCrac().getContingency(ccc.getCreatedObjectId());
     }
 
     public static Set<FlowCnec> getFlowCnecsFromCrac(MonitoredSeries monitoredSeries, CimCracCreationContext cracCreationContext) {

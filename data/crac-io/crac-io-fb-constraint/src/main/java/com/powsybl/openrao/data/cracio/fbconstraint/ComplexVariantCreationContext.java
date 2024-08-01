@@ -45,7 +45,7 @@ public class ComplexVariantCreationContext implements RemedialActionCreationCont
     }
 
     @Override
-    public String getCreatedRAId() {
+    public String getCreatedObjectId() {
         return createdRaId;
     }
 

@@ -52,7 +52,8 @@ public class CseOutageCreationContext implements ElementaryCreationContext {
         return importStatusDetail;
     }
 
-    public String getCreatedContingencyId() {
+    @Override
+    public String getCreatedObjectId() {
         return isImported() ? outageID : null;
     }
 

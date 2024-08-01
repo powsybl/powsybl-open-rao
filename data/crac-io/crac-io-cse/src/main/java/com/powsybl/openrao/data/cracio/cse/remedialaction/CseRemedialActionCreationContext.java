@@ -71,7 +71,7 @@ public class CseRemedialActionCreationContext implements RemedialActionCreationC
     }
 
     @Override
-    public String getCreatedRAId() {
+    public String getCreatedObjectId() {
         return createdRAId;
     }
 

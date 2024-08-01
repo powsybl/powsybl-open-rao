@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.cim.craccreator;
 
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Set;
 
@@ -71,6 +72,11 @@ public class RemedialActionSeriesCreationContext implements ElementaryCreationCo
 
     public boolean isInverted() {
         return isInverted;
+    }
+
+    @Override
+    public String getCreatedObjectId() {
+        throw new NotImplementedException("Please use getCreatedIds instead.");
     }
 
     public Set<String> getCreatedIds() {

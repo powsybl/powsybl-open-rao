@@ -145,6 +145,11 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
+        public String getCreatedObjectId() {
+            return null;
+        }
+
+        @Override
         public NativeBranch getNativeBranch() {
             return nativeBranch;
         }
@@ -242,7 +247,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
-        public String getCreatedRAId() {
+        public String getCreatedObjectId() {
             return remedialAction.getId();
         }
 

@@ -85,7 +85,7 @@ class VoltageCnecsCreatorTest {
         CimContingencyCreationContext context = Mockito.mock(CimContingencyCreationContext.class);
         Mockito.when(context.getNativeName()).thenReturn(nativeName);
         Mockito.when(context.isImported()).thenReturn(imported);
-        Mockito.when(context.getCreatedContingencyId()).thenReturn(createdId);
+        Mockito.when(context.getCreatedObjectId()).thenReturn(createdId);
         return context;
     }
 

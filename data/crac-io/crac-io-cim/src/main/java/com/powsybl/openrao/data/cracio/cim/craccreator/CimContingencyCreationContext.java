@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-// TODO : promote getNativeName & getCreatedContingencyId (but rename it getCreatedObjectId) to ElementaryCreationContext
+// TODO : promote getNativeName & getCreatedObjectId (but rename it getCreatedObjectId) to ElementaryCreationContext
     // and remove this class, and those like it that do not need extra information
 public final class CimContingencyCreationContext implements ElementaryCreationContext {
     private String contingencyID;
@@ -69,7 +69,8 @@ public final class CimContingencyCreationContext implements ElementaryCreationCo
         return importStatusDetail;
     }
 
-    public String getCreatedContingencyId() {
+    @Override
+    public String getCreatedObjectId() {
         return createdContingencyId;
     }
 }

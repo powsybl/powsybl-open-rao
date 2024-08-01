@@ -165,7 +165,7 @@ class CimCracCreatorTest {
         } else {
             assertNull(context.getImportStatusDetail());
         }
-        assertEquals(id, context.getCreatedContingencyId());
+        assertEquals(id, context.getCreatedObjectId());
         assertNotNull(importedCrac.getContingency(id));
         Set<String> actualNetworkElements = importedCrac.getContingency(id).getElements().stream().map(ContingencyElement::getId).collect(Collectors.toSet());
         assertEquals(networkElements, actualNetworkElements);
