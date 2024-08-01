@@ -27,7 +27,17 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class FailedRaoResultImpl implements RaoResult {
-    private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
+    private final String failureReason;
+    private final String exceptionMessage;
+
+    public FailedRaoResultImpl(String failureReason) {
+        this.failureReason = failureReason;
+        this.exceptionMessage = "This method should not be used, because the RAO failed: " + failureReason;
+    }
+
+    public String getFailureReason() {
+        return failureReason;
+    }
 
     @Override
     public ComputationStatus getComputationStatus() {
@@ -41,131 +51,131 @@ public class FailedRaoResultImpl implements RaoResult {
 
     @Override
     public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 
     @Override
     public boolean isSecure(PhysicalParameter... u) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        throw new OpenRaoException(exceptionMessage);
     }
 }

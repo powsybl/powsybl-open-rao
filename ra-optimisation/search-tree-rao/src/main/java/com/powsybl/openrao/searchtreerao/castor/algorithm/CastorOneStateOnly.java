@@ -74,7 +74,7 @@ public class CastorOneStateOnly {
         initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
         if (initialResults.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Initial sensitivity analysis failed");
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl());
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Initial sensitivity analysis failed"));
         }
 
         // run search-tree optimization, on the required preventive or curative state

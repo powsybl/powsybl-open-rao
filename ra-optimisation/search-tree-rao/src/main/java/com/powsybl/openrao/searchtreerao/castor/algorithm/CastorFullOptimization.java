@@ -96,16 +96,16 @@ public class CastorFullOptimization {
 
         PrePerimeterResult initialOutput;
         initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
+        if (initialOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            BUSINESS_LOGS.error("Initial sensitivity analysis failed");
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Initial sensitivity analysis failed"));
+        }
         RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
             new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),
             initialOutput,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
-        if (initialOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
-            BUSINESS_LOGS.error("Initial sensitivity analysis failed");
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl());
-        }
 
         // ----- PREVENTIVE PERIMETER OPTIMIZATION -----
         // run search tree on preventive perimeter
@@ -143,7 +143,7 @@ public class CastorFullOptimization {
         PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), null);
         if (preCurativeSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions failed");
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl());
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Systematic sensitivity analysis after preventive remedial actions failed"));
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after preventive remedial actions: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
@@ -519,11 +519,11 @@ public class CastorFullOptimization {
         try {
             secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, postContingencyResults);
             if (secondPreventiveRaoResult.postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
-                return new FailedRaoResultImpl();
+                return new FailedRaoResultImpl("Post-PRA sensitivity analysis failed during 2nd preventive RAO");
             }
         } catch (OpenRaoException e) {
             BUSINESS_LOGS.error(e.getMessage());
-            return new FailedRaoResultImpl();
+            return new FailedRaoResultImpl(e.getMessage());
         }
 
         // Run 2nd automaton simulation and update results
@@ -562,7 +562,7 @@ public class CastorFullOptimization {
         PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(raoInput.getNetwork(), raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), appliedArasAndCras);
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed");
-            return new FailedRaoResultImpl();
+            return new FailedRaoResultImpl("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed");
         }
         for (Map.Entry<State, OptimizationResult> entry : postContingencyResults.entrySet()) {
             State state = entry.getKey();

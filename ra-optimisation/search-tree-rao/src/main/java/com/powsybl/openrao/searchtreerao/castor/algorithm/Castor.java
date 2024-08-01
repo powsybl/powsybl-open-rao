@@ -57,8 +57,9 @@ public class Castor implements RaoProvider {
             try {
                 return new CastorOneStateOnly(raoInput, parameters).run();
             } catch (Exception e) {
-                BUSINESS_LOGS.error("Optimizing state \"{}\" failed: ", raoInput.getOptimizedState().getId(), e);
-                return CompletableFuture.completedFuture(new FailedRaoResultImpl());
+                String failure = String.format("Optimizing state \"%s\" failed: %s", raoInput.getOptimizedState().getId(), e);
+                BUSINESS_LOGS.error(failure);
+                return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
             }
         } else {
 
