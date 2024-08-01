@@ -88,22 +88,24 @@ class RaoResultWithAngleMonitoringTest {
     void testIsSecureWhenRaoResultAndAngleMonitoringIsSecure() {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         AngleMonitoringResult angleMonitoringResult = Mockito.mock(AngleMonitoringResult.class);
-        RaoResult raoResultWithVoltageMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
+        RaoResult raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
         Mockito.when(raoResult.isSecure()).thenReturn(true);
         Mockito.when(angleMonitoringResult.isSecure()).thenReturn(true);
         Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(true);
         Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW))).thenReturn(true);
 
-        assertTrue(raoResultWithVoltageMonitoring.isSecure());
-        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertTrue(raoResultWithVoltageMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure());
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.ANGLE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
     }
 
     @Test
     void testIsSecureWhenRaoResultAndAngleMonitoringUnsecureIfAngleNotChecked() {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         AngleMonitoringResult angleMonitoringResult = Mockito.mock(AngleMonitoringResult.class);
-        RaoResult raoResultWithVoltageMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
+        RaoResult raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
         Mockito.when(raoResult.isSecure()).thenReturn(true);
         Mockito.when(angleMonitoringResult.isSecure()).thenReturn(false);
         Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(true);
@@ -111,25 +113,29 @@ class RaoResultWithAngleMonitoringTest {
         Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW))).thenReturn(true);
         Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW), Mockito.eq(PhysicalParameter.VOLTAGE))).thenReturn(true);
 
-        assertFalse(raoResultWithVoltageMonitoring.isSecure());
-        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertFalse(raoResultWithVoltageMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
-        assertTrue(raoResultWithVoltageMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure());
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
     }
 
     @Test
     void testIsUnsecureWhenRaoResultIsUnsecureAndAngleMonitoringIsSecure() {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         AngleMonitoringResult angleMonitoringResult = Mockito.mock(AngleMonitoringResult.class);
-        RaoResult raoResultWithVoltageMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
+        RaoResult raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
         Mockito.when(raoResult.isSecure()).thenReturn(false);
         Mockito.when(angleMonitoringResult.isSecure()).thenReturn(true);
         Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(false);
         Mockito.when(raoResult.isSecure(Mockito.any(Instant.class), Mockito.eq(PhysicalParameter.FLOW), Mockito.eq(PhysicalParameter.ANGLE))).thenReturn(false);
 
-        assertFalse(raoResultWithVoltageMonitoring.isSecure());
-        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-        assertFalse(raoResultWithVoltageMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure());
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(Mockito.mock(Instant.class), PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
     }
 }
