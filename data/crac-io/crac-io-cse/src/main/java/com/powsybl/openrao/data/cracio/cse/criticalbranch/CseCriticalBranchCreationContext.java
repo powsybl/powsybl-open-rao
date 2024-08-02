@@ -11,8 +11,10 @@ import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnec
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.NativeBranch;
 import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -77,7 +79,12 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
 
     @Override
     public String getCreatedObjectId() {
-        throw new NotImplementedException("Please use getCreatedCnecsIds instead.");
+        throw new NotImplementedException("Several objects may have been created. Please use getCreatedCnecsIds() instead.");
+    }
+
+    @Override
+    public Set<String> getCreatedObjectsIds() {
+        return new HashSet<>(createdCnecIds.values());
     }
 
     @Override

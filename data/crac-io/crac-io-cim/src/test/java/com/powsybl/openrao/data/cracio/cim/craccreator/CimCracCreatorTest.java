@@ -244,7 +244,7 @@ class CimCracCreatorTest {
     private void assertHvdcRangeActionImported(String expectedNativeId, Set<String> expectedCreatedIds, Set<String> expectedNetworkElements, Set<String> expectedOperators, boolean isInverted) {
         RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContext(expectedNativeId);
         assertNotNull(remedialActionSeriesCreationContext);
-        assertEquals(expectedCreatedIds, remedialActionSeriesCreationContext.getCreatedIds());
+        assertEquals(expectedCreatedIds, remedialActionSeriesCreationContext.getCreatedObjectsIds());
         assertTrue(remedialActionSeriesCreationContext.isImported());
         expectedCreatedIds.forEach(createdId -> assertNotNull(importedCrac.getHvdcRangeAction(createdId)));
         Set<String> actualNetworkElements = new HashSet<>();

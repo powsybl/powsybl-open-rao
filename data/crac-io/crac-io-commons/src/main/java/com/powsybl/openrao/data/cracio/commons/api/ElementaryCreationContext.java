@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cracio.commons.api;
 
+import java.util.Set;
+
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
@@ -21,6 +23,13 @@ public interface ElementaryCreationContext {
      * Get a unique identifier of the element in the created Crac.
      */
     String getCreatedObjectId();
+
+    /**
+     * Get the identifiers of the elements in the created Crac.
+     */
+    default Set<String> getCreatedObjectsIds() {
+        return Set.of(getCreatedObjectId());
+    }
 
     /**
      * Indicates if element has been imported.

@@ -92,6 +92,7 @@ class CseCracCreatorTest {
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
         assertTrue(context.getCreatedCnecsIds().isEmpty());
+        assertTrue(context.getCreatedObjectsIds().isEmpty());
     }
 
     private void assertRemedialActionNotImported(String name, ImportStatus importStatus) {

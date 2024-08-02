@@ -137,11 +137,11 @@ public class SweRemedialActionSeriesCreator {
         if (raoResult == null) {
             return null;
         }
-        context.getCreatedIds().stream().sorted()
+        context.getCreatedObjectsIds().stream().sorted()
                 .map(crac::getRemedialAction)
                 .filter(ra -> raoResult.isActivatedDuringState(state, ra)).forEach(usedRas::add);
         if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)) {
-            context.getCreatedIds().stream().sorted()
+            context.getCreatedObjectsIds().stream().sorted()
                 .map(crac::getRemedialAction).filter(ra ->
                     raoResult.getActivatedRangeActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())) ||
                         raoResult.getActivatedNetworkActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId()))

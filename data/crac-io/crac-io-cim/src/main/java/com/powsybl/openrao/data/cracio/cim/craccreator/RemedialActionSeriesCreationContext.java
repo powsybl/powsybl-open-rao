@@ -71,10 +71,11 @@ public class RemedialActionSeriesCreationContext implements ElementaryCreationCo
 
     @Override
     public String getCreatedObjectId() {
-        throw new NotImplementedException("Please use getCreatedIds instead.");
+        throw new NotImplementedException("Several objects may have been created. Please use getCreatedObjectsIds() instead.");
     }
 
-    public Set<String> getCreatedIds() {
+    @Override
+    public Set<String> getCreatedObjectsIds() {
         return createdIds;
     }
 }
