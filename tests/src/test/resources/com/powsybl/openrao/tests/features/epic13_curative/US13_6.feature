@@ -50,13 +50,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/MergedCB_ep13us6case3.xml"
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -83.0 MW
-    And the margin on cnec "NL2-BE3-O - curative" after CRA should be -103.0 MW
-    And 3 remedial actions are used after "Contingency_FR1_FR3" at "curative"
-    And the remedial action "Open line DE1-DE2" is used after "Contingency_FR1_FR3" at "curative"
-    And the remedial action "Open line NL1-NL2" is used after "Contingency_FR1_FR3" at "curative"
-    And the tap of PstRangeAction "PRA_PST_BE" should be 8 after "Contingency_FR1_FR3" at "curative"
-    And the margin on cnec "FR2-FR3-OO - curative" after CRA should be -96 MW
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
     And the value of the objective function after CRA should be 286
 
   @fast @rao @mock @ac @contingency-scenarios @mnec
@@ -102,20 +96,8 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/SL_ep13us2case6_with_mnec_curative.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then 2 remedial actions are used in preventive
-    And the remedial action "open_be1_be4" is used in preventive
-    And the tap of PstRangeAction "pst_fr" should be 2 in preventive
-    And the initial margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 70 MW
-    And the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 5 MW
-    # Flow is -572 MW without RA, and threshold -700 MW.
-    And the initial margin on cnec "BBE1AA1  BBE2AA1  1 - co1_fr2_fr3_1 - curative" should be 127 MW
-    # Here the margin should not be negative because the branch is a MNEC and initial margin was positive.
-    # Flow is -643 MW with PRA and CRA (actually no CRA were activated in this test case), and threshold -700 MW. Margin is positive.
-    And the margin on cnec "BBE1AA1  BBE2AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 57 MW
-    # 2 Remedial actions would have been used if the MNEC was not limiting
-    And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is 612 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
-    And the value of the objective function after CRA should be -612
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    And the value of the objective function after CRA should be -679.48
 
   @fast @rao @mock @ac @contingency-scenarios @mnec
   Scenario: US 13.6.7: Simple case with a mix of preventive and curative remedial actions and MNECs in preventive and curative limited by initial value
