@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.cracapi.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.ActionType;
@@ -113,19 +114,15 @@ class ActionReader {
             throw new OpenRaoException(String.format("This method is only applicable for Action of type %s", TOPO));
         }
 
+        SingleNetworkElementActionAdder<?> actionAdder;
         if (networkElement.getType() == IdentifiableType.SWITCH) {
-            networkActionAdder.newSwitchAction()
-                .withNetworkElement(networkElementId)
-                .withActionType(topologicalActionType)
-                .add();
+            actionAdder = networkActionAdder.newSwitchAction().withActionType(topologicalActionType);
         } else if (networkElement instanceof Branch) {
-            networkActionAdder.newTerminalsConnectionAction()
-                .withNetworkElement(networkElementId)
-                .withActionType(topologicalActionType)
-                .add();
+            actionAdder = networkActionAdder.newTerminalsConnectionAction().withActionType(topologicalActionType);
         } else {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "FlowBasedConstraint topological action " + remedialActionId + " should be on branch or on switch, not on " + networkElement.getType());
         }
+        actionAdder.withNetworkElement(networkElementId).add();
     }
 
     boolean isInverted() {

@@ -11,13 +11,8 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public interface SwitchActionAdder {
-
-    SwitchActionAdder withNetworkElement(String networkElementId);
-
-    SwitchActionAdder withNetworkElement(String networkElementId, String networkElementName);
+public interface SwitchActionAdder extends SingleNetworkElementActionAdder<SwitchActionAdder> {
 
     SwitchActionAdder withActionType(ActionType actionType);
 
-    NetworkActionAdder add();
 }

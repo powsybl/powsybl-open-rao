@@ -11,13 +11,8 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public interface DanglingLineActionAdder {
-
-    DanglingLineActionAdder withNetworkElement(String networkElementId);
-
-    DanglingLineActionAdder withNetworkElement(String networkElementId, String networkElementName);
+public interface DanglingLineActionAdder extends SingleNetworkElementActionAdder<DanglingLineActionAdder> {
 
     DanglingLineActionAdder withActivePowerValue(double setPoint);
 
-    NetworkActionAdder add();
 }

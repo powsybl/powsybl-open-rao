@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.powsybl.openrao.data.cracio.json.JsonSerializationConstants.*;
@@ -28,16 +28,21 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
         gen.writeStringField(NAME, value.getName());
         gen.writeStringField(OPERATOR, value.getOperator());
         UsageRulesSerializer.serializeUsageRules(value, gen);
-        serializeElementaryActions(value, TOPOLOGICAL_ACTIONS, Arrays.asList(TerminalsConnectionAction.class, SwitchAction.class), gen);
-        serializeElementaryActions(value, PST_SETPOINTS, List.of(PhaseTapChangerTapPositionAction.class), gen);
-        serializeElementaryActions(value, INJECTION_SETPOINTS, Arrays.asList(GeneratorAction.class, LoadAction.class, DanglingLineAction.class, ShuntCompensatorPositionAction.class), gen);
-        serializeElementaryActions(value, SWITCH_PAIRS, List.of(SwitchPair.class), gen);
+        serializeElementaryActions(value, TerminalsConnectionAction.class, TERMINALS_CONNECTION_ACTIONS, gen);
+        serializeElementaryActions(value, SwitchAction.class, SWITCH_ACTIONS, gen);
+        serializeElementaryActions(value, PhaseTapChangerTapPositionAction.class, PHASETAPCHANGER_TAPPOSITION_ACTIONS, gen);
+        serializeElementaryActions(value, GeneratorAction.class, GENERATOR_ACTIONS, gen);
+        serializeElementaryActions(value, LoadAction.class, LOAD_ACTIONS, gen);
+        serializeElementaryActions(value, DanglingLineAction.class, DANGLINGLINE_ACTIONS, gen);
+        serializeElementaryActions(value, ShuntCompensatorPositionAction.class, SHUNTCOMPENSATOR_POSITION_ACTIONS, gen);
+        serializeElementaryActions(value, SwitchPair.class, SWITCH_PAIRS, gen);
         serializeRemedialActionSpeed(value, gen);
         gen.writeEndObject();
     }
 
-    private void serializeElementaryActions(NetworkAction networkAction, String arrayName, List<Class<? extends Action>> elementaryActionTypes, JsonGenerator gen) throws IOException {
-        List<Action> actions = networkAction.getElementaryActions().stream().filter(action -> elementaryActionTypes.stream().anyMatch(cls -> cls.isAssignableFrom(action.getClass()))).toList();
+    private void serializeElementaryActions(NetworkAction networkAction, Class<? extends Action> elementaryActionType, String arrayName, JsonGenerator gen) throws IOException {
+        List<Action> actions = networkAction.getElementaryActions().stream().filter(action -> elementaryActionType.isAssignableFrom(action.getClass()))
+            .sorted(Comparator.comparing(Action::getId)).toList();
         if (!actions.isEmpty()) {
             gen.writeArrayFieldStart(arrayName);
             for (Action ea : actions) {

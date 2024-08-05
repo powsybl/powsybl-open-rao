@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.nc.ShuntCompensatorModificati
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.StaticPropertyRange;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.TopologyAction;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.cracapi.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -119,21 +120,18 @@ public class NetworkActionCreator {
             if (Objects.isNull(networkElement)) {
                 throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not found in network", rotatingMachineId));
             }
+            SingleNetworkElementActionAdder<?> actionAdder;
             if (networkElement.getType() == IdentifiableType.GENERATOR) {
-                networkActionAdder.newGeneratorAction()
-                    .withActivePowerValue(setPointValue)
-                    .withNetworkElement(rotatingMachineId)
-                    .add();
-                return true;
+                actionAdder = networkActionAdder.newGeneratorAction()
+                    .withActivePowerValue(setPointValue);
+            } else if (networkElement.getType() == IdentifiableType.LOAD) {
+                actionAdder = networkActionAdder.newLoadAction()
+                    .withActivePowerValue(setPointValue);
+            } else {
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "CSA remedial action " + remedialActionId + " is an injection on rotating machine should be on generator or load only, not on " + networkElement.getType());
             }
-            if (networkElement.getType() == IdentifiableType.LOAD) {
-                networkActionAdder.newLoadAction()
-                    .withActivePowerValue(setPointValue)
-                    .withNetworkElement(rotatingMachineId)
-                    .add();
-                return true;
-            }
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "CSA remedial action " + remedialActionId + " is an injection on rotating machine should be on generator or load only, not on " + networkElement.getType());
+            actionAdder.withNetworkElement(rotatingMachineId).add();
+            return true;
         } else {
             alterations.add("Elementary rotating machine action on rotating machine %s for remedial action %s ignored because the RotatingMachineAction is disabled".formatted(nativeRotatingMachineAction.rotatingMachineId(), remedialActionId));
             return false;

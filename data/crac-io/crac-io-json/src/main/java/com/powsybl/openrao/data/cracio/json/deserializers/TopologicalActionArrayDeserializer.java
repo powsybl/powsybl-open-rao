@@ -7,18 +7,23 @@
 
 package com.powsybl.openrao.data.cracio.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.networkaction.*;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.cracapi.networkaction.SwitchActionAdder;
+import com.powsybl.openrao.data.cracapi.networkaction.TerminalsConnectionActionAdder;
 import com.powsybl.openrao.data.cracio.json.JsonSerializationConstants;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.powsybl.openrao.data.cracio.json.JsonSerializationConstants.deserializeNetworkElement;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -52,20 +57,12 @@ public final class TopologicalActionArrayDeserializer {
             }
             if (identifiable.getType() == IdentifiableType.SWITCH) {
                 SwitchActionAdder switchActionAdder = ownerAdder.newSwitchAction();
-                if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                    switchActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                } else {
-                    switchActionAdder.withNetworkElement(networkElementId);
-                }
+                deserializeNetworkElement(networkElementId, networkElementsNamesPerId, switchActionAdder);
                 switchActionAdder.withActionType(actionType);
                 switchActionAdder.add();
             } else {
                 TerminalsConnectionActionAdder terminalsConnectionActionAdder = ownerAdder.newTerminalsConnectionAction();
-                if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                    terminalsConnectionActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                } else {
-                    terminalsConnectionActionAdder.withNetworkElement(networkElementId);
-                }
+                deserializeNetworkElement(networkElementId, networkElementsNamesPerId, terminalsConnectionActionAdder);
                 terminalsConnectionActionAdder.withActionType(actionType);
                 terminalsConnectionActionAdder.add();
             }

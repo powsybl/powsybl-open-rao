@@ -7,11 +7,12 @@
 
 package com.powsybl.openrao.data.cracio.json;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,7 +33,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.4";
+    public static final String CRAC_IO_VERSION = "2.5";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -45,7 +47,8 @@ public final class JsonSerializationConstants {
     v2.1: addition of ra-usage-limits
     v2.2: addition of contingency id in on-flow-constraint-in-country
     v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
-    v2.4: new names for onConstraint and cnecId + side left/right -> one/two
+    v2.4: new names for onConstraint and cnecId, side left/right -> one/two
+    v2.5: elementary actions have new type coming from core remedial actions
      */
 
     // headers
@@ -104,6 +107,13 @@ public final class JsonSerializationConstants {
     public static final String TOPOLOGICAL_ACTIONS = "topologicalActions";
     public static final String PST_SETPOINTS = "pstSetpoints";
     public static final String INJECTION_SETPOINTS = "injectionSetpoints";
+    public static final String TERMINALS_CONNECTION_ACTIONS = "terminalsConnectionActions";
+    public static final String SWITCH_ACTIONS = "switchActions";
+    public static final String GENERATOR_ACTIONS = "generatorActions";
+    public static final String LOAD_ACTIONS = "loadActions";
+    public static final String DANGLINGLINE_ACTIONS = "danglingLineActions";
+    public static final String SHUNTCOMPENSATOR_POSITION_ACTIONS = "shuntCompensatorPositionActions";
+    public static final String PHASETAPCHANGER_TAPPOSITION_ACTIONS = "phaseTapChangerTapPositionActions";
     public static final String SWITCH_PAIRS = "switchPairs";
 
     public static final String USAGE_METHOD = "usageMethod";
@@ -123,7 +133,9 @@ public final class JsonSerializationConstants {
 
     public static final String RANGES = "ranges";
     public static final String SETPOINT = "setpoint";
-
+    public static final String TAP_POSITION = "tapPosition";
+    public static final String ACTIVE_POWER_VALUE = "activePowerValue";
+    public static final String SECTION_COUNT = "sectionCount";
     public static final String OPERATOR = "operator";
     public static final String BORDER = "border";
     public static final String ACTION_TYPE = "actionType";
@@ -469,4 +481,13 @@ public final class JsonSerializationConstants {
             throw new OpenRaoException(String.format("Unknown usage rule type: %s", o1.getClass()));
         }
     }
+
+    public static void deserializeNetworkElement(String networkElementId, Map<String, String> networkElementsNamesPerId, SingleNetworkElementActionAdder<?> adder) {
+        if (networkElementsNamesPerId.containsKey(networkElementId)) {
+            adder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
+        } else {
+            adder.withNetworkElement(networkElementId);
+        }
+    }
+
 }

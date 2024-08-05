@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.cracapi.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
@@ -114,19 +115,17 @@ public class TRemedialActionAdder {
                 return;
             }
             Identifiable<?> ne = network.getIdentifiable(branchHelper.getIdInNetwork());
+            SingleNetworkElementActionAdder<?> actionAdder;
             if (ne.getType() == IdentifiableType.SWITCH) {
-                networkActionAdder.newSwitchAction()
-                    .withNetworkElement(branchHelper.getIdInNetwork())
-                    .withActionType(convertActionType(tBranch.getStatus()))
-                    .add();
+                actionAdder = networkActionAdder.newSwitchAction()
+                    .withActionType(convertActionType(tBranch.getStatus()));
             } else if (ne instanceof Branch) {
-                networkActionAdder.newTerminalsConnectionAction()
-                    .withNetworkElement(branchHelper.getIdInNetwork())
-                    .withActionType(convertActionType(tBranch.getStatus()))
-                    .add();
+                actionAdder = networkActionAdder.newTerminalsConnectionAction()
+                    .withActionType(convertActionType(tBranch.getStatus()));
             } else {
                 throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "CSE topological action " + createdRAId + " should be on branch or on switch, not on " + network.getIdentifiable(branchHelper.getIdInNetwork()).getType());
             }
+            actionAdder.withNetworkElement(branchHelper.getIdInNetwork()).add();
         }
 
         addUsageRules(networkActionAdder, tRemedialAction);

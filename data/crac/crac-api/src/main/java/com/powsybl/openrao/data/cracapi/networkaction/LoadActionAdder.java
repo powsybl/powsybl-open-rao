@@ -9,14 +9,8 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface LoadActionAdder {
-
-    LoadActionAdder withNetworkElement(String networkElementId);
-
-    LoadActionAdder withNetworkElement(String networkElementId, String networkElementName);
+public interface LoadActionAdder extends SingleNetworkElementActionAdder<LoadActionAdder> {
 
     LoadActionAdder withActivePowerValue(double setPoint);
-
-    NetworkActionAdder add();
 
 }
