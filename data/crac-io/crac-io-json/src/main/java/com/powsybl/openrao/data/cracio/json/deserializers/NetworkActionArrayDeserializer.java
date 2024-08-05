@@ -78,16 +78,56 @@ public final class NetworkActionArrayDeserializer {
                         OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case TOPOLOGICAL_ACTIONS:
-                        jsonParser.nextToken();
-                        TopologicalActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, network);
+                        if (getPrimaryVersionNumber(version) > 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) > 4) {
+                            throw new OpenRaoException(String.format("%s is either %s or %s since CRAC version 2.5", TOPOLOGICAL_ACTIONS, TERMINALS_CONNECTION_ACTIONS, SWITCH_ACTIONS));
+                        } else {
+                            jsonParser.nextToken();
+                            TopologicalActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, network);
+                        }
                         break;
                     case PST_SETPOINTS:
-                        jsonParser.nextToken();
-                        PstSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        if (getPrimaryVersionNumber(version) > 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) > 4) {
+                            throw new OpenRaoException(String.format("%s is now %s since CRAC version 2.5", PST_SETPOINTS, PHASETAPCHANGER_TAPPOSITION_ACTIONS));
+                        } else {
+                            jsonParser.nextToken();
+                            PstSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        }
                         break;
                     case INJECTION_SETPOINTS:
+                        if (getPrimaryVersionNumber(version) > 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) > 4) {
+                            throw new OpenRaoException(String.format("%s is either %s, or %s, or %s, or %s since CRAC version 2.5", INJECTION_SETPOINTS, GENERATOR_ACTIONS, LOAD_ACTIONS, DANGLINGLINE_ACTIONS, SHUNTCOMPENSATOR_POSITION_ACTIONS));
+                        } else {
+                            jsonParser.nextToken();
+                            InjectionSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, network);
+                        }
+                        break;
+                    case TERMINALS_CONNECTION_ACTIONS:
                         jsonParser.nextToken();
-                        InjectionSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, network);
+                        TerminalsConnectionActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        break;
+                    case SWITCH_ACTIONS:
+                        jsonParser.nextToken();
+                        SwitchActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        break;
+                    case GENERATOR_ACTIONS:
+                        jsonParser.nextToken();
+                        GeneratorActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        break;
+                    case LOAD_ACTIONS:
+                        jsonParser.nextToken();
+                        LoadActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        break;
+                    case DANGLINGLINE_ACTIONS:
+                        jsonParser.nextToken();
+                        DanglingLineActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        break;
+                    case SHUNTCOMPENSATOR_POSITION_ACTIONS:
+                        jsonParser.nextToken();
+                        ShuntCompensatorPositionActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        break;
+                    case PHASETAPCHANGER_TAPPOSITION_ACTIONS:
+                        jsonParser.nextToken();
+                        PhaseTapChangerTapPositionActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
                     case SWITCH_PAIRS:
                         jsonParser.nextToken();

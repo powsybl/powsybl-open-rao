@@ -8,11 +8,10 @@
 
 package com.powsybl.openrao.data.cracapi.networkaction;
 
-/**
- * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
- */
-public interface PhaseTapChangerTapPositionActionAdder extends SingleNetworkElementActionAdder<PhaseTapChangerTapPositionActionAdder> {
+public interface SingleNetworkElementActionAdder<T extends SingleNetworkElementActionAdder<T>> {
+    T withNetworkElement(String networkElementId);
 
-    PhaseTapChangerTapPositionActionAdder withTapPosition(int setPoint);
+    T withNetworkElement(String networkElementId, String networkElementName);
 
+    NetworkActionAdder add();
 }

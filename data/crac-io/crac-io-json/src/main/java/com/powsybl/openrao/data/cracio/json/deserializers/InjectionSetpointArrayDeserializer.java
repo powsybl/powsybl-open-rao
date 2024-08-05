@@ -66,11 +66,7 @@ public final class InjectionSetpointArrayDeserializer {
                 case GENERATOR:
                     checkExpectedUnit(Unit.MEGAWATT, unit, identifiable);
                     GeneratorActionAdder generatorActionAdder = ownerAdder.newGeneratorAction();
-                    if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                        generatorActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                    } else {
-                        generatorActionAdder.withNetworkElement(networkElementId);
-                    }
+                    deserializeNetworkElement(networkElementId, networkElementsNamesPerId, generatorActionAdder);
                     if (setpoint != null) {
                         generatorActionAdder.withActivePowerValue(setpoint);
                     }
@@ -79,11 +75,7 @@ public final class InjectionSetpointArrayDeserializer {
                 case LOAD:
                     checkExpectedUnit(Unit.MEGAWATT, unit, identifiable);
                     LoadActionAdder loadActionAdder = ownerAdder.newLoadAction();
-                    if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                        loadActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                    } else {
-                        loadActionAdder.withNetworkElement(networkElementId);
-                    }
+                    deserializeNetworkElement(networkElementId, networkElementsNamesPerId, loadActionAdder);
                     if (setpoint != null) {
                         loadActionAdder.withActivePowerValue(setpoint);
                     }
@@ -92,11 +84,7 @@ public final class InjectionSetpointArrayDeserializer {
                 case DANGLING_LINE:
                     checkExpectedUnit(Unit.MEGAWATT, unit, identifiable);
                     DanglingLineActionAdder danglingLineActionAdder = ownerAdder.newDanglingLineAction();
-                    if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                        danglingLineActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                    } else {
-                        danglingLineActionAdder.withNetworkElement(networkElementId);
-                    }
+                    deserializeNetworkElement(networkElementId, networkElementsNamesPerId, danglingLineActionAdder);
                     if (setpoint != null) {
                         danglingLineActionAdder.withActivePowerValue(setpoint);
                     }
@@ -105,11 +93,7 @@ public final class InjectionSetpointArrayDeserializer {
                 case SHUNT_COMPENSATOR:
                     checkExpectedUnit(Unit.SECTION_COUNT, unit, identifiable);
                     ShuntCompensatorPositionActionAdder shuntCompensatorPositionActionAdder = ownerAdder.newShuntCompensatorPositionAction();
-                    if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                        shuntCompensatorPositionActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                    } else {
-                        shuntCompensatorPositionActionAdder.withNetworkElement(networkElementId);
-                    }
+                    deserializeNetworkElement(networkElementId, networkElementsNamesPerId, shuntCompensatorPositionActionAdder);
                     if (setpoint != null) {
                         shuntCompensatorPositionActionAdder.withSectionCount(setpoint.intValue());
                     }

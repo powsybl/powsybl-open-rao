@@ -11,7 +11,6 @@ package com.powsybl.openrao.data.cracio.json.serializers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.action.GeneratorAction;
-import com.powsybl.openrao.commons.Unit;
 
 import java.io.IOException;
 
@@ -25,8 +24,7 @@ public class GeneratorActionSerializer extends AbstractJsonSerializer<GeneratorA
     public void serialize(GeneratorAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getGeneratorId());
-        gen.writeNumberField(SETPOINT, value.getActivePowerValue().getAsDouble());
-        gen.writeStringField(UNIT, serializeUnit(Unit.MEGAWATT));
+        gen.writeNumberField(ACTIVE_POWER_VALUE, value.getActivePowerValue().getAsDouble());
         gen.writeEndObject();
     }
 }
