@@ -82,7 +82,7 @@ class MultiTSFillerTest {
             "multi-ts/network/12NodesProdFR.uct",
             "multi-ts/network/12NodesProdFR.uct"
         );
-        importNetworksAndCracs(networksPaths, cracsPaths);
+        importNetworksAndCracs(cracsPaths, networksPaths);
         initCnecsAndRangeActions();
 
         networks.get(0).getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
@@ -107,7 +107,7 @@ class MultiTSFillerTest {
         );
         List<String> networksPaths = Collections.nCopies(4, "multi-ts/network/12NodesProdFR.uct");
 
-        importNetworksAndCracs(networksPaths, cracsPaths);
+        importNetworksAndCracs(cracsPaths, networksPaths);
 
         // get cnecs and rangeActions
         cnecs = new ArrayList<>();
@@ -156,7 +156,7 @@ class MultiTSFillerTest {
         initialAlpha = pstRangeActions.get(0).convertTapToAngle(networks.get(0).getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
     }
 
-    private void importNetworksAndCracs(List<String> networksPaths, List<String> cracsPaths) {
+    private void importNetworksAndCracs(List<String> cracsPaths, List<String> networksPaths) {
         cracs = new ArrayList<>();
         networks = new ArrayList<>();
 

@@ -108,8 +108,8 @@ public class TimeStepsRaoTest {
             "multi-ts/crac/crac-injection-pst-ts1.json"
         );
         List<String> networksPaths = List.of(
-            "multi-ts/network/12NodesProdBE.uct",
-            "multi-ts/network/12NodesProdBE.uct"
+            "multi-ts/network/12Nodes3GenProdBE.uct",
+            "multi-ts/network/12Nodes3GenProdBE.uct"
         );
 
         cracs = new ArrayList<>();

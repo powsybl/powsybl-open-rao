@@ -201,9 +201,6 @@ public class SimpleScenariosMultiTsTest {
             .withRaRangeShrinking(!raoParameters.getRangeActionsOptimizationParameters().getRaRangeShrinking().equals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED))
             .build();
 
-//        OutputStream os = new ByteArrayOutputStream();
-//        JsonRaoParameters.write(raoParameters, os);
-
         return IteratingLinearOptimizerMultiTS.optimize(input, parameters, outageInstant);
 
     }

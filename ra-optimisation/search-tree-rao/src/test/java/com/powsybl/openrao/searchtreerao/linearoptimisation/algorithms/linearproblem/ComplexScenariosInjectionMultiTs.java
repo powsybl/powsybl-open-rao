@@ -47,6 +47,15 @@ public class ComplexScenariosInjectionMultiTs {
 
     }
 
+    private void importNetworksAndCracs(List<String> cracsPaths, List<String> networksPaths) {
+        cracs = new ArrayList<>();
+        networks = new ArrayList<>();
+        for (int i = 0; i < networksPaths.size(); i++) {
+            networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
+            cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
+        }
+    }
+
     private RangeActionSetpointResult computeInitialSetpointsResults() {
         Map<RangeAction<?>, Double> setpoints = new HashMap<>();
         for (int i = 0; i < cracs.size(); i++) {
@@ -98,14 +107,7 @@ public class ComplexScenariosInjectionMultiTs {
         );
         List<String> networksPaths = Collections.nCopies(3, "network/12Nodes_3gen_BE.uct");
 
-        cracs = new ArrayList<>();
-        networks = new ArrayList<>();
-
-        for (int i = 0; i < networksPaths.size(); i++) {
-            networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
-            cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
-        }
-
+        importNetworksAndCracs(cracsPaths, networksPaths);
         initialSetpoints = computeInitialSetpointsResults();
         optimizationPerimeters = computeOptimizationPerimeters();
         initialSensiResult = runInitialSensi();
@@ -151,14 +153,7 @@ public class ComplexScenariosInjectionMultiTs {
         );
         List<String> networksPaths = Collections.nCopies(4, "network/12Nodes_3gen_BE.uct");
 
-        cracs = new ArrayList<>();
-        networks = new ArrayList<>();
-
-        for (int i = 0; i < networksPaths.size(); i++) {
-            networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
-            cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
-        }
-
+        importNetworksAndCracs(cracsPaths, networksPaths);
         initialSetpoints = computeInitialSetpointsResults();
         optimizationPerimeters = computeOptimizationPerimeters();
         initialSensiResult = runInitialSensi();
@@ -182,18 +177,11 @@ public class ComplexScenariosInjectionMultiTs {
             "multi-ts/crac/crac-injection-pst-ts1.json"
         );
         List<String> networksPaths = List.of(
-            "multi-ts/network/12NodesProdBE.uct",
-            "multi-ts/network/12NodesProdDE.uct"
+            "multi-ts/network/12Nodes3GenProdBE.uct",
+            "multi-ts/network/12Nodes3GenProdDE.uct"
         );
 
-        cracs = new ArrayList<>();
-        networks = new ArrayList<>();
-
-        for (int i = 0; i < networksPaths.size(); i++) {
-            networks.add(Network.read(networksPaths.get(i), getClass().getResourceAsStream("/" + networksPaths.get(i))));
-            cracs.add(CracImporters.importCrac(cracsPaths.get(i), getClass().getResourceAsStream("/" + cracsPaths.get(i)), networks.get(i)));
-        }
-
+        importNetworksAndCracs(cracsPaths, networksPaths);
         initialSetpoints = computeInitialSetpointsResults();
         optimizationPerimeters = computeOptimizationPerimeters();
         initialSensiResult = runInitialSensi();
@@ -275,9 +263,6 @@ public class ComplexScenariosInjectionMultiTs {
             .withMaxNumberOfIterations(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations())
             .withRaRangeShrinking(!raoParameters.getRangeActionsOptimizationParameters().getRaRangeShrinking().equals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED))
             .build();
-
-//        OutputStream os = new ByteArrayOutputStream();
-//        JsonRaoParameters.write(raoParameters, os);
 
         return IteratingLinearOptimizerMultiTS.optimize(input, parameters, outageInstant);
 
