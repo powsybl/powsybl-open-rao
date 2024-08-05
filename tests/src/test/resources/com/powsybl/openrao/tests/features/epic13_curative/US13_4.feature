@@ -25,18 +25,8 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given crac file is "epic13/SL_ep13us4case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then 3 remedial actions are used in preventive
-    And the remedial action "close_de3_de4" is used in preventive
-    And the tap of PstRangeAction "pst_fr" should be -5 in preventive
-    And the tap of PstRangeAction "pst_be" should be -16 in preventive
-    And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_fr" should be -5 after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is -653 A
-    And the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -653 A
-    And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 340 A
-    And the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 703 A
-    And the value of the objective function after CRA should be 653
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    And the worst margin is -522 A
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 13.4.3: Topological RA available in preventive and curative : used in curative
@@ -63,18 +53,9 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given crac file is "epic13/SL_ep13us4case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then 3 remedial actions are used in preventive
-    And the remedial action "close_de3_de4_pra" is used in preventive
-    And the tap of PstRangeAction "pst_fr" should be -5 in preventive
-    And the tap of PstRangeAction "pst_be" should be -16 in preventive
-    And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_fr" should be -5 after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is -653 A
-    And the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -653 A
-    And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 340 A
-    And the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 703 A
-    And the value of the objective function after CRA should be 653
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    And the worst margin is -522 A
+
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 13.4.5: Topological RA duplicated into PRA and CRA : CRA is activated
