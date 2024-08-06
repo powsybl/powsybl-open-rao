@@ -8,6 +8,8 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -53,6 +55,7 @@ public final class IteratingLinearOptimizerMultiTS {
             .buildFromInputsAndParameters(input, parameters);
 
         linearProblem.fill(input.getPreOptimizationFlowResult(), input.getPreOptimizationSensitivityResult());
+        logMostLimitedElementsBetweenIteration(input, parameters, TECHNICAL_LOGS, bestResult);
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
@@ -94,6 +97,7 @@ public final class IteratingLinearOptimizerMultiTS {
                 input.getObjectiveFunction()
             );
             previousResult = currentResult;
+            logMostLimitedElementsBetweenIteration(input, parameters, TECHNICAL_LOGS, currentResult);
 
             Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, currentResult, bestResult);
             if (Boolean.TRUE.equals(mipShouldStop.getRight())) {
@@ -104,6 +108,30 @@ public final class IteratingLinearOptimizerMultiTS {
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
         return bestResult;
+    }
+
+    // Add logs for this class: RaoRunner not called in order to use MIP for multi TS so logs are missing
+    private static void logMostLimitedElementsBetweenIteration(IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters, OpenRaoLogger logger, IteratingLinearOptimizationResultImpl result) {
+        List<FlowCnec> flowCnecsList = input.getOptimizationPerimeters().stream().flatMap(perimeter -> perimeter.getFlowCnecs().stream()).toList();
+        Unit unit = parameters.getObjectiveFunctionUnit();
+        int i = 0;
+        for (FlowCnec flowCnec : flowCnecsList) {
+            int finalI = i;
+            flowCnec.getMonitoredSides().forEach(side -> {
+                double flow = result.getFlow(flowCnec, side, unit);
+                double cnecMargin = flowCnec.computeMargin(flow, side, unit);
+                logger.info(
+                    String.format(Locale.ENGLISH, "Limiting element #%02d: margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
+                        finalI + 1,
+                        cnecMargin,
+                        unit,
+                        flowCnec.getNetworkElement().getName(),
+                        flowCnec.getState().getId(),
+                        flowCnec.getId())
+                );
+            });
+            i++;
+        }
     }
 
     private static SensitivityComputerMultiTS runSensitivityAnalysis(SensitivityComputerMultiTS sensitivityComputerMultiTS, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters) {
