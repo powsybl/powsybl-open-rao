@@ -40,8 +40,8 @@
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -200.0,
-          "max": 200.0,
+          "min": -100.0,
+          "max": 100.0,
           "side": "left"
         }
       ]

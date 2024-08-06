@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -194,10 +195,13 @@ public final class IteratingLinearOptimizerMultiTS {
             OptimizationPerimeter optimizationPerimeter = optimizationPerimeters.get(i);
             //apply for the next time steps (wil be overridden if appear in next time steps)
             for (int j = i; j < optimizationPerimeters.size(); j++) {
-                int finalJ = j;
                 if (!optimizationPerimeter.getRangeActionsPerState().isEmpty()) {
-                    optimizationPerimeter.getRangeActionsPerState().get(optimizationPerimeter.getMainOptimizationState())
-                        .forEach(ra -> ra.apply(input.getNetwork(finalJ), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationPerimeter.getMainOptimizationState())));
+                    for (RangeAction<?> ra : optimizationPerimeter.getRangeActionsPerState().get(optimizationPerimeter.getMainOptimizationState())) {
+                        //Special case for injection: if range action not in current time step, use value from network and disregard previous time step value
+                        if (!(ra instanceof InjectionRangeAction && j > i)) {
+                            ra.apply(input.getNetwork(j), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationPerimeter.getMainOptimizationState()));
+                        }
+                    }
                 }
             }
 

@@ -96,9 +96,8 @@ public class MultiTSFiller implements ProblemFiller {
     private void updateFlowConstraints(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         for (int timeStepIndex = 0; timeStepIndex < rangeActionsList.size() - 1; timeStepIndex++) {
             for (RangeAction<?> currentRangeAction : rangeActionsList.get(timeStepIndex)) {
-                // we can't use rangeActionsList instead because we need getNetworkElement()
                 for (int nextTimeStepIndex = timeStepIndex + 1; nextTimeStepIndex < rangeActionsList.size(); nextTimeStepIndex++) {
-                    // check if next time steps contains current pst
+                    // check if next time steps contains current range action
                     boolean futureRangeActionFound = false;
                     for (RangeAction<?> previousRangeAction : rangeActionsList.get(nextTimeStepIndex)) {
                         boolean hasSameNetworksElements = currentRangeAction.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet())
@@ -108,7 +107,8 @@ public class MultiTSFiller implements ProblemFiller {
                             break;
                         }
                     }
-                    if (!futureRangeActionFound) {
+                    //For injection, if no range action at future time step, use the value given by the network, not by the previous range action
+                    if (!futureRangeActionFound && !(currentRangeAction instanceof InjectionRangeAction)) {
                         addImpactOfRangeActionOnLaterTimeSteps(linearProblem, sensitivityResult, currentRangeAction, timeStepIndex, nextTimeStepIndex, rangeActionActivationResult);
                     } else {
                         break;
@@ -121,7 +121,6 @@ public class MultiTSFiller implements ProblemFiller {
     /**
      * Add variable from previous time step to constraint and update sensi
      */
-    //TODO: check if only works for pst or all range actions
     private void addImpactOfRangeActionOnLaterTimeSteps(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> pstRangeAction, int currentTimeStepIndex, int nextTimeStepIndex, RangeActionActivationResult rangeActionActivationResult) {
         cnecsList.get(nextTimeStepIndex).forEach(cnec -> {
             Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(cnecsList.get(nextTimeStepIndex), sensitivityResult);
