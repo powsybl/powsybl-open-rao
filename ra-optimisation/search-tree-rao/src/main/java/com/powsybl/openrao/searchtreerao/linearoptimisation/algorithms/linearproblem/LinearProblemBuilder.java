@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
@@ -41,7 +42,7 @@ public class LinearProblemBuilder {
             .withProblemFiller(buildCoreProblemFiller());
 
         // max.min margin, or max.min relative margin
-        if (parameters.getObjectiveFunction().relativePositiveMargins()) {
+        if (parameters.getObjectiveFunction() == ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_FLOW_MARGIN) {
             this.withProblemFiller(buildMaxMinRelativeMarginFiller());
         } else {
             this.withProblemFiller(buildMaxMinMarginFiller());
@@ -125,7 +126,7 @@ public class LinearProblemBuilder {
         return new MaxMinRelativeMarginFiller(
             inputs.getOptimizationPerimeter().getOptimizedFlowCnecs(),
             inputs.getPreOptimizationFlowResult(),
-            parameters.getObjectiveFunction().getUnit(),
+            parameters.getObjectiveFunctionUnit(),
             parameters.getMaxMinRelativeMarginParameters()
         );
     }

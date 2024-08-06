@@ -56,7 +56,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
-        parameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
+        parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         // RangeActionsOptimization parameters
         parameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
         parameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(10);

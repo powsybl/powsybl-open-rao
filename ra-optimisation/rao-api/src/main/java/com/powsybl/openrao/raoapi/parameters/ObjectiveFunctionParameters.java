@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -21,50 +20,19 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  */
 public class ObjectiveFunctionParameters {
     // Default values
-    private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT;
+    private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.SECURE_FLOW;
     private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
-    private static final PreventiveStopCriterion DEFAULT_PREVENTIVE_STOP_CRITERION = PreventiveStopCriterion.SECURE;
-    private static final CurativeStopCriterion DEFAULT_CURATIVE_STOP_CRITERION = CurativeStopCriterion.MIN_OBJECTIVE;
-    private static final boolean DEFAULT_OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE = false;
+    private static final boolean ENFORCE_CURATIVE_SECURITY = false;
     // Attributes
     private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
     private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
-    private PreventiveStopCriterion preventiveStopCriterion = DEFAULT_PREVENTIVE_STOP_CRITERION;
-    private CurativeStopCriterion curativeStopCriterion = DEFAULT_CURATIVE_STOP_CRITERION;
-    private boolean optimizeCurativeIfPreventiveUnsecure = DEFAULT_OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE;
+    private boolean enforceCurativeSecurity = ENFORCE_CURATIVE_SECURITY;
 
     // Enum
     public enum ObjectiveFunctionType {
-        MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
-        MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE),
-        MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
-        MAX_MIN_RELATIVE_MARGIN_IN_AMPERE(Unit.AMPERE);
-
-        private final Unit unit;
-
-        ObjectiveFunctionType(Unit unit) {
-            this.unit = unit;
-        }
-
-        public Unit getUnit() {
-            return unit;
-        }
-
-        public boolean relativePositiveMargins() {
-            return this.equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) || this.equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        }
-    }
-
-    public enum PreventiveStopCriterion {
-        MIN_OBJECTIVE,
-        SECURE
-    }
-
-    public enum CurativeStopCriterion {
-        MIN_OBJECTIVE, // only stop after minimizing objective
-        SECURE, //stop when objective is strictly negative
-        PREVENTIVE_OBJECTIVE, // stop when preventive objective is reached, or bested by curativeRaoMinObjImprovement
-        PREVENTIVE_OBJECTIVE_AND_SECURE // stop when preventive objective is reached or bested by curativeRaoMinObjImprovement, and the situation is secure
+        SECURE_FLOW,
+        MAX_MIN_FLOW_MARGIN,
+        MAX_MIN_RELATIVE_FLOW_MARGIN
     }
 
     // Getters and setters
@@ -76,32 +44,16 @@ public class ObjectiveFunctionParameters {
         this.type = type;
     }
 
-    public void setPreventiveStopCriterion(PreventiveStopCriterion preventiveStopCriterion) {
-        this.preventiveStopCriterion = preventiveStopCriterion;
-    }
-
     public double getCurativeMinObjImprovement() {
         return curativeMinObjImprovement;
     }
 
-    public PreventiveStopCriterion getPreventiveStopCriterion() {
-        return preventiveStopCriterion;
+    public boolean getEnforceCurativeSecurity() {
+        return enforceCurativeSecurity;
     }
 
-    public CurativeStopCriterion getCurativeStopCriterion() {
-        return curativeStopCriterion;
-    }
-
-    public void setCurativeStopCriterion(CurativeStopCriterion curativeStopCriterion) {
-        this.curativeStopCriterion = curativeStopCriterion;
-    }
-
-    public boolean getOptimizeCurativeIfPreventiveUnsecure() {
-        return optimizeCurativeIfPreventiveUnsecure;
-    }
-
-    public void setOptimizeCurativeIfPreventiveUnsecure(boolean optimizeCurativeIfPreventiveUnsecure) {
-        this.optimizeCurativeIfPreventiveUnsecure = optimizeCurativeIfPreventiveUnsecure;
+    public void setEnforceCurativeSecurity(boolean enforceCurativeSecurity) {
+        this.enforceCurativeSecurity = enforceCurativeSecurity;
     }
 
     public static ObjectiveFunctionParameters load(PlatformConfig platformConfig) {
@@ -112,11 +64,7 @@ public class ObjectiveFunctionParameters {
                     parameters.setType(config.getEnumProperty(TYPE, ObjectiveFunctionType.class,
                             DEFAULT_OBJECTIVE_FUNCTION));
                     parameters.setCurativeMinObjImprovement(config.getDoubleProperty(CURATIVE_MIN_OBJ_IMPROVEMENT, DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT));
-                    parameters.setPreventiveStopCriterion(config.getEnumProperty(PREVENTIVE_STOP_CRITERION, PreventiveStopCriterion.class,
-                            DEFAULT_PREVENTIVE_STOP_CRITERION));
-                    parameters.setCurativeStopCriterion(config.getEnumProperty(CURATIVE_STOP_CRITERION, CurativeStopCriterion.class,
-                            DEFAULT_CURATIVE_STOP_CRITERION));
-                    parameters.setOptimizeCurativeIfPreventiveUnsecure(config.getBooleanProperty(OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE, DEFAULT_OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE));
+                    parameters.setEnforceCurativeSecurity(config.getBooleanProperty(OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE, ENFORCE_CURATIVE_SECURITY));
                 });
         return parameters;
     }

@@ -7,13 +7,16 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -80,13 +83,13 @@ public final class ObjectiveFunction {
                                                                        RangeActionSetpointResult prePerimeterRangeActionSetpointResult) {
             // min margin objective function
             MarginEvaluator marginEvaluator;
-            if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            if (raoParameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_FLOW_MARGIN) {
                 marginEvaluator = new BasicRelativeMarginEvaluator();
             } else {
                 marginEvaluator = new BasicMarginEvaluator();
             }
 
-            this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+            this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, RaoUtil.getObjectiveFunctionUnit(raoParameters), marginEvaluator));
 
             // sensitivity failure over-cost should be computed on initial sensitivity result too
             // (this allows the RAO to prefer RAs that can remove sensitivity failures)
@@ -108,27 +111,29 @@ public final class ObjectiveFunction {
 
             // min margin objective function
             MarginEvaluator marginEvaluator;
-            if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            if (raoParameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_FLOW_MARGIN) {
                 marginEvaluator = new BasicRelativeMarginEvaluator();
             } else {
                 marginEvaluator = new BasicMarginEvaluator();
             }
 
+            Unit unit = RaoUtil.getObjectiveFunctionUnit(raoParameters);
+
             // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
             if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
                 && !operatorsNotToOptimizeInCurative.isEmpty()) {
 
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, unit,
                     new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
             } else {
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, unit, marginEvaluator));
             }
 
             // mnec virtual cost evaluator
             if (raoParameters.hasExtension(MnecParametersExtension.class)) {
                 this.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
                     flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                    raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
+                    unit,
                     initialFlowResult,
                     raoParameters.getExtension(MnecParametersExtension.class)
                 ));
