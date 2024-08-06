@@ -7,6 +7,10 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -15,6 +19,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,6 +100,11 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     }
 
     @Override
+    public PhysicalParameter getPhysicalParameter() {
+        return PhysicalParameter.VOLTAGE;
+    }
+
+    @Override
     public double computeMargin(double actualValue, Unit unit) {
         if (!unit.equals(Unit.KILOVOLT)) {
             throw new OpenRaoException("VoltageCnec margin can only be requested in KILOVOLT");
@@ -106,8 +116,54 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     }
 
     @Override
-    public PhysicalParameter getPhysicalParameter() {
-        return PhysicalParameter.VOLTAGE;
+    public double computeValue(Network network, Unit unit) {
+        if (!unit.equals(Unit.KILOVOLT)) {
+            throw new OpenRaoException("VoltageCnec margin can only be requested in KILOVOLT");
+        }
+        VoltageLevel voltageLevel = network.getVoltageLevel(getNetworkElement().getId());
+        if (voltageLevel == null) {
+            throw new OpenRaoException("Voltage level is missing on network element " + getNetworkElement().getId());
+        }
+        Set<Double> voltages = new HashSet<>();
+        BusbarSection busbarSection = network.getBusbarSection(getNetworkElement().getId());
+        if (busbarSection != null) {
+            Double busBarVoltages = busbarSection.getV();
+            voltages.add(busBarVoltages);
+        } else {
+            voltages.addAll(voltageLevel.getBusView().getBusStream().map(Bus::getV).collect(Collectors.toSet()));
+        }
+        Double minVoltage = voltages.stream().min(Double::compareTo).orElse(Double.NEGATIVE_INFINITY);
+        Double minThreshold = getThresholds().iterator().next().min().orElse(Double.NEGATIVE_INFINITY);
+        double marginOnLowerBound = minVoltage - minThreshold;
+
+        Double maxVoltage = voltages.stream().max(Double::compareTo).orElse(Double.POSITIVE_INFINITY);
+        Double maxThreshold = getThresholds().iterator().next().min().orElse(Double.POSITIVE_INFINITY);
+        double marginOnUpperBound = maxThreshold - maxVoltage;
+        return Math.min(marginOnLowerBound, marginOnUpperBound);
+    }
+
+    public CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit) {
+        if (computeMargin(actualValue, unit) < 0) {
+            boolean highVoltageConstraints = false;
+            boolean lowVoltageConstraints = false;
+            if (getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMax() && actualValue > threshold.max().orElseThrow())) {
+                highVoltageConstraints = true;
+            }
+            if (getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMin() && actualValue < threshold.min().orElseThrow())) {
+                lowVoltageConstraints = true;
+            }
+            if (highVoltageConstraints && lowVoltageConstraints) {
+                return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
+            } else if (highVoltageConstraints) {
+                return CnecSecurityStatus.HIGH_CONSTRAINT;
+            } else {
+                return CnecSecurityStatus.LOW_CONSTRAINT;
+            }
+        } else {
+            return CnecSecurityStatus.SECURE;
+        }
     }
 
     @Override

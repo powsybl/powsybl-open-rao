@@ -4,20 +4,19 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec.CnecSecurityStatus;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.monitoring.results.MonitoringResult.Status.*;
-
 public class MonitoringResult {
 
     private PhysicalParameter physicalParameter;
-    private Set<? extends CnecResult> cnecResults;
+    private Set<CnecResult> cnecResults;
     private Map<State, Set<RemedialAction>> appliedRas;
-    private Status status;
+    private CnecSecurityStatus status;
 
-    public MonitoringResult(PhysicalParameter physicalParameter, Set<? extends CnecResult> cnecResults, Map<State, Set<RemedialAction>> appliedRas, Status status) {
+    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult> cnecResults, Map<State, Set<RemedialAction>> appliedRas, CnecSecurityStatus status) {
         this.physicalParameter = physicalParameter;
         this.cnecResults = cnecResults;
         this.appliedRas = appliedRas;
@@ -28,7 +27,7 @@ public class MonitoringResult {
         return physicalParameter;
     }
 
-    public Set<? extends CnecResult> getCnecResults() {
+    public Set<CnecResult> getCnecResults() {
         return cnecResults;
     }
 
@@ -51,28 +50,20 @@ public class MonitoringResult {
         }
     }
 
-    public Status getStatus() {
+    public CnecSecurityStatus getStatus() {
         return status;
     }
 
     public List<String> printConstraints() {
-        if (status.equals(FAILURE)) {
+        if (status.equals(CnecSecurityStatus.FAILURE)) {
             return List.of(physicalParameter + " monitoring failed due to a load flow divergence or an inconsistency in the crac.");
         }
         List<String> constraints = new ArrayList<>();
-        if (physicalParameter.equals(PhysicalParameter.ANGLE)) {
-            cnecResults.stream().filter(AngleCnecResult.class::isInstance)
-                .map(AngleCnecResult.class::cast)
-                .filter(AngleCnecResult::thresholdOvershoot)
-                .sorted(Comparator.comparing(AngleCnecResult::getId))
-                .forEach(angleCnecResult -> constraints.add(angleCnecResult.print()));
-        } else {
-            cnecResults.stream().filter(VoltageCnecResult.class::isInstance)
-                .map(VoltageCnecResult.class::cast)
-                .filter(VoltageCnecResult::thresholdOvershoot)
-                .sorted(Comparator.comparing(VoltageCnecResult::getId))
-                .forEach(voltageCnecResult -> constraints.add(voltageCnecResult.print()));
-        }
+        cnecResults.stream()
+            .filter(CnecResult::thresholdOvershoot)
+            .sorted(Comparator.comparing(CnecResult::getId))
+            .forEach(angleCnecResult -> constraints.add(angleCnecResult.print()));
+
         if (constraints.isEmpty()) {
             return List.of(String.format("All %s Cnecs are secure.", physicalParameter));
         } else {
@@ -81,30 +72,10 @@ public class MonitoringResult {
         return constraints;
     }
 
-
-    public enum Status {
-        SECURE,
-        HIGH_CONSTRAINT,
-        LOW_CONSTRAINT,
-        HIGH_AND_LOW_CONSTRAINTS,
-        FAILURE,
-    }
-
     public void combine(MonitoringResult monitoringResult) {
         Set<CnecResult> thisCnecResults = new HashSet<>(this.getCnecResults());
-        Set<? extends CnecResult> otherCnecResults = monitoringResult.getCnecResults();
-
-        if (monitoringResult.getPhysicalParameter().equals(PhysicalParameter.ANGLE)) {
-            thisCnecResults.addAll(otherCnecResults.stream()
-                .filter(AngleCnecResult.class::isInstance)
-                .map(AngleCnecResult.class::cast)
-                .collect(Collectors.toSet()));
-        } else {
-            thisCnecResults.addAll(otherCnecResults.stream()
-                .filter(VoltageCnecResult.class::isInstance)
-                .map(VoltageCnecResult.class::cast)
-                .collect(Collectors.toSet()));
-        }
+        Set<CnecResult> otherCnecResults = monitoringResult.getCnecResults();
+        thisCnecResults.addAll(otherCnecResults);
         this.cnecResults = thisCnecResults;
 
         Map<State, Set<RemedialAction>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
@@ -115,25 +86,25 @@ public class MonitoringResult {
         this.status = combineStatuses(this.status, monitoringResult.getStatus());
     }
 
-    public static Status combineStatuses(Status... status) {
-        boolean atLeastOneFailed = Arrays.asList(status).contains(FAILURE);
+    public static CnecSecurityStatus combineStatuses(CnecSecurityStatus... status) {
+        boolean atLeastOneFailed = Arrays.asList(status).contains(CnecSecurityStatus.FAILURE);
         if (atLeastOneFailed) {
-            return FAILURE;
+            return CnecSecurityStatus.FAILURE;
         }
 
-        boolean atLeastOneHigh = Arrays.asList(status).contains(HIGH_CONSTRAINT);
-        boolean atLeastOneLow = Arrays.asList(status).contains(LOW_CONSTRAINT);
-        boolean atLeastOneHighAndLow = Arrays.asList(status).contains(HIGH_AND_LOW_CONSTRAINTS) || atLeastOneHigh && atLeastOneLow;
+        boolean atLeastOneHigh = Arrays.asList(status).contains(CnecSecurityStatus.HIGH_CONSTRAINT);
+        boolean atLeastOneLow = Arrays.asList(status).contains(CnecSecurityStatus.LOW_CONSTRAINT);
+        boolean atLeastOneHighAndLow = Arrays.asList(status).contains(CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS) || atLeastOneHigh && atLeastOneLow;
 
         if (atLeastOneHighAndLow) {
-            return HIGH_AND_LOW_CONSTRAINTS;
+            return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
         }
         if (atLeastOneHigh) {
-            return HIGH_CONSTRAINT;
+            return CnecSecurityStatus.HIGH_CONSTRAINT;
         }
         if (atLeastOneLow) {
-            return LOW_CONSTRAINT;
+            return CnecSecurityStatus.LOW_CONSTRAINT;
         }
-        return SECURE;
+        return CnecSecurityStatus.SECURE;
     }
 }

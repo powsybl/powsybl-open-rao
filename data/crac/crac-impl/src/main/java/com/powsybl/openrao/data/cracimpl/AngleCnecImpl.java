@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -118,6 +121,48 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     @Override
     public PhysicalParameter getPhysicalParameter() {
         return PhysicalParameter.ANGLE;
+    }
+
+    @Override
+    public double computeValue(Network network, Unit unit) {
+        if (!unit.equals(Unit.DEGREE)) {
+            throw new OpenRaoException("AngleCnec margin can only be requested in DEGREE");
+        }
+        VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(exportingNetworkElement.getId(), network);
+        VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(importingNetworkElement.getId(), network);
+        return exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
+            - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble();
+    }
+
+    public CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit) {
+        if (computeMargin(actualValue, unit) < 0) {
+            boolean highVoltageConstraints = false;
+            boolean lowVoltageConstraints = false;
+            if (getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMax() && actualValue > threshold.max().orElseThrow())) {
+                highVoltageConstraints = true;
+            }
+            if (getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMin() && actualValue < threshold.min().orElseThrow())) {
+                lowVoltageConstraints = true;
+            }
+            if (highVoltageConstraints && lowVoltageConstraints) {
+                return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
+            } else if (highVoltageConstraints) {
+                return CnecSecurityStatus.HIGH_CONSTRAINT;
+            } else {
+                return CnecSecurityStatus.LOW_CONSTRAINT;
+            }
+        } else {
+            return CnecSecurityStatus.SECURE;
+        }
+    }
+
+    private VoltageLevel getVoltageLevelOfElement(String elementId, Network network) {
+        if (network.getBusBreakerView().getBus(elementId) != null) {
+            return network.getBusBreakerView().getBus(elementId).getVoltageLevel();
+        }
+        return network.getVoltageLevel(elementId);
     }
 
     @Override

@@ -7,19 +7,15 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 
 import java.util.Optional;
 import java.util.Set;
@@ -157,6 +153,61 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     @Override
+    public double computeValue(Network network, Unit unit) {
+        if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
+            throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
+        }
+        Branch branch = network.getBranch(getNetworkElement().getId());
+        if (getMonitoredSides().size() == 2) {
+            double power1 = getPower(branch, TwoSides.ONE, unit);
+            double power2 = getPower(branch, TwoSides.TWO, unit);
+            return computeMargin(power1, TwoSides.ONE, unit) < computeMargin(power2, TwoSides.TWO, unit) ? power1 : power2;
+        } else {
+            return getPower(branch, TwoSides.ONE, unit);
+        }
+    }
+
+    private double getPower(Branch branch, TwoSides side, Unit unit) {
+        double power = unit == Unit.MEGAWATT ? branch.getTerminal(side).getP() : branch.getTerminal(side).getI();
+        return Double.isNaN(power) ? branch.getTerminal(side).getP() * getFlowUnitMultiplier(side) : power;
+    }
+
+    @Override
+    public double computeMargin(double value, Unit unit) {
+        if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
+            throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
+        }
+        if (getMonitoredSides().size() == 2) {
+            throw new OpenRaoException("cnec " + getId() + " is monitored on both sides. Please use computeMargin using side as parameter");
+        }
+        return computeMargin(value, getMonitoredSides().iterator().next(), unit);
+    }
+
+    public CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit) {
+        if (computeMargin(actualValue, unit) < 0) {
+            boolean highVoltageConstraints = false;
+            boolean lowVoltageConstraints = false;
+            if (getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMax() && actualValue > threshold.max().orElseThrow())) {
+                highVoltageConstraints = true;
+            }
+            if (getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMin() && actualValue < threshold.min().orElseThrow())) {
+                lowVoltageConstraints = true;
+            }
+            if (highVoltageConstraints && lowVoltageConstraints) {
+                return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
+            } else if (highVoltageConstraints) {
+                return CnecSecurityStatus.HIGH_CONSTRAINT;
+            } else {
+                return CnecSecurityStatus.LOW_CONSTRAINT;
+            }
+        } else {
+            return CnecSecurityStatus.SECURE;
+        }
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -172,4 +223,10 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     public int hashCode() {
         return super.hashCode();
     }
+
+    private double getFlowUnitMultiplier(TwoSides voltageSide) {
+        double nominalVoltage = getNominalVoltage(voltageSide);
+        return 1000 / (nominalVoltage * Math.sqrt(3));
+    }
+
 }

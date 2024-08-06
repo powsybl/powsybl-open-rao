@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracapi.cnec;
 
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -52,6 +53,15 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      * It defines the physical value that will be monitored/optimized for this {@code Cnec}.
      */
     PhysicalParameter getPhysicalParameter();
+
+    // rename to compute worst value ?
+    double computeValue(Network network, Unit unit);
+
+    // rename to compute worst margin ?
+    // todo mbr use network instead of actualValue
+    double computeMargin(double actualValue, Unit unit);
+
+    CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit);
 
     /**
      * Returns a tag indicating whether or not the {@link PhysicalParameter} of the Cnec is optimized.
@@ -104,4 +114,14 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      */
     @Deprecated (since = "3.0.0")
     void setOptimized(boolean optimized);
+
+    enum CnecSecurityStatus {
+        SECURE,
+        HIGH_CONSTRAINT,
+        LOW_CONSTRAINT,
+        HIGH_AND_LOW_CONSTRAINTS,
+        FAILURE,
+        UNKNOWN
+    }
+
 }

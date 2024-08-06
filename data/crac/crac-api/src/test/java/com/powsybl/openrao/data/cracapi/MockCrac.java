@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracapi;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.BranchCnec;
@@ -178,6 +179,16 @@ public final class MockCrac implements Crac {
 
     @Override
     public Set<Cnec> getCnecs(State state) {
+        return null;
+    }
+
+    @Override
+    public Set<Cnec> getCnecs(PhysicalParameter physicalParameter) {
+        return null;
+    }
+
+    @Override
+    public Set<Cnec> getCnecs(PhysicalParameter physicalParameter, State state) {
         return null;
     }
 
