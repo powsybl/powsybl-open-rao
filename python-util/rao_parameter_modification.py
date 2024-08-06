@@ -5,6 +5,7 @@
 #  SPDX-License-Identifier: MPL-2.0
 
 import os
+import json
 
 root_directory = os.getcwd()
 
@@ -22,8 +23,9 @@ for dirpath, dirnames, filenames in os.walk(root_directory):
     for filename in filenames:
         file_path = os.path.join(dirpath, filename)
         if rao_parameters_file(file_path):
-            with open(file_path, 'r') as file:
-                lines = file.readlines()
+            if file_path.endswith(".json"):
+                with open(file_path, 'r') as file:
+                    data = json.load(file)
             lines = [line for line in lines if "forbid-cost-increase" not in line]
             with open(file_path, 'w') as file:
                 file.writelines(lines)
