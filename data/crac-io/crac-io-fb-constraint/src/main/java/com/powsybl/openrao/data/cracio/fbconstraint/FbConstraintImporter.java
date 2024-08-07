@@ -46,7 +46,7 @@ public class FbConstraintImporter implements Importer<FbConstraintCreationContex
     private static final Logger LOGGER = LoggerFactory.getLogger(FbConstraintImporter.class);
     private static final String XML_EXTENSION = "xml";
     private static final String XML_SCHEMA_VERSION = "flowbasedconstraintdocument-";
-    private static final String FLOWBASED_CONSTRAINT_V11_SCHEMA_FILE = "/xsd/flowbasedconstraintdocument-11.xsd";
+    private static final String FLOWBASED_CONSTRAINT_V11_SCHEMA_FILE = "/xsd/validation/flowbasedconstraintdocument-11.xsd";
     private static final String FLOWBASED_CONSTRAINT_V18_SCHEMA_FILE = "/xsd/flowbasedconstraintdocument-18.xsd";
     private static final String ETSO_CODE_LIST_SCHEMA_FILE = "/xsd/etso-code-lists.xsd";
     private static final String ETSO_CORE_CMPTS_SCHEMA_FILE = "/xsd/etso-core-cmpts.xsd";
