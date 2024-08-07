@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ecc="etso-core-cmpts.xsd" xmlns:fb="flowbased" targetNamespace="flowbased" elementFormDefault="qualified" attributeFormDefault="unqualified">
-    <import namespace="etso-core-cmpts.xsd" schemaLocation="../etso-core-cmpts.xsd"/>
+    <import namespace="etso-core-cmpts.xsd" schemaLocation="etso-core-cmpts.xsd"/>
     <element name="FlowBasedConstraintDocument">
         <complexType>
             <sequence>
