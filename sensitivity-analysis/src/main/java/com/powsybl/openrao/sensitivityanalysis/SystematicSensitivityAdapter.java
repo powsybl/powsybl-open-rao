@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
@@ -93,11 +93,8 @@ final class SystematicSensitivityAdapter {
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
-        String workingVariantId = network.getVariantManager().getWorkingVariantId();
         int counterForLogs = 2;
 
-        String variantForState = RandomizedString.getRandomizedString();
-        boolean shouldRemoveVariant = false;
         for (State state : statesWithRa) {
 
             Optional<Contingency> optContingency = state.getContingency();
@@ -108,11 +105,7 @@ final class SystematicSensitivityAdapter {
 
             TECHNICAL_LOGS.debug("... ({}/{}) state with RA {}", counterForLogs, statesWithRa.size() + 1, state.getId());
 
-            //TODO: We can save a bit of time by unapplying previous remedial actions here if we find a clean way to do it
-            network.getVariantManager().cloneVariant(workingVariantId, variantForState, true);
-            shouldRemoveVariant = true;
-            network.getVariantManager().setWorkingVariant(variantForState);
-
+            NetworkModification rollbackModification = appliedRemedialActions.getRollbackModification(state, network);
             appliedRemedialActions.applyOnNetwork(state, network);
 
             List<Contingency> contingencyList = Collections.singletonList(optContingency.get());
@@ -124,10 +117,8 @@ final class SystematicSensitivityAdapter {
                 cnecSensitivityProvider.getVariableSets(),
                 sensitivityComputationParameters), state.getInstant().getOrder());
             counterForLogs++;
-        }
 
-        if (shouldRemoveVariant) {
-            network.getVariantManager().removeVariant(variantForState);
+            rollbackModification.apply(network);
         }
 
         // enable preventive factors for next iterations
@@ -135,7 +126,6 @@ final class SystematicSensitivityAdapter {
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [end]");
 
-        network.getVariantManager().setWorkingVariant(workingVariantId);
         return result.postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 }
