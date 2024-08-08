@@ -130,6 +130,6 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult) {
-        return objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus());
+        return objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult.getSensitivityStatus());
     }
 }

@@ -187,7 +187,7 @@ class LeafTest {
         when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         ObjectiveFunctionResult preOptimObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
-        when(costEvaluatorMock.evaluate(prePerimeterResult, rootLeaf.getRangeActionActivationResult(), prePerimeterResult, sensitivityStatus)).thenReturn(preOptimObjectiveFunctionResult);
+        when(costEvaluatorMock.evaluate(prePerimeterResult, rootLeaf.getRangeActionActivationResult(), sensitivityStatus)).thenReturn(preOptimObjectiveFunctionResult);
         rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer);
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
@@ -202,7 +202,7 @@ class LeafTest {
         when(expectedSensitivityResult.getSensitivityStatus()).thenReturn(expectedSensitivityStatus);
         when(sensitivityComputer.getBranchResult(network)).thenReturn(expectedFlowResult);
         ObjectiveFunctionResult expectedObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
-        when(costEvaluatorMock.evaluate(any(), any(), any(), any())).thenReturn(expectedObjectiveFunctionResult);
+        when(costEvaluatorMock.evaluate(any(), any(), any())).thenReturn(expectedObjectiveFunctionResult);
         when(expectedObjectiveFunctionResult.getFunctionalCost()).thenReturn(expectedCost / 2);
         when(expectedObjectiveFunctionResult.getVirtualCost()).thenReturn(expectedCost / 2);
         when(expectedObjectiveFunctionResult.getVirtualCost(virtualCostName)).thenReturn(expectedCost / 2);
@@ -523,7 +523,7 @@ class LeafTest {
     void getVirtualCostNames() {
         Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         ObjectiveFunctionResult objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
-        when(costEvaluatorMock.evaluate(any(), any(), any(), any())).thenReturn(objectiveFunctionResult);
+        when(costEvaluatorMock.evaluate(any(), any(), any())).thenReturn(objectiveFunctionResult);
         Set<String> virtualCostNames = new HashSet<>();
         virtualCostNames.add(virtualCostName);
         when(objectiveFunctionResult.getVirtualCostNames()).thenReturn(virtualCostNames);

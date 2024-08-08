@@ -53,7 +53,7 @@ public final class RaoLogger {
         }
 
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
-            sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
+            sensitivityAnalysisResult.getSensitivityStatus());
 
         BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
             formatDouble(prePerimeterObjectiveFunctionResult.getCost()),

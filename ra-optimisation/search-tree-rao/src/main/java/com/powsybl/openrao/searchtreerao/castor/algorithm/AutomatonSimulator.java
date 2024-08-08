@@ -809,7 +809,7 @@ public final class AutomatonSimulator {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(cnecsForOptimizedState, toolProvider.getLoopFlowCnecs(cnecsForOptimizedState), initialFlowResult, prePerimeterSensitivityOutput, prePerimeterRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters);
         RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         ComputationStatus status = postAutoResult.getSensitivityStatus(optimizedState);
-        ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult, status);
+        ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult, rangeActionActivationResult, status);
         return new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionSetpointResult, objectiveFunctionResult);
 
     }

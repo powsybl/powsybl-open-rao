@@ -200,7 +200,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(150, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(150, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -220,7 +220,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(300, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(300, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -240,7 +240,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getRight();
+        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityStatus).getRight();
         assertEquals(2, costlyElements.size());
         assertSame(cnec1, costlyElements.get(0));
         assertSame(cnec2, costlyElements.get(1));
@@ -263,7 +263,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getRight();
+        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityStatus).getRight();
         assertEquals(1, costlyElements.size());
         assertSame(cnec2, costlyElements.get(0));
     }

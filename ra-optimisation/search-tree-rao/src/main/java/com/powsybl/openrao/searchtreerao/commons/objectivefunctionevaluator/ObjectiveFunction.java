@@ -32,8 +32,8 @@ public final class ObjectiveFunction {
         this.virtualCostEvaluators = virtualCostEvaluators;
     }
 
-    public ObjectiveFunctionResult evaluate(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return new ObjectiveFunctionResultImpl(this, flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
+    public ObjectiveFunctionResult evaluate(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, ComputationStatus sensitivityStatus) {
+        return new ObjectiveFunctionResultImpl(this, flowResult, rangeActionActivationResult, sensitivityStatus);
     }
 
     public static ObjectiveFunctionBuilder create() {
@@ -47,11 +47,11 @@ public final class ObjectiveFunction {
     }
 
     public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityStatus);
     }
 
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityStatus, contingenciesToExclude);
     }
 
     public Set<String> getVirtualCostNames() {
@@ -59,14 +59,14 @@ public final class ObjectiveFunction {
     }
 
     public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName) {
-        return getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, virtualCostName, new HashSet<>());
+        return getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityStatus, virtualCostName, new HashSet<>());
     }
 
-    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExclude) {
         return virtualCostEvaluators.stream()
             .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
             .findAny()
-            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude))
+            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityStatus, contingenciesToExclude))
             .orElse(Pair.of(Double.NaN, new ArrayList<>()));
     }
 

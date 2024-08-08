@@ -64,15 +64,15 @@ class SensitivityFailureOvercostEvaluatorTest {
     @Test
     void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, ComputationStatus.FAILURE).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, ComputationStatus.DEFAULT).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetCostlyElements() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight().size());
-        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT, Set.of("")).getRight().size());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, ComputationStatus.DEFAULT).getRight().size());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, ComputationStatus.DEFAULT, Set.of("")).getRight().size());
     }
 
     @Test

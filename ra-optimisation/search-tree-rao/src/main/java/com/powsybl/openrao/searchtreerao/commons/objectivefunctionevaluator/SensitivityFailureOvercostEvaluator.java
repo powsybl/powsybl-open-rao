@@ -8,14 +8,12 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -41,19 +39,20 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
         if (sensitivityStatus == ComputationStatus.FAILURE) {
             TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
             return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
         }
-        for (State state : states) {
+        // TODO : replace the following by a kind of pre-processing whe sensitivity status would contain an overall flag
+        /*for (State state : states) {
             Optional<Contingency> contingency = state.getContingency();
             if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
                     sensitivityResult.getSensitivityStatus(state) == ComputationStatus.FAILURE) {
                 TECHNICAL_LOGS.info(String.format("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost));
                 return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
             }
-        }
+        }*/
         return Pair.of(0., new ArrayList<>());
     }
 
