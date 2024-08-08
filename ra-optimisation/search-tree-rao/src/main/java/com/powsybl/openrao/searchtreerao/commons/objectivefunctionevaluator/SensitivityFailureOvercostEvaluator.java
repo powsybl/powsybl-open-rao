@@ -45,6 +45,7 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
             return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
         }
         // TODO : replace the following by a kind of pre-processing whe sensitivity status would contain an overall flag
+        
         /*for (State state : states) {
             Optional<Contingency> contingency = state.getContingency();
             if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
