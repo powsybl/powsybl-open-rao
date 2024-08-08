@@ -97,7 +97,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-                rangeActionParameters,
+            rangeActionParameters,
             Unit.MEGAWATT, raRangeShrinking, pstModel);
         buildLinearProblem();
     }
@@ -447,6 +447,41 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
         assertEquals(3, linearProblem.numVariables());
         assertEquals(3, linearProblem.numConstraints());
+    }
+
+    @Test
+    void updateTestOnPreventiveWithRaRangeShrinking() {
+        initialize(Set.of(cnec1), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), true, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        State state = cnec1.getState();
+
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE));
+        assertEquals("Constraint PRA_PST_BE_preventive_relative_setpoint_iterative-shrinkconstraint has not been created yet", e.getMessage());
+
+        // 1st update
+        updateLinearProblem();
+
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(4, linearProblem.numConstraints());
+
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
+        OpenRaoMPConstraint shrinkingConstraint = linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
+        assertNotNull(shrinkingConstraint);
+        assertEquals(1, shrinkingConstraint.getCoefficient(setPointVariable));
+        assertEquals(-10.5161, shrinkingConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(5.0626, shrinkingConstraint.ub(), DOUBLE_TOLERANCE);
+
+        // 2nd update
+        updateLinearProblem();
+
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(4, linearProblem.numConstraints());
+
+        setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
+        shrinkingConstraint = linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
+        assertNotNull(shrinkingConstraint);
+        assertEquals(1, shrinkingConstraint.getCoefficient(setPointVariable));
+        assertEquals(-7.9222, shrinkingConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(2.4687, shrinkingConstraint.ub(), DOUBLE_TOLERANCE);
     }
 
     @Test

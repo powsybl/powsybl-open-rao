@@ -204,16 +204,14 @@ public class CoreProblemFiller implements ProblemFiller {
         if (!raRangeShrinking) {
             return;
         }
-        iteration++;
-        if (iteration == 1) {
+        if (iteration > 0) {
             // don't shrink the range for the first iteration
-            return;
+            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration)));
         }
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration)
-        ));
+        iteration++;
     }
 
-    private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration) {
+    private static void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration) {
         double previousSetPointValue = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
         double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
@@ -314,7 +312,7 @@ public class CoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction, double infinity) {
+    private static List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction, double infinity) {
 
         // if relative to previous instant range
         double minAbsoluteSetpoint = -infinity;
