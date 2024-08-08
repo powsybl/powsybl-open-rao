@@ -23,7 +23,6 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.*;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -108,7 +107,6 @@ class MnecFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
                 optimizationPerimeter,
                 initialRangeActionSetpointResult,
-                new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
                 rangeActionParameters,
                 Unit.MEGAWATT,
             false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);

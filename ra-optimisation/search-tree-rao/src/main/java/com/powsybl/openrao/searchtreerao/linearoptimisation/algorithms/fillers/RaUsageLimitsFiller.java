@@ -58,7 +58,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         rangeActions.forEach((state, rangeActionSet) -> {
             if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
                 return;
@@ -80,11 +80,6 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 addMaxElementaryActionsPerTsoConstraint(linearProblem, state);
             }
         });
-    }
-
-    @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // nothing to do, we are only comparing optimal and pre-perimeter setpoints
     }
 
     @Override

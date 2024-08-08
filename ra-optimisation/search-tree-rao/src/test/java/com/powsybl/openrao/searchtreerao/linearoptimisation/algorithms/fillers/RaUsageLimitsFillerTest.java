@@ -27,10 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -113,8 +110,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             prePerimeterRangeActionSetpointResult,
-            prePerimeterRangeActionActivationResult,
-            rangeActionParameters,
+                rangeActionParameters,
             Unit.MEGAWATT,
             false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
     }
@@ -560,13 +556,14 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(state);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerState);
 
-        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(network, optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult);
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(discretePstTapFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withInitialRangeActionActivationResult(prePerimeterRangeActionActivationResult)
             .build();
 
         linearProblem.fill(flowResult, sensitivityResult);

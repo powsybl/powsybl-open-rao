@@ -33,6 +33,7 @@ public final class LinearProblem {
 
     private final OpenRaoMPSolver solver;
     private final List<ProblemFiller> fillerList;
+    private final RangeActionActivationResult raActivationFromParentLeaf;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
 
@@ -81,9 +82,10 @@ public final class LinearProblem {
         return new LinearProblemBuilder();
     }
 
-    LinearProblem(List<ProblemFiller> fillerList, RangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
+    LinearProblem(List<ProblemFiller> fillerList, RangeActionActivationResult raActivationFromParentLeaf, RangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
         this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver);
         this.fillerList = fillerList;
+        this.raActivationFromParentLeaf = raActivationFromParentLeaf;
         this.relativeMipGap = relativeMipGap;
         this.solverSpecificParameters = solverSpecificParameters;
         this.solver.setMinimization();
@@ -94,16 +96,13 @@ public final class LinearProblem {
     }
 
     public void fill(FlowResult flowResult, SensitivityResult sensitivityResult) {
-        fillerList.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult));
+        fillerList.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult, raActivationFromParentLeaf));
     }
 
     public void updateBetweenSensiIteration(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // TODO: only reset if failed states have changed? Then we need access to all CRAC states in order to query the sensitivity result
         this.solver.resetModel();
-        fill(flowResult, sensitivityResult);
-        // TODO: remove "update" when "rangeActionActivationResult" can be used by "fill"
-        // (used in discrete PST fillers & for RA range shrinking in CoreProblemFiller)
-        fillerList.forEach(problemFiller -> problemFiller.updateBetweenSensiIteration(this, flowResult, sensitivityResult, rangeActionActivationResult));
+        fillerList.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult, rangeActionActivationResult));
     }
 
     public void updateBetweenMipIteration(RangeActionActivationResult rangeActionActivationResult) {

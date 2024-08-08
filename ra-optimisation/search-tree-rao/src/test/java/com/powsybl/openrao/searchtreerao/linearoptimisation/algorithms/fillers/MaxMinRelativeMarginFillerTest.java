@@ -80,7 +80,6 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
             MEGAWATT,
             false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
@@ -90,10 +89,10 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getPtdfZonalSum(cnec1, TwoSides.ONE)).thenReturn(cnecInitialAbsolutePtdfSum);
         maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
-                Set.of(cnec1),
-                initialFlowResult,
-                unit,
-                parameters
+            Set.of(cnec1),
+            initialFlowResult,
+            unit,
+            parameters
         );
     }
 
@@ -102,6 +101,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
