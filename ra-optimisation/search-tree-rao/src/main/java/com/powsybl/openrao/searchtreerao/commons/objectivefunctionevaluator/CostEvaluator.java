@@ -11,7 +11,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashSet;
@@ -29,16 +28,15 @@ public interface CostEvaluator {
      * It evaluates the cost of RaoData containing a Network, a Crac and a SystematicSensitivityResult on
      * the current RaoData variant.
      *
-     * @param flowResult                  : the flow computation result
-     * @param rangeActionActivationResult
-     * @param sensitivityStatus           : the sensitivity computation status
+     * @param flowResult        : the flow computation result
+     * @param computationStatus : the loadflow/sensitivity computation status
      * @return Double value of the RaoData cost.
      */
-    default Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, ComputationStatus sensitivityStatus) {
-        return computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityStatus, new HashSet<>());
+    default Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, ComputationStatus computationStatus) {
+        return computeCostAndLimitingElements(flowResult, computationStatus, new HashSet<>());
     }
 
-    Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude);
+    Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, ComputationStatus computationStatus, Set<String> contingenciesToExclude);
 
     Unit getUnit();
 

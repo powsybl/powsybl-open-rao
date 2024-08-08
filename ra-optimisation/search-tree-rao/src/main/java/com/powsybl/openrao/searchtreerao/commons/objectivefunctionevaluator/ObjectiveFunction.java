@@ -47,11 +47,11 @@ public final class ObjectiveFunction {
     }
 
     public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityStatus);
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityStatus);
     }
 
     public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityStatus, contingenciesToExclude);
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityStatus, contingenciesToExclude);
     }
 
     public Set<String> getVirtualCostNames() {
@@ -66,7 +66,7 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream()
             .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
             .findAny()
-            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityStatus, contingenciesToExclude))
+            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, sensitivityStatus, contingenciesToExclude))
             .orElse(Pair.of(Double.NaN, new ArrayList<>()));
     }
 

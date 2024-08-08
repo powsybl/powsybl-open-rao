@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -39,13 +38,13 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        if (sensitivityStatus == ComputationStatus.FAILURE) {
+    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, ComputationStatus computationStatus, Set<String> contingenciesToExclude) {
+        if (computationStatus == ComputationStatus.FAILURE) {
             TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
             return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
         }
         // TODO : replace the following by a kind of pre-processing whe sensitivity status would contain an overall flag
-        
+
         /*for (State state : states) {
             Optional<Contingency> contingency = state.getContingency();
             if ((state.getContingency().isEmpty() || contingency.isPresent()) &&

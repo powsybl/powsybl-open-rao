@@ -35,14 +35,14 @@ class BasicMarginEvaluatorTest {
     @Test
     void getMargin() {
         when(currentFlowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(200.);
-        double margin = basicMinMarginEvaluator.getMargin(currentFlowResult, flowCnec, rangeActionActivationResult, Unit.MEGAWATT);
+        double margin = basicMinMarginEvaluator.getMargin(currentFlowResult, flowCnec, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);
     }
 
     @Test
     void getRelativeMargin() {
         when(currentFlowResult.getRelativeMargin(flowCnec, Unit.MEGAWATT)).thenReturn(200.);
-        double margin = basicRelativeMarginEvaluator.getMargin(currentFlowResult, flowCnec, rangeActionActivationResult, Unit.MEGAWATT);
+        double margin = basicRelativeMarginEvaluator.getMargin(currentFlowResult, flowCnec, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);
     }
 }
