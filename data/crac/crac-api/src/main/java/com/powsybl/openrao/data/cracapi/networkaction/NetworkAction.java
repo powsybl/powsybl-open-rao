@@ -36,6 +36,13 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
     boolean hasImpactOnNetwork(final Network network);
 
     /**
+     * Get a PowSyBl Action
+     */
+    default Action toAction() {
+        return new MultipleActionsAction(getId(), getElementaryActions().stream().toList());
+    }
+
+    /**
      * Apply the action on a given network.
      *
      * @param network the Network to apply the network action upon

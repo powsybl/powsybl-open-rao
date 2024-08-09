@@ -1,5 +1,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.action.Action;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -8,6 +10,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -20,17 +23,22 @@ import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.results.BranchResult;
 import com.powsybl.security.results.NetworkResult;
+import com.powsybl.security.strategy.ConditionalActions;
+import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import org.jgrapht.alg.util.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class MockSensiRunner {
+public class MockSensiRunnerFromSA {
 
-    public MockSensiRunner(RaoParameters raoParameters, ToolProvider toolProvider) {
+    public MockSensiRunnerFromSA(RaoParameters raoParameters, ToolProvider toolProvider) {
         this.raoParameters = raoParameters;
         this.toolProvider = toolProvider;
     }
@@ -116,9 +124,8 @@ public class MockSensiRunner {
             this.securityAnalysisReport = securityAnalysisReport;
             this.objectiveFunction = objectiveFunction;
             this.flowResult = new FlowResultFromSA(securityAnalysisReport.getResult(), optimizedInstant, initialFlowResult);
-            // TODO : remove null
             // TODO : replace status depending on report
-            this.objectiveFunctionResult = objectiveFunction.evaluate(flowResult, rangeActionActivationResult, null, ComputationStatus.DEFAULT);
+            this.objectiveFunctionResult = objectiveFunction.evaluate(flowResult, ComputationStatus.DEFAULT);
         }
 
         @Override
@@ -273,13 +280,40 @@ public class MockSensiRunner {
         }
 
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, initialRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters);
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters);
 
         SecurityAnalysisReport report = null;
-        //report = SecurityAnalysisProvider.
+
+        Pair<List<OperatorStrategy>, List<Action>> r = computeOperatorStrategies(crac, network, appliedRemedialActions);
+       // SecurityAnalysis.run(network, crac.getContingencies().stream().toList(), r.getFirst(), r.getSecond());
 
         return new PrePerimeterResultFromSA(report, objectiveFunction, crac.getLastInstant(), initialFlowResult, rangeActionActivationResult);
     }
 
+    private Pair<List<OperatorStrategy>, List<Action>> computeOperatorStrategies(Crac crac, Network network, AppliedRemedialActions appliedRas) {
+        List<Action> allActions = new ArrayList<>();
+        List<OperatorStrategy> strategies = new ArrayList<>();
 
+        for (State state : crac.getStates()) {
+            Pair<OperatorStrategy, List<Action>> r = getOperatorStrategy(state, appliedRas, network);
+            strategies.add(r.getFirst());
+            allActions.addAll(r.getSecond()); // TODO : remove duplicates?
+        }
+
+        return Pair.of(strategies, allActions);
+    }
+
+    private Pair<OperatorStrategy, List<Action>> getOperatorStrategy(State state, AppliedRemedialActions appliedRas, Network network) {
+        List<Action> actions = appliedRas.getAppliedNetworkActions(state).stream().map(NetworkAction::toAction).toList();
+        appliedRas.getAppliedRangeActions(state).entrySet().stream().map(
+            e -> e.getKey().toAction(network, e.getValue())
+        ).forEach(actions::add);
+
+        ConditionalActions conditionalActions = new ConditionalActions("conditional_actions_" + state.getId(), new TrueCondition(), actions.stream().map(Action::getId).toList());
+        ContingencyContext contingencyContext = state.isPreventive() ? ContingencyContext.none() : ContingencyContext.specificContingency(state.getContingency().orElseThrow().getId());
+        OperatorStrategy operatorStrategy = new OperatorStrategy("operator_strategy_" + state.getId(), contingencyContext, List.of(conditionalActions));
+        // TODO : should we put all instants for a given contingency in one operator strategy (then we'd have to use a list of conditional actions, one ConditionalActions per instant)
+
+        return Pair.of(operatorStrategy, actions);
+    }
 }

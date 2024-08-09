@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cracapi.rangeaction;
 
+import com.powsybl.action.Action;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.iidm.network.Network;
@@ -29,9 +31,17 @@ import java.util.Optional;
 public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T> {
 
     /**
+     * Get a PowSyBl Action for a given target set-point
+     */
+    // TODO : network is actually only ineeded in InjectionRangeAction to know the type of each network element
+    Action toAction(Network network, double targetSetpoint);
+
+    /**
      * Apply the action on a given network, with a given setpoint
      */
-    void apply(Network network, double setpoint);
+    default void apply(Network network, double setpoint) {
+        toAction(network, setpoint).toModification().apply(network, true, ReportNode.NO_OP);
+    }
 
     /**
      * Get the lower bound of the range within which the setpoint must remain

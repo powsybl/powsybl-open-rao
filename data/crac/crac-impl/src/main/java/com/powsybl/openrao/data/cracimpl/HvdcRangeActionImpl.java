@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.Action;
 import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -75,10 +76,9 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     }
 
     @Override
-    public void apply(Network network, double targetSetpoint) {
-        logDisableHvdcAngleDroopActivePowerControl(network);
+    public Action toAction(Network network, double targetSetpoint) {
         HvdcActionBuilder actionBuilder = new HvdcActionBuilder()
-            .withId("")
+            .withId(String.format("%s@%.6f", this.getId(), targetSetpoint))
             .withHvdcId(networkElement.getId())
             .withActivePowerSetpoint(Math.abs(targetSetpoint))
             .withAcEmulationEnabled(false);
@@ -87,7 +87,13 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
         } else {
             actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
         }
-        actionBuilder.build().toModification().apply(network, true, ReportNode.NO_OP);
+        return actionBuilder.build();
+    }
+
+    @Override
+    public void apply(Network network, double targetSetpoint) {
+        logDisableHvdcAngleDroopActivePowerControl(network);
+        toAction(network, targetSetpoint).toModification().apply(network, true, ReportNode.NO_OP);
     }
 
     public void logDisableHvdcAngleDroopActivePowerControl(Network network) {

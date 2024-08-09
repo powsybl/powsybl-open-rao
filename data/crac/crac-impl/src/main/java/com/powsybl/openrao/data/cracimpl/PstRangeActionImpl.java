@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.Action;
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -109,16 +109,14 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     }
 
     @Override
-    public void apply(Network network, double targetAngle) {
+    public Action toAction(Network network, double targetAngle) {
         int tap = convertAngleToTap(targetAngle);
-        new PhaseTapChangerTapPositionActionBuilder()
-            .withId("id")
+        return new PhaseTapChangerTapPositionActionBuilder()
+            .withId(String.format("%s@tap%d", this.getId(), tap))
             .withNetworkElementId(networkElement.getId())
             .withTapPosition(tap)
             .withRelativeValue(false)
-            .build()
-            .toModification()
-            .apply(network, true, ReportNode.NO_OP);
+            .build();
     }
 
     @Override

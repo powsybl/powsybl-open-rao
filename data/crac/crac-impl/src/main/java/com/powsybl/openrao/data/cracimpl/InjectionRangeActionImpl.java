@@ -6,8 +6,7 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
-import com.powsybl.action.GeneratorActionBuilder;
-import com.powsybl.action.LoadActionBuilder;
+import com.powsybl.action.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
@@ -18,10 +17,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -72,7 +68,86 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     }
 
     @Override
+    public Action toAction(Network network, double targetSetpoint) {
+        return new MultipleActionsAction(
+            String.format("%s@%.6f", this.getId(), targetSetpoint),
+            injectionDistributionKeys
+                .entrySet()
+                .stream().map(e ->
+                    getActionForInjection(network, e.getKey().getId(), targetSetpoint * e.getValue())
+                )
+                .toList()
+        );
+    }
+
+    private Action getActionForInjection(Network network, String injectionId, double targetSetpoint) {
+        Generator generator = network.getGenerator(injectionId);
+        if (generator != null) {
+            return new GeneratorActionBuilder()
+                .withId("id")
+                .withGeneratorId(injectionId)
+                .withActivePowerRelativeValue(false)
+                .withActivePowerValue(targetSetpoint)
+                .build();
+        }
+
+        Load load = network.getLoad(injectionId);
+        if (load != null) {
+            return new LoadActionBuilder()
+                .withId("id")
+                .withLoadId(injectionId)
+                .withRelativeValue(false)
+                .withActivePowerValue(-targetSetpoint)
+                .build();
+
+        }
+
+        if (network.getIdentifiable(injectionId) == null) {
+            throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
+        } else {
+            throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
+        }
+    }
+
+    @Override
+    public double getCurrentSetpoint(Network network) {
+        List<Double> currentSetpoints = injectionDistributionKeys.entrySet().stream()
+            .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
+            .collect(Collectors.toList());
+
+        if (currentSetpoints.size() == 1) {
+            return currentSetpoints.get(0);
+        } else {
+            Collections.sort(currentSetpoints);
+            if (Math.abs(currentSetpoints.get(0) - currentSetpoints.get(currentSetpoints.size() - 1)) < 1) {
+                return currentSetpoints.get(0);
+            } else {
+                throw new OpenRaoException(String.format("Cannot evaluate reference setpoint of InjectionRangeAction %s, as the injections are not distributed according to their key", this.getId()));
+            }
+        }
+    }
+
+    public double getInjectionSetpoint(Network network, String injectionId, double distributionKey) {
+        Generator generator = network.getGenerator(injectionId);
+        if (generator != null) {
+            return generator.getTargetP() / distributionKey;
+        }
+
+        Load load = network.getLoad(injectionId);
+        if (load != null) {
+            return -load.getP0() / distributionKey;
+        }
+
+        if (network.getIdentifiable(injectionId) == null) {
+            throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
+        } else {
+            throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
+        }
+    }
+
+    @Override
     public void apply(Network network, double targetSetpoint) {
+        // We have to implement this for now because toModification() is not implemented for MultipleActionsAction
         injectionDistributionKeys.forEach((ne, sk) -> applyInjection(network, ne.getId(), targetSetpoint * sk));
     }
 
@@ -112,42 +187,6 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     }
 
     @Override
-    public double getCurrentSetpoint(Network network) {
-        List<Double> currentSetpoints = injectionDistributionKeys.entrySet().stream()
-                .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
-                .collect(Collectors.toList());
-
-        if (currentSetpoints.size() == 1) {
-            return currentSetpoints.get(0);
-        } else {
-            Collections.sort(currentSetpoints);
-            if (Math.abs(currentSetpoints.get(0) - currentSetpoints.get(currentSetpoints.size() - 1)) < 1) {
-                return currentSetpoints.get(0);
-            } else {
-                throw new OpenRaoException(String.format("Cannot evaluate reference setpoint of InjectionRangeAction %s, as the injections are not distributed according to their key", this.getId()));
-            }
-        }
-    }
-
-    public double getInjectionSetpoint(Network network, String injectionId, double distributionKey) {
-        Generator generator = network.getGenerator(injectionId);
-        if (generator != null) {
-            return generator.getTargetP() / distributionKey;
-        }
-
-        Load load = network.getLoad(injectionId);
-        if (load != null) {
-            return -load.getP0() / distributionKey;
-        }
-
-        if (network.getIdentifiable(injectionId) == null) {
-            throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
-        } else {
-            throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
-        }
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -159,7 +198,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
             return false;
         }
         return this.injectionDistributionKeys.equals(((InjectionRangeAction) o).getInjectionDistributionKeys())
-                && this.ranges.equals(((InjectionRangeAction) o).getRanges());
+            && this.ranges.equals(((InjectionRangeAction) o).getRanges());
     }
 
     @Override
