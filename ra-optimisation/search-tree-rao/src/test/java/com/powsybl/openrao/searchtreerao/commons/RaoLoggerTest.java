@@ -392,9 +392,6 @@ class RaoLoggerTest {
         OpenRaoLogger logger = OpenRaoLoggerProvider.BUSINESS_LOGS;
         List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;
 
-        // Create Objective Function
-        ObjectiveFunctionResult initialObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
-
         // Create Remedial actions
         NetworkAction fakeRA = Mockito.mock(NetworkAction.class);
         when(fakeRA.getName()).thenReturn("Open_fake_RA");
