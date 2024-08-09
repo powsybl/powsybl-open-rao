@@ -196,9 +196,9 @@ public class CastorFullOptimization {
     }
 
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
-        return raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+        return raoParameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW
                 && preventiveOptimalCost > 0
-                && !raoParameters.getObjectiveFunctionParameters().getOptimizeCurativeIfPreventiveUnsecure();
+                && !raoParameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity();
     }
 
     /**
@@ -239,7 +239,7 @@ public class CastorFullOptimization {
         double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
         double finalVirtualCost = finalRaoResult.getVirtualCost(lastInstant);
 
-        if (objectiveFunctionParameters.getForbidCostIncrease() && finalCost > initialCost) {
+        if (finalRaoResult.getComputationStatus() != ComputationStatus.FAILURE && finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
                 formatDouble(initialCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
                 formatDouble(finalCost), formatDouble(finalFunctionalCost), formatDouble(finalVirtualCost));

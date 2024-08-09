@@ -14,6 +14,7 @@ import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 
 /**
@@ -61,16 +62,7 @@ public final class IteratingLinearOptimizerParameters {
     }
 
     public Unit getObjectiveFunctionUnit() {
-        return getObjectiveFunction().getUnit();
-    }
-
-    public boolean hasRelativeMargins() {
-        return getObjectiveFunction().relativePositiveMargins();
-    }
-
-    public boolean hasOperatorsNotToOptimize() {
-        return unoptimizedCnecParameters != null
-            && !unoptimizedCnecParameters.getOperatorsNotToOptimize().isEmpty();
+        return RaoUtil.getObjectiveFunctionUnit(getLoopFlowParameters().getExtendable());
     }
 
     public boolean isRaoWithLoopFlowLimitation() {
@@ -185,7 +177,7 @@ public final class IteratingLinearOptimizerParameters {
         }
 
         public IteratingLinearOptimizerParameters build() {
-            if (objectiveFunction.relativePositiveMargins() && maxMinRelativeMarginParameters == null) {
+            if (objectiveFunction == ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_FLOW_MARGIN && maxMinRelativeMarginParameters == null) {
                 throw new OpenRaoException("An objective function with relative margins requires parameters on relative margins.");
             }
 

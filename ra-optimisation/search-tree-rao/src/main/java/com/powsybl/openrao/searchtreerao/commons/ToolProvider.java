@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
@@ -210,7 +211,7 @@ public final class ToolProvider {
                 )
             );
         }
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+        if (raoParameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_FLOW_MARGIN) {
             if (!raoParameters.hasExtension(RelativeMarginsParametersExtension.class)) {
                 throw new OpenRaoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
             }

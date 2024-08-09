@@ -42,7 +42,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         RaoParameters parameters = loadRaoParameters("config_withExtensions");
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        assertTrue(objectiveFunctionParameters.getForbidCostIncrease());
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, objectiveFunctionParameters.getType());
         assertEquals(3, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
@@ -125,12 +124,11 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         RaoParameters parameters = loadRaoParameters("config_withoutExtensions");
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        assertTrue(objectiveFunctionParameters.getForbidCostIncrease());
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, objectiveFunctionParameters.getType());
         assertEquals(3, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
         assertEquals(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE, objectiveFunctionParameters.getCurativeStopCriterion());
-        assertTrue(objectiveFunctionParameters.getOptimizeCurativeIfPreventiveUnsecure());
+        assertTrue(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
         assertEquals(2, rangeActionsOptimizationParameters.getMaxMipIterations(), DOUBLE_TOLERANCE);
@@ -196,7 +194,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         RaoParameters parameters = loadRaoParameters("config_withPartialExtensions");
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        assertTrue(objectiveFunctionParameters.getForbidCostIncrease());
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, objectiveFunctionParameters.getType());
         assertEquals(3, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());

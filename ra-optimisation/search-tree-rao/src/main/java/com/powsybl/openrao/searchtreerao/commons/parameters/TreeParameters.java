@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -30,21 +29,18 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
         RangeActionsOptimizationParameters.RaRangeShrinking raRangeShrinking = parameters.getRangeActionsOptimizationParameters().getRaRangeShrinking();
         boolean shouldShrinkRaRange = raRangeShrinking.equals(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
             raRangeShrinking.equals(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
-        switch (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion()) {
-            case MIN_OBJECTIVE:
-                return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
-                    0.0, // value does not matter
-                    parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(),
-                    parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
-                    shouldShrinkRaRange);
-            case SECURE:
-                return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                    0.0, // secure
-                    parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(),
-                    parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
-                    shouldShrinkRaRange);
-            default:
-                throw new OpenRaoException("Unknown preventive stop criterion: " + parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
+        if (parameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW) {
+            return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
+                0.0, // secure
+                parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(),
+                parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
+                shouldShrinkRaRange);
+        } else {
+            return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
+                0.0, // value does not matter
+                parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(),
+                parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
+                shouldShrinkRaRange);
         }
     }
 
@@ -55,25 +51,17 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
     public static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost) {
         StopCriterion stopCriterion;
         double targetObjectiveValue;
-        switch (parameters.getObjectiveFunctionParameters().getCurativeStopCriterion()) {
-            case MIN_OBJECTIVE:
-                stopCriterion = StopCriterion.MIN_OBJECTIVE;
-                targetObjectiveValue = 0.0;
-                break;
-            case SECURE:
-                stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
-                targetObjectiveValue = 0.0;
-                break;
-            case PREVENTIVE_OBJECTIVE:
-                stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
-                targetObjectiveValue = preventiveOptimizedCost - parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement();
-                break;
-            case PREVENTIVE_OBJECTIVE_AND_SECURE:
+        if (parameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW) {
+            stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
+            targetObjectiveValue = 0.0;
+        } else {
+            if (parameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity()) {
                 stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
                 targetObjectiveValue = Math.min(preventiveOptimizedCost - parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 0);
-                break;
-            default:
-                throw new OpenRaoException("Unknown curative stop criterion: " + parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
+            } else {
+                stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
+                targetObjectiveValue = preventiveOptimizedCost - parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement();
+            }
         }
         RangeActionsOptimizationParameters.RaRangeShrinking raRangeShrinking = parameters.getRangeActionsOptimizationParameters().getRaRangeShrinking();
         boolean shouldShrinkRaRange = raRangeShrinking.equals(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
