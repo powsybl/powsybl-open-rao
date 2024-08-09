@@ -78,7 +78,7 @@ public class FbConstraintImporter implements Importer<FbConstraintCreationContex
             int flowBasedDocumentVersion = flowBasedDocumentVersion(new ByteArrayInputStream(bytes));
             String schemaFile = schemaVersion(flowBasedDocumentVersion);
 
-            if (!schemaFile.equals("")) {
+            if (schemaFile != null) {
                 Source xmlFile = new StreamSource(new ByteArrayInputStream(bytes));
                 // The following line triggers sonar issue java:S2755 which prevents us from accessing XSD schema files
                 SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI); //NOSONAR
@@ -129,13 +129,13 @@ public class FbConstraintImporter implements Importer<FbConstraintCreationContex
     }
 
     private String schemaVersion(int flowBasedDocumentVersion) {
-        if (flowBasedDocumentVersion >= 17 && flowBasedDocumentVersion <= 20) {
+        if (flowBasedDocumentVersion >= 17) {
             return FLOWBASED_CONSTRAINT_V18_SCHEMA_FILE;
         } else if (flowBasedDocumentVersion == 11) {
             return FLOWBASED_CONSTRAINT_V11_SCHEMA_FILE;
         } else {
             LOGGER.debug("Flow-based constraint document with version {} are not handled by the FbConstraintImporter", flowBasedDocumentVersion);
-            return "";
+            return null;
         }
     }
 
