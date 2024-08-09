@@ -172,7 +172,7 @@ class SystematicSensitivityResultTest {
     }
 
     private void setUpForHvdc() {
-        Crac crac = CracFactory.findDefault().create("test-crac")
+        crac = CracFactory.findDefault().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)

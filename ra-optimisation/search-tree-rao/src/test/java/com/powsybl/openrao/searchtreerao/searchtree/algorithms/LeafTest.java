@@ -65,7 +65,6 @@ class LeafTest {
     private NetworkAction na2;
 
     private Network network;
-    private IteratingLinearOptimizer iteratingLinearOptimizer;
     private ObjectiveFunction costEvaluatorMock;
     private SensitivityComputer sensitivityComputer;
     private OptimizationPerimeter optimizationPerimeter;
@@ -91,7 +90,6 @@ class LeafTest {
         when(na1.apply(any())).thenReturn(true);
         when(na2.apply(any())).thenReturn(true);
 
-        iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
         costEvaluatorMock = Mockito.mock(ObjectiveFunction.class);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
