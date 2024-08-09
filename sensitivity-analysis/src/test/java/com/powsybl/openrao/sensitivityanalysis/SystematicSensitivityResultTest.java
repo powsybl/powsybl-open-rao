@@ -6,10 +6,11 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
-import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.contingency.*;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.CracFactory;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -26,10 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,6 +49,7 @@ class SystematicSensitivityResultTest {
     private RangeAction<?> rangeAction;
     private HvdcRangeAction hvdcRangeAction;
     private SensitivityVariableSet linearGlsk;
+    private Crac crac;
 
     private RangeActionSensitivityProvider rangeActionSensitivityProvider;
     private PtdfSensitivityProvider ptdfSensitivityProvider;
@@ -58,7 +57,7 @@ class SystematicSensitivityResultTest {
 
     public void setUpWith12Nodes() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(TwoSides.ONE, TwoSides.TWO));
+        crac = CommonCracCreation.createWithPreventivePstRange(Set.of(TwoSides.ONE, TwoSides.TWO));
         outageInstantOrder = crac.getInstant(CURATIVE_INSTANT_ID).getOrder();
 
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
@@ -173,7 +172,7 @@ class SystematicSensitivityResultTest {
     }
 
     private void setUpForHvdc() {
-        Crac crac = CracFactory.findDefault().create("test-crac")
+        crac = CracFactory.findDefault().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
@@ -251,6 +250,47 @@ class SystematicSensitivityResultTest {
         assertEquals(26., result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
         assertEquals(-31., result.getReferenceIntensity(contingencyCnec, TwoSides.TWO), EPSILON);
         assertEquals(7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, TwoSides.TWO), EPSILON);
+    }
+
+    @Test
+    void testPartialContingencyFailures() {
+        setUpWith12Nodes();
+
+        // The contingency points to an element that does not exist in the network => n-1 status should be set to failure
+        Contingency contingency = new Contingency("wrong_contingency", new BranchContingency("fake_branch"));
+        State contingencyState = Mockito.mock(State.class);
+        Mockito.when(contingencyState.getContingency()).thenReturn(Optional.of(contingency));
+        Mockito.when(contingencyState.getInstant()).thenReturn(crac.getOutageInstant());
+
+        SensitivityFactor sensitivityFactor1 = new SensitivityFactor(
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
+            "BBE2AA1  FFR3AA1  1",
+            SensitivityVariableType.TRANSFORMER_PHASE,
+            "BBE2AA1  BBE3AA1  1",
+            false,
+            new ContingencyContext(contingency.getId(), ContingencyContextType.SPECIFIC)
+        );
+        SensitivityFactor sensitivityFactor2 = new SensitivityFactor(
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
+            "BBE2AA1  FFR3AA1  1",
+            SensitivityVariableType.TRANSFORMER_PHASE,
+            "BBE2AA1  BBE3AA1  1",
+            false,
+            new ContingencyContext(null, ContingencyContextType.NONE)
+        );
+
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
+            List.of(sensitivityFactor1, sensitivityFactor2),
+            List.of(contingency),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load());
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder).postTreatIntensities();
+
+        // N is in SUCCESS, N-1 in failure
+        assertTrue(result.isSuccess());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(crac.getPreventiveState()));
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(contingencyState));
     }
 
 }

@@ -219,7 +219,7 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testIsActivatedDuringStateRa() {
-        RangeAction rangeAction = Mockito.mock(RangeAction.class);
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         State state = Mockito.mock(State.class);
         assertFalse(output.isActivatedDuringState(state, rangeAction));
     }
@@ -246,7 +246,7 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetPreOptimizationSetPointOnState() {
-        RangeAction rangeAction = Mockito.mock(RangeAction.class);
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         when(initialResult.getSetpoint(rangeAction)).thenReturn(60.);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
@@ -256,7 +256,7 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetOptimizedSetPointOnState() {
-        RangeAction rangeAction = Mockito.mock(RangeAction.class);
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         when(initialResult.getSetpoint(rangeAction)).thenReturn(60.);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);

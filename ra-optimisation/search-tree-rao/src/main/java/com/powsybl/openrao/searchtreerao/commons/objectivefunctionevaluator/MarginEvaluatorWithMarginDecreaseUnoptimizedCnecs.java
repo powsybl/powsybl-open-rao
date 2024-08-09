@@ -11,8 +11,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.util.*;
 
@@ -38,16 +36,16 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs implements Margin
     }
 
     @Override
-    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
+    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Unit unit) {
         return flowCnec.getMonitoredSides().stream()
-                .map(side -> getMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit))
+                .map(side -> getMargin(flowResult, flowCnec, side, unit))
                 .min(Double::compareTo).orElseThrow();
     }
 
     @Override
-    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, TwoSides side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
-        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit);
-        double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterFlowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit);
+    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, side, unit);
+        double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterFlowResult, flowCnec, side, unit);
         return computeMargin(flowCnec, newMargin, prePerimeterMargin);
     }
 

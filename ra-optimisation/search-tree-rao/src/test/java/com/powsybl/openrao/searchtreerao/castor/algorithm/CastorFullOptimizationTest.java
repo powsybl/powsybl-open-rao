@@ -582,7 +582,7 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-        assertTrue(raoResult instanceof FailedRaoResultImpl);
+        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
     }
 
     @Test
@@ -891,7 +891,6 @@ class CastorFullOptimizationTest {
         // One FORCED PST ARA will not be used because the network is already secure after the search tree
 
         State automatonState = crac.getState("Contingency DE2 NL3 1", crac.getInstant("auto"));
-        List<NetworkAction> appliedNetworkAras = raoResult.getActivatedNetworkActionsDuringState(automatonState).stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
         Set<RangeAction<?>> appliedPstAras = raoResult.getActivatedRangeActionsDuringState(automatonState);
 
         assertEquals(Set.of("ARA_CLOSE_DE2_NL3_2", "ARA_CLOSE_NL2_BE3_2"), raoResult.getActivatedNetworkActionsDuringState(automatonState).stream().map(NetworkAction::getId).collect(Collectors.toSet()));
