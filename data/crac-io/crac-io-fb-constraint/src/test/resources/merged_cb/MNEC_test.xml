@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<FlowBasedConstraintDocument DtdRelease="4" DtdVersion="0" xmlns="flowbased" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flowbasedconstraintdocument-18.xsd">
+<FlowBasedConstraintDocument DtdRelease="4" DtdVersion="0" xmlns="flowbased" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flowbasedconstraintdocument-23.xsd">
   <DocumentIdentification v="17XTSO-CS------W-20190108-F301v1"/>
   <DocumentVersion v="1"/>
   <DocumentType v="B06"/>
