@@ -1,5 +1,4 @@
 rao-objective-function:
-    forbid-cost-increase: true
     preventive-stop-criterion: MIN_OBJECTIVE
     curative-stop-criterion: PREVENTIVE_OBJECTIVE
     curative-min-obj-improvement: 3.0
