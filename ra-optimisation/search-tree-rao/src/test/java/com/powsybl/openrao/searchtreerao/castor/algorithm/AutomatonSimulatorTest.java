@@ -68,8 +68,6 @@ class AutomatonSimulatorTest {
     private FlowCnec cnec2;
     private PrePerimeterSensitivityAnalysis mockedPreAutoPerimeterSensitivityAnalysis;
     private PrePerimeterResult mockedPrePerimeterResult;
-    private RaoParameters raoParameters;
-    private ToolProvider toolProvider;
 
     private static final double DOUBLE_TOLERANCE = 0.01;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
@@ -228,7 +226,7 @@ class AutomatonSimulatorTest {
 
         autoState = crac.getState(contingency1, autoInstant);
 
-        raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
 
@@ -236,7 +234,7 @@ class AutomatonSimulatorTest {
         mockedPrePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
-        toolProvider = Mockito.mock(ToolProvider.class);
+        ToolProvider toolProvider = Mockito.mock(ToolProvider.class);
         when(toolProvider.getLoopFlowCnecs(any())).thenReturn(Collections.emptySet());
         automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, null, mockedPrePerimeterResult, null, 0);
     }

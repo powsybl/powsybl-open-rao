@@ -11,7 +11,6 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,18 +28,13 @@ class SensitivityFailureOvercostEvaluatorTest {
 
     private FlowResult flowResult;
     private SensitivityFailureOvercostEvaluator evaluator;
-    private RangeActionActivationResult rangeActionActivationResult;
-    private SensitivityResult sensitivityResult;
-    private FlowCnec cnec1;
-    private FlowCnec cnec2;
 
     @BeforeEach
     public void setUp() {
         flowResult = Mockito.mock(FlowResult.class);
-        rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        sensitivityResult = Mockito.mock(SensitivityResult.class);
-        cnec1 = Mockito.mock(FlowCnec.class);
-        cnec2 = Mockito.mock(FlowCnec.class);
+        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        FlowCnec cnec1 = Mockito.mock(FlowCnec.class);
+        FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         Mockito.when(cnec1.getState()).thenReturn(state1);

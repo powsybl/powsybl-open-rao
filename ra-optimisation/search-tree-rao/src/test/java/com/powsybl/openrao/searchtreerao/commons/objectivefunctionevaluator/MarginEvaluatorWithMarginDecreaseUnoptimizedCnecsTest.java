@@ -11,8 +11,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,8 +29,6 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     private final FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
     private final FlowResult currentFlowResult = Mockito.mock(FlowResult.class);
     private final FlowResult prePerimeterFlowResult = Mockito.mock(FlowResult.class);
-    private final RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-    private final SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
     private final MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs marginEvaluatorWithUnoptimizedCnecs =
             new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(
                     new BasicMarginEvaluator(),

@@ -779,7 +779,7 @@ class LeafTest {
     void testToStringOnRootLeaf() {
         Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         IteratingLinearOptimizationResultImpl linearOptimizationResult = Mockito.mock(IteratingLinearOptimizationResultImpl.class);
-        when(iteratingLinearOptimizer.optimize(Mockito.any(), Mockito.any())).thenReturn(linearOptimizationResult);
+        when(IteratingLinearOptimizer.optimize(Mockito.any(), Mockito.any())).thenReturn(linearOptimizationResult);
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
         when(linearOptimizationResult.getCost()).thenReturn(-100.5);

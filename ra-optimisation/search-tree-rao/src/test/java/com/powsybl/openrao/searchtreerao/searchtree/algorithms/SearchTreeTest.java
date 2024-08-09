@@ -448,7 +448,7 @@ class SearchTreeTest {
         when(mnec.isOptimized()).thenReturn(false);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec));
 
-        RangeAction ra = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra = Mockito.mock(RangeAction.class);
         when(ra.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(ra));
 

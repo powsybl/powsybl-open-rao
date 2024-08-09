@@ -14,8 +14,6 @@ import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,8 +39,6 @@ class LoopFlowViolationCostEvaluatorTest {
     private ComputationStatus sensitivityStatus;
     private LoopFlowParametersExtension parameters;
     private LoopFlowViolationCostEvaluator evaluator;
-    private RangeActionActivationResult rangeActionActivationResult;
-    private SensitivityResult sensitivityResult;
 
     @BeforeEach
     public void setUp() {
@@ -64,8 +60,6 @@ class LoopFlowViolationCostEvaluatorTest {
         currentLoopFlows = Mockito.mock(FlowResult.class);
         sensitivityStatus = Mockito.mock(ComputationStatus.class);
         parameters = Mockito.mock(LoopFlowParametersExtension.class);
-        rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        sensitivityResult = Mockito.mock(SensitivityResult.class);
     }
 
     private void setInputThresholdWithReliabilityMargin(FlowCnec branchCnec, double inputThresholdWIthReliabilityMargin) {

@@ -34,8 +34,6 @@ class ObjectiveFunctionTest {
     private LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
     private FlowResult flowResult;
     private ComputationStatus sensitivityStatus;
-    private RangeActionActivationResult rangeActionActivationResult;
-    private SensitivityResult sensitivityResult;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
 
@@ -45,9 +43,6 @@ class ObjectiveFunctionTest {
         sensitivityStatus = Mockito.mock(ComputationStatus.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
-
-        rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        sensitivityResult = Mockito.mock(SensitivityResult.class);
 
         minMarginEvaluator = Mockito.mock(MinMarginEvaluator.class);
         when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, sensitivityStatus)).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));

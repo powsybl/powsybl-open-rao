@@ -11,8 +11,6 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,8 +34,6 @@ class MinMarginEvaluatorTest {
     private FlowCnec cnec3;
     private FlowCnec pureMnec;
     private FlowResult flowResult;
-    private RangeActionActivationResult rangeActionActivationResult;
-    private SensitivityResult sensitivityResult;
     private MarginEvaluator marginEvaluator;
     private MinMarginEvaluator minMarginEvaluator;
 
@@ -61,9 +57,6 @@ class MinMarginEvaluatorTest {
         when(pureMnec.isMonitored()).thenReturn(true);
         when(pureMnec.isOptimized()).thenReturn(false);
         when(pureMnec.getState()).thenReturn(state);
-
-        rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        sensitivityResult = Mockito.mock(SensitivityResult.class);
 
         marginEvaluator = Mockito.mock(MarginEvaluator.class);
         flowResult = Mockito.mock(FlowResult.class);
