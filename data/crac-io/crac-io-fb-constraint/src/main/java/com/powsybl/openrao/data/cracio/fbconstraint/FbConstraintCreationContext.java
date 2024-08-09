@@ -10,7 +10,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 
 import java.time.OffsetDateTime;
@@ -45,7 +44,7 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts() {
+    public List<? extends ElementaryCreationContext> getRemedialActionCreationContexts() {
         return new ArrayList<>(complexVariantCreationContexts.values());
     }
 

@@ -26,9 +26,9 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.outage.CseOutageCreationContext;
@@ -106,7 +106,7 @@ public class CracImportSteps {
             CseOutageCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
             assertNotNull(creationContext);
             assertTrue(creationContext.isImported());
-            assertEquals(createdContingencyId, creationContext.getName());
+            assertEquals(Optional.of(createdContingencyId), creationContext.getNativeObjectName());
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -384,7 +384,7 @@ public class CracImportSteps {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
         } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
-            assertTrue(ucteCracCreationContext.getRemedialActionCreationContexts().stream().allMatch(RemedialActionCreationContext::isImported));
+            assertTrue(ucteCracCreationContext.getRemedialActionCreationContexts().stream().allMatch(ElementaryCreationContext::isImported));
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -395,7 +395,7 @@ public class CracImportSteps {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
         } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
-            RemedialActionCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
+            ElementaryCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
             assertNotNull(remedialActionCreationContext);
             assertTrue(remedialActionCreationContext.isImported());
             assertEquals(createdRaId, remedialActionCreationContext.getCreatedObjectId());
@@ -409,7 +409,7 @@ public class CracImportSteps {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
         } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
-            RemedialActionCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
+            ElementaryCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
             assertNotNull(remedialActionCreationContext);
             assertFalse(remedialActionCreationContext.isImported());
             assertNull(remedialActionCreationContext.getCreatedObjectId());

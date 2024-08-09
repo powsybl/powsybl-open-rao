@@ -19,10 +19,10 @@ import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.InjectionRangeActionCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.cse.criticalbranch.CseCriticalBranchCreationContext;
 import com.powsybl.openrao.data.cracio.cse.outage.CseOutageCreationContext;
 import com.powsybl.openrao.data.cracio.cse.parameters.CseCracCreationParameters;
@@ -96,7 +96,7 @@ class CseCracCreatorTest {
     }
 
     private void assertRemedialActionNotImported(String name, ImportStatus importStatus) {
-        RemedialActionCreationContext context = cracCreationContext.getRemedialActionCreationContext(name);
+        ElementaryCreationContext context = cracCreationContext.getRemedialActionCreationContext(name);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
@@ -290,7 +290,7 @@ class CseCracCreatorTest {
     @Test
     void createInjectionSetpointWithWildcard() throws IOException {
         setUp("/cracs/cse_crac_2.xml");
-        RemedialActionCreationContext raContext = cracCreationContext.getRemedialActionCreationContext("cra_4");
+        ElementaryCreationContext raContext = cracCreationContext.getRemedialActionCreationContext("cra_4");
         assertTrue(raContext.isImported());
         NetworkAction na = cracCreationContext.getCrac().getNetworkAction("cra_4");
         assertEquals(2, na.getNetworkElements().size());

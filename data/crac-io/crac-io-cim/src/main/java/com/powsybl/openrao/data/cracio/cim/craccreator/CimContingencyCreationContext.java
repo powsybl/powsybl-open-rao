@@ -7,27 +7,19 @@
 
 package com.powsybl.openrao.data.cracio.cim.craccreator;
 
-import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-// TODO : promote getNativeName & getCreatedObjectId (but rename it getCreatedObjectId) to ElementaryCreationContext
-    // and remove this class, and those like it that do not need extra information
-public final class CimContingencyCreationContext implements ElementaryCreationContext {
-    private String contingencyID;
-    private String contingencyName;
-    private ImportStatus importStatus;
-    private String createdContingencyId;
-    private String importStatusDetail;
-    private boolean isAltered;
-
+// TODO :  remove this class, and those like it that do not need extra information
+public final class CimContingencyCreationContext extends StandardElementaryCreationContext {
     private CimContingencyCreationContext(String contingencyID, String contingencyName, ImportStatus importStatus, String createdContingencyID, boolean isAltered, String importStatusDetail) {
-        this.contingencyID = contingencyID;
-        this.contingencyName = contingencyName;
+        this.nativeObjectId = contingencyID;
+        this.nativeObjectName = contingencyName;
         this.importStatus = importStatus;
-        this.createdContingencyId = createdContingencyID;
+        this.createdObjectId = createdContingencyID;
         this.isAltered = isAltered;
         this.importStatusDetail = importStatusDetail;
     }
@@ -38,35 +30,6 @@ public final class CimContingencyCreationContext implements ElementaryCreationCo
 
     static CimContingencyCreationContext imported(String contingencyID, String contingencyName, String createdContingencyId, boolean isAltered, String alteringDetail) {
         return new CimContingencyCreationContext(contingencyID, contingencyName, ImportStatus.IMPORTED, createdContingencyId, isAltered, alteringDetail);
-    }
-
-    @Override
-    public String getNativeObjectId() {
-        return contingencyID;
-    }
-
-    public String getNativeName() {
-        return contingencyName;
-    }
-
-    @Override
-    public boolean isAltered() {
-        return isAltered;
-    }
-
-    @Override
-    public ImportStatus getImportStatus() {
-        return importStatus;
-    }
-
-    @Override
-    public String getImportStatusDetail() {
-        return importStatusDetail;
-    }
-
-    @Override
-    public String getCreatedObjectId() {
-        return createdContingencyId;
     }
 }
 

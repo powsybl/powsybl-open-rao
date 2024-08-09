@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracio.commons.api;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -18,6 +19,11 @@ public interface ElementaryCreationContext {
      * Get a unique identifier of the element in the native Crac.
      */
     String getNativeObjectId();
+
+    /**
+     * Get the (optional) name of the element in the native Crac.
+     */
+    Optional<String> getNativeObjectName();
 
     /**
      * Get a unique identifier of the element in the created Crac.

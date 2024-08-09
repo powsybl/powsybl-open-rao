@@ -79,7 +79,7 @@ public class CsaProfileContingencyCreator {
         addContingencyEquipments(nativeContingency.mrid(), nativeContingencyEquipments, contingencyAdder, alterations);
         contingencyAdder.add();
 
-        csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeContingency.mrid(), nativeContingency.mrid(), nativeContingency.getUniqueName(), String.join(" ", alterations), !alterations.isEmpty()));
+        csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeContingency.mrid(), nativeContingency.mrid(), String.join(" ", alterations), !alterations.isEmpty()));
     }
 
     private void addContingencyEquipments(String contingencyId, Set<ContingencyEquipment> nativeContingencyEquipments, ContingencyAdder contingencyAdder, List<String> alterations) {

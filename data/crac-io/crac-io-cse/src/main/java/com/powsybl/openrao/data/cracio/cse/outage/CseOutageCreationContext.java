@@ -6,50 +6,20 @@
  */
 package com.powsybl.openrao.data.cracio.cse.outage;
 
-import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class CseOutageCreationContext implements ElementaryCreationContext {
-    private final String outageID;
-    private final ImportStatus importStatus;
-    private final String importStatusDetail;
-
+public class CseOutageCreationContext extends StandardElementaryCreationContext {
     public CseOutageCreationContext(String outageId, ImportStatus importStatus, String importStatusDetail) {
-        this.outageID = outageId;
+        this.nativeObjectId = outageId;
+        this.nativeObjectName = outageId;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
-    }
-
-    public String getName() {
-        return getNativeObjectId();
-    }
-
-    @Override
-    public String getNativeObjectId() {
-        return outageID;
-    }
-
-    @Override
-    public boolean isAltered() {
-        return false;
-    }
-
-    @Override
-    public ImportStatus getImportStatus() {
-        return importStatus;
-    }
-
-    @Override
-    public String getImportStatusDetail() {
-        return importStatusDetail;
-    }
-
-    @Override
-    public String getCreatedObjectId() {
-        return isImported() ? outageID : null;
+        this.isAltered = false;
+        this.createdObjectId = isImported() ? outageId : null;
     }
 
     static CseOutageCreationContext notImported(String outageID, ImportStatus importStatus, String importStatusDetail) {

@@ -22,9 +22,9 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracimpl.NetworkActionImpl;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +63,7 @@ class FbConstraintCracCreatorTest {
     }
 
     private void assertComplexVariantNotImported(String name, ImportStatus importStatus) {
-        RemedialActionCreationContext context = creationContext.getRemedialActionCreationContext(name);
+        ElementaryCreationContext context = creationContext.getRemedialActionCreationContext(name);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());

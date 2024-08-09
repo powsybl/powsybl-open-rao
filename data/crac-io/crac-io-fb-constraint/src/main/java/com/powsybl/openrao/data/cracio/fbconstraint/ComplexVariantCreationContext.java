@@ -7,47 +7,17 @@
 package com.powsybl.openrao.data.cracio.fbconstraint;
 
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class ComplexVariantCreationContext implements RemedialActionCreationContext {
-
-    private final String complexVariantId;
-    private final String createdRaId;
-    private final ImportStatus importStatus;
-    private final String importStatusDetail;
-
-    @Override
-    public String getNativeObjectId() {
-        return complexVariantId;
-    }
-
-    @Override
-    public boolean isAltered() {
-        return false;
-    }
-
-    @Override
-    public ImportStatus getImportStatus() {
-        return importStatus;
-    }
-
-    @Override
-    public String getImportStatusDetail() {
-        return importStatusDetail;
-    }
-
-    @Override
-    public String getCreatedObjectId() {
-        return createdRaId;
-    }
-
+public class ComplexVariantCreationContext extends StandardElementaryCreationContext {
     ComplexVariantCreationContext(String complexVariantId, ImportStatus importStatus, String createdRaId, String importStatusDetail) {
-        this.complexVariantId = complexVariantId;
+        this.nativeObjectId = complexVariantId;
         this.importStatus = importStatus;
-        this.createdRaId = createdRaId;
+        this.createdObjectId = createdRaId;
         this.importStatusDetail = importStatusDetail;
+        this.isAltered = false;
     }
 }

@@ -10,7 +10,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.criticalbranch.CseCriticalBranchCreationContext;
 import com.powsybl.openrao.data.cracio.cse.outage.CseOutageCreationContext;
@@ -61,7 +60,7 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts() {
+    public List<? extends ElementaryCreationContext> getRemedialActionCreationContexts() {
         return new ArrayList<>(remedialActionCreationContexts.values());
     }
 
@@ -140,7 +139,7 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public RemedialActionCreationContext getRemedialActionCreationContext(String raName) {
+    public ElementaryCreationContext getRemedialActionCreationContext(String raName) {
         return remedialActionCreationContexts.get(raName);
     }
 

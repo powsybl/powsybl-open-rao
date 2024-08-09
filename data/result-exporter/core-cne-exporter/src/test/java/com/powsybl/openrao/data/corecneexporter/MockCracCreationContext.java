@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.*;
 
@@ -64,12 +65,12 @@ public class MockCracCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts() {
+    public List<? extends ElementaryCreationContext> getRemedialActionCreationContexts() {
         return mockRemedialActionCreationContexts;
     }
 
     @Override
-    public RemedialActionCreationContext getRemedialActionCreationContext(String s) {
+    public ElementaryCreationContext getRemedialActionCreationContext(String s) {
         return null;
     }
 
@@ -142,6 +143,11 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         @Override
         public String getNativeObjectId() {
             return flowCnec.getId();
+        }
+
+        @Override
+        public Optional<String> getNativeObjectName() {
+            return Optional.empty();
         }
 
         @Override
@@ -224,6 +230,11 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         @Override
         public String getNativeObjectId() {
             return remedialAction.getId();
+        }
+
+        @Override
+        public Optional<String> getNativeObjectName() {
+            return Optional.empty();
         }
 
         @Override

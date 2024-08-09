@@ -149,7 +149,7 @@ class CimCracCreatorTest {
     private void assertContingencyNotImported(String name, String nativeName, ImportStatus importStatus) {
         CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContextById(name);
         assertNotNull(context);
-        assertEquals(nativeName, context.getNativeName());
+        assertEquals(Optional.of(nativeName), context.getNativeObjectName());
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
     }
@@ -157,7 +157,7 @@ class CimCracCreatorTest {
     private void assertContingencyImported(String id, String nativeName, Set<String> networkElements, boolean isAltered) {
         CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContextById(id);
         assertNotNull(context);
-        assertEquals(nativeName, context.getNativeName());
+        assertEquals(Optional.of(nativeName), context.getNativeObjectName());
         assertTrue(context.isImported());
         assertEquals(isAltered, context.isAltered());
         if (isAltered) {

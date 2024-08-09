@@ -21,8 +21,8 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.PstRangeActionCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 
 import java.util.*;
@@ -65,12 +65,12 @@ public final class CoreCneRemedialActionsCreator {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
 
         List<PstRangeAction> sortedRangeActions = cracCreationContext.getRemedialActionCreationContexts().stream()
-                .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeObjectId))
+                .sorted(Comparator.comparing(ElementaryCreationContext::getNativeObjectId))
                 .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedObjectId()))
                 .filter(ra -> !Objects.isNull(ra))
                 .toList();
         List<NetworkAction> sortedNetworkActions = cracCreationContext.getRemedialActionCreationContexts().stream()
-                .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeObjectId))
+                .sorted(Comparator.comparing(ElementaryCreationContext::getNativeObjectId))
                 .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedObjectId()))
                 .filter(ra -> !Objects.isNull(ra))
                 .toList();

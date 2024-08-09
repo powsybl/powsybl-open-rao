@@ -7,23 +7,17 @@
 package com.powsybl.openrao.data.cracio.cse.remedialaction;
 
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.cse.xsd.TRemedialAction;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CseRemedialActionCreationContext implements RemedialActionCreationContext {
-
-    private final String nativeId;
-    private final String createdRAId;
-    private final boolean isAltered;
-    private final ImportStatus importStatus;
-    private final String importStatusDetail;
+public class CseRemedialActionCreationContext extends StandardElementaryCreationContext {
 
     protected CseRemedialActionCreationContext(String nativeId, String createdRAId, ImportStatus importStatus, boolean isAltered, String importStatusDetail) {
-        this.nativeId = nativeId;
-        this.createdRAId = createdRAId;
+        this.nativeObjectId = nativeId;
+        this.createdObjectId = createdRAId;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
         this.isAltered = isAltered;
@@ -44,30 +38,4 @@ public class CseRemedialActionCreationContext implements RemedialActionCreationC
     public static CseRemedialActionCreationContext notImported(String nativeId, ImportStatus importStatus, String importStatusDetail) {
         return new CseRemedialActionCreationContext(nativeId, null, importStatus, false, importStatusDetail);
     }
-
-    @Override
-    public String getNativeObjectId() {
-        return nativeId;
-    }
-
-    @Override
-    public boolean isAltered() {
-        return isAltered;
-    }
-
-    @Override
-    public ImportStatus getImportStatus() {
-        return importStatus;
-    }
-
-    @Override
-    public String getImportStatusDetail() {
-        return importStatusDetail;
-    }
-
-    @Override
-    public String getCreatedObjectId() {
-        return createdRAId;
-    }
-
 }

@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.cracio.cse.criticalbranch;
 
-import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.NativeBranch;
 import org.apache.commons.lang3.NotImplementedException;
@@ -20,17 +20,13 @@ import java.util.Set;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CseCriticalBranchCreationContext implements BranchCnecCreationContext {
-    private final String criticalBranchName;
+public class CseCriticalBranchCreationContext extends StandardElementaryCreationContext implements BranchCnecCreationContext {
     private final NativeBranch nativeBranch;
     private final boolean isBaseCase;
     private final String contingencyId;
-    private final boolean isImported;
     private final Map<String, String> createdCnecIds;
     private final boolean isDirectionInverted;
     private final boolean selected;
-    private final String invalidBranchReason;
-    private final ImportStatus criticalBranchImportStatus;
 
     @Override
     public NativeBranch getNativeBranch() {
@@ -48,28 +44,8 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
     }
 
     @Override
-    public String getNativeObjectId() {
-        return criticalBranchName;
-    }
-
-    @Override
-    public boolean isImported() {
-        return isImported;
-    }
-
-    @Override
-    public boolean isAltered() {
-        return false;
-    }
-
-    @Override
-    public ImportStatus getImportStatus() {
-        return criticalBranchImportStatus;
-    }
-
-    @Override
-    public String getImportStatusDetail() {
-        return invalidBranchReason;
+    public Optional<String> getNativeObjectName() {
+        return Optional.empty();
     }
 
     @Override
@@ -97,15 +73,15 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
     }
 
     CseCriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
-        this.criticalBranchName = criticalBranchReader.getCriticalBranchName();
+        this.nativeObjectId = criticalBranchReader.getCriticalBranchName();
         this.nativeBranch = criticalBranchReader.getNativeBranch();
         this.isBaseCase = criticalBranchReader.isBaseCase();
-        this.isImported = criticalBranchReader.isImported();
         this.createdCnecIds = criticalBranchReader.getCreatedCnecIds();
         this.contingencyId = criticalBranchReader.getContingencyId();
         this.isDirectionInverted = criticalBranchReader.isDirectionInverted();
         this.selected = criticalBranchReader.isSelected();
-        this.invalidBranchReason = criticalBranchReader.getInvalidBranchReason();
-        this.criticalBranchImportStatus = criticalBranchReader.getImportStatus();
+        this.importStatusDetail = criticalBranchReader.getInvalidBranchReason();
+        this.importStatus = criticalBranchReader.getImportStatus();
+        this.isAltered = false;
     }
 }

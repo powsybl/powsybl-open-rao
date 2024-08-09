@@ -210,7 +210,7 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public CimContingencyCreationContext getContingencyCreationContextByName(String contingencyName) {
-        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeName().equals(contingencyName)).findAny().orElse(null);
+        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectName().isPresent() && contingencyCreationContext.getNativeObjectName().get().equals(contingencyName)).findAny().orElse(null);
     }
 
     void setCreationFailure() {

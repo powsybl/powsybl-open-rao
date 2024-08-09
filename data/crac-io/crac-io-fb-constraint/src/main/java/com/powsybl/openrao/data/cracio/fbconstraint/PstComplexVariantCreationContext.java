@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.cracio.fbconstraint;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.PstRangeActionCreationContext;
 
+import java.util.Optional;
+
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -34,5 +36,10 @@ public final class PstComplexVariantCreationContext extends ComplexVariantCreati
     @Override
     public String getNativeNetworkElementId() {
         return nativeNetworkElementId;
+    }
+
+    @Override
+    public Optional<String> getNativeObjectName() {
+        return Optional.empty();
     }
 }

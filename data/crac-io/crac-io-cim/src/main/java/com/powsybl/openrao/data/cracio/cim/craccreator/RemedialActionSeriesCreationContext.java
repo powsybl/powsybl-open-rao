@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.cracio.cim.craccreator;
 
-import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Set;
@@ -16,16 +16,12 @@ import java.util.Set;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class RemedialActionSeriesCreationContext implements ElementaryCreationContext {
-    private final String nativeId;
+public class RemedialActionSeriesCreationContext extends StandardElementaryCreationContext {
     private final Set<String> createdIds;
-    private final ImportStatus importStatus;
-    private final String importStatusDetail;
-    private final boolean isAltered;
     private final boolean isInverted;
 
     protected RemedialActionSeriesCreationContext(String nativeId, Set<String> createdIds, ImportStatus importStatus, boolean isAltered, boolean isInverted, String importStatusDetail) {
-        this.nativeId = nativeId;
+        this.nativeObjectId = nativeId;
         this.createdIds = createdIds;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
@@ -43,26 +39,6 @@ public class RemedialActionSeriesCreationContext implements ElementaryCreationCo
 
     static RemedialActionSeriesCreationContext importedHvdcRa(String nativeId, Set<String> createdIds, boolean isAltered, boolean isInverted, String importStatusDetail) {
         return new RemedialActionSeriesCreationContext(nativeId, createdIds, ImportStatus.IMPORTED, isAltered, isInverted, importStatusDetail);
-    }
-
-    @Override
-    public String getNativeObjectId() {
-        return nativeId;
-    }
-
-    @Override
-    public ImportStatus getImportStatus() {
-        return importStatus;
-    }
-
-    @Override
-    public String getImportStatusDetail() {
-        return importStatusDetail;
-    }
-
-    @Override
-    public boolean isAltered() {
-        return isAltered;
     }
 
     public boolean isInverted() {
