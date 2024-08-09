@@ -8,15 +8,12 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
@@ -25,11 +22,9 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
  */
 public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     private final double sensitivityFailureOvercost;
-    private final Set<State> states;
 
-    public SensitivityFailureOvercostEvaluator(Set<FlowCnec> flowCnecs, double sensitivityFailureOvercost) {
+    public SensitivityFailureOvercostEvaluator(double sensitivityFailureOvercost) {
         this.sensitivityFailureOvercost = sensitivityFailureOvercost;
-        this.states = flowCnecs.stream().map(Cnec::getState).collect(Collectors.toSet());
     }
 
     @Override

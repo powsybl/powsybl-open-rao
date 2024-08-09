@@ -43,7 +43,6 @@ public final class RaoLogger {
 
     public static void logSensitivityAnalysisResults(String prefix,
                                                      ObjectiveFunction objectiveFunction,
-                                                     RangeActionActivationResult rangeActionActivationResult,
                                                      PrePerimeterResult sensitivityAnalysisResult,
                                                      RaoParameters raoParameters,
                                                      int numberOfLoggedLimitingElements) {
@@ -52,7 +51,7 @@ public final class RaoLogger {
             return;
         }
 
-        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
+        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult,
             sensitivityAnalysisResult.getSensitivityStatus());
 
         BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",

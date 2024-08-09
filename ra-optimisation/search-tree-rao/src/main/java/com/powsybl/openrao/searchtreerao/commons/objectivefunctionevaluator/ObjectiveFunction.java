@@ -31,8 +31,8 @@ public final class ObjectiveFunction {
         this.virtualCostEvaluators = virtualCostEvaluators;
     }
 
-    public ObjectiveFunctionResult evaluate(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, ComputationStatus sensitivityStatus) {
-        return new ObjectiveFunctionResultImpl(this, flowResult, rangeActionActivationResult, sensitivityStatus);
+    public ObjectiveFunctionResult evaluate(FlowResult flowResult, ComputationStatus sensitivityStatus) {
+        return new ObjectiveFunctionResultImpl(this, flowResult, sensitivityStatus);
     }
 
     public static ObjectiveFunctionBuilder create() {
@@ -84,7 +84,7 @@ public final class ObjectiveFunction {
             // sensitivity failure over-cost should be computed on initial sensitivity result too
             // (this allows the RAO to prefer RAs that can remove sensitivity failures)
             if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
-                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
+                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
             }
 
             return this.build();
@@ -137,7 +137,7 @@ public final class ObjectiveFunction {
             // If sensi failed, create a high virtual cost via SensitivityFailureOvercostEvaluator
             // to ensure that corresponding leaf is not selected
             if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
-                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
+                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
             }
 
             return this.build();

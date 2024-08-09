@@ -339,7 +339,7 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }
 
     @Test
