@@ -6,7 +6,10 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -25,6 +28,12 @@ public class AppliedRemedialActions {
     private static class AppliedRemedialActionsPerState {
         private final Set<NetworkAction> networkActions = new HashSet<>();
         private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
+
+        private Set<RemedialAction<?>> getRemedialActions() {
+            Set<RemedialAction<?>> ras = new HashSet<>(networkActions);
+            ras.addAll(rangeActions.keySet());
+            return ras;
+        }
     }
 
     public void addAppliedNetworkAction(State state, NetworkAction networkAction) {
@@ -95,6 +104,18 @@ public class AppliedRemedialActions {
                 appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
                 appliedRa.get(stateBefore).networkActions.forEach(networkAction -> networkAction.apply(network));
             });
+    }
+
+    public NetworkModification getRollbackModification(State state, Network network) {
+        return new NetworkModificationList(
+        appliedRa.keySet().stream().filter(stateBefore ->
+                (stateBefore.getInstant().comesBefore(state.getInstant()) || stateBefore.getInstant().equals(state.getInstant()))
+                    && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
+            .sorted(Comparator.comparingInt(stateBefore -> stateBefore.getInstant().getOrder()))
+            .map(stateBefore -> appliedRa.get(stateBefore).getRemedialActions().stream().map(ra -> ra.getRollbackModification(network)).toList())
+            .flatMap(Collection::stream)
+            .toList()
+        );
     }
 
     public AppliedRemedialActions copy() {

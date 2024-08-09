@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
@@ -60,6 +61,11 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public NetworkModification getRollbackModification(Network network) {
+        throw new OpenRaoException("Can't apply a counter trade range action on a network");
     }
 
     @Override

@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.action.*;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
@@ -122,6 +124,94 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return this.networkElements;
+    }
+
+    @Override
+    public NetworkModification getRollbackModification(Network network) {
+        return new NetworkModificationList(
+            elementaryActions.stream().map(ea -> rollback(ea, network)).toList()
+        );
+    }
+
+    private NetworkModification rollback(Action elementaryAction, Network network) {
+        if (elementaryAction instanceof GeneratorAction generatorAction) {
+            return new GeneratorActionBuilder()
+                .withId(String.format("rollback_%s", elementaryAction.getId()))
+                .withNetworkElementId(generatorAction.getGeneratorId())
+                .withActivePowerRelativeValue(false)
+                .withActivePowerValue(network.getGenerator(generatorAction.getGeneratorId()).getTargetP())
+                .build().toModification();
+        } else if (elementaryAction instanceof LoadAction loadAction) {
+            return new LoadActionBuilder()
+                .withId(String.format("rollback_%s", elementaryAction.getId()))
+                .withNetworkElementId(loadAction.getLoadId())
+                .withRelativeValue(false)
+                .withActivePowerValue(network.getLoad(loadAction.getLoadId()).getP0())
+                .build().toModification();
+        } else if (elementaryAction instanceof DanglingLineAction danglingLineAction) {
+            return new DanglingLineActionBuilder()
+                .withId(String.format("rollback_%s", elementaryAction.getId()))
+                .withNetworkElementId(danglingLineAction.getDanglingLineId())
+                .withRelativeValue(false)
+                .withActivePowerValue(network.getDanglingLine(danglingLineAction.getDanglingLineId()).getP0())
+                .build().toModification();
+        } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
+            return new ShuntCompensatorPositionActionBuilder()
+                .withId(String.format("rollback_%s", elementaryAction.getId()))
+                .withNetworkElementId(shuntCompensatorPositionAction.getShuntCompensatorId())
+                .withSectionCount(network.getShuntCompensator(shuntCompensatorPositionAction.getShuntCompensatorId()).getSectionCount())
+                .build().toModification();
+        } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
+            return new PhaseTapChangerTapPositionActionBuilder()
+                .withId(String.format("rollback_%s", elementaryAction.getId()))
+                .withNetworkElementId(phaseTapChangerTapPositionAction.getTransformerId())
+                .withTapPosition(network.getTwoWindingsTransformer(phaseTapChangerTapPositionAction.getTransformerId()).getPhaseTapChanger().getTapPosition())
+                .withRelativeValue(false)
+                .build().toModification();
+        } else if (elementaryAction instanceof SwitchPair switchPair) {
+            return new NetworkModificationList(
+                new SwitchActionBuilder()
+                    .withId(String.format("rollback_%s_open", elementaryAction.getId()))
+                    .withNetworkElementId(switchPair.getSwitchToOpen().getId())
+                    .withOpen(network.getSwitch(switchPair.getSwitchToOpen().getId()).isOpen())
+                    .build()
+                    .toModification(),
+                new SwitchActionBuilder()
+                    .withId(String.format("rollback_%s_close", switchPair.getId()))
+                    .withNetworkElementId(switchPair.getSwitchToClose().getId())
+                    .withOpen(network.getSwitch(switchPair.getSwitchToClose().getId()).isOpen())
+                    .build()
+                    .toModification()
+            );
+        } else if (elementaryAction instanceof TerminalsConnectionAction terminalsConnectionAction) {
+            Identifiable<?> element = network.getIdentifiable(terminalsConnectionAction.getElementId());
+            if (element instanceof Branch<?> branch) {
+                return new NetworkModificationList(
+                    new TerminalsConnectionActionBuilder()
+                        .withId(String.format("rollback_%s_side1", elementaryAction.getId()))
+                        .withNetworkElementId(terminalsConnectionAction.getElementId())
+                        .withSide(ThreeSides.ONE)
+                        .withOpen(!branch.getTerminal1().isConnected())
+                        .build().toModification(),
+                    new TerminalsConnectionActionBuilder()
+                        .withId(String.format("rollback_%s_side2", elementaryAction.getId()))
+                        .withNetworkElementId(terminalsConnectionAction.getElementId())
+                        .withSide(ThreeSides.TWO)
+                        .withOpen(!branch.getTerminal2().isConnected())
+                        .build().toModification()
+                );
+            } else {
+                throw new NotImplementedException("TerminalsConnectionAction are only on branches for now");
+            }
+        } else if (elementaryAction instanceof SwitchAction switchAction) {
+            return new SwitchActionBuilder()
+                .withId(String.format("rollback_%s", elementaryAction.getId()))
+                .withNetworkElementId(switchAction.getSwitchId())
+                .withOpen(network.getSwitch(switchAction.getSwitchId()).isOpen())
+                .build().toModification();
+        } else {
+            throw new NotImplementedException();
+        }
     }
 
     @Override
