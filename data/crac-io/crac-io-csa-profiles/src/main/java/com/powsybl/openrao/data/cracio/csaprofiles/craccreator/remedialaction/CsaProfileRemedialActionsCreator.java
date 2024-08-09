@@ -135,9 +135,9 @@ public class CsaProfileRemedialActionsCreator {
         remedialActionAdder.add();
 
         if (alterations.isEmpty()) {
-            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), "", false));
+            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), "", false));
         } else {
-            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), String.join(". ", alterations), true));
+            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), String.join(". ", alterations), true));
         }
     }
 
@@ -315,7 +315,7 @@ public class CsaProfileRemedialActionsCreator {
                     addUsageRulesToGroup(onConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, networkActionAdder);
                     addElementaryActionsToGroup(elementaryActions, networkActionAdder);
                     networkActionAdder.add();
-                    contextByRaId.put(remedialActionGroup.mrid(), CsaProfileElementaryCreationContext.imported(remedialActionGroup.mrid(), remedialActionGroup.mrid(), groupName, "The RemedialActionGroup with mRID " + remedialActionGroup.mrid() + " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions), true));
+                    contextByRaId.put(remedialActionGroup.mrid(), CsaProfileElementaryCreationContext.imported(remedialActionGroup.mrid(), remedialActionGroup.mrid(), "The RemedialActionGroup with mRID " + remedialActionGroup.mrid() + " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions), true));
                     standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                 }
 

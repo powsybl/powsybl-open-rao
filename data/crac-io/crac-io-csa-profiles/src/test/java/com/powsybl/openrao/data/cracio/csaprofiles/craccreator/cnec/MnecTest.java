@@ -49,14 +49,14 @@ public class MnecTest {
         assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE9 (ae-9) - preventive - TWO").isMonitored());
 
         List<CsaProfileElementaryCreationContext> notImportedCnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream().filter(c -> !c.isImported())
-            .sorted(Comparator.comparing(CsaProfileElementaryCreationContext::getNativeId)).toList();
+            .sorted(Comparator.comparing(CsaProfileElementaryCreationContext::getNativeObjectId)).toList();
         assertEquals(2, notImportedCnecCreationContexts.size());
 
-        assertEquals("ae-1", notImportedCnecCreationContexts.get(0).getNativeId());
+        assertEquals("ae-1", notImportedCnecCreationContexts.get(0).getNativeObjectId());
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, notImportedCnecCreationContexts.get(0).getImportStatus());
         assertEquals("AssessedElement ae-1 ignored because an AssessedElement cannot be optimized and monitored at the same time", notImportedCnecCreationContexts.get(0).getImportStatusDetail());
 
-        assertEquals("ae-4", notImportedCnecCreationContexts.get(1).getNativeId());
+        assertEquals("ae-4", notImportedCnecCreationContexts.get(1).getNativeObjectId());
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, notImportedCnecCreationContexts.get(1).getImportStatus());
         assertEquals("AssessedElement ae-4 ignored because an AssessedElement cannot be optimized and monitored at the same time", notImportedCnecCreationContexts.get(1).getImportStatusDetail());
 

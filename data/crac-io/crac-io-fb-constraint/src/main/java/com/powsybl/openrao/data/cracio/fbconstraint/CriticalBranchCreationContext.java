@@ -11,10 +11,13 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.NativeBranch;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
@@ -32,8 +35,13 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     private final boolean isDirectionInverted;
 
     @Override
-    public String getNativeId() {
+    public String getNativeObjectId() {
         return criticalBranchId;
+    }
+
+    @Override
+    public Optional<String> getNativeObjectName() {
+        return Optional.empty();
     }
 
     @Override
@@ -74,6 +82,16 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     @Override
     public boolean isDirectionInvertedInNetwork() {
         return isDirectionInverted;
+    }
+
+    @Override
+    public String getCreatedObjectId() {
+        throw new NotImplementedException("Several objects may have been created. Please use getCreatedCnecsIds() instead.");
+    }
+
+    @Override
+    public Set<String> getCreatedObjectsIds() {
+        return new HashSet<>(createdCnecIds.values());
     }
 
     @Override

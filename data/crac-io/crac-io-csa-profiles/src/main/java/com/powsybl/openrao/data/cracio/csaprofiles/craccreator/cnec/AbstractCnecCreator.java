@@ -108,9 +108,9 @@ public abstract class AbstractCnecCreator {
 
     protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "", false));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, "", false));
         } else {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
         }
     }
 }

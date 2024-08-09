@@ -10,7 +10,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.criticalbranch.CseCriticalBranchCreationContext;
 import com.powsybl.openrao.data.cracio.cse.outage.CseOutageCreationContext;
@@ -61,7 +60,7 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts() {
+    public List<? extends ElementaryCreationContext> getRemedialActionCreationContexts() {
         return new ArrayList<>(remedialActionCreationContexts.values());
     }
 
@@ -94,14 +93,14 @@ public class CseCracCreationContext implements UcteCracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered)
-            .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
+            .sorted(Comparator.comparing(ElementaryCreationContext::getNativeObjectId))
             .forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatusDetail()))
         );
         contexts.stream().filter(context -> !context.isImported())
-            .sorted(Comparator.comparing(ElementaryCreationContext::getNativeId))
+            .sorted(Comparator.comparing(ElementaryCreationContext::getNativeObjectId))
             .forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatus(), context.getImportStatusDetail()))
         );
     }
 
@@ -111,11 +110,11 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     }
 
     public void addCriticalBranchCreationContext(CseCriticalBranchCreationContext cseCriticalBranchCreationContext) {
-        this.criticalBranchCreationContexts.put(cseCriticalBranchCreationContext.getNativeId(), cseCriticalBranchCreationContext);
+        this.criticalBranchCreationContexts.put(cseCriticalBranchCreationContext.getNativeObjectId(), cseCriticalBranchCreationContext);
     }
 
     public void addMonitoredElementCreationContext(CseCriticalBranchCreationContext cseCriticalBranchCreationContext) {
-        this.monitoredElementCreationContexts.put(cseCriticalBranchCreationContext.getNativeId(), cseCriticalBranchCreationContext);
+        this.monitoredElementCreationContexts.put(cseCriticalBranchCreationContext.getNativeObjectId(), cseCriticalBranchCreationContext);
     }
 
     @Override
@@ -136,16 +135,16 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     }
 
     public void addOutageCreationContext(CseOutageCreationContext cseOutageCreationContext) {
-        this.outageCreationContexts.put(cseOutageCreationContext.getNativeId(), cseOutageCreationContext);
+        this.outageCreationContexts.put(cseOutageCreationContext.getNativeObjectId(), cseOutageCreationContext);
     }
 
     @Override
-    public RemedialActionCreationContext getRemedialActionCreationContext(String raName) {
+    public ElementaryCreationContext getRemedialActionCreationContext(String raName) {
         return remedialActionCreationContexts.get(raName);
     }
 
     public void addRemedialActionCreationContext(CseRemedialActionCreationContext remedialActionCreationContext) {
-        this.remedialActionCreationContexts.put(remedialActionCreationContext.getNativeId(), remedialActionCreationContext);
+        this.remedialActionCreationContexts.put(remedialActionCreationContext.getNativeObjectId(), remedialActionCreationContext);
     }
 
     CseCracCreationContext creationFailure() {

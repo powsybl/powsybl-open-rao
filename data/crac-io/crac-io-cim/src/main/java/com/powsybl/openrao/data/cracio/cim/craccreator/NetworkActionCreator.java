@@ -259,7 +259,7 @@ public class NetworkActionCreator {
             try {
                 this.networkActionAdder.add();
             } catch (OpenRaoException e) {
-                this.networkActionCreationContext = RemedialActionSeriesCreationContext.notImported(this.networkActionCreationContext.getNativeId(), ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
+                this.networkActionCreationContext = RemedialActionSeriesCreationContext.notImported(this.networkActionCreationContext.getNativeObjectId(), ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
             }
         }
     }

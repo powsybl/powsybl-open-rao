@@ -149,7 +149,7 @@ class CimCracCreatorTest {
     private void assertContingencyNotImported(String name, String nativeName, ImportStatus importStatus) {
         CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContextById(name);
         assertNotNull(context);
-        assertEquals(nativeName, context.getNativeName());
+        assertEquals(Optional.of(nativeName), context.getNativeObjectName());
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
     }
@@ -157,7 +157,7 @@ class CimCracCreatorTest {
     private void assertContingencyImported(String id, String nativeName, Set<String> networkElements, boolean isAltered) {
         CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContextById(id);
         assertNotNull(context);
-        assertEquals(nativeName, context.getNativeName());
+        assertEquals(Optional.of(nativeName), context.getNativeObjectName());
         assertTrue(context.isImported());
         assertEquals(isAltered, context.isAltered());
         if (isAltered) {
@@ -165,7 +165,7 @@ class CimCracCreatorTest {
         } else {
             assertNull(context.getImportStatusDetail());
         }
-        assertEquals(id, context.getCreatedContingencyId());
+        assertEquals(id, context.getCreatedObjectId());
         assertNotNull(importedCrac.getContingency(id));
         Set<String> actualNetworkElements = importedCrac.getContingency(id).getElements().stream().map(ContingencyElement::getId).collect(Collectors.toSet());
         assertEquals(networkElements, actualNetworkElements);
@@ -244,7 +244,7 @@ class CimCracCreatorTest {
     private void assertHvdcRangeActionImported(String expectedNativeId, Set<String> expectedCreatedIds, Set<String> expectedNetworkElements, Set<String> expectedOperators, boolean isInverted) {
         RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContext(expectedNativeId);
         assertNotNull(remedialActionSeriesCreationContext);
-        assertEquals(expectedCreatedIds, remedialActionSeriesCreationContext.getCreatedIds());
+        assertEquals(expectedCreatedIds, remedialActionSeriesCreationContext.getCreatedObjectsIds());
         assertTrue(remedialActionSeriesCreationContext.isImported());
         expectedCreatedIds.forEach(createdId -> assertNotNull(importedCrac.getHvdcRangeAction(createdId)));
         Set<String> actualNetworkElements = new HashSet<>();
