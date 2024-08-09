@@ -65,7 +65,7 @@ class SensitivityFailureOvercostEvaluatorTest {
     void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, ComputationStatus.FAILURE).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, ComputationStatus.DEFAULT).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, ComputationStatus.PARTIAL_FAILURE).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test

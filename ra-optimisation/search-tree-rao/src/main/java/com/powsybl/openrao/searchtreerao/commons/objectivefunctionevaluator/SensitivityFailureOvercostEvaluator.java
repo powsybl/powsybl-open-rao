@@ -39,20 +39,10 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
 
     @Override
     public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, ComputationStatus computationStatus, Set<String> contingenciesToExclude) {
-        if (computationStatus == ComputationStatus.FAILURE) {
+        if (computationStatus == ComputationStatus.FAILURE || computationStatus == ComputationStatus.PARTIAL_FAILURE) {
             TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
             return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
         }
-        // TODO : replace the following by a kind of pre-processing whe sensitivity status would contain an overall flag
-
-        /*for (State state : states) {
-            Optional<Contingency> contingency = state.getContingency();
-            if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
-                    sensitivityResult.getSensitivityStatus(state) == ComputationStatus.FAILURE) {
-                TECHNICAL_LOGS.info(String.format("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost));
-                return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
-            }
-        }*/
         return Pair.of(0., new ArrayList<>());
     }
 

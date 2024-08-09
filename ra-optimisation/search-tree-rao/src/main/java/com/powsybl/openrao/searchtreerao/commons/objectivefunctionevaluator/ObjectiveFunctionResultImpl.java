@@ -104,13 +104,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     }
 
     private void computeCosts(Set<String> contingenciesToExclude) {
-        Pair<Double, List<FlowCnec>> functionalCostAndLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityStatus, contingenciesToExclude);
+        Pair<Double, List<FlowCnec>> functionalCostAndLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, sensitivityStatus, contingenciesToExclude);
         functionalCost = functionalCostAndLimitingElements.getLeft();
         orderedLimitingElements = functionalCostAndLimitingElements.getRight();
         virtualCosts = new HashMap<>();
         orderedCostlyElements = new HashMap<>();
         getVirtualCostNames().forEach(vcn -> {
-            Pair<Double, List<FlowCnec>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityStatus, vcn, contingenciesToExclude);
+            Pair<Double, List<FlowCnec>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, sensitivityStatus, vcn, contingenciesToExclude);
             virtualCosts.put(vcn, virtualCostAndCostlyElements.getLeft());
             orderedCostlyElements.put(vcn, virtualCostAndCostlyElements.getRight());
         });

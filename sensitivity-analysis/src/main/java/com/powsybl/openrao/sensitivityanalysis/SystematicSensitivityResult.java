@@ -58,6 +58,7 @@ public class SystematicSensitivityResult {
 
     public enum SensitivityComputationStatus {
         SUCCESS,
+        PARTIAL_FAILURE,
         FAILURE
     }
 
@@ -85,8 +86,13 @@ public class SystematicSensitivityResult {
         // status set to failure initially, and set to success if we find at least one non NaN value
         this.status = SensitivityComputationStatus.FAILURE;
 
+        boolean anyContingencyFailure = false;
+
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors(), SensitivityAnalysisResult.Status.SUCCESS));
         for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
+            if (contingencyStatus.getStatus() == SensitivityAnalysisResult.Status.FAILURE) {
+                anyContingencyFailure = true;
+            }
             StateResult contingencyStateResult = new StateResult();
             contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
             results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
@@ -94,7 +100,10 @@ public class SystematicSensitivityResult {
             );
             postContingencyResults.get(instantOrder).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
-        nStateResult.status = this.status;
+        nStateResult.status = this.status == SensitivityComputationStatus.FAILURE ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
+        if (this.status != SensitivityComputationStatus.FAILURE && anyContingencyFailure) {
+            this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
+        }
         return this;
     }
 
