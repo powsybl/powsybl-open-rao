@@ -134,13 +134,11 @@ public class FlowResultImpl implements FlowResult {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        // TODO: add unit test
         return convert(systematicSensitivityResult.getStatus());
     }
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        // TODO: add unit test
         return convert(systematicSensitivityResult.getStatus(state));
     }
 

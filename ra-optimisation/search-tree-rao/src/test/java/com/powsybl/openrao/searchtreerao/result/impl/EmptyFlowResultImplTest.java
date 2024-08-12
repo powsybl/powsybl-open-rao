@@ -9,11 +9,14 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -23,16 +26,18 @@ class EmptyFlowResultImplTest {
     @Test
     void testBasicReturns() {
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        EmptyFlowResultImpl branchResult = new EmptyFlowResultImpl();
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)));
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)));
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.ONE, Unit.AMPERE)));
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.TWO, Unit.AMPERE)));
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, TwoSides.TWO, Unit.AMPERE, Mockito.mock(Instant.class))));
-        assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)));
-        assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)));
-        assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec, TwoSides.ONE)));
-        assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec, TwoSides.TWO)));
-        assertTrue(branchResult.getPtdfZonalSums().isEmpty());
+        EmptyFlowResultImpl flowResult = new EmptyFlowResultImpl();
+        assertTrue(Double.isNaN(flowResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getFlow(cnec, TwoSides.ONE, Unit.AMPERE)));
+        assertTrue(Double.isNaN(flowResult.getFlow(cnec, TwoSides.TWO, Unit.AMPERE)));
+        assertTrue(Double.isNaN(flowResult.getFlow(cnec, TwoSides.TWO, Unit.AMPERE, Mockito.mock(Instant.class))));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(cnec, TwoSides.TWO, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getPtdfZonalSum(cnec, TwoSides.ONE)));
+        assertTrue(Double.isNaN(flowResult.getPtdfZonalSum(cnec, TwoSides.TWO)));
+        assertTrue(flowResult.getPtdfZonalSums().isEmpty());
+        assertEquals(ComputationStatus.DEFAULT, flowResult.getComputationStatus());
+        assertEquals(ComputationStatus.DEFAULT, flowResult.getComputationStatus(Mockito.mock(State.class)));
     }
 }
