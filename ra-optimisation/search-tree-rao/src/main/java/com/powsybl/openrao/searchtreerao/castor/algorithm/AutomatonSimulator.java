@@ -139,7 +139,6 @@ public final class AutomatonSimulator {
                 rangeAutomatonSimulationResult.activatedRangeActions(),
                 rangeAutomatonSimulationResult.rangeActionsWithSetpoint(),
                 automatonState);
-            failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
             TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation during range automaton simulation.", automatonState.getId());
             RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, automatonState));
             return failedAutomatonPerimeterResultImpl;
@@ -210,7 +209,6 @@ public final class AutomatonSimulator {
             new HashSet<>(),
             new HashMap<>(),
             autoState);
-        failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
         TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} topological automaton simulation.", autoState.getId(), defineMoment);
         RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, autoState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, autoState));
         return failedAutomatonPerimeterResultImpl;

@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,7 +79,7 @@ class MinMarginEvaluatorTest {
 
     @Test
     void getMostLimitingElements() {
-        List<FlowCnec> costlyElements = minMarginEvaluator.computeCostAndLimitingElements(flowResult, ComputationStatus.DEFAULT).getRight();
+        List<FlowCnec> costlyElements = minMarginEvaluator.computeCostAndLimitingElements(flowResult).getRight();
         assertEquals(3, costlyElements.size());
         assertSame(cnec3, costlyElements.get(0));
         assertSame(cnec1, costlyElements.get(1));
@@ -89,7 +88,7 @@ class MinMarginEvaluatorTest {
 
     @Test
     void computeCost() {
-        assertEquals(250., minMarginEvaluator.computeCostAndLimitingElements(flowResult, Mockito.mock(ComputationStatus.class)).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(250., minMarginEvaluator.computeCostAndLimitingElements(flowResult).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -113,8 +112,8 @@ class MinMarginEvaluatorTest {
         when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
 
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
-        assertTrue(minMarginEvaluator.computeCostAndLimitingElements(flowResult, ComputationStatus.DEFAULT).getRight().isEmpty());
-        assertEquals(-2000, minMarginEvaluator.computeCostAndLimitingElements(flowResult, Mockito.mock(ComputationStatus.class)).getLeft(), DOUBLE_TOLERANCE);
+        assertTrue(minMarginEvaluator.computeCostAndLimitingElements(flowResult).getRight().isEmpty());
+        assertEquals(-2000, minMarginEvaluator.computeCostAndLimitingElements(flowResult).getLeft(), DOUBLE_TOLERANCE);
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
@@ -129,6 +128,6 @@ class MinMarginEvaluatorTest {
         mockCnecThresholds(cnec2, 2000);
         mockCnecThresholds(cnec3, 3000);
         mockCnecThresholds(pureMnec, 4000);
-        assertEquals(-4000., minMarginEvaluator.computeCostAndLimitingElements(flowResult, Mockito.mock(ComputationStatus.class)).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(-4000., minMarginEvaluator.computeCostAndLimitingElements(flowResult).getLeft(), DOUBLE_TOLERANCE);
     }
 }

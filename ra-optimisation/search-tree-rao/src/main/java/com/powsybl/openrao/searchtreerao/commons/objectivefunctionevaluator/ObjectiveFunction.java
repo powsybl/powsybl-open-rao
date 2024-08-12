@@ -46,11 +46,11 @@ public final class ObjectiveFunction {
     }
 
     public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, ComputationStatus sensitivityStatus) {
-        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityStatus);
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult);
     }
 
     public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, sensitivityStatus, contingenciesToExclude);
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, contingenciesToExclude);
     }
 
     public Set<String> getVirtualCostNames() {
@@ -61,7 +61,7 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream()
             .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
             .findAny()
-            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, sensitivityStatus, contingenciesToExclude))
+            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, contingenciesToExclude))
             .orElse(Pair.of(Double.NaN, new ArrayList<>()));
     }
 
@@ -84,7 +84,7 @@ public final class ObjectiveFunction {
             // sensitivity failure over-cost should be computed on initial sensitivity result too
             // (this allows the RAO to prefer RAs that can remove sensitivity failures)
             if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
-                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
+                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
             }
 
             return this.build();
@@ -137,7 +137,7 @@ public final class ObjectiveFunction {
             // If sensi failed, create a high virtual cost via SensitivityFailureOvercostEvaluator
             // to ensure that corresponding leaf is not selected
             if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
-                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
+                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
             }
 
             return this.build();
