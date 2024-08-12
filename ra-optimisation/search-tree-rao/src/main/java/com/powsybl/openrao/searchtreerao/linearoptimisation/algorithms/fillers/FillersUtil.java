@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
@@ -58,8 +59,10 @@ public final class FillersUtil {
      * @return a set of filtered CNECs, containing only flow CNECs with a non-NaN flow value
      */
     static Set<FlowCnec> getFlowCnecsNotNaNFlow(Set<FlowCnec> flowCnecs, FlowResult flowResult) {
+        // TODO : add a computation status per state to FlowResult and filter on states, like with SensitivityComputationResult
         return flowCnecs.stream().filter(cnec ->
-            flowResult.getComputationStatus(cnec.getState()) == ComputationStatus.DEFAULT
+            cnec.getMonitoredSides().stream().noneMatch(side ->
+                Double.isNaN(flowResult.getFlow(cnec, side, Unit.MEGAWATT)))
         ).collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Identifiable::getId))));
     }
 }
