@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
@@ -31,8 +30,8 @@ public final class ObjectiveFunction {
         this.virtualCostEvaluators = virtualCostEvaluators;
     }
 
-    public ObjectiveFunctionResult evaluate(FlowResult flowResult, ComputationStatus sensitivityStatus) {
-        return new ObjectiveFunctionResultImpl(this, flowResult, sensitivityStatus);
+    public ObjectiveFunctionResult evaluate(FlowResult flowResult) {
+        return new ObjectiveFunctionResultImpl(this, flowResult);
     }
 
     public static ObjectiveFunctionBuilder create() {

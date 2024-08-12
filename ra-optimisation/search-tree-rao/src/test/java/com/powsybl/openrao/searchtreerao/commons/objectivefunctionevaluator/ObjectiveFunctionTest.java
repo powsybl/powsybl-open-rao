@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import org.apache.commons.lang3.tuple.Pair;
@@ -33,14 +32,12 @@ class ObjectiveFunctionTest {
     private MnecViolationCostEvaluator mnecViolationCostEvaluator;
     private LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
     private FlowResult flowResult;
-    private ComputationStatus sensitivityStatus;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
 
     @BeforeEach
     public void setUp() {
         flowResult = Mockito.mock(FlowResult.class);
-        sensitivityStatus = Mockito.mock(ComputationStatus.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
 
@@ -75,7 +72,7 @@ class ObjectiveFunctionTest {
         assertTrue(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, "mnec-cost", new HashSet<>()).getRight().isEmpty());
 
         // ObjectiveFunctionResult
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, sensitivityStatus);
+        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult);
         assertEquals(-300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0., result.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(-300., result.getCost(), DOUBLE_TOLERANCE);
@@ -115,7 +112,7 @@ class ObjectiveFunctionTest {
         assertEquals(List.of(cnec2), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, "loop-flow-cost", new HashSet<>()).getRight());
 
         // ObjectiveFunctionResult
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, sensitivityStatus);
+        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult);
         assertEquals(-300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1100., result.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(800., result.getCost(), DOUBLE_TOLERANCE);

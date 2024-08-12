@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import org.apache.commons.lang3.tuple.Pair;
@@ -21,7 +20,6 @@ import java.util.*;
 public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
     private final FlowResult flowResult;
-    private final ComputationStatus sensitivityStatus;
     private boolean areCostsComputed;
     private Double functionalCost;
     private Map<String, Double> virtualCosts;
@@ -31,11 +29,9 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private Set<String> excludedContingencies;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
-                                       FlowResult flowResult,
-                                       ComputationStatus sensitivityStatus) {
+                                       FlowResult flowResult) {
         this.objectiveFunction = objectiveFunction;
         this.flowResult = flowResult;
-        this.sensitivityStatus = sensitivityStatus;
         this.areCostsComputed = false;
     }
 

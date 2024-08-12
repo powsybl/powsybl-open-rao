@@ -117,7 +117,7 @@ public class PrePerimeterSensitivityAnalysis {
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
-        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, sensitivityResult);
+        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult);
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
@@ -126,7 +126,7 @@ public class PrePerimeterSensitivityAnalysis {
         );
     }
 
-    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        return objectiveFunction.evaluate(flowResult, sensitivityResult.getSensitivityStatus());
+    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult) {
+        return objectiveFunction.evaluate(flowResult);
     }
 }
