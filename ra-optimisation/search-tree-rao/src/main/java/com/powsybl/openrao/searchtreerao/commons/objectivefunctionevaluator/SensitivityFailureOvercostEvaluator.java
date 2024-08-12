@@ -40,6 +40,10 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
 
     @Override
     public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+        if (flowResult.getComputationStatus() == ComputationStatus.FAILURE) {
+            TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
+            return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
+        }
         for (State state : states) {
             Optional<Contingency> contingency = state.getContingency();
             if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
