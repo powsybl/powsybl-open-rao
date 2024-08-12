@@ -45,11 +45,11 @@ public final class ObjectiveFunction {
         return allFlowCnecs;
     }
 
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, ComputationStatus sensitivityStatus) {
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult) {
         return functionalCostEvaluator.computeCostAndLimitingElements(flowResult);
     }
 
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
         return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, contingenciesToExclude);
     }
 
@@ -57,7 +57,7 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, String virtualCostName, Set<String> contingenciesToExclude) {
         return virtualCostEvaluators.stream()
             .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
             .findAny()

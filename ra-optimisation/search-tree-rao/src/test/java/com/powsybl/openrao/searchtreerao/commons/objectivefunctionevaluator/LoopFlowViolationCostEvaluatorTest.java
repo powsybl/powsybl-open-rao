@@ -6,12 +6,11 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +35,6 @@ class LoopFlowViolationCostEvaluatorTest {
     private FlowCnec cnec2;
     private FlowResult initialLoopFlows;
     private FlowResult currentLoopFlows;
-    private ComputationStatus sensitivityStatus;
     private LoopFlowParametersExtension parameters;
     private LoopFlowViolationCostEvaluator evaluator;
 
@@ -58,7 +56,6 @@ class LoopFlowViolationCostEvaluatorTest {
 
         initialLoopFlows = Mockito.mock(FlowResult.class);
         currentLoopFlows = Mockito.mock(FlowResult.class);
-        sensitivityStatus = Mockito.mock(ComputationStatus.class);
         parameters = Mockito.mock(LoopFlowParametersExtension.class);
     }
 
