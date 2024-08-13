@@ -22,6 +22,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.searchtreerao.result.impl.SearchTreeResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -63,6 +64,8 @@ class LinearProblemBuilderTest {
 
         optimizationPerimeter = Mockito.mock(CurativeOptimizationPerimeter.class);
         when(inputs.getOptimizationPerimeter()).thenReturn(optimizationPerimeter);
+        SearchTreeResult searchTreeResult = Mockito.mock(SearchTreeResult.class);
+        when(inputs.getPreOptimizationResult()).thenReturn(searchTreeResult);
 
     }
 

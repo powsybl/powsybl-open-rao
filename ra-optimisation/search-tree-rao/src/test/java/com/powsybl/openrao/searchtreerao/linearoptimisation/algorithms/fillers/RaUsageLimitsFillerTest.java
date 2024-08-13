@@ -95,12 +95,6 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         prePerimeterRangeActionResult = new RangeActionResultImpl(prePerimeterRangeActionResult);
 
-        rangeActions.forEach(ra -> {
-            double min = -10 * multiStateRemedialActionResult.getOptimizedSetpointOnState(ra, state);
-            double max = 20 * multiStateRemedialActionResult.getOptimizedSetpointOnState(ra, state);
-            when(ra.getMinAdmissibleSetpoint(anyDouble())).thenReturn(min);
-            when(ra.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(max);
-        });
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
 
         rangeActionsPerState = new HashMap<>();

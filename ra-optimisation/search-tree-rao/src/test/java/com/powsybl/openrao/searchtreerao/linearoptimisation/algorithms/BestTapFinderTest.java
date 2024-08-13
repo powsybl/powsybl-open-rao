@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -78,6 +79,9 @@ class BestTapFinderTest {
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
         rangeActionResult = Mockito.mock(RangeActionResult.class);
         when(rangeActionResult.getOptimizedSetpoints()).thenReturn(Map.of(pstRangeAction, 0.));
+
+        previousPerimeterResult = Mockito.mock(PerimeterResultWithCnecs.class);
+        when(previousPerimeterResult.getOptimizedSetpoint(any())).thenReturn(0.);
     }
 
     private void setSensitivityValues(PstRangeAction pstRangeAction) {
