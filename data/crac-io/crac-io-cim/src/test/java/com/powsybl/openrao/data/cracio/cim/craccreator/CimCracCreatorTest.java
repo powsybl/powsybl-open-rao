@@ -34,6 +34,7 @@ import com.powsybl.openrao.data.cracio.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageCnecsCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageThreshold;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -147,7 +148,7 @@ class CimCracCreatorTest {
     }
 
     private void assertContingencyNotImported(String name, String nativeName, ImportStatus importStatus) {
-        CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContextById(name);
+        StandardElementaryCreationContext context = cracCreationContext.getContingencyCreationContextById(name);
         assertNotNull(context);
         assertEquals(Optional.of(nativeName), context.getNativeObjectName());
         assertFalse(context.isImported());
@@ -155,7 +156,7 @@ class CimCracCreatorTest {
     }
 
     private void assertContingencyImported(String id, String nativeName, Set<String> networkElements, boolean isAltered) {
-        CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContextById(id);
+        StandardElementaryCreationContext context = cracCreationContext.getContingencyCreationContextById(id);
         assertNotNull(context);
         assertEquals(Optional.of(nativeName), context.getNativeObjectName());
         assertTrue(context.isImported());
@@ -182,15 +183,15 @@ class CimCracCreatorTest {
         MonitoredSeriesCreationContext monitoredSeriesCreationContext = cracCreationContext.getMonitoredSeriesCreationContext(monitoredSeriesId);
         assertNotNull(monitoredSeriesCreationContext);
         Set<String> importedCnecIds =
-                monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
-                        .filter(MeasurementCreationContext::isImported)
-                        .map(measurementCreationContext ->
-                                measurementCreationContext.getCnecCreationContexts().values().stream()
-                                        .filter(CnecCreationContext::isImported)
-                                        .map(CnecCreationContext::getCreatedCnecId)
-                                        .collect(Collectors.toSet()))
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toSet());
+            monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
+                .filter(MeasurementCreationContext::isImported)
+                .map(measurementCreationContext ->
+                    measurementCreationContext.getCnecCreationContexts().values().stream()
+                        .filter(CnecCreationContext::isImported)
+                        .map(CnecCreationContext::getCreatedCnecId)
+                        .collect(Collectors.toSet()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
 
         assertEquals(expectedCnecIds, importedCnecIds);
     }
@@ -268,29 +269,29 @@ class CimCracCreatorTest {
 
     private void assertHasOnFlowConstraintUsageRule(RemedialAction<?> ra, Instant instant, String flowCnecId) {
         assertTrue(
-                ra.getUsageRules().stream()
-                        .filter(OnConstraint.class::isInstance)
-                        .map(OnConstraint.class::cast)
-                        .anyMatch(
-                                ur -> ur.getInstant().equals(instant)
-                                        && ur.getCnec() instanceof FlowCnec
-                                        && ur.getCnec().getId().equals(flowCnecId)
-                                        && ur.getUsageMethod().equals(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
-                        ));
+            ra.getUsageRules().stream()
+                .filter(OnConstraint.class::isInstance)
+                .map(OnConstraint.class::cast)
+                .anyMatch(
+                    ur -> ur.getInstant().equals(instant)
+                        && ur.getCnec() instanceof FlowCnec
+                        && ur.getCnec().getId().equals(flowCnecId)
+                        && ur.getUsageMethod().equals(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
+                ));
     }
 
     private void assertHasOnAngleUsageRule(String raId, String angleCnecId) {
         RemedialAction<?> ra = importedCrac.getRemedialAction(raId);
         assertTrue(
-                ra.getUsageRules().stream()
-                        .filter(OnConstraint.class::isInstance)
-                        .map(OnConstraint.class::cast)
-                        .anyMatch(
-                                ur -> ur.getInstant().isCurative()
-                                        && ur.getCnec() instanceof AngleCnec
-                                        && ur.getCnec().getId().equals(angleCnecId)
-                                        && ur.getUsageMethod().equals(UsageMethod.AVAILABLE)
-                        ));
+            ra.getUsageRules().stream()
+                .filter(OnConstraint.class::isInstance)
+                .map(OnConstraint.class::cast)
+                .anyMatch(
+                    ur -> ur.getInstant().isCurative()
+                        && ur.getCnec() instanceof AngleCnec
+                        && ur.getCnec().getId().equals(angleCnecId)
+                        && ur.getUsageMethod().equals(UsageMethod.AVAILABLE)
+                ));
     }
 
     private void assertHasOneThreshold(String cnecId, TwoSides side, Unit unit, double min, double max) {
@@ -676,16 +677,16 @@ class CimCracCreatorTest {
         NetworkAction ra3 = importedCrac.getNetworkAction("RA_3");
         assertEquals(2, ra3.getUsageRules().size());
         assertTrue(
-                ra3.getUsageRules().stream()
-                        .filter(OnInstant.class::isInstance)
-                        .map(OnInstant.class::cast)
-                        .anyMatch(ur -> ur.getInstant().isPreventive())
+            ra3.getUsageRules().stream()
+                .filter(OnInstant.class::isInstance)
+                .map(OnInstant.class::cast)
+                .anyMatch(ur -> ur.getInstant().isPreventive())
         );
         assertTrue(
-                ra3.getUsageRules().stream()
-                        .filter(OnContingencyState.class::isInstance)
-                        .map(OnContingencyState.class::cast)
-                        .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().getId().equals("CO_1"))
+            ra3.getUsageRules().stream()
+                .filter(OnContingencyState.class::isInstance)
+                .map(OnContingencyState.class::cast)
+                .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().getId().equals("CO_1"))
         );
         assertEquals(2, ra3.getElementaryActions().size());
         assertTrue(ra3.getElementaryActions().stream()
@@ -866,10 +867,10 @@ class CimCracCreatorTest {
         Set<String> monitoredElements = Set.of("_d77b61ef-61aa-4b22-95f6-b56ca080788d", "_2844585c-0d35-488d-a449-685bcd57afbf", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
 
         Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds = Map.of(
-                PREVENTIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(220., 230.))),
-                CURATIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name", "Co-4-name"), Map.of(220., mockVoltageThreshold(210., 240.))),
-                OUTAGE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(200., null))),
-                AUTO_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-2-name"), Map.of(220., mockVoltageThreshold(null, null)))
+            PREVENTIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(220., 230.))),
+            CURATIVE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name", "Co-4-name"), Map.of(220., mockVoltageThreshold(210., 240.))),
+            OUTAGE_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(200., null))),
+            AUTO_INSTANT_ID, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-2-name"), Map.of(220., mockVoltageThreshold(null, null)))
         );
         VoltageCnecsCreationParameters voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
 

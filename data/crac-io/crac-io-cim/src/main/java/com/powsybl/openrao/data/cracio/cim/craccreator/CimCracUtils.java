@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracio.cim.xsd.ContingencySeries;
 import com.powsybl.openrao.data.cracio.cim.xsd.MonitoredSeries;
 import com.powsybl.openrao.data.cracio.cim.xsd.SeriesPeriod;
 import com.powsybl.openrao.data.cracio.cim.xsd.TimeSeries;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
@@ -37,11 +38,11 @@ public final class CimCracUtils {
     private CimCracUtils() { }
 
     public static Contingency getContingencyFromCrac(ContingencySeries cimContingency, CimCracCreationContext cracCreationContext) {
-        CimContingencyCreationContext ccc = cracCreationContext.getContingencyCreationContextById(cimContingency.getMRID());
-        if (ccc == null || !ccc.isImported()) {
+        StandardElementaryCreationContext context = cracCreationContext.getContingencyCreationContextById(cimContingency.getMRID());
+        if (context == null || !context.isImported()) {
             return null;
         }
-        return cracCreationContext.getCrac().getContingency(ccc.getCreatedObjectId());
+        return cracCreationContext.getCrac().getContingency(context.getCreatedObjectId());
     }
 
     public static Set<FlowCnec> getFlowCnecsFromCrac(MonitoredSeries monitoredSeries, CimCracCreationContext cracCreationContext) {

@@ -58,4 +58,12 @@ public class StandardElementaryCreationContext implements ElementaryCreationCont
     public boolean isAltered() {
         return isAltered;
     }
+
+    public static StandardElementaryCreationContext notImported(String nativeObjectId, String nativeObjectName, ImportStatus importStatus, String importStatusDetail) {
+        return new StandardElementaryCreationContext(nativeObjectId, nativeObjectName, null, importStatus, importStatusDetail, false);
+    }
+
+    public static StandardElementaryCreationContext imported(String nativeObjectId, String nativeObjectName, String createdObjectId, boolean isAltered, String alteringDetail) {
+        return new StandardElementaryCreationContext(nativeObjectId, nativeObjectName, createdObjectId, ImportStatus.IMPORTED, alteringDetail, isAltered);
+    }
 }
