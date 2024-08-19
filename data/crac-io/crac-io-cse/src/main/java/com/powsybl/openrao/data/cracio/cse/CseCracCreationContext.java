@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationCon
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.criticalbranch.CseCriticalBranchCreationContext;
-import com.powsybl.openrao.data.cracio.cse.remedialaction.CseRemedialActionCreationContext;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -29,7 +28,7 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     private Map<String, CseCriticalBranchCreationContext> criticalBranchCreationContexts = new HashMap<>();
     private Map<String, CseCriticalBranchCreationContext> monitoredElementCreationContexts = new HashMap<>();
     private Map<String, StandardElementaryCreationContext> outageCreationContexts = new HashMap<>();
-    private Map<String, CseRemedialActionCreationContext> remedialActionCreationContexts = new HashMap<>();
+    private Map<String, StandardElementaryCreationContext> remedialActionCreationContexts = new HashMap<>();
     private final OffsetDateTime timestamp;
     private final String networkName;
 
@@ -143,7 +142,7 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         return remedialActionCreationContexts.get(raName);
     }
 
-    public void addRemedialActionCreationContext(CseRemedialActionCreationContext remedialActionCreationContext) {
+    public void addRemedialActionCreationContext(StandardElementaryCreationContext remedialActionCreationContext) {
         this.remedialActionCreationContexts.put(remedialActionCreationContext.getNativeObjectId(), remedialActionCreationContext);
     }
 
