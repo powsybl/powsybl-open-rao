@@ -199,8 +199,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             || secondPreventivePerimeterResult.getSensitivityStatus() == FAILURE) {
             return FAILURE;
         }
-        if (postContingencyResults.entrySet().stream().anyMatch(entry ->
-            Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FAILURE)) {
+        if (initialResult.getSensitivityStatus() == PARTIAL_FAILURE ||
+            secondPreventivePerimeterResult.getSensitivityStatus() == PARTIAL_FAILURE ||
+            postContingencyResults.entrySet().stream().anyMatch(entry ->
+                entry.getValue() == null || entry.getValue().getSensitivityStatus(entry.getKey()) != DEFAULT)) {
             return PARTIAL_FAILURE;
         }
         return DEFAULT;
