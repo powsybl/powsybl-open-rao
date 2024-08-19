@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
@@ -42,13 +43,13 @@ import java.util.stream.Collectors;
  */
 public class CsaProfileRemedialActionsCreator {
     private final Crac crac;
-    Map<String, StandardElementaryCreationContext> contextByRaId = new TreeMap<>();
+    Map<String, ElementaryCreationContext> contextByRaId = new TreeMap<>();
     private final ElementaryActionsHelper elementaryActionsHelper;
     private final NetworkActionCreator networkActionCreator;
     private final PstRangeActionCreator pstRangeActionCreator;
     private final Set<RemedialAction> nativeRemedialActions;
 
-    public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext, int spsMaxTimeToImplementThreshold, Set<StandardElementaryCreationContext> cnecCreationContexts) {
+    public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext, int spsMaxTimeToImplementThreshold, Set<ElementaryCreationContext> cnecCreationContexts) {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
@@ -66,7 +67,7 @@ public class CsaProfileRemedialActionsCreator {
         cracCreationContext.setRemedialActionCreationContexts(new HashSet<>(contextByRaId.values()));
     }
 
-    private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa, int spsMaxTimeToImplementThreshold, Set<StandardElementaryCreationContext> cnecCreationContexts) {
+    private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa, int spsMaxTimeToImplementThreshold, Set<ElementaryCreationContext> cnecCreationContexts) {
         for (RemedialAction nativeRemedialAction : nativeRemedialActions) {
             List<String> alterations = new ArrayList<>();
             boolean isSchemeRemedialAction = nativeRemedialAction instanceof SchemeRemedialAction;
@@ -117,7 +118,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void fillAndSaveRemedialActionAdderAndContext(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
-                                                          int spsMaxTimeToImplementThreshold, Set<StandardElementaryCreationContext> cnecCreationContexts, RemedialAction nativeRemedialAction, List<String> alterations,
+                                                          int spsMaxTimeToImplementThreshold, Set<ElementaryCreationContext> cnecCreationContexts, RemedialAction nativeRemedialAction, List<String> alterations,
                                                           boolean isSchemeRemedialAction, RemedialActionType remedialActionType, RemedialActionAdder<?> remedialActionAdder, String remedialActionName) {
 
         remedialActionAdder.withName(remedialActionName);
@@ -142,7 +143,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void addUsageRules(String
-                                   remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<StandardElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
+                                   remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
                                    remedialActionAdder, List<String> alterations, Instant instant,
                                boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
         if (addOnConstraintUsageRules(remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType)) {
@@ -155,7 +156,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private boolean addOnConstraintUsageRules(String
-                                                  remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<StandardElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
+                                                  remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
                                                   remedialActionAdder, List<String> alterations, Instant instant,
                                               boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
         Map<String, AssociationStatus> cnecStatusMap = OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts);

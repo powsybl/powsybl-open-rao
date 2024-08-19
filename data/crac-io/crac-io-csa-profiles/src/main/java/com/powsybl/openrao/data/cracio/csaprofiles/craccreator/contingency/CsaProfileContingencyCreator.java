@@ -12,6 +12,7 @@ import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
@@ -41,7 +42,7 @@ public class CsaProfileContingencyCreator {
 
     private final Map<String, Set<ContingencyEquipment>> nativeContingencyEquipmentsPerNativeContingency;
 
-    private Set<StandardElementaryCreationContext> csaProfileContingencyCreationContexts;
+    private Set<ElementaryCreationContext> csaProfileContingencyCreationContexts;
     private final CsaProfileCracCreationContext cracCreationContext;
 
     public CsaProfileContingencyCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext) {

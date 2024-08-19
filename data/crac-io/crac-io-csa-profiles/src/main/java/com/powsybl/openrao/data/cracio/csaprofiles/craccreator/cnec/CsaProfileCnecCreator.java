@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
@@ -41,7 +42,7 @@ public class CsaProfileCnecCreator {
     private final Map<String, CurrentLimit> nativeCurrentLimitPerId;
     private final Map<String, VoltageLimit> nativeVoltageLimitPerId;
     private final Map<String, com.powsybl.openrao.data.cracio.csaprofiles.nc.VoltageAngleLimit> nativeVoltageAngleLimitPerId;
-    private Set<StandardElementaryCreationContext> csaProfileCnecCreationContexts;
+    private Set<ElementaryCreationContext> csaProfileCnecCreationContexts;
     private final CsaProfileCracCreationContext cracCreationContext;
     private final CracCreationParameters cracCreationParameters;
     private final String regionEic;

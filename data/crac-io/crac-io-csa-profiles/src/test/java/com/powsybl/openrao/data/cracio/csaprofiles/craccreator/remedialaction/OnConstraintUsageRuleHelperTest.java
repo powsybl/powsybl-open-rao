@@ -10,6 +10,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class OnConstraintUsageRuleHelperTest {
     private Crac crac;
-    private Set<StandardElementaryCreationContext> cnecCreationContexts;
+    private Set<ElementaryCreationContext> cnecCreationContexts;
     private Set<AssessedElement> assessedElements;
     private Set<AssessedElementWithRemedialAction> assessedElementWithRemedialActions;
     private Set<ContingencyWithRemedialAction> contingencyWithRemedialActions;
