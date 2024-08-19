@@ -15,4 +15,5 @@ public interface LinearOptimizationResult extends FlowResult, SensitivityResult,
     LinearProblemStatus getStatus();
 
     RangeActionActivationResult getRangeActionActivationResult();
+
 }

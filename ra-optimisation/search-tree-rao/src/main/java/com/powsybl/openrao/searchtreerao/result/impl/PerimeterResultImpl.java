@@ -49,6 +49,11 @@ public class PerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        return optimizationResult.getMargin(flowCnec, unit);
+    }
+
+    @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         return optimizationResult.getCommercialFlow(flowCnec, side, unit);
     }

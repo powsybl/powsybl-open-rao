@@ -45,4 +45,9 @@ public class EmptyFlowResultImpl implements FlowResult {
     public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
         return Collections.emptyMap();
     }
+
+    @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        return Double.NaN;
+    }
 }

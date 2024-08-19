@@ -85,6 +85,12 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        checkCnec(flowCnec);
+        return postCraSensitivityFlowResult.getMargin(flowCnec, unit);
+    }
+
+    @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         checkCnec(flowCnec);
         return postCraSensitivityFlowResult.getCommercialFlow(flowCnec, side, unit);

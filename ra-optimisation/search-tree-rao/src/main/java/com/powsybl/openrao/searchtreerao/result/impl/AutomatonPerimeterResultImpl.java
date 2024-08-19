@@ -63,6 +63,11 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        return postAutomatonSensitivityAnalysisOutput.getMargin(flowCnec, unit);
+    }
+
+    @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         return postAutomatonSensitivityAnalysisOutput.getCommercialFlow(flowCnec, side, unit);
     }
