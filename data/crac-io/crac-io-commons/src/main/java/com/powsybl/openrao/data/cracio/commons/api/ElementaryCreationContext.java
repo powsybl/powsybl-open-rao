@@ -33,7 +33,7 @@ public interface ElementaryCreationContext {
      * Get the identifiers of the elements in the created Crac.
      */
     default Set<String> getCreatedObjectsIds() {
-        return Set.of(getCreatedObjectId());
+        return getCreatedObjectId() != null ? Set.of(getCreatedObjectId()) : Set.of();
     }
 
     /**
