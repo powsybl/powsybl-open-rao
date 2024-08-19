@@ -18,13 +18,9 @@ public final class AngleCnecCreationContext extends StandardElementaryCreationCo
     private final String serieId;
 
     private AngleCnecCreationContext(String createdAngleCnecId, String contingencyID, String serieId, ImportStatus angleCnecImportStatus, String angleCnecImportStatusDetail) {
-        this.nativeObjectId = createdAngleCnecId;
-        this.createdObjectId = createdAngleCnecId;
+        super(createdAngleCnecId, null, createdAngleCnecId, angleCnecImportStatus, angleCnecImportStatusDetail, false);
         this.contingencyID = contingencyID;
         this.serieId = serieId;
-        this.importStatus = angleCnecImportStatus;
-        this.importStatusDetail = angleCnecImportStatusDetail;
-        this.isAltered = false;
     }
 
     static AngleCnecCreationContext notImported(String createdAngleCnecId, String contingencyID, String serieId, ImportStatus angleCnecImportStatus, String angleCnecImportStatusDetail) {

@@ -16,11 +16,7 @@ import com.powsybl.openrao.data.cracio.cse.xsd.TRemedialAction;
 public class CseRemedialActionCreationContext extends StandardElementaryCreationContext {
 
     protected CseRemedialActionCreationContext(String nativeId, String createdRAId, ImportStatus importStatus, boolean isAltered, String importStatusDetail) {
-        this.nativeObjectId = nativeId;
-        this.createdObjectId = createdRAId;
-        this.importStatus = importStatus;
-        this.importStatusDetail = importStatusDetail;
-        this.isAltered = isAltered;
+        super(nativeId, null, createdRAId, importStatus, importStatusDetail, isAltered);
     }
 
     protected CseRemedialActionCreationContext(TRemedialAction tRemedialAction, String createdRAId, ImportStatus importStatus, boolean isAltered, String importStatusDetail) {

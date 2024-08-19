@@ -14,12 +14,7 @@ import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationCon
  */
 public class CseOutageCreationContext extends StandardElementaryCreationContext {
     public CseOutageCreationContext(String outageId, ImportStatus importStatus, String importStatusDetail) {
-        this.nativeObjectId = outageId;
-        this.nativeObjectName = outageId;
-        this.importStatus = importStatus;
-        this.importStatusDetail = importStatusDetail;
-        this.isAltered = false;
-        this.createdObjectId = isImported() ? outageId : null;
+        super(outageId, outageId, ImportStatus.IMPORTED.equals(importStatus) ? outageId : null, importStatus, importStatusDetail, false);
     }
 
     static CseOutageCreationContext notImported(String outageID, ImportStatus importStatus, String importStatusDetail) {

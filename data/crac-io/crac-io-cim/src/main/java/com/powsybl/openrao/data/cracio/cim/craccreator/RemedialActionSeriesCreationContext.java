@@ -21,11 +21,8 @@ public class RemedialActionSeriesCreationContext extends StandardElementaryCreat
     private final boolean isInverted;
 
     protected RemedialActionSeriesCreationContext(String nativeId, Set<String> createdIds, ImportStatus importStatus, boolean isAltered, boolean isInverted, String importStatusDetail) {
-        this.nativeObjectId = nativeId;
+        super(nativeId, null, null, importStatus, importStatusDetail, isAltered);
         this.createdIds = createdIds;
-        this.importStatus = importStatus;
-        this.importStatusDetail = importStatusDetail;
-        this.isAltered = isAltered;
         this.isInverted = isInverted;
     }
 

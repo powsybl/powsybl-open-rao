@@ -16,12 +16,7 @@ import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationCon
 // TODO :  remove this class, and those like it that do not need extra information
 public final class CimContingencyCreationContext extends StandardElementaryCreationContext {
     private CimContingencyCreationContext(String contingencyID, String contingencyName, ImportStatus importStatus, String createdContingencyID, boolean isAltered, String importStatusDetail) {
-        this.nativeObjectId = contingencyID;
-        this.nativeObjectName = contingencyName;
-        this.importStatus = importStatus;
-        this.createdObjectId = createdContingencyID;
-        this.isAltered = isAltered;
-        this.importStatusDetail = importStatusDetail;
+        super(contingencyID, contingencyName, createdContingencyID, importStatus, importStatusDetail, isAltered);
     }
 
     static CimContingencyCreationContext notImported(String contingencyID, String contingencyName, ImportStatus importStatus, String importStatusDetail) {

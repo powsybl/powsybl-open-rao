@@ -44,11 +44,6 @@ public class CseCriticalBranchCreationContext extends StandardElementaryCreation
     }
 
     @Override
-    public Optional<String> getNativeObjectName() {
-        return Optional.empty();
-    }
-
-    @Override
     public boolean isDirectionInvertedInNetwork() {
         return isDirectionInverted;
     }
@@ -73,15 +68,12 @@ public class CseCriticalBranchCreationContext extends StandardElementaryCreation
     }
 
     CseCriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
-        this.nativeObjectId = criticalBranchReader.getCriticalBranchName();
+        super(criticalBranchReader.getCriticalBranchName(), null, null, criticalBranchReader.getImportStatus(), criticalBranchReader.getInvalidBranchReason(), false);
         this.nativeBranch = criticalBranchReader.getNativeBranch();
         this.isBaseCase = criticalBranchReader.isBaseCase();
         this.createdCnecIds = criticalBranchReader.getCreatedCnecIds();
         this.contingencyId = criticalBranchReader.getContingencyId();
         this.isDirectionInverted = criticalBranchReader.isDirectionInverted();
         this.selected = criticalBranchReader.isSelected();
-        this.importStatusDetail = criticalBranchReader.getInvalidBranchReason();
-        this.importStatus = criticalBranchReader.getImportStatus();
-        this.isAltered = false;
     }
 }

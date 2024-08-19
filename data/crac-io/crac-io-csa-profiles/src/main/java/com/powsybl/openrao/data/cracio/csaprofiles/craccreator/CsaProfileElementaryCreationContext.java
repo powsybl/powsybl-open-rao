@@ -5,11 +5,7 @@ import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationCon
 
 public final class CsaProfileElementaryCreationContext extends StandardElementaryCreationContext {
     private CsaProfileElementaryCreationContext(String nativeId, String elementId, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
-        this.nativeObjectId = nativeId;
-        this.createdObjectId = elementId;
-        this.importStatus = importStatus;
-        this.importStatusDetail = importStatusDetail;
-        this.isAltered = isAltered;
+        super(nativeId, null, elementId, importStatus, importStatusDetail, isAltered);
     }
 
     public static CsaProfileElementaryCreationContext imported(String nativeId, String elementId, String importStatusDetail, boolean isAltered) {

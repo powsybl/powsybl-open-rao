@@ -14,10 +14,6 @@ import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationCon
  */
 public class ComplexVariantCreationContext extends StandardElementaryCreationContext {
     ComplexVariantCreationContext(String complexVariantId, ImportStatus importStatus, String createdRaId, String importStatusDetail) {
-        this.nativeObjectId = complexVariantId;
-        this.importStatus = importStatus;
-        this.createdObjectId = createdRaId;
-        this.importStatusDetail = importStatusDetail;
-        this.isAltered = false;
+        super(complexVariantId, null, createdRaId, importStatus, importStatusDetail, false);
     }
 }

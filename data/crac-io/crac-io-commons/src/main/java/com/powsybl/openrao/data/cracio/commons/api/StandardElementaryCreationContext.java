@@ -20,6 +20,15 @@ public class StandardElementaryCreationContext implements ElementaryCreationCont
     protected String importStatusDetail;
     protected boolean isAltered;
 
+    public StandardElementaryCreationContext(String nativeObjectId, String nativeObjectName, String createdObjectId, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
+        this.nativeObjectId = nativeObjectId;
+        this.nativeObjectName = nativeObjectName;
+        this.createdObjectId = createdObjectId;
+        this.importStatus = importStatus;
+        this.importStatusDetail = importStatusDetail;
+        this.isAltered = isAltered;
+    }
+
     @Override
     public String getNativeObjectId() {
         return nativeObjectId;
