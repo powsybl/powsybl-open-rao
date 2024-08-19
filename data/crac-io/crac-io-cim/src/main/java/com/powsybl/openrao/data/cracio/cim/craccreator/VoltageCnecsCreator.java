@@ -79,7 +79,7 @@ public class VoltageCnecsCreator {
         if (contingencyNames == null || contingencyNames.isEmpty()) {
             // return all contingencies in the crac
             contingencyNativeNamePerId = cracCreationContext.getContingencyCreationContexts().stream().filter(StandardElementaryCreationContext::isImported)
-                .collect(Collectors.toMap(StandardElementaryCreationContext::getCreatedObjectId, context -> context.getNativeObjectName().get()));
+                .collect(Collectors.toMap(StandardElementaryCreationContext::getCreatedObjectId, StandardElementaryCreationContext::getNativeObjectName));
             return contingencyNativeNamePerId.keySet();
         }
         Set<String> filteredContingencies = new HashSet<>();

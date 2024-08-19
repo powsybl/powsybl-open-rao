@@ -40,8 +40,8 @@ public class CriticalBranchCreationContext implements BranchCnecCreationContext 
     }
 
     @Override
-    public Optional<String> getNativeObjectName() {
-        return Optional.empty();
+    public String getNativeObjectName() {
+        return criticalBranchId;
     }
 
     @Override

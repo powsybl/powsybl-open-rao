@@ -146,8 +146,8 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
-        public Optional<String> getNativeObjectName() {
-            return Optional.empty();
+        public String getNativeObjectName() {
+            return flowCnec.getId();
         }
 
         @Override
@@ -233,8 +233,8 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
-        public Optional<String> getNativeObjectName() {
-            return Optional.empty();
+        public String getNativeObjectName() {
+            return remedialAction.getId();
         }
 
         @Override

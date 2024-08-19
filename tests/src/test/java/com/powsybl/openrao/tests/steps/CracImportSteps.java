@@ -106,7 +106,7 @@ public class CracImportSteps {
             CseOutageCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
             assertNotNull(creationContext);
             assertTrue(creationContext.isImported());
-            assertEquals(Optional.of(createdContingencyId), creationContext.getNativeObjectName());
+            assertEquals(createdContingencyId, creationContext.getNativeObjectName());
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }

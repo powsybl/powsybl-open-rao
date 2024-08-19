@@ -84,7 +84,7 @@ class VoltageCnecsCreatorTest {
 
     private StandardElementaryCreationContext mockCimContingencyCreationContext(String nativeName, boolean imported, String createdId) {
         StandardElementaryCreationContext context = Mockito.mock(StandardElementaryCreationContext.class);
-        Mockito.when(context.getNativeObjectName()).thenReturn(Optional.of(nativeName));
+        Mockito.when(context.getNativeObjectName()).thenReturn(nativeName);
         Mockito.when(context.isImported()).thenReturn(imported);
         Mockito.when(context.getCreatedObjectId()).thenReturn(createdId);
         return context;

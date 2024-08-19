@@ -7,8 +7,6 @@
 
 package com.powsybl.openrao.data.cracio.commons.api;
 
-import java.util.Optional;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -22,7 +20,7 @@ public class StandardElementaryCreationContext implements ElementaryCreationCont
 
     public StandardElementaryCreationContext(String nativeObjectId, String nativeObjectName, String createdObjectId, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
         this.nativeObjectId = nativeObjectId;
-        this.nativeObjectName = nativeObjectName;
+        this.nativeObjectName = nativeObjectName == null ? nativeObjectId : nativeObjectName;
         this.createdObjectId = createdObjectId;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
@@ -35,8 +33,8 @@ public class StandardElementaryCreationContext implements ElementaryCreationCont
     }
 
     @Override
-    public Optional<String> getNativeObjectName() {
-        return Optional.ofNullable(nativeObjectName);
+    public String getNativeObjectName() {
+        return nativeObjectName;
     }
 
     @Override
