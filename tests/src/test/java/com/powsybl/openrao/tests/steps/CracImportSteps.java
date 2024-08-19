@@ -28,10 +28,10 @@ import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.CseCracCreationContext;
-import com.powsybl.openrao.data.cracio.cse.outage.CseOutageCreationContext;
 import com.powsybl.openrao.data.cracio.fbconstraint.FbConstraintCreationContext;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
@@ -90,7 +90,7 @@ public class CracImportSteps {
         } else if (cracCreationContext instanceof FbConstraintCreationContext) {
             throw new NotImplementedException(NOT_IMPLEMENTED_FB);
         } else if (cracCreationContext instanceof CseCracCreationContext cseCracCreationContext) {
-            assertTrue(cseCracCreationContext.getOutageCreationContexts().stream().allMatch(CseOutageCreationContext::isImported));
+            assertTrue(cseCracCreationContext.getOutageCreationContexts().stream().allMatch(StandardElementaryCreationContext::isImported));
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -103,7 +103,7 @@ public class CracImportSteps {
         } else if (cracCreationContext instanceof FbConstraintCreationContext) {
             throw new NotImplementedException(NOT_IMPLEMENTED_FB);
         } else if (cracCreationContext instanceof CseCracCreationContext cseCracCreationContext) {
-            CseOutageCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
+            StandardElementaryCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
             assertNotNull(creationContext);
             assertTrue(creationContext.isImported());
             assertEquals(createdContingencyId, creationContext.getNativeObjectName());
@@ -119,7 +119,7 @@ public class CracImportSteps {
         } else if (cracCreationContext instanceof FbConstraintCreationContext) {
             throw new NotImplementedException(NOT_IMPLEMENTED_FB);
         } else if (cracCreationContext instanceof CseCracCreationContext cseCracCreationContext) {
-            CseOutageCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
+            StandardElementaryCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
             assertNotNull(creationContext);
             assertFalse(creationContext.isImported());
             assertNull(creationContext.getCreatedObjectId());
