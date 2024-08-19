@@ -28,13 +28,13 @@ import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageCnecsCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageThreshold;
-import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -148,7 +148,7 @@ class CimCracCreatorTest {
     }
 
     private void assertContingencyNotImported(String name, String nativeName, ImportStatus importStatus) {
-        StandardElementaryCreationContext context = cracCreationContext.getContingencyCreationContextById(name);
+        ElementaryCreationContext context = cracCreationContext.getContingencyCreationContextById(name);
         assertNotNull(context);
         assertEquals(nativeName, context.getNativeObjectName());
         assertFalse(context.isImported());
@@ -156,7 +156,7 @@ class CimCracCreatorTest {
     }
 
     private void assertContingencyImported(String id, String nativeName, Set<String> networkElements, boolean isAltered) {
-        StandardElementaryCreationContext context = cracCreationContext.getContingencyCreationContextById(id);
+        ElementaryCreationContext context = cracCreationContext.getContingencyCreationContextById(id);
         assertNotNull(context);
         assertEquals(nativeName, context.getNativeObjectName());
         assertTrue(context.isImported());

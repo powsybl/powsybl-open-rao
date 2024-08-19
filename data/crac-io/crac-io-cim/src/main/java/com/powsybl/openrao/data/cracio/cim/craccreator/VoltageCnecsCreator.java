@@ -8,6 +8,7 @@ package com.powsybl.openrao.data.cracio.cim.craccreator;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageCnecsCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
@@ -15,7 +16,6 @@ import com.powsybl.openrao.data.cracio.cim.parameters.VoltageThreshold;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,13 +78,13 @@ public class VoltageCnecsCreator {
     private Set<String> filterContingencies(Set<String> contingencyNames) {
         if (contingencyNames == null || contingencyNames.isEmpty()) {
             // return all contingencies in the crac
-            contingencyNativeNamePerId = cracCreationContext.getContingencyCreationContexts().stream().filter(StandardElementaryCreationContext::isImported)
-                .collect(Collectors.toMap(StandardElementaryCreationContext::getCreatedObjectId, StandardElementaryCreationContext::getNativeObjectName));
+            contingencyNativeNamePerId = cracCreationContext.getContingencyCreationContexts().stream().filter(ElementaryCreationContext::isImported)
+                .collect(Collectors.toMap(ElementaryCreationContext::getCreatedObjectId, ElementaryCreationContext::getNativeObjectName));
             return contingencyNativeNamePerId.keySet();
         }
         Set<String> filteredContingencies = new HashSet<>();
         contingencyNames.forEach(contingencyName -> {
-                StandardElementaryCreationContext contingencyCreationContext = cracCreationContext.getContingencyCreationContextByName(contingencyName);
+                ElementaryCreationContext contingencyCreationContext = cracCreationContext.getContingencyCreationContextByName(contingencyName);
                 if (contingencyCreationContext == null || !contingencyCreationContext.isImported()) {
                     cracCreationContext.addVoltageCnecCreationContext(
                         VoltageCnecCreationContext.notImported(null, null, contingencyName, ImportStatus.OTHER, "Contingency does not exist in the CRAC or could not be imported")

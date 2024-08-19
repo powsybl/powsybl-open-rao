@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.cracio.cse;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.criticalbranch.CseCriticalBranchCreationContext;
@@ -27,8 +26,8 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     private CracCreationReport creationReport;
     private Map<String, CseCriticalBranchCreationContext> criticalBranchCreationContexts = new HashMap<>();
     private Map<String, CseCriticalBranchCreationContext> monitoredElementCreationContexts = new HashMap<>();
-    private Map<String, StandardElementaryCreationContext> outageCreationContexts = new HashMap<>();
-    private Map<String, StandardElementaryCreationContext> remedialActionCreationContexts = new HashMap<>();
+    private Map<String, ElementaryCreationContext> outageCreationContexts = new HashMap<>();
+    private Map<String, ElementaryCreationContext> remedialActionCreationContexts = new HashMap<>();
     private final OffsetDateTime timestamp;
     private final String networkName;
 
@@ -125,15 +124,15 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         }
     }
 
-    public StandardElementaryCreationContext getOutageCreationContext(String outageName) {
+    public ElementaryCreationContext getOutageCreationContext(String outageName) {
         return outageCreationContexts.get(outageName);
     }
 
-    public List<StandardElementaryCreationContext> getOutageCreationContexts() {
+    public List<ElementaryCreationContext> getOutageCreationContexts() {
         return new ArrayList<>(outageCreationContexts.values());
     }
 
-    public void addOutageCreationContext(StandardElementaryCreationContext cseOutageCreationContext) {
+    public void addOutageCreationContext(ElementaryCreationContext cseOutageCreationContext) {
         this.outageCreationContexts.put(cseOutageCreationContext.getNativeObjectId(), cseOutageCreationContext);
     }
 
@@ -142,7 +141,7 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         return remedialActionCreationContexts.get(raName);
     }
 
-    public void addRemedialActionCreationContext(StandardElementaryCreationContext remedialActionCreationContext) {
+    public void addRemedialActionCreationContext(ElementaryCreationContext remedialActionCreationContext) {
         this.remedialActionCreationContexts.put(remedialActionCreationContext.getNativeObjectId(), remedialActionCreationContext);
     }
 

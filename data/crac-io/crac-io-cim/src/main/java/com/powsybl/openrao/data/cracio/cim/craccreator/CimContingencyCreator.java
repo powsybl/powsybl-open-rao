@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -32,10 +33,10 @@ public class CimContingencyCreator {
     private final Crac crac;
     private final Network network;
     private final List<TimeSeries> cimTimeSeries;
-    private Set<StandardElementaryCreationContext> cimContingencyCreationContexts;
+    private Set<ElementaryCreationContext> cimContingencyCreationContexts;
     private CimCracCreationContext cracCreationContext;
 
-    public Set<StandardElementaryCreationContext> getContingencyCreationContexts() {
+    public Set<ElementaryCreationContext> getContingencyCreationContexts() {
         return new HashSet<>(cimContingencyCreationContexts);
     }
 

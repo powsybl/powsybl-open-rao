@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.fbconstraint;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.ActionsSetType;
@@ -28,7 +29,7 @@ class ComplexVariantReader {
 
     private List<ActionReader> actionReaders;
     private List<String> afterCoList;
-    private StandardElementaryCreationContext complexVariantCreationContext;
+    private ElementaryCreationContext complexVariantCreationContext;
     private ActionReader.Type type;
 
     private ImportStatus importStatus;
@@ -86,7 +87,7 @@ class ComplexVariantReader {
         return actionReaders;
     }
 
-    StandardElementaryCreationContext getComplexVariantCreationContext() {
+    ElementaryCreationContext getComplexVariantCreationContext() {
         if (complexVariantCreationContext == null) {
             complexVariantCreationContext = new StandardElementaryCreationContext(complexVariant.getId(), null, getCreatedRaId(), importStatus, importStatusDetail, false);
         }

@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.InjectionRangeActionCreationContext;
 import com.powsybl.openrao.data.cracio.cse.criticalbranch.CseCriticalBranchCreationContext;
@@ -80,7 +79,7 @@ class CseCracCreatorTest {
     }
 
     private void assertOutageNotImported(String name, ImportStatus importStatus) {
-        StandardElementaryCreationContext context = cracCreationContext.getOutageCreationContext(name);
+        ElementaryCreationContext context = cracCreationContext.getOutageCreationContext(name);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());

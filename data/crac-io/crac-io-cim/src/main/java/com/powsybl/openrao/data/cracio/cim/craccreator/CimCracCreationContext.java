@@ -11,7 +11,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 public class CimCracCreationContext implements CracCreationContext {
     private Crac crac;
     private boolean isCreationSuccessful;
-    private Set<StandardElementaryCreationContext> contingencyCreationContexts;
+    private Set<ElementaryCreationContext> contingencyCreationContexts;
     private final Set<AngleCnecCreationContext> angleCnecCreationContexts;
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
     private final Set<VoltageCnecCreationContext> voltageCnecCreationContexts;
@@ -174,11 +173,11 @@ public class CimCracCreationContext implements CracCreationContext {
         return voltageCnecCreationContexts.stream().filter(creationContext -> nativeContingencyName.equals(creationContext.getNativeContingencyName())).collect(Collectors.toSet());
     }
 
-    void setContingencyCreationContexts(Set<StandardElementaryCreationContext> contingencyCreationContexts) {
+    void setContingencyCreationContexts(Set<ElementaryCreationContext> contingencyCreationContexts) {
         this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
 
-    public Set<StandardElementaryCreationContext> getContingencyCreationContexts() {
+    public Set<ElementaryCreationContext> getContingencyCreationContexts() {
         return new HashSet<>(contingencyCreationContexts);
     }
 
@@ -206,11 +205,11 @@ public class CimCracCreationContext implements CracCreationContext {
         return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeObjectId().equals(seriesId)).findAny().orElse(null);
     }
 
-    public StandardElementaryCreationContext getContingencyCreationContextById(String contingencyId) {
+    public ElementaryCreationContext getContingencyCreationContextById(String contingencyId) {
         return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectId().equals(contingencyId)).findAny().orElse(null);
     }
 
-    public StandardElementaryCreationContext getContingencyCreationContextByName(String contingencyName) {
+    public ElementaryCreationContext getContingencyCreationContextByName(String contingencyName) {
         return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectName().equals(contingencyName)).findAny().orElse(null);
     }
 
