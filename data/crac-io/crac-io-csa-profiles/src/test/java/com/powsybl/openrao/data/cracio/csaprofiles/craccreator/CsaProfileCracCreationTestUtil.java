@@ -31,6 +31,7 @@ import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +137,7 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertPstRangeActionImported(CsaProfileCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfUsageRules, String expectedOperator) {
-        CsaProfileElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        StandardElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(csaProfileElementaryCreationContext);
         assertTrue(csaProfileElementaryCreationContext.isImported());
         assertEquals(isAltered, csaProfileElementaryCreationContext.isAltered());
@@ -148,7 +149,7 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertNetworkActionImported(CsaProfileCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfUsageRules, String expectedOperator) {
-        CsaProfileElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        StandardElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(csaProfileElementaryCreationContext);
         assertTrue(csaProfileElementaryCreationContext.isImported());
         assertEquals(isAltered, csaProfileElementaryCreationContext.isAltered());
@@ -196,7 +197,7 @@ public final class CsaProfileCracCreationTestUtil {
     }
 
     public static void assertRaNotImported(CsaProfileCracCreationContext cracCreationContext, String raId, ImportStatus importStatus, String importStatusDetail) {
-        CsaProfileElementaryCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
+        StandardElementaryCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatusDetail, context.getImportStatusDetail());

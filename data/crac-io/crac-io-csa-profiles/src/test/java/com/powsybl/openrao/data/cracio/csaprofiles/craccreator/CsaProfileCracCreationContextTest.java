@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracio.csaprofiles.craccreator;
 
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -28,9 +29,9 @@ class CsaProfileCracCreationContextTest {
         CsaProfileCracCreationContext context = new CsaProfileCracCreationContext(crac, offsetDateTime, "network_name");
         context.creationSuccess(crac);
 
-        CsaProfileElementaryCreationContext cocc = Mockito.mock(CsaProfileElementaryCreationContext.class);
-        CsaProfileElementaryCreationContext racc = Mockito.mock(CsaProfileElementaryCreationContext.class);
-        CsaProfileElementaryCreationContext cncc = Mockito.mock(CsaProfileElementaryCreationContext.class);
+        StandardElementaryCreationContext cocc = Mockito.mock(StandardElementaryCreationContext.class);
+        StandardElementaryCreationContext racc = Mockito.mock(StandardElementaryCreationContext.class);
+        StandardElementaryCreationContext cncc = Mockito.mock(StandardElementaryCreationContext.class);
 
         context.setContingencyCreationContexts(Set.of(cocc));
         context.setCnecCreationContexts(Set.of(cncc));

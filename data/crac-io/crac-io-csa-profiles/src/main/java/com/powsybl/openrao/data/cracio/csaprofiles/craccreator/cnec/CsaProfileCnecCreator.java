@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
@@ -19,7 +20,6 @@ import com.powsybl.openrao.data.cracio.csaprofiles.nc.VoltageLimit;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.LimitType;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElementWithContingency;
@@ -41,7 +41,7 @@ public class CsaProfileCnecCreator {
     private final Map<String, CurrentLimit> nativeCurrentLimitPerId;
     private final Map<String, VoltageLimit> nativeVoltageLimitPerId;
     private final Map<String, com.powsybl.openrao.data.cracio.csaprofiles.nc.VoltageAngleLimit> nativeVoltageAngleLimitPerId;
-    private Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
+    private Set<StandardElementaryCreationContext> csaProfileCnecCreationContexts;
     private final CsaProfileCracCreationContext cracCreationContext;
     private final CracCreationParameters cracCreationParameters;
     private final String regionEic;
@@ -68,7 +68,7 @@ public class CsaProfileCnecCreator {
             try {
                 addCnec(nativeAssessedElement, nativeAssessedElementWithContingencies);
             } catch (OpenRaoImportException exception) {
-                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeAssessedElement.mrid(), exception.getImportStatus(), exception.getMessage()));
+                csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.notImported(nativeAssessedElement.mrid(), null, exception.getImportStatus(), exception.getMessage()));
             }
         }
         cracCreationContext.setCnecCreationContexts(csaProfileCnecCreationContexts);
@@ -151,20 +151,20 @@ public class CsaProfileCnecCreator {
 
         // Unknown contingency
         if (contingencyToLink == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + nativeAssessedElementWithContingency.contingency() + " linked to the assessed element does not exist in the CRAC"));
+            csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.notImported(assessedElementId, null, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + nativeAssessedElementWithContingency.contingency() + " linked to the assessed element does not exist in the CRAC"));
             return false;
         }
 
         // Illegal element combination constraint kind
         if (!ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeAssessedElementWithContingency.combinationConstraintKind())) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + nativeAssessedElementWithContingency.contingency() + " is linked to the assessed element with an illegal elementCombinationConstraint kind"));
+            csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.notImported(assessedElementId, null, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + nativeAssessedElementWithContingency.contingency() + " is linked to the assessed element with an illegal elementCombinationConstraint kind"));
             combinableContingenciesSet.remove(contingencyToLink);
             return false;
         }
 
         // Disabled link to contingency
         if (!nativeAssessedElementWithContingency.normalEnabled()) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "The link between contingency " + nativeAssessedElementWithContingency.contingency() + " and the assessed element is disabled"));
+            csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.notImported(assessedElementId, null, ImportStatus.NOT_FOR_RAO, "The link between contingency " + nativeAssessedElementWithContingency.contingency() + " and the assessed element is disabled"));
             combinableContingenciesSet.remove(contingencyToLink);
             return false;
         }

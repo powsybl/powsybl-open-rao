@@ -11,6 +11,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -27,11 +28,11 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private boolean isCreationSuccessful;
 
-    private Set<CsaProfileElementaryCreationContext> contingencyCreationContexts;
+    private Set<StandardElementaryCreationContext> contingencyCreationContexts;
 
-    private Set<CsaProfileElementaryCreationContext> remedialActionCreationContexts;
+    private Set<StandardElementaryCreationContext> remedialActionCreationContexts;
 
-    private Set<CsaProfileElementaryCreationContext> cnecCreationContexts;
+    private Set<StandardElementaryCreationContext> cnecCreationContexts;
 
     private CracCreationReport creationReport;
 
@@ -77,31 +78,31 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return this.networkName;
     }
 
-    public void setContingencyCreationContexts(Set<CsaProfileElementaryCreationContext> contingencyCreationContexts) {
+    public void setContingencyCreationContexts(Set<StandardElementaryCreationContext> contingencyCreationContexts) {
         this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
 
-    public Set<CsaProfileElementaryCreationContext> getContingencyCreationContexts() {
+    public Set<StandardElementaryCreationContext> getContingencyCreationContexts() {
         return new HashSet<>(this.contingencyCreationContexts);
     }
 
-    public Set<CsaProfileElementaryCreationContext> getRemedialActionCreationContexts() {
+    public Set<StandardElementaryCreationContext> getRemedialActionCreationContexts() {
         return new HashSet<>(remedialActionCreationContexts);
     }
 
-    public CsaProfileElementaryCreationContext getRemedialActionCreationContext(String nativeId) {
+    public StandardElementaryCreationContext getRemedialActionCreationContext(String nativeId) {
         return remedialActionCreationContexts.stream().filter(rac -> rac.getNativeObjectId().equals(nativeId)).findFirst().orElse(null);
     }
 
-    public void setRemedialActionCreationContexts(Set<CsaProfileElementaryCreationContext> remedialActionCreationContexts) {
+    public void setRemedialActionCreationContexts(Set<StandardElementaryCreationContext> remedialActionCreationContexts) {
         this.remedialActionCreationContexts = remedialActionCreationContexts;
     }
 
-    public void setCnecCreationContexts(Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+    public void setCnecCreationContexts(Set<StandardElementaryCreationContext> cnecCreationContexts) {
         this.cnecCreationContexts = new HashSet<>(cnecCreationContexts);
     }
 
-    public Set<CsaProfileElementaryCreationContext> getCnecCreationContexts() {
+    public Set<StandardElementaryCreationContext> getCnecCreationContexts() {
         return new HashSet<>(this.cnecCreationContexts);
     }
 

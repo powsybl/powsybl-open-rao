@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.remedialaction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElementWithRemedialAction;
@@ -30,11 +30,11 @@ public final class OnConstraintUsageRuleHelper {
     private OnConstraintUsageRuleHelper() {
     }
 
-    public static Set<Cnec> getImportedCnecFromAssessedElementId(String assessedElementId, Crac crac, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+    public static Set<Cnec> getImportedCnecFromAssessedElementId(String assessedElementId, Crac crac, Set<StandardElementaryCreationContext> cnecCreationContexts) {
         return cnecCreationContexts.stream().filter(context -> context.isImported() && assessedElementId.equals(context.getNativeObjectId())).map(context -> crac.getCnec(context.getCreatedObjectId())).collect(Collectors.toSet());
     }
 
-    public static Set<Cnec> getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(Crac crac, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, Set<AssessedElement> nativeAssessedElements) {
+    public static Set<Cnec> getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(Crac crac, Set<StandardElementaryCreationContext> cnecCreationContexts, Set<AssessedElement> nativeAssessedElements) {
         Set<Cnec> cnecsCombinableWithRemedialActions = new HashSet<>();
         nativeAssessedElements.stream().filter(AssessedElement::isCombinableWithRemedialAction).forEach(nativeAssessedElement -> cnecsCombinableWithRemedialActions.addAll(getImportedCnecFromAssessedElementId(nativeAssessedElement.mrid(), crac, cnecCreationContexts)));
         return cnecsCombinableWithRemedialActions;
@@ -44,7 +44,7 @@ public final class OnConstraintUsageRuleHelper {
         return cnecs.stream().filter(cnec -> cnec.getState().getContingency().isPresent() && contingenciesIds.contains(cnec.getState().getContingency().get().getId())).collect(Collectors.toSet());
     }
 
-    public static Map<String, AssociationStatus> processCnecsLinkedToRemedialAction(Crac crac, String remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+    public static Map<String, AssociationStatus> processCnecsLinkedToRemedialAction(Crac crac, String remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<StandardElementaryCreationContext> cnecCreationContexts) {
         Map<String, AssociationStatus> contingencyStatusMap = OnContingencyStateUsageRuleHelper.processContingenciesLinkedToRemedialAction(crac, remedialActionId, linkedContingencyWithRemedialActions);
         Map<String, AssociationStatus> cnecStatusMap = new HashMap<>();
         Set<Cnec> cnecsCombinableWithRemedialAction = getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(crac, cnecCreationContexts, nativeAssessedElements);

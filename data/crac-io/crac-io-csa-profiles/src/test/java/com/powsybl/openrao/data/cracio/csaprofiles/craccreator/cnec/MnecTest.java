@@ -7,8 +7,8 @@
 package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.cnec;
 
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElementaryCreationContext;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
@@ -48,8 +48,8 @@ public class MnecTest {
         assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE9 (ae-9) - preventive - TWO").isOptimized());
         assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE9 (ae-9) - preventive - TWO").isMonitored());
 
-        List<CsaProfileElementaryCreationContext> notImportedCnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream().filter(c -> !c.isImported())
-            .sorted(Comparator.comparing(CsaProfileElementaryCreationContext::getNativeObjectId)).toList();
+        List<StandardElementaryCreationContext> notImportedCnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream().filter(c -> !c.isImported())
+            .sorted(Comparator.comparing(StandardElementaryCreationContext::getNativeObjectId)).toList();
         assertEquals(2, notImportedCnecCreationContexts.size());
 
         assertEquals("ae-1", notImportedCnecCreationContexts.get(0).getNativeObjectId());

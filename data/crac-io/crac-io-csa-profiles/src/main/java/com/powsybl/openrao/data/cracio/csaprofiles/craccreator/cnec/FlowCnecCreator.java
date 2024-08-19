@@ -14,9 +14,9 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.LimitTypeKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.OperationalLimitDirectionKind;
@@ -39,7 +39,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private final FlowCnecInstantHelper instantHelper;
     private final CurrentLimit nativeCurrentLimit;
 
-    public FlowCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, CurrentLimit nativeCurrentLimit, List<Contingency> linkedContingencies, Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, CracCreationParameters cracCreationParameters) {
+    public FlowCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, CurrentLimit nativeCurrentLimit, List<Contingency> linkedContingencies, Set<StandardElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, CracCreationParameters cracCreationParameters) {
         super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
         this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
         this.nativeCurrentLimit = nativeCurrentLimit;
@@ -204,7 +204,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             thresholds.getOrDefault(Integer.MAX_VALUE, Map.of()).forEach((twoSides, threshold) -> {
                 String cnecName = getCnecName(crac.getPreventiveInstant().getId(), null, twoSides, Integer.MAX_VALUE);
                 addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), twoSides, threshold, Integer.MAX_VALUE, useMaxAndMinThresholds);
-                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, "", false));
+                csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
             });
         }
 
@@ -233,9 +233,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 String cnecName = getCnecName(instant, contingency, twoSides, acceptableDuration);
                 addFlowCnec(networkElement, contingency, instant, twoSides, threshold, acceptableDuration, useMaxAndMinThresholds);
                 if (acceptableDuration == Integer.MAX_VALUE && Boolean.TRUE.equals(forceUseOfPatl.get(twoSides))) {
-                    csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId(), twoSides), true));
+                    csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId(), twoSides)));
                 } else {
-                    csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, "", false));
+                    csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
                 }
             }
         );
