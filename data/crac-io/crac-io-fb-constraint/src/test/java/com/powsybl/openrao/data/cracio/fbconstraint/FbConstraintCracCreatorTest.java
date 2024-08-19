@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracimpl.NetworkActionImpl;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
@@ -213,7 +214,7 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0001").isImported());
         assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0002").isImported());
 
-        ComplexVariantCreationContext pstContext = creationContext.getRemedialActionCreationContext("RA_BE_0001");
+        StandardElementaryCreationContext pstContext = creationContext.getRemedialActionCreationContext("RA_BE_0001");
         assertNotNull(pstContext);
         assertEquals(ImportStatus.IMPORTED, pstContext.getImportStatus());
         assertEquals("RA_BE_0001", pstContext.getNativeObjectId());
@@ -224,7 +225,7 @@ class FbConstraintCracCreatorTest {
         assertFalse(((PstComplexVariantCreationContext) pstContext).isInverted());
         assertEquals("BBE2AA1  BBE3AA1  1", ((PstComplexVariantCreationContext) pstContext).getNativeNetworkElementId());
 
-        ComplexVariantCreationContext topoContext = creationContext.getRemedialActionCreationContext("RA_FR_0001");
+        StandardElementaryCreationContext topoContext = creationContext.getRemedialActionCreationContext("RA_FR_0001");
         assertNotNull(topoContext);
         assertEquals(ImportStatus.IMPORTED, topoContext.getImportStatus());
         assertEquals("RA_FR_0001", topoContext.getNativeObjectId());

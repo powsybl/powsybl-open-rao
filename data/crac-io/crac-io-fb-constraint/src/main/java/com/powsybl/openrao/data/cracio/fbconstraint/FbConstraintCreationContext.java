@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.fbconstraint;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 
@@ -25,7 +26,7 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     private final OffsetDateTime timeStamp;
     private final String networkName;
     private final Map<String, CriticalBranchCreationContext> criticalBranchCreationContexts;
-    private final Map<String, ComplexVariantCreationContext> complexVariantCreationContexts;
+    private final Map<String, StandardElementaryCreationContext> complexVariantCreationContexts;
     private final CracCreationReport creationReport;
 
     @Override
@@ -69,7 +70,7 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public ComplexVariantCreationContext getRemedialActionCreationContext(String complexVariantId) {
+    public StandardElementaryCreationContext getRemedialActionCreationContext(String complexVariantId) {
         return complexVariantCreationContexts.get(complexVariantId);
     }
 
@@ -77,8 +78,8 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
         criticalBranchCreationContexts.put(cbcc.getNativeObjectId(), cbcc);
     }
 
-    void addComplexVariantCreationContext(ComplexVariantCreationContext cvcc) {
-        complexVariantCreationContexts.put(cvcc.getNativeObjectId(), cvcc);
+    void addComplexVariantCreationContext(StandardElementaryCreationContext context) {
+        complexVariantCreationContexts.put(context.getNativeObjectId(), context);
     }
 
     FbConstraintCreationContext(OffsetDateTime timeStamp, String networkName) {
