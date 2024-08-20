@@ -422,8 +422,8 @@ public class CastorFullOptimization {
 
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, loopFlowCnecs, initialSensitivityOutput, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, raoInput.getCrac(), stateTree.getOperatorsNotSharingCras(), raoParameters);
-        Pair<Boolean, ObjectiveFunctionResult> stopCriterionReached = isStopCriterionChecked(objectiveFunction, curativeTreeParameters, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput);
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, loopFlowCnecs, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), raoParameters);
+        Pair<Boolean, ObjectiveFunctionResult> stopCriterionReached = isStopCriterionChecked(objectiveFunction, curativeTreeParameters, prePerimeterSensitivityOutput);
         if (stopCriterionReached.getLeft()) {
             NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Collections.emptySet());
 
@@ -461,8 +461,8 @@ public class CastorFullOptimization {
         return result;
     }
 
-    private Pair<Boolean, ObjectiveFunctionResult> isStopCriterionChecked(ObjectiveFunction objectiveFunction, TreeParameters treeParameters, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null, sensitivityResult, DEFAULT);
+    private Pair<Boolean, ObjectiveFunctionResult> isStopCriterionChecked(ObjectiveFunction objectiveFunction, TreeParameters treeParameters, FlowResult flowResult) {
+        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult);
         if (result.getVirtualCost() > 1e-6) {
             return Pair.of(false, result);
         }
