@@ -43,6 +43,8 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     private final Crac crac;
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
+    private final Map<Instant, Map<State, State>> optimizedStateForInstantAndState = new HashMap<>();
+
     /**
      * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
      * same as the post-preventive RAO results.
@@ -337,11 +339,20 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         if (optimizedInstant.isPreventive()) {
             return null;
         }
-        return postContingencyResults.keySet().stream().filter(state ->
-            !state.getInstant().comesAfter(flowCnec.getState().getInstant())
-                && state.getInstant().equals(optimizedInstant)
-                && state.getContingency().equals(flowCnec.getState().getContingency())
-        ).findAny().orElseGet(() -> findStateOptimizedFor(crac.getInstantBefore(optimizedInstant), flowCnec));
+        optimizedStateForInstantAndState.putIfAbsent(optimizedInstant, new HashMap<>());
+        Map<State, State> optimizedStateForState = optimizedStateForInstantAndState.get(optimizedInstant);
+        State cnecState = flowCnec.getState();
+        if (optimizedStateForState.containsKey(cnecState)) {
+            return optimizedStateForState.get(cnecState);
+        } else {
+            State optimizedState = postContingencyResults.keySet().stream().filter(state ->
+                !state.getInstant().comesAfter(cnecState.getInstant())
+                    && state.getInstant().equals(optimizedInstant)
+                    && state.getContingency().equals(cnecState.getContingency())
+            ).findAny().orElseGet(() -> findStateOptimizedFor(crac.getInstantBefore(optimizedInstant), flowCnec));
+            optimizedStateForState.put(cnecState, optimizedState);
+            return optimizedState;
+        }
     }
 
     private double getHighestFunctionalForInstant(Instant instant) {
