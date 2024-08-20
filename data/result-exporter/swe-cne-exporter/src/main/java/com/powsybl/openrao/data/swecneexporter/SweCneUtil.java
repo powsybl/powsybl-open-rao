@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.swecneexporter.xsd.AreaIDString;
 import com.powsybl.openrao.data.swecneexporter.xsd.ESMPDateTimeInterval;
 import com.powsybl.openrao.data.swecneexporter.xsd.PartyIDString;
@@ -17,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneUtil.cutString;
 
@@ -75,5 +78,25 @@ public final class SweCneUtil {
         areaIDString.setCodingScheme(codingScheme);
         areaIDString.setValue(cutString(value, 16));
         return areaIDString;
+    }
+
+    public static Country getOperatorCountry(String operator) {
+        return switch (operator) {
+            case "RTE" -> Country.FR;
+            case "REE" -> Country.ES;
+            case "REN" -> Country.PT;
+            default -> throw new OpenRaoException(String.format("Unknown operator in SWE region: \"%s\"", operator));
+        };
+    }
+
+    public static Country getBranchCountry(Branch<?> branch, TwoSides side) {
+        Optional<Substation> sub = branch.getTerminal(side).getVoltageLevel().getSubstation();
+        if (sub.isPresent()) {
+            Optional<Country> country = sub.get().getCountry();
+            if (country.isPresent()) {
+                return country.get();
+            }
+        }
+        throw new OpenRaoException(String.format("Cannot figure out country of branch \"%s\" on side %s", branch.getId(), side));
     }
 }

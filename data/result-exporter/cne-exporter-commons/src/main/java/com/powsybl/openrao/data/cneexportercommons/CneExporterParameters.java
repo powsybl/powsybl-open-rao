@@ -7,12 +7,14 @@
 
 package com.powsybl.openrao.data.cneexportercommons;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
+
 /**
  * Parameters for CNE export
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CneExporterParameters {
+public class CneExporterParameters extends AbstractExtendable<CneExporterParameters> {
     private String documentId;
     private int revisionNumber;
     private String domainId;

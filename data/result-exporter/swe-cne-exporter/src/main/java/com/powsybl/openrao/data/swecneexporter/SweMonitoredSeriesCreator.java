@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CnecCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.MeasurementCreationContext;
@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.cracio.cim.craccreator.MonitoredSeriesCreationCo
 import com.powsybl.openrao.data.swecneexporter.xsd.Analog;
 import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredRegisteredResource;
 import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredSeries;
-import com.powsybl.iidm.network.Branch;
 
 import java.util.*;
 
@@ -71,7 +70,7 @@ public class SweMonitoredSeriesCreator {
                                 }
                             )
                     )
-        );
+            );
     }
 
     public List<MonitoredSeries> generateMonitoredSeries(Contingency contingency) {
@@ -140,9 +139,7 @@ public class SweMonitoredSeriesCreator {
         MonitoredRegisteredResource registeredResource = new MonitoredRegisteredResource();
         registeredResource.setMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, monitoredSeriesCreationContext.getNativeResourceId()));
         registeredResource.setName(monitoredSeriesCreationContext.getNativeResourceName());
-        Branch<?> branch = sweCneHelper.getNetwork().getBranch(cnec.getNetworkElement().getId());
-        registeredResource.setInAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal1().getVoltageLevel().getId()));
-        registeredResource.setOutAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal2().getVoltageLevel().getId()));
+        setInOutAggregateNodes(cnec, registeredResource);
 
         if (includeMeasurements) {
             Analog flow = new Analog();
@@ -158,8 +155,8 @@ public class SweMonitoredSeriesCreator {
             threshold.setUnitSymbol(AMP_UNIT_SYMBOL);
             TwoSides side = cnec.getMonitoredSides().contains(TwoSides.ONE) ? TwoSides.ONE : cnec.getMonitoredSides().iterator().next();
             float roundedThreshold = Math.round(Math.min(
-                    Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
-                    Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
+                Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
+                Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
             threshold.setPositiveFlowIn(roundedFlow >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
             threshold.setAnalogValuesValue(Math.abs(roundedThreshold));
             registeredResource.getMeasurements().add(threshold);
@@ -167,6 +164,28 @@ public class SweMonitoredSeriesCreator {
 
         monitoredSeries.getRegisteredResource().add(registeredResource);
         return monitoredSeries;
+    }
+
+    private void setInOutAggregateNodes(FlowCnec cnec, MonitoredRegisteredResource registeredResource) {
+        Branch<?> branch = sweCneHelper.getNetwork().getBranch(cnec.getNetworkElement().getId());
+        if (branch instanceof TieLine tieLine) {
+            Country cnecOperatorCountry = SweCneUtil.getOperatorCountry(cnec.getOperator());
+            String xNodeMRId = sweCneHelper.getExporterParameters().getExtension(SweCneExporterParameters.class)
+                .getXNodeMrid(tieLine.getPairingKey());
+            if (xNodeMRId == null) {
+                xNodeMRId = "null";
+            }
+            if (SweCneUtil.getBranchCountry(branch, TwoSides.ONE).equals(cnecOperatorCountry)) {
+                registeredResource.setInAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal1().getVoltageLevel().getId()));
+                registeredResource.setOutAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, xNodeMRId));
+            } else {
+                registeredResource.setInAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, xNodeMRId));
+                registeredResource.setOutAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal2().getVoltageLevel().getId()));
+            }
+        } else {
+            registeredResource.setInAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal1().getVoltageLevel().getId()));
+            registeredResource.setOutAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal2().getVoltageLevel().getId()));
+        }
     }
 
     private String getThresholdMeasurementType(FlowCnec cnec) {
