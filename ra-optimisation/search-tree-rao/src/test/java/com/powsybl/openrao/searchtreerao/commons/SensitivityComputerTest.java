@@ -27,7 +27,7 @@ class SensitivityComputerTest {
     void testOutageInstantMustBeDefinedInTheBuilder() {
         ToolProvider toolProvider = Mockito.mock(ToolProvider.class);
         Set<FlowCnec> flowCnecs = Set.of(Mockito.mock(FlowCnec.class));
-        Set rangeActions = Set.of(Mockito.mock(RangeAction.class));
+        Set<RangeAction<?>> rangeActions = Set.of(Mockito.mock(RangeAction.class));
 
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(toolProvider)
