@@ -41,6 +41,14 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         this.injectionDistributionKeys = injectionDistributionKeys;
     }
 
+    InjectionRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
+                             List<StandardRange> ranges, double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys, Integer speed, double activationCost) {
+        super(id, name, operator, usageRules, groupId, speed, activationCost);
+        this.ranges = ranges;
+        this.initialSetpoint = initialSetpoint;
+        this.injectionDistributionKeys = injectionDistributionKeys;
+    }
+
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return injectionDistributionKeys.keySet();

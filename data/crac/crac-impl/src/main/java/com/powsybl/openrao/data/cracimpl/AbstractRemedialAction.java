@@ -32,12 +32,21 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     private boolean computedUsageMethods = false;
     private Map<State, UsageMethod> usageMethodPerState;
     private Map<Instant, UsageMethod> usageMethodPerInstant;
+    private double activationCost;
 
     protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed) {
         super(id, name);
         this.operator = operator;
         this.usageRules = usageRules;
         this.speed = speed;
+    }
+
+    protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed, double activationCost) {
+        super(id, name);
+        this.operator = operator;
+        this.usageRules = usageRules;
+        this.speed = speed;
+        this.activationCost = activationCost;
     }
 
     void addUsageRule(UsageRule usageRule) {
@@ -77,6 +86,11 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         return UsageMethod.getStrongestUsageMethod(Set.of(
             usageMethodPerState.getOrDefault(state, UsageMethod.UNDEFINED),
             usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED)));
+    }
+
+    @Override
+    public double getActivationCost() {
+        return activationCost;
     }
 
     private void computeUsageMethodPerStateAndInstant() {

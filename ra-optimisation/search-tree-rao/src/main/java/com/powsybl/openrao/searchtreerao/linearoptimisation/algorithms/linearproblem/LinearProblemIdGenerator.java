@@ -36,6 +36,8 @@ public final class LinearProblemIdGenerator {
     private static final String MIN_MARGIN = "minmargin";
     private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
     private static final String MIN_RELATIVE_MARGIN_SIGN_BINARY = "minrelmarginispositive";
+    private static final String ACTIVATION_COST = "activationcost";
+    private static final String TOTAL_COST = "totalcost";
     private static final String MAX_LOOPFLOW = "maxloopflow";
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
     private static final String MNEC_VIOLATION = "mnecviolation";
@@ -155,6 +157,22 @@ public final class LinearProblemIdGenerator {
 
     public static String minimumRelativeMarginSetToZeroConstraintId() {
         return MIN_RELATIVE_MARGIN + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String totalCostVariableId() {
+        return TOTAL_COST + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String totalCostConstraintId() {
+        return TOTAL_COST + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String rangeActionCostVariableId(RangeAction<?> rangeAction, State state) {
+        return ACTIVATION_COST + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String rangeActionCostConstraintId(RangeAction<?> rangeAction, State state) {
+        return ACTIVATION_COST + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String maxLoopFlowConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.BoundExtension lbOrUb) {

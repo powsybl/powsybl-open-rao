@@ -76,4 +76,6 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     }
 
     OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule();
+
+    double getActivationCost();
 }

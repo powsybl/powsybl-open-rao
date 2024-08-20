@@ -111,6 +111,8 @@ public final class LinearProblem {
     }
 
     public LinearProblemStatus solve() {
+        System.out.println(solver.getMpSolver().exportModelAsLpFormat());
+
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
         return solver.solve();
@@ -330,6 +332,38 @@ public final class LinearProblem {
 
     public OpenRaoMPVariable getMinimumRelativeMarginSignBinaryVariable() {
         return solver.getVariable(minimumRelativeMarginSignBinaryVariableId());
+    }
+
+    public OpenRaoMPVariable addTotalCostVariable(double lb, double ub) {
+        return solver.makeNumVar(lb, ub, totalCostVariableId());
+    }
+
+    public OpenRaoMPVariable getTotalCostVariable() {
+        return solver.getVariable(totalCostVariableId());
+    }
+
+    public OpenRaoMPVariable addRangeActionCostVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeNumVar(lb, ub, rangeActionCostVariableId(rangeAction, state));
+    }
+
+    public OpenRaoMPVariable getRangeActionCostVariable(RangeAction<?> rangeAction, State state) {
+        return solver.getVariable(rangeActionCostVariableId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addActivationCostConstraint(double lb, double ub) {
+        return solver.makeConstraint(lb, ub, totalCostConstraintId());
+    }
+
+    public OpenRaoMPConstraint getActivationCostConstraint() {
+        return solver.getConstraint(totalCostConstraintId());
+    }
+
+    public OpenRaoMPConstraint addRangeActionCostConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, rangeActionCostConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionCostConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionCostConstraintId(rangeAction, state));
     }
 
     //Begin MaxLoopFlowFiller section

@@ -20,10 +20,11 @@ import java.util.*;
  */
 public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<T>> extends AbstractIdentifiableAdder<T> implements RemedialActionAdder<T> {
 
+    private final CracImpl crac;
     protected String operator;
     protected Integer speed;
     protected Set<UsageRule> usageRules = new HashSet<>();
-    private final CracImpl crac;
+    protected double activationCost;
 
     AbstractRemedialActionAdder(CracImpl crac) {
         Objects.requireNonNull(crac);
@@ -39,6 +40,12 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     @Override
     public T withSpeed(Integer speed) {
         this.speed = speed;
+        return (T) this;
+    }
+
+    @Override
+    public T withActivationCost(double activationCost) {
+        this.activationCost = activationCost;
         return (T) this;
     }
 

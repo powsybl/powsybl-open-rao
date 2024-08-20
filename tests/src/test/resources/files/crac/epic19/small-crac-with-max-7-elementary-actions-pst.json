@@ -35,8 +35,8 @@
       "nominalV" : [ 400.0 ],
       "thresholds" : [ {
         "unit" : "megawatt",
-        "min" : -500.0,
-        "max" : 500.0,
+        "min" : -400.0,
+        "max" : 400.0,
         "side" : "left"
       } ]
     }
