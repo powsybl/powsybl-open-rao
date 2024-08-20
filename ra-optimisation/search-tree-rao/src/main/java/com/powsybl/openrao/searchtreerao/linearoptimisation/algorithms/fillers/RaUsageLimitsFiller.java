@@ -124,7 +124,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
      * If PSTs are modelled with approximate integers, make sure that the initial setpoint is feasible (it should be at
      * a distance smaller than 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
      */
-    private double getInitialSetpointRelaxation(RangeAction rangeAction) {
+    private double getInitialSetpointRelaxation(RangeAction<?> rangeAction) {
         if (rangeAction instanceof PstRangeAction pstRangeAction && arePstSetpointsApproximated) {
             // The BestTapFinder is accurate at 35% of the setpoint difference between 2 taps. Using 30% here to be safe.
             return 0.3 * getAverageAbsoluteTapToAngleConversionFactor(pstRangeAction);
