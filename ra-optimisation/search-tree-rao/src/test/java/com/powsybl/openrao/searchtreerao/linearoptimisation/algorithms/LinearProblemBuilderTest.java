@@ -75,9 +75,9 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
-        assertTrue(fillers.get(0) instanceof CoreProblemFiller);
-        assertTrue(fillers.get(1) instanceof MaxMinMarginFiller);
-        assertTrue(fillers.get(2) instanceof ContinuousRangeActionGroupFiller);
+        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
+        assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
     }
 
     @Test
@@ -89,11 +89,11 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(5, fillers.size());
-        assertTrue(fillers.get(0) instanceof CoreProblemFiller);
-        assertTrue(fillers.get(1) instanceof MaxMinMarginFiller);
-        assertTrue(fillers.get(2) instanceof DiscretePstTapFiller);
-        assertTrue(fillers.get(3) instanceof DiscretePstGroupFiller);
-        assertTrue(fillers.get(4) instanceof ContinuousRangeActionGroupFiller);
+        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
+        assertInstanceOf(DiscretePstTapFiller.class, fillers.get(2));
+        assertInstanceOf(DiscretePstGroupFiller.class, fillers.get(3));
+        assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(4));
     }
 
     @Test
@@ -105,9 +105,9 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
-        assertTrue(fillers.get(0) instanceof CoreProblemFiller);
-        assertTrue(fillers.get(1) instanceof MaxMinRelativeMarginFiller);
-        assertTrue(fillers.get(2) instanceof ContinuousRangeActionGroupFiller);
+        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MaxMinRelativeMarginFiller.class, fillers.get(1));
+        assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
     }
 
     @Test
@@ -122,12 +122,12 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(6, fillers.size());
-        assertTrue(fillers.get(0) instanceof CoreProblemFiller);
-        assertTrue(fillers.get(1) instanceof MaxMinMarginFiller);
-        assertTrue(fillers.get(2) instanceof MnecFiller);
-        assertTrue(fillers.get(3) instanceof MaxLoopFlowFiller);
-        assertTrue(fillers.get(4) instanceof UnoptimizedCnecFiller);
-        assertTrue(fillers.get(5) instanceof ContinuousRangeActionGroupFiller);
+        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
+        assertInstanceOf(MnecFiller.class, fillers.get(2));
+        assertInstanceOf(MaxLoopFlowFiller.class, fillers.get(3));
+        assertInstanceOf(UnoptimizedCnecFiller.class, fillers.get(4));
+        assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(5));
     }
 
     @Test
@@ -143,9 +143,9 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(4, fillers.size());
-        assertTrue(fillers.get(0) instanceof CoreProblemFiller);
-        assertTrue(fillers.get(1) instanceof MaxMinMarginFiller);
-        assertTrue(fillers.get(2) instanceof ContinuousRangeActionGroupFiller);
-        assertTrue(fillers.get(3) instanceof RaUsageLimitsFiller);
+        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
+        assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
+        assertInstanceOf(RaUsageLimitsFiller.class, fillers.get(3));
     }
 }

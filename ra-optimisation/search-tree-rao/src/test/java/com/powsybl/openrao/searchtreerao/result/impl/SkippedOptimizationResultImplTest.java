@@ -42,7 +42,7 @@ class SkippedOptimizationResultImplTest {
         SensitivityVariableSet sensitivityVariableSet = mock(SensitivityVariableSet.class);
         State state = mock(State.class);
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
-        RangeAction rangeAction = mock(RangeAction.class);
+        RangeAction<?> rangeAction = mock(RangeAction.class);
 
         SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOverCost);
 
@@ -91,8 +91,8 @@ class SkippedOptimizationResultImplTest {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
         NetworkAction na3 = Mockito.mock(NetworkAction.class);
-        RangeAction ra1 = Mockito.mock(RangeAction.class);
-        RangeAction ra2 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra1 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra2 = Mockito.mock(RangeAction.class);
         Set<NetworkAction> networkActions = Set.of(na1, na2);
         Set<RangeAction<?>> rangeActions = Set.of(ra1, ra2);
         SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, networkActions, rangeActions, ComputationStatus.DEFAULT, sensitivityFailureOverCost);

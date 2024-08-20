@@ -47,7 +47,6 @@ class StateTreeTest {
     private State outageState;
     private State curativeState1;
     private State curativeState2;
-    private Instant preventiveInstant;
     private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
@@ -102,7 +101,6 @@ class StateTreeTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
@@ -260,7 +258,6 @@ class StateTreeTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);

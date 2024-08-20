@@ -137,6 +137,11 @@ public class SearchTreeRaoSteps {
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
     }
 
+    @Then("the calculation partially fails")
+    public void theCalculationPartiallyFails() {
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, raoResult.getComputationStatus());
+    }
+
     @Then("the calculation fails")
     public void theCalculationFails() {
         assertEquals(ComputationStatus.FAILURE, raoResult.getComputationStatus());

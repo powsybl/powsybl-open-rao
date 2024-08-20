@@ -9,8 +9,10 @@ package com.powsybl.openrao.searchtreerao.result.api;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Map;
@@ -143,4 +145,8 @@ public interface FlowResult {
      * @return A map of the sums of the computation areas' zonal PTDFs on each branch.
      */
     Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums();
+
+    ComputationStatus getComputationStatus();
+
+    ComputationStatus getComputationStatus(State state);
 }
