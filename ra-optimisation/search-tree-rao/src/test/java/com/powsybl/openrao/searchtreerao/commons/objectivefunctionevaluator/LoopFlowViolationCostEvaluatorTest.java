@@ -6,16 +6,13 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,11 +35,8 @@ class LoopFlowViolationCostEvaluatorTest {
     private FlowCnec cnec2;
     private FlowResult initialLoopFlows;
     private FlowResult currentLoopFlows;
-    private ComputationStatus sensitivityStatus;
     private LoopFlowParametersExtension parameters;
     private LoopFlowViolationCostEvaluator evaluator;
-    private RangeActionActivationResult rangeActionActivationResult;
-    private SensitivityResult sensitivityResult;
 
     @BeforeEach
     public void setUp() {
@@ -62,10 +56,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         initialLoopFlows = Mockito.mock(FlowResult.class);
         currentLoopFlows = Mockito.mock(FlowResult.class);
-        sensitivityStatus = Mockito.mock(ComputationStatus.class);
         parameters = Mockito.mock(LoopFlowParametersExtension.class);
-        rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        sensitivityResult = Mockito.mock(SensitivityResult.class);
     }
 
     private void setInputThresholdWithReliabilityMargin(FlowCnec branchCnec, double inputThresholdWIthReliabilityMargin) {
@@ -200,7 +191,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(150, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(150, evaluator.computeCostAndLimitingElements(currentLoopFlows).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -220,7 +211,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(300, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(300, evaluator.computeCostAndLimitingElements(currentLoopFlows).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -240,7 +231,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getRight();
+        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows).getRight();
         assertEquals(2, costlyElements.size());
         assertSame(cnec1, costlyElements.get(0));
         assertSame(cnec2, costlyElements.get(1));
@@ -263,7 +254,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getRight();
+        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows).getRight();
         assertEquals(1, costlyElements.size());
         assertSame(cnec2, costlyElements.get(0));
     }

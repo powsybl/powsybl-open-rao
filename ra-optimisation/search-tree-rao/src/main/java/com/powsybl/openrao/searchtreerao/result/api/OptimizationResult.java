@@ -7,8 +7,21 @@
 
 package com.powsybl.openrao.searchtreerao.result.api;
 
+import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface OptimizationResult extends FlowResult, SensitivityResult, ObjectiveFunctionResult, RangeActionActivationResult, NetworkActionsResult {
+
+    @Override
+    default ComputationStatus getComputationStatus() {
+        return getSensitivityStatus();
+    }
+
+    @Override
+    default ComputationStatus getComputationStatus(State state) {
+        return getSensitivityStatus(state);
+    }
 }

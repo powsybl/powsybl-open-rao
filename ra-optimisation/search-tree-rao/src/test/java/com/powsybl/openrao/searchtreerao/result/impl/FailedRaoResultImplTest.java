@@ -36,7 +36,7 @@ class FailedRaoResultImplTest {
         Instant optInstant = mock(Instant.class);
         State state = mock(State.class);
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
-        RangeAction rangeAction = mock(RangeAction.class);
+        RangeAction<?> rangeAction = mock(RangeAction.class);
         NetworkAction networkAction = mock(NetworkAction.class);
 
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl("mocked error message 1");

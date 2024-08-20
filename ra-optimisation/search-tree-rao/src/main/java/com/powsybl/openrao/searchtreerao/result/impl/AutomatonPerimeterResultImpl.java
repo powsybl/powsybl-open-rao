@@ -37,7 +37,6 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     private final Set<RangeAction<?>> activatedRangeActions;
     private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private final State optimizedState;
-    private ComputationStatus computationStatus = ComputationStatus.DEFAULT;
 
     public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> forcedNetworkActions, Set<NetworkAction> selectedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
@@ -185,14 +184,6 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
         return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus(state);
-    }
-
-    public ComputationStatus getComputationStatus() {
-        return computationStatus;
-    }
-
-    public void setComputationStatus(ComputationStatus computationStatusToSet) {
-        computationStatus = computationStatusToSet;
     }
 
     @Override

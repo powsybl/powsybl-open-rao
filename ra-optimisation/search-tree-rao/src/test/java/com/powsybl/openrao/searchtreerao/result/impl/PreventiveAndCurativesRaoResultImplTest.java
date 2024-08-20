@@ -326,8 +326,11 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetComputationStatus() {
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(autoResult1.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult1.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
+
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
 
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
@@ -339,7 +342,18 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
+
+        when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
+
+        when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
+
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }
 
     @Test

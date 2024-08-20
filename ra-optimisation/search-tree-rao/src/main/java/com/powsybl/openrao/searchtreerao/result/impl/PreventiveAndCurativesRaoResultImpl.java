@@ -25,8 +25,7 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 
 import java.util.*;
 
-import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.DEFAULT;
-import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
+import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -197,9 +196,14 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == FAILURE
-            || secondPreventivePerimeterResult.getSensitivityStatus() == FAILURE
-            || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FAILURE)) {
+            || secondPreventivePerimeterResult.getSensitivityStatus() == FAILURE) {
             return FAILURE;
+        }
+        if (initialResult.getSensitivityStatus() == PARTIAL_FAILURE ||
+            secondPreventivePerimeterResult.getSensitivityStatus() == PARTIAL_FAILURE ||
+            postContingencyResults.entrySet().stream().anyMatch(entry ->
+                entry.getValue() == null || entry.getValue().getSensitivityStatus(entry.getKey()) != DEFAULT)) {
+            return PARTIAL_FAILURE;
         }
         return DEFAULT;
     }

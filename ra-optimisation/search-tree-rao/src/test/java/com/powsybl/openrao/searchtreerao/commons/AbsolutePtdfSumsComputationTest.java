@@ -49,33 +49,21 @@ class AbsolutePtdfSumsComputationTest {
                     SensitivityVariableSet linearGlsk = (SensitivityVariableSet) invocation.getArguments()[0];
                     FlowCnec branchCnec = (FlowCnec) invocation.getArguments()[1];
                     if (branchCnec.getId().contains("cnec1")) {
-                        switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
-                            case "10YFR-RTE------C":
-                            case "22Y201903144---9":
-                                return 0.1;
-                            case "10YBE----------2":
-                                return 0.2;
-                            case "10YCB-GERMANY--8":
-                                return 0.3;
-                            case "22Y201903145---4":
-                                return 0.4;
-                            default:
-                                return 0.;
-                        }
+                        return switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
+                            case "10YFR-RTE------C", "22Y201903144---9" -> 0.1;
+                            case "10YBE----------2" -> 0.2;
+                            case "10YCB-GERMANY--8" -> 0.3;
+                            case "22Y201903145---4" -> 0.4;
+                            default -> 0.;
+                        };
                     } else if (branchCnec.getId().contains("cnec2")) {
-                        switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
-                            case "10YFR-RTE------C":
-                            case "10YBE----------2":
-                                return 0.3;
-                            case "10YCB-GERMANY--8":
-                                return 0.2;
-                            case "22Y201903145---4":
-                                return 0.1;
-                            case "22Y201903144---9":
-                                return 0.9;
-                            default:
-                                return 0.;
-                        }
+                        return switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
+                            case "10YFR-RTE------C", "10YBE----------2" -> 0.3;
+                            case "10YCB-GERMANY--8" -> 0.2;
+                            case "22Y201903145---4" -> 0.1;
+                            case "22Y201903144---9" -> 0.9;
+                            default -> 0.;
+                        };
                     } else {
                         return 0.;
                     }

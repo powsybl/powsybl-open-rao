@@ -111,6 +111,7 @@ public final class RaoResultJsonConstants {
     // computation statuses
     public static final String COMPUTATION_STATUS = "computationStatus";
     public static final String DEFAULT_STATUS = "default";
+    public static final String PARTIAL_FAILURE_STATUS = "partial-failure";
     public static final String FAILURE_STATUS = "failure";
     public static final String COMPUTATION_STATUS_MAP = "computationStatusMap";
 
@@ -223,25 +224,22 @@ public final class RaoResultJsonConstants {
     }
 
     public static String serializeStatus(ComputationStatus computationStatus) {
-        switch (computationStatus) {
-            case DEFAULT:
-                return DEFAULT_STATUS;
-            case FAILURE:
-                return FAILURE_STATUS;
-            default:
+        return switch (computationStatus) {
+            case DEFAULT -> DEFAULT_STATUS;
+            case PARTIAL_FAILURE -> PARTIAL_FAILURE_STATUS;
+            case FAILURE -> FAILURE_STATUS;
+            default ->
                 throw new OpenRaoException(String.format("Unsupported computation status %s", computationStatus));
-        }
+        };
     }
 
     public static ComputationStatus deserializeStatus(String stringValue) {
-        switch (stringValue) {
-            case DEFAULT_STATUS:
-                return ComputationStatus.DEFAULT;
-            case FAILURE_STATUS:
-                return ComputationStatus.FAILURE;
-            default:
-                throw new OpenRaoException(String.format("Unrecognized computation status %s", stringValue));
-        }
+        return switch (stringValue) {
+            case DEFAULT_STATUS -> ComputationStatus.DEFAULT;
+            case PARTIAL_FAILURE_STATUS -> ComputationStatus.PARTIAL_FAILURE;
+            case FAILURE_STATUS -> ComputationStatus.FAILURE;
+            default -> throw new OpenRaoException(String.format("Unrecognized computation status %s", stringValue));
+        };
     }
 
     public static String serializeOptimizedStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
