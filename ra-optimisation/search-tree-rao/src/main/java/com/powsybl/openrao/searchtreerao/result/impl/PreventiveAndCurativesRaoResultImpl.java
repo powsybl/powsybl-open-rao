@@ -33,11 +33,11 @@ import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.*;
 public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     private final State preventiveState;
     private final PrePerimeterResult initialResult;
-    private final PerimeterResult firstPreventivePerimeterResult;
-    private final PerimeterResult secondPreventivePerimeterResult;
+    private final OptimizationResult firstPreventivePerimeterResult;
+    private final OptimizationResult secondPreventivePerimeterResult;
     private final Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive;
     private final PrePerimeterResult resultsWithPrasForAllCnecs;
-    private final Map<State, PerimeterResult> postContingencyResults;
+    private final Map<State, OptimizationResult> postContingencyResults;
     private final ObjectiveFunctionResult finalCostEvaluator;
     private final Crac crac;
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
@@ -50,7 +50,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
      */
     public PreventiveAndCurativesRaoResultImpl(State preventiveState,
                                                PrePerimeterResult initialResult,
-                                               PerimeterResult preventivePerimeterResult,
+                                               OptimizationResult preventivePerimeterResult,
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Crac crac) {
         this(preventiveState, initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, new HashMap<>(), null, crac);
@@ -61,7 +61,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
      */
     public PreventiveAndCurativesRaoResultImpl(StateTree stateTree,
                                                PrePerimeterResult initialResult,
-                                               PerimeterResult preventivePerimeterResult,
+                                               OptimizationResult preventivePerimeterResult,
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults,
                                                Crac crac) {
@@ -74,8 +74,8 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
      */
     public PreventiveAndCurativesRaoResultImpl(StateTree stateTree,
                                                PrePerimeterResult initialResult,
-                                               PerimeterResult firstPreventivePerimeterResult,
-                                               PerimeterResult secondPreventivePerimeterResult,
+                                               OptimizationResult firstPreventivePerimeterResult,
+                                               OptimizationResult secondPreventivePerimeterResult,
                                                Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive,
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults,
@@ -89,8 +89,8 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
      */
     public PreventiveAndCurativesRaoResultImpl(StateTree stateTree,
                                                PrePerimeterResult initialResult,
-                                               PerimeterResult firstPreventivePerimeterResult,
-                                               PerimeterResult secondPreventivePerimeterResult,
+                                               OptimizationResult firstPreventivePerimeterResult,
+                                               OptimizationResult secondPreventivePerimeterResult,
                                                Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive,
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults,
@@ -102,11 +102,11 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     private PreventiveAndCurativesRaoResultImpl(State preventiveState,
                                                 PrePerimeterResult initialResult,
-                                                PerimeterResult firstPreventivePerimeterResult,
-                                                PerimeterResult preventivePerimeterResult,
+                                                OptimizationResult firstPreventivePerimeterResult,
+                                                OptimizationResult preventivePerimeterResult,
                                                 Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive,
                                                 PrePerimeterResult resultsWithPrasForAllCnecs,
-                                                Map<State, PerimeterResult> postContingencyPerimeterResults,
+                                                Map<State, OptimizationResult> postContingencyPerimeterResults,
                                                 ObjectiveFunctionResult finalCostEvaluator,
                                                 Crac crac) {
         this.preventiveState = preventiveState;
@@ -120,8 +120,8 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         this.crac = crac;
     }
 
-    private static Map<State, PerimeterResult> buildPostContingencyResults(StateTree stateTree, PrePerimeterResult preContingencyResult, Map<State, OptimizationResult> postContingencyResults) {
-        Map<State, PerimeterResult> results = new HashMap<>();
+    private static Map<State, OptimizationResult> buildPostContingencyResults(StateTree stateTree, PrePerimeterResult preContingencyResult, Map<State, OptimizationResult> postContingencyResults) {
+        Map<State, OptimizationResult> results = new HashMap<>();
         stateTree.getContingencyScenarios().forEach(contingencyScenario -> {
             Optional<State> automatonState = contingencyScenario.getAutomatonState();
             if (automatonState.isPresent()) {
@@ -214,7 +214,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     public ComputationStatus getComputationStatus(State state) {
         Instant instant = state.getInstant();
         while (instant != null) {
-            PerimeterResult perimeterResult = getPerimeterResult(instant, state);
+            OptimizationResult perimeterResult = getPerimeterResult(instant, state);
             if (Objects.nonNull(perimeterResult)) {
                 return perimeterResult.getSensitivityStatus(state);
             }
@@ -223,9 +223,9 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         return FAILURE;
     }
 
-    public PerimeterResult getPerimeterResult(Instant optimizedInstant, State state) {
+    public OptimizationResult getPerimeterResult(Instant optimizedInstant, State state) {
         if (optimizedInstant == null) {
-            throw new OpenRaoException("No PerimeterResult for INITIAL optimization state");
+            throw new OpenRaoException("No OptimizationResult for INITIAL optimization state");
         }
         if (state.getInstant().comesBefore(optimizedInstant)) {
             throw new OpenRaoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", state.getInstant(), optimizedInstant));
@@ -367,7 +367,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                 .filter(entry -> entry.getKey().getInstant().equals(instant) || entry.getKey().getInstant().comesBefore(instant))
                 .map(Map.Entry::getValue)
                 .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
-                .map(PerimeterResult::getFunctionalCost)
+                .map(OptimizationResult::getFunctionalCost)
                 .max(Double::compareTo)
                 .orElse(-Double.MAX_VALUE)
         );
@@ -378,7 +378,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
      * Returns true if the perimeter has an actual functional cost, ie has CNECs
      * (as opposed to a perimeter with pure MNECs only)
      */
-    private static boolean hasActualFunctionalCost(PerimeterResult perimeterResult) {
+    private static boolean hasActualFunctionalCost(OptimizationResult perimeterResult) {
         return !perimeterResult.getMostLimitingElements(1).isEmpty();
     }
 
@@ -418,8 +418,8 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             virtualCostNames.addAll(secondPreventivePerimeterResult.getVirtualCostNames());
         }
         postContingencyResults.values().stream()
-            .filter(perimeterResult -> perimeterResult.getVirtualCostNames() != null)
-            .forEach(perimeterResult -> virtualCostNames.addAll(perimeterResult.getVirtualCostNames()));
+            .filter(optimizationResult -> optimizationResult.getVirtualCostNames() != null)
+            .forEach(optimizationResult -> virtualCostNames.addAll(optimizationResult.getVirtualCostNames()));
 
         return virtualCostNames;
     }
@@ -437,7 +437,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             return postContingencyResults.entrySet().stream()
                 .filter(entry -> entry.getKey().getInstant().equals(optimizedInstant))
                 .map(Map.Entry::getValue)
-                .mapToDouble(perimeterResult -> perimeterResult.getVirtualCost(virtualCostName))
+                .mapToDouble(optimizationResult -> optimizationResult.getVirtualCost(virtualCostName))
                 .sum() + secondPreventivePerimeterResult.getVirtualCost(virtualCostName);
         }
     }

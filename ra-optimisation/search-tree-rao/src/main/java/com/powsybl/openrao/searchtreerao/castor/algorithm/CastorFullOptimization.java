@@ -121,7 +121,7 @@ public class CastorFullOptimization {
             return result;
         }
 
-        PerimeterResult preventiveResult = optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput).getPerimeterResult(raoInput.getCrac().getPreventiveState());
+        OptimizationResult preventiveResult = optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput).getPerimeterResult(raoInput.getCrac().getPreventiveState());
         BUSINESS_LOGS.info("----- Preventive perimeter optimization [end]");
         java.time.Instant preventiveRaoEndInstant = java.time.Instant.now();
         long preventiveRaoTime = ChronoUnit.SECONDS.between(preventiveRaoStartInstant, preventiveRaoEndInstant);
@@ -550,7 +550,7 @@ public class CastorFullOptimization {
                                                     ToolProvider toolProvider,
                                                     PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
                                                     PrePerimeterResult initialOutput,
-                                                    PerimeterResult firstPreventiveResult,
+                                                    OptimizationResult firstPreventiveResult,
                                                     Map<State, OptimizationResult> postContingencyResults) {
         // Run 2nd preventive RAO
         SecondPreventiveRaoResult secondPreventiveRaoResult;
@@ -628,7 +628,7 @@ public class CastorFullOptimization {
             raoInput.getCrac());
     }
 
-    private record SecondPreventiveRaoResult(PerimeterResult perimeterResult,
+    private record SecondPreventiveRaoResult(OptimizationResult perimeterResult,
                                              PrePerimeterResult postPraSensitivityAnalysisOutput,
                                              Set<RemedialAction<?>> remedialActionsExcluded,
                                              AppliedRemedialActions appliedArasAndCras) {
@@ -645,7 +645,7 @@ public class CastorFullOptimization {
                                                              ToolProvider toolProvider,
                                                              PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
                                                              PrePerimeterResult initialOutput,
-                                                             PerimeterResult firstPreventiveResult,
+                                                             OptimizationResult firstPreventiveResult,
                                                              Map<State, OptimizationResult> postContingencyResults) {
         Network network = raoInput.getNetwork();
         // Go back to the initial state of the network, saved in the SECOND_PREVENTIVE_STATE variant
@@ -691,7 +691,7 @@ public class CastorFullOptimization {
         String newVariant = RandomizedString.getRandomizedString("SecondPreventive", raoInput.getNetwork().getVariantManager().getVariantIds(), 10);
         raoInput.getNetwork().getVariantManager().cloneVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT, newVariant, true);
         raoInput.getNetwork().getVariantManager().setWorkingVariant(newVariant);
-        PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult, postContingencyResults, appliedArasAndCras)
+        OptimizationResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult, postContingencyResults, appliedArasAndCras)
                 .join().getPerimeterResult(crac.getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access after PRA results
         PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, stateTree.getOperatorsNotSharingCras(), null);
@@ -724,7 +724,7 @@ public class CastorFullOptimization {
         );
     }
 
-    private CompletableFuture<OneStateOnlyRaoResultImpl> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, PerimeterResult firstPreventiveResult, Map<State, OptimizationResult> postContingencyResults, AppliedRemedialActions appliedCras) {
+    private CompletableFuture<OneStateOnlyRaoResultImpl> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, OptimizationResult firstPreventiveResult, Map<State, OptimizationResult> postContingencyResults, AppliedRemedialActions appliedCras) {
 
         OptimizationPerimeter optPerimeter;
         Crac crac = raoInput.getCrac();
@@ -787,7 +787,7 @@ public class CastorFullOptimization {
      * It is used for second preventive optimization along with 1st preventive results in order to keep the result
      * of 1st preventive for range actions that are both preventive and auto or curative
      */
-    static void applyPreventiveResultsForAutoOrCurativeRangeActions(Network network, PerimeterResult preventiveResult, Crac crac) {
+    static void applyPreventiveResultsForAutoOrCurativeRangeActions(Network network, OptimizationResult preventiveResult, Crac crac) {
         preventiveResult.getActivatedRangeActions(crac.getPreventiveState()).stream()
             .filter(rangeAction -> isRangeActionAutoOrCurative(rangeAction, crac))
             .forEach(rangeAction -> rangeAction.apply(network, preventiveResult.getOptimizedSetpoint(rangeAction, crac.getPreventiveState())));
@@ -806,7 +806,7 @@ public class CastorFullOptimization {
      * To avoid this, we don't want to optimize these RAs.
      * For the same reason, we are going to check preventive RAs that share the same network elements as auto or curative RAs.
      */
-    static Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(Crac crac, PerimeterResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults) {
+    static Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(Crac crac, OptimizationResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults) {
 
         // Excludes every non-preventive RA.
         Set<RangeAction<?>> nonPreventiveRangeActions = crac.getRangeActions().stream().filter(ra -> !isRangeActionPreventive(ra, crac)).collect(Collectors.toSet());
@@ -865,7 +865,7 @@ public class CastorFullOptimization {
      * Creates a map that gives for a given state, each available RA with its tap.
      * The only subtlety being that RAs sharing exactly the same network elements are considered to be only one RA.
      */
-    private static Map<State, Map<RangeAction<?>, Double>> buildSetPointResultsMap(Crac crac, PerimeterResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults, Map<RangeAction<?>, Set<RangeAction<?>>> correspondanceMap, Set<RangeAction<?>> multipleInstantRangeActions, State preventiveState) {
+    private static Map<State, Map<RangeAction<?>, Double>> buildSetPointResultsMap(Crac crac, OptimizationResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults, Map<RangeAction<?>, Set<RangeAction<?>>> correspondanceMap, Set<RangeAction<?>> multipleInstantRangeActions, State preventiveState) {
         Map<State, Map<RangeAction<?>, Double>> setPointResults = new HashMap<>(Map.of(preventiveState, new HashMap<>()));
         correspondanceMap.forEach((pra, associatedCras) -> {
             setPointResults.get(preventiveState).put(pra, firstPreventiveResult.getOptimizedSetpoint(pra, preventiveState));

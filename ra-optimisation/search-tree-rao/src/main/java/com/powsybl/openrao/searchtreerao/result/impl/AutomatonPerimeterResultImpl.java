@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class AutomatonPerimeterResultImpl implements PerimeterResult {
+public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
     private final PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
     private final Set<NetworkAction> forcedNetworkActions;

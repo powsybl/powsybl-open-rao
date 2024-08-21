@@ -431,7 +431,7 @@ class CastorFullOptimizationTest {
     @Test
     void testGetRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
-        PerimeterResult firstPreventiveResult = Mockito.mock(PerimeterResult.class);
+        OptimizationResult firstPreventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
         State preventiveState = crac.getPreventiveState();
         // ra9 has different taps than ra8.
@@ -504,19 +504,19 @@ class CastorFullOptimizationTest {
 
     @Test
     void testApplyPreventiveResultsForCurativeRangeActions() {
-        PerimeterResult perimeterResult = Mockito.mock(PerimeterResult.class);
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
         String pstNeId = "BBE2AA1  BBE3AA1  1";
 
         setUpCracWithRealRAs(false);
-        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
-        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
+        Mockito.doReturn(-1.5583491325378418).when(optimizationResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
+        Mockito.doReturn(Set.of(ra1)).when(optimizationResult).getActivatedRangeActions(Mockito.any());
+        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, optimizationResult, crac);
         assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
 
         setUpCracWithRealRAs(true);
-        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
-        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
+        Mockito.doReturn(-1.5583491325378418).when(optimizationResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
+        Mockito.doReturn(Set.of(ra1)).when(optimizationResult).getActivatedRangeActions(Mockito.any());
+        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, optimizationResult, crac);
         assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
     }
 

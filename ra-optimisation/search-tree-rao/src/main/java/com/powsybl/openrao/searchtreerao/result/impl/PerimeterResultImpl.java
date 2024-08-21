@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.PerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.apache.commons.lang3.NotImplementedException;
@@ -28,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class PerimeterResultImpl implements PerimeterResult {
+public class PerimeterResultImpl implements OptimizationResult {
 
     private final OptimizationResult optimizationResult;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoint;
