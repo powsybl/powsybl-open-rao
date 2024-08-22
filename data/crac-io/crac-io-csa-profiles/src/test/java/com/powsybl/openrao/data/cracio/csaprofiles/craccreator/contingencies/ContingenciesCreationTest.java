@@ -1,9 +1,9 @@
 package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.contingencies;
 
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElementaryCreationContext;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
@@ -34,8 +34,8 @@ class ContingenciesCreationTest {
         assertContingencyEquality(importedContingencies.get(7), "contingency-7", "contingency-7", Set.of("FFR1AA1  FFR2AA1  1"));
         assertContingencyEquality(importedContingencies.get(1), "contingency-12", "RTE_CO12", Set.of("FFR1AA1  FFR2AA1  1"));
 
-        assertEquals(1, cracCreationContext.getContingencyCreationContexts().stream().filter(CsaProfileElementaryCreationContext::isAltered).toList().size());
-        assertEquals("Incorrect contingent status for equipment(s): FFR1AA1  FFR3AA1  1, FFR1AA1  FFR4AA1  1. Missing contingent equipment(s) in network: missing-generator, missing-line.", cracCreationContext.getContingencyCreationContexts().stream().filter(CsaProfileElementaryCreationContext::isAltered).toList().get(0).getImportStatusDetail());
+        assertEquals(1, cracCreationContext.getContingencyCreationContexts().stream().filter(ElementaryCreationContext::isAltered).toList().size());
+        assertEquals("Incorrect contingent status for equipment(s): FFR1AA1  FFR3AA1  1, FFR1AA1  FFR4AA1  1. Missing contingent equipment(s) in network: missing-generator, missing-line.", cracCreationContext.getContingencyCreationContexts().stream().filter(ElementaryCreationContext::isAltered).toList().get(0).getImportStatusDetail());
 
         assertEquals(4, cracCreationContext.getContingencyCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 

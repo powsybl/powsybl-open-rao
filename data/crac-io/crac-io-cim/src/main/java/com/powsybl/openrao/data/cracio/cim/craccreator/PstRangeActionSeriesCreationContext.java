@@ -15,11 +15,11 @@ public final class PstRangeActionSeriesCreationContext extends RemedialActionSer
         this.networkElementNativeName = networkElementNativeName;
     }
 
-    static PstRangeActionSeriesCreationContext notImported(String nativeId, ImportStatus importStatus, String importStatusDetail) {
+    public static PstRangeActionSeriesCreationContext notImported(String nativeId, ImportStatus importStatus, String importStatusDetail) {
         return new PstRangeActionSeriesCreationContext(nativeId, Set.of(nativeId), null, null, importStatus, false, false, importStatusDetail);
     }
 
-    static PstRangeActionSeriesCreationContext imported(String nativeId, String networkElementNativeMrid, String networkElementNativeName, boolean isAltered, String importStatusDetail) {
+    public static PstRangeActionSeriesCreationContext imported(String nativeId, String networkElementNativeMrid, String networkElementNativeName, boolean isAltered, String importStatusDetail) {
         return new PstRangeActionSeriesCreationContext(nativeId, Set.of(nativeId), networkElementNativeMrid, networkElementNativeName, ImportStatus.IMPORTED, isAltered, false, importStatusDetail);
     }
 

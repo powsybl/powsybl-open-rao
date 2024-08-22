@@ -1,17 +1,11 @@
 @startuml
 !include_many UcteCracCreationContext.puml!0
+!include_many CracCreationContext.puml!ElementaryCreationContext
 UcteCracCreationContext <|-- CseCracCreationContext
 
 class CseCracCreationContext {
-+ CseOutageCreationContext getOutageCreationContext(String outageName)
-+ List<CseOutageCreationContext> getOutageCreationContexts()
++ ElementaryCreationContext getOutageCreationContext(String outageName)
++ List<ElementaryCreationContext> getOutageCreationContexts()
 }
-CseCracCreationContext "1" *--> "*" CseOutageCreationContext
-
-class CseOutageCreationContext {
-+ String getCreatedContingencyId()
-}
-
-!include_many CracCreationContext.puml!ElementaryCreationContext
-CseOutageCreationContext --|> ElementaryCreationContext 
+CseCracCreationContext "1" *--> "*" ElementaryCreationContext
 @enduml

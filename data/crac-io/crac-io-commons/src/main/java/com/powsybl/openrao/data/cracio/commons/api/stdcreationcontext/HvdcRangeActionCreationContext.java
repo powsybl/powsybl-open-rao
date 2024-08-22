@@ -6,10 +6,12 @@
  */
 package com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext;
 
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public interface HvdcRangeActionCreationContext extends RemedialActionCreationContext {
+public interface HvdcRangeActionCreationContext extends ElementaryCreationContext {
     /**
      * Know if the HVDC  is inverted in the network
      */

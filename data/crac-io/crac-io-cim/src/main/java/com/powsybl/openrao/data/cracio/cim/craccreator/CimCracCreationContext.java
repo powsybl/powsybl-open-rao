@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class CimCracCreationContext implements CracCreationContext {
     private Crac crac;
     private boolean isCreationSuccessful;
-    private Set<CimContingencyCreationContext> contingencyCreationContexts;
+    private Set<ElementaryCreationContext> contingencyCreationContexts;
     private final Set<AngleCnecCreationContext> angleCnecCreationContexts;
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
     private final Set<VoltageCnecCreationContext> voltageCnecCreationContexts;
@@ -74,10 +74,10 @@ public class CimCracCreationContext implements CracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatusDetail()))
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatus(), context.getImportStatusDetail()))
         );
     }
 
@@ -146,7 +146,7 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public AngleCnecCreationContext getAngleCnecCreationContext(String seriesId) {
-        return angleCnecCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
+        return angleCnecCreationContexts.stream().filter(creationContext -> creationContext.getNativeObjectId().equals(seriesId)).findAny().orElse(null);
     }
 
     void addVoltageCnecCreationContext(VoltageCnecCreationContext voltageCnecCreationContext) {
@@ -173,11 +173,11 @@ public class CimCracCreationContext implements CracCreationContext {
         return voltageCnecCreationContexts.stream().filter(creationContext -> nativeContingencyName.equals(creationContext.getNativeContingencyName())).collect(Collectors.toSet());
     }
 
-    void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
+    void setContingencyCreationContexts(Set<ElementaryCreationContext> contingencyCreationContexts) {
         this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
 
-    public Set<CimContingencyCreationContext> getContingencyCreationContexts() {
+    public Set<ElementaryCreationContext> getContingencyCreationContexts() {
         return new HashSet<>(contingencyCreationContexts);
     }
 
@@ -202,15 +202,15 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId) {
-        return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
+        return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeObjectId().equals(seriesId)).findAny().orElse(null);
     }
 
-    public CimContingencyCreationContext getContingencyCreationContextById(String contingencyId) {
-        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeId().equals(contingencyId)).findAny().orElse(null);
+    public ElementaryCreationContext getContingencyCreationContextById(String contingencyId) {
+        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectId().equals(contingencyId)).findAny().orElse(null);
     }
 
-    public CimContingencyCreationContext getContingencyCreationContextByName(String contingencyName) {
-        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeName().equals(contingencyName)).findAny().orElse(null);
+    public ElementaryCreationContext getContingencyCreationContextByName(String contingencyName) {
+        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectName().equals(contingencyName)).findAny().orElse(null);
     }
 
     void setCreationFailure() {

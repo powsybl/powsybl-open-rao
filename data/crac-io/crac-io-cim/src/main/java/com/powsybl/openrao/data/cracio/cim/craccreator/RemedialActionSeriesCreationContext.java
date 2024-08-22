@@ -7,28 +7,22 @@
 
 package com.powsybl.openrao.data.cracio.cim.craccreator;
 
-import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Set;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class RemedialActionSeriesCreationContext implements ElementaryCreationContext {
-    private final String nativeId;
+public class RemedialActionSeriesCreationContext extends StandardElementaryCreationContext {
     private final Set<String> createdIds;
-    private final ImportStatus importStatus;
-    private final String importStatusDetail;
-    private final boolean isAltered;
     private final boolean isInverted;
 
     protected RemedialActionSeriesCreationContext(String nativeId, Set<String> createdIds, ImportStatus importStatus, boolean isAltered, boolean isInverted, String importStatusDetail) {
-        this.nativeId = nativeId;
+        super(nativeId, null, null, importStatus, importStatusDetail, isAltered);
         this.createdIds = createdIds;
-        this.importStatus = importStatus;
-        this.importStatusDetail = importStatusDetail;
-        this.isAltered = isAltered;
         this.isInverted = isInverted;
     }
 
@@ -44,36 +38,17 @@ public class RemedialActionSeriesCreationContext implements ElementaryCreationCo
         return new RemedialActionSeriesCreationContext(nativeId, createdIds, ImportStatus.IMPORTED, isAltered, isInverted, importStatusDetail);
     }
 
-    @Override
-    public String getNativeId() {
-        return nativeId;
-    }
-
-    @Override
-    public boolean isImported() {
-        return importStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    @Override
-    public ImportStatus getImportStatus() {
-        return importStatus;
-    }
-
-    @Override
-    public String getImportStatusDetail() {
-        return importStatusDetail;
-    }
-
-    @Override
-    public boolean isAltered() {
-        return isAltered;
-    }
-
     public boolean isInverted() {
         return isInverted;
     }
 
-    public Set<String> getCreatedIds() {
+    @Override
+    public String getCreatedObjectId() {
+        throw new NotImplementedException("Several objects may have been created. Please use getCreatedObjectsIds() instead.");
+    }
+
+    @Override
+    public Set<String> getCreatedObjectsIds() {
         return createdIds;
     }
 }

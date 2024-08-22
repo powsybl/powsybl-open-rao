@@ -6,93 +6,21 @@
  */
 package com.powsybl.openrao.data.cracio.cse.criticalbranch;
 
-import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.NativeBranch;
-
-import java.util.Map;
-import java.util.Optional;
+import com.powsybl.openrao.data.cracio.commons.api.StandardCriticalBranchCreationContext;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CseCriticalBranchCreationContext implements BranchCnecCreationContext {
-    private final String criticalBranchName;
-    private final NativeBranch nativeBranch;
-    private final boolean isBaseCase;
-    private final String contingencyId;
-    private final boolean isImported;
-    private final Map<String, String> createdCnecIds;
-    private final boolean isDirectionInverted;
+public class CseCriticalBranchCreationContext extends StandardCriticalBranchCreationContext {
     private final boolean selected;
-    private final String invalidBranchReason;
-    private final ImportStatus criticalBranchImportStatus;
-
-    @Override
-    public NativeBranch getNativeBranch() {
-        return nativeBranch;
-    }
-
-    @Override
-    public boolean isBaseCase() {
-        return isBaseCase;
-    }
-
-    @Override
-    public Optional<String> getContingencyId() {
-        return isBaseCase ? Optional.empty() : Optional.of(contingencyId);
-    }
-
-    @Override
-    public String getNativeId() {
-        return criticalBranchName;
-    }
-
-    @Override
-    public boolean isImported() {
-        return isImported;
-    }
-
-    @Override
-    public boolean isAltered() {
-        return false;
-    }
-
-    @Override
-    public ImportStatus getImportStatus() {
-        return criticalBranchImportStatus;
-    }
-
-    @Override
-    public String getImportStatusDetail() {
-        return invalidBranchReason;
-    }
-
-    @Override
-    public boolean isDirectionInvertedInNetwork() {
-        return isDirectionInverted;
-    }
-
-    @Override
-    public Map<String, String> getCreatedCnecsIds() {
-        return createdCnecIds;
-    }
 
     public boolean isSelected() {
         return selected;
     }
 
     CseCriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
-        this.criticalBranchName = criticalBranchReader.getCriticalBranchName();
-        this.nativeBranch = criticalBranchReader.getNativeBranch();
-        this.isBaseCase = criticalBranchReader.isBaseCase();
-        this.isImported = criticalBranchReader.isImported();
-        this.createdCnecIds = criticalBranchReader.getCreatedCnecIds();
-        this.contingencyId = criticalBranchReader.getContingencyId();
-        this.isDirectionInverted = criticalBranchReader.isDirectionInverted();
+        super(criticalBranchReader.getCriticalBranchName(), criticalBranchReader.getNativeBranch(), criticalBranchReader.isBaseCase(), criticalBranchReader.getContingencyId(), criticalBranchReader.getCreatedCnecIds(), criticalBranchReader.isDirectionInverted(), criticalBranchReader.getImportStatus(), criticalBranchReader.getInvalidBranchReason());
         this.selected = criticalBranchReader.isSelected();
-        this.invalidBranchReason = criticalBranchReader.getInvalidBranchReason();
-        this.criticalBranchImportStatus = criticalBranchReader.getImportStatus();
     }
 }

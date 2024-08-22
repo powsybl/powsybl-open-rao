@@ -10,7 +10,8 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElementWithRemedialAction;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class OnConstraintUsageRuleHelperTest {
     private Crac crac;
-    private Set<CsaProfileElementaryCreationContext> cnecCreationContexts;
+    private Set<ElementaryCreationContext> cnecCreationContexts;
     private Set<AssessedElement> assessedElements;
     private Set<AssessedElementWithRemedialAction> assessedElementWithRemedialActions;
     private Set<ContingencyWithRemedialAction> contingencyWithRemedialActions;
@@ -80,24 +81,24 @@ class OnConstraintUsageRuleHelperTest {
         // Add CNEC creation contexts
 
         cnecCreationContexts = new HashSet<>();
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-1", "Line 1 - curative - CO1", "Line 1 - curative - CO1", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-2", "Line 2 - preventive", "Line 2 - preventive", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-2", "Line 2 - curative - CO1", "Line 2 - curative - CO1", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-2", "Line 2 - curative - CO2", "Line 2 - curative - CO2", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-2", "Line 2 - curative - CO3", "Line 2 - curative - CO3", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-2", "Line 2 - curative - CO4", "Line 2 - curative - CO4", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-2", "Line 2 - curative - CO5", "Line 2 - curative - CO5", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-2", "Line 2 - curative - CO6", "Line 2 - curative - CO6", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-3", "Line 3 - preventive", "Line 3 - preventive", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-3", "Line 3 - curative - CO1", "Line 3 - curative - CO1", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-3", "Line 3 - curative - CO2", "Line 3 - curative - CO2", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-3", "Line 3 - curative - CO3", "Line 3 - curative - CO3", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-3", "Line 3 - curative - CO4", "Line 3 - curative - CO4", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-3", "Line 3 - curative - CO5", "Line 3 - curative - CO5", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-3", "Line 3 - curative - CO6", "Line 3 - curative - CO6", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-4", "Line 4 - curative - CO1", "Line 4 - curative - CO1", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-6", "Line 6 - curative - CO1", "Line 6 - curative - CO1", "", false));
-        cnecCreationContexts.add(CsaProfileElementaryCreationContext.imported("assessed-element-8", "Line 8 - curative - CO1", "Line 8 - curative - CO1", "", false));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-1", null, "Line 1 - curative - CO1", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-2", null, "Line 2 - preventive", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-2", null, "Line 2 - curative - CO1", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-2", null, "Line 2 - curative - CO2", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-2", null, "Line 2 - curative - CO3", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-2", null, "Line 2 - curative - CO4", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-2", null, "Line 2 - curative - CO5", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-2", null, "Line 2 - curative - CO6", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-3", null, "Line 3 - preventive", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-3", null, "Line 3 - curative - CO1", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-3", null, "Line 3 - curative - CO2", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-3", null, "Line 3 - curative - CO3", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-3", null, "Line 3 - curative - CO4", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-3", null, "Line 3 - curative - CO5", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-3", null, "Line 3 - curative - CO6", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-4", null, "Line 4 - curative - CO1", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-6", null, "Line 6 - curative - CO1", false, ""));
+        cnecCreationContexts.add(StandardElementaryCreationContext.imported("assessed-element-8", null, "Line 8 - curative - CO1", false, ""));
 
         // Add AssessedElement property bags
 

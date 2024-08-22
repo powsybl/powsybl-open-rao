@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.cse.outage;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.xsd.TBranch;
 import com.powsybl.openrao.data.cracio.cse.xsd.TCRACSeries;
@@ -57,13 +58,13 @@ public class TOutageAdder {
             addNotAddedOutageCreationContext(tOutage, contingencyElementHelpers);
         } else {
             contingencyAdder.add();
-            cseCracCreationContext.addOutageCreationContext(CseOutageCreationContext.imported(tOutage.getName().getV()));
+            cseCracCreationContext.addOutageCreationContext(StandardElementaryCreationContext.imported(tOutage.getName().getV(), tOutage.getName().getV(), tOutage.getName().getV(), false, null));
         }
     }
 
     private void addNotAddedOutageCreationContext(TOutage tOutage, List<UcteContingencyElementHelper> branchHelpers) {
         branchHelpers.stream().filter(branchHelper -> !branchHelper.isValid()).forEach(ucteContingencyElementHelper ->
-            cseCracCreationContext.addOutageCreationContext(CseOutageCreationContext.notImported(tOutage.getName().getV(), ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, ucteContingencyElementHelper.getInvalidReason()))
+            cseCracCreationContext.addOutageCreationContext(StandardElementaryCreationContext.notImported(tOutage.getName().getV(), tOutage.getName().getV(), ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, ucteContingencyElementHelper.getInvalidReason()))
         );
     }
 

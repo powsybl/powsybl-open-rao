@@ -17,7 +17,9 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
@@ -29,7 +31,6 @@ import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElementWithRemedia
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialAction;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.SchemeRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.TapPositionAction;
@@ -42,13 +43,13 @@ import java.util.stream.Collectors;
  */
 public class CsaProfileRemedialActionsCreator {
     private final Crac crac;
-    Map<String, CsaProfileElementaryCreationContext> contextByRaId = new TreeMap<>();
+    Map<String, ElementaryCreationContext> contextByRaId = new TreeMap<>();
     private final ElementaryActionsHelper elementaryActionsHelper;
     private final NetworkActionCreator networkActionCreator;
     private final PstRangeActionCreator pstRangeActionCreator;
     private final Set<RemedialAction> nativeRemedialActions;
 
-    public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext, int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+    public CsaProfileRemedialActionsCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext, int spsMaxTimeToImplementThreshold, Set<ElementaryCreationContext> cnecCreationContexts) {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
@@ -66,7 +67,7 @@ public class CsaProfileRemedialActionsCreator {
         cracCreationContext.setRemedialActionCreationContexts(new HashSet<>(contextByRaId.values()));
     }
 
-    private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa, int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+    private void createRemedialActions(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa, int spsMaxTimeToImplementThreshold, Set<ElementaryCreationContext> cnecCreationContexts) {
         for (RemedialAction nativeRemedialAction : nativeRemedialActions) {
             List<String> alterations = new ArrayList<>();
             boolean isSchemeRemedialAction = nativeRemedialAction instanceof SchemeRemedialAction;
@@ -90,7 +91,7 @@ public class CsaProfileRemedialActionsCreator {
                                 fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, createNameFromTapPositionAction(nativeTapPositionAction.mrid(), nativeRemedialAction.operator()));
                             } catch (OpenRaoImportException e) {
                                 if (e.getImportStatus().equals(ImportStatus.NOT_FOR_RAO)) {
-                                    contextByRaId.put(nativeTapPositionAction.mrid(), CsaProfileElementaryCreationContext.notImported(nativeTapPositionAction.mrid(), e.getImportStatus(), e.getMessage()));
+                                    contextByRaId.put(nativeTapPositionAction.mrid(), StandardElementaryCreationContext.notImported(nativeTapPositionAction.mrid(), null, e.getImportStatus(), e.getMessage()));
                                 } else {
                                     throw e;
                                 }
@@ -103,7 +104,7 @@ public class CsaProfileRemedialActionsCreator {
                 }
 
             } catch (OpenRaoImportException e) {
-                contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.notImported(nativeRemedialAction.mrid(), e.getImportStatus(), e.getMessage()));
+                contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.notImported(nativeRemedialAction.mrid(), null, e.getImportStatus(), e.getMessage()));
             }
         }
     }
@@ -117,7 +118,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void fillAndSaveRemedialActionAdderAndContext(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
-                                                          int spsMaxTimeToImplementThreshold, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, RemedialAction nativeRemedialAction, List<String> alterations,
+                                                          int spsMaxTimeToImplementThreshold, Set<ElementaryCreationContext> cnecCreationContexts, RemedialAction nativeRemedialAction, List<String> alterations,
                                                           boolean isSchemeRemedialAction, RemedialActionType remedialActionType, RemedialActionAdder<?> remedialActionAdder, String remedialActionName) {
 
         remedialActionAdder.withName(remedialActionName);
@@ -135,14 +136,14 @@ public class CsaProfileRemedialActionsCreator {
         remedialActionAdder.add();
 
         if (alterations.isEmpty()) {
-            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), "", false));
+            contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(nativeRemedialAction.mrid(), null, nativeRemedialAction.mrid(), false, ""));
         } else {
-            contextByRaId.put(nativeRemedialAction.mrid(), CsaProfileElementaryCreationContext.imported(nativeRemedialAction.mrid(), nativeRemedialAction.mrid(), nativeRemedialAction.getUniqueName(), String.join(". ", alterations), true));
+            contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(nativeRemedialAction.mrid(), null, nativeRemedialAction.mrid(), true, String.join(". ", alterations)));
         }
     }
 
     private void addUsageRules(String
-                                   remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
+                                   remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
                                    remedialActionAdder, List<String> alterations, Instant instant,
                                boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
         if (addOnConstraintUsageRules(remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType)) {
@@ -155,7 +156,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private boolean addOnConstraintUsageRules(String
-                                                  remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<CsaProfileElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
+                                                  remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
                                                   remedialActionAdder, List<String> alterations, Instant instant,
                                               boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
         Map<String, AssociationStatus> cnecStatusMap = OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts);
@@ -315,12 +316,12 @@ public class CsaProfileRemedialActionsCreator {
                     addUsageRulesToGroup(onConstraintUsageRules, onContingencyStateUsageRules, onInstantUsageRules, networkActionAdder);
                     addElementaryActionsToGroup(elementaryActions, networkActionAdder);
                     networkActionAdder.add();
-                    contextByRaId.put(remedialActionGroup.mrid(), CsaProfileElementaryCreationContext.imported(remedialActionGroup.mrid(), remedialActionGroup.mrid(), groupName, "The RemedialActionGroup with mRID " + remedialActionGroup.mrid() + " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions), true));
+                    contextByRaId.put(remedialActionGroup.mrid(), StandardElementaryCreationContext.imported(remedialActionGroup.mrid(), null, remedialActionGroup.mrid(), true, "The RemedialActionGroup with mRID " + remedialActionGroup.mrid() + " was turned into a remedial action from the following remedial actions: " + printRaIds(dependingEnabledRemedialActions)));
                     standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
                 }
 
             } catch (OpenRaoImportException e) {
-                contextByRaId.put(remedialActionGroup.mrid(), CsaProfileElementaryCreationContext.notImported(remedialActionGroup.mrid(), e.getImportStatus(), e.getMessage()));
+                contextByRaId.put(remedialActionGroup.mrid(), StandardElementaryCreationContext.notImported(remedialActionGroup.mrid(), null, e.getImportStatus(), e.getMessage()));
             }
         });
         return standaloneRasImplicatedIntoAGroup;

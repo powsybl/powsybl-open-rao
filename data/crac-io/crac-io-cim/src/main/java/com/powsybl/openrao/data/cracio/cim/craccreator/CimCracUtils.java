@@ -10,12 +10,12 @@ package com.powsybl.openrao.data.cracio.cim.craccreator;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracio.cim.xsd.*;
 import com.powsybl.openrao.data.cracio.cim.xsd.Point;
 import com.powsybl.openrao.data.cracio.cim.xsd.ContingencySeries;
 import com.powsybl.openrao.data.cracio.cim.xsd.MonitoredSeries;
 import com.powsybl.openrao.data.cracio.cim.xsd.SeriesPeriod;
 import com.powsybl.openrao.data.cracio.cim.xsd.TimeSeries;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
@@ -38,11 +38,11 @@ public final class CimCracUtils {
     private CimCracUtils() { }
 
     public static Contingency getContingencyFromCrac(ContingencySeries cimContingency, CimCracCreationContext cracCreationContext) {
-        CimContingencyCreationContext ccc = cracCreationContext.getContingencyCreationContextById(cimContingency.getMRID());
-        if (ccc == null || !ccc.isImported()) {
+        ElementaryCreationContext context = cracCreationContext.getContingencyCreationContextById(cimContingency.getMRID());
+        if (context == null || !context.isImported()) {
             return null;
         }
-        return cracCreationContext.getCrac().getContingency(ccc.getCreatedContingencyId());
+        return cracCreationContext.getCrac().getContingency(context.getCreatedObjectId());
     }
 
     public static Set<FlowCnec> getFlowCnecsFromCrac(MonitoredSeries monitoredSeries, CimCracCreationContext cracCreationContext) {

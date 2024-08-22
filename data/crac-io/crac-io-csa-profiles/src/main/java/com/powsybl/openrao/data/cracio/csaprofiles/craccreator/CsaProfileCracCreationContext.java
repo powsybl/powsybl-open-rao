@@ -27,11 +27,11 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private boolean isCreationSuccessful;
 
-    private Set<CsaProfileElementaryCreationContext> contingencyCreationContexts;
+    private Set<ElementaryCreationContext> contingencyCreationContexts;
 
-    private Set<CsaProfileElementaryCreationContext> remedialActionCreationContexts;
+    private Set<ElementaryCreationContext> remedialActionCreationContexts;
 
-    private Set<CsaProfileElementaryCreationContext> cnecCreationContexts;
+    private Set<ElementaryCreationContext> cnecCreationContexts;
 
     private CracCreationReport creationReport;
 
@@ -77,31 +77,31 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return this.networkName;
     }
 
-    public void setContingencyCreationContexts(Set<CsaProfileElementaryCreationContext> contingencyCreationContexts) {
+    public void setContingencyCreationContexts(Set<ElementaryCreationContext> contingencyCreationContexts) {
         this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
 
-    public Set<CsaProfileElementaryCreationContext> getContingencyCreationContexts() {
+    public Set<ElementaryCreationContext> getContingencyCreationContexts() {
         return new HashSet<>(this.contingencyCreationContexts);
     }
 
-    public Set<CsaProfileElementaryCreationContext> getRemedialActionCreationContexts() {
+    public Set<ElementaryCreationContext> getRemedialActionCreationContexts() {
         return new HashSet<>(remedialActionCreationContexts);
     }
 
-    public CsaProfileElementaryCreationContext getRemedialActionCreationContext(String nativeId) {
-        return remedialActionCreationContexts.stream().filter(rac -> rac.getNativeId().equals(nativeId)).findFirst().orElse(null);
+    public ElementaryCreationContext getRemedialActionCreationContext(String nativeId) {
+        return remedialActionCreationContexts.stream().filter(rac -> rac.getNativeObjectId().equals(nativeId)).findFirst().orElse(null);
     }
 
-    public void setRemedialActionCreationContexts(Set<CsaProfileElementaryCreationContext> remedialActionCreationContexts) {
+    public void setRemedialActionCreationContexts(Set<ElementaryCreationContext> remedialActionCreationContexts) {
         this.remedialActionCreationContexts = remedialActionCreationContexts;
     }
 
-    public void setCnecCreationContexts(Set<CsaProfileElementaryCreationContext> cnecCreationContexts) {
+    public void setCnecCreationContexts(Set<ElementaryCreationContext> cnecCreationContexts) {
         this.cnecCreationContexts = new HashSet<>(cnecCreationContexts);
     }
 
-    public Set<CsaProfileElementaryCreationContext> getCnecCreationContexts() {
+    public Set<ElementaryCreationContext> getCnecCreationContexts() {
         return new HashSet<>(this.cnecCreationContexts);
     }
 
@@ -131,10 +131,10 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatusDetail()))
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatus(), context.getImportStatusDetail()))
         );
     }
 }

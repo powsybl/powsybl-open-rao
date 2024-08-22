@@ -7,25 +7,20 @@
 
 package com.powsybl.openrao.data.cracio.cim.craccreator;
 
-import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public final class AngleCnecCreationContext implements ElementaryCreationContext {
-    private String createdAngleCnecId;
-    private String contingencyID;
-    private String serieId;
-    private ImportStatus angleCnecImportStatus;
-    private String angleCnecImportStatusDetail;
+public final class AngleCnecCreationContext extends StandardElementaryCreationContext {
+    private final String contingencyID;
+    private final String serieId;
 
     private AngleCnecCreationContext(String createdAngleCnecId, String contingencyID, String serieId, ImportStatus angleCnecImportStatus, String angleCnecImportStatusDetail) {
-        this.createdAngleCnecId = createdAngleCnecId;
+        super(createdAngleCnecId, null, createdAngleCnecId, angleCnecImportStatus, angleCnecImportStatusDetail, false);
         this.contingencyID = contingencyID;
         this.serieId = serieId;
-        this.angleCnecImportStatus = angleCnecImportStatus;
-        this.angleCnecImportStatusDetail = angleCnecImportStatusDetail;
     }
 
     static AngleCnecCreationContext notImported(String createdAngleCnecId, String contingencyID, String serieId, ImportStatus angleCnecImportStatus, String angleCnecImportStatusDetail) {
@@ -34,35 +29,6 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
 
     static AngleCnecCreationContext imported(String createdAngleCnecId, String contingencyID, String serieId, String alteringDetail) {
         return new AngleCnecCreationContext(createdAngleCnecId, contingencyID, serieId, ImportStatus.IMPORTED, alteringDetail);
-    }
-
-    @Override
-    public String getNativeId() {
-        return getCreatedCnecId();
-    }
-
-    public String getCreatedCnecId() {
-        return createdAngleCnecId;
-    }
-
-    @Override
-    public boolean isImported() {
-        return angleCnecImportStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    @Override
-    public boolean isAltered() {
-        return false;
-    }
-
-    @Override
-    public ImportStatus getImportStatus() {
-        return angleCnecImportStatus;
-    }
-
-    @Override
-    public String getImportStatusDetail() {
-        return angleCnecImportStatusDetail;
     }
 
     public String getContingencyId() {

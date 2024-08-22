@@ -45,12 +45,12 @@ public class SweAdditionalConstraintSeriesCreator {
     public List<AdditionalConstraintSeries> generateAdditionalConstraintSeries(Contingency contingency) {
         List<AngleCnecCreationContext> sortedAngleCnecs = cracCreationContext.getAngleCnecCreationContexts().stream()
             .filter(AngleCnecCreationContext::isImported)
-            .sorted(Comparator.comparing(AngleCnecCreationContext::getCreatedCnecId))
+            .sorted(Comparator.comparing(AngleCnecCreationContext::getCreatedObjectId))
             .toList();
         if (contingency == null) {
             sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
                 .forEach(angleCnecCreationContext ->
-                    BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeId()));
+                    BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeObjectId()));
             return Collections.emptyList();
         } else {
             return sortedAngleCnecs.stream()
@@ -63,16 +63,16 @@ public class SweAdditionalConstraintSeriesCreator {
 
     private AdditionalConstraintSeries generateAdditionalConstraintSeries(AngleCnecCreationContext angleCnecCreationContext) {
         Crac crac = sweCneHelper.getCrac();
-        AngleCnec angleCnec = crac.getAngleCnec(angleCnecCreationContext.getCreatedCnecId());
+        AngleCnec angleCnec = crac.getAngleCnec(angleCnecCreationContext.getCreatedObjectId());
         if (!angleCnec.getState().getInstant().isCurative()) {
-            BUSINESS_WARNS.warn("{} angle cnec {} will not be added to CNE file", angleCnec.getState().getInstant(), angleCnecCreationContext.getNativeId());
+            BUSINESS_WARNS.warn("{} angle cnec {} will not be added to CNE file", angleCnec.getState().getInstant(), angleCnecCreationContext.getNativeObjectId());
             return null;
         }
         RaoResult raoResult = sweCneHelper.getRaoResult();
         // only export if angle check ran
         if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE) && !Double.isNaN(raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE))) {
             AdditionalConstraintSeries additionalConstraintSeries = new AdditionalConstraintSeries();
-            additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedCnecId());
+            additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedObjectId());
             additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
             additionalConstraintSeries.setName(angleCnec.getName());
             additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
