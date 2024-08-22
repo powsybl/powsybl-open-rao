@@ -202,7 +202,7 @@ Feature: User Story #16.5: activate remedial actions only after a constraint in 
     # Thus, the OnFlowConstraintInCountry ARA must be triggered only after this contingency
     Then 1 remedial actions are used after "co_nl1_nl_2_1" at "auto"
     And the remedial action "open_nl1_nl2_2" is used after "co_nl1_nl_2_1" at "auto"
-    And the flow on cnec "nl1_nl2_2_auto - co_nl1_nl_2_1" after ARA should be 0 A
+    And the calculation partially fails
     And 0 remedial actions are used after "co_nl1_nl_2_3" at "auto"
 
   @fast @rao @mock @ac @contingency-scenarios

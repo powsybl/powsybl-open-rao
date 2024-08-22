@@ -7,17 +7,18 @@
 package com.powsybl.openrao.data.cracio.fbconstraint;
 
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.PstRangeActionCreationContext;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class PstComplexVariantCreationContext extends ComplexVariantCreationContext implements PstRangeActionCreationContext {
+public final class PstComplexVariantCreationContext extends StandardElementaryCreationContext implements PstRangeActionCreationContext {
     private final boolean isInverted;
     private final String nativeNetworkElementId;
 
     private PstComplexVariantCreationContext(String complexVariantId, String nativeNetworkElementId, String createdRaId, ImportStatus importStatus, boolean isInverted, String importStatusDetail) {
-        super(complexVariantId, importStatus, createdRaId, importStatusDetail);
+        super(complexVariantId, null, createdRaId, importStatus, importStatusDetail, false);
         this.isInverted = isInverted;
         this.nativeNetworkElementId = nativeNetworkElementId;
     }

@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.cracio.cse.remedialaction;
 
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.InjectionRangeActionCreationContext;
 import com.powsybl.openrao.data.cracio.cse.xsd.TRemedialAction;
 
@@ -16,7 +17,7 @@ import java.util.Map;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class CseHvdcCreationContext extends CseRemedialActionCreationContext implements InjectionRangeActionCreationContext {
+public final class CseHvdcCreationContext extends StandardElementaryCreationContext implements InjectionRangeActionCreationContext {
 
     private final String nativeFromGeneratorId;
     private final String nativeToGeneratorId;
@@ -32,7 +33,7 @@ public final class CseHvdcCreationContext extends CseRemedialActionCreationConte
                                    String nativeToGeneratorId,
                                    String powsyblToGeneratorId) {
 
-        super(tRemedialAction, createdRaId, importStatus, false, importStatusDetail);
+        super(tRemedialAction.getName().getV(), null, createdRaId, importStatus, importStatusDetail, false);
         this.nativeFromGeneratorId = nativeFromGeneratorId;
         this.nativeToGeneratorId = nativeToGeneratorId;
         this.powsyblFromGeneratorId = powsyblFromGeneratorId;

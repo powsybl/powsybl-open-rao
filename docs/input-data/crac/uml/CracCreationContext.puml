@@ -19,7 +19,10 @@ CracCreationContext "1" *--> "1" CracCreationReport
 
 @startuml(id=ElementaryCreationContext)
 interface ElementaryCreationContext {
-+ String getNativeId()
++ String getNativeObjectId()
++ String getNativeObjectName()
++ String getCreatedObjectId()
++ Set<String> getCreatedObjectsIds()
 + boolean isImported()
 + boolean isAltered()
 + ImportStatus getImportStatus()

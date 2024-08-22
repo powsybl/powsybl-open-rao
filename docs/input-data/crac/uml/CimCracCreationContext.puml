@@ -1,16 +1,17 @@
 @startuml
 !include_many CracCreationContext.puml
+!include_many CracCreationContext.puml!ElementaryCreationContext
 
 CracCreationContext <|-- CimCracCreationContext
 
 class CimCracCreationContext {
-+ Set<CimContingencyCreationContext> getContingencyCreationContexts()
++ Set<ElementaryCreationContext> getContingencyCreationContexts()
 + MonitoredSeriesCreationContext getMonitoredSeriesCreationContext(String seriesId)
 + Map<String, MonitoredSeriesCreationContext> getMonitoredSeriesCreationContexts()
 + Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContexts()
 + RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId)
-+ CimContingencyCreationContext getContingencyCreationContextById(String contingencyId)
-+ CimContingencyCreationContext getContingencyCreationContextByName(String contingencyName)
++ ElementaryCreationContext getContingencyCreationContextById(String contingencyId)
++ ElementaryCreationContext getContingencyCreationContextByName(String contingencyName)
 + Set<AngleCnecCreationContext> getAngleCnecCreationContexts()
 + AngleCnecCreationContext getAngleCnecCreationContext(String seriesId)
 + Set<VoltageCnecCreationContext> getVoltageCnecCreationContexts()
@@ -19,16 +20,11 @@ class CimCracCreationContext {
 + Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForContingency(String nativeContingencyName)
 }
 
-CimCracCreationContext "1" *--> "*" CimContingencyCreationContext
+CimCracCreationContext "1" *--> "*" ElementaryCreationContext
 CimCracCreationContext "1" *--> "*" MonitoredSeriesCreationContext
 CimCracCreationContext "1" *--> "*" RemedialActionSeriesCreationContext
 CimCracCreationContext "1" *--> "*" AngleCnecCreationContext
 CimCracCreationContext "1" *--> "*" VoltageCnecCreationContext
-
-class CimContingencyCreationContext {
-+ String getNativeName()
-+ String getCreatedContingencyId()
-}
 
 class RemedialActionSeriesCreationContext {
 + boolean isInverted()
@@ -64,9 +60,6 @@ class MonitoredSeriesCreationContext {
 + Set<String> getCreatedCnecIds()
 }
 
-!include_many CracCreationContext.puml!ElementaryCreationContext
-
-CimContingencyCreationContext --|> ElementaryCreationContext
 RemedialActionSeriesCreationContext --|> ElementaryCreationContext
 AngleCnecCreationContext --|> ElementaryCreationContext
 VoltageCnecCreationContext --|> ElementaryCreationContext

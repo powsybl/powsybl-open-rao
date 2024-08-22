@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext;
 
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 
 import java.util.List;
 
@@ -40,11 +41,11 @@ public interface UcteCracCreationContext extends CracCreationContext {
     /**
      * Get all remedial-action creation contexts
      */
-    List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts();
+    List<? extends ElementaryCreationContext> getRemedialActionCreationContexts();
 
     /**
      * Get a specific remedial-action creation context
      * @param remedialActionId: the native remedial-action ID (as it figures in the native CRAC)
      */
-    RemedialActionCreationContext getRemedialActionCreationContext(String remedialActionId);
+    ElementaryCreationContext getRemedialActionCreationContext(String remedialActionId);
 }

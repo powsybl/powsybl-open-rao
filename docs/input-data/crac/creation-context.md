@@ -177,8 +177,8 @@ void printSomeResults(RemedialActionCreationContext context, CracCreationContext
         System.out.println("The element has been ignored by the RAO, we cannot access any result for it!");
         return;
     }
-    System.out.println(String.format("The remedial action created in the OpenRAO CRAC is called: %s", context.getCreatedRAId()));
-    RemedialAction<?> remedialAction = cracCreationContext.getCrac().getRemedialAction(context.getCreatedRAId());
+    System.out.println(String.format("The remedial action created in the OpenRAO CRAC is called: %s", context.getCreatedObjectId()));
+    RemedialAction<?> remedialAction = cracCreationContext.getCrac().getRemedialAction(context.getCreatedObjectId());
     cracCreationContext.getCrac().getStates().forEach(state -> {
         String stateDescription = String.format("instant %s%s", state.getInstant(), state.isPreventive() ? "" : " after contingency " + state.getContingency().get().getId());
         if (raoResult.getActivatedNetworkActionsDuringState(state).contains(remedialAction)) {

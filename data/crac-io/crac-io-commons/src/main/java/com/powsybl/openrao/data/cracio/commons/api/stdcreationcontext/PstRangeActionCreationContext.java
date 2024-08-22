@@ -6,10 +6,12 @@
  */
 package com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext;
 
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface PstRangeActionCreationContext extends RemedialActionCreationContext {
+public interface PstRangeActionCreationContext extends ElementaryCreationContext {
     /**
      * Know if the transformer is inverted in the network
      */
