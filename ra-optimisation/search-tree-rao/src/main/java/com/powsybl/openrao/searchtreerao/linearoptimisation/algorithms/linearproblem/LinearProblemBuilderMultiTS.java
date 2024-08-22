@@ -20,6 +20,9 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.Iterating
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ */
 public class LinearProblemBuilderMultiTS {
 
     private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";

@@ -29,6 +29,9 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
+/**
+ * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ */
 public final class BestTapFinderMultiTS {
 
     private BestTapFinderMultiTS() {

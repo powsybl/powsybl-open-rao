@@ -239,10 +239,8 @@ public class CoreProblemFiller implements ProblemFiller {
                 if (!injectionRangeActions.isEmpty()) {
                     // all injection variation = 0
                     OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.addInjectionBalanceVariationConstraint(0., 0., entry.getKey());
-                    entry.getValue().forEach(rangeAction -> {
-                        if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
-                            buildInjectionBalanceConstraint(linearProblem, injectionRangeAction, entry.getKey(), injectionBalanceConstraint);
-                        }
+                    injectionRangeActions.forEach(injectionRangeAction -> {
+                        buildInjectionBalanceConstraint(linearProblem, injectionRangeAction, entry.getKey(), injectionBalanceConstraint);
                     });
                 }
                 entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey()));
@@ -361,7 +359,7 @@ public class CoreProblemFiller implements ProblemFiller {
     /**
      * Adds signed variation variable of given InjectionRangeAction to balance constraint
      */
-    private void buildInjectionBalanceConstraint(LinearProblem linearProblem, InjectionRangeAction rangeAction, State state, OpenRaoMPConstraint injectionBalanceConstraint) {
+    private void buildInjectionBalanceConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, OpenRaoMPConstraint injectionBalanceConstraint) {
         OpenRaoMPVariable signedInjectionVariationVariable = linearProblem.getSignedRangeActionVariationVariable(rangeAction, state);
         injectionBalanceConstraint.setCoefficient(signedInjectionVariationVariable, 1);
 

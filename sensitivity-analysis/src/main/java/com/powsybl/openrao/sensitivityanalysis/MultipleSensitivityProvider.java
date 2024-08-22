@@ -18,6 +18,7 @@ import java.util.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public class MultipleSensitivityProvider implements CnecSensitivityProvider {
     private final List<CnecSensitivityProvider> cnecSensitivityProviders;

@@ -43,11 +43,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
- * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- * @author Godelaine De-Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
 public class TimeStepsRao implements RaoProvider {
@@ -156,12 +152,6 @@ public class TimeStepsRao implements RaoProvider {
         }
         return perimeters;
     }
-
-    //How to manage multiple inputs????
-    //    public CompletableFuture<RaoResult> run(List<RaoInput> raoInputsList, RaoParameters parameters, Instant targetEndInstant) {
-    //        raoInputsList.forEach(raoInput -> RaoUtil.initData(raoInput, parameters));
-    //        return CompletableFuture.completedFuture(launchMultiRao(raoInputsList, parameters, targetEndInstant));
-    //    }
 
     private static MultipleSensitivityResult runInitialSensi(List<Crac> cracs, List<Network> networks) {
         List<Set<FlowCnec>> cnecsList = new ArrayList<>();
