@@ -1,23 +1,15 @@
 @startuml
 !include_many CracCreationContext.puml
+!include_many CracCreationContext.puml!ElementaryCreationContext
 
 CracCreationContext <|-- CsaProfileCracCreationContext
 
 class CsaProfileCracCreationContext {
-+ Set<CsaProfileElementaryCreationContext> getContingencyCreationContexts()
-+ Set<CsaProfileElementaryCreationContext> getRemedialActionCreationContexts()
-+ CsaProfileElementaryCreationContext getRemedialActionCreationContext(String nativeId)
-+ Set<CsaProfileElementaryCreationContext> getCnecCreationContexts()
++ Set<ElementaryCreationContext> getContingencyCreationContexts()
++ Set<ElementaryCreationContext> getRemedialActionCreationContexts()
++ ElementaryCreationContext getRemedialActionCreationContext(String nativeId)
++ Set<ElementaryCreationContext> getCnecCreationContexts()
 }
 
-CsaProfileCracCreationContext "1" *--> "*" CsaProfileElementaryCreationContext
-
-class CsaProfileElementaryCreationContext {
-+ String getElementId()
-+ String getElementName()
-}
-
-!include_many CracCreationContext.puml!ElementaryCreationContext
-
-CsaProfileElementaryCreationContext --|> ElementaryCreationContext
+CsaProfileCracCreationContext "1" *--> "*" ElementaryCreationContext
 @enduml

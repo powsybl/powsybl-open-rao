@@ -7,18 +7,19 @@
 package com.powsybl.openrao.data.cracio.cse.remedialaction;
 
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.PstRangeActionCreationContext;
 import com.powsybl.openrao.data.cracio.cse.xsd.TRemedialAction;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public final class CsePstCreationContext extends CseRemedialActionCreationContext implements PstRangeActionCreationContext {
+public final class CsePstCreationContext extends StandardElementaryCreationContext implements PstRangeActionCreationContext {
     private final String nativeNetworkElementId;
     private final boolean isInverted;
 
     private CsePstCreationContext(TRemedialAction tRemedialAction, String nativeNetworkElementId, String createdRaId, ImportStatus importStatus, boolean isInverted, String inversionDetail) {
-        super(tRemedialAction, createdRaId, importStatus, false, inversionDetail);
+        super(tRemedialAction.getName().getV(), null, createdRaId, importStatus, inversionDetail, false);
         this.nativeNetworkElementId = nativeNetworkElementId;
         this.isInverted = isInverted;
     }
