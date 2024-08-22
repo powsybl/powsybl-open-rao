@@ -10,7 +10,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracio.fbconstraint.FbConstraintCreationContext;
 
 public class RoundTripFbConstraintCreationContext extends FbConstraintCreationContext {
-    private Crac overridingCrac;
+    private final Crac overridingCrac;
 
     public RoundTripFbConstraintCreationContext(FbConstraintCreationContext cracCreationContext, Crac overridingCrac) {
         super(cracCreationContext);

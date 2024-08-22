@@ -12,11 +12,12 @@ import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileElementaryCreationContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.Contingency;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyEquipment;
@@ -41,7 +42,7 @@ public class CsaProfileContingencyCreator {
 
     private final Map<String, Set<ContingencyEquipment>> nativeContingencyEquipmentsPerNativeContingency;
 
-    private Set<CsaProfileElementaryCreationContext> csaProfileContingencyCreationContexts;
+    private Set<ElementaryCreationContext> csaProfileContingencyCreationContexts;
     private final CsaProfileCracCreationContext cracCreationContext;
 
     public CsaProfileContingencyCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext) {
@@ -61,7 +62,7 @@ public class CsaProfileContingencyCreator {
             try {
                 addContingency(nativeContingency, nativeContingencyEquipments);
             } catch (OpenRaoImportException exception) {
-                csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(nativeContingency.mrid(), exception.getImportStatus(), exception.getMessage()));
+                csaProfileContingencyCreationContexts.add(StandardElementaryCreationContext.notImported(nativeContingency.mrid(), null, exception.getImportStatus(), exception.getMessage()));
             }
         }
 
@@ -79,7 +80,7 @@ public class CsaProfileContingencyCreator {
         addContingencyEquipments(nativeContingency.mrid(), nativeContingencyEquipments, contingencyAdder, alterations);
         contingencyAdder.add();
 
-        csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.imported(nativeContingency.mrid(), nativeContingency.mrid(), nativeContingency.getUniqueName(), String.join(" ", alterations), !alterations.isEmpty()));
+        csaProfileContingencyCreationContexts.add(StandardElementaryCreationContext.imported(nativeContingency.mrid(), null, nativeContingency.mrid(), !alterations.isEmpty(), String.join(" ", alterations)));
     }
 
     private void addContingencyEquipments(String contingencyId, Set<ContingencyEquipment> nativeContingencyEquipments, ContingencyAdder contingencyAdder, List<String> alterations) {

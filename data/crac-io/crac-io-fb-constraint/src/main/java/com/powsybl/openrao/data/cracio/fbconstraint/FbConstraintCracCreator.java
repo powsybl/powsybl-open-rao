@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.CriticalBranchType;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.IndependantComplexVariant;
@@ -158,7 +159,7 @@ class FbConstraintCracCreator {
              .filter(complexVariant -> !isInTimeInterval(timestamp, complexVariant.getTimeInterval().getV()))
             .filter(complexVariant -> creationContext.getRemedialActionCreationContext(complexVariant.getId()) == null)
             .forEach(complexVariant -> creationContext.addComplexVariantCreationContext(
-                new ComplexVariantCreationContext(complexVariant.getId(), ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, null, "ComplexVariant is not valid for the requested timestamp")
+                new StandardElementaryCreationContext(complexVariant.getId(), null, null, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "ComplexVariant is not valid for the requested timestamp", false)
             ));
     }
 

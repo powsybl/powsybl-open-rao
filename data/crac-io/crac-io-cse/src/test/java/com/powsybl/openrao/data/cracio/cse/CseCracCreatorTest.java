@@ -19,12 +19,11 @@ import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.InjectionRangeActionCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.cse.criticalbranch.CseCriticalBranchCreationContext;
-import com.powsybl.openrao.data.cracio.cse.outage.CseOutageCreationContext;
 import com.powsybl.openrao.data.cracio.cse.parameters.CseCracCreationParameters;
 import com.powsybl.openrao.data.cracio.cse.remedialaction.CsePstCreationContext;
 import org.junit.jupiter.api.Test;
@@ -80,7 +79,7 @@ class CseCracCreatorTest {
     }
 
     private void assertOutageNotImported(String name, ImportStatus importStatus) {
-        CseOutageCreationContext context = cracCreationContext.getOutageCreationContext(name);
+        ElementaryCreationContext context = cracCreationContext.getOutageCreationContext(name);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
@@ -92,14 +91,15 @@ class CseCracCreatorTest {
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
         assertTrue(context.getCreatedCnecsIds().isEmpty());
+        assertTrue(context.getCreatedObjectsIds().isEmpty());
     }
 
     private void assertRemedialActionNotImported(String name, ImportStatus importStatus) {
-        RemedialActionCreationContext context = cracCreationContext.getRemedialActionCreationContext(name);
+        ElementaryCreationContext context = cracCreationContext.getRemedialActionCreationContext(name);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
-        assertNull(context.getCreatedRAId());
+        assertNull(context.getCreatedObjectId());
     }
 
     private void assertHvdcRangeActionImported(String name, Map<String, String> networkElements, String groupId) {
@@ -107,9 +107,9 @@ class CseCracCreatorTest {
         assertTrue(context.isImported());
         assertEquals(networkElements, context.getNativeNetworkElementIds());
         assertFalse(context.isAltered());
-        assertNotNull(context.getCreatedRAId());
-        assertNotNull(importedCrac.getInjectionRangeAction(context.getCreatedRAId()));
-        assertEquals(groupId, importedCrac.getInjectionRangeAction(context.getCreatedRAId()).getGroupId().orElseThrow());
+        assertNotNull(context.getCreatedObjectId());
+        assertNotNull(importedCrac.getInjectionRangeAction(context.getCreatedObjectId()));
+        assertEquals(groupId, importedCrac.getInjectionRangeAction(context.getCreatedObjectId()).getGroupId().orElseThrow());
     }
 
     @Test
@@ -289,7 +289,7 @@ class CseCracCreatorTest {
     @Test
     void createInjectionSetpointWithWildcard() throws IOException {
         setUp("/cracs/cse_crac_2.xml");
-        RemedialActionCreationContext raContext = cracCreationContext.getRemedialActionCreationContext("cra_4");
+        ElementaryCreationContext raContext = cracCreationContext.getRemedialActionCreationContext("cra_4");
         assertTrue(raContext.isImported());
         NetworkAction na = cracCreationContext.getCrac().getNetworkAction("cra_4");
         assertEquals(2, na.getNetworkElements().size());
@@ -483,12 +483,12 @@ class CseCracCreatorTest {
         CsePstCreationContext pstContext = (CsePstCreationContext) cracCreationContext.getRemedialActionCreationContext("ra_1");
         assertTrue(pstContext.isImported());
         assertFalse(pstContext.isAltered());
-        assertEquals("ra_1", pstContext.getNativeId());
-        assertEquals("PST_ra_1_BBE2AA1  BBE3AA1  1", pstContext.getCreatedRAId());
+        assertEquals("ra_1", pstContext.getNativeObjectId());
+        assertEquals("PST_ra_1_BBE2AA1  BBE3AA1  1", pstContext.getCreatedObjectId());
         assertFalse(pstContext.isInverted());
         assertFalse(pstContext.isAltered());
         assertEquals("BBE2AA1  BBE3AA1  1", pstContext.getNativeNetworkElementId());
-        PstRangeAction pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedRAId());
+        PstRangeAction pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedObjectId());
         assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElement().getId());
         assertEquals(3, pstRangeAction.getInitialTap());
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
@@ -499,12 +499,12 @@ class CseCracCreatorTest {
         assertTrue(cracCreationContext.getRemedialActionCreationContext("ra_2") instanceof CsePstCreationContext);
         pstContext = (CsePstCreationContext) cracCreationContext.getRemedialActionCreationContext("ra_2");
         assertTrue(pstContext.isImported());
-        assertEquals("ra_2", pstContext.getNativeId());
-        assertEquals("PST_ra_2_BBE2AA1  BBE3AA1  1", pstContext.getCreatedRAId());
+        assertEquals("ra_2", pstContext.getNativeObjectId());
+        assertEquals("PST_ra_2_BBE2AA1  BBE3AA1  1", pstContext.getCreatedObjectId());
         assertFalse(pstContext.isInverted());
         assertFalse(pstContext.isAltered());
         assertEquals("BBE3AA1  BBE2AA1  1", pstContext.getNativeNetworkElementId());
-        pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedRAId());
+        pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedObjectId());
         assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElement().getId());
         assertEquals(3, pstRangeAction.getInitialTap());
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
