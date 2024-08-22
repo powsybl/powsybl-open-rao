@@ -31,16 +31,6 @@ public class CneExportSteps {
 
     private String exportedCne;
     private CneHelper.CneVersion cneVersion;
-    private Map<String, String> xNodeMrids = null;
-
-    @Given("XNode CIM mRIDs are:")
-    public void setXnodeMRIds(DataTable arg) {
-        xNodeMrids = new HashMap<>();
-        List<Map<String, String>> ids = arg.asMaps(String.class, String.class);
-        for (Map<String, String> id : ids) {
-            xNodeMrids.put(id.get("XNode"), id.get("mRID"));
-        }
-    }
 
     @When("I export CORE CNE at {string}")
     public void iExportCoreCne(String timestamp) throws IOException {
@@ -69,7 +59,7 @@ public class CneExportSteps {
         if (dataTimestamp != null) {
             CommonTestData.loadData(dataTimestamp);
         }
-        exportedCne = CneHelper.exportSweCne(CommonTestData.getCrac(), CommonTestData.getCracCreationContext(), CommonTestData.getNetwork(), CommonTestData.getRaoResult(), CommonTestData.getRaoParameters(), xNodeMrids);
+        exportedCne = CneHelper.exportSweCne(CommonTestData.getCrac(), CommonTestData.getCracCreationContext(), CommonTestData.getNetwork(), CommonTestData.getRaoResult(), CommonTestData.getRaoParameters());
         // The following crashes when running cucumber tests from jar-with-dependencies,
         // maybe because "urn-entsoe-eu-local-extension-types.xsd" is missing in the jar.
         // We don't really need to fix this (will be moved to gridcapa)

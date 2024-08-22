@@ -12,11 +12,10 @@ import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.corecneexporter.CoreCneExporter;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.SweCneExporter;
-import com.powsybl.openrao.data.swecneexporter.SweCneExporterParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,7 +30,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Helper class for exporting and comparing CNE files
@@ -63,7 +62,7 @@ public final class CneHelper {
         return outputStream.toString();
     }
 
-    public static String exportSweCne(Crac crac, CracCreationContext cracCreationContext, Network network, RaoResult raoResult, RaoParameters raoParameters, Map<String, String> xNodeMrids) {
+    public static String exportSweCne(Crac crac, CracCreationContext cracCreationContext, Network network, RaoResult raoResult, RaoParameters raoParameters) {
         if (!(cracCreationContext instanceof CimCracCreationContext)) {
             throw new OpenRaoException("SWE CNE export can only handle CimCracCreationContext");
         }
@@ -72,9 +71,6 @@ public final class CneHelper {
             "senderId", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
             "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
-        if (xNodeMrids != null) {
-            exporterParameters.addExtension(SweCneExporterParameters.class, new SweCneExporterParameters(xNodeMrids));
-        }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         (new SweCneExporter()).exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream);
         return outputStream.toString();

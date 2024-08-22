@@ -170,8 +170,7 @@ public class SweMonitoredSeriesCreator {
         Branch<?> branch = sweCneHelper.getNetwork().getBranch(cnec.getNetworkElement().getId());
         if (branch instanceof TieLine tieLine) {
             Country cnecOperatorCountry = SweCneUtil.getOperatorCountry(cnec.getOperator());
-            String xNodeMRId = sweCneHelper.getExporterParameters().getExtension(SweCneExporterParameters.class)
-                .getXNodeMrid(tieLine.getPairingKey());
+            String xNodeMRId = tieLine.getDanglingLine1().getProperty("CGMES.TopologicalNode_Boundary");
             if (xNodeMRId == null) {
                 xNodeMRId = "null";
             }
