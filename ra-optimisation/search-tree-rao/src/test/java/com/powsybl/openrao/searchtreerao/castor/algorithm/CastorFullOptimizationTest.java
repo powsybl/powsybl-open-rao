@@ -33,6 +33,7 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -1168,5 +1169,41 @@ class CastorFullOptimizationTest {
         assertEquals(Map.of(ra121, 0.), appliedRemedialActions.getAppliedRangeActions(state12));
         assertEquals(Map.of(ra211, 0.), appliedRemedialActions.getAppliedRangeActions(state21));
         assertEquals(Map.of(ra221, 0., ra222, 0.), appliedRemedialActions.getAppliedRangeActions(state22));
+    }
+
+    @Test
+    void testIsStopCriterionChecked() throws IOException {
+        setup();
+        TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
+        ObjectiveFunctionResult objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
+
+        // if virtual cost positive return false
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(100.);
+        assertFalse(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+
+        // if purely virtual with null virtual cost, return true
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-Double.MAX_VALUE);
+        assertTrue(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+
+        // if not purely virtual and stop criterion is MIN_OBJECTIVE return false
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-10.);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
+        assertFalse(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+
+        // if not purely virtual and stop criterion is AT_TARGET_OBJECTIVE_VALUE and cost is higher than target return false
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-10.);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.targetObjectiveValue()).thenReturn(-20.);
+        assertFalse(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+
+        // if not purely virtual and stop criterion is AT_TARGET_OBJECTIVE_VALUE and cost is lower than target return true
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-10.);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.targetObjectiveValue()).thenReturn(0.);
+        assertFalse(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
     }
 }

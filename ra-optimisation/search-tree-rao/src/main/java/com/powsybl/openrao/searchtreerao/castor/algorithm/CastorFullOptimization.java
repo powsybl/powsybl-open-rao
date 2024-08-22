@@ -37,7 +37,6 @@ import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParamet
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -423,8 +422,9 @@ public class CastorFullOptimization {
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, loopFlowCnecs, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), raoParameters);
-        Pair<Boolean, ObjectiveFunctionResult> stopCriterionReached = isStopCriterionChecked(objectiveFunction, curativeTreeParameters, prePerimeterSensitivityOutput);
-        if (stopCriterionReached.getLeft()) {
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput);
+        boolean stopCriterionReached = isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
+        if (stopCriterionReached) {
             NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Collections.emptySet());
 
             Map<RangeAction<?>, Double> rangeActionSetpointMap = crac.getPotentiallyAvailableRangeActions(curativeState)
@@ -432,7 +432,7 @@ public class CastorFullOptimization {
                 .collect(Collectors.toMap(rangeAction -> rangeAction, prePerimeterSensitivityOutput::getSetpoint));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(rangeActionSetpointMap);
             RangeActionActivationResult rangeActionsResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-            return new OptimizationResultImpl(stopCriterionReached.getRight(), prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, networkActionsResult, rangeActionsResult);
+            return new OptimizationResultImpl(objectiveFunctionResult, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, networkActionsResult, rangeActionsResult);
         }
 
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput);
@@ -451,7 +451,7 @@ public class CastorFullOptimization {
             .withInitialFlowResult(initialSensitivityOutput)
             .withPrePerimeterResult(prePerimeterSensitivityOutput)
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), raoParameters))
+            .withObjectiveFunction(objectiveFunction)
             .withToolProvider(toolProvider)
             .withOutageInstant(crac.getOutageInstant())
             .build();
@@ -461,20 +461,18 @@ public class CastorFullOptimization {
         return result;
     }
 
-    private Pair<Boolean, ObjectiveFunctionResult> isStopCriterionChecked(ObjectiveFunction objectiveFunction, TreeParameters treeParameters, FlowResult flowResult) {
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult);
+    static boolean isStopCriterionChecked(ObjectiveFunctionResult result, TreeParameters treeParameters) {
         if (result.getVirtualCost() > 1e-6) {
-            return Pair.of(false, result);
+            return false;
         }
         if (result.getFunctionalCost() < -Double.MAX_VALUE / 2 && result.getVirtualCost() < 1e-6) {
-            TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
-            return Pair.of(true, result);
+            return true;
         }
 
         if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
-            return Pair.of(false, result);
+            return false;
         } else if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return Pair.of(result.getCost() < treeParameters.targetObjectiveValue(), result);
+            return result.getCost() < treeParameters.targetObjectiveValue();
         } else {
             throw new OpenRaoException("Unexpected stop criterion: " + treeParameters.stopCriterion());
         }
