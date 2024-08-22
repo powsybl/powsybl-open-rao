@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.cracio.cse.parameters.BusBarChangeSwitches;
 import com.powsybl.openrao.data.cracio.cse.parameters.CseCracCreationParameters;
@@ -72,7 +73,7 @@ public class TRemedialActionAdder {
                     } catch (OpenRaoException e) {
                         // unsupported remedial action type
                         cseCracCreationContext.addRemedialActionCreationContext(
-                            CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, e.getMessage())
+                            StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, e.getMessage())
                         );
                     }
                 });
@@ -104,14 +105,14 @@ public class TRemedialActionAdder {
             .withOperator(tRemedialAction.getOperator().getV());
 
         if (tRemedialAction.getStatus().getBranch().isEmpty()) {
-            cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.INCOMPLETE_DATA, "field 'Status' of a topological remedial action cannot be empty"));
+            cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, ImportStatus.INCOMPLETE_DATA, "field 'Status' of a topological remedial action cannot be empty"));
             return;
         }
 
         for (TBranch tBranch : tRemedialAction.getStatus().getBranch()) {
             UcteTopologicalElementHelper branchHelper = new UcteTopologicalElementHelper(tBranch.getFromNode().getV(), tBranch.getToNode().getV(), String.valueOf(tBranch.getOrder().getV()), createdRAId, ucteNetworkAnalyzer);
             if (!branchHelper.isValid()) {
-                cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, branchHelper.getInvalidReason()));
+                cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, branchHelper.getInvalidReason()));
                 return;
             }
             Identifiable<?> ne = network.getIdentifiable(branchHelper.getIdInNetwork());
@@ -130,7 +131,7 @@ public class TRemedialActionAdder {
 
         addUsageRules(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
-        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, false, null));
+        cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.imported(tRemedialAction.getName().getV(), null, createdRAId, false, null));
     }
 
     private void importInjectionAction(TRemedialAction tRemedialAction) {
@@ -146,14 +147,14 @@ public class TRemedialActionAdder {
         for (TNode tNode : tRemedialAction.getGeneration().getNode()) {
             if (!tNode.getVariationType().getV().equals(ABSOLUTE_VARIATION_TYPE)) {
                 cseCracCreationContext.addRemedialActionCreationContext(
-                    CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format("node %s is not defined as an ABSOLUTE injectionSetpoint (only ABSOLUTE is implemented).", tNode.getName().getV()))
+                    StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format("node %s is not defined as an ABSOLUTE injectionSetpoint (only ABSOLUTE is implemented).", tNode.getName().getV()))
                 );
                 return;
             }
 
             GeneratorHelper generatorHelper = new GeneratorHelper(tNode.getName().getV(), ucteNetworkAnalyzer);
             if (!generatorHelper.isValid()) {
-                cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, generatorHelper.getImportStatus(), generatorHelper.getDetail()));
+                cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, generatorHelper.getImportStatus(), generatorHelper.getDetail()));
                 return;
             } else if (generatorHelper.isAltered()) {
                 isAltered = true;
@@ -176,7 +177,7 @@ public class TRemedialActionAdder {
                     .withActivePowerValue(tNode.getValue().getV())
                     .add();
             } catch (OpenRaoException e) {
-                cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.OTHER, e.getMessage()));
+                cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, ImportStatus.OTHER, e.getMessage()));
                 return;
             }
 
@@ -184,7 +185,7 @@ public class TRemedialActionAdder {
         // After looping on all nodes
         addUsageRules(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
-        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail == null ? null : alteringDetail.toString()));
+        cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.imported(tRemedialAction.getName().getV(), null, createdRAId, isAltered, alteringDetail == null ? null : alteringDetail.toString()));
     }
 
     private void importPstRangeAction(TRemedialAction tRemedialAction) {
@@ -417,7 +418,7 @@ public class TRemedialActionAdder {
     void importBusBarChangeAction(TRemedialAction tRemedialAction) {
         String raId = tRemedialAction.getName().getV();
         if (cseCracCreationParameters == null || cseCracCreationParameters.getBusBarChangeSwitches(raId) == null) {
-            cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.INCOMPLETE_DATA, "CSE CRAC creation parameters is missing or does not contain information for the switches to open/close"));
+            cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, ImportStatus.INCOMPLETE_DATA, "CSE CRAC creation parameters is missing or does not contain information for the switches to open/close"));
             return;
         }
 
@@ -436,12 +437,12 @@ public class TRemedialActionAdder {
                     .add();
             });
         } catch (OpenRaoException e) {
-            cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, e.getMessage()));
+            cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, e.getMessage()));
             return;
         }
         addUsageRules(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
-        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, raId, false, null));
+        cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.imported(tRemedialAction.getName().getV(), null, raId, false, null));
     }
 
     private void assertIsSwitch(String switchId) {

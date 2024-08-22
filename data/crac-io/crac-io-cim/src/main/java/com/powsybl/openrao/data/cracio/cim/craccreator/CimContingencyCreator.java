@@ -13,9 +13,11 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.openrao.data.cracapi.ContingencyAdder;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.cgmes.CgmesBranchHelper;
 import com.powsybl.openrao.data.cracio.cim.xsd.ContingencyRegisteredResource;
 import com.powsybl.openrao.data.cracio.cim.xsd.ContingencySeries;
@@ -31,10 +33,10 @@ public class CimContingencyCreator {
     private final Crac crac;
     private final Network network;
     private final List<TimeSeries> cimTimeSeries;
-    private Set<CimContingencyCreationContext> cimContingencyCreationContexts;
+    private Set<ElementaryCreationContext> cimContingencyCreationContexts;
     private CimCracCreationContext cracCreationContext;
 
-    public Set<CimContingencyCreationContext> getContingencyCreationContexts() {
+    public Set<ElementaryCreationContext> getContingencyCreationContexts() {
         return new HashSet<>(cimContingencyCreationContexts);
     }
 
@@ -58,7 +60,7 @@ public class CimContingencyCreator {
     }
 
     private void addContingency(ContingencySeries cimContingency) {
-        if (cimContingencyCreationContexts.stream().anyMatch(ccc -> ccc.getNativeId().equals(cimContingency.getMRID()))) {
+        if (cimContingencyCreationContexts.stream().anyMatch(ccc -> ccc.getNativeObjectId().equals(cimContingency.getMRID()))) {
             return;
         }
 
@@ -68,7 +70,7 @@ public class CimContingencyCreator {
                 .withName(cimContingency.getName());
 
         if (cimContingency.getRegisteredResource().isEmpty()) {
-            cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.INCOMPLETE_DATA, "No registered resources"));
+            cimContingencyCreationContexts.add(StandardElementaryCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.INCOMPLETE_DATA, "No registered resources"));
             return;
         }
 
@@ -94,9 +96,9 @@ public class CimContingencyCreator {
         if (anyRegisteredResourceOk) {
             contingencyAdder.add();
             String message = allRegisteredResourcesOk ? null : String.format("Some network elements were not found in the network: %s", missingNetworkElements.toString());
-            cimContingencyCreationContexts.add(CimContingencyCreationContext.imported(createdContingencyId, cimContingency.getName(), createdContingencyId, !allRegisteredResourcesOk, message));
+            cimContingencyCreationContexts.add(StandardElementaryCreationContext.imported(createdContingencyId, cimContingency.getName(), createdContingencyId, !allRegisteredResourcesOk, message));
         } else {
-            cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "None of the contingency's registered resources was found in network"));
+            cimContingencyCreationContexts.add(StandardElementaryCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "None of the contingency's registered resources was found in network"));
         }
     }
 
