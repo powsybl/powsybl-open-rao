@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public class TimeStepsRaoTest {
     List<Network> networks;

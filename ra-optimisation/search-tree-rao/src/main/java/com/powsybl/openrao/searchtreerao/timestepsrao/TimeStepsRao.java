@@ -43,7 +43,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
 public class TimeStepsRao implements RaoProvider {

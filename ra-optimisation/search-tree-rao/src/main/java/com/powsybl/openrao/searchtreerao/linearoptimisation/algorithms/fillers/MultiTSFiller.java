@@ -31,7 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public class MultiTSFiller implements ProblemFiller {
 
@@ -217,6 +217,11 @@ public class MultiTSFiller implements ProblemFiller {
         }
     }
 
+    /**
+     * Get a set of RangeActions that is identical to currentRangeAction but from the closest previous time step
+     * Stop the search as soon as a time step contains a corresponding RangeAction
+     * Length of this set is supposed to be maximal to 1
+     */
     private Set<RangeAction<?>> getPastRangeActions(RangeAction<?> currentRangeAction, int timeStepIndex) {
         Set<RangeAction<?>> previousRangeActionSet = new HashSet<>();
         int pastTimeStepIndex = timeStepIndex - 1;
@@ -235,6 +240,11 @@ public class MultiTSFiller implements ProblemFiller {
         return previousRangeActionSet;
     }
 
+    /**
+     * Add constraint on the previous time step for an Injection
+     * min_setpoint_variation < F[t] - F[t-1] < max_setpoint_variation
+     * t: timestep
+     */
     private void buildConstraintOneTimeStepInjection(LinearProblem linearProblem, StandardRangeAction<?> currentRangeAction, StandardRangeAction<?> previousRangeAction, int timeStepIndex) {
         OpenRaoMPVariable currentTimeStepVariable = linearProblem.getRangeActionSetpointVariable(currentRangeAction, statesList.get(timeStepIndex));
         OpenRaoMPVariable previousTimeStepVariable = linearProblem.getRangeActionSetpointVariable(previousRangeAction, statesList.get(timeStepIndex - 1));
@@ -255,6 +265,8 @@ public class MultiTSFiller implements ProblemFiller {
     /**
      * Add constraint on the previous time step for a Pst
      * Continuous case: constraint on setpoint variables
+     * min_tap_variation * smallest_angle_step < F[t] - F[t-1] < max_tap_variation * smallest_angle_step
+     * t: timestep
      */
     private void buildConstraintPstOneTimeStepContinuous(LinearProblem linearProblem, PstRangeAction currentRangeAction, PstRangeAction previousRangeAction, int timeStepIndex) {
         OpenRaoMPVariable currentTimeStepVariable = linearProblem.getRangeActionSetpointVariable(currentRangeAction, statesList.get(timeStepIndex));
@@ -277,9 +289,9 @@ public class MultiTSFiller implements ProblemFiller {
     }
 
     /**
-     * Add constraint on the preivous time step for a Pst
+     * Add constraint on the previous time step for a Pst
      * Discrete case: constraint on tap variables
-     * min_tap_variation < f[t] - f[t-1] +  (F[up,t] - F[down,t]) - (F[up,t-1] - F[up,t-1])  < max_tap_variation
+     * min_tap_variation < f[t] - f[t-1] +  (F[up,t] - F[down,t]) - (F[up,t-1] - F[down,t-1])  < max_tap_variation
      * t: timestep / f: tap position from previous iteration
      */
     private void buildConstraintPstOneTimeStepDiscrete(LinearProblem linearProblem, PstRangeAction currentRangeAction, PstRangeAction previousRangeAction, int timeStepIndex) {

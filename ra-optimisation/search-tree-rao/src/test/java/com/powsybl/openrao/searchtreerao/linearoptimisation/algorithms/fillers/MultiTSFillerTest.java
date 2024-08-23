@@ -36,7 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 class MultiTSFillerTest {
     static final double DOUBLE_TOLERANCE = 1e-4;

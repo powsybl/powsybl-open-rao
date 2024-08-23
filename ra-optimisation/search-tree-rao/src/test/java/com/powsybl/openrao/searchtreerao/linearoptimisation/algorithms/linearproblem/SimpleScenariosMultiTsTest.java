@@ -47,7 +47,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public class SimpleScenariosMultiTsTest {
     static final double DOUBLE_TOLERANCE = 1e-4;

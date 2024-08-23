@@ -358,6 +358,8 @@ public class CoreProblemFiller implements ProblemFiller {
 
     /**
      * Adds signed variation variable of given InjectionRangeAction to balance constraint
+     * sum(injectionVariation)
+     * injectionVariation = setpoint - prePerimeterSetPoint
      */
     private void buildInjectionBalanceConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, OpenRaoMPConstraint injectionBalanceConstraint) {
         OpenRaoMPVariable signedInjectionVariationVariable = linearProblem.getSignedRangeActionVariationVariable(rangeAction, state);

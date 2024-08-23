@@ -50,7 +50,7 @@ import java.util.*;
 import static java.util.Objects.nonNull;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public class ComplexScenariosMultiTsTest {
     List<Network> networks;

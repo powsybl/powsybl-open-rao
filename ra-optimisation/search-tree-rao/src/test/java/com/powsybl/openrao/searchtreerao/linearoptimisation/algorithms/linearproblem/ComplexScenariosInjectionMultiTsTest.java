@@ -42,7 +42,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public class ComplexScenariosInjectionMultiTsTest {
     List<Network> networks;

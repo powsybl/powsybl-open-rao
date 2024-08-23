@@ -34,7 +34,7 @@ import java.util.*;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public final class IteratingLinearOptimizerMultiTS {
 

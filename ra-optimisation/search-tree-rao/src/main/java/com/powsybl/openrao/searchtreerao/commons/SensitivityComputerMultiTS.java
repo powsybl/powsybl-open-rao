@@ -24,7 +24,7 @@ import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import java.util.*;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public final class SensitivityComputerMultiTS {
     private List<SystematicSensitivityInterface> systematicSensitivityInterfaces;

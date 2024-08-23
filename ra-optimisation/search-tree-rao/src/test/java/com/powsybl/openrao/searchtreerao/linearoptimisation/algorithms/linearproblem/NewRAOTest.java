@@ -49,7 +49,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Jérémy Wang {@literal <jeremy.wang at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public class NewRAOTest {
 
