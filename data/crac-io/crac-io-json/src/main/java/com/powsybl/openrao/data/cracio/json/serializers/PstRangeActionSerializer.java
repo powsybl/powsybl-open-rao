@@ -38,6 +38,7 @@ public class PstRangeActionSerializer extends AbstractJsonSerializer<PstRangeAct
         gen.writeObjectField(TAP_TO_ANGLE_CONVERSION_MAP, value.getTapToAngleConversionMap());
         serializeRemedialActionSpeed(value, gen);
         serializeRanges(value, gen);
+        gen.writeNumberField(COST, value.getActivationCost());
         gen.writeEndObject();
     }
 

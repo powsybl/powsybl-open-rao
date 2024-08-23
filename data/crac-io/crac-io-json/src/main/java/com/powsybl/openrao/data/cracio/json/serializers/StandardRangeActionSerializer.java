@@ -32,6 +32,7 @@ public final class StandardRangeActionSerializer {
         serializeGroupId(value, gen);
         gen.writeNumberField(INITIAL_SETPOINT, value.getInitialSetpoint());
         serializeRanges(value, gen);
+        gen.writeNumberField(COST, value.getActivationCost());
     }
 
     private static void serializeGroupId(StandardRangeAction<?> value, JsonGenerator gen) throws IOException {
@@ -48,4 +49,6 @@ public final class StandardRangeActionSerializer {
         }
         gen.writeEndArray();
     }
+
+
 }
