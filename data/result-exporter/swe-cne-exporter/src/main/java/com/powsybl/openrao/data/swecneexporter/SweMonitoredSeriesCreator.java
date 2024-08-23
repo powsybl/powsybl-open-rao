@@ -67,10 +67,7 @@ public class SweMonitoredSeriesCreator {
                                     cnecCreationContextsMap.computeIfAbsent(contingency, c -> new TreeMap<>(Comparator.comparing(MonitoredSeriesCreationContext::getNativeId)));
                                     cnecCreationContextsMap.get(contingency).computeIfAbsent(monitoredSeriesCreationContext, cc -> new TreeSet<>(Comparator.comparing(CnecCreationContext::getCreatedCnecId)));
                                     cnecCreationContextsMap.get(contingency).get(monitoredSeriesCreationContext).add(cnecCreationContext);
-                                }
-                            )
-                    )
-            );
+                                })));
     }
 
     public List<MonitoredSeries> generateMonitoredSeries(Contingency contingency) {

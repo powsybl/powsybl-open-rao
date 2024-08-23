@@ -7,8 +7,6 @@
 package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.openrao.tests.utils.CneHelper;
-import io.cucumber.datatable.DataTable;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
@@ -16,9 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static org.junit.jupiter.api.Assertions.assertTrue;
