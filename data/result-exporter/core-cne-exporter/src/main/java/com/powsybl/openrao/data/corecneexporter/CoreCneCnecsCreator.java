@@ -52,14 +52,14 @@ public final class CoreCneCnecsCreator {
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
         cracCreationContext.getBranchCnecCreationContexts().stream()
-            .sorted(Comparator.comparing(BranchCnecCreationContext::getNativeId))
+            .sorted(Comparator.comparing(BranchCnecCreationContext::getNativeObjectId))
             .forEach(cnec -> constraintSeries.addAll(createConstraintSeriesOfACnec(cnec, cneHelper)));
         return constraintSeries;
     }
 
     private List<ConstraintSeries> createConstraintSeriesOfACnec(BranchCnecCreationContext branchCnecCreationContext, CneHelper cneHelper) {
         if (!branchCnecCreationContext.isImported()) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Cnec {} was not imported into the RAO, its results will be absent from the CNE file", branchCnecCreationContext.getNativeId());
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Cnec {} was not imported into the RAO, its results will be absent from the CNE file", branchCnecCreationContext.getNativeObjectId());
             return new ArrayList<>();
         }
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
@@ -90,7 +90,7 @@ public final class CoreCneCnecsCreator {
 
     private List<ConstraintSeries> createConstraintSeriesOfCnec(BranchCnecCreationContext branchCnecCreationContext, String outageCnecId, String curativeCnecId, boolean asMnec, CneHelper cneHelper) {
         List<ConstraintSeries> constraintSeriesOfCnec = new ArrayList<>();
-        String nativeCnecId = branchCnecCreationContext.getNativeId();
+        String nativeCnecId = branchCnecCreationContext.getNativeObjectId();
         boolean shouldInvertBranchDirection = branchCnecCreationContext.isDirectionInvertedInNetwork();
 
         FlowCnec outageCnec = cneHelper.getCrac().getFlowCnec(outageCnecId);

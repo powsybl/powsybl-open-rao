@@ -198,7 +198,7 @@ public class PstRangeActionCreator {
             try {
                 this.pstRangeActionAdder.add();
             } catch (OpenRaoException e) {
-                this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(this.pstRangeActionCreationContext.getNativeId(), ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
+                this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(this.pstRangeActionCreationContext.getNativeObjectId(), ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
             }
         }
     }

@@ -22,9 +22,9 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.cracapi.usagerule.OnInstant;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracimpl.NetworkActionImpl;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +63,7 @@ class FbConstraintCracCreatorTest {
     }
 
     private void assertComplexVariantNotImported(String name, ImportStatus importStatus) {
-        RemedialActionCreationContext context = creationContext.getRemedialActionCreationContext(name);
+        ElementaryCreationContext context = creationContext.getRemedialActionCreationContext(name);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
@@ -213,22 +213,22 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0001").isImported());
         assertTrue(creationContext.getRemedialActionCreationContext("RA_FR_0002").isImported());
 
-        ComplexVariantCreationContext pstContext = creationContext.getRemedialActionCreationContext("RA_BE_0001");
+        ElementaryCreationContext pstContext = creationContext.getRemedialActionCreationContext("RA_BE_0001");
         assertNotNull(pstContext);
         assertEquals(ImportStatus.IMPORTED, pstContext.getImportStatus());
-        assertEquals("RA_BE_0001", pstContext.getNativeId());
-        assertEquals("RA_BE_0001", pstContext.getCreatedRAId());
+        assertEquals("RA_BE_0001", pstContext.getNativeObjectId());
+        assertEquals("RA_BE_0001", pstContext.getCreatedObjectId());
         assertTrue(pstContext.isImported());
         assertFalse(pstContext.isAltered());
         assertTrue(pstContext instanceof PstComplexVariantCreationContext);
         assertFalse(((PstComplexVariantCreationContext) pstContext).isInverted());
         assertEquals("BBE2AA1  BBE3AA1  1", ((PstComplexVariantCreationContext) pstContext).getNativeNetworkElementId());
 
-        ComplexVariantCreationContext topoContext = creationContext.getRemedialActionCreationContext("RA_FR_0001");
+        ElementaryCreationContext topoContext = creationContext.getRemedialActionCreationContext("RA_FR_0001");
         assertNotNull(topoContext);
         assertEquals(ImportStatus.IMPORTED, topoContext.getImportStatus());
-        assertEquals("RA_FR_0001", topoContext.getNativeId());
-        assertEquals("RA_FR_0001", topoContext.getCreatedRAId());
+        assertEquals("RA_FR_0001", topoContext.getNativeObjectId());
+        assertEquals("RA_FR_0001", topoContext.getCreatedObjectId());
         assertTrue(topoContext.isImported());
         assertFalse(topoContext.isAltered());
     }
@@ -468,8 +468,8 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getRemedialActionCreationContext("RA_BE_0001") instanceof PstComplexVariantCreationContext);
         PstComplexVariantCreationContext pstContext = (PstComplexVariantCreationContext) creationContext.getRemedialActionCreationContext("RA_BE_0001");
         assertTrue(pstContext.isImported());
-        assertEquals("RA_BE_0001", pstContext.getNativeId());
-        assertEquals("RA_BE_0001", pstContext.getCreatedRAId());
+        assertEquals("RA_BE_0001", pstContext.getNativeObjectId());
+        assertEquals("RA_BE_0001", pstContext.getCreatedObjectId());
         assertFalse(pstContext.isInverted());
         assertEquals("BBE2AA1  BBE3AA1  PST BE", pstContext.getNativeNetworkElementId());
         PstRangeAction pstRangeAction = crac.getPstRangeAction("RA_BE_0001");
@@ -483,8 +483,8 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getRemedialActionCreationContext("RA_BE_0002") instanceof PstComplexVariantCreationContext);
         pstContext = (PstComplexVariantCreationContext) creationContext.getRemedialActionCreationContext("RA_BE_0002");
         assertTrue(pstContext.isImported());
-        assertEquals("RA_BE_0002", pstContext.getNativeId());
-        assertEquals("RA_BE_0002", pstContext.getCreatedRAId());
+        assertEquals("RA_BE_0002", pstContext.getNativeObjectId());
+        assertEquals("RA_BE_0002", pstContext.getCreatedObjectId());
         assertTrue(pstContext.isInverted());
         assertFalse(pstContext.isAltered());
         assertEquals("BBE3AA1  BBE2AA1  PST BE", pstContext.getNativeNetworkElementId());
@@ -534,14 +534,14 @@ class FbConstraintCracCreatorTest {
 
         assertFalse(creationContext.getRemedialActionCreationContext("RA_BE_0002").isImported());
         assertComplexVariantNotImported("RA_BE_0002", INCONSISTENCY_IN_DATA);
-        assertNull(creationContext.getRemedialActionCreationContext("RA_BE_0002").getCreatedRAId());
+        assertNull(creationContext.getRemedialActionCreationContext("RA_BE_0002").getCreatedObjectId());
         assertNull(crac.getRemedialAction("RA_BE_0002"));
 
         // RA_BE_0003 is one same PST as RA_BE_0004
         // RA_BE_0004 has been prioritized as it has a groupId
         assertFalse(creationContext.getRemedialActionCreationContext("RA_BE_0003").isImported());
         assertComplexVariantNotImported("RA_BE_0003", INCONSISTENCY_IN_DATA);
-        assertNull(creationContext.getRemedialActionCreationContext("RA_BE_0003").getCreatedRAId());
+        assertNull(creationContext.getRemedialActionCreationContext("RA_BE_0003").getCreatedObjectId());
         assertNull(crac.getRemedialAction("RA_BE_0003"));
 
         assertTrue(creationContext.getRemedialActionCreationContext("RA_BE_0004").isImported());

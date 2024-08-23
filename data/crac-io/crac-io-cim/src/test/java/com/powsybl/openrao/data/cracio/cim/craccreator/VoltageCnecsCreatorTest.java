@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageCnecsCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
@@ -81,11 +82,11 @@ class VoltageCnecsCreatorTest {
         voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
     }
 
-    private CimContingencyCreationContext mockCimContingencyCreationContext(String nativeName, boolean imported, String createdId) {
-        CimContingencyCreationContext context = Mockito.mock(CimContingencyCreationContext.class);
-        Mockito.when(context.getNativeName()).thenReturn(nativeName);
+    private ElementaryCreationContext mockCimContingencyCreationContext(String nativeName, boolean imported, String createdId) {
+        ElementaryCreationContext context = Mockito.mock(ElementaryCreationContext.class);
+        Mockito.when(context.getNativeObjectName()).thenReturn(nativeName);
         Mockito.when(context.isImported()).thenReturn(imported);
-        Mockito.when(context.getCreatedContingencyId()).thenReturn(createdId);
+        Mockito.when(context.getCreatedObjectId()).thenReturn(createdId);
         return context;
     }
 

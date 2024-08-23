@@ -10,7 +10,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.RemedialActionCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 
 import java.time.OffsetDateTime;
@@ -26,7 +25,7 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     private final OffsetDateTime timeStamp;
     private final String networkName;
     private final Map<String, CriticalBranchCreationContext> criticalBranchCreationContexts;
-    private final Map<String, ComplexVariantCreationContext> complexVariantCreationContexts;
+    private final Map<String, ElementaryCreationContext> complexVariantCreationContexts;
     private final CracCreationReport creationReport;
 
     @Override
@@ -45,7 +44,7 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts() {
+    public List<? extends ElementaryCreationContext> getRemedialActionCreationContexts() {
         return new ArrayList<>(complexVariantCreationContexts.values());
     }
 
@@ -70,16 +69,16 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public ComplexVariantCreationContext getRemedialActionCreationContext(String complexVariantId) {
+    public ElementaryCreationContext getRemedialActionCreationContext(String complexVariantId) {
         return complexVariantCreationContexts.get(complexVariantId);
     }
 
     void addCriticalBranchCreationContext(CriticalBranchCreationContext cbcc) {
-        criticalBranchCreationContexts.put(cbcc.getNativeId(), cbcc);
+        criticalBranchCreationContexts.put(cbcc.getNativeObjectId(), cbcc);
     }
 
-    void addComplexVariantCreationContext(ComplexVariantCreationContext cvcc) {
-        complexVariantCreationContexts.put(cvcc.getNativeId(), cvcc);
+    void addComplexVariantCreationContext(ElementaryCreationContext context) {
+        complexVariantCreationContexts.put(context.getNativeObjectId(), context);
     }
 
     FbConstraintCreationContext(OffsetDateTime timeStamp, String networkName) {
@@ -120,10 +119,10 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatusDetail()))
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatus(), context.getImportStatusDetail()))
         );
     }
 }
