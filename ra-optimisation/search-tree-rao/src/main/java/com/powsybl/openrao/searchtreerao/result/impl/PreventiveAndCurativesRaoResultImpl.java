@@ -199,7 +199,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     public ComputationStatus getComputationStatus(State state) {
         Instant instant = state.getInstant();
         while (instant != null) {
-            OptimizationResult perimeterResult = getPerimeterResult(instant, state);
+            OptimizationResult perimeterResult = getOptimizationResult(instant, state);
             if (Objects.nonNull(perimeterResult)) {
                 return perimeterResult.getSensitivityStatus(state);
             }
@@ -208,7 +208,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         return FAILURE;
     }
 
-    public OptimizationResult getPerimeterResult(Instant optimizedInstant, State state) {
+    public OptimizationResult getOptimizationResult(Instant optimizedInstant, State state) {
         if (optimizedInstant == null) {
             throw new OpenRaoException("No OptimizationResult for INITIAL optimization state");
         }
