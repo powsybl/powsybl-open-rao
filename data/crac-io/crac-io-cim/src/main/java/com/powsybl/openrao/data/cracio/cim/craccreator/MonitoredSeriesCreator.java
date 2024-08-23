@@ -82,9 +82,9 @@ public class MonitoredSeriesCreator {
     private Set<Series> getCnecSeries() {
         Set<Series> cnecSeries = new HashSet<>();
         CimCracUtils.applyActionToEveryPoint(
-                cimTimeSeries,
-                cracCreationContext.getTimeStamp().toInstant(),
-                point -> point.getSeries().stream().filter(this::describesCnecsToImport).forEach(cnecSeries::add)
+            cimTimeSeries,
+            cracCreationContext.getTimeStamp().toInstant(),
+            point -> point.getSeries().stream().filter(this::describesCnecsToImport).forEach(cnecSeries::add)
         );
         return cnecSeries;
     }
@@ -99,7 +99,6 @@ public class MonitoredSeriesCreator {
     private void readAndAddCnec(MonitoredSeries monitoredSeries, List<Contingency> contingencies, String optimizationStatus, List<String> invalidContingencies) {
         String nativeId = monitoredSeries.getMRID();
         String nativeName = monitoredSeries.getName();
-        String operator = CimConstants.readMonitoredSeriesOperator(monitoredSeries.getMRID());
         List<MonitoredRegisteredResource> monitoredRegisteredResources = monitoredSeries.getRegisteredResource();
         if (monitoredRegisteredResources.isEmpty()) {
             saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCOMPLETE_DATA, "No registered resources"));
@@ -147,7 +146,7 @@ public class MonitoredSeriesCreator {
         // Read measurements
         monitoredRegisteredResource.getMeasurements().forEach(
             measurement -> monitoredSeriesCreationContext.addMeasurementCreationContext(
-                createCnecFromMeasurement(measurement, cnecId, operator, isMnec, branchHelper, contingencies)
+                createCnecFromMeasurement(measurement, cnecId, isMnec, branchHelper, contingencies)
             )
         );
 
@@ -192,7 +191,7 @@ public class MonitoredSeriesCreator {
         return Objects.nonNull(optimizationStatus) && optimizationStatus.equals(CNECS_MNEC_MARKET_OBJECT_STATUS);
     }
 
-    private MeasurementCreationContext createCnecFromMeasurement(Analog measurement, String cnecId, String operator, boolean isMnec, CgmesBranchHelper branchHelper, List<Contingency> contingencies) {
+    private MeasurementCreationContext createCnecFromMeasurement(Analog measurement, String cnecId, boolean isMnec, CgmesBranchHelper branchHelper, List<Contingency> contingencies) {
         Instant instant;
         Unit unit;
         String direction;
@@ -206,7 +205,7 @@ public class MonitoredSeriesCreator {
             return MeasurementCreationContext.notImported(ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
         }
 
-        return addCnecs(cnecId, operator, branchHelper, isMnec, direction, unit, threshold, contingencies, instant);
+        return addCnecs(cnecId, branchHelper, isMnec, direction, unit, threshold, contingencies, instant);
     }
 
     private InstantKind getMeasurementInstant(Analog measurement) {
@@ -248,27 +247,27 @@ public class MonitoredSeriesCreator {
         throw new OpenRaoException(String.format("Unrecognized positiveFlowIn: %s", measurement.getPositiveFlowIn()));
     }
 
-    private MeasurementCreationContext addCnecs(String cnecNativeId, String operator, CgmesBranchHelper branchHelper,
+    private MeasurementCreationContext addCnecs(String cnecNativeId, CgmesBranchHelper branchHelper,
                                                 boolean isMnec, String direction, Unit unit, double threshold,
                                                 List<Contingency> contingencies, Instant instant) {
         MeasurementCreationContext measurementCreationContext = MeasurementCreationContext.imported();
         if (instant.isPreventive()) {
-            addCnecsOnContingency(cnecNativeId, operator, branchHelper, isMnec, direction, unit, threshold, null, instant, measurementCreationContext);
+            addCnecsOnContingency(cnecNativeId, branchHelper, isMnec, direction, unit, threshold, null, instant, measurementCreationContext);
         } else {
             contingencies.forEach(contingency ->
-                addCnecsOnContingency(cnecNativeId, operator, branchHelper, isMnec, direction, unit, threshold, contingency, instant, measurementCreationContext)
+                addCnecsOnContingency(cnecNativeId, branchHelper, isMnec, direction, unit, threshold, contingency, instant, measurementCreationContext)
             );
         }
         return measurementCreationContext;
     }
 
-    private void addCnecsOnContingency(String cnecNativeId, String operator, CgmesBranchHelper branchHelper,
+    private void addCnecsOnContingency(String cnecNativeId, CgmesBranchHelper branchHelper,
                                        boolean isMnec, String direction, Unit unit, double threshold,
                                        Contingency contingency, Instant instant, MeasurementCreationContext measurementCreationContext) {
         FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
         String contingencyId = Objects.isNull(contingency) ? "" : contingency.getId();
 
-        flowCnecAdder.withNetworkElement(branchHelper.getBranch().getId()).withOperator(operator);
+        flowCnecAdder.withNetworkElement(branchHelper.getBranch().getId());
 
         String cnecId = null;
 

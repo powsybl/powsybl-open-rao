@@ -136,7 +136,7 @@ public class SweMonitoredSeriesCreator {
         MonitoredRegisteredResource registeredResource = new MonitoredRegisteredResource();
         registeredResource.setMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, monitoredSeriesCreationContext.getNativeResourceId()));
         registeredResource.setName(monitoredSeriesCreationContext.getNativeResourceName());
-        setInOutAggregateNodes(cnec, registeredResource);
+        setInOutAggregateNodes(cnec.getNetworkElement().getId(), monitoredSeriesCreationContext.getNativeId(), registeredResource);
 
         if (includeMeasurements) {
             Analog flow = new Analog();
@@ -163,14 +163,11 @@ public class SweMonitoredSeriesCreator {
         return monitoredSeries;
     }
 
-    private void setInOutAggregateNodes(FlowCnec cnec, MonitoredRegisteredResource registeredResource) {
-        Branch<?> branch = sweCneHelper.getNetwork().getBranch(cnec.getNetworkElement().getId());
-        if (branch instanceof TieLine tieLine) {
-            Country cnecOperatorCountry = SweCneUtil.getOperatorCountry(cnec.getOperator());
+    void setInOutAggregateNodes(String networkElementId, String monitoredSeriesId, MonitoredRegisteredResource registeredResource) {
+        Branch<?> branch = sweCneHelper.getNetwork().getBranch(networkElementId);
+        if (branch instanceof TieLine tieLine && tieLine.getDanglingLine1().hasProperty("CGMES.TopologicalNode_Boundary")) {
+            Country cnecOperatorCountry = SweCneUtil.getOperatorCountry(monitoredSeriesId.substring(0, 3));
             String xNodeMRId = tieLine.getDanglingLine1().getProperty("CGMES.TopologicalNode_Boundary");
-            if (xNodeMRId == null) {
-                xNodeMRId = "null";
-            }
             if (SweCneUtil.getBranchCountry(branch, TwoSides.ONE).equals(cnecOperatorCountry)) {
                 registeredResource.setInAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal1().getVoltageLevel().getId()));
                 registeredResource.setOutAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, xNodeMRId));

@@ -128,19 +128,11 @@ public final class CimConstants {
     // ------ PST remedial action
     public static final String PST_CAPACITY_UNIT_SYMBOL = "C62";
 
-    public static String readRemedialActionOperator(String id) {
-        return readOperator(id, "-");
-    }
-
-    public static String readMonitoredSeriesOperator(String id) {
-        return readOperator(id, "_");
-    }
-
-    private static String readOperator(String id, String seperator) {
-        if (Objects.isNull(id)) {
+    public static String readOperator(String remedialActionId) {
+        if (Objects.isNull(remedialActionId)) {
             return null;
         } else {
-            return id.split(seperator)[0];
+            return remedialActionId.split("-")[0];
         }
     }
 }

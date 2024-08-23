@@ -194,11 +194,6 @@ class CimCracCreatorTest {
                 .collect(Collectors.toSet());
 
         assertEquals(expectedCnecIds, importedCnecIds);
-
-        String expectedOperator = monitoredSeriesId.split("_")[0];
-        importedCnecIds.forEach(cnecId ->
-            assertEquals(expectedOperator, importedCrac.getFlowCnec(cnecId).getOperator())
-        );
     }
 
     private void assertAngleCnecImportedWithContingency(String id, String contingencyId, Set<String> networkElementIds, double max) {
