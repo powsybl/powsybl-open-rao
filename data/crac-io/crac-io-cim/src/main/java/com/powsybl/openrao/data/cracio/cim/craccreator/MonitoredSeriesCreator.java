@@ -99,7 +99,7 @@ public class MonitoredSeriesCreator {
     private void readAndAddCnec(MonitoredSeries monitoredSeries, List<Contingency> contingencies, String optimizationStatus, List<String> invalidContingencies) {
         String nativeId = monitoredSeries.getMRID();
         String nativeName = monitoredSeries.getName();
-        String operator = CimConstants.readOperator(monitoredSeries.getMRID());
+        String operator = CimConstants.readMonitoredSeriesOperator(monitoredSeries.getMRID());
         List<MonitoredRegisteredResource> monitoredRegisteredResources = monitoredSeries.getRegisteredResource();
         if (monitoredRegisteredResources.isEmpty()) {
             saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCOMPLETE_DATA, "No registered resources"));

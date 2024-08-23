@@ -141,7 +141,7 @@ public class HvdcRangeActionCreator {
                 String remedialActionId = String.join(" + ", raSeriesIds) + " - " + neId;
                 hvdcRangeActionAdders.get(neId)
                     .withId(remedialActionId).withName(remedialActionId)
-                    .withOperator(CimConstants.readOperator(remedialActionId))
+                    .withOperator(CimConstants.readRemedialActionOperator(remedialActionId))
                     .withGroupId(groupId)
                     .newRange().withMin(minMax.getLeft()).withMax(minMax.getRight()).add()
                     .add();

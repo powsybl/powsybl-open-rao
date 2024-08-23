@@ -85,7 +85,7 @@ public class PstRangeActionCreator {
             this.pstRangeActionAdder = crac.newPstRangeAction()
                 .withId(createdRemedialActionId)
                 .withName(createdRemedialActionName)
-                .withOperator(CimConstants.readOperator(createdRemedialActionId))
+                .withOperator(CimConstants.readRemedialActionOperator(createdRemedialActionId))
                 .withNetworkElement(pstHelper.getIdInNetwork())
                 .withInitialTap(pstHelper.getInitialTap())
                 .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap());

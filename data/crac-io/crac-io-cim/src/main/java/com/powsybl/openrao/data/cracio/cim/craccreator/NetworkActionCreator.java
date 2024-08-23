@@ -64,7 +64,7 @@ public class NetworkActionCreator {
         this.networkActionAdder = crac.newNetworkAction()
             .withId(createdRemedialActionId)
             .withName(createdRemedialActionName)
-            .withOperator(CimConstants.readOperator(createdRemedialActionId));
+            .withOperator(CimConstants.readRemedialActionOperator(createdRemedialActionId));
 
         try {
             RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
