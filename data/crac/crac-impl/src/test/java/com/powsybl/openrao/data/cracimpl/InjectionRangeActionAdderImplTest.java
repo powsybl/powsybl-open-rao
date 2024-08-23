@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
