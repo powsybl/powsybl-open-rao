@@ -27,6 +27,7 @@ public class InstantImpl extends AbstractIdentifiable<Instant> implements Instan
     private final InstantKind instantKind;
     private final Instant previous;
     private final int order;
+    private final int hash;
 
     InstantImpl(String id, InstantKind instantKind, Instant previous) {
         super(id);
@@ -40,6 +41,7 @@ public class InstantImpl extends AbstractIdentifiable<Instant> implements Instan
         } else {
             this.order = previous.getOrder() + 1;
         }
+        this.hash = computeHashCode();
     }
 
     public int getOrder() {
@@ -72,6 +74,10 @@ public class InstantImpl extends AbstractIdentifiable<Instant> implements Instan
 
     @Override
     public int hashCode() {
+        return hash;
+    }
+
+    private int computeHashCode() {
         return Objects.hash(super.hashCode(), instantKind, order);
     }
 

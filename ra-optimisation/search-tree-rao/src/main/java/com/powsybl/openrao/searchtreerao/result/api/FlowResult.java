@@ -52,11 +52,7 @@ public interface FlowResult {
      * @param unit: The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch in the given unit.
      */
-    default double getMargin(FlowCnec flowCnec, Unit unit) {
-        return flowCnec.getMonitoredSides().stream()
-            .map(side -> getMargin(flowCnec, side, unit))
-            .min(Double::compareTo).orElseThrow();
-    }
+    double getMargin(FlowCnec flowCnec, Unit unit);
 
     /**
      * It gives the margin on a {@link FlowCnec} at a given {@link TwoSides} in a given {@link Unit}. It is the difference

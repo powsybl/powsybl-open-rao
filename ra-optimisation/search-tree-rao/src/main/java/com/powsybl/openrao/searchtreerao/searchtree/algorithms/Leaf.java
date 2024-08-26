@@ -343,6 +343,17 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        if (status == Status.EVALUATED) {
+            return preOptimFlowResult.getMargin(flowCnec, unit);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getMargin(flowCnec, unit);
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getFlow(flowCnec, side, unit);

@@ -177,8 +177,7 @@ class OneStateOnlyRaoResultImplTest {
         when(optimizedState.isPreventive()).thenReturn(true);
 
         assertSame(initialResult, output.getInitialResult());
-        assertNotNull(output.getPostPreventivePerimeterResult());
-        assertNotNull(output.getPerimeterResult(optimizedState));
+        assertNotNull(output.getOptimizationResult(optimizedState));
 
         assertEquals(1000., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
@@ -292,7 +291,7 @@ class OneStateOnlyRaoResultImplTest {
 
         // using another state
         State otherState = mock(State.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(otherState));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(otherState));
         assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
         exception = assertThrows(OpenRaoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
         assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
@@ -325,9 +324,6 @@ class OneStateOnlyRaoResultImplTest {
     void testCurativeCase1() {
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(optimizedState.isPreventive()).thenReturn(false);
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, output::getPostPreventivePerimeterResult);
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
 
         // margins
         when(cnec1state.isPreventive()).thenReturn(true);
