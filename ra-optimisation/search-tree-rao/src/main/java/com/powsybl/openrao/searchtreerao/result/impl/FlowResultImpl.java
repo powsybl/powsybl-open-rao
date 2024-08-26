@@ -18,6 +18,7 @@ import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -31,6 +32,8 @@ public class FlowResultImpl implements FlowResult {
     private final Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums;
     private final FlowResult fixedCommercialFlows;
     private final FlowResult fixedPtdfZonalSums;
+    private final Map<FlowCnec, Double> marginMapMW = new HashMap<>();
+    private final Map<FlowCnec, Double> marginMapA = new HashMap<>();
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
                           Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
@@ -150,4 +153,25 @@ public class FlowResultImpl implements FlowResult {
         };
     }
 
+    @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        if (unit.equals(Unit.MEGAWATT)) {
+            return checkMarginMapAndGet(flowCnec, unit, marginMapMW);
+        } else if (unit.equals(Unit.AMPERE)) {
+            return checkMarginMapAndGet(flowCnec, unit, marginMapA);
+        } else {
+            throw new OpenRaoException(String.format("Wrong unit for flow cnec: %s", unit));
+        }
+    }
+
+    private double checkMarginMapAndGet(FlowCnec flowCnec, Unit unit, Map<FlowCnec, Double> marginMap) {
+        if (marginMap.containsKey(flowCnec)) {
+            return marginMap.get(flowCnec);
+        }
+        double margin = flowCnec.getMonitoredSides().stream()
+            .map(side -> getMargin(flowCnec, side, unit))
+            .min(Double::compareTo).orElseThrow();
+        marginMap.put(flowCnec, margin);
+        return margin;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,11 +7,12 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -24,53 +25,61 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class IteratingLinearOptimizationResultImpl implements LinearOptimizationResult {
-
-    private LinearProblemStatus status;
-    private int nbOfIteration;
-    private final RangeActionActivationResult rangeActionActivationResult;
+public class OptimizationResultImpl implements OptimizationResult {
+    private final ObjectiveFunctionResult objectiveFunctionResult;
     private final FlowResult flowResult;
     private final SensitivityResult sensitivityResult;
-    private final ObjectiveFunctionResult objectiveFunctionResult;
+    private final NetworkActionsResult networkActionsResult;
+    private final RangeActionActivationResult rangeActionActivationResult;
 
-    public IteratingLinearOptimizationResultImpl(LinearProblemStatus status,
-                                                 int nbOfIteration,
-                                                 RangeActionActivationResult rangeActionActivationResult,
-                                                 FlowResult flowResult,
-                                                 ObjectiveFunctionResult objectiveFunctionResult,
-                                                 SensitivityResult sensitivityResult) {
-        this.status = status;
-        this.nbOfIteration = nbOfIteration;
-        this.rangeActionActivationResult = rangeActionActivationResult;
-        this.flowResult = flowResult;
+    public OptimizationResultImpl(ObjectiveFunctionResult objectiveFunctionResult, FlowResult flowResult, SensitivityResult sensitivityResult, NetworkActionsResult networkActionsResult, RangeActionActivationResult rangeActionActivationResult) {
         this.objectiveFunctionResult = objectiveFunctionResult;
+        this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;
+        this.networkActionsResult = networkActionsResult;
+        this.rangeActionActivationResult = rangeActionActivationResult;
     }
 
-    public void setStatus(LinearProblemStatus status) {
-        this.status = status;
+    @Override
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
+        return flowResult.getFlow(flowCnec, side, unit);
     }
 
-    public int getNbOfIteration() {
-        return nbOfIteration;
+    @Override
+    public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant optimizedInstant) {
+        return flowResult.getFlow(flowCnec, side, unit, optimizedInstant);
     }
 
-    public void setNbOfIteration(int nbOfIteration) {
-        this.nbOfIteration = nbOfIteration;
+    @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        return flowResult.getMargin(flowCnec, unit);
     }
 
-    public SensitivityResult getSensitivityResult() {
-        return sensitivityResult;
+    @Override
+    public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
+        return flowResult.getCommercialFlow(flowCnec, side, unit);
     }
 
-    public FlowResult getBranchResult() {
-        return flowResult;
+    @Override
+    public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
+        return flowResult.getPtdfZonalSum(flowCnec, side);
     }
 
-    public ObjectiveFunctionResult getObjectiveFunctionResult() {
-        return objectiveFunctionResult;
+    @Override
+    public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
+        return flowResult.getPtdfZonalSums();
+    }
+
+    @Override
+    public boolean isActivated(NetworkAction networkAction) {
+        return networkActionsResult.isActivated(networkAction);
+    }
+
+    @Override
+    public Set<NetworkAction> getActivatedNetworkActions() {
+        return networkActionsResult.getActivatedNetworkActions();
     }
 
     @Override
@@ -104,48 +113,13 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        return objectiveFunctionResult.getObjectiveFunction();
-    }
-
-    @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         objectiveFunctionResult.excludeContingencies(contingenciesToExclude);
     }
 
     @Override
-    public LinearProblemStatus getStatus() {
-        return status;
-    }
-
-    @Override
-    public double getFlow(FlowCnec branchCnec, TwoSides side, Unit unit) {
-        return flowResult.getFlow(branchCnec, side, unit);
-    }
-
-    @Override
-    public double getFlow(FlowCnec branchCnec, TwoSides side, Unit unit, Instant instant) {
-        return flowResult.getFlow(branchCnec, side, unit, instant);
-    }
-
-    @Override
-    public double getMargin(FlowCnec flowCnec, Unit unit) {
-        return flowResult.getMargin(flowCnec, unit);
-    }
-
-    @Override
-    public double getCommercialFlow(FlowCnec branchCnec, TwoSides side, Unit unit) {
-        return flowResult.getCommercialFlow(branchCnec, side, unit);
-    }
-
-    @Override
-    public double getPtdfZonalSum(FlowCnec branchCnec, TwoSides side) {
-        return flowResult.getPtdfZonalSum(branchCnec, side);
-    }
-
-    @Override
-    public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
-        return flowResult.getPtdfZonalSums();
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunctionResult.getObjectiveFunction();
     }
 
     @Override
@@ -194,18 +168,12 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec branchCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
-        return sensitivityResult.getSensitivityValue(branchCnec, side, rangeAction, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec branchCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
-        return sensitivityResult.getSensitivityValue(branchCnec, side, linearGlsk, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
-
-    @Override
-    public RangeActionActivationResult getRangeActionActivationResult() {
-        return rangeActionActivationResult;
-    }
-
 }
