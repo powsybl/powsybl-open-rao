@@ -113,18 +113,11 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
         return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
-    public PerimeterResult getPerimeterResult(State state) {
+    public OptimizationResult getOptimizationResult(State state) {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return new PerimeterResultImpl(initialResult, postOptimizationResult);
-    }
-
-    public PerimeterResult getPostPreventivePerimeterResult() {
-        if (!optimizedState.getInstant().isPreventive()) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return new PerimeterResultImpl(initialResult, postOptimizationResult);
+        return postOptimizationResult;
     }
 
     public PrePerimeterResult getInitialResult() {
