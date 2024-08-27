@@ -27,16 +27,8 @@ jobs:
         if: matrix.os != 'ubuntu-latest'
         run: mvn --batch-mode install -DskipCucumberTests=true
 
-      - name: Check branch name
-        id: check-branch
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          if [[ "$GITHUB_REF_NAME" =~ ^dependabot/.*|^dependabot/* ]]; then
-              echo "dependabot=true" >> $GITHUB_OUTPUT
-          fi
-
       - name: Run SonarCloud analysis
-        if: matrix.os == 'ubuntu-latest' && steps.check-branch.outputs.dependabot != 'true'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
