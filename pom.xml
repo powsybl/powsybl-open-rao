@@ -101,7 +101,7 @@
         <jimfs.version>1.1</jimfs.version>
         <junit.bom.version>5.10.0</junit.bom.version>
         <junit-jupiter.version>5.10.0</junit-jupiter.version>
-        <logback.version>1.2.3</logback.version>
+        <logback.version>1.2.13</logback.version>
         <lombok.version>1.18.28</lombok.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>
         <maven.compiler.version>3.8.1</maven.compiler.version>
