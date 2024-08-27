@@ -120,7 +120,7 @@
         <powsybl.entsoe.version>2.10.1</powsybl.entsoe.version>
         <powsybl.openloadflow.version>1.12.2</powsybl.openloadflow.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <xmlunit.core.version>2.8.1</xmlunit.core.version>
+        <xmlunit.core.version>2.10.0</xmlunit.core.version>
     </properties>
 
     <build>
