@@ -29,6 +29,7 @@ jobs:
 
       - name: Check branch name
         id: check-branch
+        if: matrix.os == 'ubuntu-latest'
         run: |
           if [[ ${{ github.event.ref }} =~ ^refs/dependabot/*$ ]]; then
               echo "dependabot=true" >> $GITHUB_OUTPUT
