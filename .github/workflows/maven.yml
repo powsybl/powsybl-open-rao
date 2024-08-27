@@ -28,7 +28,7 @@ jobs:
         run: mvn --batch-mode install -DskipCucumberTests=true
 
       - name: Run SonarCloud analysis
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && "$GITHUB_REF_NAME" =~ ^dependabot/.*
         run: >
           mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
