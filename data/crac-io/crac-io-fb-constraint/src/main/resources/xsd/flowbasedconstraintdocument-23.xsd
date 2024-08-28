@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?> <!-- UNI-LT CCt adaptation: ReceiverCategory added for timestamp code. Version increased to 23 (from 22) -->
+<schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="flowbased" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ecc="etso-core-cmpts.xsd" xmlns:fb="flowbased">
+	<import namespace="etso-core-cmpts.xsd" schemaLocation="etso-core-cmpts.xsd"/>
+	<element name="FlowBasedConstraintDocument">
+		<complexType>
+			<sequence>
+				<element name="DocumentIdentification" type="ecc:IdentificationType"/>
+				<element name="DocumentVersion" type="ecc:VersionType"/>
+				<element name="DocumentType" type="ecc:MessageType"/>
+				<element name="ProcessType" type="ecc:ProcessType"/>
+				<element name="SenderIdentification" type="ecc:PartyType"/>
+				<element name="SenderRole" type="ecc:RoleType"/>
+				<element name="ReceiverIdentification" type="ecc:PartyType"/>
+				<element name="ReceiverRole" type="ecc:RoleType"/>
+				<element name="ReceiverCategory" type="ecc:CodeType" minOccurs="0" maxOccurs="1"/> <!-- Added. Optional. CodeType = string with max length 3 -->
+				<element name="CreationDateTime" type="ecc:MessageDateTimeType"/>
+				<element name="ConstraintTimeInterval" type="ecc:TimeIntervalType"/>
+				<element name="Domain" type="ecc:AreaType"/>
+				<element minOccurs="0" name="criticalBranches" type="fb:CriticalBranchesType"/>
+				<element minOccurs="0" name="complexVariants" type="fb:complexVariantsType"/>
+			</sequence>
+			<attribute name="DtdVersion" type="string" use="required"/>
+			<attribute name="DtdRelease" type="string" use="required"/>
+		</complexType>
+	</element>
+	<complexType name="CriticalBranchesType">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="0" name="criticalBranch" type="fb:criticalBranchType"/>
+		</sequence>
+	</complexType>
+	<complexType name="complexVariantsType">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="0" name="complexVariant" type="fb:independant_complexVariant"/>
+		</sequence>
+	</complexType>
+	<simpleType name="nonEmptyString">
+		<restriction base="string">
+			<minLength value="1"/>
+			<pattern value="([a-zA-Z 0-9_.,()/=!\[\]#%&amp;*;&apos;+:?-])*"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="idString">
+		<restriction base="string">
+			<minLength value="1"/>
+			<maxLength value="100"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="tso_code">
+		<restriction base="string">
+			<pattern value="[A-Z0-9]{2}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="perUnitUnlimited">
+		<restriction base="decimal">
+			<minInclusive value="0"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="nodeType">
+		<restriction base="string">
+			<pattern value=".{6}\d(\p{L}|\d| )?"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Date">
+		<restriction base="string">
+			<pattern value="\d{4}/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="DateTime">
+		<restriction base="string">
+			<pattern value="\d{4}/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01]) ([01][0-9]|2[0-3]):([0-5][0-9])"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="minRAMfactor_Type">
+		<restriction base="decimal">
+			<minInclusive value="0"/>
+			<maxInclusive value="100"/>
+		</restriction>
+	</simpleType>
+	<complexType name="outageType">
+		<sequence>
+			<element maxOccurs="unbounded" minOccurs="0" name="branch">
+				<complexType>
+					<attribute name="from" type="fb:nodeType" use="required"/>
+					<attribute name="to" type="fb:nodeType" use="required"/>
+					<attribute name="order" use="optional">
+						<simpleType>
+							<restriction base="string">
+								<pattern value="[1-9]|[A-Z]"/>
+							</restriction>
+						</simpleType>
+					</attribute>
+					<attribute name="elementName" type="fb:nonEmptyString" use="optional"/>
+					<attribute name="eic" type="fb:nonEmptyString" use="required"/>
+				</complexType>
+				<key name="outageBranch__order_OR_elementName">
+					<selector xpath="."/>
+					<field xpath="@order|@elementName"/>
+				</key>
+			</element>
+			<element maxOccurs="unbounded" minOccurs="0" name="hvdcVH">
+				<complexType>
+					<attribute name="from" type="fb:nodeType" use="required"/>
+					<attribute name="to" type="fb:nodeType" use="required"/>
+					<attribute name="eic" type="fb:nonEmptyString" use="required"/>
+				</complexType>
+			</element>
+		</sequence>
+		<attribute name="name" type="fb:nonEmptyString" use="optional"/>
+		<attribute name="id" type="fb:idString" use="required"/>
+		<attribute name="location" type="fb:nonEmptyString" use="optional"/>
+	</complexType>
+	<complexType name="criticalBranchType">
+		<sequence>
+			<element name="timeInterval" type="ecc:TimeIntervalType"/>
+			<element minOccurs="1" name="branch">
+				<complexType>
+					<attribute name="from" type="fb:nodeType" use="required"/>
+					<attribute name="to" type="fb:nodeType" use="required"/>
+					<attribute name="order" use="optional">
+						<simpleType>
+							<restriction base="string">
+								<pattern value="[1-9]|[A-Z]"/>
+							</restriction>
+						</simpleType>
+					</attribute>
+					<attribute name="elementName" type="fb:nonEmptyString" use="optional"/>
+					<attribute name="name" type="fb:nonEmptyString" use="required"/>
+					<attribute name="eic" type="fb:nonEmptyString" use="required"/>
+				</complexType>
+				<key name="criticalBranch__order_OR_elementName">
+					<selector xpath="."/>
+					<field xpath="@order|@elementName"/>
+				</key>
+			</element>
+			<choice minOccurs="0">
+				<element name="imaxA" type="float"/>
+				<element name="imaxFactor" type="fb:perUnitUnlimited"/>
+			</choice>
+			<element name="imaxType" minOccurs="1">
+				<simpleType>
+					<restriction base="string">
+						<enumeration value="FIXED"/>
+						<enumeration value="SEASONAL"/>
+						<enumeration value="DYNAMIC"/>
+					</restriction>
+				</simpleType>
+			</element>
+			<choice minOccurs="0">
+				<element name="permanentImaxA" type="float"/>
+				<element name="permanentImaxFactor" type="fb:perUnitUnlimited"/>
+			</choice>
+			<choice minOccurs="0">
+				<element name="temporaryImaxA" type="float"/>
+				<element name="temporaryImaxFactor" type="fb:perUnitUnlimited"/>
+			</choice>
+			<element name="frmMw" type="float"/>
+			<element minOccurs="0" name="CVA" type="float"/>
+			<element minOccurs="0" name="CVAJustification" type="fb:nonEmptyString"/>
+			<element minOccurs="0" name="IVA" type="float"/>
+			<element minOccurs="0" name="IVAJustification" type="fb:nonEmptyString"/>
+			<element minOccurs="0" name="IVAShare" type="float"/>
+			<element minOccurs="0" name="minRAMfactor" type="fb:minRAMfactor_Type"/>
+			<element minOccurs="0" name="minRAMfactorJustification" type="fb:nonEmptyString"/>
+			<element minOccurs="1" name="CNEC" type="boolean"/>
+			<element minOccurs="0" name="MNEC" type="boolean"/>
+			<element minOccurs="0" name="NECTypeJustification" type="fb:nonEmptyString"/>
+			<element maxOccurs="1" minOccurs="1" name="direction">
+				<simpleType>
+					<restriction base="string">
+						<enumeration value="DIRECT"/>
+						<enumeration value="OPPOSITE"/>
+					</restriction>
+				</simpleType>
+			</element>
+			<element maxOccurs="1" minOccurs="1" name="tsoOrigin" type="fb:tso_code"/>
+			<element minOccurs="0" name="outage" type="fb:outageType"/>
+			<element minOccurs="0" name="complexVariantId" type="string"/>
+		</sequence>
+		<attribute name="id" type="fb:idString" use="required"/>
+		<attribute name="originalId" type="fb:idString" use="optional"/>
+	</complexType>
+	<complexType name="independant_complexVariant">
+		<sequence>
+			<element name="timeInterval" type="ecc:TimeIntervalType"/>
+			<element name="tsoOrigin" type="fb:tso_code" maxOccurs="1" minOccurs="1"/>
+			<element maxOccurs="unbounded" minOccurs="1" name="actionsSet" type="fb:actionsSetType"/>
+		</sequence>
+		<attribute name="id" type="fb:idString" use="required"/>
+		<attribute name="name" type="fb:nonEmptyString"/>
+	</complexType>
+	<complexType name="actionsSetType">
+		<sequence>
+			<element minOccurs="1" name="preventive" type="boolean"/>
+			<element minOccurs="1" name="curative" type="boolean"/>
+			<element minOccurs="0" name="enforced" type="boolean"/>
+			<element minOccurs="0" name="afterCOList">
+				<complexType>
+					<sequence>
+						<element maxOccurs="unbounded" minOccurs="1" name="afterCOId" type="fb:idString" />
+					</sequence>
+				</complexType>
+			</element>
+			<element maxOccurs="unbounded" name="action" type="fb:actionType"/>
+		</sequence>
+		<attribute name="name" type="fb:nonEmptyString" use="optional"/>
+	</complexType>
+	<complexType mixed="true" name="actionType">
+		<all>
+			<element minOccurs="1" name="branch">
+				<complexType>
+					<attribute name="from" type="fb:nodeType" use="required"/>
+					<attribute name="to" type="fb:nodeType" use="required"/>
+					<attribute name="order" use="optional">
+						<simpleType>
+							<restriction base="string">
+								<pattern value="[1-9]|[A-Z]"/>
+							</restriction>
+						</simpleType>
+					</attribute>
+					<attribute name="elementName" type="fb:nonEmptyString" use="optional"/>
+				</complexType>
+				<key name="actionBranch__order_OR_elementName">
+					<selector xpath="."/>
+					<field xpath="@order|@elementName"/>
+				</key>
+			</element>
+			<element minOccurs="0" name="value" type="fb:nonEmptyString"/>
+			<element minOccurs="0" name="range" type="fb:rangeType"/>
+			<element minOccurs="0" name="relativeRange" type="fb:rangeType"/>
+			<element minOccurs="0" name="PSTGroupId" type="fb:nonEmptyString"/>
+		</all>
+		<attribute name="type" use="required">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="STATUS"/>
+					<enumeration value="PSTTAP"/>
+				</restriction>
+			</simpleType>
+		</attribute>
+	</complexType>
+	<complexType name="rangeType">
+		<sequence>
+			<element name="min" minOccurs="1" type="integer"/>
+			<element name="max" minOccurs="1" type="integer"/>
+		</sequence>
+	</complexType>
+</schema>
