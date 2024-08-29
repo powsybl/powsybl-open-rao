@@ -58,7 +58,6 @@ public class CneExportSteps {
         // maybe because "urn-entsoe-eu-local-extension-types.xsd" is missing in the jar.
         // We don't really need to fix this (will be moved to gridcapa)
         // + there are some unit tests in farao-core
-        //assertTrue(CneHelper.isSweCneValid(exportedCne));
     }
 
     @Then("the exported CNE file is the same as {string}")
