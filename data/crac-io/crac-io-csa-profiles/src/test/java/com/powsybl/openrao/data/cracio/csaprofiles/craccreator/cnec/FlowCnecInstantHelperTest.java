@@ -47,7 +47,8 @@ class FlowCnecInstantHelperTest {
 
     @Test
     void checkCracCreationParametersWithoutCsaExtension() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(new CracCreationParameters()));
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(cracCreationParameters));
         assertEquals("No CsaCracCreatorParameters extension provided.", exception.getMessage());
     }
 
