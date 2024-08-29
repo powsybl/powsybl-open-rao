@@ -30,6 +30,7 @@ class FlowCnecInstantHelperTest {
     private LoadingLimits.TemporaryLimit tatl900;
     private LoadingLimits.TemporaryLimit tatl1200;
     private CracCreationParameters parameters;
+    private CsaCracCreationParameters csaParameters;
     private FlowCnecInstantHelper helper;
 
     @BeforeEach
@@ -52,8 +53,6 @@ class FlowCnecInstantHelperTest {
 
     @Test
     void checkCracCreationParametersWithMissingTso() {
-        CracCreationParameters parameters = new CracCreationParameters();
-        CsaCracCreationParameters csaParameters = new CsaCracCreationParameters();
         csaParameters.setUsePatlInFinalState(Map.of("REE", false, "REN", true, "ELIA", true));
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(parameters));
@@ -62,8 +61,6 @@ class FlowCnecInstantHelperTest {
 
     @Test
     void checkCracCreationParametersWithMissingInstant() {
-        CracCreationParameters parameters = new CracCreationParameters();
-        CsaCracCreationParameters csaParameters = new CsaCracCreationParameters();
         csaParameters.setCraApplicationWindow(Map.of("curative 1", 300, "curative 2", 600, "preventive", 0));
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(parameters));
@@ -72,8 +69,6 @@ class FlowCnecInstantHelperTest {
 
     @Test
     void checkCracCreationParametersWithCurative1LongerThanCurative2() {
-        CracCreationParameters parameters = new CracCreationParameters();
-        CsaCracCreationParameters csaParameters = new CsaCracCreationParameters();
         csaParameters.setCraApplicationWindow(Map.of("curative 1", 600, "curative 2", 300, "curative 3", 1200));
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(parameters));
@@ -82,8 +77,6 @@ class FlowCnecInstantHelperTest {
 
     @Test
     void checkCracCreationParametersWithCurative2LongerThanCurative3() {
-        CracCreationParameters parameters = new CracCreationParameters();
-        CsaCracCreationParameters csaParameters = new CsaCracCreationParameters();
         csaParameters.setCraApplicationWindow(Map.of("curative 1", 300, "curative 2", 1200, "curative 3", 600));
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(parameters));
@@ -282,7 +275,7 @@ class FlowCnecInstantHelperTest {
 
     private void initCracCreationParameters() {
         parameters = new CracCreationParameters();
-        CsaCracCreationParameters csaParameters = new CsaCracCreationParameters();
+        csaParameters = new CsaCracCreationParameters();
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
     }
 

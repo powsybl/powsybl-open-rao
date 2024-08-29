@@ -56,7 +56,6 @@ class SwitchActionImplTest {
 
     @Test
     void hasImpactOnNetworkForSwitch() {
-        Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
         String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
 
         Crac crac = new CracImplFactory().create("cracId");
@@ -83,7 +82,6 @@ class SwitchActionImplTest {
 
     @Test
     void switchTopology() {
-        Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
         String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
         Crac crac = new CracImplFactory().create("cracId");
 

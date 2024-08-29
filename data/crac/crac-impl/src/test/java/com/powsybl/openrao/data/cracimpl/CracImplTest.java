@@ -1035,7 +1035,6 @@ class CracImplTest {
         assertTrue(crac.getRaUsageLimitsPerInstant().isEmpty());
         RaUsageLimits raUsageLimits1 = new RaUsageLimits();
         raUsageLimits1.setMaxRa(3);
-        Instant preventiveInstant = crac.getInstant("preventive");
         Map<Instant, RaUsageLimits> firstMap = Map.of(preventiveInstant, raUsageLimits1);
         crac.newRaUsageLimits("preventive")
             .withMaxRa(raUsageLimits1.getMaxRa())

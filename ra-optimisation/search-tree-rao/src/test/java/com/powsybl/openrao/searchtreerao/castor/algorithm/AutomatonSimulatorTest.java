@@ -531,16 +531,16 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
 
-        FlowCnec cnec2 = mock(FlowCnec.class);
-        when(cnec2.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
-        when(mockedPrePerimeterResult.getFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(2200.);
-        when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-200.);
-        when(mockedPrePerimeterResult.getMargin(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-200.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec2, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
-        when(mockedPrePerimeterResult.getSensitivityValue(cnec2, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
+        FlowCnec cnecNullSensi = mock(FlowCnec.class);
+        when(cnecNullSensi.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
+        when(mockedPrePerimeterResult.getFlow(cnecNullSensi, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(2200.);
+        when(mockedPrePerimeterResult.getMargin(cnecNullSensi, Unit.MEGAWATT)).thenReturn(-200.);
+        when(mockedPrePerimeterResult.getMargin(cnecNullSensi, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-200.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnecNullSensi, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
+        when(mockedPrePerimeterResult.getSensitivityValue(cnecNullSensi, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
 
         AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
-            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
+            automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec, cnecNullSensi), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
         assertEquals(-3.1, shiftResult.rangeActionsWithSetpoint().get(ara1), DOUBLE_TOLERANCE);
         assertEquals(-3.1, shiftResult.rangeActionsWithSetpoint().get(ara2), DOUBLE_TOLERANCE);
     }

@@ -106,7 +106,7 @@ class MinMarginEvaluatorTest {
         mockCnecThresholds(mnec1, 1000);
         mockCnecThresholds(mnec2, 2000);
 
-        MarginEvaluator marginEvaluator = Mockito.mock(MarginEvaluator.class);
+        marginEvaluator = Mockito.mock(MarginEvaluator.class);
         flowResult = Mockito.mock(FlowResult.class);
         when(marginEvaluator.getMargin(flowResult, mnec1, MEGAWATT)).thenReturn(-150.);
         when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
