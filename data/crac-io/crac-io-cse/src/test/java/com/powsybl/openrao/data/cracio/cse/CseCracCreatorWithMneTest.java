@@ -42,7 +42,6 @@ class CseCracCreatorWithMneTest {
 
     private void setUp(String cracFileName, String networkFileName) throws IOException {
         InputStream is = getClass().getResourceAsStream(cracFileName);
-        CseCracImporter importer = new CseCracImporter();
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
         cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, offsetDateTime, parameters);
         preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
