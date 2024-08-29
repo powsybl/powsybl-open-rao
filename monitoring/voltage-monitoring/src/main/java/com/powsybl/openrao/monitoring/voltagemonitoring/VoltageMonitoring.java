@@ -334,7 +334,9 @@ public class VoltageMonitoring {
                         atLeastOneLow.set(true);
                     }
                     case FAILURE -> atLeastOneUnknown.set(true);
-                    case SECURE -> { }
+                    case SECURE -> {
+                        //nothing to change
+                    }
                 }
             }
         );
