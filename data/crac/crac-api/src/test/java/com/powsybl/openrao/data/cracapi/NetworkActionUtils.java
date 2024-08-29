@@ -144,7 +144,7 @@ public final class NetworkActionUtils {
 
         @Override
         public <E extends Extension<NetworkAction>> void addExtension(Class<? super E> aClass, E e) {
-
+            //not used
         }
 
         @Override
@@ -193,7 +193,7 @@ public final class NetworkActionUtils {
 
         @Override
         public <E extends Extension<NetworkElement>> void addExtension(Class<? super E> aClass, E e) {
-
+            //not used
         }
 
         @Override
