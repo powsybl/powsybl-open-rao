@@ -7,7 +7,10 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.swecneexporter.xsd.AreaIDString;
 import com.powsybl.openrao.data.swecneexporter.xsd.ESMPDateTimeInterval;
@@ -19,7 +22,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneUtil.cutString;
 
@@ -90,13 +92,8 @@ public final class SweCneUtil {
     }
 
     public static Country getBranchCountry(Branch<?> branch, TwoSides side) {
-        Optional<Substation> sub = branch.getTerminal(side).getVoltageLevel().getSubstation();
-        if (sub.isPresent()) {
-            Optional<Country> country = sub.get().getCountry();
-            if (country.isPresent()) {
-                return country.get();
-            }
-        }
-        throw new OpenRaoException(String.format("Cannot figure out country of branch \"%s\" on side %s", branch.getId(), side));
+        return branch.getTerminal(side).getVoltageLevel().getSubstation()
+            .flatMap(Substation::getCountry)
+            .orElseThrow(() -> new OpenRaoException(String.format("Cannot figure out country of branch \"%s\" on side %s", branch.getId(), side)));
     }
 }
