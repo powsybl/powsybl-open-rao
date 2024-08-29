@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class AutomatonPerimeterResultImpl implements PerimeterResult {
+public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
     private final PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
     private final Set<NetworkAction> forcedNetworkActions;
@@ -59,6 +59,11 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
         return postAutomatonSensitivityAnalysisOutput.getFlow(flowCnec, side, unit, instant);
+    }
+
+    @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        return postAutomatonSensitivityAnalysisOutput.getMargin(flowCnec, unit);
     }
 
     @Override

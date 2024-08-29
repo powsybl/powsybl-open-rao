@@ -33,6 +33,7 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -431,7 +432,7 @@ class CastorFullOptimizationTest {
     @Test
     void testGetRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
-        PerimeterResult firstPreventiveResult = Mockito.mock(PerimeterResult.class);
+        OptimizationResult firstPreventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
         State preventiveState = crac.getPreventiveState();
         // ra9 has different taps than ra8.
@@ -504,19 +505,19 @@ class CastorFullOptimizationTest {
 
     @Test
     void testApplyPreventiveResultsForCurativeRangeActions() {
-        PerimeterResult perimeterResult = Mockito.mock(PerimeterResult.class);
+        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
         String pstNeId = "BBE2AA1  BBE3AA1  1";
 
         setUpCracWithRealRAs(false);
-        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
-        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
+        Mockito.doReturn(-1.5583491325378418).when(optimizationResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
+        Mockito.doReturn(Set.of(ra1)).when(optimizationResult).getActivatedRangeActions(Mockito.any());
+        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, optimizationResult, crac);
         assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
 
         setUpCracWithRealRAs(true);
-        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
-        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
+        Mockito.doReturn(-1.5583491325378418).when(optimizationResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
+        Mockito.doReturn(Set.of(ra1)).when(optimizationResult).getActivatedRangeActions(Mockito.any());
+        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, optimizationResult, crac);
         assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
     }
 
@@ -1056,6 +1057,20 @@ class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("Open FFR1AA1  FFR4AA1  1")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("Contingency FFR2AA1  FFR3AA1  1", crac.getLastInstant())));
     }
 
+    @Test
+    void curativeStopCriterionReachedSkipsPerimeterBuilding() throws IOException {
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = Crac.read("small-crac-purely-virtual-curative.json", getClass().getResourceAsStream("/crac/small-crac-purely-virtual-curative.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"));
+
+        raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
+
+        // Run RAO, if not skipping, then tap to -15, since skipping, it stays at preventive optimization value (-12)
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(-12, raoResult.getOptimizedTapOnState(crac.getState("N-1 NL1-NL3", crac.getLastInstant()), crac.getPstRangeAction("CRA_PST_BE")));
+    }
+
     private State mockState(Instant instant) {
         State state = Mockito.mock(State.class);
         when(state.getInstant()).thenReturn(instant);
@@ -1168,5 +1183,41 @@ class CastorFullOptimizationTest {
         assertEquals(Map.of(ra121, 0.), appliedRemedialActions.getAppliedRangeActions(state12));
         assertEquals(Map.of(ra211, 0.), appliedRemedialActions.getAppliedRangeActions(state21));
         assertEquals(Map.of(ra221, 0., ra222, 0.), appliedRemedialActions.getAppliedRangeActions(state22));
+    }
+
+    @Test
+    void testIsStopCriterionChecked() throws IOException {
+        setup();
+        TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
+        ObjectiveFunctionResult objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
+
+        // if virtual cost positive return false
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(100.);
+        assertFalse(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+
+        // if purely virtual with null virtual cost, return true
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-Double.MAX_VALUE);
+        assertTrue(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+
+        // if not purely virtual and stop criterion is MIN_OBJECTIVE return false
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-10.);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
+        assertFalse(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+
+        // if not purely virtual and stop criterion is AT_TARGET_OBJECTIVE_VALUE and cost is higher than target return false
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-10.);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.targetObjectiveValue()).thenReturn(-20.);
+        assertFalse(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+
+        // if not purely virtual and stop criterion is AT_TARGET_OBJECTIVE_VALUE and cost is lower than target return true
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-10.);
+        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.targetObjectiveValue()).thenReturn(0.);
+        assertFalse(CastorFullOptimization.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
     }
 }
