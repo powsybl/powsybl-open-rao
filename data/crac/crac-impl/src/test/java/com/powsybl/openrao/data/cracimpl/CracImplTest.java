@@ -800,6 +800,7 @@ class CracImplTest {
 
     @Test
     void testRemoveNetworkAction() {
+        crac.addNetworkElement("neCo", "neCo");
         Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(getRandomTypeContingencyElement("neCo")));
         crac.addContingency(contingency1);
 
