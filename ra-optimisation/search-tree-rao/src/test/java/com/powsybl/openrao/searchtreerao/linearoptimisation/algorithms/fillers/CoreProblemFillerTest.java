@@ -8,9 +8,11 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
+import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -103,7 +105,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         RangeAction<?> injGen = crac.getRangeAction(INJECTION_RANGE_ACTION_ID_0);
         RangeAction<?> injLoad = crac.getRangeAction(INJECTION_RANGE_ACTION_ID_1);
 
-        initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(injGen, 500., injLoad, -500.));
+        initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(injGen, PRE_RESULT_SET_POINT_INJ_0, injLoad, PRE_RESULT_SET_POINT_INJ_1));
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
         Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(mainState);
@@ -655,20 +657,38 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void testInjectionBalance() {
-        addPairInjectionsInCrac();
-
+        addInjectionsInCrac();
         initializeForInjection(Set.of(cnec1), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), false);
         State state = cnec1.getState();
 
-        // update the problem with new data
-        RangeAction<?> injectionRangeActionGen = crac.getRangeAction(INJECTION_RANGE_ACTION_ID_0);
-        RangeAction<?> injectionRangeActionLoad = crac.getRangeAction(INJECTION_RANGE_ACTION_ID_1);
-
+        // test the global balance constraint
+        InjectionRangeAction injectionRangeAction0 = crac.getInjectionRangeAction(INJECTION_RANGE_ACTION_ID_0);
+        InjectionRangeAction injectionRangeAction1 = crac.getInjectionRangeAction(INJECTION_RANGE_ACTION_ID_1);
+        InjectionRangeAction injectionRangeAction2 = crac.getInjectionRangeAction(INJECTION_RANGE_ACTION_ID_2);
         OpenRaoMPConstraint balanceConstraint = linearProblem.getInjectionBalanceVariationConstraint(state);
-        OpenRaoMPVariable genSignedVariationVariable = linearProblem.getSignedRangeActionVariationVariable(injectionRangeActionGen, state);
-        OpenRaoMPVariable loadSignedVariationVariable = linearProblem.getSignedRangeActionVariationVariable(injectionRangeActionLoad, state);
+        OpenRaoMPVariable signedVariationVariableInj0 = linearProblem.getSignedRangeActionVariationVariable(injectionRangeAction0, state);
+        OpenRaoMPVariable signedVariationVariableInj1 = linearProblem.getSignedRangeActionVariationVariable(injectionRangeAction1, state);
         assertNotNull(balanceConstraint);
-        assertEquals(1, balanceConstraint.getCoefficient(genSignedVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(1, balanceConstraint.getCoefficient(loadSignedVariationVariable), DOUBLE_TOLERANCE);
+        assertThrows(OpenRaoException.class, () -> linearProblem.getSignedRangeActionVariationVariable(injectionRangeAction2, state));
+        assertEquals(1, balanceConstraint.getCoefficient(signedVariationVariableInj0), DOUBLE_TOLERANCE);
+        assertEquals(1, balanceConstraint.getCoefficient(signedVariationVariableInj1), DOUBLE_TOLERANCE);
+        // test the signed variation constraints for each injection
+        OpenRaoMPConstraint singedVariationConstraint0 = linearProblem.getSignedRangeActionVariationConstraint(injectionRangeAction0, state);
+        OpenRaoMPConstraint singedVariationConstraint1 = linearProblem.getSignedRangeActionVariationConstraint(injectionRangeAction1, state);
+        OpenRaoMPVariable setPointVariableInj0 = linearProblem.getRangeActionSetpointVariable(injectionRangeAction0, state);
+        OpenRaoMPVariable setPointVariableInj1 = linearProblem.getRangeActionSetpointVariable(injectionRangeAction1, state);
+        double sumDistributionKeys0 = injectionRangeAction0.getInjectionDistributionKeys().values().stream().mapToDouble(d -> d).sum();
+        double sumDistributionKeys1 = injectionRangeAction1.getInjectionDistributionKeys().values().stream().mapToDouble(d -> d).sum();
+        assertNotNull(singedVariationConstraint0);
+        assertNotNull(singedVariationConstraint1);
+        assertThrows(OpenRaoException.class, () -> linearProblem.getSignedRangeActionVariationConstraint(injectionRangeAction2, state));
+        assertEquals(1, singedVariationConstraint0.getCoefficient(signedVariationVariableInj0), DOUBLE_TOLERANCE);
+        assertEquals(1, singedVariationConstraint1.getCoefficient(signedVariationVariableInj1), DOUBLE_TOLERANCE);
+        assertEquals(-sumDistributionKeys0, singedVariationConstraint0.getCoefficient(setPointVariableInj0), DOUBLE_TOLERANCE);
+        assertEquals(-sumDistributionKeys1, singedVariationConstraint1.getCoefficient(setPointVariableInj1), DOUBLE_TOLERANCE);
+        assertEquals(-sumDistributionKeys0 * PRE_RESULT_SET_POINT_INJ_0, singedVariationConstraint0.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-sumDistributionKeys0 * PRE_RESULT_SET_POINT_INJ_0, singedVariationConstraint0.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-sumDistributionKeys1 * PRE_RESULT_SET_POINT_INJ_1, singedVariationConstraint1.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-sumDistributionKeys1 * PRE_RESULT_SET_POINT_INJ_1, singedVariationConstraint1.ub(), DOUBLE_TOLERANCE);
     }
 }

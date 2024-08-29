@@ -59,7 +59,7 @@ public final class IteratingLinearOptimizerMultiTS {
             .buildFromInputsAndParameters(input, parameters);
 
         linearProblem.fill(input.getPreOptimizationFlowResult(), input.getPreOptimizationSensitivityResult());
-        logMostLimitedElementsBetweenIteration(input, parameters, TECHNICAL_LOGS, bestResult);
+        logMostLimitingElementsBetweenIteration(input, parameters, TECHNICAL_LOGS, bestResult);
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
@@ -101,7 +101,7 @@ public final class IteratingLinearOptimizerMultiTS {
                 input.getObjectiveFunction()
             );
             previousResult = currentResult;
-            logMostLimitedElementsBetweenIteration(input, parameters, TECHNICAL_LOGS, currentResult);
+            logMostLimitingElementsBetweenIteration(input, parameters, TECHNICAL_LOGS, currentResult);
 
             Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, currentResult, bestResult);
             if (Boolean.TRUE.equals(mipShouldStop.getRight())) {
@@ -115,8 +115,8 @@ public final class IteratingLinearOptimizerMultiTS {
     }
 
     // Add logs for this class: RaoRunner not called in order to use MIP for multi TS so logs are missing
-    private static void logMostLimitedElementsBetweenIteration(IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters, OpenRaoLogger logger, IteratingLinearOptimizationResultImpl result) {
-        List<FlowCnec> flowCnecsList = input.getOptimizationPerimeters().stream().flatMap(perimeter -> perimeter.getFlowCnecs().stream()).toList();
+    private static void logMostLimitingElementsBetweenIteration(IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters, OpenRaoLogger logger, IteratingLinearOptimizationResultImpl result) {
+        List<FlowCnec> flowCnecsList = getMostLimitingElements(input, 5);
         Unit unit = parameters.getObjectiveFunctionUnit();
         int i = 0;
         for (FlowCnec flowCnec : flowCnecsList) {
@@ -136,6 +136,13 @@ public final class IteratingLinearOptimizerMultiTS {
             });
             i++;
         }
+    }
+
+    private static List<FlowCnec> getMostLimitingElements(IteratingLinearOptimizerMultiTSInput input,
+                                                          int maxNumberOfElements) {
+        List<FlowCnec> cnecs = input.getOptimizationPerimeters().stream().flatMap(perimeter -> perimeter.getFlowCnecs().stream()).toList();
+        cnecs = cnecs.subList(0, Math.min(cnecs.size(), maxNumberOfElements));
+        return cnecs;
     }
 
     private static SensitivityComputerMultiTS runSensitivityAnalysis(SensitivityComputerMultiTS sensitivityComputerMultiTS, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters) {

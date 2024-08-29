@@ -286,6 +286,10 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, signedRangeActionVariationConstraintId(rangeAction, state));
     }
 
+    public OpenRaoMPConstraint getSignedRangeActionVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(signedRangeActionVariationConstraintId(rangeAction, state));
+    }
+
     public OpenRaoMPConstraint addInjectionBalanceVariationConstraint(double lb, double ub, State state) {
         String constraintName = injectionBalanceVariationConstraintId(state);
         //Only add random Id if multiple time steps

@@ -86,4 +86,29 @@ public class SimpleInjectionRaoTest {
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInput, raoParameters);
     }
+
+    @Test
+    public void testRunRaoInjection3() {
+        crac = CracImporters.importCrac("crac/small-crac-no-range-action.json",
+            getClass().getResourceAsStream("/crac/small-crac-no-range-action.json"),
+            network);
+
+        crac.newInjectionRangeAction()
+            .withId("injectionRangeActionId")
+            .withNetworkElementAndKey(1., "BBE1AA1 _generator")
+            .withNetworkElementAndKey(1., "BBE2AA1 _generator")
+            .newRange().withMin(300).withMax(1000).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        crac.newInjectionRangeAction()
+            .withId("injectionRangeActionId1")
+            .withNetworkElementAndKey(1., "DDE1AA1 _load")
+            .newRange().withMin(-1000).withMax(-100).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInput, raoParameters);
+    }
 }
