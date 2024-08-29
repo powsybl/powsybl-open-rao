@@ -35,8 +35,8 @@ public class NetworkActionCreator {
     private final Crac crac;
     private final Network network;
 
-    private final static String STATIC_PROPERTY_RANGE_STRING = "StaticPropertyRange";
-    private final static String NOT_FOUND_IN_NETWORK_FORMAT = "%s not found in network";
+    private static final String STATIC_PROPERTY_RANGE_STRING = "StaticPropertyRange";
+    private static final String NOT_FOUND_IN_NETWORK_FORMAT = "%s not found in network";
 
     public NetworkActionCreator(Crac crac, Network network) {
         this.crac = crac;
