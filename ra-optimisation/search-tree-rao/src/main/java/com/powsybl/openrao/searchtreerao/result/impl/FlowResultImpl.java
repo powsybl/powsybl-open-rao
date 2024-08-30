@@ -18,8 +18,8 @@ import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.String.format;
 
@@ -32,8 +32,8 @@ public class FlowResultImpl implements FlowResult {
     private final Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums;
     private final FlowResult fixedCommercialFlows;
     private final FlowResult fixedPtdfZonalSums;
-    private final Map<FlowCnec, Double> marginMapMW = new HashMap<>();
-    private final Map<FlowCnec, Double> marginMapA = new HashMap<>();
+    private final Map<FlowCnec, Double> marginMapMW = new ConcurrentHashMap<>();
+    private final Map<FlowCnec, Double> marginMapA = new ConcurrentHashMap<>();
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
                           Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
