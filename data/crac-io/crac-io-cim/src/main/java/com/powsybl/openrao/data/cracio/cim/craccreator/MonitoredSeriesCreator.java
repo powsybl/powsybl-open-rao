@@ -82,9 +82,9 @@ public class MonitoredSeriesCreator {
     private Set<Series> getCnecSeries() {
         Set<Series> cnecSeries = new HashSet<>();
         CimCracUtils.applyActionToEveryPoint(
-                cimTimeSeries,
-                cracCreationContext.getTimeStamp().toInstant(),
-                point -> point.getSeries().stream().filter(this::describesCnecsToImport).forEach(cnecSeries::add)
+            cimTimeSeries,
+            cracCreationContext.getTimeStamp().toInstant(),
+            point -> point.getSeries().stream().filter(this::describesCnecsToImport).forEach(cnecSeries::add)
         );
         return cnecSeries;
     }
