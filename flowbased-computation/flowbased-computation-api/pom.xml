@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>open-rao-flowbased-computation</artifactId>
-        <version>6.0.1</version>
+        <version>6.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-flowbased-computation-api</artifactId>
