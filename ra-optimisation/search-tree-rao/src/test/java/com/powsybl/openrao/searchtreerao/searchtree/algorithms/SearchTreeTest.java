@@ -387,7 +387,7 @@ class SearchTreeTest {
         when(rootLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
     }
 
-    private void mockRootLeafCost(double cost) throws Exception {
+    private void mockRootLeafCost(double cost) {
         when(rootLeaf.getCost()).thenReturn(cost);
         when(rootLeaf.getVirtualCost()).thenReturn(cost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
