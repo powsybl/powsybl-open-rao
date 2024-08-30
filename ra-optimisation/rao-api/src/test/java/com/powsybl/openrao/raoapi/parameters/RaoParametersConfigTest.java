@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.*;
 class RaoParametersConfigTest {
     private PlatformConfig mockedPlatformConfig;
     private InMemoryPlatformConfig platformCfg;
-    static double DOUBLE_TOLERANCE = 1e-6;
+    static final double DOUBLE_TOLERANCE = 1e-6;
 
     @BeforeEach
     public void setUp() {
