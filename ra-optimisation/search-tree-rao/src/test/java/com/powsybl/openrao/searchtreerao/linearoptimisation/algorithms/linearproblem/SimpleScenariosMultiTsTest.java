@@ -173,12 +173,12 @@ public class SimpleScenariosMultiTsTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
             allCnecs,
-            Collections.emptySet(), // loopflows
+            Collections.emptySet(),
             initialSensiResult,
             initialSensiResult,
             initialSetpoints,
-            null, //crac(s), not useful (CNECs secured by PST)
-            Collections.emptySet(), // operators not sharing CRAs
+            null,
+            Collections.emptySet(),
             raoParameters);
 
         ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
@@ -273,12 +273,12 @@ public class SimpleScenariosMultiTsTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
             allCnecs,
-            Collections.emptySet(), // loopflows
+            Collections.emptySet(),
             initialSensiResult,
             initialSensiResult,
             initialSetpoints,
-            null, //crac(s), not useful (CNECs secured by PST)
-            Collections.emptySet(), // operators not sharing CRAs
+            null,
+            Collections.emptySet(),
             raoParameters);
 
         ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things

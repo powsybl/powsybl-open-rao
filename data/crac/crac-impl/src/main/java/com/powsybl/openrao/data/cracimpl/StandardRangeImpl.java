@@ -20,6 +20,7 @@ public class StandardRangeImpl extends AbstractRange implements StandardRange {
     private final double min;
     private final double max;
 
+    // rangeType added to StandardRange to accept also RELATIVE_TO_PREVIOUS_TIME_STEP, and not only ABSOLUTE
     StandardRangeImpl(double min, double max, RangeType rangeType) {
         super(rangeType, Unit.MEGAWATT);
         this.min = min;

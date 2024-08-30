@@ -250,7 +250,8 @@ class MultiTSFillerTest {
                 initialRangeActionSetpointResult,
                 new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
                 rangeActionParameters,
-                Unit.MEGAWATT, false)
+                Unit.MEGAWATT, false,
+                timeStepIndex)
         );
     }
 

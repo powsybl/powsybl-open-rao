@@ -47,6 +47,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final Unit unit;
     private final boolean raRangeShrinking;
+    private int timeStepIndex = 0;
     private int iteration = 0;
 
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
@@ -63,6 +64,24 @@ public class CoreProblemFiller implements ProblemFiller {
         this.rangeActionParameters = rangeActionParameters;
         this.unit = unit;
         this.raRangeShrinking = raRangeShrinking;
+    }
+
+    public CoreProblemFiller(OptimizationPerimeter optimizationContext,
+                             RangeActionSetpointResult prePerimeterRangeActionSetpoints,
+                             RangeActionActivationResult raActivationFromParentLeaf,
+                             RangeActionsOptimizationParameters rangeActionParameters,
+                             Unit unit,
+                             boolean raRangeShrinking,
+                             int timeStepIndex) {
+        this.optimizationContext = optimizationContext;
+        this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
+        this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
+        this.raActivationFromParentLeaf = raActivationFromParentLeaf;
+        this.rangeActionParameters = rangeActionParameters;
+        this.unit = unit;
+        this.raRangeShrinking = raRangeShrinking;
+        this.timeStepIndex = timeStepIndex;
     }
 
     @Override
@@ -119,6 +138,10 @@ public class CoreProblemFiller implements ProblemFiller {
      * Build one absolute variation variable AV[r] for each RangeAction r
      * This variable describes the absolute difference between the range action setpoint
      * and its initial value. It is given in the same unit as S[r].
+     * <p>
+     * Build one signed variation variable SV[r] for each InjectionRangeAction r
+     * This variable describes the signed difference between the injection setpoint and its initial value
+     * after taking into account the distribution keys.
      */
     private void buildRangeActionVariables(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
@@ -237,8 +260,9 @@ public class CoreProblemFiller implements ProblemFiller {
                     }
                 }
                 if (!injectionRangeActions.isEmpty()) {
-                    // all injection variation = 0
-                    OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.addInjectionBalanceVariationConstraint(0., 0., entry.getKey());
+                    // create the constraint
+                    OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.addInjectionBalanceVariationConstraint(0., 0., entry.getKey(), timeStepIndex);
+                    // add the signed variation variables to the constraint
                     injectionRangeActions.forEach(injectionRangeAction -> buildInjectionBalanceConstraint(linearProblem, injectionRangeAction, entry.getKey(), injectionBalanceConstraint));
                 }
                 entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey()));
@@ -356,9 +380,9 @@ public class CoreProblemFiller implements ProblemFiller {
 
     /**
      * Adds signed variation variable of given InjectionRangeAction to balance constraint
-     * sum(injectionSignedVariation)
-     * Constraint for defining injectionSignedVariation:
-     * injectionSignedVariation = (setpoint - prePerimeterSetPoint) * sum(distributionsKey)
+     * sum( {r in RangeActions} SV[r])
+     * Constraint for defining Signed Variation:
+     * SV[r] = (setpoint[r] - prePerimeterSetPoint[r]) * sum(distributionKeys[r])
      */
     private void buildInjectionBalanceConstraint(LinearProblem linearProblem, InjectionRangeAction rangeAction, State state, OpenRaoMPConstraint injectionBalanceConstraint) {
         OpenRaoMPVariable signedInjectionVariationVariable = linearProblem.getSignedRangeActionVariationVariable(rangeAction, state);

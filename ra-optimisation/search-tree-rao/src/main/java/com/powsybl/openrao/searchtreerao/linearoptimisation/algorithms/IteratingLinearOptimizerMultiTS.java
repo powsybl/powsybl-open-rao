@@ -114,7 +114,10 @@ public final class IteratingLinearOptimizerMultiTS {
         return bestResult;
     }
 
-    // Add logs for this class: RaoRunner not called in order to use MIP for multi TS so logs are missing
+    /**
+     * Add logs for this class:
+     * RaoRunner is not called in order to use MIP for multi TS so logs of most limiting elements with their margins are missing
+     */
     private static void logMostLimitingElementsBetweenIteration(IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters, OpenRaoLogger logger, IteratingLinearOptimizationResultImpl result) {
         List<FlowCnec> flowCnecsList = getMostLimitingElements(input, 5);
         Unit unit = parameters.getObjectiveFunctionUnit();
@@ -228,7 +231,7 @@ public final class IteratingLinearOptimizerMultiTS {
     }
 
     private static SensitivityComputerMultiTS createSensitivityComputer(AppliedRemedialActions appliedRemedialActions, IteratingLinearOptimizerMultiTSInput input, IteratingLinearOptimizerParameters parameters) {
-        //TODO : adapt sensitivity computer
+
         List<Set<FlowCnec>> cnecsList = new ArrayList<>();
         List<Set<FlowCnec>> loopFlowCnecsList = new ArrayList<>();
         Set<RangeAction<?>> rangeActions = new HashSet<>();

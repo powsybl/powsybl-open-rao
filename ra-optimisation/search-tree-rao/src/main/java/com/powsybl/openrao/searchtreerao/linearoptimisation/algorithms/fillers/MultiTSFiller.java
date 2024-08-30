@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  */
 public class MultiTSFiller implements ProblemFiller {
 
-    //Each crac describes a given time step
+    //Each element from a list describes a given time step
     private final List<Set<RangeAction<?>>> rangeActionsList;
     private final List<Network> networksList;
     private final List<State> statesList;
@@ -209,7 +209,6 @@ public class MultiTSFiller implements ProblemFiller {
                         buildConstraintOneTimeStepInjection(linearProblem, injectionCurrentRangeAction, injectionPreviousRangeAction, timeStepIndex);
                     }
                     updateObjectivePenaltyCost(linearProblem, currentRangeAction, previousRangeAction, timeStepIndex);
-                    // remove this exception? Should not occur anyway
                 } else if (previousRangeActionSet.size() > 1) {
                     throw new NotImplementedException(previousRangeActionSet.size() + " Range actions found for the same network elements: " + currentRangeAction.getNetworkElements().toString());
                 }
@@ -304,7 +303,7 @@ public class MultiTSFiller implements ProblemFiller {
             .filter(range -> range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP)
             .toList();
         for (TapRange range : rangesRelativeTimeStep) {
-            // Store current and previous RangeActions, ill be use when updating between MIP/Sensi
+            // Store current and previous RangeActions, will be used when updating between MIP/Sensi
             currentAndPreviousRangeActions.put(currentRangeAction, previousRangeAction);
 
             double minRelativeTap = range.getMinTap();

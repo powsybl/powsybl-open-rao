@@ -20,7 +20,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.util.List;
-import java.util.UUID;
 
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.*;
 
@@ -290,18 +289,13 @@ public final class LinearProblem {
         return solver.getConstraint(signedRangeActionVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addInjectionBalanceVariationConstraint(double lb, double ub, State state) {
-        String constraintName = injectionBalanceVariationConstraintId(state);
-        //Only add random Id if multiple time steps
-        if (solver.hasConstraint(constraintName)) {
-            constraintName += UUID.randomUUID();
-        }
+    public OpenRaoMPConstraint addInjectionBalanceVariationConstraint(double lb, double ub, State state, int timeStepIndex) {
+        String constraintName = injectionBalanceVariationConstraintId(state, timeStepIndex);
         return solver.makeConstraint(lb, ub, constraintName);
     }
 
-    //Only returns contraint from first time step. Method only used for testing
-    public OpenRaoMPConstraint getInjectionBalanceVariationConstraint(State state) {
-        return solver.getConstraint(injectionBalanceVariationConstraintId(state));
+    public OpenRaoMPConstraint getInjectionBalanceVariationConstraint(State state, int timeStepIndex) {
+        return solver.getConstraint(injectionBalanceVariationConstraintId(state, timeStepIndex));
     }
 
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {

@@ -155,14 +155,14 @@ public class NewRAOTest {
             new RangeActionActivationResultImpl(initialSetpoints),
             rangeActionParameters,
             Unit.MEGAWATT,
-            false);
+            false, 0);
         CoreProblemFiller coreProblemFiller1 = new CoreProblemFiller(
             optimizationPerimeters.get(1),
             initialSetpoints,
             new RangeActionActivationResultImpl(initialSetpoints),
             rangeActionParameters,
             Unit.MEGAWATT,
-            false);
+            false, 1);
 
         DiscretePstTapFiller discretePstTapFiller0 = new DiscretePstTapFiller(
             networks.get(0),
@@ -225,12 +225,12 @@ public class NewRAOTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(
             allCnecs,
-            Collections.emptySet(), // loopflows
+            Collections.emptySet(),
             initialSensiResult,
             initialSensiResult,
             initialSetpoints,
-            null, //crac(s), not useful (CNECs secured by PST)
-            Collections.emptySet(), // operators not sharing CRAs
+            null,
+            Collections.emptySet(),
             raoParameters);
 
         ToolProvider toolProvider = ToolProvider.create().withNetwork(networks.get(0)).withRaoParameters(raoParameters).build(); //the attributes in the class are only used for loopflow things
@@ -295,14 +295,16 @@ public class NewRAOTest {
             new RangeActionActivationResultImpl(initialSetpoints),
             rangeActionParameters,
             Unit.MEGAWATT,
-            false);
+            false,
+            0);
         CoreProblemFiller coreProblemFiller1 = new CoreProblemFiller(
             optimizationPerimeters.get(1),
             initialSetpoints,
             new RangeActionActivationResultImpl(initialSetpoints),
             rangeActionParameters,
             Unit.MEGAWATT,
-            false);
+            false,
+            1);
 
         LinearProblem linearProblem0 = new LinearProblemBuilder()
             .withSolver(orMpSolver0.getSolver())

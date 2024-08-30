@@ -8,7 +8,6 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Side;
@@ -665,7 +664,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         InjectionRangeAction injectionRangeAction0 = crac.getInjectionRangeAction(INJECTION_RANGE_ACTION_ID_0);
         InjectionRangeAction injectionRangeAction1 = crac.getInjectionRangeAction(INJECTION_RANGE_ACTION_ID_1);
         InjectionRangeAction injectionRangeAction2 = crac.getInjectionRangeAction(INJECTION_RANGE_ACTION_ID_2);
-        OpenRaoMPConstraint balanceConstraint = linearProblem.getInjectionBalanceVariationConstraint(state);
+        OpenRaoMPConstraint balanceConstraint = linearProblem.getInjectionBalanceVariationConstraint(state, 0);
         OpenRaoMPVariable signedVariationVariableInj0 = linearProblem.getSignedRangeActionVariationVariable(injectionRangeAction0, state);
         OpenRaoMPVariable signedVariationVariableInj1 = linearProblem.getSignedRangeActionVariationVariable(injectionRangeAction1, state);
         assertNotNull(balanceConstraint);

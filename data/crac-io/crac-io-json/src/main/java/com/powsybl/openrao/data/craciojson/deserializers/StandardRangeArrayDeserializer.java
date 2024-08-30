@@ -24,7 +24,6 @@ public final class StandardRangeArrayDeserializer {
     private StandardRangeArrayDeserializer() {
     }
 
-    //a Standard range is implicitly of type "ABSOLUTE" : no RANGE_TYPE
     public static void deserialize(JsonParser jsonParser, StandardRangeActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             StandardRangeAdder<?> adder = ownerAdder.newRange();

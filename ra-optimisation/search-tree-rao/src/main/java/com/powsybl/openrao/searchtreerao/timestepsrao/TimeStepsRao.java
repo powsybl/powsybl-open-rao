@@ -49,12 +49,10 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LO
 public class TimeStepsRao implements RaoProvider {
     private static final String TIMESTEPS_RAO = "TimeStepsRao";
 
-    //return RaoResult
     public static LinearOptimizationResult launchMultiRao(List<RaoInput> raoInputsList, RaoParameters parameters) {
         List<Set<NetworkAction>> networkActionsToApply = new ArrayList<>();
         raoInputsList.forEach(raoInput -> {
             RaoResult result = Rao.find("SearchTreeRao").run(raoInput, parameters);
-
             networkActionsToApply.add(result.getActivatedNetworkActionsDuringState(raoInput.getCrac().getPreventiveState()));
         });
 
@@ -63,7 +61,7 @@ public class TimeStepsRao implements RaoProvider {
         for (int i = 0; i < raoInputsList.size(); i++) {
             int finalI = i;
             networkActionsToApply.get(i).forEach(networkAction ->
-                // TODO : que faire pour le curatif ?
+                // curative state not supported
                 networkAction.apply(raoInputsList.get(finalI).getNetwork())
             );
         }
@@ -71,7 +69,6 @@ public class TimeStepsRao implements RaoProvider {
     }
 
     public static LinearOptimizationResult runIteratingLinearOptimization(List<RaoInput> raoInputsList, RaoParameters raoParameters) {
-
         List<Crac> cracs = new ArrayList<>();
         List<Network> networks = new ArrayList<>();
         Set<FlowCnec> allCnecs = new HashSet<>();

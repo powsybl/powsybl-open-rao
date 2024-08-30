@@ -12,7 +12,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import java.util.List;
 
 /**
- * Common code for StandradRangeAction implementations (adding another abstract class for standard range actions would be too much class depth)
+ * Common code for StandardRangeAction implementations (adding another abstract class for standard range actions would be too much class depth)
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com}
  */
 public final class StandardRangeActionUtils {
@@ -33,6 +33,7 @@ public final class StandardRangeActionUtils {
                 case RELATIVE_TO_PREVIOUS_INSTANT:
                     minAdmissibleSetpoint = Math.max(minAdmissibleSetpoint, previousInstantSetPoint + range.getMin());
                     break;
+                // to avoid throwing exception
                 case RELATIVE_TO_PREVIOUS_TIME_STEP:
                     break;
                 default:
@@ -55,6 +56,7 @@ public final class StandardRangeActionUtils {
                 case RELATIVE_TO_PREVIOUS_INSTANT:
                     maxAdmissibleSetpoint = Math.min(maxAdmissibleSetpoint, previousInstantSetPoint + range.getMax());
                     break;
+                // to avoid throwing exception
                 case RELATIVE_TO_PREVIOUS_TIME_STEP:
                     break;
                 default:
