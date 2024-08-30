@@ -8,46 +8,54 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
 import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.modelbuilder.Variable;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPVariable {
-    private final MPVariable mpVariable;
+    private final Variable mpVariable;
 
-    protected OpenRaoMPVariable(MPVariable mpVariable) {
+    protected OpenRaoMPVariable(Variable mpVariable) {
         this.mpVariable = mpVariable;
     }
 
     public String name() {
-        return mpVariable.name();
+        return mpVariable.getName();
     }
 
     public double lb() {
-        return mpVariable.lb();
+        return mpVariable.getLowerBound();
     }
 
     public double ub() {
-        return mpVariable.ub();
+        return mpVariable.getUpperBound();
     }
 
     public void setLb(double lb) {
-        mpVariable.setLb(OpenRaoMPSolver.roundDouble(lb));
+        mpVariable.setLowerBound(OpenRaoMPSolver.roundDouble(lb));
     }
 
     public void setUb(double ub) {
-        mpVariable.setUb(OpenRaoMPSolver.roundDouble(ub));
+        mpVariable.setUpperBound(OpenRaoMPSolver.roundDouble(ub));
     }
 
     public void setBounds(double lb, double ub) {
-        mpVariable.setBounds(OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub));
+        setLb(lb);
+        setUb(ub);
     }
 
-    MPVariable getMPVariable() {
+    Variable getMPVariable() {
         return mpVariable;
     }
 
+    void setSolutionValue(double value) {
+        solutionValue = value;
+    }
+
+    private double solutionValue;
+
     public double solutionValue() {
-        return mpVariable.solutionValue();
+        return solutionValue;
     }
 }

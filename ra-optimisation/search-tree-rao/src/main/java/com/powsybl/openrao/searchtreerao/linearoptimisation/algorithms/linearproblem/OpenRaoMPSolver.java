@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.google.ortools.Loader;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolverParameters;
+import com.google.ortools.modelbuilder.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -44,7 +45,7 @@ public class OpenRaoMPSolver {
 
     private final RangeActionsOptimizationParameters.Solver solver;
     private final String optProblemName;
-    private MPSolver mpSolver;
+    private ModelBuilder modelBuilder;
     private final MPSolverParameters solveConfiguration;
     private String solverSpecificParameters;
     Map<String, OpenRaoMPConstraint> constraints = new TreeMap<>();
@@ -60,15 +61,12 @@ public class OpenRaoMPSolver {
     }
 
     public void resetModel() {
-        this.mpSolver = new MPSolver(optProblemName, getOrToolsProblemType(solver));
+        modelBuilder = new ModelBuilder();
         constraints = new TreeMap<>();
         variables = new TreeMap<>();
-        this.objective = new OpenRaoMPObjective(mpSolver.objective());
-        setSolverSpecificParametersAsString(solverSpecificParameters);
-        if (objectiveMinimization) {
-            setMinimization();
-        } else {
-            setMaximization();
+        this.objective = new OpenRaoMPObjective();
+        if (solverSpecificParameters != null) {
+            setSolverSpecificParametersAsString(solverSpecificParameters); // TODO : remove this?
         }
     }
 
@@ -76,19 +74,14 @@ public class OpenRaoMPSolver {
         return solver;
     }
 
-    private MPSolver.OptimizationProblemType getOrToolsProblemType(RangeActionsOptimizationParameters.Solver solver) {
+    private String getOrToolsSolverName(RangeActionsOptimizationParameters.Solver solver) {
         Objects.requireNonNull(solver);
-        return switch (solver) {
-            case CBC -> MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING;
-            case SCIP -> MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING;
-            case XPRESS -> MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING;
-            default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
-        };
+        return solver.toString().toLowerCase(); // TODO : check this
     }
 
     // Only for this class' tests
     MPSolver getMpSolver() {
-        return mpSolver;
+        return null;
     }
 
     public boolean hasConstraint(String name) {
@@ -137,7 +130,7 @@ public class OpenRaoMPSolver {
         }
         double roundedLb = roundDouble(lb);
         double roundedUb = roundDouble(ub);
-        OpenRaoMPVariable variable = new OpenRaoMPVariable(mpSolver.makeVar(roundedLb, roundedUb, integer, name));
+        OpenRaoMPVariable variable = new OpenRaoMPVariable(modelBuilder.newVar(roundedLb, roundedUb, integer, name));
         variables.put(name, variable);
         return variable;
     }
@@ -148,7 +141,7 @@ public class OpenRaoMPSolver {
         } else {
             double roundedLb = roundDouble(lb);
             double roundedUb = roundDouble(ub);
-            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name));
+            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(modelBuilder.addLinearConstraint(new WeightedSumExpression(new int[0], new double[0], 0.), roundedLb, roundedUb));
             constraints.put(name, constraint);
             return constraint;
         }
@@ -160,11 +153,7 @@ public class OpenRaoMPSolver {
 
     public boolean setSolverSpecificParametersAsString(String solverSpecificParameters) {
         this.solverSpecificParameters = solverSpecificParameters;
-        if (solverSpecificParameters != null) {
-            return mpSolver.setSolverSpecificParametersAsString(solverSpecificParameters);
-        } else {
-            return true;
-        }
+        return true; // TODO : improve this?
     }
 
     public void setRelativeMipGap(double relativeMipGap) {
@@ -172,21 +161,26 @@ public class OpenRaoMPSolver {
     }
 
     public LinearProblemStatus solve() {
-        if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
-            mpSolver.enableOutput();
+        modelBuilder.optimize(objective.toLinearArgument(), !objectiveMinimization);
+        ModelSolver modelSolver = new ModelSolver("scip");
+        if (solverSpecificParameters != null) {
+            modelSolver.setSolverSpecificParameters(solverSpecificParameters);
         }
-        return convertResultStatus(mpSolver.solve(solveConfiguration));
+        modelSolver.enableOutput(OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled());
+        LinearProblemStatus status = convertResultStatus(modelSolver.solve(modelBuilder));
+        if (status == LinearProblemStatus.OPTIMAL || status == LinearProblemStatus.FEASIBLE) {
+            variables.values().forEach(variable -> variable.setSolutionValue(modelSolver.getValue(variable.getMPVariable())));
+        }
+        return status;
     }
 
-    static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
+    static LinearProblemStatus convertResultStatus(SolveStatus status) {
         return switch (status) {
             case OPTIMAL -> LinearProblemStatus.OPTIMAL;
-            case ABNORMAL -> LinearProblemStatus.ABNORMAL;
             case FEASIBLE -> LinearProblemStatus.FEASIBLE;
             case UNBOUNDED -> LinearProblemStatus.UNBOUNDED;
             case INFEASIBLE -> LinearProblemStatus.INFEASIBLE;
-            case NOT_SOLVED -> LinearProblemStatus.NOT_SOLVED;
-            default -> throw new OpenRaoException(String.format("Status %s not handled.", status));
+            default -> LinearProblemStatus.ABNORMAL;
         };
     }
 
@@ -203,7 +197,6 @@ public class OpenRaoMPSolver {
     }
 
     public void setMinimization() {
-        mpSolver.objective().setMinimization();
         objectiveMinimization = true;
     }
 
@@ -212,7 +205,6 @@ public class OpenRaoMPSolver {
     }
 
     public void setMaximization() {
-        mpSolver.objective().setMaximization();
         objectiveMinimization = false;
     }
 

@@ -8,23 +8,24 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
 import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.modelbuilder.LinearConstraint;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPConstraint {
-    private final MPConstraint mpConstraint;
+    private final LinearConstraint mpConstraint;
 
-    protected OpenRaoMPConstraint(MPConstraint mpConstraint) {
+    protected OpenRaoMPConstraint(LinearConstraint mpConstraint) {
         this.mpConstraint = mpConstraint;
     }
 
     public String name() {
-        return mpConstraint.name();
+        return mpConstraint.getName();
     }
 
     public double getCoefficient(OpenRaoMPVariable variable) {
-        return mpConstraint.getCoefficient(variable.getMPVariable());
+        return 0.; // TODO mpConstraint.get(variable.getMPVariable());
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
@@ -32,22 +33,23 @@ public class OpenRaoMPConstraint {
     }
 
     public double lb() {
-        return mpConstraint.lb();
+        return mpConstraint.getLowerBound();
     }
 
     public double ub() {
-        return mpConstraint.ub();
+        return mpConstraint.getUpperBound();
     }
 
     public void setLb(double lb) {
-        mpConstraint.setLb(OpenRaoMPSolver.roundDouble(lb));
+        mpConstraint.setLowerBound(OpenRaoMPSolver.roundDouble(lb));
     }
 
     public void setUb(double ub) {
-        mpConstraint.setUb(OpenRaoMPSolver.roundDouble(ub));
+        mpConstraint.setUpperBound(OpenRaoMPSolver.roundDouble(ub));
     }
 
     public void setBounds(double lb, double ub) {
-        mpConstraint.setBounds(OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub));
+        mpConstraint.setLowerBound(lb);
+        mpConstraint.setUpperBound(ub);
     }
 }

@@ -7,23 +7,39 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.google.ortools.linearsolver.MPObjective;
+import com.google.ortools.modelbuilder.LinearArgument;
+import com.google.ortools.modelbuilder.WeightedSumExpression;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPObjective {
-    private final MPObjective mpObjective;
+    Map<OpenRaoMPVariable, Double> coefficients = new HashMap<>();
 
-    protected OpenRaoMPObjective(MPObjective mpObjective) {
-        this.mpObjective = mpObjective;
+    protected OpenRaoMPObjective() {
+
     }
 
     public double getCoefficient(OpenRaoMPVariable variable) {
-        return mpObjective.getCoefficient(variable.getMPVariable());
+        return coefficients.getOrDefault(variable, 0.);
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
-        mpObjective.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
+        coefficients.put(variable, coeff);
+    }
+
+    LinearArgument toLinearArgument() {
+        int[] indices = new int[coefficients.size()];
+        double[] coefs = new double[coefficients.size()];
+        int i = 0;
+        for (Map.Entry<OpenRaoMPVariable, Double> entry : coefficients.entrySet()) {
+            indices[i] = entry.getKey().getMPVariable().getIndex();
+            coefs[i] = entry.getValue();
+            i++;
+        }
+        return new WeightedSumExpression(indices, coefs, 0.);
     }
 }
