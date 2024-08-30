@@ -28,7 +28,7 @@ class OpenRaoMPSolverTest {
 
     @BeforeEach
     void setUp() {
-        openRaoMPSolver = new OpenRaoMPSolver("test", RangeActionsOptimizationParameters.Solver.SCIP);
+        openRaoMPSolver = new OpenRaoMPSolver(RangeActionsOptimizationParameters.Solver.SCIP);
         mpSolver = openRaoMPSolver.getMpSolver();
     }
 
@@ -38,7 +38,7 @@ class OpenRaoMPSolverTest {
         assertEquals(RangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
         assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
 
-        openRaoMPSolver = new OpenRaoMPSolver("rao_test_prob", RangeActionsOptimizationParameters.Solver.CBC);
+        openRaoMPSolver = new OpenRaoMPSolver(RangeActionsOptimizationParameters.Solver.CBC);
         assertEquals(RangeActionsOptimizationParameters.Solver.CBC, openRaoMPSolver.getSolver());
         assertEquals(MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
     }
@@ -291,10 +291,10 @@ class OpenRaoMPSolverTest {
 
     @Test
     void testInfinity() {
-        OpenRaoMPSolver solver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.CBC);
+        OpenRaoMPSolver solver = new OpenRaoMPSolver(RangeActionsOptimizationParameters.Solver.CBC);
         assertEquals(Double.POSITIVE_INFINITY, solver.infinity());
 
-        solver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.SCIP);
+        solver = new OpenRaoMPSolver(RangeActionsOptimizationParameters.Solver.SCIP);
         assertEquals(1e23, solver.infinity());
 
         // can't test XPRESS because we need the link to the library

@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.google.ortools.linearsolver.MPVariable;
 import com.google.ortools.modelbuilder.Variable;
 
 /**

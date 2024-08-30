@@ -7,28 +7,35 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.modelbuilder.LinearConstraint;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPConstraint {
+    private final String name;
     private final LinearConstraint mpConstraint;
+    private Map<OpenRaoMPVariable, Double> coefficients;
 
-    protected OpenRaoMPConstraint(LinearConstraint mpConstraint) {
+    protected OpenRaoMPConstraint(String name, LinearConstraint mpConstraint) {
+        this.name = name;
         this.mpConstraint = mpConstraint;
+        coefficients = new HashMap<>();
     }
 
     public String name() {
-        return mpConstraint.getName();
+        return name;
     }
 
     public double getCoefficient(OpenRaoMPVariable variable) {
-        return 0.; // TODO mpConstraint.get(variable.getMPVariable());
+        return coefficients.getOrDefault(variable, 0.);
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
+        coefficients.put(variable, coeff);
         mpConstraint.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
     }
 

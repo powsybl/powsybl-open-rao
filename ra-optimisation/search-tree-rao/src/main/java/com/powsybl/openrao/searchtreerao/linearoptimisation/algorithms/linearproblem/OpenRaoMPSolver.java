@@ -44,7 +44,6 @@ public class OpenRaoMPSolver {
     );
 
     private final RangeActionsOptimizationParameters.Solver solver;
-    private final String optProblemName;
     private ModelBuilder modelBuilder;
     private final MPSolverParameters solveConfiguration;
     private String solverSpecificParameters;
@@ -53,9 +52,8 @@ public class OpenRaoMPSolver {
     OpenRaoMPObjective objective;
     private boolean objectiveMinimization = true;
 
-    public OpenRaoMPSolver(String optProblemName, RangeActionsOptimizationParameters.Solver solver) {
+    public OpenRaoMPSolver(RangeActionsOptimizationParameters.Solver solver) {
         this.solver = solver;
-        this.optProblemName = optProblemName;
         solveConfiguration = new MPSolverParameters();
         resetModel();
     }
@@ -141,7 +139,7 @@ public class OpenRaoMPSolver {
         } else {
             double roundedLb = roundDouble(lb);
             double roundedUb = roundDouble(ub);
-            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(modelBuilder.addLinearConstraint(new WeightedSumExpression(new int[0], new double[0], 0.), roundedLb, roundedUb));
+            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(name, modelBuilder.addLinearConstraint(new WeightedSumExpression(new int[0], new double[0], 0.), roundedLb, roundedUb));
             constraints.put(name, constraint);
             return constraint;
         }

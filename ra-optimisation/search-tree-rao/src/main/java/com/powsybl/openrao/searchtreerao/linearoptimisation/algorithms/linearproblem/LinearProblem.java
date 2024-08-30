@@ -82,7 +82,7 @@ public final class LinearProblem {
     }
 
     LinearProblem(List<ProblemFiller> fillerList, RangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
-        this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver);
+        this.solver = new OpenRaoMPSolver(solver);
         this.fillerList = fillerList;
         this.relativeMipGap = relativeMipGap;
         this.solverSpecificParameters = solverSpecificParameters;
