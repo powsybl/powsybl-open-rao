@@ -35,7 +35,7 @@ import java.util.Objects;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class CseCracImporter implements Importer<CseCracCreationContext> {
+public class CseCracImporter implements Importer {
     private static final String CRAC_CSE_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/cracio/cse/xsd/crac-document_4_23.xsd";
     private static final String ETSO_CORE_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/cracio/cse/xsd/etso-core-cmpts.xsd";
     private static final String ETSO_CODES_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/cracio/cse/xsd/etso-code-lists.xsd";

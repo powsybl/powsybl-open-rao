@@ -35,6 +35,9 @@ public class NetworkActionCreator {
     private final Crac crac;
     private final Network network;
 
+    private static final String STATIC_PROPERTY_RANGE_STRING = "StaticPropertyRange";
+    private static final String NOT_FOUND_IN_NETWORK_FORMAT = "%s not found in network";
+
     public NetworkActionCreator(Crac crac, Network network) {
         this.crac = crac;
         this.network = network;
@@ -57,7 +60,7 @@ public class NetworkActionCreator {
         }
 
         if (!hasElementaryActions) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because it has no elementary action");
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because it has no elementary action", remedialActionId));
         }
         return networkActionAdder;
     }
@@ -99,10 +102,10 @@ public class NetworkActionCreator {
 
     private static void checkNetworkActionHasExactlyOneStaticPropertyRange(Map<String, Set<StaticPropertyRange>> staticPropertyRanges, String remedialActionId, String elementaryActionId) {
         if (!staticPropertyRanges.containsKey(elementaryActionId)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to elementary action " + elementaryActionId);
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because there is no StaticPropertyRange linked to elementary action %s", remedialActionId, elementaryActionId));
         }
         if (staticPropertyRanges.get(elementaryActionId).size() > 1) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to elementary action " + elementaryActionId);
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because several conflictual StaticPropertyRanges are linked to elementary action %s", remedialActionId, elementaryActionId));
         }
     }
 
@@ -111,14 +114,14 @@ public class NetworkActionCreator {
         float initialSetPoint = getInitialSetPointRotatingMachine(nativeRotatingMachineAction.rotatingMachineId(), remedialActionId);
 
         StaticPropertyRange nativeStaticPropertyRange = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one because there is only one
-        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", PropertyReference.ROTATING_MACHINE, nativeStaticPropertyRange.propertyReference());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, STATIC_PROPERTY_RANGE_STRING, PropertyReference.ROTATING_MACHINE, nativeStaticPropertyRange.propertyReference());
         double setPointValue = getSetPointValue(nativeStaticPropertyRange, remedialActionId, false, initialSetPoint);
 
         if (nativeRotatingMachineAction.normalEnabled()) {
             String rotatingMachineId = nativeRotatingMachineAction.rotatingMachineId();
             Identifiable<?> networkElement = network.getIdentifiable(rotatingMachineId);
             if (Objects.isNull(networkElement)) {
-                throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not found in network", rotatingMachineId));
+                throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format(NOT_FOUND_IN_NETWORK_FORMAT, rotatingMachineId));
             }
             SingleNetworkElementActionAdder<?> actionAdder;
             if (networkElement.getType() == IdentifiableType.GENERATOR) {
@@ -128,7 +131,7 @@ public class NetworkActionCreator {
                 actionAdder = networkActionAdder.newLoadAction()
                     .withActivePowerValue(setPointValue);
             } else {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "CSA remedial action " + remedialActionId + " is an injection on rotating machine should be on generator or load only, not on " + networkElement.getType());
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("CSA remedial action %s is an injection on rotating machine should be on generator or load only, not on %s", remedialActionId, networkElement.getType()));
             }
             actionAdder.withNetworkElement(rotatingMachineId).add();
             return true;
@@ -143,17 +146,17 @@ public class NetworkActionCreator {
         float initialSetPoint = getInitialSetPointShuntCompensator(nativeShuntCompensatorModification.shuntCompensatorId(), remedialActionId);
 
         StaticPropertyRange nativeStaticPropertyRange = staticPropertyRangesLinkedToShuntCompensatorModification.iterator().next(); // get a random one because there is only one
-        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", PropertyReference.SHUNT_COMPENSATOR, nativeStaticPropertyRange.propertyReference());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, STATIC_PROPERTY_RANGE_STRING, PropertyReference.SHUNT_COMPENSATOR, nativeStaticPropertyRange.propertyReference());
         double setPointValue = getSetPointValue(nativeStaticPropertyRange, remedialActionId, true, initialSetPoint);
 
         if (nativeShuntCompensatorModification.normalEnabled()) {
             String shuntCompensatorId = nativeShuntCompensatorModification.shuntCompensatorId();
             Identifiable<?> networkElement = network.getIdentifiable(shuntCompensatorId);
             if (Objects.isNull(networkElement)) {
-                throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not found in network", shuntCompensatorId));
+                throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format(NOT_FOUND_IN_NETWORK_FORMAT, shuntCompensatorId));
             }
             if (networkElement.getType() != IdentifiableType.SHUNT_COMPENSATOR) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "CSA remedial action " + remedialActionId + " is an injection on shunt compensator and should be on shunt compensator only, not on " + networkElement.getType());
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("CSA remedial action %s is an injection on shunt compensator and should be on shunt compensator only, not on %s", remedialActionId, networkElement.getType()));
             }
             networkActionAdder.newShuntCompensatorPositionAction()
                 .withSectionCount((int) setPointValue)
@@ -171,7 +174,7 @@ public class NetworkActionCreator {
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(injectionSetPointActionId)).findAny();
         Optional<Load> optionalLoad = findLoad(injectionSetPointActionId);
         if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because the network does not contain a generator, neither a load with id: " + injectionSetPointActionId);
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Remedial action %s will not be imported because the network does not contain a generator, neither a load with id: %s", remedialActionId, injectionSetPointActionId));
         } else {
             initialSetPoint = optionalGenerator.map(generator -> (float) generator.getTargetP()).orElseGet(() -> (float) optionalLoad.get().getP0());
         }
@@ -182,7 +185,7 @@ public class NetworkActionCreator {
         float initialSetPoint;
         ShuntCompensator shuntCompensator = network.getShuntCompensator(injectionSetPointActionId);
         if (shuntCompensator == null) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because the network does not contain a shunt compensator with id: " + injectionSetPointActionId);
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Remedial action %s will not be imported because the network does not contain a shunt compensator with id: %s", remedialActionId, injectionSetPointActionId));
         } else {
             initialSetPoint = shuntCompensator.getSectionCount();
         }
@@ -207,10 +210,10 @@ public class NetworkActionCreator {
 
         if (mustValueBePositiveInteger) {
             if (setPointValue < 0d) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an incoherent negative number of sections");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because of an incoherent negative number of sections", remedialActionId));
             }
             if (setPointValue != (int) setPointValue) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of a non integer-castable number of sections");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because of a non integer-castable number of sections", remedialActionId));
             }
         }
         return setPointValue;
@@ -220,7 +223,7 @@ public class NetworkActionCreator {
         if (ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && !RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
             || !ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
             || RelativeDirectionKind.UP_AND_DOWN.toString().equals(nativeStaticPropertyRange.direction())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because its StaticPropertyRange uses an illegal combination of ValueOffsetKind and RelativeDirectionKind");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because its StaticPropertyRange uses an illegal combination of ValueOffsetKind and RelativeDirectionKind", remedialActionId));
         }
     }
 
@@ -230,33 +233,33 @@ public class NetworkActionCreator {
 
     private boolean addTopologicalElementaryAction(Set<StaticPropertyRange> staticPropertyRangesLinkedToTopologicalElementaryAction, NetworkActionAdder networkActionAdder, TopologyAction nativeTopologyAction, String remedialActionId, List<String> alterations) {
         if (network.getSwitch(nativeTopologyAction.switchId()) == null) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action " + remedialActionId + " will not be imported because the network does not contain a switch with id: " + nativeTopologyAction.switchId());
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Remedial action %s will not be imported because the network does not contain a switch with id: %s", remedialActionId, nativeTopologyAction.switchId()));
         }
         CsaProfileCracUtils.checkPropertyReference(remedialActionId, "TopologyAction", PropertyReference.SWITCH, nativeTopologyAction.propertyReference());
 
         StaticPropertyRange nativeStaticPropertyRange = staticPropertyRangesLinkedToTopologicalElementaryAction.iterator().next();
-        CsaProfileCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", PropertyReference.SWITCH, nativeStaticPropertyRange.propertyReference());
+        CsaProfileCracUtils.checkPropertyReference(remedialActionId, STATIC_PROPERTY_RANGE_STRING, PropertyReference.SWITCH, nativeStaticPropertyRange.propertyReference());
 
         if (0d != nativeStaticPropertyRange.normalValue() && 1d != nativeStaticPropertyRange.normalValue()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the normalValue is " + nativeStaticPropertyRange.normalValue() + " which does not define a proper action type (open 1 / close 0)");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the normalValue is %s which does not define a proper action type (open 1 / close 0)", remedialActionId, nativeStaticPropertyRange.normalValue()));
         }
 
         if (!ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the ValueOffsetKind is " + nativeStaticPropertyRange.valueKind() + " but should be none");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the ValueOffsetKind is %s but should be none", remedialActionId, nativeStaticPropertyRange.valueKind()));
         }
 
         if (!RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because the RelativeDirectionKind is " + nativeStaticPropertyRange.direction() + " but should be absolute");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the RelativeDirectionKind is %s but should be absolute", remedialActionId, nativeStaticPropertyRange.direction()));
         }
 
         if (nativeTopologyAction.normalEnabled()) {
             String switchId = nativeTopologyAction.switchId();
             Identifiable<?> networkElement = network.getIdentifiable(switchId);
             if (Objects.isNull(networkElement)) {
-                throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not found in network", switchId));
+                throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format(NOT_FOUND_IN_NETWORK_FORMAT, switchId));
             }
             if (networkElement.getType() != IdentifiableType.SWITCH) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "CSA remedial action " + remedialActionId + " is a topological action and should be on switch only, not on " + networkElement.getType());
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("CSA remedial action %s is a topological action and should be on switch only, not on %s", remedialActionId, networkElement.getType()));
             }
             networkActionAdder.newSwitchAction()
                 .withNetworkElement(switchId)

@@ -118,7 +118,7 @@ public class ElementaryActionsHelper {
         Stage nativeStage = getAssociatedStagePropertyBag(remedialActionId, remedialActionScheme);
         List<GridStateAlterationCollection> linkedGridStateAlterationCollectionPropertyBags = nativeGridStateAlterationCollections.stream().filter(nativeGridStateAlterationCollection -> nativeStage.gridStateAlterationCollection().equals(nativeGridStateAlterationCollection.mrid())).toList();
         if (linkedGridStateAlterationCollectionPropertyBags.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated GridStateAlterationCollection");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because it has no associated GridStateAlterationCollection", remedialActionId));
         }
         return nativeStage.gridStateAlterationCollection();
     }
@@ -126,9 +126,9 @@ public class ElementaryActionsHelper {
     private Stage getAssociatedStagePropertyBag(String remedialActionId, String remedialActionScheme) {
         List<Stage> linkedStagePropertyBags = nativeStages.stream().filter(stage -> remedialActionScheme.equals(stage.remedialActionScheme())).toList();
         if (linkedStagePropertyBags.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated Stage");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because it has no associated Stage", remedialActionId));
         } else if (linkedStagePropertyBags.size() > 1) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has several conflictual Stages");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because it has several conflictual Stages", remedialActionId));
         }
         return linkedStagePropertyBags.get(0);
     }
@@ -136,17 +136,17 @@ public class ElementaryActionsHelper {
     private String getAssociatedRemedialActionScheme(String remedialActionId) {
         List<RemedialActionScheme> linkedRemedialActionSchemePropertyBags = nativeRemedialActionSchemes.stream().filter(nativeRemedialActionScheme -> remedialActionId.equals(nativeRemedialActionScheme.schemeRemedialAction())).toList();
         if (linkedRemedialActionSchemePropertyBags.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has no associated RemedialActionScheme");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because it has no associated RemedialActionScheme", remedialActionId));
         } else if (linkedRemedialActionSchemePropertyBags.size() > 1) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because it has several conflictual RemedialActionSchemes");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because it has several conflictual RemedialActionSchemes", remedialActionId));
         }
 
         RemedialActionScheme nativeRemedialActionScheme = linkedRemedialActionSchemePropertyBags.get(0);
         if (!CsaProfileConstants.SIPS.equals(nativeRemedialActionScheme.kind())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + remedialActionId + " will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)", remedialActionId));
         }
         if (!nativeRemedialActionScheme.normalArmed()) {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because RemedialActionScheme " + nativeRemedialActionScheme.mrid() + " is not armed");
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because RemedialActionScheme %s is not armed", remedialActionId, nativeRemedialActionScheme.mrid()));
         }
         return nativeRemedialActionScheme.mrid();
     }

@@ -29,6 +29,7 @@ import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
@@ -75,7 +76,14 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void testNoNetworkProvided() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), CracCreationParameters.load(), null, null));
+        JsonImport jsonImport = new JsonImport();
+        OpenRaoException exception;
+        try (InputStream inputStream = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json")) {
+            CracCreationParameters cracCreationParameters = CracCreationParameters.load();
+            exception = assertThrows(OpenRaoException.class, () -> jsonImport.importData(inputStream, cracCreationParameters, null, null));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         assertEquals("Network object is null but it is needed to map contingency's elements", exception.getMessage());
     }
 

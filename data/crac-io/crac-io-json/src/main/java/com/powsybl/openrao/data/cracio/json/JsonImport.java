@@ -31,7 +31,7 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class JsonImport implements Importer<JsonCracCreationContext> {
+public class JsonImport implements Importer {
     @Override
     public String getFormat() {
         return "JSON";

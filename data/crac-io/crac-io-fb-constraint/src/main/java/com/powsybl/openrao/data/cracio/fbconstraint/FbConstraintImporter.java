@@ -41,7 +41,7 @@ import static java.lang.Integer.parseInt;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class FbConstraintImporter implements Importer<FbConstraintCreationContext> {
+public class FbConstraintImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FbConstraintImporter.class);
     private static final String XML_EXTENSION = "xml";
@@ -62,8 +62,7 @@ public class FbConstraintImporter implements Importer<FbConstraintCreationContex
             byte[] bytes = getBytesFromInputStream(inputStream);
             JAXBContext jaxbContext = JAXBContext.newInstance(FlowBasedConstraintDocument.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            FlowBasedConstraintDocument document = (FlowBasedConstraintDocument) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(bytes));
-            return document;
+            return (FlowBasedConstraintDocument) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(bytes));
         } catch (JAXBException | IOException e) {
             throw new OpenRaoException(e);
         }
