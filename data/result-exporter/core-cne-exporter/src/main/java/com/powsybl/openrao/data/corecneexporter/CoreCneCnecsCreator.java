@@ -173,7 +173,7 @@ public final class CoreCneCnecsCreator {
 
     private List<Analog> createB54MeasurementsOfCnec(FlowCnec cnec, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
-        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, cracCreationContext.getCrac().getInstant(InstantKind.CURATIVE), true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
+        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, cracCreationContext.getCrac().getInstant(InstantKind.CURATIVE), true, shouldInvertBranchDirection));
         measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, cracCreationContext.getCrac().getInstant(InstantKind.CURATIVE), false, shouldInvertBranchDirection));
         measurements.sort(new AnalogComparator());
         return measurements;
