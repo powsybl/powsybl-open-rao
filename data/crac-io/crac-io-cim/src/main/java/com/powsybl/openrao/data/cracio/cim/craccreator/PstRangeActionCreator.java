@@ -10,8 +10,7 @@ package com.powsybl.openrao.data.cracio.cim.craccreator;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
@@ -42,12 +41,11 @@ public class PstRangeActionCreator {
     private final RemedialActionRegisteredResource pstRegisteredResource;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
-    private final Set<FlowCnec> flowCnecs;
-    private final AngleCnec angleCnec;
+    private final Set<Cnec<?>> cnecs;
     private PstRangeActionAdder pstRangeActionAdder;
     private final Country sharedDomain;
 
-    public PstRangeActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, RemedialActionRegisteredResource pstRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain) {
+    public PstRangeActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, RemedialActionRegisteredResource pstRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain) {
         this.crac = crac;
         this.network = network;
         this.createdRemedialActionId = createdRemedialActionId;
@@ -56,8 +54,7 @@ public class PstRangeActionCreator {
         this.pstRegisteredResource = pstRegisteredResource;
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
-        this.flowCnecs = flowCnecs;
-        this.angleCnec = angleCnec;
+        this.cnecs = cnecs;
         this.sharedDomain = sharedDomain;
     }
 
@@ -114,7 +111,7 @@ public class PstRangeActionCreator {
 
             // --- Resource capacity
             defineTapRange(pstRangeActionAdder, pstHelper, rangeType);
-            RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
+            RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain);
 
             this.pstRangeActionCreationContext = RemedialActionSeriesCreator.importPstRaWithContingencies(createdRemedialActionId, pstRegisteredResource.getMRID().getValue(), pstRegisteredResource.getName(), invalidContingencies);
         } catch (OpenRaoImportException e) {

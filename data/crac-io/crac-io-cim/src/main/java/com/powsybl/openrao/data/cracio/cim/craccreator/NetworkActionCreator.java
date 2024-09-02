@@ -11,8 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
@@ -42,11 +41,10 @@ public class NetworkActionCreator {
     private NetworkActionAdder networkActionAdder;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
-    private final Set<FlowCnec> flowCnecs;
-    private final AngleCnec angleCnec;
+    private final Set<Cnec<?>> cnecs;
     private final Country sharedDomain;
 
-    public NetworkActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, List<RemedialActionRegisteredResource> networkActionRegisteredResources, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain) {
+    public NetworkActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, List<RemedialActionRegisteredResource> networkActionRegisteredResources, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain) {
         this.crac = crac;
         this.network = network;
         this.createdRemedialActionId = createdRemedialActionId;
@@ -55,8 +53,7 @@ public class NetworkActionCreator {
         this.networkActionRegisteredResources = networkActionRegisteredResources;
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
-        this.flowCnecs = flowCnecs;
-        this.angleCnec = angleCnec;
+        this.cnecs = cnecs;
         this.sharedDomain = sharedDomain;
     }
 
@@ -67,7 +64,7 @@ public class NetworkActionCreator {
             .withOperator(CimConstants.readOperator(createdRemedialActionId));
 
         try {
-            RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
+            RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain);
 
             // Elementary actions
             for (RemedialActionRegisteredResource remedialActionRegisteredResource : networkActionRegisteredResources) {
