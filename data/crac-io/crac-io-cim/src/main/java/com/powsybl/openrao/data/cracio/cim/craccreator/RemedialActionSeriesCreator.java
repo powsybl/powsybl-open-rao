@@ -372,19 +372,18 @@ public class RemedialActionSeriesCreator {
                                      List<String> invalidContingencies,
                                      Set<Cnec<?>> cnecs,
                                      Country sharedDomain) {
-        Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain, curativeInstant, crac.getPreventiveInstant());
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain, crac.getPreventiveInstant());
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain, curativeInstant, curativeInstant);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain, crac.getInstant(InstantKind.CURATIVE));
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, null, null, cnecs, sharedDomain, curativeInstant, crac.getPreventiveInstant());
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain, curativeInstant, curativeInstant);
+            addUsageRulesAtInstant(remedialActionAdder, null, null, cnecs, sharedDomain, crac.getPreventiveInstant());
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain, crac.getInstant(InstantKind.CURATIVE));
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain, curativeInstant, crac.getInstant(InstantKind.AUTO));
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain, crac.getInstant(InstantKind.AUTO));
         }
     }
 
@@ -393,11 +392,9 @@ public class RemedialActionSeriesCreator {
                                                List<String> invalidContingencies,
                                                Set<Cnec<?>> cnecs,
                                                Country sharedDomain,
-                                               Instant curativeInstant, Instant instant) {
+                                               Instant instant) {
         if (!cnecs.isEmpty()) {
-            cnecs.forEach(cnec -> {
-                addOnConstraintUsageRule(remedialActionAdder, cnec, instant);
-            });
+            cnecs.forEach(cnec -> addOnConstraintUsageRule(remedialActionAdder, cnec, instant));
             return;
         }
 
