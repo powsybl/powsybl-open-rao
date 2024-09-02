@@ -62,7 +62,7 @@ public class MonitoringResult {
         cnecResults.stream()
             .filter(CnecResult::thresholdOvershoot)
             .sorted(Comparator.comparing(CnecResult::getId))
-            .forEach(angleCnecResult -> constraints.add(angleCnecResult.print()));
+            .forEach(cnecResult -> constraints.add(cnecResult.print()));
 
         if (constraints.isEmpty()) {
             return List.of(String.format("All %s Cnecs are secure.", physicalParameter));
@@ -86,15 +86,15 @@ public class MonitoringResult {
         this.status = combineStatuses(this.status, monitoringResult.getStatus());
     }
 
-    public static CnecSecurityStatus combineStatuses(CnecSecurityStatus... status) {
-        boolean atLeastOneFailed = Arrays.asList(status).contains(CnecSecurityStatus.FAILURE);
+    public static CnecSecurityStatus combineStatuses(CnecSecurityStatus... statuses) {
+        boolean atLeastOneFailed = Arrays.asList(statuses).contains(CnecSecurityStatus.FAILURE);
         if (atLeastOneFailed) {
             return CnecSecurityStatus.FAILURE;
         }
 
-        boolean atLeastOneHigh = Arrays.asList(status).contains(CnecSecurityStatus.HIGH_CONSTRAINT);
-        boolean atLeastOneLow = Arrays.asList(status).contains(CnecSecurityStatus.LOW_CONSTRAINT);
-        boolean atLeastOneHighAndLow = Arrays.asList(status).contains(CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS) || atLeastOneHigh && atLeastOneLow;
+        boolean atLeastOneHigh = Arrays.asList(statuses).contains(CnecSecurityStatus.HIGH_CONSTRAINT);
+        boolean atLeastOneLow = Arrays.asList(statuses).contains(CnecSecurityStatus.LOW_CONSTRAINT);
+        boolean atLeastOneHighAndLow = Arrays.asList(statuses).contains(CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS) || atLeastOneHigh && atLeastOneLow;
 
         if (atLeastOneHighAndLow) {
             return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;

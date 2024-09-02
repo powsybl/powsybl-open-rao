@@ -10,6 +10,7 @@ import java.util.*;
 
 import static java.lang.String.format;
 
+//TODO MBR remove this class ?
 public class AppliedNetworkActionsResult {
 
     public static final class AppliedNetworkActionsResultBuilder {

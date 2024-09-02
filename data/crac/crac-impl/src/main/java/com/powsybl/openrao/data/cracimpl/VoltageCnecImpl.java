@@ -137,9 +137,14 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
         double marginOnLowerBound = minVoltage - minThreshold;
 
         Double maxVoltage = voltages.stream().max(Double::compareTo).orElse(Double.POSITIVE_INFINITY);
-        Double maxThreshold = getThresholds().iterator().next().min().orElse(Double.POSITIVE_INFINITY);
+        Double maxThreshold = getThresholds().iterator().next().max().orElse(Double.POSITIVE_INFINITY);
         double marginOnUpperBound = maxThreshold - maxVoltage;
-        return Math.min(marginOnLowerBound, marginOnUpperBound);
+
+        if (marginOnUpperBound < marginOnLowerBound) {
+            return maxVoltage;
+        } else {
+            return minVoltage;
+        }
     }
 
     public CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit) {

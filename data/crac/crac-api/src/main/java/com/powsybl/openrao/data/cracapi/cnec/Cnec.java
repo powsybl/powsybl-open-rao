@@ -57,8 +57,8 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     // rename to compute worst value ?
     double computeValue(Network network, Unit unit);
 
-    // rename to compute worst margin ?
-    // todo mbr use network instead of actualValue
+    // TODO MBR rename to compute worst margin ?
+    // TODO MBR use network instead of actualValue ?
     double computeMargin(double actualValue, Unit unit);
 
     CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit);

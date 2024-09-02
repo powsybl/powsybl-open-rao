@@ -56,7 +56,7 @@ public class CnecResult {
                 " at state %s has an angle of %.0f°.", angleCnec.getId(), angleCnec.getImportingNetworkElement().getId(), angleCnec.getExportingNetworkElement().getId(), cnec.getState().getId(), value);
         } else {
             VoltageCnec voltageCnec = (VoltageCnec) cnec;
-            return String.format("Network element %s at state %s has a voltage of %.0f",
+            return String.format("Network element %s at state %s has a voltage of %.0f kV.",
                 voltageCnec.getNetworkElement().getId(),
                 voltageCnec.getState().getId(),
                 value

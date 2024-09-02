@@ -77,8 +77,8 @@ public class AngleMonitoringTest {
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         network = Network.read(Paths.get(new File(AngleMonitoringTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
         InputStream is = getClass().getResourceAsStream(fileName);
-        CimCracCreationContext cracCreationContext = (com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
-        crac = cracCreationContext.getCrac();
+        CimCracCreationContext cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        crac = cracCreationContext.getCrac();crac = cracCreationContext.getCrac();
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         glskOffsetDateTime = OffsetDateTime.parse("2021-04-02T05:30Z");
     }
@@ -131,7 +131,12 @@ public class AngleMonitoringTest {
 
     private void runAngleMonitoring(ZonalData<Scalable> scalableZonalData) {
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
-        angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput);
+        angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 10);
+    }
+
+    private RaoResult runAngleMonitoringAndUpdateRaoResult(ZonalData<Scalable> scalableZonalData) {
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
+        return new Monitoring("OpenLoadFlow", loadFlowParameters).runAngleAndUpdateRaoResult(2, monitoringInput);
     }
 
     @Test
@@ -235,6 +240,7 @@ public class AngleMonitoringTest {
         assertEquals(Cnec.CnecSecurityStatus.SECURE, angleMonitoringResult.getStatus());
     }
 
+
     @Test
     void testCracCim() throws IOException {
         setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-02T05:00Z"), new CracCreationParameters());
@@ -263,7 +269,23 @@ public class AngleMonitoringTest {
             angleMonitoringResult.printConstraints());
     }
 
-    // TODO  add testGetAngleExceptions1, testGetAngleExceptions2 ,  testCracCimWithRaoResultUpdate and testCracCimWithProportionalGlsk
+    @Test
+    void testCracCimWithRaoResultUpdate() throws IOException {
+        setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-02T05:00Z"), new CracCreationParameters());
+        ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45MicroGridTest.xml")).getZonalScalable(network);
+
+        RaoResult raoResultWithAngleMonitoring = runAngleMonitoringAndUpdateRaoResult(scalableZonalData);
+        // Status checks
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
+        // Applied cras
+        State state = crac.getState("Co-1", curativeInstant);
+        assertEquals(1, raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(state).size());
+        assertTrue(raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(state).contains(crac.getNetworkAction("RA-1")));
+        assertEquals(0, raoResultWithAngleMonitoring.getActivatedRangeActionsDuringState(crac.getState("Co-2", curativeInstant)).size());
+        // angle values
+        assertEquals(5.22, raoResultWithAngleMonitoring.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
+        assertEquals(-19.33, raoResultWithAngleMonitoring.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec2"), Unit.DEGREE), ANGLE_TOLERANCE);
+    }
 
 }
 
