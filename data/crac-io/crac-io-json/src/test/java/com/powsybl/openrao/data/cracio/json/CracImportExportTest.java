@@ -6,9 +6,10 @@
  */
 package com.powsybl.openrao.data.cracio.json;
 
+import com.powsybl.action.*;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.action.*;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -23,7 +24,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,7 +32,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.*;
 
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.AVAILABLE;
 import static com.powsybl.openrao.data.cracapi.usagerule.UsageMethod.FORCED;

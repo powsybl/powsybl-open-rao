@@ -331,7 +331,7 @@ public class CracImportSteps {
                 if (lowerBound.isPresent()) {
                     assertEquals(Double.parseDouble(expectedCnec.get("LowerBound")), lowerBound.get(), DOUBLE_TOLERANCE);
                 } else {
-                    assertEquals(expectedCnec.get("LowerBound"), "null");
+                    assertEquals("null", expectedCnec.get("LowerBound"));
                 }
             }
             if (expectedCnec.get("UpperBound") != null) {
@@ -339,7 +339,7 @@ public class CracImportSteps {
                 if (upperBound.isPresent()) {
                     assertEquals(Double.parseDouble(expectedCnec.get("UpperBound")), upperBound.get(), DOUBLE_TOLERANCE);
                 } else {
-                    assertEquals(expectedCnec.get("UpperBound"), "null");
+                    assertEquals("null", expectedCnec.get("UpperBound"));
                 }
             }
         }

@@ -23,7 +23,6 @@ Feature: US 4.3: manage AC/DC modes from configuration
     Given configuration file is "epic4/RaoParameters_posMargin_ampere_ac_divergence.json"
     When I launch search_tree_rao
     Then the calculation fails
-    Then the status of the last sensitivity analysis is "FAILURE"
 
   @fast @rao @mock @dc @preventive-only
   Scenario: US 4.3.3: no failure with DC config
@@ -32,7 +31,6 @@ Feature: US 4.3: manage AC/DC modes from configuration
     Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
-    Then the status of the last sensitivity analysis is "DEFAULT"
     Then the worst margin is 28.0 MW
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be 4 in preventive

@@ -94,9 +94,9 @@ class PstRangeActionImplTest {
 
     @Test
     void applyOnTransformerWithNoPhaseShifter() {
-        Network network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
+        Network networkNoPst = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         PstRangeAction pstRa = pstRangeActionAdder.add();
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> pstRa.apply(network, 5));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> pstRa.apply(networkNoPst, 5));
         assertEquals("Transformer 'BBE2AA1  BBE3AA1  1' does not have a PhaseTapChanger", exception.getMessage());
     }
 

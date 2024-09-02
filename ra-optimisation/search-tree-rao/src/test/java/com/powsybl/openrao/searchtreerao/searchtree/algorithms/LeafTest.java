@@ -218,11 +218,11 @@ class LeafTest {
 
     @Test
     void evaluateAChildLeaf() {
-        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na = Mockito.mock(NetworkAction.class);
         ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
+        Leaf leaf1 = prepareLeafForEvaluation(na, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
         leaf1.evaluate(costEvaluatorMock, sensitivityComputer);
 
@@ -234,11 +234,11 @@ class LeafTest {
 
     @Test
     void testReevaluate() {
-        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na = Mockito.mock(NetworkAction.class);
         ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
+        Leaf leaf1 = prepareLeafForEvaluation(na, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
         leaf1.evaluate(costEvaluatorMock, sensitivityComputer);
 
@@ -287,7 +287,7 @@ class LeafTest {
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
         rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(1, listAppender.list.size());
-        String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation has not been performed", rootLeaf);
+        String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s because evaluation has not been performed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
     }
 
@@ -302,7 +302,7 @@ class LeafTest {
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
         rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(1, listAppender.list.size());
-        String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation failed", rootLeaf);
+        String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s because evaluation failed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
     }
 
@@ -319,11 +319,11 @@ class LeafTest {
     @Test
     void getFlowsAndPtdfsOnFlowCnecAfterEvaluation() {
         //prepare leaf
-        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na = Mockito.mock(NetworkAction.class);
         ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
+        Leaf leaf = prepareLeafForEvaluation(na, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
 
@@ -408,11 +408,11 @@ class LeafTest {
 
     @Test
     void getFunctionalCostAfterEvaluation() {
-        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na = Mockito.mock(NetworkAction.class);
         ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
+        Leaf leaf = prepareLeafForEvaluation(na, expectedSensitivityStatus, expectedFlowResult, expectedCost);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
         assertEquals(expectedCost / 2, leaf.getFunctionalCost(), DOUBLE_TOLERANCE);
     }
@@ -437,12 +437,12 @@ class LeafTest {
 
     @Test
     void getVirtualCostAfterEvaluation() {
-        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na = Mockito.mock(NetworkAction.class);
         when(na1.apply(any())).thenReturn(true);
         ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
+        Leaf leaf = prepareLeafForEvaluation(na, expectedSensitivityStatus, expectedFlowResult, expectedCost);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
         assertEquals(expectedCost / 2, leaf.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(expectedCost / 2, leaf.getVirtualCost(virtualCostName), DOUBLE_TOLERANCE);
@@ -477,13 +477,13 @@ class LeafTest {
 
     @Test
     void getCostlyAndMostLimitingElementsAfterEvaluation() {
-        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na = Mockito.mock(NetworkAction.class);
         ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         List<FlowCnec> flowCnecs = Collections.singletonList(flowCnec);
-        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost, flowCnecs);
+        Leaf leaf = prepareLeafForEvaluation(na, expectedSensitivityStatus, expectedFlowResult, expectedCost, flowCnecs);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
         assertEquals(flowCnecs, leaf.getMostLimitingElements(flowCnecs.size()));
         assertEquals(flowCnecs, leaf.getCostlyElements(virtualCostName, flowCnecs.size()));
@@ -763,8 +763,6 @@ class LeafTest {
     void testNonapplicableNa() {
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         NetworkActionCombination naCombinationToApply = Mockito.mock(NetworkActionCombination.class);
-        NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        NetworkAction na2 = Mockito.mock(NetworkAction.class);
         when(na1.apply(any())).thenReturn(true);
         when(na2.apply(any())).thenReturn(false);
         when(naCombinationToApply.getNetworkActionSet()).thenReturn(Set.of(na1, na2));

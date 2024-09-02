@@ -29,11 +29,13 @@ class FillersUtilTest {
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private Set<FlowCnec> cnecs;
+    State state1;
+    State state2;
 
     @BeforeEach
     void setUp() {
-        State state1 = Mockito.mock(State.class);
-        State state2 = Mockito.mock(State.class);
+        state1 = Mockito.mock(State.class);
+        state2 = Mockito.mock(State.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         Mockito.when(cnec1.getId()).thenReturn("cnec1");
         Mockito.when(cnec1.getState()).thenReturn(state1);
@@ -47,16 +49,6 @@ class FillersUtilTest {
 
     @Test
     void testGetValidFlowCnecsSensi() {
-        State state1 = Mockito.mock(State.class);
-        State state2 = Mockito.mock(State.class);
-        FlowCnec cnec1 = Mockito.mock(FlowCnec.class);
-        Mockito.when(cnec1.getState()).thenReturn(state1);
-        Mockito.when(cnec1.getId()).thenReturn("cnec1");
-        FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
-        Mockito.when(cnec2.getState()).thenReturn(state2);
-        Mockito.when(cnec2.getId()).thenReturn("cnec2");
-        Set<FlowCnec> cnecs = Set.of(cnec1, cnec2);
-
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
 
         Mockito.when(sensitivityResult.getSensitivityStatus(state1)).thenReturn(ComputationStatus.DEFAULT);

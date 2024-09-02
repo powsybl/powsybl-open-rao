@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
+    @Override
     @BeforeEach
     public void setUp() {
         super.setUp();

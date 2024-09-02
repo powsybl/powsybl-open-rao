@@ -29,9 +29,9 @@ public class NotOptimizedCnecsParameters {
         Objects.requireNonNull(platformConfig);
         NotOptimizedCnecsParameters parameters = new NotOptimizedCnecsParameters();
         platformConfig.getOptionalModuleConfig(NOT_OPTIMIZED_CNECS_SECTION)
-                .ifPresent(config -> {
-                    parameters.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(config.getBooleanProperty(DO_NOT_OPTIMIZE_CURATIVE_CNECS, DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS));
-                });
+            .ifPresent(config ->
+                parameters.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(config.getBooleanProperty(DO_NOT_OPTIMIZE_CURATIVE_CNECS, DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS))
+            );
         return parameters;
     }
 

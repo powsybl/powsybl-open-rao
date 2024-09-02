@@ -48,7 +48,7 @@ public abstract class AbstractToolTest {
     private CommandLineTools tools;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         tools = new CommandLineTools(getTools());

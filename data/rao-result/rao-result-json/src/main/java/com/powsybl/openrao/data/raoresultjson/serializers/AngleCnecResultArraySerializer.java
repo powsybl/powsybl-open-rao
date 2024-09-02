@@ -58,7 +58,7 @@ final class AngleCnecResultArraySerializer {
                         try {
                             serializeAngleCnecResultForOptimizationState(curativeInstant, angleCnec, raoResult, jsonGenerator);
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new OpenRaoException("An error occured when serializing Angle Cnec results", e);
                         }
                     }
                 );

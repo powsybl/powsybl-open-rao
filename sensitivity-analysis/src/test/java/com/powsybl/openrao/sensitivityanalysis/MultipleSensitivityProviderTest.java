@@ -52,35 +52,6 @@ class MultipleSensitivityProviderTest {
     }
 
     @Test
-    void testAdditionalFactors() {
-
-        // mock network
-        Network network = Mockito.mock(Network.class);
-
-        // mock providers
-        CnecSensitivityProvider provider1 = Mockito.mock(CnecSensitivityProvider.class);
-        CnecSensitivityProvider provider2 = Mockito.mock(CnecSensitivityProvider.class);
-
-        // mock factors
-        SensitivityFactor factor1 = Mockito.mock(SensitivityFactor.class);
-        SensitivityFactor factor2 = Mockito.mock(SensitivityFactor.class);
-        SensitivityFactor factor3 = Mockito.mock(SensitivityFactor.class);
-
-        Mockito.when(provider1.getBasecaseFactors(any())).thenReturn(Collections.singletonList(factor1));
-        Mockito.when(provider2.getBasecaseFactors(any())).thenReturn(Arrays.asList(factor2, factor3));
-
-        MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
-
-        // with one provider
-        multipleSensitivityProvider.addProvider(provider1);
-        assertEquals(1, multipleSensitivityProvider.getBasecaseFactors(network).size());
-
-        // with two provider
-        multipleSensitivityProvider.addProvider(provider2);
-        assertEquals(3, multipleSensitivityProvider.getBasecaseFactors(network).size());
-    }
-
-    @Test
     void testAdditionalFactorsContingency() {
 
         // mock network

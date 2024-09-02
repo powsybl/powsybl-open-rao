@@ -73,7 +73,7 @@ public final class MockCrac implements Crac {
 
     @Override
     public void removeContingency(String id) {
-
+        //not used
     }
 
     @Override
@@ -248,37 +248,37 @@ public final class MockCrac implements Crac {
 
     @Override
     public void removeCnec(String cnecId) {
-
+        //not used
     }
 
     @Override
     public void removeFlowCnec(String flowCnecId) {
-
+        //not used
     }
 
     @Override
     public void removeFlowCnecs(Set<String> flowCnecsIds) {
-
+        //not used
     }
 
     @Override
     public void removeAngleCnec(String angleCnecId) {
-
+        //not used
     }
 
     @Override
     public void removeAngleCnecs(Set<String> angleCnecsIds) {
-
+        //not used
     }
 
     @Override
     public void removeVoltageCnec(String voltageCnecId) {
-
+        //not used
     }
 
     @Override
     public void removeVoltageCnecs(Set<String> voltageCnecsIds) {
-
+        //not used
     }
 
     @Override
@@ -293,7 +293,7 @@ public final class MockCrac implements Crac {
 
     @Override
     public void removeRemedialAction(String id) {
-
+        //not used
     }
 
     @Override
@@ -378,17 +378,17 @@ public final class MockCrac implements Crac {
 
     @Override
     public void removePstRangeAction(String id) {
-
+        //not used
     }
 
     @Override
     public void removeHvdcRangeAction(String id) {
-
+        //not used
     }
 
     @Override
     public void removeInjectionRangeAction(String id) {
-
+        //not used
     }
 
     @Override
@@ -418,7 +418,7 @@ public final class MockCrac implements Crac {
 
     @Override
     public void removeNetworkAction(String id) {
-
+        //not used
     }
 
     @Override
@@ -448,7 +448,7 @@ public final class MockCrac implements Crac {
 
     @Override
     public <E extends Extension<Crac>> void addExtension(Class<? super E> aClass, E e) {
-
+        //not used
     }
 
     @Override

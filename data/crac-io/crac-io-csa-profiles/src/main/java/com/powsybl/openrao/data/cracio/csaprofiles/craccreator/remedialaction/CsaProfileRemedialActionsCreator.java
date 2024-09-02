@@ -74,7 +74,7 @@ public class CsaProfileRemedialActionsCreator {
             try {
                 checkKind(nativeRemedialAction, isSchemeRemedialAction);
                 if (!nativeRemedialAction.normalAvailable()) {
-                    throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because normalAvailable is set to false");
+                    throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because normalAvailable is set to false", nativeRemedialAction.mrid()));
                 }
                 String elementaryActionsAggregatorId = isSchemeRemedialAction ? elementaryActionsHelper.getGridStateAlterationCollection(nativeRemedialAction.mrid()) : nativeRemedialAction.mrid(); // collectionIdIfAutoOrElseRemedialActionId
                 RemedialActionType remedialActionType = getRemedialActionType(nativeRemedialAction.mrid(), elementaryActionsAggregatorId, isSchemeRemedialAction);
@@ -128,7 +128,7 @@ public class CsaProfileRemedialActionsCreator {
         if (nativeRemedialAction.getTimeToImplementInSeconds() != null) {
             remedialActionAdder.withSpeed(nativeRemedialAction.getTimeToImplementInSeconds());
         } else if (isSchemeRemedialAction && remedialActionType == RemedialActionType.PST_RANGE_ACTION) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because an auto PST range action must have a speed defined");
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because an auto PST range action must have a speed defined", nativeRemedialAction.mrid()));
         }
 
         InstantKind instantKind = getInstantKind(isSchemeRemedialAction, nativeRemedialAction, spsMaxTimeToImplementThreshold);
@@ -236,11 +236,11 @@ public class CsaProfileRemedialActionsCreator {
     private static void checkKind(RemedialAction nativeRemedialAction, boolean isSchemeRemedialAction) {
         if (isSchemeRemedialAction) {
             if (!RemedialActionKind.CURATIVE.toString().equals(nativeRemedialAction.kind())) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because auto remedial action must be of curative kind");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because auto remedial action must be of curative kind", nativeRemedialAction.mrid()));
             }
         } else {
             if (!RemedialActionKind.CURATIVE.toString().equals(nativeRemedialAction.kind()) && !RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action " + nativeRemedialAction.mrid() + " will not be imported because remedial action must be of curative or preventive kind");
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because remedial action must be of curative or preventive kind", nativeRemedialAction.mrid()));
             }
         }
     }
@@ -258,7 +258,7 @@ public class CsaProfileRemedialActionsCreator {
             // StaticPropertyRanges not mandatory in case of tapPositionsActions
             remedialActionType = RemedialActionType.PST_RANGE_ACTION;
         } else {
-            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "Remedial action " + remedialActionId + " will not be imported because it has no elementary action");
+            throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because it has no elementary action", remedialActionId));
         }
         return remedialActionType;
     }
@@ -281,13 +281,13 @@ public class CsaProfileRemedialActionsCreator {
                     RemedialActionDependency refRemedialActionDependency = dependingEnabledRemedialActions.iterator().next();
                     if (!dependingEnabledRemedialActions.stream().allMatch(raDependency -> refRemedialActionDependency.kind().equals(raDependency.kind()))) {
                         standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
-                        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because all related RemedialActionDependency must be of the same kind. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
+                        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action group %s will not be imported because all related RemedialActionDependency must be of the same kind. All RA's depending in that group will be ignored: %s", remedialActionGroup.mrid(), printRaIds(dependingEnabledRemedialActions)));
                     }
 
                     NetworkAction refNetworkAction = crac.getNetworkAction(refRemedialActionDependency.remedialAction());
                     if (refNetworkAction == null) {
                         standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
-                        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because the remedial action " + refRemedialActionDependency.remedialAction() + " does not exist or not imported. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
+                        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action group %s will not be imported because the remedial action %s does not exist or not imported. All RA's depending in that group will be ignored: %s", remedialActionGroup.mrid(), refRemedialActionDependency.remedialAction(), printRaIds(dependingEnabledRemedialActions)));
                     }
                     List<UsageRule> onConstraintUsageRules = refNetworkAction.getUsageRules().stream().filter(OnConstraint.class::isInstance).toList();
                     List<UsageRule> onContingencyStateUsageRules = refNetworkAction.getUsageRules().stream().filter(OnContingencyState.class::isInstance).toList();
@@ -299,11 +299,11 @@ public class CsaProfileRemedialActionsCreator {
                     dependingEnabledRemedialActions.forEach(remedialActionDependency -> {
                         if (crac.getNetworkAction(remedialActionDependency.remedialAction()) == null) {
                             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
-                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because the remedial action " + remedialActionDependency.remedialAction() + " does not exist or not imported. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
+                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action group %s will not be imported because the remedial action %s does not exist or not imported. All RA's depending in that group will be ignored: %s", remedialActionGroup.mrid(), remedialActionDependency.remedialAction(), printRaIds(dependingEnabledRemedialActions)));
                         }
                         if (!refNetworkAction.getUsageRules().equals(crac.getNetworkAction(remedialActionDependency.remedialAction()).getUsageRules())) {
                             standaloneRasImplicatedIntoAGroup.addAll(dependingEnabledRemedialActions.stream().map(RemedialActionDependency::remedialAction).collect(Collectors.toSet()));
-                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group " + remedialActionGroup.mrid() + " will not be imported because all depending the remedial actions must have the same usage rules. All RA's depending in that group will be ignored: " + printRaIds(dependingEnabledRemedialActions));
+                            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action group %s will not be imported because all depending remedial actions must have the same usage rules. All RA's depending in that group will be ignored: %s", remedialActionGroup.mrid(), printRaIds(dependingEnabledRemedialActions)));
                         }
                         elementaryActions.addAll(crac.getNetworkAction(remedialActionDependency.remedialAction()).getElementaryActions());
                         operators.add(crac.getNetworkAction(remedialActionDependency.remedialAction()).getOperator());

@@ -42,7 +42,7 @@ import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfile
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class CsaProfileCracImporter implements Importer<CsaProfileCracCreationContext> {
+public class CsaProfileCracImporter implements Importer {
 
     @Override
     public String getFormat() {

@@ -17,7 +17,7 @@ import java.time.OffsetDateTime;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public interface Importer<S extends CracCreationContext> {
+public interface Importer {
 
     /**
      * Get a unique identifier of the format.

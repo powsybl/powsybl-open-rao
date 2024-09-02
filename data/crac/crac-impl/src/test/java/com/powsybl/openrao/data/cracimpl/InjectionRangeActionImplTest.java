@@ -97,14 +97,14 @@ class InjectionRangeActionImplTest {
             ira.apply(network, 100.);
             fail();
         } catch (OpenRaoException e) {
-            // should throw;
+            // should throw
         }
 
         try {
             ira.getCurrentSetpoint(network);
             fail();
         } catch (OpenRaoException e) {
-            // should throw;
+            // should throw
         }
     }
 
@@ -121,14 +121,14 @@ class InjectionRangeActionImplTest {
             ira.apply(network, 100.);
             fail();
         } catch (OpenRaoException e) {
-            // should throw;
+            // should throw
         }
 
         try {
             ira.getCurrentSetpoint(network);
             fail();
         } catch (OpenRaoException e) {
-            // should throw;
+            // should throw
         }
     }
 

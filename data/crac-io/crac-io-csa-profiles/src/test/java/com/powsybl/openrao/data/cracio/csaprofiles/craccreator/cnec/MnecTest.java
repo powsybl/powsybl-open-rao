@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-public class MnecTest {
+class MnecTest {
 
     @Test
     void importOptimizedAndMonitoredAssessedElements() {

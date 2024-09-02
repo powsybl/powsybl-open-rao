@@ -167,7 +167,7 @@ public class MockRaoResult implements RaoResult {
 
     @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-
+        //not used
     }
 
     @Override

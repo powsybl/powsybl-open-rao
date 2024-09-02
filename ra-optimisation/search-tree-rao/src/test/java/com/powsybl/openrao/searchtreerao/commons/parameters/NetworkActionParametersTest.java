@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -34,13 +33,9 @@ class NetworkActionParametersTest {
 
     private Crac crac;
 
-    @BeforeEach
-    public void setUp() {
-        crac = ExhaustiveCracCreation.create();
-    }
-
     @Test
     void buildFromRaoParametersTestOk() {
+        crac = ExhaustiveCracCreation.create();
         RaoParameters raoParameters = new RaoParameters();
 
         raoParameters.getTopoOptimizationParameters().setPredefinedCombinations(Collections.singletonList(List.of("complexNetworkActionId", "switchPairRaId")));
@@ -78,7 +73,7 @@ class NetworkActionParametersTest {
     @Test
     void testNetworkActionCombinations() {
 
-        Crac crac = CracFactory.findDefault().create("crac")
+        crac = CracFactory.findDefault().create("crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
 
         crac.newNetworkAction()

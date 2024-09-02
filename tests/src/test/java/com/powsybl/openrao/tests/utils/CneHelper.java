@@ -181,9 +181,7 @@ public final class CneHelper {
                 return false;
             }
             switch (type1) {
-                case "B54":
-                case "B57":
-                case "B88":
+                case "B54", "B57", "B88":
                     String cnecId1 = getChildElementValue(e1, "Monitored_Series", "RegisteredResource", "mRID");
                     String cnecId2 = getChildElementValue(e2, "Monitored_Series", "RegisteredResource", "mRID");
                     return cnecId1.equals(cnecId2);

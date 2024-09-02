@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,7 +60,12 @@ class JsonCsaCracCreationParametersTest {
 
     @Test
     void deserializeParametersWithUnknownField() {
-        OpenRaoException importException = assertThrows(OpenRaoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters-with-unknown-field.json")));
+        OpenRaoException importException;
+        try (InputStream inputStream = getClass().getResourceAsStream("/parameters/csa-crac-parameters-with-unknown-field.json")) {
+            importException = assertThrows(OpenRaoException.class, () -> JsonCracCreationParameters.read(inputStream));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         assertEquals("Unexpected field: unknown-field", importException.getMessage());
     }
 

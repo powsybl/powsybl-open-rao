@@ -565,7 +565,7 @@ public interface Crac extends Identifiable<Crac> {
         return findImporter(filename, bytes).importData(new ByteArrayInputStream(bytes), cracCreationParameters, network, offsetDateTime);
     }
 
-    private static Importer<?> findImporter(String filename, byte[] bytes) throws IOException {
+    private static Importer findImporter(String filename, byte[] bytes) {
         return new ServiceLoaderCache<>(Importer.class).getServices().stream()
             .filter(importer -> importer.exists(filename, new ByteArrayInputStream(bytes)))
             .findAny()

@@ -387,7 +387,7 @@ class SearchTreeTest {
         when(rootLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
     }
 
-    private void mockRootLeafCost(double cost) throws Exception {
+    private void mockRootLeafCost(double cost) {
         when(rootLeaf.getCost()).thenReturn(cost);
         when(rootLeaf.getVirtualCost()).thenReturn(cost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
@@ -405,7 +405,7 @@ class SearchTreeTest {
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
     }
 
-    private void mockLeafsCosts(double rootLeafCostAfterOptim, double childLeafCostAfterOptim, Leaf childLeaf) throws Exception {
+    private void mockLeafsCosts(double rootLeafCostAfterOptim, double childLeafCostAfterOptim, Leaf childLeaf) {
         mockRootLeafCost(rootLeafCostAfterOptim);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);

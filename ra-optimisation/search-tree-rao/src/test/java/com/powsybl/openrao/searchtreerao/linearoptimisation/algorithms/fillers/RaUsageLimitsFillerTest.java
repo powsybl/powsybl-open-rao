@@ -200,14 +200,6 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
             double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
-            double relaxation = 1e-5;
-            if (ra.getId().equals("pst1")) {
-                relaxation = 0.3 * 6.9 / 2;
-            } else if (ra.getId().equals("pst2")) {
-                relaxation = 0.3 * 3;
-            } else if (ra.getId().equals("pst3")) {
-                relaxation = 0.3 * 4.5 / 3;
-            }
 
             assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);

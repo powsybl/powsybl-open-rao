@@ -12,8 +12,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.flowbaseddomain.DataMonitoredBranch;
-import com.powsybl.openrao.data.flowbaseddomain.DataPtdfPerCountry;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultimpl.ElementaryFlowCnecResult;
@@ -28,9 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
@@ -215,32 +211,6 @@ class FlowbasedComputationImplTest {
 
     private double getCurativePtdf(FlowbasedComputationResult result, String contingency, String monitoredBranch, String glskId, String instantId) {
         return result.getFlowBasedDomain().findContingencyById(contingency).findMonitoredBranchByIdAndInstant(monitoredBranch, instantId).findPtdfByCountry(glskId).getPtdf();
-    }
-
-    private Map<String, Double> frefResultById(FlowbasedComputationResult result) {
-        return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
-                .collect(Collectors.toMap(
-                        DataMonitoredBranch::getId,
-                        DataMonitoredBranch::getFref));
-    }
-
-    private Map<String, Double> fmaxResultById(FlowbasedComputationResult result) {
-        return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
-                .collect(Collectors.toMap(
-                        DataMonitoredBranch::getId,
-                        DataMonitoredBranch::getFmax));
-    }
-
-    private Map<String, Map<String, Double>> ptdfResultById(FlowbasedComputationResult result) {
-        return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
-            .collect(Collectors.toMap(
-                DataMonitoredBranch::getId,
-                dataMonitoredBranch -> dataMonitoredBranch.getPtdfList().stream()
-                .collect(Collectors.toMap(
-                    DataPtdfPerCountry::getCountry,
-                    DataPtdfPerCountry::getPtdf
-                ))
-            ));
     }
 
     private RaoResult createRaoResult(Crac crac, Set<FlowCnec> flowCnecs, NetworkAction na) {

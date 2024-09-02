@@ -231,15 +231,16 @@ public final class AutomatonSimulator {
         // -- Apply network actions
         // -- First get forced network actions
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
-        Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions().stream()
+        Set<NetworkAction> appliedNetworkActions = new HashSet<>();
+        crac.getNetworkActions().stream()
             .filter(ra -> RaoUtil.isRemedialActionForced(ra, automatonState, prePerimeterSensitivityOutput, flowCnecs, network, raoParameters))
-            .peek(networkAction -> {
-                if (!networkAction.hasImpactOnNetwork(network)) {
+            .forEach(networkAction -> {
+                if (networkAction.hasImpactOnNetwork(network)) {
+                    appliedNetworkActions.add(networkAction);
+                } else {
                     TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkAction.getId(), networkAction.getName());
                 }
-            })
-            .filter(networkAction -> networkAction.hasImpactOnNetwork(network))
-            .collect(Collectors.toSet());
+            });
 
         if (appliedNetworkActions.isEmpty()) {
             TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonState.getId());

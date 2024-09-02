@@ -28,10 +28,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class RaoParametersYamlConfigTest extends AbstractSerDeTest {
-    static double DOUBLE_TOLERANCE = 1e-6;
+    static final double DOUBLE_TOLERANCE = 1e-6;
 
     public RaoParameters loadRaoParameters(String configFile) {
-        Path path = Paths.get(new File(getClass().getResource("/" + configFile + ".yml").getFile()).getAbsolutePath()); //Path.of(getClass().getResource("/").getPath());
+        Path path = Paths.get(new File(getClass().getResource("/" + configFile + ".yml").getFile()).getAbsolutePath());
         Path subPath = path.getParent();
         PlatformConfig platformConfig = new PlatformConfig(PlatformConfig.loadModuleRepository(subPath, configFile), subPath);
         return RaoParameters.load(platformConfig);
