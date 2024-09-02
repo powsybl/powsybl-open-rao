@@ -287,7 +287,7 @@ class LeafTest {
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
         rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(1, listAppender.list.size());
-        String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s%n because evaluation has not been performed", rootLeaf);
+        String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s because evaluation has not been performed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
     }
 
@@ -302,7 +302,7 @@ class LeafTest {
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
         rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(1, listAppender.list.size());
-        String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s%n because evaluation failed", rootLeaf);
+        String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s because evaluation failed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
     }
 
