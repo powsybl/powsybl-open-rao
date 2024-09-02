@@ -384,6 +384,11 @@ class CastorFullOptimizationTest {
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra6, crac.getPreventiveState(), crac));
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra6, state1, crac));
         assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra6, state2, crac));
+
+        // ra10 is available in preventive only
+        assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra10, crac.getPreventiveState(), crac));
+        assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra10, state1, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra10, state2, crac));
     }
 
     @Test
@@ -448,7 +453,7 @@ class CastorFullOptimizationTest {
 
         Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac, firstPreventiveResult, contingencyResult);
 
-        assertEquals(7, rangeActionsExcludedFrom2P.size());
+        assertEquals(6, rangeActionsExcludedFrom2P.size());
         assertFalse(rangeActionsExcludedFrom2P.contains(ra1)); // Should not be excluded as it's preventive only.
         assertTrue(rangeActionsExcludedFrom2P.contains(ra2)); // Should be excluded as it's UNAVAILABLE for preventive.
         assertTrue(rangeActionsExcludedFrom2P.contains(ra5)); // Should be excluded as it's not preventive.
