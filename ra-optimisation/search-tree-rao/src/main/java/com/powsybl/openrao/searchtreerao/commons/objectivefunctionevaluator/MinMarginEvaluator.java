@@ -11,10 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -43,13 +40,13 @@ public class MinMarginEvaluator implements CostEvaluator {
         return unit;
     }
 
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
+    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
         Map<FlowCnec, Double> margins = new HashMap<>();
 
         flowCnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
             .filter(Cnec::isOptimized)
-            .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit)));
+            .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, unit)));
 
         return margins.keySet().stream()
             .filter(Cnec::isOptimized)
@@ -64,8 +61,8 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, contingenciesToExclude);
+    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
         FlowCnec limitingElement;
         if (costlyElements.isEmpty()) {
             limitingElement = null;
@@ -78,7 +75,7 @@ public class MinMarginEvaluator implements CostEvaluator {
             // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
             return Pair.of(-getHighestThresholdAmongFlowCnecs(), costlyElements);
         }
-        double margin = marginEvaluator.getMargin(flowResult, limitingElement, rangeActionActivationResult, sensitivityResult, unit);
+        double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
         if (margin >= Double.MAX_VALUE / 2) {
             // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
             // return a finite value, like MNEC case above

@@ -946,14 +946,14 @@ crac.newNetworkAction()
 :::{group-tab} JSON file
 ~~~json
  "networkActions" : [ {
-    "id" : "topological-na-id",
-    "name" : "topological-na-name",
+    "id" : "switch-na-id",
+    "name" : "switch-na-name",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
-    "topologicalActions" : [ {
+    "switchActions" : [ {
       "networkElementId" : "switch-id-1",
       "actionType" : "close"
     }, {
@@ -968,21 +968,21 @@ crac.newNetworkAction()
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
-    "topologicalActions" : [ {
+    "terminalsConnectionActions" : [ {
       "networkElementId" : "transformer-id",
       "actionType" : "close"
     } ]
   }, {
-    "id" : "pst-setpoint-na-id",
-    "name" : "pst-setpoint-na-name",
+    "id" : "phase-tap-postion-na-id",
+    "name" : "phase-tap-postion-na-name",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
-    "pstSetpoints" : [ {
+    "phaseTapChangerTapPositionActions" : [ {
       "networkElementId" : "pst-id",
-      "setpoint" : 15
+      "tapPosition" : 15
     } ]
   }, {
     "id" : "generator-action-na-id",
@@ -997,10 +997,9 @@ crac.newNetworkAction()
       "contingencyId" : "contingency-id",
       "usageMethod" : "available"
     } ],
-    "injectionSetpoints" : [ {
+    "generatorActions" : [ {
       "networkElementId" : "generator-id",
-      "setpoint" : 260.0,
-      "unit" : "megawatt"
+      "activePowerValue" : 260.0
     } ]
   }, {
     "id" : "load-action-na-id",
@@ -1010,10 +1009,9 @@ crac.newNetworkAction()
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
-    "injectionSetpoints" : [ {
+    "loadActions" : [ {
       "networkElementId" : "load-id",
-      "setpoint" : 260.0,
-      "unit" : "megawatt"
+      "activePowerValue" : 260.0
     } ]
   }, {
     "id" : "dangling-line-action-na-id",
@@ -1023,10 +1021,9 @@ crac.newNetworkAction()
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
-    "injectionSetpoints" : [ {
+    "danglingLineActions" : [ {
       "networkElementId" : "dangling-line-id",
-      "setpoint" : 260.0,
-      "unit" : "megawatt"
+      "activePowerValue" : 260.0
     } ]
   }, {
     "id" : "shunt-compensator-na-id",
@@ -1036,10 +1033,9 @@ crac.newNetworkAction()
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
-    "injectionSetpoints" : [ {
+    "shuntCompensatorPositionActions" : [ {
       "networkElementId" : "shunt-compensator-id",
-      "setpoint" : 3.0,
-      "unit" : "section_count"
+      "sectionCount" : 3
     } ]
   }, {
     "id" : "switch-pair-na-id",
@@ -1153,7 +1149,7 @@ crac.newPstRangeAction()
     .add();
 ~~~
 In that case, the validity domain of the PST (intersection of its ranges and feasible taps) is [1; 3]
-Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creation-util/src/main/java/com/powsybl/openrao/data/craccreation/util/PstHelper.java) can ease the creation of the TapToAngleConversionMap.
+Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-util/src/main/java/com/powsybl/openrao/data/cracio/common/PstHelper.java) can ease the creation of the TapToAngleConversionMap.
 :::
 :::{group-tab} JSON file
 ~~~json

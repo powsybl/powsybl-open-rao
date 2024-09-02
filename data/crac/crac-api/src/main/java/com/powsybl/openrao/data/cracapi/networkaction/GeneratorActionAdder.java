@@ -9,14 +9,8 @@ package com.powsybl.openrao.data.cracapi.networkaction;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface GeneratorActionAdder {
-
-    GeneratorActionAdder withNetworkElement(String networkElementId);
-
-    GeneratorActionAdder withNetworkElement(String networkElementId, String networkElementName);
+public interface GeneratorActionAdder extends SingleNetworkElementActionAdder<GeneratorActionAdder> {
 
     GeneratorActionAdder withActivePowerValue(double setPoint);
-
-    NetworkActionAdder add();
 
 }

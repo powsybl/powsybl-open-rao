@@ -12,8 +12,9 @@ import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
-import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.*;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.*;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -64,12 +65,12 @@ public class MockCracCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts() {
+    public List<? extends ElementaryCreationContext> getRemedialActionCreationContexts() {
         return mockRemedialActionCreationContexts;
     }
 
     @Override
-    public RemedialActionCreationContext getRemedialActionCreationContext(String s) {
+    public ElementaryCreationContext getRemedialActionCreationContext(String s) {
         return null;
     }
 
@@ -140,8 +141,18 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
-        public String getNativeId() {
+        public String getNativeObjectId() {
             return flowCnec.getId();
+        }
+
+        @Override
+        public String getNativeObjectName() {
+            return flowCnec.getId();
+        }
+
+        @Override
+        public String getCreatedObjectId() {
+            return null;
         }
 
         @Override
@@ -204,12 +215,12 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     public class MockRemedialActionCreationContext implements PstRangeActionCreationContext {
 
-        private RemedialAction remedialAction;
+        private RemedialAction<?> remedialAction;
         boolean isImported;
         boolean isInverted;
         String nativeNetworkElementId;
 
-        public MockRemedialActionCreationContext(RemedialAction remedialAction, Crac crac) {
+        public MockRemedialActionCreationContext(RemedialAction<?> remedialAction, Crac crac) {
             this.remedialAction = remedialAction;
             this.isImported = crac.getRangeAction(remedialAction.getId()) != null || crac.getNetworkAction(remedialAction.getId()) != null;
             this.isInverted = false;
@@ -217,7 +228,12 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
-        public String getNativeId() {
+        public String getNativeObjectId() {
+            return remedialAction.getId();
+        }
+
+        @Override
+        public String getNativeObjectName() {
             return remedialAction.getId();
         }
 
@@ -242,7 +258,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         @Override
-        public String getCreatedRAId() {
+        public String getCreatedObjectId() {
             return remedialAction.getId();
         }
 

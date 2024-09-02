@@ -124,7 +124,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
      * If PSTs are modelled with approximate integers, make sure that the initial setpoint is feasible (it should be at
      * a distance smaller than 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
      */
-    private double getInitialSetpointRelaxation(RangeAction rangeAction) {
+    private double getInitialSetpointRelaxation(RangeAction<?> rangeAction) {
         if (rangeAction instanceof PstRangeAction pstRangeAction && arePstSetpointsApproximated) {
             // The BestTapFinder is accurate at 35% of the setpoint difference between 2 taps. Using 30% here to be safe.
             return 0.3 * getAverageAbsoluteTapToAngleConversionFactor(pstRangeAction);
@@ -229,8 +229,10 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             .map(PstRangeAction.class::cast)
             .forEach(pstRangeAction -> pstRangeActionsPerTso.computeIfAbsent(pstRangeAction.getOperator(), tso -> new HashSet<>()).add(pstRangeAction));
 
-        for (String tso : maxElementaryActionsPerTso.keySet()) {
-            OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActionsPerTso.get(tso), tso, state);
+        for (Map.Entry<String, Integer> maxElementaryActionsForTso : maxElementaryActionsPerTso.entrySet()) {
+            String tso = maxElementaryActionsForTso.getKey();
+            int maxElementaryActions = maxElementaryActionsForTso.getValue();
+            OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActions, tso, state);
             for (PstRangeAction pstRangeAction : pstRangeActionsPerTso.getOrDefault(tso, Set.of())) {
                 // use pre-perimeter tap because PST's tap may be different from the initial tap after previous perimeter
                 int initialTap = prePerimeterRangeActionSetpoints.getTap(pstRangeAction);

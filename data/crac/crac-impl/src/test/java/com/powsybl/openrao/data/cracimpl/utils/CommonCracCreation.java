@@ -265,10 +265,6 @@ public final class CommonCracCreation {
     }
 
     public static Crac createWithCurativePstRange() {
-        return createWithCurativePstRange(Set.of(TwoSides.ONE));
-    }
-
-    public static Crac createWithCurativePstRange(Set<TwoSides> monitoredCnecSides) {
         Crac crac = create();
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);

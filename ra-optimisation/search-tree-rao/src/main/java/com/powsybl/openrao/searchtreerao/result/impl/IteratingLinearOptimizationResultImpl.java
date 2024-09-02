@@ -129,6 +129,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        return flowResult.getMargin(flowCnec, unit);
+    }
+
+    @Override
     public double getCommercialFlow(FlowCnec branchCnec, TwoSides side, Unit unit) {
         return flowResult.getCommercialFlow(branchCnec, side, unit);
     }
@@ -202,4 +207,5 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     public RangeActionActivationResult getRangeActionActivationResult() {
         return rangeActionActivationResult;
     }
+
 }

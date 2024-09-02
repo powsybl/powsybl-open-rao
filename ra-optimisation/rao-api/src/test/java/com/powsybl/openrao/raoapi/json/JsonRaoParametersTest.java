@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class JsonRaoParametersTest extends AbstractSerDeTest {
-    static double DOUBLE_TOLERANCE = 1e-6;
+    static final double DOUBLE_TOLERANCE = 1e-6;
 
     @Test
     void roundTripDefault() throws IOException {

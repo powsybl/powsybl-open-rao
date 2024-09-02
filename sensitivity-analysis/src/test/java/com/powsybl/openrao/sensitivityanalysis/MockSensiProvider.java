@@ -31,7 +31,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
             if (pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) {
                 // used for most of the tests
-                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, contingencies);
+                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, contingencies, network);
             } else {
                 // used for tests with already applied RangeActions in Curative states
                 writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, contingencies);
@@ -39,7 +39,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         }, computationManager.getExecutor());
     }
 
-    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies) {
+    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, Network network) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
@@ -160,7 +160,11 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                     } else {
                         throw new AssertionError();
                     }
-                    sensitivityResultWriter.writeContingencyStatus(finalContingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
+                    if (contingencies.get(finalContingencyIndex).getElements().stream().anyMatch(e -> network.getIdentifiable(e.getId()) == null)) {
+                        sensitivityResultWriter.writeContingencyStatus(finalContingencyIndex, SensitivityAnalysisResult.Status.FAILURE);
+                    } else {
+                        sensitivityResultWriter.writeContingencyStatus(finalContingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
+                    }
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });

@@ -13,9 +13,9 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.PstRangeActionSeriesCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.RemedialActionSeriesCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.PstRangeActionSeriesCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.RemedialActionSeriesCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.RemedialActionRegisteredResource;
@@ -49,7 +49,7 @@ public class SweRemedialActionSeriesCreator {
         Crac crac = sweCneHelper.getCrac();
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
-            .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
+            .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeObjectId))
             .toList();
         if (contingency == null) {
             //PREVENTIVE
@@ -88,7 +88,7 @@ public class SweRemedialActionSeriesCreator {
         Crac crac = sweCneHelper.getCrac();
         List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
-            .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
+            .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeObjectId))
             .toList();
         if (contingency == null) {
             //PREVENTIVE
@@ -137,11 +137,11 @@ public class SweRemedialActionSeriesCreator {
         if (raoResult == null) {
             return null;
         }
-        context.getCreatedIds().stream().sorted()
+        context.getCreatedObjectsIds().stream().sorted()
                 .map(crac::getRemedialAction)
                 .filter(ra -> raoResult.isActivatedDuringState(state, ra)).forEach(usedRas::add);
         if (!raoResult.getComputationStatus().equals(ComputationStatus.FAILURE)) {
-            context.getCreatedIds().stream().sorted()
+            context.getCreatedObjectsIds().stream().sorted()
                 .map(crac::getRemedialAction).filter(ra ->
                     raoResult.getActivatedRangeActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId())) ||
                         raoResult.getActivatedNetworkActionsDuringState(state).stream().anyMatch(cra -> cra.getId().equals(ra.getId()))
@@ -187,7 +187,7 @@ public class SweRemedialActionSeriesCreator {
     private RemedialActionSeries generateHvdcRaSeries(HvdcRangeAction rangeAction, State state, RemedialActionSeriesCreationContext context) {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
         double absoluteSetpoint = Math.abs(sweCneHelper.getRaoResult().getOptimizedSetPointOnState(state, rangeAction));
-        String nativeId = context.getNativeId();
+        String nativeId = context.getNativeObjectId();
         remedialActionSeries.setMRID(nativeId + "@" + absoluteSetpoint + "@");
         remedialActionSeries.setName(nativeId + "@" + absoluteSetpoint + "@");
         remedialActionSeries.setApplicationModeMarketObjectStatusStatus(getApplicationModeMarketObjectStatusStatus(state));

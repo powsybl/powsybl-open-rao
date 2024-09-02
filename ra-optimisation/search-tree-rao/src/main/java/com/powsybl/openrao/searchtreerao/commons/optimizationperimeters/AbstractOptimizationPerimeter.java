@@ -119,7 +119,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         return availableRangeActions.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
-    static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
+    public static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)
                 && !raoParameters.getExtension(LoopFlowParametersExtension.class).getCountries().isEmpty()) {
             // loopFlow limited, and set of country for which loop-flow are monitored is defined

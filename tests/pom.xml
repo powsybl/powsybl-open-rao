@@ -82,31 +82,31 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-crac-creator-api</artifactId>
+            <artifactId>open-rao-crac-io-commons</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-creator-cse</artifactId>
+            <artifactId>open-rao-crac-io-cse</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-creator-fb-constraint</artifactId>
+            <artifactId>open-rao-crac-io-fb-constraint</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-creator-cim</artifactId>
+            <artifactId>open-rao-crac-io-cim</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-creator-csa-profiles</artifactId>
+            <artifactId>open-rao-crac-io-csa-profiles</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

@@ -31,7 +31,7 @@ parameters = JsonCracCreationParameters.read(jsonFilePath);
   
   
 ## Non-specific parameters
-OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/parameters/CracCreationParameters.java) 
+OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-api/src/main/java/com/powsybl/openrao/data/cracio/api/parameters/CracCreationParameters.java) 
 defines a few parameters needed for all native CRAC formats.
 
 ### crac-factory
@@ -122,7 +122,7 @@ cracCreationParameters.addRaUsageLimitsForAGivenInstant("curative", raUsageLimit
 ## CSE-specific parameters
 
 The [CSE native crac format](cse) lacks important information that other formats don't.  
-The user can define a [CseCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cse/src/main/java/com/powsybl/openrao/data/craccreation/creator/cse/parameters/CseCracCreationParameters.java) 
+The user can define a [CseCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-cse/src/main/java/com/powsybl/openrao/data/cracio/cse/parameters/CseCracCreationParameters.java) 
 extension to the CracCreationParameters object in order to define them.  
 
 ### range-action-groups (CSE)
@@ -208,7 +208,7 @@ cracCreationParameters.addExtension(CseCracCreationParameters.class, cseParamete
 ## CIM-specific parameters
 
 The [CIM native CRAC format](cim) lacks important information that other formats don't.  
-The user can define a [CimCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/parameters/CimCracCreationParameters.java)
+The user can define a [CimCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-cim/src/main/java/com/powsybl/openrao/data/cracio/cim/parameters/CimCracCreationParameters.java)
 extension to the CracCreationParameters object in order to define them.
 
 ### timeseries-mrids
@@ -382,7 +382,7 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
 
 ## CSA-specific parameters
 
-The CSA profiles from the [CSA native CRAC format](csa) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [CsaCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-csa-profiles/src/main/java/com/powsybl/openrao/data/craccreation/creator/csaprofile/parameters/CsaCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+The CSA profiles from the [CSA native CRAC format](csa) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [CsaCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-csa-profiles/src/main/java/com/powsybl/openrao/data/cracio/csaprofile/parameters/CsaCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
 
 ### capacity-calculation-region-eic-code
 

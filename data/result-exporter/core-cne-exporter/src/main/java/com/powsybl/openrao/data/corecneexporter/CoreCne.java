@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.corecneexporter.xsd.CriticalNetworkElementMarket
 import com.powsybl.openrao.data.corecneexporter.xsd.Point;
 import com.powsybl.openrao.data.corecneexporter.xsd.SeriesPeriod;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;

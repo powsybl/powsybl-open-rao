@@ -151,7 +151,7 @@ public class Leaf implements OptimizationResult {
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult);
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
@@ -163,7 +163,7 @@ public class Leaf implements OptimizationResult {
         }
         preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
         preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
+        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult);
         status = Status.EVALUATED;
     }
 
@@ -223,9 +223,9 @@ public class Leaf implements OptimizationResult {
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
-            BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation failed", this);
+            BUSINESS_WARNS.warn("Impossible to optimize leaf: {} because evaluation failed", this);
         } else if (status.equals(Status.CREATED)) {
-            BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", this);
+            BUSINESS_WARNS.warn("Impossible to optimize leaf: {} because evaluation has not been performed", this);
         }
     }
 
@@ -337,6 +337,17 @@ public class Leaf implements OptimizationResult {
             return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
                     .mapToDouble(s -> postOptimResult.getActivatedRangeActions(s).size())
                     .sum();
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        if (status == Status.EVALUATED) {
+            return preOptimFlowResult.getMargin(flowCnec, unit);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getMargin(flowCnec, unit);
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }

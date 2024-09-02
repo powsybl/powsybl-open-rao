@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RedispatchActionWithAutoGlskTest {
+class RedispatchActionWithAutoGlskTest {
     private static final double SHIFT_TOLERANCE = 0.01;
 
     private Network network;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         String networkFileName = "TestCase_with_swe_countries.xiidm";
         network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         // Initial situation in ES (4 generators, total production of 9500 MW):
@@ -36,7 +36,7 @@ public class RedispatchActionWithAutoGlskTest {
     }
 
     @Test
-    public void testNoShift() {
+    void testNoShift() {
         new RedispatchActionWithAutoGlsk(Set.of(), Country.ES).apply(network, 0.0);
         assertEquals(1500., network.getGenerator("EES1AA11_generator").getTargetP(), SHIFT_TOLERANCE);
         assertEquals(3000., network.getGenerator("EES2AA11_generator").getTargetP(), SHIFT_TOLERANCE);
@@ -45,7 +45,7 @@ public class RedispatchActionWithAutoGlskTest {
     }
 
     @Test
-    public void testShiftAllUp() {
+    void testShiftAllUp() {
         new RedispatchActionWithAutoGlsk(Set.of(), Country.ES).apply(network, 100.0);
         assertEquals(1500. + 15.79, network.getGenerator("EES1AA11_generator").getTargetP(), SHIFT_TOLERANCE);
         assertEquals(3000. + 31.58, network.getGenerator("EES2AA11_generator").getTargetP(), SHIFT_TOLERANCE);
@@ -54,7 +54,7 @@ public class RedispatchActionWithAutoGlskTest {
     }
 
     @Test
-    public void testShiftAllDown() {
+    void testShiftAllDown() {
         new RedispatchActionWithAutoGlsk(Set.of(), Country.ES).apply(network, -200.0);
         assertEquals(1500. - 2 * 15.79, network.getGenerator("EES1AA11_generator").getTargetP(), SHIFT_TOLERANCE);
         assertEquals(3000. - 2 * 31.58, network.getGenerator("EES2AA11_generator").getTargetP(), SHIFT_TOLERANCE);
@@ -63,7 +63,7 @@ public class RedispatchActionWithAutoGlskTest {
     }
 
     @Test
-    public void testExcludeOneAndShiftUp() {
+    void testExcludeOneAndShiftUp() {
         // If we exclude EES2AA11_generator, total production is down to 6500 MW. New coefficients are:
         // EES1AA11_generator: 1500 / 6500 = 23.08 %
         // EES3AA11_generator & EES4AA11_generator: 2500 / 6500 = 38.46 %
@@ -75,7 +75,7 @@ public class RedispatchActionWithAutoGlskTest {
     }
 
     @Test
-    public void testExcludeTwoAndShiftDown() {
+    void testExcludeTwoAndShiftDown() {
         // If we exclude EES1AA11_generator & EES3AA11_generator, total production is down to 5500 MW. New coefficients are:
         // EES2AA11_generator: 3000 / 5500 = 54.55 %
         // EES4AA11_generator: 2500 / 5500 = 45.45 %

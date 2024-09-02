@@ -53,7 +53,7 @@ class InstantTest {
 
         @Override
         public <E extends Extension<Instant>> void addExtension(Class<? super E> aClass, E e) {
-
+            //not used
         }
 
         @Override

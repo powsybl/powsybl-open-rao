@@ -25,7 +25,6 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.api.PerimeterResult;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
@@ -56,7 +55,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     private Instant autoInstant;
     private Instant curativeInstant;
     private PrePerimeterResult initialResult;
-    private PerimeterResult postPrevResult;
+    private OptimizationResult postPrevResult;
     private PrePerimeterResult preCurativeResult;
     private PstRangeAction pstRangeAction;
     private RangeAction<?> rangeAction;
@@ -174,7 +173,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeState3.getInstant()).thenReturn(curativeInstant);
 
         initialResult = mock(PrePerimeterResult.class);
-        postPrevResult = mock(PerimeterResult.class);
+        postPrevResult = mock(OptimizationResult.class);
         preCurativeResult = mock(PrePerimeterResult.class);
 
         autoResult1 = mock(OptimizationResult.class);
@@ -326,8 +325,11 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetComputationStatus() {
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(autoResult1.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult1.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
+
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
 
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
@@ -339,7 +341,18 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
+
+        when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
+
+        when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
+
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }
 
     @Test
@@ -608,8 +621,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     void testGetLoopFlow() {
         when(initialResult.getLoopFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
         when(preCurativeResult.getLoopFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
-        when(curativeResult2.getFlow(cnec3, TWO, MEGAWATT)).thenReturn(90.);
-        when(curativeResult2.getCommercialFlow(cnec3, TWO, MEGAWATT)).thenReturn(60.);
+        when(curativeResult2.getLoopFlow(cnec3, TWO, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getLoopFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getLoopFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
@@ -648,54 +660,54 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         when(curativeResult2.getSensitivityStatus(curativeState2)).thenReturn(ComputationStatus.DEFAULT);
 
-        PerimeterResult perimeterResult;
+        OptimizationResult optimizationResult;
 
         // null
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, preventiveState));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, outageState));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, autoState1));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, curativeState1));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, curativeState2));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, preventiveState));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, outageState));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, autoState1));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, curativeState1));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, curativeState2));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
 
         // PREVENTIVE
-        perimeterResult = output.getPerimeterResult(preventiveInstant, preventiveState);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(preventiveInstant, outageState);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(preventiveInstant, autoState1);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState1);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState2);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, preventiveState);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, outageState);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, autoState1);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, curativeState1);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, curativeState2);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
 
         // AUTO
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(autoInstant, preventiveState));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(autoInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state auto is not allowed", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(autoInstant, outageState));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(autoInstant, outageState));
         assertEquals("Trying to access results for instant outage at optimization state auto is not allowed", exception.getMessage());
-        perimeterResult = output.getPerimeterResult(autoInstant, autoState1);
-        assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(autoInstant, curativeState1);
-        assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        assertNull(output.getPerimeterResult(autoInstant, curativeState2));
+        optimizationResult = output.getOptimizationResult(autoInstant, autoState1);
+        assertEquals(3., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(autoInstant, curativeState1);
+        assertEquals(3., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        assertNull(output.getOptimizationResult(autoInstant, curativeState2));
 
         // CURATIVE
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(curativeInstant, preventiveState));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(curativeInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state curative is not allowed", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(curativeInstant, outageState));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(curativeInstant, outageState));
         assertEquals("Trying to access results for instant outage at optimization state curative is not allowed", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(curativeInstant, autoState1));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(curativeInstant, autoState1));
         assertEquals("Trying to access results for instant auto at optimization state curative is not allowed", exception.getMessage());
-        perimeterResult = output.getPerimeterResult(curativeInstant, curativeState1);
-        assertEquals(4., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(curativeInstant, curativeState2);
-        assertEquals(5., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(curativeInstant, curativeState1);
+        assertEquals(4., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(curativeInstant, curativeState2);
+        assertEquals(5., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
 
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus(curativeState2));
     }
@@ -907,53 +919,53 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeResult1.getPtdfZonalSum(cnec1, ONE)).thenReturn(4.);
         when(curativeResult2.getPtdfZonalSum(cnec1, ONE)).thenReturn(5.);
 
-        PerimeterResult perimeterResult;
+        OptimizationResult optimizationResult;
 
         // null
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, preventiveState));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, outageState));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, autoState1));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, curativeState1));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(null, curativeState2));
-        assertEquals("No PerimeterResult for INITIAL optimization state", exception.getMessage());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, preventiveState));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, outageState));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, autoState1));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, curativeState1));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(null, curativeState2));
+        assertEquals("No OptimizationResult for INITIAL optimization state", exception.getMessage());
 
         // PREVENTIVE
-        perimeterResult = output.getPerimeterResult(preventiveInstant, preventiveState);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(preventiveInstant, outageState);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(preventiveInstant, autoState1);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState1);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(preventiveInstant, curativeState2);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, preventiveState);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, outageState);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, autoState1);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, curativeState1);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
+        optimizationResult = output.getOptimizationResult(preventiveInstant, curativeState2);
+        assertEquals(2., optimizationResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
 
         // AUTO
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(autoInstant, preventiveState));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(autoInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state auto is not allowed", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(autoInstant, outageState));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(autoInstant, outageState));
         assertEquals("Trying to access results for instant outage at optimization state auto is not allowed", exception.getMessage());
-        assertNull(output.getPerimeterResult(autoInstant, autoState1));
+        assertNull(output.getOptimizationResult(autoInstant, autoState1));
 
         // CURATIVE
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(curativeInstant, preventiveState));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(curativeInstant, preventiveState));
         assertEquals("Trying to access results for instant preventive at optimization state curative is not allowed", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(curativeInstant, outageState));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(curativeInstant, outageState));
         assertEquals("Trying to access results for instant outage at optimization state curative is not allowed", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPerimeterResult(curativeInstant, autoState1));
+        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(curativeInstant, autoState1));
         assertEquals("Trying to access results for instant auto at optimization state curative is not allowed", exception.getMessage());
-        assertNull(output.getPerimeterResult(curativeInstant, curativeState1));
-        assertNull(output.getPerimeterResult(curativeInstant, curativeState2));
+        assertNull(output.getOptimizationResult(curativeInstant, curativeState1));
+        assertNull(output.getOptimizationResult(curativeInstant, curativeState2));
     }
 
     @Test
     void testRemedialActionsExcludedFrom2p() {
-        PerimeterResult secondPreventivePerimeterResult = Mockito.mock(PerimeterResult.class);
+        OptimizationResult secondPreventivePerimeterResult = Mockito.mock(OptimizationResult.class);
         Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive = Set.of(pstRangeAction);
 
         output = new PreventiveAndCurativesRaoResultImpl(
@@ -989,7 +1001,7 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testWithFinalCostEvaluator() {
-        PerimeterResult secondPreventivePerimeterResult = Mockito.mock(PerimeterResult.class);
+        OptimizationResult secondPreventivePerimeterResult = Mockito.mock(OptimizationResult.class);
         ObjectiveFunctionResult postSecondAraoResults = Mockito.mock(ObjectiveFunctionResult.class);
         Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive = Set.of(pstRangeAction);
 

@@ -164,6 +164,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     bigM
                 );
             } catch (OpenRaoException ignored) {
+                //exception is ignored
             }
             try {
                 updateMinimumMarginConstraint(
@@ -172,6 +173,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     bigM
                 );
             } catch (OpenRaoException ignored) {
+                //exception is ignored
             }
             try {
                 updateMinimumMarginConstraint(
@@ -180,6 +182,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     bigM
                 );
             } catch (OpenRaoException ignored) {
+                //exception is ignored
             }
             try {
                 updateMinimumMarginConstraint(
@@ -188,6 +191,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     bigM
                 );
             } catch (OpenRaoException ignored) {
+                //exception is ignored
             }
         }));
     }

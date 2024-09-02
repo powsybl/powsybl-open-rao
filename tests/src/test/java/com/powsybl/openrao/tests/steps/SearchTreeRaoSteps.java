@@ -137,6 +137,11 @@ public class SearchTreeRaoSteps {
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
     }
 
+    @Then("the calculation partially fails")
+    public void theCalculationPartiallyFails() {
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, raoResult.getComputationStatus());
+    }
+
     @Then("the calculation fails")
     public void theCalculationFails() {
         assertEquals(ComputationStatus.FAILURE, raoResult.getComputationStatus());
@@ -589,36 +594,6 @@ public class SearchTreeRaoSteps {
     public void loopflowThresholdInMW(String cnecId, Double expectedFlow) {
         FlowCnec cnec = crac.getFlowCnec(cnecId);
         assertEquals(expectedFlow, cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
-    }
-
-    /*
-    sensitivity analysis status
-     */
-
-    @Then("the status of the last sensitivity analysis is {string}")
-    public void statusSensitivityAnalysis(String lastSensiParams) {
-        // temporary switch, linear rao is not up to date
-        assertTrue(true);
-
-        /*LinearRaoResult linearRaoResult = raoResult.getExtension(LinearRaoResult.class);
-
-        if (linearRaoResult != null && linearRaoResult.getSystematicSensitivityAnalysisStatus() != null) {
-            switch (lastSensiParams) {
-                case "DEFAULT":
-                    assertEquals(SystematicSensitivityAnalysisStatus.DEFAULT, linearRaoResult.getSystematicSensitivityAnalysisStatus());
-                    break;
-                case "FALLBACK":
-                    assertEquals(SystematicSensitivityAnalysisStatus.FALLBACK, linearRaoResult.getSystematicSensitivityAnalysisStatus());
-                    break;
-                case "FAILURE":
-                    assertEquals(SystematicSensitivityAnalysisStatus.FAILURE, linearRaoResult.getSystematicSensitivityAnalysisStatus());
-                    break;
-                default:
-                    throw new Exception("Invalid sensitivity parameters");
-            }
-        } else {
-            throw new Exception("No indication on last sensitivity parameters in RaoResult!");
-        }*/
     }
 
     /*

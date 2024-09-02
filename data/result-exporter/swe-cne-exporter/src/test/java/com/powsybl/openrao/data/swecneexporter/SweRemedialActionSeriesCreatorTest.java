@@ -13,9 +13,9 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.PstRangeActionSeriesCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.RemedialActionSeriesCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.PstRangeActionSeriesCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.RemedialActionSeriesCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.RemedialActionSeries;
@@ -132,8 +132,8 @@ class SweRemedialActionSeriesCreatorTest {
         } else {
             rascc = Mockito.mock(RemedialActionSeriesCreationContext.class);
         }
-        Mockito.when(rascc.getNativeId()).thenReturn(nativeId);
-        Mockito.when(rascc.getCreatedIds()).thenReturn(createdIds);
+        Mockito.when(rascc.getNativeObjectId()).thenReturn(nativeId);
+        Mockito.when(rascc.getCreatedObjectsIds()).thenReturn(createdIds);
         Mockito.when(rascc.isInverted()).thenReturn(isInverted);
         Mockito.when(rascc.isImported()).thenReturn(isImported);
         return rascc;
