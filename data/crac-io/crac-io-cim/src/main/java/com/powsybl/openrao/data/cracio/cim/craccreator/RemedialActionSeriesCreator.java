@@ -238,13 +238,8 @@ public class RemedialActionSeriesCreator {
     }
 
     private void readRemedialAction(RemedialActionSeries remedialActionSeries) {
-        String createdRemedialActionId = remedialActionSeries.getMRID();
-        String createdRemedialActionName = remedialActionSeries.getName();
-        List<RemedialActionRegisteredResource> remedialActionRegisteredResources = remedialActionSeries.getRegisteredResource();
-        String applicationModeMarketObjectStatus = remedialActionSeries.getApplicationModeMarketObjectStatusStatus();
-
         // 1) Check if Remedial Action is a Pst Range Action :
-        if (identifyAndReadPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus)) {
+        if (identifyAndReadPstRangeAction(remedialActionSeries)) {
             return;
         }
         // 2) Check if Remedial Action is part of a HVDC Range Action :
@@ -253,11 +248,14 @@ public class RemedialActionSeriesCreator {
         }
 
         // 3) Suppose that Remedial Action is a Network Action :
-        readNetworkAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus);
+        readNetworkAction(remedialActionSeries);
     }
 
     // Return true if PST range action has been read.
-    private boolean identifyAndReadPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
+    private boolean identifyAndReadPstRangeAction(RemedialActionSeries remedialActionSeries) {
+        String createdRemedialActionId = remedialActionSeries.getMRID();
+        List<RemedialActionRegisteredResource> remedialActionRegisteredResources = remedialActionSeries.getRegisteredResource();
+
         for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
             String psrType = remedialActionRegisteredResource.getPSRTypePsrType();
             if (Objects.isNull(psrType)) {
@@ -272,15 +270,14 @@ public class RemedialActionSeriesCreator {
                 }
                 if (!pstRangeActionCreators.containsKey(createdRemedialActionId)
                     || !pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionCreationContext().isImported()) {
-                    PstRangeActionCreator pstRangeActionCreator = new PstRangeActionCreator(crac, network,
-                        createdRemedialActionId, createdRemedialActionName, applicationModeMarketObjectStatus, remedialActionRegisteredResource,
+                    PstRangeActionCreator pstRangeActionCreator = new PstRangeActionCreator(remedialActionSeries, remedialActionRegisteredResource,
                         contingencies, invalidContingencies, cnecs, sharedDomain);
-                    pstRangeActionCreator.createPstRangeActionAdder(cimCracCreationParameters);
+                    pstRangeActionCreator.createPstRangeActionAdder(crac, network, cimCracCreationParameters);
                     pstRangeActionCreators.put(createdRemedialActionId, pstRangeActionCreator);
                 } else {
                     // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
                     // In this case, only import extra usage rules
-                    addExtraUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder());
+                    addExtraUsageRules(remedialActionSeries.getApplicationModeMarketObjectStatusStatus(), createdRemedialActionId, pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder());
                 }
                 return true;
 
@@ -321,20 +318,18 @@ public class RemedialActionSeriesCreator {
         return false;
     }
 
-    private void readNetworkAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
+    private void readNetworkAction(RemedialActionSeries remedialActionSeries) {
+        String createdRemedialActionId = remedialActionSeries.getMRID();
         if (!networkActionCreators.containsKey(createdRemedialActionId)
             || !networkActionCreators.get(createdRemedialActionId).getNetworkActionCreationContext().isImported()) {
-            NetworkActionCreator networkActionCreator = new NetworkActionCreator(
-                crac, network,
-                createdRemedialActionId, createdRemedialActionName, applicationModeMarketObjectStatus,
-                remedialActionRegisteredResources,
+            NetworkActionCreator networkActionCreator = new NetworkActionCreator(crac, network, remedialActionSeries,
                 contingencies, invalidContingencies, cnecs, sharedDomain);
             networkActionCreator.createNetworkActionAdder();
             networkActionCreators.put(createdRemedialActionId, networkActionCreator);
         } else {
             // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
             // In this case, only import extra usage rules
-            addExtraUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
+            addExtraUsageRules(remedialActionSeries.getApplicationModeMarketObjectStatusStatus(), createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
         }
     }
 
@@ -350,10 +345,10 @@ public class RemedialActionSeriesCreator {
 
     public static RemedialActionSeriesCreationContext importPstRaWithContingencies(String createdRemedialActionId, String networkElementNativeMrid, String networkElementNativeName, List<String> invalidContingencies) {
         if (invalidContingencies.isEmpty()) {
-            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, false, "");
+            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, false, "", networkElementNativeMrid, networkElementNativeName);
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, true, String.format("Contingencies %s were not imported", contingencyList));
+            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s were not imported", contingencyList), networkElementNativeMrid, networkElementNativeName);
         }
     }
 

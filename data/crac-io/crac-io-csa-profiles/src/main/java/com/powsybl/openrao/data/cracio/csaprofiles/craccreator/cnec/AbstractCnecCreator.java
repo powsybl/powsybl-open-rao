@@ -11,9 +11,9 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.commons.cgmes.CgmesBranchHelper;
@@ -21,8 +21,8 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
+import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -33,23 +33,32 @@ public abstract class AbstractCnecCreator {
     protected final Crac crac;
     protected final Network network;
     protected final AssessedElement nativeAssessedElement;
-    protected final List<Contingency> linkedContingencies;
-    protected Set<ElementaryCreationContext> csaProfileCnecCreationContexts;
-    protected final CsaProfileCracCreationContext cracCreationContext;
+    protected final Set<Contingency> linkedContingencies;
+    protected final Set<ElementaryCreationContext> csaProfileCnecCreationContexts;
     protected final String rejectedLinksAssessedElementContingency;
     protected final boolean aeSecuredForRegion;
     protected final boolean aeScannedForRegion;
 
-    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, List<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
+    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters) {
         this.crac = crac;
         this.network = network;
         this.nativeAssessedElement = nativeAssessedElement;
         this.linkedContingencies = linkedContingencies;
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
-        this.cracCreationContext = cracCreationContext;
         this.rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency;
-        this.aeSecuredForRegion = aeSecuredForRegion;
-        this.aeScannedForRegion = aeScannedForRegion;
+        String regionEic = cracCreationParameters.getExtension(CsaCracCreationParameters.class).getCapacityCalculationRegionEicCode();
+        this.aeSecuredForRegion = isAeSecuredForRegion(regionEic);
+        this.aeScannedForRegion = isAeScannedForRegion(regionEic);
+    }
+
+    private boolean isAeSecuredForRegion(String regionEic) {
+        String region = nativeAssessedElement.securedForRegion() == null ? null : CsaProfileCracUtils.getEicFromUrl(nativeAssessedElement.securedForRegion());
+        return region != null && region.equals(regionEic);
+    }
+
+    private boolean isAeScannedForRegion(String regionEic) {
+        String region = nativeAssessedElement.scannedForRegion() == null ? null : CsaProfileCracUtils.getEicFromUrl(nativeAssessedElement.scannedForRegion());
+        return region != null && region.equals(regionEic);
     }
 
     protected Identifiable<?> getNetworkElementInNetwork(String networkElementId) {

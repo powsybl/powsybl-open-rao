@@ -81,14 +81,16 @@ public class CsaProfileRemedialActionsCreator {
                 RemedialActionAdder<?> remedialActionAdder;
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
                     remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid(), elementaryActionsAggregatorId, alterations);
-                    fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
+                    remedialActionAdder.withName(nativeRemedialAction.getUniqueName());
+                    fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder);
                 } else {
                     if (elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).size() > 1) {
                         // group TapPositionAction's
                         for (TapPositionAction nativeTapPositionAction : elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId)) {
                             try {
                                 remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(true, elementaryActionsAggregatorId, nativeTapPositionAction, elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeTapPositionAction.mrid());
-                                fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, createNameFromTapPositionAction(nativeTapPositionAction.mrid(), nativeRemedialAction.operator()));
+                                remedialActionAdder.withName(createNameFromTapPositionAction(nativeTapPositionAction.mrid(), nativeRemedialAction.operator()));
+                                fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder);
                             } catch (OpenRaoImportException e) {
                                 if (e.getImportStatus().equals(ImportStatus.NOT_FOR_RAO)) {
                                     contextByRaId.put(nativeTapPositionAction.mrid(), StandardElementaryCreationContext.notImported(nativeTapPositionAction.mrid(), null, e.getImportStatus(), e.getMessage()));
@@ -99,7 +101,8 @@ public class CsaProfileRemedialActionsCreator {
                         }
                     } else {
                         remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(false, elementaryActionsAggregatorId, elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).iterator().next(), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid());
-                        fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
+                        remedialActionAdder.withName( nativeRemedialAction.getUniqueName());
+                        fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder);
                     }
                 }
 
@@ -119,9 +122,7 @@ public class CsaProfileRemedialActionsCreator {
 
     private void fillAndSaveRemedialActionAdderAndContext(Set<AssessedElement> nativeAssessedElements, Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa, Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa,
                                                           int spsMaxTimeToImplementThreshold, Set<ElementaryCreationContext> cnecCreationContexts, RemedialAction nativeRemedialAction, List<String> alterations,
-                                                          boolean isSchemeRemedialAction, RemedialActionType remedialActionType, RemedialActionAdder<?> remedialActionAdder, String remedialActionName) {
-
-        remedialActionAdder.withName(remedialActionName);
+                                                          boolean isSchemeRemedialAction, RemedialActionType remedialActionType, RemedialActionAdder<?> remedialActionAdder) {
         if (nativeRemedialAction.operator() != null) {
             remedialActionAdder.withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
         }
@@ -132,34 +133,34 @@ public class CsaProfileRemedialActionsCreator {
         }
 
         InstantKind instantKind = getInstantKind(isSchemeRemedialAction, nativeRemedialAction, spsMaxTimeToImplementThreshold);
-        crac.getInstants(instantKind).forEach(instant -> addUsageRules(nativeRemedialAction.mrid(), nativeAssessedElements, linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
+
+        String remedialActionId = nativeRemedialAction.mrid();
+        Set<AssessedElementWithRemedialAction> linkedAssessedElements = linkedAeWithRa.getOrDefault(remedialActionId, Set.of());
+        Set<ContingencyWithRemedialAction> linkedContingencies = linkedCoWithRa.getOrDefault(remedialActionId, Set.of());
+        if (!linkedAssessedElements.isEmpty()) {
+            Map<String, AssociationStatus> cnecStatusMap = OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, remedialActionId, nativeAssessedElements, linkedAssessedElements, linkedContingencies, cnecCreationContexts);
+            crac.getInstants(instantKind).forEach(instant -> addOnConstraintUsageRules(cnecStatusMap, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
+        } else if (!linkedContingencies.isEmpty()){
+            if (instantKind.equals(InstantKind.PREVENTIVE)) {
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action %s will not be imported because it is linked to a contingency but is not curative".formatted(remedialActionId));
+            }
+            Map<String, AssociationStatus> contingencyStatusMap = OnContingencyStateUsageRuleHelper.processContingenciesLinkedToRemedialAction(crac, remedialActionId, linkedContingencies);
+            crac.getInstants(instantKind).forEach(instant -> addOnContingencyStateUsageRules(contingencyStatusMap, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType));
+        } else {
+            crac.getInstants(instantKind).forEach(instant -> addOnInstantUsageRules(remedialActionId, remedialActionAdder, instant));
+        }
+
         remedialActionAdder.add();
 
         if (alterations.isEmpty()) {
-            contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(nativeRemedialAction.mrid(), null, nativeRemedialAction.mrid(), false, ""));
+            contextByRaId.put(remedialActionId, StandardElementaryCreationContext.imported(remedialActionId, null, remedialActionId, false, ""));
         } else {
-            contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(nativeRemedialAction.mrid(), null, nativeRemedialAction.mrid(), true, String.join(". ", alterations)));
+            contextByRaId.put(remedialActionId, StandardElementaryCreationContext.imported(remedialActionId, null, remedialActionId, true, String.join(". ", alterations)));
         }
     }
 
-    private void addUsageRules(String
-                                   remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
-                                   remedialActionAdder, List<String> alterations, Instant instant,
-                               boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
-        if (addOnConstraintUsageRules(remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType)) {
-            return;
-        }
-        if (addOnContingencyStateUsageRules(remedialActionId, linkedContingencyWithRemedialActions, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType)) {
-            return;
-        }
-        addOnInstantUsageRules(remedialActionId, remedialActionAdder, instant);
-    }
-
-    private boolean addOnConstraintUsageRules(String
-                                                  remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
-                                                  remedialActionAdder, List<String> alterations, Instant instant,
-                                              boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
-        Map<String, AssociationStatus> cnecStatusMap = OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts);
+    private void addOnConstraintUsageRules(Map<String, AssociationStatus> cnecStatusMap, RemedialActionAdder<?> remedialActionAdder,
+                                           List<String> alterations, Instant instant, boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
         cnecStatusMap.forEach((cnecId, cnecStatus) -> {
             if (cnecStatus.isValid()) {
                 Cnec<?> cnec = crac.getCnec(cnecId);
@@ -175,17 +176,10 @@ public class CsaProfileRemedialActionsCreator {
                 alterations.add(cnecStatus.statusDetails());
             }
         });
-        return !linkedAssessedElementWithRemedialActions.isEmpty();
     }
 
-    private boolean addOnContingencyStateUsageRules(String
-                                                        remedialActionId, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, RemedialActionAdder<?>
-                                                        remedialActionAdder, List<String> alterations, Instant instant,
-                                                    boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
-        Map<String, AssociationStatus> contingencyStatusMap = OnContingencyStateUsageRuleHelper.processContingenciesLinkedToRemedialAction(crac, remedialActionId, linkedContingencyWithRemedialActions);
-        if (instant.isPreventive() && !linkedContingencyWithRemedialActions.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action %s will not be imported because it is linked to a contingency but is not curative".formatted(remedialActionId));
-        }
+    private void addOnContingencyStateUsageRules(Map<String, AssociationStatus> contingencyStatusMap, RemedialActionAdder<?> remedialActionAdder,
+                                                 List<String> alterations, Instant instant, boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
         contingencyStatusMap.forEach((contingencyId, contingencyStatus) -> {
             if (contingencyStatus.isValid()) {
                 remedialActionAdder.newOnContingencyStateUsageRule()
@@ -197,11 +191,9 @@ public class CsaProfileRemedialActionsCreator {
                 alterations.add(contingencyStatus.statusDetails());
             }
         });
-        return !linkedContingencyWithRemedialActions.isEmpty();
     }
 
-    private void addOnInstantUsageRules(String remedialActionId, RemedialActionAdder<?>
-        remedialActionAdder, Instant instant) {
+    private void addOnInstantUsageRules(String remedialActionId, RemedialActionAdder<?> remedialActionAdder, Instant instant) {
         if (instant.isAuto()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action %s will not be imported because no contingency or assessed element is linked to the remedial action and this is nor supported for ARAs".formatted(remedialActionId));
         }

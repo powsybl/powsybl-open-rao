@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
+import com.powsybl.openrao.data.cracio.cim.xsd.RemedialActionSeries;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracapi.parameters.RangeActionGroup;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
@@ -32,8 +33,6 @@ import java.util.Set;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class PstRangeActionCreator {
-    private final Crac crac;
-    private final Network network;
     private final String createdRemedialActionId;
     private final String createdRemedialActionName;
     private final String applicationModeMarketObjectStatus;
@@ -45,20 +44,18 @@ public class PstRangeActionCreator {
     private PstRangeActionAdder pstRangeActionAdder;
     private final Country sharedDomain;
 
-    public PstRangeActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, RemedialActionRegisteredResource pstRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain) {
-        this.crac = crac;
-        this.network = network;
-        this.createdRemedialActionId = createdRemedialActionId;
-        this.createdRemedialActionName = createdRemedialActionName;
-        this.applicationModeMarketObjectStatus = applicationModeMarketObjectStatus;
-        this.pstRegisteredResource = pstRegisteredResource;
+    public PstRangeActionCreator(RemedialActionSeries remedialActionSeries, RemedialActionRegisteredResource remedialActionRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain) {
+        this.createdRemedialActionId = remedialActionSeries.getMRID();
+        this.createdRemedialActionName = remedialActionSeries.getName();
+        this.applicationModeMarketObjectStatus = remedialActionSeries.getApplicationModeMarketObjectStatusStatus();
+        this.pstRegisteredResource = remedialActionRegisteredResource;
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
         this.cnecs = cnecs;
         this.sharedDomain = sharedDomain;
     }
 
-    public void createPstRangeActionAdder(CimCracCreationParameters cimCracCreationParameters) {
+    public void createPstRangeActionAdder(Crac crac, Network network, CimCracCreationParameters cimCracCreationParameters) {
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = pstRegisteredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {

@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.cracio.cim.xsd.RemedialActionSeries;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.cracio.cim.xsd.RemedialActionRegisteredResource;
@@ -44,13 +45,13 @@ public class NetworkActionCreator {
     private final Set<Cnec<?>> cnecs;
     private final Country sharedDomain;
 
-    public NetworkActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, List<RemedialActionRegisteredResource> networkActionRegisteredResources, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain) {
+    public NetworkActionCreator(Crac crac, Network network, RemedialActionSeries remedialActionSeries, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain) {
         this.crac = crac;
         this.network = network;
-        this.createdRemedialActionId = createdRemedialActionId;
-        this.createdRemedialActionName = createdRemedialActionName;
-        this.applicationModeMarketObjectStatus = applicationModeMarketObjectStatus;
-        this.networkActionRegisteredResources = networkActionRegisteredResources;
+        this.createdRemedialActionId = remedialActionSeries.getMRID();
+        this.createdRemedialActionName = remedialActionSeries.getName();
+        this.applicationModeMarketObjectStatus = remedialActionSeries.getApplicationModeMarketObjectStatusStatus();
+        this.networkActionRegisteredResources = remedialActionSeries.getRegisteredResource();
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
         this.cnecs = cnecs;
