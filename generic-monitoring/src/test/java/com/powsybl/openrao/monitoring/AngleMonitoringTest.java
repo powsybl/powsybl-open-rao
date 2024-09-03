@@ -78,7 +78,7 @@ public class AngleMonitoringTest {
         network = Network.read(Paths.get(new File(AngleMonitoringTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracCreationContext cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
-        crac = cracCreationContext.getCrac();crac = cracCreationContext.getCrac();
+        crac = cracCreationContext.getCrac();
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         glskOffsetDateTime = OffsetDateTime.parse("2021-04-02T05:30Z");
     }
@@ -239,7 +239,6 @@ public class AngleMonitoringTest {
         assertEquals("acCur1", angleMonitoringResult.getCnecResults().stream().findFirst().orElseThrow().getCnec().getId());
         assertEquals(Cnec.CnecSecurityStatus.SECURE, angleMonitoringResult.getStatus());
     }
-
 
     @Test
     void testCracCim() throws IOException {
