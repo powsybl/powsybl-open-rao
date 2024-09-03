@@ -4,7 +4,7 @@
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "curative-min-obj-improvement" : 50.0,
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
-    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE_AND_SECURE"
+    "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,

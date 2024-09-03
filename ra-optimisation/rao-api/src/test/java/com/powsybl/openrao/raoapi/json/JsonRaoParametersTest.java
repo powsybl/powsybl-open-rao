@@ -54,9 +54,8 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         // Objective Function parameters
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
-        parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
-        parameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
+        parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         // RangeActionsOptimization parameters
         parameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
         parameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(10);
@@ -176,7 +175,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "CurStopCriterionError", "WrongField"})
+    @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "WrongField"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
         assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));

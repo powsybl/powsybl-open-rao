@@ -3,7 +3,6 @@
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "preventive-stop-criterion" : "SECURE",
-    "curative-stop-criterion" : "MIN_OBJECTIVE",
     "curative-min-obj-improvement" : 0.0
   },
   "range-actions-optimization" : {

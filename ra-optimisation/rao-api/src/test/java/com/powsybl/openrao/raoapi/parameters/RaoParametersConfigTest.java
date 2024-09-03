@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
+
 class RaoParametersConfigTest {
     private PlatformConfig mockedPlatformConfig;
     private InMemoryPlatformConfig platformCfg;
@@ -52,8 +53,7 @@ class RaoParametersConfigTest {
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, objectiveFunctionParameters.getType());
         assertEquals(123, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
-        assertEquals(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE, objectiveFunctionParameters.getCurativeStopCriterion());
-        assertTrue(objectiveFunctionParameters.getOptimizeCurativeIfPreventiveUnsecure());
+        assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
     }
 
     @Test
