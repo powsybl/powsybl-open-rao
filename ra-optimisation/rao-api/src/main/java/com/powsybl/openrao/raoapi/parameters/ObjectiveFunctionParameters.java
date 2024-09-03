@@ -40,7 +40,9 @@ public class ObjectiveFunctionParameters {
         MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
         MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE),
         MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
-        MAX_MIN_RELATIVE_MARGIN_IN_AMPERE(Unit.AMPERE);
+        MAX_MIN_RELATIVE_MARGIN_IN_AMPERE(Unit.AMPERE),
+        MIN_COST_MEGAWATT(Unit.MEGAWATT),
+        MIN_COST_AMPERE(Unit.AMPERE);
 
         private final Unit unit;
 
@@ -54,6 +56,10 @@ public class ObjectiveFunctionParameters {
 
         public boolean relativePositiveMargins() {
             return this.equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) || this.equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        }
+
+        public boolean isMinCost() {
+            return this.equals(MIN_COST_MEGAWATT) || this.equals(MIN_COST_AMPERE);
         }
     }
 

@@ -319,7 +319,8 @@
       "min" : -1,
       "max" : 4,
       "rangeType" : "relativeToPreviousTimeStep"
-    } ]
+    } ],
+    "cost" : 3.2
   } ],
   "hvdcRangeActions" : [ {
     "id" : "hvdcRange1Id",
@@ -369,11 +370,12 @@
     },
     "initialSetpoint" : 50,
     "ranges" : [ {
-      "min" : -500.0,
-      "max" : 500.0
+      "min" : -100.0,
+      "max" : 300.0
     }, {
-      "min" : -1000.0,
-      "max" : 1000.0
+      "min" : -400.0,
+      "max" : 600.0,
+      "rangeType" : "relativeToPreviousTimeStep"
     } ]
   } ],
   "counterTradeRangeActions" : [ {

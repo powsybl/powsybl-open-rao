@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
 import com.powsybl.openrao.data.cracapi.range.TapRange;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
@@ -746,23 +747,40 @@ class JsonRetrocompatibilityTest {
     private void testContentOfV2Point3Crac(Crac crac) {
         testContentOfV2Point2Crac(crac);
 
+        PstRangeAction pstRangeAction4 = crac.getPstRangeAction("pstRange4Id");
         // check that RangeAction4 is present with new range relative to previous instant
-        assertNotNull(crac.getRangeAction("pstRange4Id"));
-        assertEquals(2, crac.getPstRangeAction("pstRange4Id").getRanges().size());
-        TapRange absRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
+        assertNotNull(pstRangeAction4);
+
+        // check Tap Range
+        assertEquals(2, pstRangeAction4.getRanges().size());
+
+        TapRange pstAbsRange = pstRangeAction4.getRanges().stream()
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+                .findAny().orElse(null);
+        TapRange pstRelTimeStepRange = pstRangeAction4.getRanges().stream()
+                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
+                .findAny().orElse(null);
+        assertNotNull(pstAbsRange);
+        assertEquals(-2, pstAbsRange.getMinTap());
+        assertEquals(7, pstAbsRange.getMaxTap());
+        assertNotNull(pstRelTimeStepRange);
+        assertEquals(-1, pstRelTimeStepRange.getMinTap());
+        assertEquals(4, pstRelTimeStepRange.getMaxTap());
+        assertEquals(Unit.TAP, pstRelTimeStepRange.getUnit());
+        assertEquals(3.2, pstRangeAction4.getActivationCost());
+
+        StandardRange injectionAbsRange = crac.getInjectionRangeAction("injectionRange1Id").getRanges().stream()
             .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
             .findAny().orElse(null);
-        TapRange relTimeStepRange = crac.getPstRangeAction("pstRange4Id").getRanges().stream()
+        StandardRange injectionRelTimeStepRange = crac.getInjectionRangeAction("injectionRange1Id").getRanges().stream()
             .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
             .findAny().orElse(null);
-
-        assertNotNull(absRange);
-        assertEquals(-2, absRange.getMinTap());
-        assertEquals(7, absRange.getMaxTap());
-        assertNotNull(relTimeStepRange);
-        assertEquals(-1, relTimeStepRange.getMinTap());
-        assertEquals(4, relTimeStepRange.getMaxTap());
-        assertEquals(Unit.TAP, relTimeStepRange.getUnit());
+        assertNotNull(injectionAbsRange);
+        assertEquals(-100.0, injectionAbsRange.getMin());
+        assertEquals(300.0, injectionAbsRange.getMax());
+        assertNotNull(injectionRelTimeStepRange);
+        assertEquals(-400, injectionRelTimeStepRange.getMin());
+        assertEquals(600, injectionRelTimeStepRange.getMax());
 
         // check new border attribute
         assertEquals("border1", crac.getCnec("cnec1outageId").getBorder());

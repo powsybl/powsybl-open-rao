@@ -7,11 +7,10 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -29,15 +28,13 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  */
 public class MinCostHardFiller implements ProblemFiller {
     protected final Set<FlowCnec> optimizedCnecs;
-    private final Unit unit;
-    private final Map<State, Set<PstRangeAction>> rangeActions;
+    private final Map<State, Set<RangeAction<?>>> rangeActions;
 
     public MinCostHardFiller(Set<FlowCnec> optimizedCnecs,
-                             Unit unit, Map<State, Set<PstRangeAction>> rangeActions) {
+                             Map<State, Set<RangeAction<?>>> rangeActions) {
         this.rangeActions = rangeActions;
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
-        this.unit = unit;
     }
 
     @Override
@@ -45,7 +42,7 @@ public class MinCostHardFiller implements ProblemFiller {
         Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult);
 
         // build variables
-        buildTotalCostVariable(linearProblem, validFlowCnecs);
+        buildTotalCostVariable(linearProblem);
         buildRangeActionCostVariable(linearProblem);
 
         // build constraints
@@ -71,14 +68,8 @@ public class MinCostHardFiller implements ProblemFiller {
      * Build the total cost variable TC.
      * TC represents the activation cost of all range actions.
      */
-    private void buildTotalCostVariable(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
-//        if (!rangeActions.isEmpty()) {
+    private void buildTotalCostVariable(LinearProblem linearProblem) {
         linearProblem.addTotalCostVariable(0, LinearProblem.infinity());
-//        } else {
-        // if there is no RangeActions, the cost variable is forced to zero.
-        // otherwise it would be unbounded in the LP
-//            linearProblem.addActivationCostVariable(0.0, 0.0);
-//        }
     }
 
     /**

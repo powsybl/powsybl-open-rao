@@ -111,8 +111,6 @@ public final class LinearProblem {
     }
 
     public LinearProblemStatus solve() {
-        System.out.println(solver.getMpSolver().exportModelAsLpFormat());
-
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
         return solver.solve();

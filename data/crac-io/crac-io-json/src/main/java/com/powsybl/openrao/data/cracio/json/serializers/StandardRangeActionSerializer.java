@@ -49,6 +49,4 @@ public final class StandardRangeActionSerializer {
         }
         gen.writeEndArray();
     }
-
-
 }

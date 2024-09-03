@@ -36,13 +36,14 @@ import java.util.stream.Collectors;
 /**
  * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
-public class NewObjectiveFunctionTest {
+public class CostLinearProblemTest {
 
     List<Network> networks;
     List<Crac> cracs;
     RangeActionSetpointResult initialSetpoints;
     List<OptimizationPerimeter> optimizationPerimeters;
-    List<Map<State, Set<PstRangeAction>>> rangeActionsPerStatePerTimestamp;
+    List<Map<State, Set<PstRangeAction>>> pstRangeActionsPerStatePerTimestamp;
+    List<Map<State, Set<RangeAction<?>>>> rangeActionsPerStatePerTimestamp;
     MultipleSensitivityResult initialSensiResult;
     RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC_SCIP.json"));
 
@@ -50,18 +51,22 @@ public class NewObjectiveFunctionTest {
     public void setUp() {
     }
 
-    private List<Map<State, Set<PstRangeAction>>> computeRangeActionsPerStatePerTimestamp() {
-        List<Map<State, Set<PstRangeAction>>> rangeActionsPerStatePerTimestamp = new ArrayList<>();
+    private void computeRangeActionsPerStatePerTimestamp() {
+        pstRangeActionsPerStatePerTimestamp = new ArrayList<>();
+        rangeActionsPerStatePerTimestamp = new ArrayList<>();
         for (Crac crac : cracs) {
-            Map<State, Set<PstRangeAction>> rangeActionsPerState = new HashMap<>();
+            Map<State, Set<RangeAction<?>>> rangeActionsPerState = new HashMap<>();
             crac.getStates().forEach(state -> rangeActionsPerState.put(state,
+                new HashSet<>(crac.getPotentiallyAvailableRangeActions(state))));
+            rangeActionsPerStatePerTimestamp.add(rangeActionsPerState);
+            Map<State, Set<PstRangeAction>> pstRangeActionsPerState = new HashMap<>();
+            crac.getStates().forEach(state -> pstRangeActionsPerState.put(state,
                 crac.getPotentiallyAvailableRangeActions(state).stream()
                     .filter(ra -> ra instanceof PstRangeAction)
                     .map(ra -> (PstRangeAction) ra)
                     .collect(Collectors.toSet())));
-            rangeActionsPerStatePerTimestamp.add(rangeActionsPerState);
+            pstRangeActionsPerStatePerTimestamp.add(pstRangeActionsPerState);
         }
-        return rangeActionsPerStatePerTimestamp;
     }
 
     private RangeActionSetpointResult computeInitialSetpointsResults() {
@@ -124,7 +129,7 @@ public class NewObjectiveFunctionTest {
 
         initialSetpoints = computeInitialSetpointsResults();
         optimizationPerimeters = computeOptimizationPerimeters();
-        rangeActionsPerStatePerTimestamp = computeRangeActionsPerStatePerTimestamp();
+        computeRangeActionsPerStatePerTimestamp();
 
         initialSensiResult = runInitialSensi();
 
@@ -143,12 +148,11 @@ public class NewObjectiveFunctionTest {
         DiscretePstTapFiller discretePstTapFiller0 = new DiscretePstTapFiller(
             networks.get(0),
             optimizationPerimeters.get(0),
-            rangeActionsPerStatePerTimestamp.get(0),
+            pstRangeActionsPerStatePerTimestamp.get(0),
             initialSetpoints);
 
-        Set<FlowCnec> allCnecs = new HashSet<>();
-        allCnecs.addAll(cracs.get(0).getFlowCnecs());
-        MinCostHardFiller minCostHardFiller = new MinCostHardFiller(allCnecs, Unit.MEGAWATT, rangeActionsPerStatePerTimestamp.get(0));
+        Set<FlowCnec> allCnecs = new HashSet<>(cracs.get(0).getFlowCnecs());
+        MinCostHardFiller minCostHardFiller = new MinCostHardFiller(allCnecs, rangeActionsPerStatePerTimestamp.get(0));
 
         MultiTSFiller multiTSFiller = new MultiTSFiller(
             optimizationPerimeters,
