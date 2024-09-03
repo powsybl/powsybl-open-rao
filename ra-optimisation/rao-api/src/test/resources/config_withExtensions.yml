@@ -1,7 +1,6 @@
 rao-objective-function:
   type: MAX_MIN_MARGIN_IN_AMPERE
   preventive-stop-criterion: MIN_OBJECTIVE
-  curative-stop-criterion: PREVENTIVE_OBJECTIVE
   curative-min-obj-improvement: 3.0
 
 rao-range-actions-optimization:

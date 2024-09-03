@@ -27,8 +27,7 @@ public final class RaoParametersCommons {
     public static final String TYPE = "type";
     public static final String CURATIVE_MIN_OBJ_IMPROVEMENT = "curative-min-obj-improvement";
     public static final String PREVENTIVE_STOP_CRITERION = "preventive-stop-criterion";
-    public static final String CURATIVE_STOP_CRITERION = "curative-stop-criterion";
-    public static final String OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE = "optimize-curative-if-preventive-unsecure";
+    public static final String ENFORCE_CURATIVE_SECURITY = "enforce-curative-security";
 
     // range actions optimization parameters
     public static final String RANGE_ACTIONS_OPTIMIZATION = "range-actions-optimization";

@@ -51,34 +51,13 @@ These parameters (objective-function) configure the remedial action optimisation
   - **SECURE**: the search-tree will stop as soon as it finds a solution where the minimum margin is positive.  
   *Note: if the best possible minimum margin is negative, both stop criterion will return the same solution.*
 
-#### curative-stop-criterion
-- **Expected value**: one of the following:
-  - "MIN_OBJECTIVE"
-  - "SECURE"
-  - "PREVENTIVE_OBJECTIVE"
-  - "PREVENTIVE_OBJECTIVE_AND_SECURE"
-- **Default value**: "MIN_OBJECTIVE"
-- **Usage**: stop criterion for the curative RAO search-tree.  
-  - **MIN_OBJECTIVE**: the search-tree will maximize the minimum margin until it converges to a
-    maximum value, or until another stop criterion has been reached (e.g. [max-curative-search-tree-depth](#max-curative-search-tree-depth)).  
-  - **SECURE**: the search-tree will stop as soon as it finds a solution where the minimum margin is positive.  
-  - **PREVENTIVE_OBJECTIVE**: the search-tree will stop as soon as the preventive RAO's objective value is reached, 
-    and improved by at least ["curative-rao-min-obj-improvement"](#curative-min-obj-improvement).  
-  - **PREVENTIVE_OBJECTIVE_AND_SECURE**: the search-tree will stop as soon as the preventive RAO's objective value is 
-    reached, and improved by at least ["curative-rao-min-obj-improvement"](#curative-min-obj-improvement), and all 
-    margins are positive.  
-
-  *The values "PREVENTIVE_OBJECTIVE" and "PREVENTIVE_OBJECTIVE_AND_SECURE" allow you to speed up the curative RAO
-  without deteriorating the final solution (minimum margin over all perimeters). However, using them means the flow-based
-  domain is not maximised for all perimeters.*
-
 #### curative-min-obj-improvement
 - **Expected value**: numeric value, where the unit is that of the objective function
 - **Default value**: 0
 - **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO stop criterion,
   when it is set to PREVENTIVE_OBJECTIVE or PREVENTIVE_OBJECTIVE_AND_SECURE.
 
-#### optimize-curative-if-preventive-unsecure
+#### enforce-curative-security
 - **Expected value**: true/false
 - **Default value**: false
 - **Usage**: if this parameter is set to true, OpenRAO will continue optimizing curative states even if preventive state
@@ -314,7 +293,7 @@ These parameters (second-preventive-rao) tune the behaviour of the [second preve
     during curative RAO  
   - **POSSIBLE_CURATIVE_IMPROVEMENT**: a 2nd preventive RAO is run only if it is possible to improve a curative perimeter,
     i.e. if the curative RAO stop criterion on at least one contingency is not reached.  
-    This depends on the value of parameter [curative-stop-criterion](#curative-stop-criterion):
+    This depends on the value of parameter [preventive-stop-criterion](#preventive-stop-criterion):
     - **SECURE**: 2nd preventive RAO is run if one curative perimeter is not secure after optimisation
     - **PREVENTIVE_OBJECTIVE**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
       after optimisation that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
@@ -575,8 +554,7 @@ Zones are seperated by + or -.
     "type" : "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE",
     "curative-min-obj-improvement" : 0.0,
     "preventive-stop-criterion" : "SECURE",
-    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE",
-    "optimize-curative-if-preventive-unsecure" : true
+    "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 5,
@@ -693,7 +671,6 @@ Based on PowSyBl's [configuration mechanism](inv:powsyblcore:std:doc#user/config
 rao-objective-function:
   type: MAX_MIN_MARGIN_IN_AMPERE
   preventive-stop-criterion: SECURE
-  curative-stop-criterion: SECURE
 
 rao-range-actions-optimization:
   max-mip-iterations: 5
