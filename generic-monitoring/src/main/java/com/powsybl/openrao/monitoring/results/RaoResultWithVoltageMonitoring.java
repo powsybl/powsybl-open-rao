@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.monitoring.results;
 
+import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -52,7 +53,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     @Override
-    public double getVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
+    public double getVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
         if (!unit.equals(Unit.KILOVOLT)) {
             throw new OpenRaoException("Unexpected unit for voltage monitoring result :  " + unit);
         }
@@ -69,8 +70,8 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
         }
 
-        return Math.min(voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - getVoltage(optimizationInstant, voltageCnec, unit),
-            getVoltage(optimizationInstant, voltageCnec, unit) - voltageCnec.getLowerBound(unit).orElse(-Double.MAX_VALUE));
+        return Math.min(voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - getVoltage(optimizationInstant, voltageCnec, MinOrMax.MAX, unit),
+            getVoltage(optimizationInstant, voltageCnec, MinOrMax.MIN, unit) - voltageCnec.getLowerBound(unit).orElse(-Double.MAX_VALUE));
     }
 
     @Override

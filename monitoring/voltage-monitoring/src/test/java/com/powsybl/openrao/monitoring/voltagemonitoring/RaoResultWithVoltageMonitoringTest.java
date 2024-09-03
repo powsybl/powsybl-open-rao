@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -60,7 +61,8 @@ class RaoResultWithVoltageMonitoringTest {
         VoltageMonitoringResult voltageMonitoringResult = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-monitoring-result.json"), crac);
         RaoResult raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
 
-        assertEquals(144.38, raoResultWithVoltageMonitoring.getVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(144.38, raoResultWithVoltageMonitoring.getVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecId"), MinOrMax.MIN, Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(148.41, raoResultWithVoltageMonitoring.getVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecId"), MinOrMax.MAX, Unit.KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(-236.61, raoResultWithVoltageMonitoring.getMargin(curativeInstant, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(Set.of("pstSetpointRaId", "complexNetworkActionId"), raoResultWithVoltageMonitoring.getActivatedNetworkActionsDuringState(crac.getState("contingency1Id", curativeInstant)).stream().map(Identifiable::getId).collect(Collectors.toSet()));
         assertTrue(raoResultWithVoltageMonitoring.isActivatedDuringState(crac.getState("contingency1Id", curativeInstant), crac.getNetworkAction("complexNetworkActionId")));
@@ -69,7 +71,8 @@ class RaoResultWithVoltageMonitoringTest {
         VoltageMonitoringResult voltageMonitoringResult2 = new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/voltage-monitoring-result2.json"), crac);
         RaoResult raoResultWithVoltageMonitoring2 = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult2);
 
-        assertEquals(398., raoResultWithVoltageMonitoring2.getVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(395., raoResultWithVoltageMonitoring2.getVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecId"), MinOrMax.MIN, Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(398., raoResultWithVoltageMonitoring2.getVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecId"), MinOrMax.MAX, Unit.KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(1., raoResultWithVoltageMonitoring2.getMargin(curativeInstant, crac.getVoltageCnec("voltageCnecId"), Unit.KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring2.getComputationStatus());
     }
