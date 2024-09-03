@@ -193,7 +193,7 @@ public class CastorFullOptimization {
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
         return raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
                 && preventiveOptimalCost > 0
-                && !raoParameters.getObjectiveFunctionParameters().getOptimizeCurativeIfPreventiveUnsecure();
+                && !raoParameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity();
     }
 
     /**
@@ -501,29 +501,19 @@ public class CastorFullOptimization {
             // only compare initial cost with the curative costs
             return false;
         }
-        if (raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
-                && firstPreventiveResult.getCost() > 0) {
-            // in case of curative optimization even if preventive unsecure (see parameter optimize-curative-if-preventive-unsecure)
-            // we do not want to run a second preventive that would not be able to fix the situation, to save time
-            BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
-            return false;
-        }
-        ObjectiveFunctionParameters.CurativeStopCriterion curativeStopCriterion = raoParameters.getObjectiveFunctionParameters().getCurativeStopCriterion();
-        switch (curativeStopCriterion) {
-            case MIN_OBJECTIVE:
-                // Run 2nd preventive RAO in all cases
-                return true;
-            case SECURE:
-                // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
-                return isAnyResultUnsecure(curativeRaoResults);
-            case PREVENTIVE_OBJECTIVE:
-                // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
-                return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
-            case PREVENTIVE_OBJECTIVE_AND_SECURE:
-                // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter or is unsecure
-                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
-            default:
-                throw new OpenRaoException(String.format("Unknown curative RAO stop criterion: %s", curativeStopCriterion));
+        ObjectiveFunctionParameters.PreventiveStopCriterion preventiveStopCriterion = raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion();
+        if (preventiveStopCriterion.equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)) {
+            if (firstPreventiveResult.getCost() > 0) {
+                // in case of curative optimization even if preventive unsecure (see parameter enforce-curative-security)
+                // we do not want to run a second preventive that would not be able to fix the situation, to save time
+                BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
+                return false;
+            }
+            // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
+            return isAnyResultUnsecure(curativeRaoResults);
+        } else {  // MIN_OBJECTIVE
+            // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
+            return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
         }
     }
 
