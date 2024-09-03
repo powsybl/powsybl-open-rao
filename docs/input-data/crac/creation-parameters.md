@@ -31,7 +31,7 @@ parameters = JsonCracCreationParameters.read(jsonFilePath);
   
   
 ## Non-specific parameters
-OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-api/src/main/java/com/powsybl/openrao/data/craccreation/creator/api/parameters/CracCreationParameters.java) 
+OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-api/src/main/java/com/powsybl/openrao/data/cracio/api/parameters/CracCreationParameters.java) 
 defines a few parameters needed for all native CRAC formats.
 
 ### crac-factory
@@ -63,19 +63,19 @@ If the given instant contains multiple states (possible for auto and curative in
 The RAs usage limits contain the following fields :
 
  - **max-ra :**
-    - Expected value: integer
-    - Default value: 2^32 -1 (max integer value)
-    - Usage: It defines the maximum number of remedial actions allowed for the given instant. The RAO will prioritize remedial actions that have the best impact on the minimum margin.
+    - _Expected value:_ integer
+    - _Default value:_ 2^32 -1 (max integer value)
+    - _Usage:_ It defines the maximum number of remedial actions allowed for the given instant. The RAO will prioritize remedial actions that have the best impact on the minimum margin.
 
   - **max-tso :**
-    - Expected value: integer
-    - Default value: 2^32 -1 (max integer value)
-    - Usage: It defines the maximum number of TSOs that can apply remedial actions for the given instant. The RAO will choose the best TSOs combination to maximize the minimum margin.
+    - _Expected value:_ integer
+    - _Default value:_ 2^32 -1 (max integer value)
+    - _Usage:_ It defines the maximum number of TSOs that can apply remedial actions for the given instant. The RAO will choose the best TSOs combination to maximize the minimum margin.
 
   - **max-ra-per-tso :**
-    - Expected value: a map with string keys and integer values. The keys should be the same as the RAs’ operators as written in the CRAC file
-    - Default value: empty map
-    - Usage: It defines the maximum number of remedial actions allowed for each TSO, for the given instant.
+    - _Expected value:_ a map with string keys and integer values. The keys should be the same as the RAs’ operators as written in the CRAC file
+    - _Default value:_ empty map
+    - _Usage:_ It defines the maximum number of remedial actions allowed for each TSO, for the given instant.
     The TSOs should be identified using the same IDs as in the CRAC. If a TSO is not listed in this map, then the number of its allowed RAs is supposed infinite.
 
   - **max-topo-per-tso :**  
@@ -83,6 +83,13 @@ The RAs usage limits contain the following fields :
 
   - **max-pst-per-tso :**  
     Exactly the same as **max-ra-per-tso** but it only concerns PST RAs
+
+  - **max-elementary-actions-per-tso :**  
+    - _Expected value:_ a map with string keys and integer values. The keys should be RAs’ operators as written in the CRAC file
+    - _Default value:_ empty map
+    - _Usage:_ It defines the maximum number of elementary actions allowed for each TSO, for the given instant. For PST range actions, moving one tap is considered to be an elementary action.
+    The TSOs should be identified using the same IDs as in the CRAC. If a TSO is not listed in this map, then the number of its allowed RAs is supposed infinite.
+    _⚠️ This usage limit is only applicable if PSTs are approximated as integer taps (see [APPROXIMATED_INTEGERS](/parameters.md#pst-model))._
 
 ### complete example
 ::::{tabs}
@@ -115,7 +122,7 @@ cracCreationParameters.addRaUsageLimitsForAGivenInstant("curative", raUsageLimit
 ## CSE-specific parameters
 
 The [CSE native crac format](cse) lacks important information that other formats don't.  
-The user can define a [CseCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cse/src/main/java/com/powsybl/openrao/data/craccreation/creator/cse/parameters/CseCracCreationParameters.java) 
+The user can define a [CseCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-cse/src/main/java/com/powsybl/openrao/data/cracio/cse/parameters/CseCracCreationParameters.java) 
 extension to the CracCreationParameters object in order to define them.  
 
 ### range-action-groups (CSE)
@@ -201,7 +208,7 @@ cracCreationParameters.addExtension(CseCracCreationParameters.class, cseParamete
 ## CIM-specific parameters
 
 The [CIM native CRAC format](cim) lacks important information that other formats don't.  
-The user can define a [CimCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-cim/src/main/java/com/powsybl/openrao/data/craccreation/creator/cim/parameters/CimCracCreationParameters.java)
+The user can define a [CimCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-cim/src/main/java/com/powsybl/openrao/data/cracio/cim/parameters/CimCracCreationParameters.java)
 extension to the CracCreationParameters object in order to define them.
 
 ### timeseries-mrids
@@ -375,7 +382,7 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
 
 ## CSA-specific parameters
 
-The CSA profiles from the [CSA native CRAC format](csa) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [CsaCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-creation/crac-creator-csa-profiles/src/main/java/com/powsybl/openrao/data/craccreation/creator/csaprofile/parameters/CsaCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+The CSA profiles from the [CSA native CRAC format](csa) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [CsaCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-csa-profiles/src/main/java/com/powsybl/openrao/data/cracio/csaprofile/parameters/CsaCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
 
 ### capacity-calculation-region-eic-code
 

@@ -34,7 +34,7 @@ public final class ReferenceProgramBuilder {
             // we need this separate load flow to get reference flow on cnec.
             // because reference flow from sensi is not yet fully implemented in powsybl
             LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
-            if (!loadFlowResult.isOk()) {
+            if (!loadFlowResult.isFullyConverged()) {
                 BUSINESS_WARNS.warn(errorMsg);
             }
         } catch (PowsyblException e) {

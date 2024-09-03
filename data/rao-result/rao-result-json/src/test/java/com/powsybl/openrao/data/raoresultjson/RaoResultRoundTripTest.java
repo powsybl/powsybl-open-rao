@@ -589,22 +589,22 @@ class RaoResultRoundTripTest {
 
         // Empty set
         Set<Unit> emptySet = Collections.emptySet();
-        Exception exception = assertThrows(OpenRaoException.class, () -> new RaoResultJsonExporter().exportData(raoResult, crac, emptySet, outputStream));
+        Exception exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, emptySet, outputStream));
         assertEquals("At least one flow unit should be defined", exception.getMessage());
 
         // "TAP" unit
         Set<Unit> tapSingleton = Set.of(TAP);
-        exception = assertThrows(OpenRaoException.class, () -> new RaoResultJsonExporter().exportData(raoResult, crac, tapSingleton, outputStream));
+        exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, tapSingleton, outputStream));
         assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
 
         // "DEGREE" unit
         Set<Unit> degreeSingleton = Set.of(DEGREE);
-        exception = assertThrows(OpenRaoException.class, () -> new RaoResultJsonExporter().exportData(raoResult, crac, degreeSingleton, outputStream));
+        exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, degreeSingleton, outputStream));
         assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
 
         // "KILOVOLT" + "AMPERE" units
         Set<Unit> kvAndAmp = Set.of(KILOVOLT, AMPERE);
-        exception = assertThrows(OpenRaoException.class, () -> new RaoResultJsonExporter().exportData(raoResult, crac, kvAndAmp, outputStream));
+        exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, kvAndAmp, outputStream));
         assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
     }
 

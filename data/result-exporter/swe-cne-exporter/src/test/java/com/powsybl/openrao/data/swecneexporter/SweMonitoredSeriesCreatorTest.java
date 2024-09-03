@@ -8,20 +8,16 @@
 package com.powsybl.openrao.data.swecneexporter;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CnecCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.MeasurementCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.MonitoredSeriesCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.CnecCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.MeasurementCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.MonitoredSeriesCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredSeries;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.junit.jupiter.api.BeforeEach;

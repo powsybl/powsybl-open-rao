@@ -191,3 +191,28 @@ Feature: User Story #16.5: activate remedial actions only after a constraint in 
     And the worst margin is -37 A
     And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -37 A
     And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -13 A
+
+  @fast @rao @mock @ac @contingency-scenarios
+  Scenario: US 16.5.14: Trigger ARA only after a given outage
+    Given network file is "epic16/12Nodes3ParallelLines.uct"
+    Given crac file is "epic16/crac_16_5_14.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    When I launch search_tree_rao
+    # An overload is created in the Netherlands only after co_nl1_nl_2_1
+    # Thus, the OnFlowConstraintInCountry ARA must be triggered only after this contingency
+    Then 1 remedial actions are used after "co_nl1_nl_2_1" at "auto"
+    And the remedial action "open_nl1_nl2_2" is used after "co_nl1_nl_2_1" at "auto"
+    And the calculation partially fails
+    And 0 remedial actions are used after "co_nl1_nl_2_3" at "auto"
+
+  @fast @rao @mock @ac @contingency-scenarios
+  Scenario: US 16.5.15: Trigger CRA only after a given outage
+    Given network file is "epic16/12Nodes4ParallelLines.uct"
+    Given crac file is "epic16/crac_16_5_15.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    When I launch search_tree_rao
+    # An overload is created in the Netherlands only after co_nl1_nl_2_1
+    # Thus, the OnFlowConstraintInCountry CRA must be triggered only after this contingency
+    Then 1 remedial actions are used after "co_nl1_nl_2_1" at "curative"
+    And the remedial action "close_nl1_nl2_4" is used after "co_nl1_nl_2_1" at "curative"
+    And 0 remedial actions are used after "co_nl1_nl_2_3" at "curative"

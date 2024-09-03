@@ -100,7 +100,11 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.isSecure();
+            if (physicalParameters.isEmpty()) {
+                return voltageMonitoringResult.isSecure();
+            } else {
+                return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.isSecure();
+            }
         } else {
             return raoResult.isSecure(instant, u);
         }
@@ -110,7 +114,11 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     public boolean isSecure(PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.isSecure();
+            if (physicalParameters.isEmpty()) {
+                return voltageMonitoringResult.isSecure();
+            } else {
+                return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.isSecure();
+            }
         } else {
             return raoResult.isSecure(u);
         }

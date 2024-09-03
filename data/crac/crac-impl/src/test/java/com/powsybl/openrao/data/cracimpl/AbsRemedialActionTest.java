@@ -25,22 +25,22 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitr at rte-france.com>}
  */
-public class AbsRemedialActionTest {
+class AbsRemedialActionTest {
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Network network;
     private Crac crac;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithPreventivePstRange();
     }
 
     @Test
-    public void testGetFlowCnecsConstrainingForOneUsageRule() {
+    void testGetFlowCnecsConstrainingForOneUsageRule() {
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
-            .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
@@ -48,7 +48,7 @@ public class AbsRemedialActionTest {
             na1.getFlowCnecsConstrainingForOneUsageRule(na1.getUsageRules().iterator().next(), crac.getFlowCnecs(), network));
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
-            .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newTerminalsConnectionAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 

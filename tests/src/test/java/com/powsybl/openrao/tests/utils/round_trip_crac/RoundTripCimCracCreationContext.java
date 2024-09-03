@@ -7,7 +7,7 @@
 package com.powsybl.openrao.tests.utils.round_trip_crac;
 
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 
 public class RoundTripCimCracCreationContext extends CimCracCreationContext {
     private Crac overridingCrac;

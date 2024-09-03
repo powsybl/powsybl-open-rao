@@ -127,7 +127,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             if (minFlow.isPresent()) {
                 OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
                     prePerimeterMargin + minFlow.get(),
-                    LinearProblem.infinity(), cnec, side,
+                    linearProblem.infinity(), cnec, side,
                     LinearProblem.MarginExtension.BELOW_THRESHOLD
                 );
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, 1);
@@ -137,7 +137,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             if (maxFlow.isPresent()) {
                 OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
                     prePerimeterMargin - maxFlow.get(),
-                    LinearProblem.infinity(), cnec, side,
+                    linearProblem.infinity(), cnec, side,
                     LinearProblem.MarginExtension.ABOVE_THRESHOLD
                 );
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, -1);
@@ -164,6 +164,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     bigM
                 );
             } catch (OpenRaoException ignored) {
+                //exception is ignored
             }
             try {
                 updateMinimumMarginConstraint(
@@ -172,6 +173,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     bigM
                 );
             } catch (OpenRaoException ignored) {
+                //exception is ignored
             }
             try {
                 updateMinimumMarginConstraint(
@@ -180,6 +182,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     bigM
                 );
             } catch (OpenRaoException ignored) {
+                //exception is ignored
             }
             try {
                 updateMinimumMarginConstraint(
@@ -188,6 +191,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     bigM
                 );
             } catch (OpenRaoException ignored) {
+                //exception is ignored
             }
         }));
     }

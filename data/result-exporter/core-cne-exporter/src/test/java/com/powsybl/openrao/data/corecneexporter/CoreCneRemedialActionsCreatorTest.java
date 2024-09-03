@@ -25,7 +25,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -295,7 +295,7 @@ class CoreCneRemedialActionsCreatorTest {
     void testIgnoreNetworkActionWithNoUsageRule() {
         NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
-                .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
+                .newTerminalsConnectionAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
                 .withOperator("BE")
                 .add();
 
@@ -314,7 +314,7 @@ class CoreCneRemedialActionsCreatorTest {
     void testNetworkActionUsedInPreventive() {
         NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
-                .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
+                .newTerminalsConnectionAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
                 .withOperator("BE")
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
@@ -356,7 +356,7 @@ class CoreCneRemedialActionsCreatorTest {
     void testNetworkActionUsedInCurative() {
         NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
-                .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
+                .newTerminalsConnectionAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
                 .withOperator("BE")
                 .newOnContingencyStateUsageRule().withContingency("contingency-id").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();

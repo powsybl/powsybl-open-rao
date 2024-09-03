@@ -704,9 +704,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         Set<RangeAction<?>> injectionRangeActionSet = injectionRangeActions.values().stream()
                 .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
                 .collect(Collectors.toSet());
+        Set<RangeAction<?>> counterTradeRangeActionSet = counterTradeRangeActions.values().stream()
+            .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
+            .collect(Collectors.toSet());
         Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActionsSet);
         rangeActionsSet.addAll(hvdcRangeActionsSet);
         rangeActionsSet.addAll(injectionRangeActionSet);
+        rangeActionsSet.addAll(counterTradeRangeActionSet);
         return rangeActionsSet;
     }
 

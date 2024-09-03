@@ -7,44 +7,42 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.action.SwitchActionBuilder;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
-import com.powsybl.iidm.network.Network;
-
-import java.util.Set;
+import com.powsybl.iidm.modification.NetworkModificationList;
 
 /***
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SwitchPairImpl implements SwitchPair {
+    private final String id;
     private final NetworkElement switchToOpen;
     private final NetworkElement switchToClose;
 
-    SwitchPairImpl(NetworkElement switchToOpen, NetworkElement switchToClose) {
+    SwitchPairImpl(String id, NetworkElement switchToOpen, NetworkElement switchToClose) {
+        this.id = id;
         this.switchToOpen = switchToOpen;
         this.switchToClose = switchToClose;
     }
 
     @Override
-    public boolean hasImpactOnNetwork(Network network) {
-        return !network.getSwitch(switchToOpen.getId()).isOpen() || network.getSwitch(switchToClose.getId()).isOpen();
-    }
-
-    @Override
-    public boolean canBeApplied(Network network) {
-        // It is only applicable if, initially, one switch was closed and the other was open.
-        return network.getSwitch(switchToOpen.getId()).isOpen() != network.getSwitch(switchToClose.getId()).isOpen();
-    }
-
-    @Override
-    public void apply(Network network) {
-        network.getSwitch(switchToOpen.getId()).setOpen(true);
-        network.getSwitch(switchToClose.getId()).setOpen(false);
-    }
-
-    @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return Set.of(switchToOpen, switchToClose);
+    public NetworkModification toModification() {
+        return new NetworkModificationList(
+            new SwitchActionBuilder()
+                .withId(id + "_open")
+                .withNetworkElementId(switchToOpen.getId())
+                .withOpen(true)
+                .build()
+                .toModification(),
+            new SwitchActionBuilder()
+                .withId(id + "_close")
+                .withNetworkElementId(switchToClose.getId())
+                .withOpen(false)
+                .build()
+                .toModification()
+        );
     }
 
     @Override
@@ -72,5 +70,15 @@ public class SwitchPairImpl implements SwitchPair {
     @Override
     public int hashCode() {
         return switchToOpen.hashCode() + 37 * switchToClose.hashCode();
+    }
+
+    @Override
+    public String getType() {
+        return "SWITCH_PAIR";
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 }

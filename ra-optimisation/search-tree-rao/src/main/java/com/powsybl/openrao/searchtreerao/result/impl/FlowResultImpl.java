@@ -10,13 +10,16 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.String.format;
 
@@ -29,6 +32,8 @@ public class FlowResultImpl implements FlowResult {
     private final Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums;
     private final FlowResult fixedCommercialFlows;
     private final FlowResult fixedPtdfZonalSums;
+    private final Map<FlowCnec, Double> marginMapMW = new ConcurrentHashMap<>();
+    private final Map<FlowCnec, Double> marginMapA = new ConcurrentHashMap<>();
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
                           Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
@@ -130,4 +135,43 @@ public class FlowResultImpl implements FlowResult {
         }
     }
 
+    @Override
+    public ComputationStatus getComputationStatus() {
+        return convert(systematicSensitivityResult.getStatus());
+    }
+
+    @Override
+    public ComputationStatus getComputationStatus(State state) {
+        return convert(systematicSensitivityResult.getStatus(state));
+    }
+
+    private ComputationStatus convert(SystematicSensitivityResult.SensitivityComputationStatus sensiStatus) {
+        return switch (sensiStatus) {
+            case FAILURE -> ComputationStatus.FAILURE;
+            case SUCCESS -> ComputationStatus.DEFAULT;
+            case PARTIAL_FAILURE -> ComputationStatus.PARTIAL_FAILURE;
+        };
+    }
+
+    @Override
+    public double getMargin(FlowCnec flowCnec, Unit unit) {
+        if (unit.equals(Unit.MEGAWATT)) {
+            return checkMarginMapAndGet(flowCnec, unit, marginMapMW);
+        } else if (unit.equals(Unit.AMPERE)) {
+            return checkMarginMapAndGet(flowCnec, unit, marginMapA);
+        } else {
+            throw new OpenRaoException(String.format("Wrong unit for flow cnec: %s", unit));
+        }
+    }
+
+    private double checkMarginMapAndGet(FlowCnec flowCnec, Unit unit, Map<FlowCnec, Double> marginMap) {
+        if (marginMap.containsKey(flowCnec)) {
+            return marginMap.get(flowCnec);
+        }
+        double margin = flowCnec.getMonitoredSides().stream()
+            .map(side -> getMargin(flowCnec, side, unit))
+            .min(Double::compareTo).orElseThrow();
+        marginMap.put(flowCnec, margin);
+        return margin;
+    }
 }

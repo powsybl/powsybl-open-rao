@@ -7,26 +7,19 @@
 
 package com.powsybl.openrao.data.cracapi;
 
+import com.powsybl.action.*;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
-import com.powsybl.openrao.data.cracapi.networkaction.ElementaryAction;
-import com.powsybl.openrao.data.cracapi.networkaction.InjectionSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.networkaction.PstSetpoint;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
-import com.powsybl.openrao.data.cracapi.networkaction.TopologicalAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyStateAdderToRemedialAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -34,95 +27,6 @@ import java.util.Set;
 public final class NetworkActionUtils {
 
     private NetworkActionUtils() {
-    }
-
-    public static class TopologicalActionImplTest implements TopologicalAction {
-
-        private final NetworkElement networkElement;
-        private final ActionType actionType;
-
-        public TopologicalActionImplTest(NetworkElement networkElement, ActionType actionType) {
-            this.networkElement = networkElement;
-            this.actionType = actionType;
-        }
-
-        @Override
-        public boolean hasImpactOnNetwork(Network network) {
-            return false;
-        }
-
-        @Override
-        public boolean canBeApplied(Network network) {
-            return false;
-        }
-
-        @Override
-        public void apply(Network network) {
-
-        }
-
-        @Override
-        public Set<NetworkElement> getNetworkElements() {
-            return null;
-        }
-
-        @Override
-        public ActionType getActionType() {
-            return actionType;
-        }
-
-        @Override
-        public NetworkElement getNetworkElement() {
-            return networkElement;
-        }
-    }
-
-    public static class InjectionSetpointImplTest implements InjectionSetpoint {
-
-        private final NetworkElement networkElement;
-        private final double setpoint;
-        private final Unit unit;
-
-        public InjectionSetpointImplTest(NetworkElement networkElement, double setpoint, Unit unit) {
-            this.networkElement = networkElement;
-            this.setpoint = setpoint;
-            this.unit = unit;
-        }
-
-        @Override
-        public boolean hasImpactOnNetwork(Network network) {
-            return false;
-        }
-
-        @Override
-        public boolean canBeApplied(Network network) {
-            return false;
-        }
-
-        @Override
-        public void apply(Network network) {
-
-        }
-
-        @Override
-        public Set<NetworkElement> getNetworkElements() {
-            return null;
-        }
-
-        @Override
-        public double getSetpoint() {
-            return setpoint;
-        }
-
-        @Override
-        public NetworkElement getNetworkElement() {
-            return networkElement;
-        }
-
-        @Override
-        public Unit getUnit() {
-            return unit;
-        }
     }
 
     public static class SwitchPairImplTest implements SwitchPair {
@@ -136,26 +40,6 @@ public final class NetworkActionUtils {
         }
 
         @Override
-        public boolean hasImpactOnNetwork(Network network) {
-            return false;
-        }
-
-        @Override
-        public boolean canBeApplied(Network network) {
-            return false;
-        }
-
-        @Override
-        public void apply(Network network) {
-
-        }
-
-        @Override
-        public Set<NetworkElement> getNetworkElements() {
-            return null;
-        }
-
-        @Override
         public NetworkElement getSwitchToOpen() {
             return switchToOpen;
         }
@@ -164,55 +48,28 @@ public final class NetworkActionUtils {
         public NetworkElement getSwitchToClose() {
             return switchToClose;
         }
-    }
-
-    public static class PstSetpointImplTest implements PstSetpoint {
-
-        private final NetworkElement networkElement;
-        private final int setpoint;
-
-        public PstSetpointImplTest(NetworkElement networkElement, int setpoint) {
-            this.networkElement = networkElement;
-            this.setpoint = setpoint;
-        }
 
         @Override
-        public boolean hasImpactOnNetwork(Network network) {
-            return false;
-        }
-
-        @Override
-        public boolean canBeApplied(Network network) {
-            return false;
-        }
-
-        @Override
-        public void apply(Network network) {
-
-        }
-
-        @Override
-        public Set<NetworkElement> getNetworkElements() {
+        public String getType() {
             return null;
         }
 
         @Override
-        public int getSetpoint() {
-            return setpoint;
-        }
-
-        @Override
-        public NetworkElement getNetworkElement() {
-            return networkElement;
+        public String getId() {
+            return null;
         }
     }
 
     public static class NetworkActionImplTest implements NetworkAction {
 
-        private final Set<ElementaryAction> elementaryActions;
+        private final Set<Action> elementaryActions;
 
-        public NetworkActionImplTest(Set<ElementaryAction> elementaryActions) {
+        public NetworkActionImplTest(Set<Action> elementaryActions) {
             this.elementaryActions = new HashSet<>(elementaryActions);
+        }
+
+        public NetworkActionImplTest(Action elementaryAction) {
+            this.elementaryActions = Collections.singleton(elementaryAction);
         }
 
         @Override
@@ -276,13 +133,18 @@ public final class NetworkActionUtils {
         }
 
         @Override
-        public Set<ElementaryAction> getElementaryActions() {
+        public Set<Action> getElementaryActions() {
             return elementaryActions;
         }
 
         @Override
-        public <E extends Extension<NetworkAction>> void addExtension(Class<? super E> aClass, E e) {
+        public boolean canBeApplied(Network network) {
+            return false;
+        }
 
+        @Override
+        public <E extends Extension<NetworkAction>> void addExtension(Class<? super E> aClass, E e) {
+            //not used
         }
 
         @Override
@@ -331,7 +193,7 @@ public final class NetworkActionUtils {
 
         @Override
         public <E extends Extension<NetworkElement>> void addExtension(Class<? super E> aClass, E e) {
-
+            //not used
         }
 
         @Override
@@ -372,19 +234,23 @@ public final class NetworkActionUtils {
         return new NetworkElementImplTest(networkElementId);
     }
 
-    public static TopologicalAction createTopologyAction(NetworkElement networkElement, ActionType actionType) {
-        return new TopologicalActionImplTest(networkElement, actionType);
+    public static NetworkAction createSwitchAction(NetworkElement networkElement, ActionType actionType) {
+        return new NetworkActionImplTest(new SwitchActionBuilder().withId("id").withNetworkElementId(networkElement.getId()).withOpen(actionType == ActionType.OPEN).build());
     }
 
-    public static SwitchPair createSwitchPair(NetworkElement switchToOpen, NetworkElement switchToClose) {
-        return new SwitchPairImplTest(switchToOpen, switchToClose);
+    public static NetworkAction createSwitchPair(NetworkElement switchToOpen, NetworkElement switchToClose) {
+        return new NetworkActionImplTest(new SwitchPairImplTest(switchToOpen, switchToClose));
     }
 
-    public static PstSetpoint createPstSetpoint(NetworkElement pst, int setpoint) {
-        return new PstSetpointImplTest(pst, setpoint);
+    public static NetworkAction createPhaseTapChangerTapPositionAction(NetworkElement pst, int setpoint) {
+        return new NetworkActionImplTest(new PhaseTapChangerTapPositionActionBuilder().withId("id").withNetworkElementId(pst.getId()).withTapPosition(setpoint).withRelativeValue(false).build());
     }
 
-    public static InjectionSetpoint createInjectionSetpoint(NetworkElement networkElement, double setpoint, Unit unit) {
-        return new InjectionSetpointImplTest(networkElement, setpoint, unit);
+    public static NetworkAction createGeneratorActivePowerAction(NetworkElement networkElement, double setpoint) {
+        return new NetworkActionImplTest(new GeneratorActionBuilder().withId("id").withGeneratorId(networkElement.getId()).withActivePowerValue(setpoint).withActivePowerRelativeValue(false).build());
+    }
+
+    public static NetworkAction createGeneratorTargetVAction(NetworkElement networkElement, double setpoint) {
+        return new NetworkActionImplTest(new GeneratorActionBuilder().withId("id").withGeneratorId(networkElement.getId()).withTargetV(setpoint).build());
     }
 }

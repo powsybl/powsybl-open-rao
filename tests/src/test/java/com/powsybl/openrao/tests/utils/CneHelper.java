@@ -12,8 +12,8 @@ import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.corecneexporter.CoreCneExporter;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.SweCneExporter;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Helper class for exporting and comparing CNE files
@@ -181,9 +181,7 @@ public final class CneHelper {
                 return false;
             }
             switch (type1) {
-                case "B54":
-                case "B57":
-                case "B88":
+                case "B54", "B57", "B88":
                     String cnecId1 = getChildElementValue(e1, "Monitored_Series", "RegisteredResource", "mRID");
                     String cnecId2 = getChildElementValue(e2, "Monitored_Series", "RegisteredResource", "mRID");
                     return cnecId1.equals(cnecId2);

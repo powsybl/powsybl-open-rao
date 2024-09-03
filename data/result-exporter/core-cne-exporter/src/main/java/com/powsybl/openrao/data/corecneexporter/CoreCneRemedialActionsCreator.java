@@ -21,9 +21,9 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.PstRangeActionCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.RemedialActionCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.PstRangeActionCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 
 import java.util.*;
 
@@ -65,13 +65,13 @@ public final class CoreCneRemedialActionsCreator {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
 
         List<PstRangeAction> sortedRangeActions = cracCreationContext.getRemedialActionCreationContexts().stream()
-                .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
-                .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedRAId()))
+                .sorted(Comparator.comparing(ElementaryCreationContext::getNativeObjectId))
+                .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedObjectId()))
                 .filter(ra -> !Objects.isNull(ra))
                 .toList();
         List<NetworkAction> sortedNetworkActions = cracCreationContext.getRemedialActionCreationContexts().stream()
-                .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
-                .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedRAId()))
+                .sorted(Comparator.comparing(ElementaryCreationContext::getNativeObjectId))
+                .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedObjectId()))
                 .filter(ra -> !Objects.isNull(ra))
                 .toList();
 
@@ -92,7 +92,7 @@ public final class CoreCneRemedialActionsCreator {
     private void logMissingRangeActions() {
         cracCreationContext.getRemedialActionCreationContexts().forEach(remedialActionCreationContext -> {
             if (!remedialActionCreationContext.isImported()) {
-                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Remedial action {} was not imported into the RAO, it will be absent from the CNE file", remedialActionCreationContext.getNativeId());
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Remedial action {} was not imported into the RAO, it will be absent from the CNE file", remedialActionCreationContext.getNativeObjectId());
             }
         });
     }
@@ -108,11 +108,11 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     private RemedialActionSeries createPreOptimRangeRemedialActionSeries(PstRangeAction pstRangeAction) {
-        PstRangeActionCreationContext context = (PstRangeActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().stream().filter(raContext -> pstRangeAction.getId().equals(raContext.getCreatedRAId())).findFirst().orElseThrow();
+        PstRangeActionCreationContext context = (PstRangeActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().stream().filter(raContext -> pstRangeAction.getId().equals(raContext.getCreatedObjectId())).findFirst().orElseThrow();
         int initialTap = (context.isInverted() ? -1 : 1) * pstRangeAction.getInitialTap();
         RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(pstRangeAction.getId(), pstRangeAction.getName(), pstRangeAction.getOperator(), null);
         pstRangeAction.getNetworkElements().forEach(networkElement -> {
-            RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(context.getNativeId(), context.getNativeNetworkElementId(),
+            RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(context.getNativeObjectId(), context.getNativeNetworkElementId(),
                     PST_RANGE_PSR_TYPE, initialTap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
             remedialActionSeries.getRegisteredResource().add(registeredResource);
             remedialActionSeries.setMRID(createRangeActionId(remedialActionSeries.getMRID()));
@@ -209,9 +209,9 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     private void createPstRangeActionRegisteredResource(PstRangeAction pstRangeAction, State state, RemedialActionSeries remedialActionSeries) {
-        PstRangeActionCreationContext context = (PstRangeActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().stream().filter(raContext -> pstRangeAction.getId().equals(raContext.getCreatedRAId())).findFirst().orElseThrow();
+        PstRangeActionCreationContext context = (PstRangeActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().stream().filter(raContext -> pstRangeAction.getId().equals(raContext.getCreatedObjectId())).findFirst().orElseThrow();
         int tap = (context.isInverted() ? -1 : 1) * cneHelper.getRaoResult().getOptimizedTapOnState(state, pstRangeAction);
-        RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(context.getNativeId(), context.getNativeNetworkElementId(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
+        RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(context.getNativeObjectId(), context.getNativeNetworkElementId(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
         remedialActionSeries.getRegisteredResource().add(registeredResource);
         remedialActionSeries.setMRID(createRangeActionId(remedialActionSeries.getMRID()));
     }

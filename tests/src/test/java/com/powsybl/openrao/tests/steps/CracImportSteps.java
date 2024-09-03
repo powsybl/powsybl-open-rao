@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.action.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.TwoSides;
@@ -13,19 +14,24 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.*;
-import com.powsybl.openrao.data.cracapi.range.*;
-import com.powsybl.openrao.data.cracapi.rangeaction.*;
-import com.powsybl.openrao.data.cracapi.networkaction.*;
-import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
+import com.powsybl.openrao.data.cracapi.range.RangeType;
+import com.powsybl.openrao.data.cracapi.range.StandardRange;
+import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.ImportStatus;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.RemedialActionCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.api.stdcreationcontext.UcteCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cse.CseCracCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.cse.outage.CseOutageCreationContext;
-import com.powsybl.openrao.data.craccreation.creator.fbconstraint.FbConstraintCreationContext;
+import com.powsybl.openrao.data.cracapi.usagerule.*;
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.BranchCnecCreationContext;
+import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.cracio.cse.CseCracCreationContext;
+import com.powsybl.openrao.data.cracio.fbconstraint.FbConstraintCreationContext;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -83,7 +89,7 @@ public class CracImportSteps {
         } else if (cracCreationContext instanceof FbConstraintCreationContext) {
             throw new NotImplementedException(NOT_IMPLEMENTED_FB);
         } else if (cracCreationContext instanceof CseCracCreationContext cseCracCreationContext) {
-            assertTrue(cseCracCreationContext.getOutageCreationContexts().stream().allMatch(CseOutageCreationContext::isImported));
+            assertTrue(cseCracCreationContext.getOutageCreationContexts().stream().allMatch(ElementaryCreationContext::isImported));
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -96,10 +102,10 @@ public class CracImportSteps {
         } else if (cracCreationContext instanceof FbConstraintCreationContext) {
             throw new NotImplementedException(NOT_IMPLEMENTED_FB);
         } else if (cracCreationContext instanceof CseCracCreationContext cseCracCreationContext) {
-            CseOutageCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
+            ElementaryCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
             assertNotNull(creationContext);
             assertTrue(creationContext.isImported());
-            assertEquals(createdContingencyId, creationContext.getName());
+            assertEquals(createdContingencyId, creationContext.getNativeObjectName());
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -112,10 +118,10 @@ public class CracImportSteps {
         } else if (cracCreationContext instanceof FbConstraintCreationContext) {
             throw new NotImplementedException(NOT_IMPLEMENTED_FB);
         } else if (cracCreationContext instanceof CseCracCreationContext cseCracCreationContext) {
-            CseOutageCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
+            ElementaryCreationContext creationContext = cseCracCreationContext.getOutageCreationContext(nativeContingencyId);
             assertNotNull(creationContext);
             assertFalse(creationContext.isImported());
-            assertNull(creationContext.getCreatedContingencyId());
+            assertNull(creationContext.getCreatedObjectId());
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -325,7 +331,7 @@ public class CracImportSteps {
                 if (lowerBound.isPresent()) {
                     assertEquals(Double.parseDouble(expectedCnec.get("LowerBound")), lowerBound.get(), DOUBLE_TOLERANCE);
                 } else {
-                    assertEquals(expectedCnec.get("LowerBound"), "null");
+                    assertEquals("null", expectedCnec.get("LowerBound"));
                 }
             }
             if (expectedCnec.get("UpperBound") != null) {
@@ -333,7 +339,7 @@ public class CracImportSteps {
                 if (upperBound.isPresent()) {
                     assertEquals(Double.parseDouble(expectedCnec.get("UpperBound")), upperBound.get(), DOUBLE_TOLERANCE);
                 } else {
-                    assertEquals(expectedCnec.get("UpperBound"), "null");
+                    assertEquals("null", expectedCnec.get("UpperBound"));
                 }
             }
         }
@@ -377,7 +383,7 @@ public class CracImportSteps {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
         } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
-            assertTrue(ucteCracCreationContext.getRemedialActionCreationContexts().stream().allMatch(RemedialActionCreationContext::isImported));
+            assertTrue(ucteCracCreationContext.getRemedialActionCreationContexts().stream().allMatch(ElementaryCreationContext::isImported));
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -388,10 +394,10 @@ public class CracImportSteps {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
         } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
-            RemedialActionCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
+            ElementaryCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
             assertNotNull(remedialActionCreationContext);
             assertTrue(remedialActionCreationContext.isImported());
-            assertEquals(createdRaId, remedialActionCreationContext.getCreatedRAId());
+            assertEquals(createdRaId, remedialActionCreationContext.getCreatedObjectId());
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
         }
@@ -402,10 +408,10 @@ public class CracImportSteps {
         if (cracCreationContext == null) {
             throw new NotImplementedException(NOT_IMPLEMENTED_JSON);
         } else if (cracCreationContext instanceof UcteCracCreationContext ucteCracCreationContext) {
-            RemedialActionCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
+            ElementaryCreationContext remedialActionCreationContext = ucteCracCreationContext.getRemedialActionCreationContext(nativeRaId);
             assertNotNull(remedialActionCreationContext);
             assertFalse(remedialActionCreationContext.isImported());
-            assertNull(remedialActionCreationContext.getCreatedRAId());
+            assertNull(remedialActionCreationContext.getCreatedObjectId());
             assertEquals(ImportStatus.valueOf(importStatus), remedialActionCreationContext.getImportStatus());
         } else {
             throw new NotImplementedException(String.format(TYPE_NOT_HANDLED, cracCreationContext.getClass().getName()));
@@ -567,26 +573,54 @@ public class CracImportSteps {
             String networkElementId = expectedNetworkAction.get("NetworkElementId");
             String action = expectedNetworkAction.get("Action/Setpoint");
             switch (expectedNetworkAction.get("ElementaryActionType")) {
-                case "PstSetpoint":
-                    int intSetpoint = Integer.parseInt(action);
+                case "PhaseTapChangerTapPositionAction":
+                    int tapPosition = Integer.parseInt(action);
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof PstSetpoint pstSetpoint
-                            && pstSetpoint.getNetworkElements().iterator().next().getId().equals(networkElementId)
-                            && pstSetpoint.getSetpoint() == intSetpoint));
+                        elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction
+                            && Objects.equals(phaseTapChangerTapPositionAction.getTransformerId(), networkElementId)
+                            && phaseTapChangerTapPositionAction.getTapPosition() == tapPosition));
                     break;
-                case "TopologicalAction":
-                    ActionType actionType = ActionType.valueOf(action.toUpperCase());
+                case "TerminalsConnectionAction":
+                    ActionType actionTypeTCA = ActionType.valueOf(action.toUpperCase());
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof TopologicalAction topologicalAction
-                            && topologicalAction.getNetworkElements().iterator().next().getId().equals(networkElementId)
-                            && topologicalAction.getActionType() == actionType));
+                        elementaryAction instanceof TerminalsConnectionAction terminalsConnectionAction
+                            && Objects.equals(terminalsConnectionAction.getElementId(), networkElementId)
+                            && terminalsConnectionAction.isOpen() == (actionTypeTCA == ActionType.OPEN)));
                     break;
-                case "InjectionSetpoint":
-                    double doubleSetpoint = Double.parseDouble(action);
+                case "SwitchAction":
+                    ActionType actionTypeSA = ActionType.valueOf(action.toUpperCase());
                     assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
-                        elementaryAction instanceof InjectionSetpoint injectionSetpoint
-                            && injectionSetpoint.getNetworkElements().iterator().next().getId().equals(networkElementId)
-                            && injectionSetpoint.getSetpoint() == doubleSetpoint));
+                        elementaryAction instanceof SwitchAction switchAction
+                            && Objects.equals(switchAction.getSwitchId(), networkElementId)
+                            && switchAction.isOpen() == (actionTypeSA == ActionType.OPEN)));
+                    break;
+                case "GeneratorAction":
+                    double activePowerValueGA = Double.parseDouble(action);
+                    assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
+                        elementaryAction instanceof GeneratorAction generatorAction
+                            && Objects.equals(generatorAction.getGeneratorId(), networkElementId)
+                            && generatorAction.getActivePowerValue().getAsDouble() == activePowerValueGA));
+                    break;
+                case "LoadAction":
+                    double activePowerValueLA = Double.parseDouble(action);
+                    assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
+                        elementaryAction instanceof LoadAction loadAction
+                            && Objects.equals(loadAction.getLoadId(), networkElementId)
+                            && loadAction.getActivePowerValue().getAsDouble() == activePowerValueLA));
+                    break;
+                case "DanglingLineAction":
+                    double activePowerValueDLA = Double.parseDouble(action);
+                    assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
+                        elementaryAction instanceof DanglingLineAction danglingLineAction
+                            && Objects.equals(danglingLineAction.getDanglingLineId(), networkElementId)
+                            && danglingLineAction.getActivePowerValue().getAsDouble() == activePowerValueDLA));
+                    break;
+                case "ShuntCompensatorPositionAction":
+                    int sectionCount = Integer.parseInt(action);
+                    assertTrue(networkAction.getElementaryActions().stream().anyMatch(elementaryAction ->
+                        elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction
+                            && Objects.equals(shuntCompensatorPositionAction.getShuntCompensatorId(), networkElementId)
+                            && shuntCompensatorPositionAction.getSectionCount() == sectionCount));
                     break;
                 case "SwitchPair":
                     assertEquals("OPEN/CLOSE", action);

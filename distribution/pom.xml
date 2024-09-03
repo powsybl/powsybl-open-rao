@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-open-rao</artifactId>
-        <version>5.6.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-distribution</artifactId>
@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-creator-api</artifactId>
+            <artifactId>open-rao-crac-io-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

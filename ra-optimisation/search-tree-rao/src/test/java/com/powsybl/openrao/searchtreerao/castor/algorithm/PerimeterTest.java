@@ -70,12 +70,14 @@ class PerimeterTest {
 
     @Test
     void testNullRaOptimizationState() {
-        assertThrows(NullPointerException.class, () -> new Perimeter(null, Set.of(otherState1)));
+        Set<State> stateSet = Set.of(otherState1);
+        assertThrows(NullPointerException.class, () -> new Perimeter(null, stateSet));
     }
 
     @Test
     void testAddCnecStateOccurringAfterRaOptimizationState() {
-        OpenRaoException exception1 = assertThrows(OpenRaoException.class, () -> new Perimeter(otherState2, Set.of(otherState1)));
+        Set<State> otherStateSet = Set.of(otherState1);
+        OpenRaoException exception1 = assertThrows(OpenRaoException.class, () -> new Perimeter(otherState2, otherStateSet));
         assertEquals("Other states should occur after the optimisation state.", exception1.getMessage());
         Perimeter perimeter = new Perimeter(otherState2, Set.of());
         OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> perimeter.addOtherState(otherState1));

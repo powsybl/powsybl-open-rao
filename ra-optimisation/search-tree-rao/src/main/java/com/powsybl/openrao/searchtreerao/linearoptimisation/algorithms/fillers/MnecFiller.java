@@ -66,7 +66,7 @@ public class MnecFiller implements ProblemFiller {
 
     private void buildMarginViolationVariable(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs) {
         validMonitoredCnecs.forEach(mnec -> mnec.getMonitoredSides().forEach(side ->
-            linearProblem.addMnecViolationVariable(0, LinearProblem.infinity(), mnec, side)
+            linearProblem.addMnecViolationVariable(0, linearProblem.infinity(), mnec, side)
         ));
     }
 
@@ -80,7 +80,7 @@ public class MnecFiller implements ProblemFiller {
                 Optional<Double> maxFlow = mnec.getUpperBound(side, MEGAWATT);
                 if (maxFlow.isPresent()) {
                     double ub = Math.max(maxFlow.get(), mnecInitialFlowInMW + mnecAcceptableMarginDecrease) - mnecConstraintAdjustmentCoefficient;
-                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-LinearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
                 }
@@ -88,7 +88,7 @@ public class MnecFiller implements ProblemFiller {
                 Optional<Double> minFlow = mnec.getLowerBound(side, MEGAWATT);
                 if (minFlow.isPresent()) {
                     double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecAcceptableMarginDecrease) + mnecConstraintAdjustmentCoefficient;
-                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, LinearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);
                 }

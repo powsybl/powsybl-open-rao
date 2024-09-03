@@ -14,11 +14,19 @@ import com.powsybl.openrao.data.cracapi.RemedialActionAdder;
  */
 public interface NetworkActionAdder extends RemedialActionAdder<NetworkActionAdder> {
 
-    TopologicalActionAdder newTopologicalAction();
+    TerminalsConnectionActionAdder newTerminalsConnectionAction();
 
-    PstSetpointAdder newPstSetPoint();
+    SwitchActionAdder newSwitchAction();
 
-    InjectionSetpointAdder newInjectionSetPoint();
+    PhaseTapChangerTapPositionActionAdder newPhaseTapChangerTapPositionAction();
+
+    GeneratorActionAdder newGeneratorAction();
+
+    LoadActionAdder newLoadAction();
+
+    DanglingLineActionAdder newDanglingLineAction();
+
+    ShuntCompensatorPositionActionAdder newShuntCompensatorPositionAction();
 
     SwitchPairAdder newSwitchPair();
 

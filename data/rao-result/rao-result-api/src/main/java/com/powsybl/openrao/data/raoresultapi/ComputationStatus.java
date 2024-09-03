@@ -12,5 +12,6 @@ package com.powsybl.openrao.data.raoresultapi;
  */
 public enum ComputationStatus {
     DEFAULT,
+    PARTIAL_FAILURE,
     FAILURE
 }

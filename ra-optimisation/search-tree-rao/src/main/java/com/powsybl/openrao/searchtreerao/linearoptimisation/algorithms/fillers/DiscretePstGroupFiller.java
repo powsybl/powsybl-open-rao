@@ -65,7 +65,7 @@ public class DiscretePstGroupFiller implements ProblemFiller {
             try {
                 linearProblem.getPstGroupTapVariable(groupId, state);
             } catch (OpenRaoException ignored) {
-                linearProblem.addPstGroupTapVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId, state);
+                linearProblem.addPstGroupTapVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId, state);
             }
             addRangeActionGroupConstraint(linearProblem, pstRangeAction, groupId, state);
         }

@@ -58,7 +58,7 @@ final class VoltageCnecResultArraySerializer {
                         try {
                             serializeVoltageCnecResultForOptimizationState(curativeInstant, voltageCnec, raoResult, jsonGenerator);
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new OpenRaoException("An error occured when serializing Voltage Cnec results", e);
                         }
                     }
                 );

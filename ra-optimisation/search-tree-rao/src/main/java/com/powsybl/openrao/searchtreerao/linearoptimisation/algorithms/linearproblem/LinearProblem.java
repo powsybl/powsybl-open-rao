@@ -29,7 +29,6 @@ import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.li
  */
 public final class LinearProblem {
 
-    public static final int LP_INFINITY = (int) 1e10;
     private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
 
     private final OpenRaoMPSolver solver;
@@ -430,8 +429,31 @@ public final class LinearProblem {
         return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
-    public static int infinity() {
-        return LP_INFINITY;
+    public OpenRaoMPVariable addPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
+        return solver.makeIntVar(0, infinity(), pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state));
     }
 
+    public OpenRaoMPVariable getPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
+        return solver.getVariable(pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addPstAbsoluteVariationFromInitialTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state, AbsExtension positiveOrNegative) {
+        return solver.makeConstraint(lb, ub, pstAbsoluteVariationFromInitialTapConstraintId(pstRangeAction, state, positiveOrNegative));
+    }
+
+    public OpenRaoMPConstraint getPstAbsoluteVariationFromInitialTapConstraint(PstRangeAction pstRangeAction, State state, AbsExtension positiveOrNegative) {
+        return solver.getConstraint(pstAbsoluteVariationFromInitialTapConstraintId(pstRangeAction, state, positiveOrNegative));
+    }
+
+    public OpenRaoMPConstraint addTsoMaxElementaryActionsConstraint(double lb, double ub, String operator, State state) {
+        return solver.makeConstraint(lb, ub, maxElementaryActionsPerTsoConstraintId(operator, state));
+    }
+
+    public OpenRaoMPConstraint getTsoMaxElementaryActionsConstraint(String operator, State state) {
+        return solver.getConstraint(maxElementaryActionsPerTsoConstraintId(operator, state));
+    }
+
+    public double infinity() {
+        return solver.infinity();
+    }
 }

@@ -58,10 +58,10 @@ public class LinearProblemBuilder {
         }
 
         // unoptimized CNECs for TSOs without curative RA
-        if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())) {
-            if (!Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize()) && inputs.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
-                this.withProblemFiller(buildUnoptimizedCnecFiller());
-            }
+        if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())
+            && !Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize())
+            && inputs.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
+            this.withProblemFiller(buildUnoptimizedCnecFiller());
         }
 
         // MIP optimization vs. CONTINUOUS optimization
@@ -79,7 +79,7 @@ public class LinearProblemBuilder {
         if (parameters.getRaLimitationParameters() != null
             && inputs.getOptimizationPerimeter().getRangeActionOptimizationStates().stream()
             .anyMatch(state -> parameters.getRaLimitationParameters().areRangeActionLimitedForState(state))) {
-            this.withProblemFiller(buildRaUageLimitsFiller());
+            this.withProblemFiller(buildRaUsageLimitsFiller());
         }
 
         return new LinearProblem(problemFillers, solver, relativeMipGap, solverSpecificParameters);
@@ -183,12 +183,13 @@ public class LinearProblemBuilder {
         return new ContinuousRangeActionGroupFiller(rangeActionsPerState);
     }
 
-    private ProblemFiller buildRaUageLimitsFiller() {
+    private ProblemFiller buildRaUsageLimitsFiller() {
         return new RaUsageLimitsFiller(
             inputs.getOptimizationPerimeter().getRangeActionsPerState(),
             inputs.getPrePerimeterSetpoints(),
             parameters.getRaLimitationParameters(),
-            parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+            parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
+            inputs.getNetwork());
     }
 
     private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
