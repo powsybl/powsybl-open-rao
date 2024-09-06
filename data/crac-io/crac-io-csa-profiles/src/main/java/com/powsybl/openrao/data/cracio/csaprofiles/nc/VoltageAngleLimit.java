@@ -15,13 +15,13 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record VoltageAngleLimit(String mrid, double normalValue, String terminal1, String terminal2, String direction, Boolean isFlowToRefTerminal) implements NCObject {
     public static VoltageAngleLimit fromPropertyBag(PropertyBag propertyBag) {
         return new VoltageAngleLimit(
-            propertyBag.getId(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT),
-            Double.parseDouble(propertyBag.get(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE)),
+            propertyBag.getId(CsaProfileConstants.VOLTAGE_ANGLE_LIMIT),
+            Double.parseDouble(propertyBag.get(CsaProfileConstants.NORMAL_VALUE)),
             // TODO: add constants
             propertyBag.getId("terminal1"),
             propertyBag.getId("terminal2"),
-            propertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION),
-            propertyBag.get(CsaProfileConstants.REQUEST_IS_FLOW_TO_REF_TERMINAL) == null ? null : Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.REQUEST_IS_FLOW_TO_REF_TERMINAL))
+            propertyBag.get(CsaProfileConstants.DIRECTION),
+            propertyBag.get(CsaProfileConstants.IS_FLOW_TO_REF_TERMINAL) == null ? null : Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.IS_FLOW_TO_REF_TERMINAL))
         );
     }
 }

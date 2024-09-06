@@ -14,6 +14,6 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public record RemedialActionGroup(String mrid, String name) implements IdentifiedObject {
     public static RemedialActionGroup fromPropertyBag(PropertyBag propertyBag) {
-        return new RemedialActionGroup(propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION_GROUP), propertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME));
+        return new RemedialActionGroup(propertyBag.getId(CsaProfileConstants.REMEDIAL_ACTION_GROUP), propertyBag.get(CsaProfileConstants.NAME));
     }
 }

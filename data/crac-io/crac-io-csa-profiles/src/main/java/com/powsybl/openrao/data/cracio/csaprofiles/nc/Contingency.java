@@ -15,10 +15,10 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record Contingency(String mrid, boolean normalMustStudy, String name, String operator) implements IdentifiedObjectWithOperator {
     public static Contingency fromPropertyBag(PropertyBag propertyBag) {
         return new Contingency(
-            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY),
-            Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NORMAL_MUST_STUDY)),
-            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME),
-            propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR)
+            propertyBag.getId(CsaProfileConstants.CONTINGENCY),
+            Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.NORMAL_MUST_STUDY)),
+            propertyBag.getId(CsaProfileConstants.NAME),
+            propertyBag.get(CsaProfileConstants.EQUIPMENT_OPERATOR)
         );
     }
 }

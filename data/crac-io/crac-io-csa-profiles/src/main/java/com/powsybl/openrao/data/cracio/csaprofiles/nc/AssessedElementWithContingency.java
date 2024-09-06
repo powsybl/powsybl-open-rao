@@ -15,9 +15,9 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record AssessedElementWithContingency(String mrid, String assessedElement, String contingency, String combinationConstraintKind, boolean normalEnabled) implements Association {
     public static AssessedElementWithContingency fromPropertyBag(PropertyBag propertyBag) {
         return new AssessedElementWithContingency(
-            propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY),
-            propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT),
-            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY),
+            propertyBag.getId(CsaProfileConstants.ASSESSED_ELEMENT_WITH_CONTINGENCY),
+            propertyBag.getId(CsaProfileConstants.ASSESSED_ELEMENT),
+            propertyBag.getId(CsaProfileConstants.CONTINGENCY),
             propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true"))
         );

@@ -10,7 +10,7 @@ public record GridStateAlterationRemedialAction(String mrid, String name, String
     public static GridStateAlterationRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new GridStateAlterationRemedialAction(
             propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION),
-            propertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME),
+            propertyBag.get(CsaProfileConstants.NAME),
             propertyBag.get(CsaProfileConstants.TSO),
             propertyBag.get(CsaProfileConstants.KIND),
             Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE)),

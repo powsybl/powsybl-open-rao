@@ -49,10 +49,10 @@ public record ContingencyEquipment(String mrid, String contingency, String conti
 
     public static ContingencyEquipment fromPropertyBag(PropertyBag propertyBag) {
         return new ContingencyEquipment(
-            propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT),
-            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY),
-            propertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS),
-            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID)
+            propertyBag.get(CsaProfileConstants.CONTINGENCY_EQUIPMENT),
+            propertyBag.getId(CsaProfileConstants.CONTINGENCY),
+            propertyBag.get(CsaProfileConstants.CONTINGENT_STATUS),
+            propertyBag.getId(CsaProfileConstants.CONTINGENCY_EQUIPMENT_ID)
         );
     }
 }

@@ -83,13 +83,13 @@ public final class CsaProfileCracUtils {
     }
 
     public static boolean checkProfileValidityInterval(PropertyBag propertyBag, OffsetDateTime importTimestamp) {
-        String startTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
-        String endTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
+        String startTime = propertyBag.get(CsaProfileConstants.START_DATE);
+        String endTime = propertyBag.get(CsaProfileConstants.END_DATE);
         return isValidInterval(importTimestamp, startTime, endTime);
     }
 
     public static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileKeyword csaProfileKeyword) {
-        String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
+        String keyword = propertyBag.get(CsaProfileConstants.KEYWORD);
         return csaProfileKeyword.toString().equals(keyword);
     }
 

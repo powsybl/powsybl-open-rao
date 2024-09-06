@@ -15,9 +15,9 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record RemedialActionDependency(String mrid, String kind, String remedialAction, String dependingRemedialActionGroup, boolean normalEnabled) implements NCObject {
     public static RemedialActionDependency fromPropertyBag(PropertyBag propertyBag) {
         return new RemedialActionDependency(
-            propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION_DEPENDENCY),
+            propertyBag.getId(CsaProfileConstants.REMEDIAL_ACTION_DEPENDENCY),
             propertyBag.get(CsaProfileConstants.KIND),
-            propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION),
+            propertyBag.getId(CsaProfileConstants.REMEDIAL_ACTION),
             propertyBag.getId(CsaProfileConstants.DEPENDING_REMEDIAL_ACTION_GROUP),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true"))
         );

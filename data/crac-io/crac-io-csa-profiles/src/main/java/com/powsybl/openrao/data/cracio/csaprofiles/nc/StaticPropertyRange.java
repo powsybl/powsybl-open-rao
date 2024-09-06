@@ -17,10 +17,10 @@ public record StaticPropertyRange(String mrid, double normalValue, String valueK
         return new StaticPropertyRange(
             propertyBag.getId(CsaProfileConstants.STATIC_PROPERTY_RANGE),
             Double.parseDouble(propertyBag.get(CsaProfileConstants.NORMAL_VALUE)),
-            propertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND),
-            propertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION),
+            propertyBag.get(CsaProfileConstants.VALUE_KIND),
+            propertyBag.get(CsaProfileConstants.DIRECTION),
             propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION),
-            propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE)
+            propertyBag.get(CsaProfileConstants.PROPERTY_REFERENCE)
         );
     }
 }

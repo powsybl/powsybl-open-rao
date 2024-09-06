@@ -15,18 +15,18 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record AssessedElement(String mrid, boolean inBaseCase, String name, String operator, String conductingEquipment, String operationalLimit, boolean isCombinableWithContingency, boolean isCombinableWithRemedialAction, boolean normalEnabled, String securedForRegion, String scannedForRegion, double flowReliabilityMargin) implements IdentifiedObjectWithOperator {
     public static AssessedElement fromPropertyBag(PropertyBag propertyBag) {
         return new AssessedElement(
-            propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT),
-            Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE)),
-            propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_NAME),
-            propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATOR),
-            propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT),
-            propertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT),
-            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY, "false")),
-            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION, "false")),
-            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED, "true")),
-            propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION),
-            propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION),
-            propertyBag.get(CsaProfileConstants.REQUEST_FLOW_RELIABILITY_MARGIN) == null ? 0d : Double.parseDouble(propertyBag.get(CsaProfileConstants.REQUEST_FLOW_RELIABILITY_MARGIN))
+            propertyBag.getId(CsaProfileConstants.ASSESSED_ELEMENT),
+            Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.IN_BASE_CASE)),
+            propertyBag.get(CsaProfileConstants.NAME),
+            propertyBag.get(CsaProfileConstants.OPERATOR),
+            propertyBag.getId(CsaProfileConstants.CONDUCTING_EQUIPMENT),
+            propertyBag.getId(CsaProfileConstants.OPERATIONAL_LIMIT),
+            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.IS_COMBINABLE_WITH_CONTINGENCY, "false")),
+            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.IS_COMBINABLE_WITH_REMEDIAL_ACTION, "false")),
+            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true")),
+            propertyBag.get(CsaProfileConstants.SECURED_FOR_REGION),
+            propertyBag.get(CsaProfileConstants.SCANNED_FOR_REGION),
+            propertyBag.get(CsaProfileConstants.FLOW_RELIABILITY_MARGIN) == null ? 0d : Double.parseDouble(propertyBag.get(CsaProfileConstants.FLOW_RELIABILITY_MARGIN))
         );
     }
 }

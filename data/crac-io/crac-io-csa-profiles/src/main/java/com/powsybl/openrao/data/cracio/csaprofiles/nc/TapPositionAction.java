@@ -17,9 +17,9 @@ public record TapPositionAction(String mrid, String tapChangerId, String propert
         return new TapPositionAction(
             propertyBag.getId(CsaProfileConstants.TAP_POSITION_ACTION),
             propertyBag.getId(CsaProfileConstants.TAP_CHANGER_ID),
-            propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE),
+            propertyBag.get(CsaProfileConstants.PROPERTY_REFERENCE),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true")),
-            propertyBag.getId(CsaProfileConstants.REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION),
+            propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION),
             propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION)
         );
     }

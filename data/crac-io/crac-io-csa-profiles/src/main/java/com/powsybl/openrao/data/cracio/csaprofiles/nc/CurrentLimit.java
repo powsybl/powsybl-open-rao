@@ -15,12 +15,12 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record CurrentLimit(String mrid, double value, String terminal, String limitType, String direction, String acceptableDuration) implements NCObject {
     public static CurrentLimit fromPropertyBag(PropertyBag propertyBag) {
         return new CurrentLimit(
-            propertyBag.getId(CsaProfileConstants.REQUEST_CURRENT_LIMIT),
-            Double.parseDouble(propertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_VALUE)),
-            propertyBag.getId(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TERMINAL),
-            propertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_TYPE),
-            propertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION),
-            propertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION)
+            propertyBag.getId(CsaProfileConstants.CURRENT_LIMIT),
+            Double.parseDouble(propertyBag.get(CsaProfileConstants.VALUE)),
+            propertyBag.getId(CsaProfileConstants.TERMINAL),
+            propertyBag.get(CsaProfileConstants.LIMIT_TYPE),
+            propertyBag.get(CsaProfileConstants.DIRECTION),
+            propertyBag.get(CsaProfileConstants.ACCEPTABLE_DURATION)
         );
     }
 }

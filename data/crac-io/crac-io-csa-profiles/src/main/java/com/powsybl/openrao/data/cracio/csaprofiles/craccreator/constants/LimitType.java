@@ -12,9 +12,9 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public enum LimitType {
-    ANGLE(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT),
-    CURRENT(CsaProfileConstants.REQUEST_CURRENT_LIMIT),
-    VOLTAGE(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
+    ANGLE(CsaProfileConstants.VOLTAGE_ANGLE_LIMIT),
+    CURRENT(CsaProfileConstants.CURRENT_LIMIT),
+    VOLTAGE(CsaProfileConstants.VOLTAGE_LIMIT);
 
     LimitType(String type) {
         this.type = type;

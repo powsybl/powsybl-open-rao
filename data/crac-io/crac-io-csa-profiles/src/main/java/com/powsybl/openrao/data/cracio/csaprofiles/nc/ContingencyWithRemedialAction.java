@@ -15,9 +15,9 @@ import com.powsybl.triplestore.api.PropertyBag;
 public record ContingencyWithRemedialAction(String mrid, String contingency, String remedialAction, String combinationConstraintKind, boolean normalEnabled) implements Association {
     public static ContingencyWithRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new ContingencyWithRemedialAction(
-            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION),
-            propertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY),
-            propertyBag.getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION),
+            propertyBag.getId(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION),
+            propertyBag.getId(CsaProfileConstants.CONTINGENCY),
+            propertyBag.getId(CsaProfileConstants.REMEDIAL_ACTION),
             propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true"))
         );

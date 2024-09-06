@@ -17,9 +17,9 @@ public record TopologyAction(String mrid, String switchId, String propertyRefere
         return new TopologyAction(
             propertyBag.getId(CsaProfileConstants.TOPOLOGY_ACTION),
             propertyBag.getId(CsaProfileConstants.SWITCH),
-            propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE),
+            propertyBag.get(CsaProfileConstants.PROPERTY_REFERENCE),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true")),
-            propertyBag.getId(CsaProfileConstants.REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION),
+            propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION),
             propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION)
         );
     }

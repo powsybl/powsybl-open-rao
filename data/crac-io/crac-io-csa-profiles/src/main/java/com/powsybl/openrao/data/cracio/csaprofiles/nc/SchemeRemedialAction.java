@@ -17,7 +17,7 @@ public record SchemeRemedialAction(String mrid, String name, String operator, St
     public static SchemeRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new SchemeRemedialAction(
             propertyBag.getId(CsaProfileConstants.SCHEME_REMEDIAL_ACTION),
-            propertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME),
+            propertyBag.get(CsaProfileConstants.NAME),
             propertyBag.get(CsaProfileConstants.TSO),
             propertyBag.get(CsaProfileConstants.KIND),
             Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE)),

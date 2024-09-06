@@ -17,9 +17,9 @@ public record RotatingMachineAction(String mrid, String rotatingMachineId, Strin
         return new RotatingMachineAction(
             propertyBag.getId(CsaProfileConstants.ROTATING_MACHINE_ACTION),
             propertyBag.getId(CsaProfileConstants.ROTATING_MACHINE),
-            propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE),
+            propertyBag.get(CsaProfileConstants.PROPERTY_REFERENCE),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true")),
-            propertyBag.getId(CsaProfileConstants.REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION),
+            propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION),
             propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION)
         );
     }
