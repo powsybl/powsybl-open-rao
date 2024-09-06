@@ -33,6 +33,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialAction;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.SchemeRemedialAction;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.TapChanger;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.TapPositionAction;
 
 import java.util.*;
@@ -53,7 +54,8 @@ public class CsaProfileRemedialActionsCreator {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
-        this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network);
+        Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
+        this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network, pstPerTapChanger);
         Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction).aggregate(nativeCrac.getAssessedElementWithRemedialActions());
         Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeCrac.getContingencyWithRemedialActions());
         this.nativeRemedialActions = new HashSet<>();
