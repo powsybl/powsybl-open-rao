@@ -33,53 +33,16 @@ GRAPH <%s> {
 }
 }
 
-# query: ordinaryContingency
+# query: contingency
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
+VALUES ?type { nc:OrdinaryContingency nc:ExceptionalContingency nc:OutOfRangeContingency }
 GRAPH <%s> {
     ?contingency
-        rdf:type nc:OrdinaryContingency ;
-        nc:Contingency.normalMustStudy ?normalMustStudy ;
-    OPTIONAL {
-            ?contingency cim:IdentifiedObject.name ?name .
-            }
-    OPTIONAL {
-            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
-            }
-}
-}
-
-# query: exceptionalContingency
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
-SELECT *
-{
-GRAPH <%s> {
-    ?contingency
-        rdf:type nc:ExceptionalContingency ;
-        nc:Contingency.normalMustStudy ?normalMustStudy ;
-    OPTIONAL {
-            ?contingency cim:IdentifiedObject.name ?name .
-            }
-    OPTIONAL {
-            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
-            }
-}
-}
-
-# query: outOfRangeContingency
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
-SELECT *
-{
-GRAPH <%s> {
-    ?contingency
-        rdf:type nc:OutOfRangeContingency ;
+        rdf:type ?type ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
     OPTIONAL {
             ?contingency cim:IdentifiedObject.name ?name .

@@ -69,20 +69,20 @@ public class CsaProfileCrac {
         return returnMap;
     }
 
-    public PropertyBags getPropertyBags(CsaProfileKeyword keyword, Query... queries) {
+    public PropertyBags getPropertyBags(CsaProfileKeyword keyword, Query query) {
         Set<String> namesToRequest = getContextNamesToRequest(keyword);
         if (namesToRequest.isEmpty()) {
             return new PropertyBags();
         }
-        return this.queryTripleStore(Arrays.stream(queries).map(Query::getTitle).toList(), namesToRequest);
+        return this.queryTripleStore(List.of(query.getTitle()), namesToRequest);
     }
 
-    public PropertyBags getPropertyBags(CsaProfileKeyword keyword, OverridingObjectsFields withOverride, Query... queries) {
-        return withOverride == null ? getPropertyBags(keyword, queries) : CsaProfileCracUtils.overrideData(getPropertyBags(keyword, queries), overridingData, withOverride);
+    public PropertyBags getPropertyBags(CsaProfileKeyword keyword, OverridingObjectsFields withOverride, Query query) {
+        return withOverride == null ? getPropertyBags(keyword, query) : CsaProfileCracUtils.overrideData(getPropertyBags(keyword, query), overridingData, withOverride);
     }
 
     public Set<Contingency> getContingencies() {
-        return new NcPropertyBagsConverter<>(Contingency::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.CONTINGENCY, OverridingObjectsFields.CONTINGENCY, Query.ORDINARY_CONTINGENCY, Query.EXCEPTIONAL_CONTINGENCY, Query.OUT_OF_RANGE_CONTINGENCY));
+        return new NcPropertyBagsConverter<>(Contingency::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.CONTINGENCY, OverridingObjectsFields.CONTINGENCY, Query.CONTINGENCY));
     }
 
     public Set<ContingencyEquipment> getContingencyEquipments() {
