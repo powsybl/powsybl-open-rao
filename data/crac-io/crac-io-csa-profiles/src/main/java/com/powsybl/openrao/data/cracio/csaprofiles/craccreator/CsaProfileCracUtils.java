@@ -12,9 +12,9 @@ import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileKeyword;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.OverridingObjectsFields;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.PropertyReference;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.Query;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -99,12 +99,14 @@ public final class CsaProfileCracUtils {
         return returnSet;
     }
 
-    public static PropertyBags overrideData(PropertyBags propertyBags, Map<String, String> dataMap, OverridingObjectsFields overridingObjectsFields) {
+    public static PropertyBags overrideQuery(PropertyBags propertyBags, Query query, Map<String, String> dataMap) {
         for (PropertyBag propertyBag : propertyBags) {
-            String id = propertyBag.getId(overridingObjectsFields.getObjectName());
-            String data = dataMap.get(id);
-            if (data != null) {
-                propertyBag.put(overridingObjectsFields.getInitialFieldName(), data);
+            for (String overriddenValue : query.getOverridableFields().keySet()) {
+                String id = propertyBag.getId(query.getTitle());
+                String data = dataMap.get(id);
+                if (data != null) {
+                    propertyBag.put(overriddenValue, data);
+                }
             }
         }
         return propertyBags;
