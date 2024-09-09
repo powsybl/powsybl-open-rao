@@ -8,7 +8,6 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.remedialaction;
 
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.GridStateAlterationCollection;

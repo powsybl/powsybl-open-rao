@@ -7,7 +7,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaInstant;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 
 import java.util.HashMap;
 import java.util.Map;
