@@ -8,6 +8,8 @@ package com.powsybl.openrao.data.cracio.csaprofiles.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaBorder;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaOperator;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,16 +20,11 @@ import java.util.Set;
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class CsaCracCreationParameters extends AbstractExtension<CracCreationParameters> {
-    private static final String REE = "REE";
-    private static final String REN = "REN";
-    private static final String RTE = "RTE";
-    private static final String ES_FR = "ES-FR";
-    private static final String ES_PT = "ES-PT";
     private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
     private int spsMaxTimeToImplementThresholdInSeconds = 0;
-    private Map<String, Boolean> usePatlInFinalState = Map.of(REE, false, REN, true, RTE, true);
+    private Map<String, Boolean> usePatlInFinalState = Map.of(CsaOperator.REE.toString(), false, CsaOperator.REN.toString(), true, CsaOperator.RTE.toString(), true);
     private Map<String, Integer> craApplicationWindow = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
-    private Set<Border> borders = Set.of(new Border(ES_FR, "10YDOM--ES-FR--D", RTE), new Border(ES_PT, "10YDOM--ES-PT--T", REN));
+    private Set<Border> borders = Set.of(new Border(CsaBorder.SPAIN_FRANCE.getShortName(), CsaBorder.SPAIN_FRANCE.getEiCode(), CsaOperator.RTE.toString()), new Border(CsaBorder.SPAIN_PORTUGAL.getShortName(), CsaBorder.SPAIN_PORTUGAL.getEiCode(), CsaOperator.REN.toString()));
 
     @Override
     public String getName() {
