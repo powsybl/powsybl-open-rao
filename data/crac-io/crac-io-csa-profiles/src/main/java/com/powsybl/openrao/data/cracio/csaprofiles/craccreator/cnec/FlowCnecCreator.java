@@ -40,8 +40,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private final FlowCnecInstantHelper instantHelper;
     private final CurrentLimit nativeCurrentLimit;
 
-    public FlowCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, CurrentLimit nativeCurrentLimit, List<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, CracCreationParameters cracCreationParameters) {
-        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
+    public FlowCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, CurrentLimit nativeCurrentLimit, List<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion, borderPerTso, borderPerEic);
         this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
         this.nativeCurrentLimit = nativeCurrentLimit;
         this.instantHelper = new FlowCnecInstantHelper(cracCreationParameters);
