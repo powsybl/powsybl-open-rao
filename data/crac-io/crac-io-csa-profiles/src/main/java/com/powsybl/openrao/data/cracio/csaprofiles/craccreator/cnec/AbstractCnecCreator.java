@@ -123,6 +123,6 @@ public abstract class AbstractCnecCreator {
         if (nativeAssessedElement.overlappingZone() != null) {
             return borderPerEic.getOrDefault(CsaProfileCracUtils.getEicFromUrl(nativeAssessedElement.overlappingZone()), null);
         }
-        return borderPerTso.getOrDefault(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), null);
+        return borderPerTso.getOrDefault(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.assessedSystemOperator()), null);
     }
 }
