@@ -23,10 +23,4 @@ public final class CsaProfileConstants {
     public static final String START_DATE = "startDate";
     public static final String END_DATE = "endDate";
     public static final String KEYWORD = "keyword";
-
-    // TODO: replace by classes
-
-    public static final String CURRENT_LIMIT = "currentLimit";
-    public static final String VOLTAGE_LIMIT = "voltageLimit";
-    public static final String VOLTAGE_ANGLE_LIMIT = "voltageAngleLimit";
 }

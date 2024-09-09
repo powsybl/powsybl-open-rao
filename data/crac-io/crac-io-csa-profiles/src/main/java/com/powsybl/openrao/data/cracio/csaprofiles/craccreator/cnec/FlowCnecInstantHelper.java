@@ -5,6 +5,7 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaInstant;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 
@@ -21,7 +22,7 @@ class FlowCnecInstantHelper {
     private final int curative3InstantDuration;
 
     private final Set<String> tsos = Set.of("REE", "REN", "RTE");
-    private final Set<String> instants = Set.of(CsaProfileConstants.CURATIVE_1_INSTANT, CsaProfileConstants.CURATIVE_2_INSTANT, CsaProfileConstants.CURATIVE_3_INSTANT);
+    private final Set<String> instants = Set.of(CsaInstant.CURATIVE_1.getInstantName(), CsaInstant.CURATIVE_2.getInstantName(), CsaInstant.CURATIVE_3.getInstantName());
 
     public FlowCnecInstantHelper(CracCreationParameters parameters) {
         CsaCracCreationParameters csaParameters = parameters.getExtension(CsaCracCreationParameters.class);
@@ -29,9 +30,9 @@ class FlowCnecInstantHelper {
         checkUsePatlInFinalStateMap(csaParameters);
         checkCraApplicationWindowMap(csaParameters);
         tsosWhichDoNotUsePatlInFinalState = csaParameters.getUsePatlInFinalState().entrySet().stream().filter(entry -> !entry.getValue()).map(Map.Entry::getKey).collect(Collectors.toSet());
-        curative1InstantDuration = csaParameters.getCraApplicationWindow().get(CsaProfileConstants.CURATIVE_1_INSTANT);
-        curative2InstantDuration = csaParameters.getCraApplicationWindow().get(CsaProfileConstants.CURATIVE_2_INSTANT);
-        curative3InstantDuration = csaParameters.getCraApplicationWindow().get(CsaProfileConstants.CURATIVE_3_INSTANT);
+        curative1InstantDuration = csaParameters.getCraApplicationWindow().get(CsaInstant.CURATIVE_1.getInstantName());
+        curative2InstantDuration = csaParameters.getCraApplicationWindow().get(CsaInstant.CURATIVE_2.getInstantName());
+        curative3InstantDuration = csaParameters.getCraApplicationWindow().get(CsaInstant.CURATIVE_3.getInstantName());
     }
 
     public Set<String> getTsosWhichDoNotUsePatlInFinalState() {
@@ -62,11 +63,11 @@ class FlowCnecInstantHelper {
                 throw new OpenRaoException("cra-application-window map is missing \"" + instant + "\" key.");
             }
         }
-        if (craApplicationWindow.get(CsaProfileConstants.CURATIVE_1_INSTANT) >= craApplicationWindow.get(CsaProfileConstants.CURATIVE_2_INSTANT)) {
-            throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(CsaProfileConstants.CURATIVE_1_INSTANT, CsaProfileConstants.CURATIVE_2_INSTANT));
+        if (craApplicationWindow.get(CsaInstant.CURATIVE_1.getInstantName()) >= craApplicationWindow.get(CsaInstant.CURATIVE_2.getInstantName())) {
+            throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(CsaInstant.CURATIVE_1.getInstantName(), CsaInstant.CURATIVE_2.getInstantName()));
         }
-        if (craApplicationWindow.get(CsaProfileConstants.CURATIVE_2_INSTANT) >= craApplicationWindow.get(CsaProfileConstants.CURATIVE_3_INSTANT)) {
-            throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(CsaProfileConstants.CURATIVE_2_INSTANT, CsaProfileConstants.CURATIVE_3_INSTANT));
+        if (craApplicationWindow.get(CsaInstant.CURATIVE_2.getInstantName()) >= craApplicationWindow.get(CsaInstant.CURATIVE_3.getInstantName())) {
+            throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(CsaInstant.CURATIVE_2.getInstantName(), CsaInstant.CURATIVE_3.getInstantName()));
         }
     }
 
@@ -83,11 +84,11 @@ class FlowCnecInstantHelper {
         // raise exception if a TSO not using the PATL has no TATL either
         // associate instant to TATL duration, or Integer.MAX_VALUE if PATL
         int longestDuration = doNotUsePatlInFinalState ? tatlDurations.stream().max(Integer::compareTo).orElse(Integer.MAX_VALUE) : Integer.MAX_VALUE; // longest TATL duration or infinite (PATL)
-        instantToLimit.put(CsaProfileConstants.OUTAGE_INSTANT, tatlDurations.stream().filter(tatlDuration -> tatlDuration >= 0 && tatlDuration < curative1InstantDuration).max(Integer::compareTo).orElse(getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, 0, longestDuration)));
-        instantToLimit.put(CsaProfileConstants.AUTO_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative1InstantDuration, longestDuration));
-        instantToLimit.put(CsaProfileConstants.CURATIVE_1_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative2InstantDuration, longestDuration));
-        instantToLimit.put(CsaProfileConstants.CURATIVE_2_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative3InstantDuration, longestDuration));
-        instantToLimit.put(CsaProfileConstants.CURATIVE_3_INSTANT, longestDuration);
+        instantToLimit.put(CsaInstant.OUTAGE.getInstantName(), tatlDurations.stream().filter(tatlDuration -> tatlDuration >= 0 && tatlDuration < curative1InstantDuration).max(Integer::compareTo).orElse(getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, 0, longestDuration)));
+        instantToLimit.put(CsaInstant.AUTO.getInstantName(), getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative1InstantDuration, longestDuration));
+        instantToLimit.put(CsaInstant.CURATIVE_1.getInstantName(), getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative2InstantDuration, longestDuration));
+        instantToLimit.put(CsaInstant.CURATIVE_2.getInstantName(), getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative3InstantDuration, longestDuration));
+        instantToLimit.put(CsaInstant.CURATIVE_3.getInstantName(), longestDuration);
         return instantToLimit;
     }
 
