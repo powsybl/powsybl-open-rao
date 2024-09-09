@@ -102,13 +102,13 @@ class OnConstraintUsageRuleHelperTest {
 
         // Add AssessedElement property bags
 
-        AssessedElement assessedElement1 = new AssessedElement("assessed-element-1", true, null, null, null, null, false, false, true, null, null, 0d);
-        AssessedElement assessedElement2 = new AssessedElement("assessed-element-2", true, null, null, null, null, false, true, true, null, null, 0d);
-        AssessedElement assessedElement3 = new AssessedElement("assessed-element-3", true, null, null, null, null, false, true, true, null, null, 0d);
-        AssessedElement assessedElement4 = new AssessedElement("assessed-element-4", true, null, null, null, null, false, false, true, null, null, 0d);
-        AssessedElement assessedElement5 = new AssessedElement("assessed-element-5", true, null, null, null, null, false, false, true, null, null, 0d);
-        AssessedElement assessedElement6 = new AssessedElement("assessed-element-6", true, null, null, null, null, false, false, true, null, null, 0d);
-        AssessedElement assessedElement8 = new AssessedElement("assessed-element-8", true, null, null, null, null, false, false, true, null, null, 0d);
+        AssessedElement assessedElement1 = new AssessedElement("assessed-element-1", true, null, null, null, null, false, false, true, null, null, 0d, null);
+        AssessedElement assessedElement2 = new AssessedElement("assessed-element-2", true, null, null, null, null, false, true, true, null, null, 0d, null);
+        AssessedElement assessedElement3 = new AssessedElement("assessed-element-3", true, null, null, null, null, false, true, true, null, null, 0d, null);
+        AssessedElement assessedElement4 = new AssessedElement("assessed-element-4", true, null, null, null, null, false, false, true, null, null, 0d, null);
+        AssessedElement assessedElement5 = new AssessedElement("assessed-element-5", true, null, null, null, null, false, false, true, null, null, 0d, null);
+        AssessedElement assessedElement6 = new AssessedElement("assessed-element-6", true, null, null, null, null, false, false, true, null, null, 0d, null);
+        AssessedElement assessedElement8 = new AssessedElement("assessed-element-8", true, null, null, null, null, false, false, true, null, null, 0d, null);
 
         assessedElements = Set.of(assessedElement1, assessedElement2, assessedElement3, assessedElement4, assessedElement5, assessedElement6, assessedElement8);
 
