@@ -12,15 +12,6 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants;
  */
 public final class CsaProfileConstants {
 
-    // TODO: Replace by enum
-
-    public static final String PREVENTIVE_INSTANT = "preventive";
-    public static final String OUTAGE_INSTANT = "outage";
-    public static final String AUTO_INSTANT = "auto";
-    public static final String CURATIVE_1_INSTANT = "curative 1";
-    public static final String CURATIVE_2_INSTANT = "curative 2";
-    public static final String CURATIVE_3_INSTANT = "curative 3";
-
     private CsaProfileConstants() {
     }
 

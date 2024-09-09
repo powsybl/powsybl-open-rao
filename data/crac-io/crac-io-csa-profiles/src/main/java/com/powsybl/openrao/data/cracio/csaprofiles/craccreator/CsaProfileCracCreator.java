@@ -9,18 +9,17 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.cnec.CsaProfileCnecCreator;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaInstant;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.contingency.CsaProfileContingencyCreator;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.remedialaction.CsaProfileRemedialActionsCreator;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.cracio.commons.RaUsageLimitsAdder;
 
 import java.time.OffsetDateTime;
-
-import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants.*;
+import java.util.Arrays;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -52,12 +51,7 @@ class CsaProfileCracCreator {
     }
 
     private void addCsaInstants() {
-        crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT, InstantKind.AUTO)
-            .newInstant(CURATIVE_1_INSTANT, InstantKind.CURATIVE)
-            .newInstant(CURATIVE_2_INSTANT, InstantKind.CURATIVE)
-            .newInstant(CURATIVE_3_INSTANT, InstantKind.CURATIVE);
+        Arrays.stream(CsaInstant.values()).forEach(instant -> crac.newInstant(instant.getInstantName(), instant.getInstantKind()));
     }
 
     private void createRemedialActions(int spsMaxTimeToImplementThreshold) {
