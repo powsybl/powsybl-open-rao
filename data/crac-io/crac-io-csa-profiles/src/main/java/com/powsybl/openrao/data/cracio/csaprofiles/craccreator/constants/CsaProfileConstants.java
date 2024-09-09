@@ -147,6 +147,7 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION = "scannedForRegion";
     public static final String REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION = "securedForRegion";
     public static final String REQUEST_FLOW_RELIABILITY_MARGIN = "flowReliabilityMargin";
+    public static final String OVERLAPPING_ZONE = "overlappingZone";
 
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
     public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";

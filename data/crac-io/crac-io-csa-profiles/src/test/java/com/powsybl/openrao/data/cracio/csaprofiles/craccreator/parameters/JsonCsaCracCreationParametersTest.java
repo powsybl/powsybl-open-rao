@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.parameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
+import com.powsybl.openrao.data.cracio.csaprofiles.parameters.Border;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.JsonCsaCracCreationParameters;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -45,6 +47,7 @@ class JsonCsaCracCreationParametersTest {
         assertEquals(60, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         assertEquals(Map.of("REE", false, "REN", false, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
         assertEquals(Map.of("curative 1", 0, "curative 2", 200, "curative 3", 500), csaCracCreationParameters.getCraApplicationWindow());
+        assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), csaCracCreationParameters.getBorders());
     }
 
     @Test
@@ -56,6 +59,7 @@ class JsonCsaCracCreationParametersTest {
         assertEquals(0, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         assertEquals(Map.of("REE", false, "REN", true, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCraApplicationWindow());
+        assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), csaCracCreationParameters.getBorders());
     }
 
     @Test
@@ -88,6 +92,7 @@ class JsonCsaCracCreationParametersTest {
         assertEquals(0, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
         assertEquals(Map.of("REE", false, "REN", true, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCraApplicationWindow());
+        assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), csaCracCreationParameters.getBorders());
     }
 
 }
