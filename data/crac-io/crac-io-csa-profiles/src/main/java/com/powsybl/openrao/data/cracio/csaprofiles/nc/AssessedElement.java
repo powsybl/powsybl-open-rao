@@ -11,7 +11,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUti
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record AssessedElement(String mrid, Boolean inBaseCase, String name, String assessedSystemOperator, String conductingEquipment, String operationalLimit, Boolean isCombinableWithContingency, Boolean isCombinableWithRemedialAction, Boolean normalEnabled, String securedForRegion, String scannedForRegion, Double flowReliabilityMargin) implements NCObject {
+public record AssessedElement(String mrid, Boolean inBaseCase, String name, String assessedSystemOperator, String conductingEquipment, String operationalLimit, Boolean isCombinableWithContingency, Boolean isCombinableWithRemedialAction, Boolean normalEnabled, String securedForRegion, String scannedForRegion, Double flowReliabilityMargin, String overlappingZone) implements NCObject {
     public String getUniqueName() {
         return CsaProfileCracUtils.createElementName(name(), assessedSystemOperator()).orElse(mrid());
     }

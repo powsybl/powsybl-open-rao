@@ -89,6 +89,9 @@ GRAPH <%s> {
     OPTIONAL {
                 ?assessedElement nc:AssessedElement.flowReliabilityMargin ?flowReliabilityMargin .
             }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.OverlappingZone ?overlappingZone .
+            }
 }
 }
 
