@@ -142,10 +142,10 @@ public class ElementaryActionsHelper {
         }
 
         RemedialActionScheme nativeRemedialActionScheme = linkedRemedialActionSchemePropertyBags.get(0);
-        if (!CsaProfileConstants.SIPS.equals(nativeRemedialActionScheme.kind())) {
+        if (!"RemedialActionSchemeKind.sips".equals(nativeRemedialActionScheme.kind())) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)", remedialActionId));
         }
-        if (!nativeRemedialActionScheme.normalArmed()) {
+        if (Boolean.FALSE.equals(nativeRemedialActionScheme.normalArmed())) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because RemedialActionScheme %s is not armed", remedialActionId, nativeRemedialActionScheme.mrid()));
         }
         return nativeRemedialActionScheme.mrid();

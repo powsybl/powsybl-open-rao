@@ -117,7 +117,7 @@ public class NetworkActionCreator {
         CsaProfileCracUtils.checkPropertyReference(remedialActionId, STATIC_PROPERTY_RANGE_STRING, PropertyReference.ROTATING_MACHINE, nativeStaticPropertyRange.propertyReference());
         double setPointValue = getSetPointValue(nativeStaticPropertyRange, remedialActionId, false, initialSetPoint);
 
-        if (nativeRotatingMachineAction.normalEnabled()) {
+        if (Boolean.TRUE.equals(nativeRotatingMachineAction.normalEnabled())) {
             String rotatingMachineId = nativeRotatingMachineAction.rotatingMachineId();
             Identifiable<?> networkElement = network.getIdentifiable(rotatingMachineId);
             if (Objects.isNull(networkElement)) {
@@ -149,7 +149,7 @@ public class NetworkActionCreator {
         CsaProfileCracUtils.checkPropertyReference(remedialActionId, STATIC_PROPERTY_RANGE_STRING, PropertyReference.SHUNT_COMPENSATOR, nativeStaticPropertyRange.propertyReference());
         double setPointValue = getSetPointValue(nativeStaticPropertyRange, remedialActionId, true, initialSetPoint);
 
-        if (nativeShuntCompensatorModification.normalEnabled()) {
+        if (Boolean.TRUE.equals(nativeShuntCompensatorModification.normalEnabled())) {
             String shuntCompensatorId = nativeShuntCompensatorModification.shuntCompensatorId();
             Identifiable<?> networkElement = network.getIdentifiable(shuntCompensatorId);
             if (Objects.isNull(networkElement)) {
@@ -252,7 +252,7 @@ public class NetworkActionCreator {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the RelativeDirectionKind is %s but should be absolute", remedialActionId, nativeStaticPropertyRange.direction()));
         }
 
-        if (nativeTopologyAction.normalEnabled()) {
+        if (Boolean.TRUE.equals(nativeTopologyAction.normalEnabled())) {
             String switchId = nativeTopologyAction.switchId();
             Identifiable<?> networkElement = network.getIdentifiable(switchId);
             if (Objects.isNull(networkElement)) {

@@ -78,15 +78,15 @@ public class CsaProfileCnecCreator {
     private void addCnec(AssessedElement nativeAssessedElement, Set<AssessedElementWithContingency> nativeAssessedElementWithContingencies) {
         String rejectedLinksAssessedElementContingency = "";
 
-        if (!nativeAssessedElement.normalEnabled()) {
+        if (Boolean.FALSE.equals(nativeAssessedElement.normalEnabled())) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, "AssessedElement %s ignored because it is not enabled".formatted(nativeAssessedElement.mrid()));
         }
 
-        if (!nativeAssessedElement.inBaseCase() && !nativeAssessedElement.isCombinableWithContingency() && nativeAssessedElementWithContingencies.isEmpty()) {
+        if (Boolean.TRUE.equals(!nativeAssessedElement.inBaseCase() && !nativeAssessedElement.isCombinableWithContingency()) && nativeAssessedElementWithContingencies.isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement %s ignored because the assessed element is not in base case and not combinable with contingencies, but no explicit link to a contingency was found".formatted(nativeAssessedElement.mrid()));
         }
 
-        Set<Contingency> combinableContingencies = nativeAssessedElement.isCombinableWithContingency() ? cracCreationContext.getCrac().getContingencies() : new HashSet<>();
+        Set<Contingency> combinableContingencies = Boolean.TRUE.equals(nativeAssessedElement.isCombinableWithContingency()) ? cracCreationContext.getCrac().getContingencies() : new HashSet<>();
 
         for (AssessedElementWithContingency assessedElementWithContingency : nativeAssessedElementWithContingencies) {
             if (!checkAndProcessCombinableContingencyFromExplicitAssociation(nativeAssessedElement.mrid(), assessedElementWithContingency, combinableContingencies)) {
@@ -164,7 +164,7 @@ public class CsaProfileCnecCreator {
         }
 
         // Disabled link to contingency
-        if (!nativeAssessedElementWithContingency.normalEnabled()) {
+        if (Boolean.FALSE.equals(nativeAssessedElementWithContingency.normalEnabled())) {
             csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.notImported(assessedElementId, null, ImportStatus.NOT_FOR_RAO, "The link between contingency " + nativeAssessedElementWithContingency.contingency() + " and the assessed element is disabled"));
             combinableContingenciesSet.remove(contingencyToLink);
             return false;

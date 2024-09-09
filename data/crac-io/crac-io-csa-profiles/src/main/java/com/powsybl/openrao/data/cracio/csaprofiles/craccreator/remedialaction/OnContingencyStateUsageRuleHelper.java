@@ -37,7 +37,7 @@ public final class OnContingencyStateUsageRuleHelper {
                 continue;
             }
 
-            if (!nativeContingencyWithRemedialAction.normalEnabled()) {
+            if (Boolean.FALSE.equals(nativeContingencyWithRemedialAction.normalEnabled())) {
                 contingencyStatusMap.put(nativeContingencyWithRemedialAction.contingency(), new AssociationStatus(false, null, "OnContingencyState usage rule for remedial action %s with contingency %s ignored because the association is disabled.".formatted(remedialActionId, nativeContingencyWithRemedialAction.contingency())));
                 continue;
             }

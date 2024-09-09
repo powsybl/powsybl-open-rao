@@ -48,7 +48,7 @@ public class PstRangeActionCreator {
     }
 
     private void addTapPositionElementaryAction(boolean isGroup, String elementaryActionsAggregatorId, Set<StaticPropertyRange> linkedStaticPropertyRangesToTapPositionAction, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, TapPositionAction nativeTapPositionAction) {
-        if (!nativeTapPositionAction.normalEnabled()) {
+        if (Boolean.FALSE.equals(nativeTapPositionAction.normalEnabled())) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because the field normalEnabled in TapPositionAction is set to false", remedialActionId));
         }
         CsaProfileCracUtils.checkPropertyReference(remedialActionId, "TapPositionAction", PropertyReference.TAP_CHANGER, nativeTapPositionAction.propertyReference());

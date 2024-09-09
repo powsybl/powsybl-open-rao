@@ -100,12 +100,10 @@ public final class CsaProfileCracUtils {
 
     public static PropertyBags overrideQuery(PropertyBags propertyBags, Query query, Map<String, String> dataMap) {
         for (PropertyBag propertyBag : propertyBags) {
-            for (String overriddenValue : query.getOverridableFields().keySet()) {
-                String id = propertyBag.getId(query.getTitle());
-                String data = dataMap.get(id);
-                if (data != null) {
-                    propertyBag.put(overriddenValue, data);
-                }
+            String id = propertyBag.getId(query.getTitle());
+            String data = dataMap.get(id);
+            if (data != null) {
+                propertyBag.put(query.getOverridableAttribute().getDefaultName(), data);
             }
         }
         return propertyBags;

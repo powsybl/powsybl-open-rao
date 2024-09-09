@@ -79,16 +79,18 @@ public class CsaProfileCrac {
 
     /**
      * Returns the set of all the native NC objects of the specified type from the NC profiles
+     *
      * @param nativeType NC type of objects to retrieve
+     * @param <T>        native NC class type
      * @return set of native objects
-     * @param <T> native NC class type
      */
     public <T extends NCObject> Set<T> getNativeObjects(Class<T> nativeType) {
         Query query = Arrays.stream(Query.values()).filter(q -> nativeType.equals(q.getNativeClass())).findFirst().orElseThrow();
         return getPropertyBags(query).stream().map(pb -> {
             try {
                 return NativeParser.fromPropertyBag(pb, nativeType, query.getDefaultValues());
-            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException |
+                     InvocationTargetException e) {
                 throw new OpenRaoException(e);
             }
         }).collect(Collectors.toSet());
@@ -100,28 +102,24 @@ public class CsaProfileCrac {
     }
 
     private void addDataFromTripleStoreToMap(Map<String, String> dataMap, Query query, OffsetDateTime importTimestamp) {
-        if (query.getOverridableFields().isEmpty()) {
+        if (query.getOverridableAttribute() == null) {
             return;
         }
         PropertyBags propertyBagsResult = queryTripleStore(query.getTitle() + "Overriding", tripleStoreCsaProfileCrac.contextNames());
         for (PropertyBag propertyBag : propertyBagsResult) {
             if (!CsaProfileKeyword.CGMES.equals(query.getTargetProfilesKeyword())) {
-                for (String overridingField : query.getOverridableFields().values()) {
-                    if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileKeyword.STEADY_STATE_INSTRUCTION) && CsaProfileCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
-                        String id = propertyBag.getId(query.getTitle());
-                        String overridingValue = propertyBag.get(overridingField);
-                        dataMap.put(id, overridingValue);
-                    }
+                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileKeyword.STEADY_STATE_INSTRUCTION) && CsaProfileCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
+                    String id = propertyBag.getId(query.getTitle());
+                    String overridingValue = propertyBag.get(query.getOverridableAttribute().getOverridingName());
+                    dataMap.put(id, overridingValue);
                 }
             } else {
                 if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileKeyword.STEADY_STATE_HYPOTHESIS)) {
-                    OffsetDateTime scenarioTime = OffsetDateTime.parse(propertyBag.get(CsaProfileConstants.SCENARIO_TIME));
-                    for (String overridingField : query.getOverridableFields().values()) {
-                        if (importTimestamp.isEqual(scenarioTime)) {
-                            String id = propertyBag.getId(query.getTitle());
-                            String overridingValue = propertyBag.get(overridingField);
-                            dataMap.put(id, overridingValue);
-                        }
+                    OffsetDateTime scenarioTime = OffsetDateTime.parse(propertyBag.get("scenarioTime"));
+                    if (importTimestamp.isEqual(scenarioTime)) {
+                        String id = propertyBag.getId(query.getTitle());
+                        String overridingValue = propertyBag.get(query.getOverridableAttribute().getOverridingName());
+                        dataMap.put(id, overridingValue);
                     }
                 }
             }
