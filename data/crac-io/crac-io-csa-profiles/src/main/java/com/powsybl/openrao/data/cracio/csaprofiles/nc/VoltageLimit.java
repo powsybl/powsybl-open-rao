@@ -6,20 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record VoltageLimit(String mrid, double value, String equipment, String limitType, boolean isInfiniteDuration) implements NCObject {
-    public static VoltageLimit fromPropertyBag(PropertyBag propertyBag) {
-        return new VoltageLimit(
-            propertyBag.getId(CsaProfileConstants.VOLTAGE_LIMIT),
-            Double.parseDouble(propertyBag.get(CsaProfileConstants.VALUE)),
-            propertyBag.getId(CsaProfileConstants.EQUIPMENT),
-            propertyBag.get(CsaProfileConstants.LIMIT_TYPE),
-            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.IS_INFINITE_DURATION, "true"))
-        );
-    }
+public record VoltageLimit(String mrid, Double value, String equipment, String limitType, Boolean isInfiniteDuration) implements NCObject {
 }

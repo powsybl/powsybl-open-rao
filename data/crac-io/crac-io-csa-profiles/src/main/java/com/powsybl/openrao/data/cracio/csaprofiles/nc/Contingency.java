@@ -6,19 +6,13 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record Contingency(String mrid, boolean normalMustStudy, String name, String operator) implements IdentifiedObjectWithOperator {
-    public static Contingency fromPropertyBag(PropertyBag propertyBag) {
-        return new Contingency(
-            propertyBag.getId(CsaProfileConstants.CONTINGENCY),
-            Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.NORMAL_MUST_STUDY)),
-            propertyBag.getId(CsaProfileConstants.NAME),
-            propertyBag.get(CsaProfileConstants.EQUIPMENT_OPERATOR)
-        );
+public record Contingency(String mrid, Boolean normalMustStudy, String name, String equipmentOperator) implements NCObject {
+    public String getUniqueName() {
+        return CsaProfileCracUtils.createElementName(name(), equipmentOperator()).orElse(mrid());
     }
 }

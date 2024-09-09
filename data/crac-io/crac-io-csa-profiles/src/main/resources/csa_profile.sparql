@@ -12,7 +12,7 @@ SELECT *
 GRAPH <%s> {
     ?contingencyEquipment
         rdf:type cim:ContingencyEquipment ;
-        cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
+        cim:ContingencyEquipment.Equipment ?equipment ;
         cim:ContingencyElement.Contingency ?contingency ;
         cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
 }
@@ -48,7 +48,7 @@ GRAPH <%s> {
             ?contingency cim:IdentifiedObject.name ?name .
             }
     OPTIONAL {
-            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+            ?contingency nc:Contingency.EquipmentOperator ?equipmentOperator .
             }
 }
 }
@@ -179,7 +179,6 @@ GRAPH <%s> {
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
-
 SELECT *
 {
     GRAPH <%s> {
@@ -207,13 +206,11 @@ SELECT *
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
-
 SELECT *
 {
     GRAPH <%s> {
         ?gridStateAlterationRemedialAction
             rdf:type nc:GridStateAlterationRemedialAction ;
-            cim:IdentifiedObject.mRID ?mRID ;
             nc:RemedialAction.normalAvailable ?normalAvailable ;
             nc:RemedialAction.kind ?kind .
 
@@ -224,7 +221,7 @@ SELECT *
             ?gridStateAlterationRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
         }
         OPTIONAL {
-            ?gridStateAlterationRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
+            ?gridStateAlterationRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?remedialActionSystemOperator .
         }
     }
 }
@@ -236,7 +233,6 @@ SELECT *
 GRAPH <%s> {
     ?contingencyWithRemedialAction
         rdf:type nc:ContingencyWithRemedialAction ;
-        nc:ContingencyWithRemedialAction.mRID ?mRID ;
         nc:ContingencyWithRemedialAction.RemedialAction ?remedialAction ;
         nc:ContingencyWithRemedialAction.Contingency ?contingency ;
         nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
@@ -255,7 +251,6 @@ SELECT *
 GRAPH <%s> {
     ?topologyAction
         rdf:type nc:TopologyAction ;
-        cim:IdentifiedObject.mRID ?mRID ;
         nc:TopologyAction.Switch ?switchId ;
         nc:GridStateAlteration.PropertyReference ?propertyReference ;
 
@@ -279,7 +274,6 @@ SELECT *
     GRAPH <%s> {
         ?rotatingMachineAction
             rdf:type nc:RotatingMachineAction ;
-            cim:IdentifiedObject.mRID ?mRID ;
             nc:GridStateAlteration.PropertyReference ?propertyReference ;
             nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
 
@@ -303,7 +297,6 @@ SELECT *
     GRAPH <%s> {
         ?shuntCompensatorModification
             rdf:type nc:ShuntCompensatorModification ;
-            cim:IdentifiedObject.mRID ?mRID ;
             nc:GridStateAlteration.PropertyReference ?propertyReference ;
             nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
 
@@ -327,7 +320,6 @@ SELECT *
 GRAPH <%s> {
     ?staticPropertyRange
         rdf:type nc:StaticPropertyRange ;
-        cim:IdentifiedObject.mRID ?mRID ;
         nc:RangeConstraint.normalValue ?normalValue ;
         nc:RangeConstraint.valueKind ?valueKind ;
         nc:RangeConstraint.direction ?direction ;
@@ -344,7 +336,6 @@ SELECT *
 GRAPH <%s> {
     ?tapPositionAction
         rdf:type nc:TapPositionAction ;
-        cim:IdentifiedObject.mRID ?mRID ;
         nc:GridStateAlteration.PropertyReference ?propertyReference;
         nc:TapPositionAction.TapChanger ?tapChangerId ;
 
@@ -370,7 +361,6 @@ SELECT *
     GRAPH <%s> {
         ?remedialActionSchedule
             rdf:type nc:RemedialActionSchedule ;
-            cim:IdentifiedObject.mRID ?mRID ;
     }
 }
 
@@ -382,7 +372,6 @@ SELECT *
     GRAPH <%s> {
     ?schemeRemedialAction
         rdf:type nc:SchemeRemedialAction ;
-        cim:IdentifiedObject.mRID ?mRID ;
         nc:RemedialAction.kind ?kind ;
         nc:RemedialAction.normalAvailable ?normalAvailable .
         OPTIONAL {
@@ -392,7 +381,7 @@ SELECT *
             ?schemeRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
         }
         OPTIONAL {
-            ?schemeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
+            ?schemeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?remedialActionSystemOperator .
         }
 }
 }
@@ -405,7 +394,6 @@ SELECT *
     GRAPH <%s> {
             ?remedialActionScheme
                 rdf:type nc:RemedialActionScheme ;
-                cim:IdentifiedObject.mRID ?mRID ;
                 nc:RemedialActionScheme.kind ?kind ;
                 nc:RemedialActionScheme.normalArmed ?normalArmed ;
                 nc:RemedialActionScheme.ArmedRemedialAction ?schemeRemedialAction .
@@ -420,7 +408,6 @@ SELECT *
 GRAPH <%s> {
         ?stage
             rdf:type nc:Stage ;
-            cim:IdentifiedObject.mRID ?mRID ;
             nc:Stage.GridStateAlterationCollection ?gridStateAlterationCollection;
             nc:Stage.RemedialActionScheme ?remedialActionScheme;
 }
@@ -434,7 +421,6 @@ SELECT *
 GRAPH <%s> {
     ?gridStateAlterationCollection
         rdf:type nc:GridStateAlterationCollection ;
-        cim:IdentifiedObject.mRID ?mRID ;
 
 }
 }
@@ -717,7 +703,6 @@ SELECT *
 GRAPH <%s> {
     ?remedialActionGroup
         rdf:type nc:RemedialActionGroup ;
-        cim:IdentifiedObject.mRID ?mRID ;
     OPTIONAL {
         ?remedialActionGroup cim:IdentifiedObject.name ?name .
     }
@@ -733,7 +718,6 @@ GRAPH <%s> {
     ?remedialActionDependency
         rdf:type nc:RemedialActionDependency ;
         nc:RemedialActionDependency.kind ?kind ;
-        nc:RemedialActionDependency.mRID ?mRID ;
         nc:RemedialActionDependency.RemedialAction ?remedialAction ;
         nc:RemedialActionDependency.DependingRemedialActionGroup ?dependingRemedialActionGroup ;
         OPTIONAL {

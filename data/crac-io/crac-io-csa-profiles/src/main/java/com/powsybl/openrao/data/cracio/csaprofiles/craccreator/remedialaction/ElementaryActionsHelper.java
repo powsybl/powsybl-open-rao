@@ -53,27 +53,27 @@ public class ElementaryActionsHelper {
     final Map<String, Set<ContingencyWithRemedialAction>> nativeContingencyWithRemedialActionPerNativeRemedialAction;
 
     public ElementaryActionsHelper(CsaProfileCrac nativeCrac) {
-        this.nativeRemedialActionGroups = nativeCrac.getRemedialActionGroups();
-        this.nativeGridStateAlterationRemedialActions = nativeCrac.getGridStateAlterationRemedialActions();
-        this.nativeSchemeRemedialActions = nativeCrac.getSchemeRemedialActions();
-        this.nativeRemedialActionSchemes = nativeCrac.getRemedialActionSchemes();
-        this.nativeStages = nativeCrac.getStages();
-        this.nativeGridStateAlterationCollections = nativeCrac.getGridStateAlterationCollections();
+        this.nativeRemedialActionGroups = nativeCrac.getNativeObjects(RemedialActionGroup.class);
+        this.nativeGridStateAlterationRemedialActions = nativeCrac.getNativeObjects(GridStateAlterationRemedialAction.class);
+        this.nativeSchemeRemedialActions = nativeCrac.getNativeObjects(SchemeRemedialAction.class);
+        this.nativeRemedialActionSchemes = nativeCrac.getNativeObjects(RemedialActionScheme.class);
+        this.nativeStages = nativeCrac.getNativeObjects(Stage.class);
+        this.nativeGridStateAlterationCollections = nativeCrac.getNativeObjects(GridStateAlterationCollection.class);
 
-        this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = new NcAggregator<>(RemedialActionDependency::dependingRemedialActionGroup).aggregate(nativeCrac.getRemedialActionDependencies());
+        this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = new NcAggregator<>(RemedialActionDependency::dependingRemedialActionGroup).aggregate(nativeCrac.getNativeObjects(RemedialActionDependency.class));
 
-        this.nativeContingencyWithRemedialActionPerNativeRemedialAction = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeCrac.getContingencyWithRemedialActions());
-        this.nativeStaticPropertyRangesPerNativeGridStateAlteration = new NcAggregator<>(StaticPropertyRange::gridStateAlteration).aggregate(nativeCrac.getStaticPropertyRanges()); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
+        this.nativeContingencyWithRemedialActionPerNativeRemedialAction = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeCrac.getNativeObjects(ContingencyWithRemedialAction.class));
+        this.nativeStaticPropertyRangesPerNativeGridStateAlteration = new NcAggregator<>(StaticPropertyRange::gridStateAlteration).aggregate(nativeCrac.getNativeObjects(StaticPropertyRange.class)); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
-        this.nativeTopologyActionsPerNativeRemedialAction = new NcAggregator<>(TopologyAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getTopologyActions());
-        this.nativeRotatingMachineActionsPerNativeRemedialAction = new NcAggregator<>(RotatingMachineAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getRotatingMachineActions());
-        this.nativeShuntCompensatorModificationsPerNativeRemedialAction = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationRemedialAction).aggregate(nativeCrac.getShuntCompensatorModifications());
-        this.nativeTapPositionActionsPerNativeRemedialAction = new NcAggregator<>(TapPositionAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getTapPositionActions());
+        this.nativeTopologyActionsPerNativeRemedialAction = new NcAggregator<>(TopologyAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getNativeObjects(TopologyAction.class));
+        this.nativeRotatingMachineActionsPerNativeRemedialAction = new NcAggregator<>(RotatingMachineAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getNativeObjects(RotatingMachineAction.class));
+        this.nativeShuntCompensatorModificationsPerNativeRemedialAction = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationRemedialAction).aggregate(nativeCrac.getNativeObjects(ShuntCompensatorModification.class));
+        this.nativeTapPositionActionsPerNativeRemedialAction = new NcAggregator<>(TapPositionAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getNativeObjects(TapPositionAction.class));
 
-        this.nativeTopologyActionsPerNativeRemedialActionAuto = new NcAggregator<>(TopologyAction::gridStateAlterationCollection).aggregate(nativeCrac.getTopologyActions());
-        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = new NcAggregator<>(RotatingMachineAction::gridStateAlterationCollection).aggregate(nativeCrac.getRotatingMachineActions());
-        this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationCollection).aggregate(nativeCrac.getShuntCompensatorModifications());
-        this.nativeTapPositionActionsPerNativeRemedialActionAuto = new NcAggregator<>(TapPositionAction::gridStateAlterationCollection).aggregate(nativeCrac.getTapPositionActions());
+        this.nativeTopologyActionsPerNativeRemedialActionAuto = new NcAggregator<>(TopologyAction::gridStateAlterationCollection).aggregate(nativeCrac.getNativeObjects(TopologyAction.class));
+        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = new NcAggregator<>(RotatingMachineAction::gridStateAlterationCollection).aggregate(nativeCrac.getNativeObjects(RotatingMachineAction.class));
+        this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationCollection).aggregate(nativeCrac.getNativeObjects(ShuntCompensatorModification.class));
+        this.nativeTapPositionActionsPerNativeRemedialActionAuto = new NcAggregator<>(TapPositionAction::gridStateAlterationCollection).aggregate(nativeCrac.getNativeObjects(TapPositionAction.class));
 
     }
 
@@ -81,7 +81,7 @@ public class ElementaryActionsHelper {
         return nativeRemedialActionDependencyPerNativeRemedialActionGroup;
     }
 
-    public Set<RemedialActionGroup> getRemedialActionGroupsPropertyBags() {
+    public Set<RemedialActionGroup> getRemedialActionGroups() {
         return nativeRemedialActionGroups;
     }
 

@@ -38,26 +38,26 @@ class GroupRemedialActionTest {
         assertRaNotImported(cracCreationContext, "fc0403cc-c774-4966-b7cb-2fc75b7ebdbc", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action group fc0403cc-c774-4966-b7cb-2fc75b7ebdbc will not be imported because all depending remedial actions must have the same usage rules. All RA's depending in that group will be ignored: open_be1_be4_cra_ae1, open_be1_be4_cra_ae2");
 
         assertNetworkActionImported(cracCreationContext, "23ff9c5d-9501-4141-a4b3-f4468b2eb636", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 1, "RTE");
-        assertEquals("Topo 1 + Topo 2 - PRA", cracCreationContext.getCrac().getRemedialAction("23ff9c5d-9501-4141-a4b3-f4468b2eb636").getName());
+        assertEquals("Topo 1   Topo 2 - PRA", cracCreationContext.getCrac().getRemedialAction("23ff9c5d-9501-4141-a4b3-f4468b2eb636").getName());
         UsageRule ur0 = cracCreationContext.getCrac().getNetworkAction("23ff9c5d-9501-4141-a4b3-f4468b2eb636").getUsageRules().iterator().next();
         assertTrue(ur0 instanceof OnInstant);
         assertEquals(InstantKind.PREVENTIVE, ur0.getInstant().getKind());
         assertEquals(UsageMethod.AVAILABLE, ur0.getUsageMethod());
 
         assertNetworkActionImported(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 3, "RTE");
-        assertEquals("Topo 1 + Topo 2 - CRA", cracCreationContext.getCrac().getRemedialAction("5569e363-59ab-497a-99b0-c4ae239cbe73").getName());
+        assertEquals("Topo 1   Topo 2 - CRA", cracCreationContext.getCrac().getRemedialAction("5569e363-59ab-497a-99b0-c4ae239cbe73").getName());
         assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
         assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
         assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertNetworkActionImported(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 3, "RTE");
-        assertEquals("Topo 1 + Topo 2 - CRA x CO1", cracCreationContext.getCrac().getRemedialAction("f4e1e04c-0184-42ea-a3cb-75dfe70112f5").getName());
+        assertEquals("Topo 1   Topo 2 - CRA x CO1", cracCreationContext.getCrac().getRemedialAction("f4e1e04c-0184-42ea-a3cb-75dfe70112f5").getName());
         assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
         assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
         assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
 
         assertNetworkActionImported(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 6, "RTE");
-        assertEquals("Topo 1 + Topo 2 - CRA x AE1", cracCreationContext.getCrac().getRemedialAction("7d2833e4-c5a8-4d79-b936-c735a58f1774").getName());
+        assertEquals("Topo 1   Topo 2 - CRA x AE1", cracCreationContext.getCrac().getRemedialAction("7d2833e4-c5a8-4d79-b936-c735a58f1774").getName());
         assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 1 - TWO", cracCreationContext.getCrac().getInstant(CURATIVE_1_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
         assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - TWO", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
         assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - TWO", cracCreationContext.getCrac().getInstant(CURATIVE_2_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);

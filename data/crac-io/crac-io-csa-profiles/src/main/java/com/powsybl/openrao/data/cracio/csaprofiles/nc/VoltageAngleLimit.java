@@ -6,22 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record VoltageAngleLimit(String mrid, double normalValue, String terminal1, String terminal2, String direction, Boolean isFlowToRefTerminal) implements NCObject {
-    public static VoltageAngleLimit fromPropertyBag(PropertyBag propertyBag) {
-        return new VoltageAngleLimit(
-            propertyBag.getId(CsaProfileConstants.VOLTAGE_ANGLE_LIMIT),
-            Double.parseDouble(propertyBag.get(CsaProfileConstants.NORMAL_VALUE)),
-            // TODO: add constants
-            propertyBag.getId("terminal1"),
-            propertyBag.getId("terminal2"),
-            propertyBag.get(CsaProfileConstants.DIRECTION),
-            propertyBag.get(CsaProfileConstants.IS_FLOW_TO_REF_TERMINAL) == null ? null : Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.IS_FLOW_TO_REF_TERMINAL))
-        );
-    }
+public record VoltageAngleLimit(String mrid, Double normalValue, String terminal1, String terminal2, String direction, Boolean isFlowToRefTerminal) implements NCObject {
 }

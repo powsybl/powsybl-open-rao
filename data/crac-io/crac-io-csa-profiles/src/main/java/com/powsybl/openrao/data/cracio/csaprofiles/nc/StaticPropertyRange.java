@@ -6,21 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record StaticPropertyRange(String mrid, double normalValue, String valueKind, String direction, String gridStateAlteration, String propertyReference) implements NCObject {
-    public static StaticPropertyRange fromPropertyBag(PropertyBag propertyBag) {
-        return new StaticPropertyRange(
-            propertyBag.getId(CsaProfileConstants.STATIC_PROPERTY_RANGE),
-            Double.parseDouble(propertyBag.get(CsaProfileConstants.NORMAL_VALUE)),
-            propertyBag.get(CsaProfileConstants.VALUE_KIND),
-            propertyBag.get(CsaProfileConstants.DIRECTION),
-            propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION),
-            propertyBag.get(CsaProfileConstants.PROPERTY_REFERENCE)
-        );
-    }
+public record StaticPropertyRange(String mrid, Double normalValue, String valueKind, String direction, String gridStateAlteration, String propertyReference) implements NCObject {
 }

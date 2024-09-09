@@ -6,14 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record RemedialActionGroup(String mrid, String name) implements IdentifiedObject {
-    public static RemedialActionGroup fromPropertyBag(PropertyBag propertyBag) {
-        return new RemedialActionGroup(propertyBag.getId(CsaProfileConstants.REMEDIAL_ACTION_GROUP), propertyBag.get(CsaProfileConstants.NAME));
-    }
+public record RemedialActionGroup(String mrid, String name) implements NCObject {
 }

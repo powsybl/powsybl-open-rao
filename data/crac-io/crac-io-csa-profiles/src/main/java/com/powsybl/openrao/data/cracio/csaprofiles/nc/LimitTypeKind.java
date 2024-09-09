@@ -5,26 +5,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants;
+package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public enum OperationalLimitDirectionKind {
-    ABSOLUTE("absoluteValue"),
-    HIGH("high"),
-    LOW("low");
+public enum LimitTypeKind {
+    PATL("patl"),
+    TATL("tatl"),
+    HIGH_VOLTAGE("highVoltage"),
+    LOW_VOLTAGE("lowVoltage");
 
-    OperationalLimitDirectionKind(String direction) {
-        this.direction = direction;
+    LimitTypeKind(String name) {
+        this.name = name;
     }
 
-    private final String direction;
-    private static final String URL = CsaProfileConstants.IEC_URL + "CIM100#OperationalLimitDirectionKind.";
+    private final String name;
 
     @Override
     public String toString() {
-        return URL + this.direction;
+        return getClass().getSimpleName() + "." + name;
     }
 }

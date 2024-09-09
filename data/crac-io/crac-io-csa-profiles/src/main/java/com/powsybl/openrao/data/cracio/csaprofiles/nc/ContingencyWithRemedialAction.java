@@ -6,20 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record ContingencyWithRemedialAction(String mrid, String contingency, String remedialAction, String combinationConstraintKind, boolean normalEnabled) implements Association {
-    public static ContingencyWithRemedialAction fromPropertyBag(PropertyBag propertyBag) {
-        return new ContingencyWithRemedialAction(
-            propertyBag.getId(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION),
-            propertyBag.getId(CsaProfileConstants.CONTINGENCY),
-            propertyBag.getId(CsaProfileConstants.REMEDIAL_ACTION),
-            propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND),
-            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true"))
-        );
-    }
+public record ContingencyWithRemedialAction(String mrid, String contingency, String remedialAction, String combinationConstraintKind, Boolean normalEnabled) implements NCObject {
 }

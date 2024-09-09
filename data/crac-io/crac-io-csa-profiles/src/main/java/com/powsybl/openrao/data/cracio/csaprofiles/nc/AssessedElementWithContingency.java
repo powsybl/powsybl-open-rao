@@ -6,20 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record AssessedElementWithContingency(String mrid, String assessedElement, String contingency, String combinationConstraintKind, boolean normalEnabled) implements Association {
-    public static AssessedElementWithContingency fromPropertyBag(PropertyBag propertyBag) {
-        return new AssessedElementWithContingency(
-            propertyBag.getId(CsaProfileConstants.ASSESSED_ELEMENT_WITH_CONTINGENCY),
-            propertyBag.getId(CsaProfileConstants.ASSESSED_ELEMENT),
-            propertyBag.getId(CsaProfileConstants.CONTINGENCY),
-            propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND),
-            Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true"))
-        );
-    }
+public record AssessedElementWithContingency(String mrid, String assessedElement, String contingency, String combinationConstraintKind, Boolean normalEnabled) implements NCObject {
 }

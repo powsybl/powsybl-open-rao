@@ -19,8 +19,8 @@ import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationCon
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
 import com.powsybl.iidm.network.*;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.LimitTypeKind;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.OperationalLimitDirectionKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.LimitTypeKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.CurrentLimit;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
@@ -211,11 +211,11 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         // Curative CNECs
         if (!linkedContingencies.isEmpty()) {
-            String operatorName = CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator());
+            String operatorName = CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.assessedSystemOperator());
             Map<TwoSides, Map<String, Integer>> instantToDurationMaps = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(twoSides -> twoSides, twoSides -> instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, twoSides, operatorName)));
             boolean operatorDoesNotUsePatlInFinalState = instantHelper.getTsosWhichDoNotUsePatlInFinalState().contains(operatorName);
 
-            // If an operator does not use the PATL for the final state but has no TATL defined, the use of PATL if forced
+            // If an remedialActionSystemOperator does not use the PATL for the final state but has no TATL defined, the use of PATL if forced
             Map<TwoSides, Boolean> forceUseOfPatl = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(
                 twoSides -> twoSides,
                 twoSides -> operatorDoesNotUsePatlInFinalState
@@ -234,7 +234,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 String cnecName = getCnecName(instant, contingency, twoSides, acceptableDuration);
                 addFlowCnec(networkElement, contingency, instant, twoSides, threshold, acceptableDuration, useMaxAndMinThresholds);
                 if (acceptableDuration == Integer.MAX_VALUE && Boolean.TRUE.equals(forceUseOfPatl.get(twoSides))) {
-                    csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId(), twoSides)));
+                    csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.assessedSystemOperator()), networkElement.getId(), twoSides)));
                 } else {
                     csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
                 }

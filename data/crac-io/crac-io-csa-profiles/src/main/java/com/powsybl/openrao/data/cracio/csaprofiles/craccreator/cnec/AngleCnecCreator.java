@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCre
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.OperationalLimitDirectionKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;

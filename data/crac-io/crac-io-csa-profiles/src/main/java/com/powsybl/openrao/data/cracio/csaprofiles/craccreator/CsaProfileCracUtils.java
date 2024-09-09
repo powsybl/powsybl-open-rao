@@ -12,9 +12,8 @@ import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileKeyword;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.PropertyReference;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.PropertyReference;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.Query;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 

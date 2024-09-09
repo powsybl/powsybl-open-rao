@@ -5,26 +5,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants;
+package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public enum ElementCombinationConstraintKind {
-    CONSIDERED("considered"),
-    INCLUDED("included"),
-    EXCLUDED("excluded");
+public enum RemedialActionKind {
+    CURATIVE("curative"),
+    PREVENTIVE("preventive");
 
-    ElementCombinationConstraintKind(String name) {
+    RemedialActionKind(String name) {
         this.name = name;
     }
 
     private final String name;
-    private static final String URL = CsaProfileConstants.ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.";
 
     @Override
     public String toString() {
-        return URL + this.name;
+        return getClass().getSimpleName() + "." + this.name;
     }
 }

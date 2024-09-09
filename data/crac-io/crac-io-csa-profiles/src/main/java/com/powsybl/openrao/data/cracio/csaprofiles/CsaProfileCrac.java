@@ -7,20 +7,22 @@
 
 package com.powsybl.openrao.data.cracio.csaprofiles;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcPropertyBagsConverter;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileKeyword;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.Query;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.Query;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -63,7 +65,7 @@ public class CsaProfileCrac {
 
     public Map<String, PropertyBags> getHeaders() {
         Map<String, PropertyBags> returnMap = new HashMap<>();
-        tripleStoreCsaProfileCrac.contextNames().forEach(context -> returnMap.put(context, queryTripleStore(Query.HEADER.getTitle(), Set.of(context))));
+        tripleStoreCsaProfileCrac.contextNames().forEach(context -> returnMap.put(context, queryTripleStore("header", Set.of(context))));
         return returnMap;
     }
 
@@ -75,93 +77,21 @@ public class CsaProfileCrac {
         return CsaProfileCracUtils.overrideQuery(this.queryTripleStore(List.of(query.getTitle()), namesToRequest), query, overridingData);
     }
 
-    public Set<Contingency> getContingencies() {
-        return new NcPropertyBagsConverter<>(Contingency::fromPropertyBag).convert(getPropertyBags(Query.CONTINGENCY));
-    }
-
-    public Set<ContingencyEquipment> getContingencyEquipments() {
-        return new NcPropertyBagsConverter<>(ContingencyEquipment::fromPropertyBag).convert(getPropertyBags(Query.CONTINGENCY_EQUIPMENT));
-    }
-
-    public Set<AssessedElement> getAssessedElements() {
-        return new NcPropertyBagsConverter<>(AssessedElement::fromPropertyBag).convert(getPropertyBags(Query.ASSESSED_ELEMENT));
-    }
-
-    public Set<AssessedElementWithContingency> getAssessedElementWithContingencies() {
-        return new NcPropertyBagsConverter<>(AssessedElementWithContingency::fromPropertyBag).convert(getPropertyBags(Query.ASSESSED_ELEMENT_WITH_CONTINGENCY));
-    }
-
-    public Set<AssessedElementWithRemedialAction> getAssessedElementWithRemedialActions() {
-        return new NcPropertyBagsConverter<>(AssessedElementWithRemedialAction::fromPropertyBag).convert(getPropertyBags(Query.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION));
-    }
-
-    public Set<CurrentLimit> getCurrentLimits() {
-        return new NcPropertyBagsConverter<>(CurrentLimit::fromPropertyBag).convert(getPropertyBags(Query.CURRENT_LIMIT));
-    }
-
-    public Set<VoltageLimit> getVoltageLimits() {
-        return new NcPropertyBagsConverter<>(VoltageLimit::fromPropertyBag).convert(getPropertyBags(Query.VOLTAGE_LIMIT));
-    }
-
-    public Set<VoltageAngleLimit> getVoltageAngleLimits() {
-        return new NcPropertyBagsConverter<>(VoltageAngleLimit::fromPropertyBag).convert(getPropertyBags(Query.VOLTAGE_ANGLE_LIMIT));
-    }
-
-    public Set<GridStateAlterationRemedialAction> getGridStateAlterationRemedialActions() {
-        return new NcPropertyBagsConverter<>(GridStateAlterationRemedialAction::fromPropertyBag).convert(getPropertyBags(Query.GRID_STATE_ALTERATION_REMEDIAL_ACTION));
-    }
-
-    public Set<TopologyAction> getTopologyActions() {
-        return new NcPropertyBagsConverter<>(TopologyAction::fromPropertyBag).convert(getPropertyBags(Query.TOPOLOGY_ACTION));
-    }
-
-    public Set<RotatingMachineAction> getRotatingMachineActions() {
-        return new NcPropertyBagsConverter<>(RotatingMachineAction::fromPropertyBag).convert(getPropertyBags(Query.ROTATING_MACHINE_ACTION));
-    }
-
-    public Set<ShuntCompensatorModification> getShuntCompensatorModifications() {
-        return new NcPropertyBagsConverter<>(ShuntCompensatorModification::fromPropertyBag).convert(getPropertyBags(Query.SHUNT_COMPENSATOR_MODIFICATION));
-    }
-
-    public Set<TapPositionAction> getTapPositionActions() {
-        return new NcPropertyBagsConverter<>(TapPositionAction::fromPropertyBag).convert(getPropertyBags(Query.TAP_POSITION_ACTION));
-    }
-
-    public Set<StaticPropertyRange> getStaticPropertyRanges() {
-        return new NcPropertyBagsConverter<>(StaticPropertyRange::fromPropertyBag).convert(getPropertyBags(Query.STATIC_PROPERTY_RANGE));
-    }
-
-    public Set<ContingencyWithRemedialAction> getContingencyWithRemedialActions() {
-        return new NcPropertyBagsConverter<>(ContingencyWithRemedialAction::fromPropertyBag).convert(getPropertyBags(Query.CONTINGENCY_WITH_REMEDIAL_ACTION));
-    }
-
-    public Set<Stage> getStages() {
-        return new NcPropertyBagsConverter<>(Stage::fromPropertyBag).convert(getPropertyBags(Query.STAGE));
-    }
-
-    public Set<GridStateAlterationCollection> getGridStateAlterationCollections() {
-        return new NcPropertyBagsConverter<>(GridStateAlterationCollection::fromPropertyBag).convert(getPropertyBags(Query.GRID_STATE_ALTERATION_COLLECTION));
-    }
-
-    public Set<RemedialActionScheme> getRemedialActionSchemes() {
-        return new NcPropertyBagsConverter<>(RemedialActionScheme::fromPropertyBag).convert(getPropertyBags(Query.REMEDIAL_ACTION_SCHEME));
-    }
-
-    public Set<SchemeRemedialAction> getSchemeRemedialActions() {
-        return new NcPropertyBagsConverter<>(SchemeRemedialAction::fromPropertyBag).convert(getPropertyBags(Query.SCHEME_REMEDIAL_ACTION));
-    }
-
-    public Set<RemedialActionGroup> getRemedialActionGroups() {
-        return new NcPropertyBagsConverter<>(RemedialActionGroup::fromPropertyBag).convert(getPropertyBags(Query.REMEDIAL_ACTION_GROUP));
-
-    }
-
-    public Set<RemedialActionDependency> getRemedialActionDependencies() {
-        return new NcPropertyBagsConverter<>(RemedialActionDependency::fromPropertyBag).convert(getPropertyBags(Query.REMEDIAL_ACTION_DEPENDENCY));
-    }
-
-    public Set<TapChanger> getTapChangers() {
-        return new NcPropertyBagsConverter<>(TapChanger::fromPropertyBag).convert(getPropertyBags(Query.TAP_CHANGER));
+    /**
+     * Returns the set of all the native NC objects of the specified type from the NC profiles
+     * @param nativeType NC type of objects to retrieve
+     * @return set of native objects
+     * @param <T> native NC class type
+     */
+    public <T extends NCObject> Set<T> getNativeObjects(Class<T> nativeType) {
+        Query query = Arrays.stream(Query.values()).filter(q -> nativeType.equals(q.getNativeClass())).findFirst().orElseThrow();
+        return getPropertyBags(query).stream().map(pb -> {
+            try {
+                return NativeParser.fromPropertyBag(pb, nativeType, query.getDefaultValues());
+            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                throw new OpenRaoException(e);
+            }
+        }).collect(Collectors.toSet());
     }
 
     private void setOverridingData(OffsetDateTime importTimestamp) {

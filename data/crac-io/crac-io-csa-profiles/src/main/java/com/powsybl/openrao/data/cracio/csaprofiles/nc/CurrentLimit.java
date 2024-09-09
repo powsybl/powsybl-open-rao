@@ -6,21 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record CurrentLimit(String mrid, double value, String terminal, String limitType, String direction, String acceptableDuration) implements NCObject {
-    public static CurrentLimit fromPropertyBag(PropertyBag propertyBag) {
-        return new CurrentLimit(
-            propertyBag.getId(CsaProfileConstants.CURRENT_LIMIT),
-            Double.parseDouble(propertyBag.get(CsaProfileConstants.VALUE)),
-            propertyBag.getId(CsaProfileConstants.TERMINAL),
-            propertyBag.get(CsaProfileConstants.LIMIT_TYPE),
-            propertyBag.get(CsaProfileConstants.DIRECTION),
-            propertyBag.get(CsaProfileConstants.ACCEPTABLE_DURATION)
-        );
-    }
+public record CurrentLimit(String mrid, Double value, String terminal, String limitType, String direction, String acceptableDuration) implements NCObject {
 }

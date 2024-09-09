@@ -10,9 +10,7 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.cracio.commons.cgmes.CgmesBranchHelper;
-import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
@@ -22,7 +20,7 @@ import java.util.Optional;
 public record ContingencyEquipment(String mrid, String contingency, String contingentStatus, String equipment) implements NCObject {
 
     public boolean isEquipmentOutOfService() {
-        return CsaProfileConstants.OUT_OF_SERVICE_CONTINGENT_STATUS.equals(contingentStatus);
+        return "ContingencyEquipmentStatusKind.outOfService".equals(contingentStatus);
     }
 
     public Identifiable<?> getEquipmentInNetwork(Network network) {
@@ -45,14 +43,5 @@ public record ContingencyEquipment(String mrid, String contingency, String conti
             }
         }
         return networkElementToReturn;
-    }
-
-    public static ContingencyEquipment fromPropertyBag(PropertyBag propertyBag) {
-        return new ContingencyEquipment(
-            propertyBag.get(CsaProfileConstants.CONTINGENCY_EQUIPMENT),
-            propertyBag.getId(CsaProfileConstants.CONTINGENCY),
-            propertyBag.get(CsaProfileConstants.CONTINGENT_STATUS),
-            propertyBag.getId(CsaProfileConstants.CONTINGENCY_EQUIPMENT_ID)
-        );
     }
 }

@@ -48,8 +48,8 @@ public class CsaProfileContingencyCreator {
     public CsaProfileContingencyCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext) {
         this.crac = crac;
         this.network = network;
-        this.nativeContingencies = nativeCrac.getContingencies();
-        this.nativeContingencyEquipmentsPerNativeContingency = new NcAggregator<>(ContingencyEquipment::contingency).aggregate(nativeCrac.getContingencyEquipments());
+        this.nativeContingencies = nativeCrac.getNativeObjects(Contingency.class);
+        this.nativeContingencyEquipmentsPerNativeContingency = new NcAggregator<>(ContingencyEquipment::contingency).aggregate(nativeCrac.getNativeObjects(ContingencyEquipment.class));
         this.cracCreationContext = cracCreationContext;
         this.createAndAddContingencies();
     }
@@ -72,7 +72,7 @@ public class CsaProfileContingencyCreator {
     private void addContingency(Contingency nativeContingency, Set<ContingencyEquipment> nativeContingencyEquipments) {
         List<String> alterations = new ArrayList<>();
 
-        if (!nativeContingency.normalMustStudy()) {
+        if (Boolean.FALSE.equals(nativeContingency.normalMustStudy())) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, formatNotImportedMessage(nativeContingency.mrid(), "its field mustStudy is set to false"));
         }
 

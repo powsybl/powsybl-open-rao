@@ -5,27 +5,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants;
+package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public enum RelativeDirectionKind {
-    NONE("none"),
-    DOWN("down"),
-    UP("up"),
-    UP_AND_DOWN("upAndDown");
+public enum ElementCombinationConstraintKind {
+    CONSIDERED("considered"),
+    INCLUDED("included"),
+    EXCLUDED("excluded");
 
-    RelativeDirectionKind(String name) {
+    ElementCombinationConstraintKind(String name) {
         this.name = name;
     }
 
     private final String name;
-    private static final String URL = CsaProfileConstants.ENTSOE_NS_NC_URL + "#RelativeDirectionKind.";
 
     @Override
     public String toString() {
-        return URL + this.name;
+        return getClass().getSimpleName() + "." + name;
     }
 }

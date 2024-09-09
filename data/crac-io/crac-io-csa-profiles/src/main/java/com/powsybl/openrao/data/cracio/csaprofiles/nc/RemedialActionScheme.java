@@ -6,19 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record RemedialActionScheme(String mrid, String kind, boolean normalArmed, String schemeRemedialAction) implements NCObject {
-    public static RemedialActionScheme fromPropertyBag(PropertyBag propertyBag) {
-        return new RemedialActionScheme(
-            propertyBag.getId(CsaProfileConstants.REMEDIAL_ACTION_SCHEME),
-            propertyBag.get(CsaProfileConstants.KIND),
-            Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.NORMAL_ARMED)),
-            propertyBag.getId(CsaProfileConstants.SCHEME_REMEDIAL_ACTION)
-        );
-    }
+public record RemedialActionScheme(String mrid, String kind, Boolean normalArmed, String schemeRemedialAction) implements NCObject {
 }

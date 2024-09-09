@@ -5,13 +5,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants;
+package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public enum HeaderType {
-    START_END_DATE,
-    SCENARIO_TIME
+public enum ValueOffsetKind {
+    ABSOLUTE("absolute"),
+    INCREMENTAL("incremental"),
+    INCREMENTAL_PERCENTAGE("incrementalPercentage");
+
+    ValueOffsetKind(String name) {
+        this.name = name;
+    }
+
+    private final String name;
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "." + name;
+    }
 }

@@ -5,25 +5,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants;
+package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public enum RemedialActionKind {
-    CURATIVE("curative"),
-    PREVENTIVE("preventive");
+public enum OperationalLimitDirectionKind {
+    ABSOLUTE("absoluteValue"),
+    HIGH("high"),
+    LOW("low");
 
-    RemedialActionKind(String name) {
-        this.name = name;
+    OperationalLimitDirectionKind(String direction) {
+        this.direction = direction;
     }
 
-    private final String name;
-    private static final String URL = CsaProfileConstants.ENTSOE_NS_NC_URL + "#RemedialActionKind.";
+    private final String direction;
 
     @Override
     public String toString() {
-        return URL + this.name;
+        return getClass().getSimpleName() + "." + this.direction;
     }
 }

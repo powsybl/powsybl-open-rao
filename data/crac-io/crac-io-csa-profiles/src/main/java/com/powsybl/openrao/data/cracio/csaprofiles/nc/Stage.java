@@ -6,18 +6,8 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public record Stage(String mrid, String gridStateAlterationCollection, String remedialActionScheme) implements NCObject {
-    public static Stage fromPropertyBag(PropertyBag propertyBag) {
-        return new Stage(
-            propertyBag.getId(CsaProfileConstants.STAGE),
-            propertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_COLLECTION),
-            propertyBag.getId(CsaProfileConstants.REMEDIAL_ACTION_SCHEME)
-        );
-    }
 }

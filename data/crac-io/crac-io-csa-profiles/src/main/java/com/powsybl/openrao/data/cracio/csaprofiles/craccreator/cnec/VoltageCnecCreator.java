@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.LimitTypeKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.LimitTypeKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.VoltageLimit;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.iidm.network.Identifiable;

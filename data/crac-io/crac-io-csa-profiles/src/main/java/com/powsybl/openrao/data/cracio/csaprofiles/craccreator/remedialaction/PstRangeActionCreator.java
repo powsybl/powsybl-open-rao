@@ -12,9 +12,9 @@ import com.powsybl.openrao.data.cracapi.range.TapRangeAdder;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.PropertyReference;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.RelativeDirectionKind;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ValueOffsetKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.PropertyReference;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.RelativeDirectionKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.ValueOffsetKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.StaticPropertyRange;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.TapPositionAction;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
@@ -78,7 +78,7 @@ public class PstRangeActionCreator {
                 if (!ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
                     throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is absolute", remedialActionId));
                 } else {
-                    int normalValue = (int) nativeStaticPropertyRange.normalValue();
+                    int normalValue = nativeStaticPropertyRange.normalValue().intValue();
                     if (RelativeDirectionKind.DOWN.toString().equals(nativeStaticPropertyRange.direction())) {
                         normalValueDown.ifPresent(value -> {
                             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because there is more than ONE StaticPropertyRange with direction RelativeDirectionKind.down", remedialActionId));

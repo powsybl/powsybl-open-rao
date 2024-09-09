@@ -7,21 +7,8 @@
 
 package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.triplestore.api.PropertyBag;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record SchemeRemedialAction(String mrid, String name, String operator, String kind, boolean normalAvailable, String timeToImplement) implements RemedialAction {
-    public static SchemeRemedialAction fromPropertyBag(PropertyBag propertyBag) {
-        return new SchemeRemedialAction(
-            propertyBag.getId(CsaProfileConstants.SCHEME_REMEDIAL_ACTION),
-            propertyBag.get(CsaProfileConstants.NAME),
-            propertyBag.get(CsaProfileConstants.TSO),
-            propertyBag.get(CsaProfileConstants.KIND),
-            Boolean.parseBoolean(propertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE)),
-            propertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT)
-        );
-    }
+public record SchemeRemedialAction(String mrid, String name, String remedialActionSystemOperator, String kind, Boolean normalAvailable, String timeToImplement) implements RemedialAction {
 }
