@@ -6,18 +6,19 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -32,7 +33,8 @@ import java.util.Set;
  */
 public class SearchTreeParameters {
 
-    private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
+    private final Unit objectiveFunctionUnit;
+    private final boolean relativePositiveMargins;
 
     // required for the search tree algorithm
     private final TreeParameters treeParameters;
@@ -48,7 +50,8 @@ public class SearchTreeParameters {
     private final RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
     private final int maxNumberOfIterations;
 
-    public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+    public SearchTreeParameters(Unit objectiveFunctionUnit,
+                                boolean relativePositiveMargins,
                                 TreeParameters treeParameters,
                                 NetworkActionParameters networkActionParameters,
                                 Map<Instant, RaUsageLimits> raLimitationParameters,
@@ -59,7 +62,8 @@ public class SearchTreeParameters {
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
                                 RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
                                 int maxNumberOfIterations) {
-        this.objectiveFunction = objectiveFunction;
+        this.objectiveFunctionUnit = objectiveFunctionUnit;
+        this.relativePositiveMargins = relativePositiveMargins;
         this.treeParameters = treeParameters;
         this.networkActionParameters = networkActionParameters;
         this.raLimitationParameters = raLimitationParameters;
@@ -72,8 +76,12 @@ public class SearchTreeParameters {
         this.maxNumberOfIterations = maxNumberOfIterations;
     }
 
-    public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunction() {
-        return objectiveFunction;
+    public Unit getObjectiveFunctionUnit() {
+        return objectiveFunctionUnit;
+    }
+
+    public boolean relativePositiveMargins() {
+        return relativePositiveMargins;
     }
 
     public TreeParameters getTreeParameters() {
@@ -235,7 +243,8 @@ public class SearchTreeParameters {
     }
 
     public static class SearchTreeParametersBuilder {
-        private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
+        private Unit objectiveFunctionUnit;
+        private boolean relativePositiveMargins;
         private TreeParameters treeParameters;
         private NetworkActionParameters networkActionParameters;
         private Map<Instant, RaUsageLimits> raLimitationParameters;
@@ -248,7 +257,8 @@ public class SearchTreeParameters {
         private int maxNumberOfIterations;
 
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
-            this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
+            this.objectiveFunctionUnit = RaoUtil.getObjectiveFunctionUnit(raoParameters);
+            this.relativePositiveMargins = raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins();
             this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
             this.raLimitationParameters = new HashMap<>(crac.getRaUsageLimitsPerInstant());
             this.rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
@@ -260,8 +270,13 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder with0bjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
-            this.objectiveFunction = objectiveFunction;
+        public SearchTreeParametersBuilder withObjectiveFunctionUnit(Unit unit) {
+            this.objectiveFunctionUnit = unit;
+            return this;
+        }
+
+        public SearchTreeParametersBuilder withRelativePositiveMargins(boolean relativePositiveMargins) {
+            this.relativePositiveMargins = relativePositiveMargins;
             return this;
         }
 
@@ -316,7 +331,8 @@ public class SearchTreeParameters {
         }
 
         public SearchTreeParameters build() {
-            return new SearchTreeParameters(objectiveFunction,
+            return new SearchTreeParameters(objectiveFunctionUnit,
+                relativePositiveMargins,
                 treeParameters,
                 networkActionParameters,
                 raLimitationParameters,
@@ -326,7 +342,8 @@ public class SearchTreeParameters {
                 loopFlowParameters,
                 unoptimizedCnecParameters,
                 solverParameters,
-                maxNumberOfIterations);
+                maxNumberOfIterations
+                );
         }
     }
 }

@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
@@ -21,8 +20,8 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.*;
  */
 public final class IteratingLinearOptimizerParameters {
 
-    private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
-
+    private final Unit objectiveFunctionUnit;
+    private final boolean relativePositiveMargins;
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final MnecParametersExtension mnecParameters;
     private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
@@ -34,7 +33,8 @@ public final class IteratingLinearOptimizerParameters {
     private final int maxNumberOfIterations;
     private final boolean raRangeShrinking;
 
-    private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+    private IteratingLinearOptimizerParameters(Unit objectiveFunctionUnit,
+                                               boolean relativePositiveMargins,
                                                RangeActionsOptimizationParameters rangeActionParameters,
                                                MnecParametersExtension mnecParameters,
                                                RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
@@ -44,7 +44,8 @@ public final class IteratingLinearOptimizerParameters {
                                                RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
                                                int maxNumberOfIterations,
                                                boolean raRangeShrinking) {
-        this.objectiveFunction = objectiveFunction;
+        this.objectiveFunctionUnit = objectiveFunctionUnit;
+        this.relativePositiveMargins = relativePositiveMargins;
         this.rangeActionParameters = rangeActionParameters;
         this.mnecParameters = mnecParameters;
         this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
@@ -56,21 +57,12 @@ public final class IteratingLinearOptimizerParameters {
         this.raRangeShrinking = raRangeShrinking;
     }
 
-    public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunction() {
-        return objectiveFunction;
-    }
-
     public Unit getObjectiveFunctionUnit() {
-        return getObjectiveFunction().getUnit();
+        return objectiveFunctionUnit;
     }
 
-    public boolean hasRelativeMargins() {
-        return getObjectiveFunction().relativePositiveMargins();
-    }
-
-    public boolean hasOperatorsNotToOptimize() {
-        return unoptimizedCnecParameters != null
-            && !unoptimizedCnecParameters.getOperatorsNotToOptimize().isEmpty();
+    public boolean relativePositiveMargins() {
+        return relativePositiveMargins;
     }
 
     public boolean isRaoWithLoopFlowLimitation() {
@@ -123,7 +115,8 @@ public final class IteratingLinearOptimizerParameters {
 
     public static class LinearOptimizerParametersBuilder {
 
-        private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
+        private Unit objectiveFunctionUnit;
+        private boolean relativePositiveMargins;
         private RangeActionsOptimizationParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
@@ -134,8 +127,13 @@ public final class IteratingLinearOptimizerParameters {
         private int maxNumberOfIterations;
         private boolean raRangeShrinking;
 
-        public LinearOptimizerParametersBuilder withObjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
-            this.objectiveFunction = objectiveFunction;
+        public LinearOptimizerParametersBuilder withObjectiveFunctionUnit(Unit objectiveFunctionUnit) {
+            this.objectiveFunctionUnit = objectiveFunctionUnit;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withRelativePositiveMargins(boolean relativePositiveMargins) {
+            this.relativePositiveMargins = relativePositiveMargins;
             return this;
         }
 
@@ -185,12 +183,13 @@ public final class IteratingLinearOptimizerParameters {
         }
 
         public IteratingLinearOptimizerParameters build() {
-            if (objectiveFunction.relativePositiveMargins() && maxMinRelativeMarginParameters == null) {
+            if (relativePositiveMargins && maxMinRelativeMarginParameters == null) {
                 throw new OpenRaoException("An objective function with relative margins requires parameters on relative margins.");
             }
 
             return new IteratingLinearOptimizerParameters(
-                objectiveFunction,
+                objectiveFunctionUnit,
+                relativePositiveMargins,
                 rangeActionParameters,
                 mnecParameters,
                 maxMinRelativeMarginParameters,

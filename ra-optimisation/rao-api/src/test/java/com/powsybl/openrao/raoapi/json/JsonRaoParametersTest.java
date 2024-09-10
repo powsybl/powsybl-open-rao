@@ -52,7 +52,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         // Objective Function parameters
-        parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
         parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);

@@ -158,9 +158,9 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
             mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, raoInput.getCrac());
             // log results
-            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, RaoUtil.getObjectiveFunctionUnit(raoParameters), raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
-            return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
+            return postCheckResults(mergedRaoResults, initialOutput, raoParameters);
         }
 
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
@@ -184,10 +184,10 @@ public class CastorFullOptimization {
         // Log final results
         if (logFinalResultsOutsideOfSecondPreventive) {
             BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
-            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, RaoUtil.getObjectiveFunctionUnit(raoParameters), raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
 
-        return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
+        return postCheckResults(mergedRaoResults, initialOutput, raoParameters);
     }
 
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
@@ -223,7 +223,7 @@ public class CastorFullOptimization {
     /**
      * Return initial result if RAO has increased cost
      */
-    private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, ObjectiveFunctionParameters objectiveFunctionParameters) {
+    private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, RaoParameters raoParameters) {
         RaoResult finalRaoResult = raoResult;
 
         double initialCost = initialResult.getCost();
@@ -239,7 +239,7 @@ public class CastorFullOptimization {
                 formatDouble(initialCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
                 formatDouble(finalCost), formatDouble(finalFunctionalCost), formatDouble(finalVirtualCost));
             // log results
-            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, objectiveFunctionParameters.getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, RaoUtil.getObjectiveFunctionUnit(raoParameters), raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
             finalRaoResult = new UnoptimizedRaoResultImpl(initialResult);
             finalCost = initialCost;
             finalFunctionalCost = initialFunctionalCost;
@@ -607,7 +607,7 @@ public class CastorFullOptimization {
                 newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult(), secondPreventiveRaoResult.remedialActionsExcluded(), postCraSensitivityAnalysisOutput));
             }
         }
-        RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, parameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+        RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, RaoUtil.getObjectiveFunctionUnit(parameters), parameters.getObjectiveFunctionParameters().getType().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
         return new PreventiveAndCurativesRaoResultImpl(stateTree,
             initialOutput,

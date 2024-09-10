@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
@@ -54,7 +54,8 @@ class SearchTreeParametersTest {
         SearchTreeParameters searchTreeParameters = builder.build();
         assertNotNull(searchTreeParameters);
 
-        assertEquals(raoParameters.getObjectiveFunctionParameters().getType(), searchTreeParameters.getObjectiveFunction());
+        assertEquals(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE, searchTreeParameters.getObjectiveFunctionUnit());
+        assertEquals(raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins(), searchTreeParameters.relativePositiveMargins());
         assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac), searchTreeParameters.getNetworkActionParameters());
         assertEquals(crac.getRaUsageLimitsPerInstant(), searchTreeParameters.getRaLimitationParameters());
         assertEquals(RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getRangeActionParameters());
@@ -67,7 +68,8 @@ class SearchTreeParametersTest {
 
     @Test
     void testIndividualSetters() {
-        ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction = Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class);
+        Unit objectiveFunctionUnit = Mockito.mock(Unit.class);
+        boolean relativePositiveMargins = false;
         TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         Map<Instant, RaUsageLimits> raLimitationParameters = new HashMap<>();
@@ -80,7 +82,8 @@ class SearchTreeParametersTest {
         int maxNumberOfIterations = 3;
 
         SearchTreeParameters searchTreeParameters = builder
-            .with0bjectiveFunction(objectiveFunction)
+            .withObjectiveFunctionUnit(objectiveFunctionUnit)
+            .withRelativePositiveMargins(relativePositiveMargins)
             .withTreeParameters(treeParameters)
             .withNetworkActionParameters(networkActionParameters)
             .withGlobalRemedialActionLimitationParameters(raLimitationParameters)
@@ -93,7 +96,8 @@ class SearchTreeParametersTest {
             .withMaxNumberOfIterations(maxNumberOfIterations)
             .build();
 
-        assertEquals(objectiveFunction, searchTreeParameters.getObjectiveFunction());
+        assertEquals(objectiveFunctionUnit, searchTreeParameters.getObjectiveFunctionUnit());
+        assertEquals(relativePositiveMargins, searchTreeParameters.relativePositiveMargins());
         assertEquals(treeParameters, searchTreeParameters.getTreeParameters());
         assertEquals(networkActionParameters, searchTreeParameters.getNetworkActionParameters());
         assertEquals(raLimitationParameters, searchTreeParameters.getRaLimitationParameters());

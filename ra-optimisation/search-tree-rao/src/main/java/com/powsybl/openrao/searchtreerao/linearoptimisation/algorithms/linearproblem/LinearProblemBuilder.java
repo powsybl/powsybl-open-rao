@@ -41,7 +41,7 @@ public class LinearProblemBuilder {
             .withProblemFiller(buildCoreProblemFiller());
 
         // max.min margin, or max.min relative margin
-        if (parameters.getObjectiveFunction().relativePositiveMargins()) {
+        if (parameters.relativePositiveMargins()) {
             this.withProblemFiller(buildMaxMinRelativeMarginFiller());
         } else {
             this.withProblemFiller(buildMaxMinMarginFiller());
@@ -125,7 +125,7 @@ public class LinearProblemBuilder {
         return new MaxMinRelativeMarginFiller(
             inputs.getOptimizationPerimeter().getOptimizedFlowCnecs(),
             inputs.getPreOptimizationFlowResult(),
-            parameters.getObjectiveFunction().getUnit(),
+            parameters.getObjectiveFunctionUnit(),
             parameters.getMaxMinRelativeMarginParameters()
         );
     }
