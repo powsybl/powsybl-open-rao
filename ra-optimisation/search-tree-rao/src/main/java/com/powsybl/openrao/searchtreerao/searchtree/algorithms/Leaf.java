@@ -208,7 +208,8 @@ public class Leaf implements OptimizationResult {
 
             // build parameters
             IteratingLinearOptimizerParameters linearOptimizerParameters = IteratingLinearOptimizerParameters.create()
-                    .withObjectiveFunction(parameters.getObjectiveFunction())
+                    .withObjectiveFunctionUnit(parameters.getObjectiveFunctionUnit())
+                    .withRelativePositiveMargins(parameters.relativePositiveMargins())
                     .withRangeActionParameters(parameters.getRangeActionParameters())
                     .withMnecParameters(parameters.getMnecParameters())
                     .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
