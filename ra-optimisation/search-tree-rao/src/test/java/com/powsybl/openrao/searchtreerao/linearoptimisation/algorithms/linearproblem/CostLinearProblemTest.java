@@ -152,7 +152,7 @@ public class CostLinearProblemTest {
             initialSetpoints);
 
         Set<FlowCnec> allCnecs = new HashSet<>(cracs.get(0).getFlowCnecs());
-        MinCostHardFiller minCostHardFiller = new MinCostHardFiller(allCnecs, rangeActionsPerStatePerTimestamp.get(0));
+        MinCostFiller minCostFiller = new MinCostFiller(allCnecs, rangeActionsPerStatePerTimestamp.get(0));
 
         MultiTSFiller multiTSFiller = new MultiTSFiller(
             optimizationPerimeters,
@@ -163,7 +163,7 @@ public class CostLinearProblemTest {
         LinearProblem linearProblemMerge = new LinearProblemBuilder()
             .withSolver(orMpSolver.getSolver())
             .withProblemFiller(coreProblemFiller0)
-            .withProblemFiller(minCostHardFiller)
+            .withProblemFiller(minCostFiller)
             .withProblemFiller(discretePstTapFiller0)
             .withProblemFiller(multiTSFiller)
             .build();

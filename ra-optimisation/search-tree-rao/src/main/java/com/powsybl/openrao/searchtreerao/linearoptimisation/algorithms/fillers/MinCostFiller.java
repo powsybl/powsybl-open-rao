@@ -11,6 +11,7 @@ import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -26,12 +27,13 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MinCostHardFiller implements ProblemFiller {
+public class MinCostFiller implements ProblemFiller {
     protected final Set<FlowCnec> optimizedCnecs;
     private final Map<State, Set<RangeAction<?>>> rangeActions;
+    private final double marginPenaltyCoefficient = 1000;
 
-    public MinCostHardFiller(Set<FlowCnec> optimizedCnecs,
-                             Map<State, Set<RangeAction<?>>> rangeActions) {
+    public MinCostFiller(Set<FlowCnec> optimizedCnecs,
+                         Map<State, Set<RangeAction<?>>> rangeActions) {
         this.rangeActions = rangeActions;
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
@@ -44,6 +46,7 @@ public class MinCostHardFiller implements ProblemFiller {
         // build variables
         buildTotalCostVariable(linearProblem);
         buildRangeActionCostVariable(linearProblem);
+        buildMinimumMarginVariable(linearProblem, validFlowCnecs);
 
         // build constraints
         buildSecureCnecsHardConstraints(linearProblem, validFlowCnecs);
@@ -84,6 +87,22 @@ public class MinCostHardFiller implements ProblemFiller {
     }
 
     /**
+     * Build the minimum margin variable MM.
+     * MM represents the smallest margin of all Cnecs.
+     * It is given in MEGAWATT.
+     */
+    private void buildMinimumMarginVariable(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
+        if (!validFlowCnecs.isEmpty()) {
+            // INFERIOR TO 0???
+            linearProblem.addMinimumMarginVariable(-LinearProblem.infinity(), 0);
+        } else {
+            // if there is no Cnecs, the minMarginVariable is forced to zero.
+            // otherwise it would be unbounded in the LP
+            linearProblem.addMinimumMarginVariable(0.0, 0.0);
+        }
+    }
+
+    /**
      * Build two min/max constraints for each Cnec c.
      * <p>
      * For each Cnec c, the constraints are:
@@ -92,6 +111,8 @@ public class MinCostHardFiller implements ProblemFiller {
      * fmin[c] <= F[c]   (BELOW_THRESHOLD)
      */
     private void buildSecureCnecsHardConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
+        OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
+
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
 
@@ -99,14 +120,17 @@ public class MinCostHardFiller implements ProblemFiller {
             Optional<Double> maxFlow;
             minFlow = cnec.getLowerBound(side, MEGAWATT);
             maxFlow = cnec.getUpperBound(side, MEGAWATT);
+            // double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
 
             if (minFlow.isPresent()) {
                 OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                minimumMarginNegative.setCoefficient(minimumMarginVariable, 1);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
                 OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                minimumMarginPositive.setCoefficient(minimumMarginVariable, 1);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         }));
@@ -122,6 +146,9 @@ public class MinCostHardFiller implements ProblemFiller {
         OpenRaoMPVariable totalCostVariable = linearProblem.getTotalCostVariable();
         OpenRaoMPConstraint totalCostConstraint = linearProblem.addActivationCostConstraint(0, 0);
         totalCostConstraint.setCoefficient(totalCostVariable, 1);
+
+        // create constraint to set margin to 0
+
         rangeActions.forEach((state, rangeActionSet) ->
             rangeActionSet.forEach(rangeAction -> {
                 OpenRaoMPVariable rangeActionCostVariable = linearProblem.getRangeActionCostVariable(rangeAction, state);
@@ -148,10 +175,14 @@ public class MinCostHardFiller implements ProblemFiller {
 
     /**
      * Add in the objective function of the linear problem the total cost TC
+     * Add min margin as penalty if unsecure
      */
     private void fillObjectiveWithActivationCost(LinearProblem linearProblem) {
         OpenRaoMPVariable totalCostVariable = linearProblem.getTotalCostVariable();
         linearProblem.getObjective().setCoefficient(totalCostVariable, 1);
+        OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
+        linearProblem.getObjective().setCoefficient(minimumMarginVariable, -marginPenaltyCoefficient);
+
     }
 
 }

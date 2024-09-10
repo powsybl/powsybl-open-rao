@@ -41,6 +41,7 @@ public class ObjectiveFunctionParameters {
         MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE),
         MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
         MAX_MIN_RELATIVE_MARGIN_IN_AMPERE(Unit.AMPERE),
+        // Unit is used for flow values, not for the cost
         MIN_COST_MEGAWATT(Unit.MEGAWATT),
         MIN_COST_AMPERE(Unit.AMPERE);
 

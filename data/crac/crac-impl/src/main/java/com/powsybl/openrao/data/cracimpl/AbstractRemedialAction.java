@@ -32,7 +32,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     private boolean computedUsageMethods = false;
     private Map<State, UsageMethod> usageMethodPerState;
     private Map<Instant, UsageMethod> usageMethodPerInstant;
-    private double activationCost;
+    private double activationCost = 0;
 
     protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed) {
         super(id, name);
