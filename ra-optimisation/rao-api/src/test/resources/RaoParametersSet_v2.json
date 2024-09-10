@@ -1,7 +1,7 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN_IN_AMPERE",
+    "type" : "MAX_MIN_MARGIN",
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
     "curative-min-obj-improvement" : 983.0,
     "enforce-curative-security" : true

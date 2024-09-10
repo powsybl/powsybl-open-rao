@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -106,7 +105,8 @@ class LeafTest {
         Instant outageInstant = Mockito.mock(Instant.class);
         when(searchTreeInput.getOutageInstant()).thenReturn(outageInstant);
         searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
-        when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
+        when(searchTreeParameters.getObjectiveFunctionUnit()).thenReturn(Mockito.mock(Unit.class));
+        when(searchTreeParameters.relativePositiveMargins()).thenReturn(false);
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
 
         virtualCostName = "VirtualCost";
