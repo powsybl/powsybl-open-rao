@@ -49,7 +49,6 @@ import static org.mockito.Mockito.when;
  */
 class CastorFullOptimizationTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Crac crac;
