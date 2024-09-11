@@ -22,6 +22,7 @@ import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,8 +32,8 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
     private final VoltageLimit nativeVoltageLimit;
 
-    public VoltageCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, VoltageLimit nativeVoltageLimit, List<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion) {
-        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion);
+    public VoltageCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, VoltageLimit nativeVoltageLimit, List<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, CsaProfileCracCreationContext cracCreationContext, String rejectedLinksAssessedElementContingency, boolean aeSecuredForRegion, boolean aeScannedForRegion, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, cracCreationContext, rejectedLinksAssessedElementContingency, aeSecuredForRegion, aeScannedForRegion, borderPerTso, borderPerEic);
         this.nativeVoltageLimit = nativeVoltageLimit;
     }
 
