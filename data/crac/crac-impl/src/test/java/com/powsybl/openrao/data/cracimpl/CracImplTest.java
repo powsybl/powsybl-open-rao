@@ -394,16 +394,16 @@ class CracImplTest {
         Contingency contingency2 = new Contingency("co2", "co2", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         crac.addContingency(contingency2);
-        State state1 = crac.addState(contingency1, curativeInstant);
-        State state2 = crac.addState(contingency1, outageInstant);
-        State state3 = crac.addState(contingency2, curativeInstant);
-        State state4 = crac.addState(contingency2, autoInstant);
-        State state5 = crac.addState(contingency2, outageInstant);
+        State curative1 = crac.addState(contingency1, curativeInstant);
+        State outage1 = crac.addState(contingency1, outageInstant);
+        State curative2 = crac.addState(contingency2, curativeInstant);
+        State auto2 = crac.addState(contingency2, autoInstant);
+        State outage2 = crac.addState(contingency2, outageInstant);
 
         assertEquals(2, crac.getStates(contingency1).size());
-        assertTrue(crac.getStates(contingency1).containsAll(Set.of(state1, state2)));
+        assertTrue(crac.getStates(contingency1).containsAll(Set.of(curative1, outage1)));
         assertEquals(3, crac.getStates(contingency2).size());
-        assertTrue(crac.getStates(contingency2).containsAll(Set.of(state3, state4, state5)));
+        assertTrue(crac.getStates(contingency2).containsAll(Set.of(curative2, auto2, outage2)));
         Contingency contingency3 = new Contingency("co3", "co3", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         assertTrue(crac.getStates(contingency3).isEmpty());
     }
@@ -893,8 +893,8 @@ class CracImplTest {
         na4Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
         NetworkAction na4 = na4Adder.add();
 
-        State state1 = crac.getState(contingency1, curativeInstant);
-        State state2 = crac.getState(contingency1, autoInstant);
+        state1 = crac.getState(contingency1, curativeInstant);
+        state2 = crac.getState(contingency1, autoInstant);
 
         assertEquals(Set.of(na1), crac.getNetworkActions(state1, AVAILABLE));
         assertEquals(Set.of(), crac.getNetworkActions(state2, AVAILABLE));

@@ -61,7 +61,6 @@ class CastorSecondPreventiveTest {
     private RangeAction<?> ra7;
     private RangeAction<?> ra8;
     private RangeAction<?> ra9;
-    private RangeAction<?> ra10;
     private NetworkAction na1;
     private Instant preventiveInstant;
     private Instant autoInstant;
@@ -185,7 +184,7 @@ class CastorSecondPreventiveTest {
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra10 : preventive only, counter trade
-        ra10 = crac.newCounterTradeRangeAction()
+        crac.newCounterTradeRangeAction()
             .withId("ra10")
             .withExportingCountry(Country.FR)
             .withImportingCountry(Country.DE)
