@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.cnec;
 
+import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -46,6 +47,13 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         this.nativeCurrentLimit = nativeCurrentLimit;
         this.instantHelper = new FlowCnecInstantHelper(cracCreationParameters);
         checkCnecDefinitionMode();
+    }
+
+    private static Set<Country> getBranchLocation(Branch<?> branch) {
+        Set<Country> branchCountries = new HashSet<>();
+        branch.getTerminal(TwoSides.ONE).getVoltageLevel().getSubstation().flatMap(Substation::getCountry).ifPresent(branchCountries::add);
+        branch.getTerminal(TwoSides.TWO).getVoltageLevel().getSubstation().flatMap(Substation::getCountry).ifPresent(branchCountries::add);
+        return branchCountries;
     }
 
     private void checkCnecDefinitionMode() {
@@ -221,9 +229,21 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 twoSides -> operatorDoesNotUsePatlInFinalState
                     && (networkElement.getCurrentLimits(twoSides).isEmpty() || networkElement.getCurrentLimits(twoSides).isPresent() && networkElement.getCurrentLimits(twoSides).get().getTemporaryLimits().isEmpty())));
 
+            Set<Country> branchCountries = getBranchLocation(networkElement);
+
             for (Contingency contingency : linkedContingencies) {
-                thresholds.forEach((acceptableDuration, limitThresholds) ->
-                    limitThresholds.forEach((twoSides, threshold) -> addCurativeFlowCnec(networkElement, useMaxAndMinThresholds, instantToDurationMaps, forceUseOfPatl, contingency, acceptableDuration, twoSides, threshold)));
+                Set<Country> contingencyCountries = new HashSet<>();
+                contingency.getElements().stream()
+                    .map(ContingencyElement::getId)
+                    .map(network::getIdentifiable)
+                    .filter(Branch.class::isInstance)
+                    .map(Branch.class::cast)
+                    .forEach(branch -> contingencyCountries.addAll(getBranchLocation(branch)));
+
+                if (!Collections.disjoint(branchCountries, contingencyCountries)) {
+                    thresholds.forEach((acceptableDuration, limitThresholds) ->
+                        limitThresholds.forEach((twoSides, threshold) -> addCurativeFlowCnec(networkElement, useMaxAndMinThresholds, instantToDurationMaps, forceUseOfPatl, contingency, acceptableDuration, twoSides, threshold)));
+                }
             }
         }
     }
