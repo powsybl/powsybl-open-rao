@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -38,8 +39,9 @@ public abstract class AbstractCnecCreator {
     protected final String rejectedLinksAssessedElementContingency;
     protected final boolean aeSecuredForRegion;
     protected final boolean aeScannedForRegion;
+    protected final String border;
 
-    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters) {
+    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
         this.crac = crac;
         this.network = network;
         this.nativeAssessedElement = nativeAssessedElement;
@@ -49,6 +51,7 @@ public abstract class AbstractCnecCreator {
         String regionEic = cracCreationParameters.getExtension(CsaCracCreationParameters.class).getCapacityCalculationRegionEicCode();
         this.aeSecuredForRegion = isAeSecuredForRegion(regionEic);
         this.aeScannedForRegion = isAeScannedForRegion(regionEic);
+        this.border = getCnecBorder(borderPerTso, borderPerEic);
     }
 
     private boolean isAeSecuredForRegion(String regionEic) {
@@ -108,7 +111,8 @@ public abstract class AbstractCnecCreator {
             .withId(cnecName)
             .withName(cnecName)
             .withInstant(instantId)
-            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()));
+            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()))
+            .withBorder(border);
         if (cnecAdder instanceof FlowCnecAdder) {
             // The following 2 lines mustn't be called for angle & voltage CNECs
             cnecAdder.withOptimized(aeSecuredForRegion)
@@ -122,5 +126,12 @@ public abstract class AbstractCnecCreator {
         } else {
             csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency));
         }
+    }
+
+    protected String getCnecBorder(Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+        if (nativeAssessedElement.overlappingZone() != null) {
+            return borderPerEic.getOrDefault(CsaProfileCracUtils.getEicFromUrl(nativeAssessedElement.overlappingZone()), null);
+        }
+        return borderPerTso.getOrDefault(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), null);
     }
 }

@@ -43,7 +43,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(1),
@@ -56,7 +56,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(2),
@@ -69,7 +69,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(3),
@@ -82,7 +82,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(4),
@@ -95,7 +95,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(5),
@@ -108,7 +108,7 @@ class FlowCnecCreationTest {
             +5000d,
             -5000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(6),
@@ -121,7 +121,7 @@ class FlowCnecCreationTest {
             +5000d,
             -5000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(7),
@@ -134,7 +134,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(8),
@@ -147,7 +147,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(9),
@@ -160,7 +160,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(10),
@@ -173,7 +173,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(11),
@@ -186,7 +186,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(12),
@@ -199,7 +199,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(13),
@@ -212,7 +212,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(14),
@@ -225,7 +225,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(15),
@@ -238,7 +238,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(16),
@@ -251,7 +251,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(17),
@@ -264,7 +264,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(18),
@@ -277,7 +277,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(19),
@@ -290,7 +290,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(20),
@@ -303,7 +303,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(21),
@@ -316,7 +316,7 @@ class FlowCnecCreationTest {
             +5000d,
             -5000d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(22),
@@ -329,7 +329,7 @@ class FlowCnecCreationTest {
             +5000d,
             -5000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(23),
@@ -342,7 +342,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(24),
@@ -355,7 +355,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(25),
@@ -368,7 +368,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(26),
@@ -381,7 +381,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(27),
@@ -394,7 +394,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(28),
@@ -407,7 +407,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(29),
@@ -420,7 +420,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(30),
@@ -433,7 +433,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(31),
@@ -446,7 +446,7 @@ class FlowCnecCreationTest {
             +5000d,
             -5000d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(32),
@@ -459,7 +459,7 @@ class FlowCnecCreationTest {
             +5000d,
             -5000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(33),
@@ -472,7 +472,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(34),
@@ -485,7 +485,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(35),
@@ -498,7 +498,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(36),
@@ -511,7 +511,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(37),
@@ -524,7 +524,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(38),
@@ -537,7 +537,7 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(39),
@@ -550,7 +550,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(40),
@@ -563,7 +563,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(41),
@@ -576,7 +576,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(42),
@@ -589,7 +589,7 @@ class FlowCnecCreationTest {
             +2500d,
             -2500d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(43),
@@ -602,7 +602,7 @@ class FlowCnecCreationTest {
             +5000d,
             -5000d,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(44),
@@ -615,7 +615,7 @@ class FlowCnecCreationTest {
             +5000d,
             -5000d,
             Set.of(TwoSides.TWO),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(45),
@@ -628,7 +628,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(46),
@@ -641,7 +641,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(47),
@@ -654,7 +654,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(48),
@@ -667,7 +667,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(49),
@@ -680,7 +680,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(50),
@@ -693,7 +693,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(51),
@@ -706,7 +706,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(52),
@@ -719,7 +719,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(53),
@@ -732,7 +732,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(54),
@@ -745,7 +745,7 @@ class FlowCnecCreationTest {
             null,
             null,
             Set.of(TwoSides.ONE),
-            "RTE");
+            "RTE", "ES-FR");
 
         assertEquals(8, cracCreationContext.getCnecCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
@@ -815,8 +815,8 @@ class FlowCnecCreationTest {
             +2250d,
             -2250d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(1),
@@ -829,8 +829,8 @@ class FlowCnecCreationTest {
             +2250d,
             -2250d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(2),
@@ -843,8 +843,8 @@ class FlowCnecCreationTest {
             +2250d,
             -2250d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(3),
@@ -857,8 +857,8 @@ class FlowCnecCreationTest {
             +3400d,
             -3400d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(4),
@@ -871,8 +871,8 @@ class FlowCnecCreationTest {
             +3400d,
             -3400d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(5),
@@ -885,8 +885,8 @@ class FlowCnecCreationTest {
             +3200d,
             -3200d,
             Set.of(TwoSides.ONE),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(6),
@@ -899,8 +899,8 @@ class FlowCnecCreationTest {
             +3200d,
             -3200d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(7),
@@ -913,8 +913,8 @@ class FlowCnecCreationTest {
             +3200d,
             -3200d,
             Set.of(TwoSides.ONE),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(8),
@@ -927,8 +927,8 @@ class FlowCnecCreationTest {
             +3200d,
             -3200d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(9),
@@ -941,8 +941,8 @@ class FlowCnecCreationTest {
             +2000d,
             -2000d,
             Set.of(TwoSides.ONE),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(10),
@@ -955,8 +955,8 @@ class FlowCnecCreationTest {
             +2000d,
             -2000d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(11),
@@ -969,8 +969,8 @@ class FlowCnecCreationTest {
             +2000d,
             -2000d,
             Set.of(TwoSides.ONE),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(12),
@@ -983,8 +983,8 @@ class FlowCnecCreationTest {
             +2000d,
             -2000d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(13),
@@ -997,8 +997,8 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.ONE),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(14),
@@ -1011,8 +1011,8 @@ class FlowCnecCreationTest {
             +4000d,
             -4000d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(15),
@@ -1025,8 +1025,8 @@ class FlowCnecCreationTest {
             +2000d,
             -2000d,
             Set.of(TwoSides.ONE),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
 
         CsaProfileCracCreationTestUtil.assertFlowCnecEquality(
             importedFlowCnecs.get(16),
@@ -1039,7 +1039,17 @@ class FlowCnecCreationTest {
             +2000d,
             -2000d,
             Set.of(TwoSides.TWO),
-            "RTE"
-        );
+            "RTE",
+            "ES-FR");
+    }
+
+    @Test
+    void testCnecsWithBorders() {
+        CsaProfileCracCreationContext cracCreationContext = getCsaCracCreationContext("/profiles/cnecs/AssessedElementBorders.zip", NETWORK);
+        assertEquals("ES-FR", cracCreationContext.getCrac().getFlowCnec("RTE_AE1 (assessed-element-1) - preventive - ONE").getBorder());
+        assertEquals("ES-PT", cracCreationContext.getCrac().getFlowCnec("REN_AE2 (assessed-element-2) - preventive - ONE").getBorder());
+        assertNull(cracCreationContext.getCrac().getFlowCnec("REE_AE3 (assessed-element-3) - preventive - ONE").getBorder());
+        assertEquals("ES-FR", cracCreationContext.getCrac().getFlowCnec("REE_AE4 (assessed-element-4) - preventive - ONE").getBorder());
+        assertEquals("ES-PT", cracCreationContext.getCrac().getFlowCnec("REE_AE5 (assessed-element-5) - preventive - ONE").getBorder());
     }
 }
