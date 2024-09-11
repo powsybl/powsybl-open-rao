@@ -102,13 +102,13 @@ class OnConstraintUsageRuleHelperTest {
 
         // Add AssessedElement property bags
 
-        AssessedElement assessedElement1 = new AssessedElement("assessed-element-1", true, null, null, null, null, false, false, true, null, null, 0d, null);
-        AssessedElement assessedElement2 = new AssessedElement("assessed-element-2", true, null, null, null, null, false, true, true, null, null, 0d, null);
-        AssessedElement assessedElement3 = new AssessedElement("assessed-element-3", true, null, null, null, null, false, true, true, null, null, 0d, null);
-        AssessedElement assessedElement4 = new AssessedElement("assessed-element-4", true, null, null, null, null, false, false, true, null, null, 0d, null);
-        AssessedElement assessedElement5 = new AssessedElement("assessed-element-5", true, null, null, null, null, false, false, true, null, null, 0d, null);
-        AssessedElement assessedElement6 = new AssessedElement("assessed-element-6", true, null, null, null, null, false, false, true, null, null, 0d, null);
-        AssessedElement assessedElement8 = new AssessedElement("assessed-element-8", true, null, null, null, null, false, false, true, null, null, 0d, null);
+        AssessedElement assessedElement1 = new AssessedElement("assessed-element-1", true, null, null, null, null, false, true, null, null, 0d, null);
+        AssessedElement assessedElement2 = new AssessedElement("assessed-element-2", true, null, null, null, null, false, true, null, null, 0d, null);
+        AssessedElement assessedElement3 = new AssessedElement("assessed-element-3", true, null, null, null, null, false, true, null, null, 0d, null);
+        AssessedElement assessedElement4 = new AssessedElement("assessed-element-4", true, null, null, null, null, false, true, null, null, 0d, null);
+        AssessedElement assessedElement5 = new AssessedElement("assessed-element-5", true, null, null, null, null, false, true, null, null, 0d, null);
+        AssessedElement assessedElement6 = new AssessedElement("assessed-element-6", true, null, null, null, null, false, true, null, null, 0d, null);
+        AssessedElement assessedElement8 = new AssessedElement("assessed-element-8", true, null, null, null, null, false, true, null, null, 0d, null);
 
         assessedElements = Set.of(assessedElement1, assessedElement2, assessedElement3, assessedElement4, assessedElement5, assessedElement6, assessedElement8);
 
@@ -145,14 +145,6 @@ class OnConstraintUsageRuleHelperTest {
     }
 
     @Test
-    void getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions() {
-        assertEquals(
-            Set.of(crac.getFlowCnec("Line 2 - preventive"), crac.getFlowCnec("Line 2 - curative - CO1"), crac.getFlowCnec("Line 2 - curative - CO2"), crac.getFlowCnec("Line 2 - curative - CO3"), crac.getFlowCnec("Line 2 - curative - CO4"), crac.getFlowCnec("Line 2 - curative - CO5"), crac.getFlowCnec("Line 2 - curative - CO6"), crac.getFlowCnec("Line 3 - preventive"), crac.getFlowCnec("Line 3 - curative - CO1"), crac.getFlowCnec("Line 3 - curative - CO2"), crac.getFlowCnec("Line 3 - curative - CO3"), crac.getFlowCnec("Line 3 - curative - CO4"), crac.getFlowCnec("Line 3 - curative - CO5"), crac.getFlowCnec("Line 3 - curative - CO6")),
-            OnConstraintUsageRuleHelper.getCnecsBuiltFromAssessedElementsCombinableWithRemedialActions(crac, cnecCreationContexts, assessedElements)
-        );
-    }
-
-    @Test
     void filterCnecsThatHaveGivenContingencies() {
         assertEquals(
             Set.of(crac.getFlowCnec("Line 2 - curative - CO3"), crac.getFlowCnec("Line 3 - curative - CO3"), crac.getFlowCnec("Line 2 - curative - CO5"), crac.getFlowCnec("Line 3 - curative - CO5")),
@@ -168,10 +160,6 @@ class OnConstraintUsageRuleHelperTest {
         expectedResult.put("Line 2 - curative - CO2", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with CNEC Line 2 - curative - CO2 ignored because the combinationConstraintKinds between of the AssessedElementWithRemedialAction for assessed element assessed-element-2 and the ContingencyWithRemedialAction for contingency contingency-2 are different."));
         expectedResult.put("Line 2 - curative - CO3", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
         expectedResult.put("Line 2 - curative - CO4", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with CNEC Line 2 - curative - CO4 ignored because the combinationConstraintKinds between of the AssessedElementWithRemedialAction for assessed element assessed-element-2 and the ContingencyWithRemedialAction for contingency contingency-4 are different."));
-        expectedResult.put("Line 3 - curative - CO1", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
-        expectedResult.put("Line 3 - curative - CO2", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
-        expectedResult.put("Line 3 - curative - CO3", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
-        expectedResult.put("Line 3 - curative - CO4", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
         expectedResult.put("assessed-element-4", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-4 ignored because the association is disabled."));
         expectedResult.put("assessed-element-5", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-5 ignored because this assessed element has several conflictual links to the remedial action."));
         expectedResult.put("assessed-element-6", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-6 ignored because of an illegal combinationConstraintKind."));
@@ -192,13 +180,6 @@ class OnConstraintUsageRuleHelperTest {
         expectedResult.put("Line 2 - curative - CO4", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
         expectedResult.put("Line 2 - curative - CO5", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
         expectedResult.put("Line 2 - curative - CO6", new AssociationStatus(true, ElementCombinationConstraintKind.INCLUDED, ""));
-        expectedResult.put("Line 3 - preventive", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
-        expectedResult.put("Line 3 - curative - CO1", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
-        expectedResult.put("Line 3 - curative - CO2", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
-        expectedResult.put("Line 3 - curative - CO3", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
-        expectedResult.put("Line 3 - curative - CO4", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
-        expectedResult.put("Line 3 - curative - CO5", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
-        expectedResult.put("Line 3 - curative - CO6", new AssociationStatus(true, ElementCombinationConstraintKind.CONSIDERED, ""));
         expectedResult.put("assessed-element-4", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-4 ignored because the association is disabled."));
         expectedResult.put("assessed-element-5", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-5 ignored because this assessed element has several conflictual links to the remedial action."));
         expectedResult.put("assessed-element-6", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-6 ignored because of an illegal combinationConstraintKind."));
