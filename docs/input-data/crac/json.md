@@ -50,7 +50,7 @@ The following paragraphs of this page explain, step by step, the content of thes
 
 ## Network elements 
 OpenRAO relies on the [PowSyBl framework](https://www.powsybl.org/), and OpenRAO's CRAC relies on some elements of
-[PowSyBl's network model](https://www.powsybl.org/pages/documentation/grid/model/): the so-called network elements.
+[PowSyBl network model](inv:powsyblcore:*:*#grid_model/index): the so-called network elements.
 
 The network elements can be:
 - the elements that are disconnected from the network by a contingency,
@@ -61,7 +61,7 @@ The network elements can be:
 Network elements are referenced in the CRAC with:
 
 🔴⭐ an id
-: The id **must** match the [unique id of a PowSyBl object](https://www.powsybl.org/pages/documentation/grid/model/#introduction).
+: The id **must** match the [unique id of a PowSyBl object](inv:powsyblcore:std:doc#grid_model/index).
 When using a network element, the applications relying on the CRAC will look in the Network for an identifiable element
 with the very same id: if this element cannot be found, it can lead to an error in the application. When building the CRAC,
 one must therefore make sure that only the network elements whose IDs can be understood by the PowSyBl iidm Network are
@@ -268,10 +268,10 @@ A "FlowCnec" has the two following specificities:
 
 - it contains one network element that is a **Branch**. In the PowSyBl vocabulary, a "Branch"
   is an element connected to two terminals. For instance,
-  [lines](https://www.powsybl.org/pages/documentation/grid/model/#line),
-  [tie-lines](https://www.powsybl.org/pages/documentation/grid/model/#tie-line),
-  [transformers](https://www.powsybl.org/pages/documentation/grid/model/#transformers)
-  and [PSTs](https://www.powsybl.org/pages/documentation/grid/model/#phase-tap-changer)
+  [lines](inv:powsyblcore:*:*#line),
+  [tie-lines](inv:powsyblcore:*:*#tie-line),
+  [transformers](inv:powsyblcore:*:*#two-winding-transformer)
+  and [PSTs](inv:powsyblcore:*:*#phase-tap-changer)
   are all "Branches".
 - the physical parameter which is monitored on the CNEC is the **power flow**.
 
@@ -295,9 +295,9 @@ flow of the FlowCnec should ideally remain.
 - A threshold is defined either on the left or on the right side of the FlowCnec.
   > 💡  **NOTE**
   > The side of the branch on which the threshold is set is particularly crucial in the following cases:
-  > - when the threshold is defined in ampere or %Imax on a [**transformer**](https://www.powsybl.org/pages/documentation/grid/model/#transformers),
+  > - when the threshold is defined in ampere or %Imax on a [**transformer**](inv:powsyblcore:*:*#two-winding-transformer),
       >   as the current values on the two sides of a transformer are different,
-  > - when the threshold is defined in %Imax on a [**tie-line**](https://www.powsybl.org/pages/documentation/grid/model/#tie-line),
+  > - when the threshold is defined in %Imax on a [**tie-line**](inv:powsyblcore:*:*#tie-line),
       >   as the current limits are usually different on both sides of a tie-line,
   > - when the application uses **AC load-flow** computation, as the flow values on the two sides of a branch are
       >   different (due to losses). The CracCreationParameters allows the user to [decide which side(s) should be monitored by default](creation-parameters.md#default-monitored-line-side).
@@ -604,7 +604,7 @@ cnec2 = crac.newAngleCnec()
 
 ### Voltage CNECs
 A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has the following specificities:
-- it contains one network element (a [VoltageLevel](https://www.powsybl.org/pages/documentation/grid/model/#voltage-level))
+- it contains one network element (a [VoltageLevel](inv:powsyblcore:*:*#voltage-level))
 - the physical parameter which is monitored by the CNEC is the **voltage**.
 - it must contain at least one threshold, defined in kilovolts. A threshold has a minimum and/or a maximum value.
 
@@ -839,7 +839,7 @@ One network action is a combination of one or multiple "elementary actions", amo
 - Phase tap changer tap position action: setting the tap of a PST in the network to a specific position.
 - Generator action: setting the active power of a generator in the network to a specific value.
 - Load action: setting the active power of a load in the network to a specific value.
-- Dangling line action: setting the active power of a [dangling line](https://www.powsybl.org/pages/documentation/grid/model/#dangling-line)) in the network to a specific value.
+- Dangling line action: setting the active power of a [dangling line](inv:powsyblcore:*:*#dangling-line)) in the network to a specific value.
 - Shunt compensator position action: setting the number of sections of a shunt compensator to a specific value.
 - Switch pairs: opening a switch in the network and closing another (actually used to model [CSE bus-bar change remedial actions](cse.md#bus-bar-change)).
 
@@ -1097,7 +1097,7 @@ OpenRAO has four types of range actions : PST range actions, HVDC range actions,
 trading range actions.
 
 ### PST Range Action
-A PstRangeAction contains a network element which must point to a [PST in the iidm PowSyBl network model](https://www.powsybl.org/pages/documentation/grid/model/#phase-tap-changer).
+A PstRangeAction contains a network element which must point to a [PST in the iidm PowSyBl network model](inv:powsyblcore:*:*#phase-tap-changer).
 The PstRangeAction will be able to modify the set-point of this PST.
 
 > 💡  **NOTE**
@@ -1208,7 +1208,7 @@ group ID you like, as long as you use the same for all the range actions you wan
 ::::
 
 ### HVDC Range Action
-An HvdcRangeAction contains a network element that must point towards an [HvdcLine of the iidm PowSyBl network model](https://www.powsybl.org/pages/documentation/grid/model/#hvdc-line).  
+An HvdcRangeAction contains a network element that must point towards an [HvdcLine of the iidm PowSyBl network model](inv:powsyblcore:*:*#hvdc-line).  
 The HvdcRangeAction will be able to modify its active power set-point.
 
 The domain in which the HvdcRangeAction can modify the HvdcSetpoint is delimited by 'HvdcRanges'.
