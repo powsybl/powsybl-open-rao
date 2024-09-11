@@ -46,7 +46,7 @@ public class CostMIPSingleTsTest {
     RangeActionSetpointResult initialSetpoints;
     OptimizationPerimeter optimizationPerimeter;
     MultipleSensitivityResult initialSensiResult;
-    RangeActionsOptimizationParameters.PstModel pstModel = RangeActionsOptimizationParameters.PstModel.CONTINUOUS;
+    RangeActionsOptimizationParameters.PstModel pstModel = RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS;
     RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_MIN_COST.json"));
 
     @BeforeEach
@@ -83,6 +83,25 @@ public class CostMIPSingleTsTest {
             .build();
         sensitivityComputer.compute(List.of(network));
         return sensitivityComputer.getSensitivityResults();
+    }
+
+    @Test
+    public void testSimpleCase() {
+        network = Network.read("multi-ts/network/12NodesProdFR.uct", getClass().getResourceAsStream("/multi-ts/network/12NodesProdFR.uct"));
+        crac = CracImporters.importCrac("multi-ts/crac/crac-cost-0.json",
+            getClass().getResourceAsStream("/multi-ts/crac/crac-cost-0.json"),
+            network);
+        initialSetpoints = computeInitialSetpointsResults();
+        optimizationPerimeter = computeOptimizationPerimeter();
+        initialSensiResult = runInitialSensi();
+
+        LinearOptimizationResult result = runIteratingLinearOptimization();
+        System.out.println(result.getStatus());
+
+        PstRangeAction pstRa0Ts0 = crac.getPstRangeAction("pst_be - TS0");
+        State state0 = optimizationPerimeter.getMainOptimizationState();
+        double pstOptimizedSetPoint0Ts0 = result.getRangeActionActivationResult().getOptimizedSetpoint(pstRa0Ts0, state0);
+        System.out.println(pstOptimizedSetPoint0Ts0);
     }
 
     @Test

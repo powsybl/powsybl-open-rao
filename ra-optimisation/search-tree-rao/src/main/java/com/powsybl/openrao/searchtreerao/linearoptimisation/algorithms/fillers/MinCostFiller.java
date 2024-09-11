@@ -11,7 +11,6 @@ import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -24,8 +23,7 @@ import java.util.*;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
 /**
- * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public class MinCostFiller implements ProblemFiller {
     protected final Set<FlowCnec> optimizedCnecs;
@@ -90,10 +88,11 @@ public class MinCostFiller implements ProblemFiller {
      * Build the minimum margin variable MM.
      * MM represents the smallest margin of all Cnecs.
      * It is given in MEGAWATT.
+     * MM is used for penalty if the network is unsecure.
      */
     private void buildMinimumMarginVariable(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         if (!validFlowCnecs.isEmpty()) {
-            // INFERIOR TO 0???
+            // ub is set to 0: MM value is 0 if network is secure
             linearProblem.addMinimumMarginVariable(-LinearProblem.infinity(), 0);
         } else {
             // if there is no Cnecs, the minMarginVariable is forced to zero.
@@ -104,11 +103,13 @@ public class MinCostFiller implements ProblemFiller {
 
     /**
      * Build two min/max constraints for each Cnec c.
+     * If network is secure MM value is 0.
+     * If network is unsecure MM value is inferior 0 and serve as a penalty.
      * <p>
      * For each Cnec c, the constraints are:
      * <p>
-     * F[c] <= fmax[c]   (ABOVE_THRESHOLD)
-     * fmin[c] <= F[c]   (BELOW_THRESHOLD)
+     * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
+     * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
      */
     private void buildSecureCnecsHardConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
@@ -175,12 +176,13 @@ public class MinCostFiller implements ProblemFiller {
 
     /**
      * Add in the objective function of the linear problem the total cost TC
-     * Add min margin as penalty if unsecure
+     * Add min margin as penalty if unsecure.
      */
     private void fillObjectiveWithActivationCost(LinearProblem linearProblem) {
         OpenRaoMPVariable totalCostVariable = linearProblem.getTotalCostVariable();
         linearProblem.getObjective().setCoefficient(totalCostVariable, 1);
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
+        // marginPenaltyCoefficient is arbitrary for now
         linearProblem.getObjective().setCoefficient(minimumMarginVariable, -marginPenaltyCoefficient);
 
     }
