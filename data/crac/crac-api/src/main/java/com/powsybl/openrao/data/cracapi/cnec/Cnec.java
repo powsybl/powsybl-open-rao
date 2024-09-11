@@ -54,7 +54,6 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      */
     PhysicalParameter getPhysicalParameter();
 
-    // TODO MBR replace ? (Double or map ) by new type
     CnecValue computeValue(Network network, Unit unit);
 
     double computeWorstMargin(Network network, Unit unit);

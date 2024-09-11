@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.cracapi.cnec.CnecValue;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
+import com.powsybl.openrao.data.cracimpl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
 import com.powsybl.openrao.monitoring.results.*;
@@ -218,8 +219,8 @@ public class Monitoring {
     private static MonitoringResult makeResultWhenLoadFlowFails(PhysicalParameter physicalParameter, State state, Crac crac, Unit unit) {
         BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
         Set<CnecResult> cnecResults = new HashSet<>();
-        // TODO MBR fix new AngleCnecValue(Double.NaN)
-        crac.getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, unit, new AngleCnecValue(Double.NaN), Double.NaN, Cnec.CnecSecurityStatus.FAILURE)));
+        CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
+        crac.getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, unit, cnecValue, Double.NaN, Cnec.CnecSecurityStatus.FAILURE)));
         return new MonitoringResult(physicalParameter, cnecResults, new HashMap<>(), Cnec.CnecSecurityStatus.FAILURE);
     }
 

@@ -175,8 +175,9 @@ public class AngleMonitoringTest {
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
             "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°."
         ), angleMonitoringResult.printConstraints());
-        CnecResult acResult = angleMonitoringResult.getCnecResults().stream().filter(agCnecRes -> agCnecRes.getCnec().equals(acPrev)).findFirst().get();
-// TODO MBR        assertEquals(-3.67, (Double) acResult.getValue(), ANGLE_TOLERANCE);
+
+        double angleValue = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getCnec().equals(acPrev)).map(CnecResult::getValue).map(AngleCnecValue.class::cast).findFirst().get().value();
+        assertEquals(-3.67, angleValue, ANGLE_TOLERANCE);
     }
 
     @Test
@@ -264,7 +265,8 @@ public class AngleMonitoringTest {
         // AngleCnecsWithAngle
         assertEquals(2, angleMonitoringResult.getCnecResults().size());
 
-        // TODO MBR assertEquals(5.22, ((Double) angleMonitoringResult.getCnecResults().stream().map(CnecResult.class::cast).filter(cnec -> cnec.getCnec().getId().equals("AngleCnec1")).findAny().get().getValue()), ANGLE_TOLERANCE);
+        double angleValue = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getCnec().getId().equals("AngleCnec1")).map(CnecResult::getValue).map(AngleCnecValue.class::cast).findFirst().get().value();
+        assertEquals(5.22, angleValue, ANGLE_TOLERANCE);
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
                 "AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5°."),
             angleMonitoringResult.printConstraints());
