@@ -19,9 +19,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -105,18 +103,7 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     }
 
     @Override
-    public double computeMargin(double actualValue, Unit unit) {
-        if (!unit.equals(Unit.KILOVOLT)) {
-            throw new OpenRaoException("VoltageCnec margin can only be requested in KILOVOLT");
-        }
-
-        double marginOnLowerBound = actualValue - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-        double marginOnUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
-        return Math.min(marginOnLowerBound, marginOnUpperBound);
-    }
-
-    @Override
-    public double computeValue(Network network, Unit unit) {
+    public VoltageCnecValue computeValue(Network network, Unit unit) {
         if (!unit.equals(Unit.KILOVOLT)) {
             throw new OpenRaoException("VoltageCnec margin can only be requested in KILOVOLT");
         }
@@ -133,32 +120,38 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
             voltages.addAll(voltageLevel.getBusView().getBusStream().map(Bus::getV).collect(Collectors.toSet()));
         }
         Double minVoltage = voltages.stream().min(Double::compareTo).orElse(Double.NEGATIVE_INFINITY);
-        Double minThreshold = getThresholds().iterator().next().min().orElse(Double.NEGATIVE_INFINITY);
-        double marginOnLowerBound = minVoltage - minThreshold;
-
         Double maxVoltage = voltages.stream().max(Double::compareTo).orElse(Double.POSITIVE_INFINITY);
-        Double maxThreshold = getThresholds().iterator().next().max().orElse(Double.POSITIVE_INFINITY);
-        double marginOnUpperBound = maxThreshold - maxVoltage;
 
-        if (marginOnUpperBound < marginOnLowerBound) {
-            return maxVoltage;
-        } else {
-            return minVoltage;
-        }
+        return new VoltageCnecValue(minVoltage, maxVoltage);
     }
 
-    public CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit) {
-        if (computeMargin(actualValue, unit) < 0) {
+    @Override
+    public double computeWorstMargin(Network network, Unit unit) {
+        if (!unit.equals(Unit.KILOVOLT)) {
+            throw new OpenRaoException("VoltageCnec margin can only be requested in KILOVOLT");
+        }
+
+        VoltageCnecValue voltageValue = computeValue(network, unit);
+        double marginLowerBound = voltageValue.minValue() - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - voltageValue.maxValue();
+        return Math.min(marginLowerBound, marginUpperBound);
+    }
+
+    public CnecSecurityStatus computeSecurityStatus(Network network, Unit unit) {
+        VoltageCnecValue voltageValue = computeValue(network, unit);
+        double marginLowerBound = voltageValue.minValue() - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - voltageValue.maxValue();
+
+        if (marginLowerBound < 0 || marginUpperBound < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
-            if (getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMax() && actualValue > threshold.max().orElseThrow())) {
+            if (marginUpperBound < 0) {
                 highVoltageConstraints = true;
             }
-            if (getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMin() && actualValue < threshold.min().orElseThrow())) {
+            if (marginLowerBound < 0) {
                 lowVoltageConstraints = true;
             }
+
             if (highVoltageConstraints && lowVoltageConstraints) {
                 return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
             } else if (highVoltageConstraints) {

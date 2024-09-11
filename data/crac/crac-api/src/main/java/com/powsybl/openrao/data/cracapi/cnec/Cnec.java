@@ -54,14 +54,12 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      */
     PhysicalParameter getPhysicalParameter();
 
-    // rename to compute worst value ?
-    double computeValue(Network network, Unit unit);
+    // TODO MBR replace ? (Double or map ) by new type
+    CnecValue computeValue(Network network, Unit unit);
 
-    // TODO MBR rename to compute worst margin ?
-    // TODO MBR use network instead of actualValue ?
-    double computeMargin(double actualValue, Unit unit);
+    double computeWorstMargin(Network network, Unit unit);
 
-    CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit);
+    CnecSecurityStatus computeSecurityStatus(Network network, Unit unit);
 
     /**
      * Returns a tag indicating whether or not the {@link PhysicalParameter} of the Cnec is optimized.

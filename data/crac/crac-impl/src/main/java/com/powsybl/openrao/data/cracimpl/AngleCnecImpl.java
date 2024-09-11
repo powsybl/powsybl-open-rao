@@ -108,42 +108,44 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     }
 
     @Override
-    public double computeMargin(double actualValue, Unit unit) {
-        if (!unit.equals(Unit.DEGREE)) {
-            throw new OpenRaoException("AngleCnec margin can only be requested in DEGREE");
-        }
-
-        double marginOnLowerBound = actualValue - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-        double marginOnUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
-        return Math.min(marginOnLowerBound, marginOnUpperBound);
-    }
-
-    @Override
     public PhysicalParameter getPhysicalParameter() {
         return PhysicalParameter.ANGLE;
     }
 
     @Override
-    public double computeValue(Network network, Unit unit) {
+    public AngleCnecValue computeValue(Network network, Unit unit) {
         if (!unit.equals(Unit.DEGREE)) {
             throw new OpenRaoException("AngleCnec margin can only be requested in DEGREE");
         }
         VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(exportingNetworkElement.getId(), network);
         VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(importingNetworkElement.getId(), network);
-        return exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
-            - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble();
+        return new AngleCnecValue(exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
+            - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble());
     }
 
-    public CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit) {
-        if (computeMargin(actualValue, unit) < 0) {
+    @Override
+    public double computeWorstMargin(Network network, Unit unit) {
+        if (!unit.equals(Unit.DEGREE)) {
+            throw new OpenRaoException("AngleCnec margin can only be requested in DEGREE");
+        }
+
+        AngleCnecValue actualAngleValue = computeValue(network, unit);
+        double marginOnLowerBound = actualAngleValue.value() - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualAngleValue.value();
+        return Math.min(marginOnLowerBound, marginOnUpperBound);
+    }
+
+    public CnecSecurityStatus computeSecurityStatus(Network network, Unit unit) {
+        if (computeWorstMargin(network, unit) < 0) {
+            double actualAngleValue = computeValue(network, unit).value();
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
             if (getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMax() && actualValue > threshold.max().orElseThrow())) {
+                .anyMatch(threshold -> threshold.limitsByMax() && actualAngleValue > threshold.max().orElseThrow())) {
                 highVoltageConstraints = true;
             }
             if (getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMin() && actualValue < threshold.min().orElseThrow())) {
+                .anyMatch(threshold -> threshold.limitsByMin() && actualAngleValue < threshold.min().orElseThrow())) {
                 lowVoltageConstraints = true;
             }
             if (highVoltageConstraints && lowVoltageConstraints) {

@@ -60,7 +60,7 @@ public class MonitoringResult {
         }
         List<String> constraints = new ArrayList<>();
         cnecResults.stream()
-            .filter(CnecResult::thresholdOvershoot)
+            .filter(cr -> cr.getWorstCnecMargin() < 0)
             .sorted(Comparator.comparing(CnecResult::getId))
             .forEach(cnecResult -> constraints.add(cnecResult.print()));
 

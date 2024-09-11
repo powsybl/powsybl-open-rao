@@ -17,6 +17,8 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -153,17 +155,24 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     @Override
-    public double computeValue(Network network, Unit unit) {
+    public FlowCnecValue computeValue(Network network, Unit unit) {
         if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
         Branch branch = network.getBranch(getNetworkElement().getId());
+        Map<TwoSides, Double> result = new HashMap<>();
+        double power1 = 0;
         if (getMonitoredSides().size() == 2) {
-            double power1 = getPower(branch, TwoSides.ONE, unit);
+            power1 = getPower(branch, TwoSides.ONE, unit);
             double power2 = getPower(branch, TwoSides.TWO, unit);
-            return computeMargin(power1, TwoSides.ONE, unit) < computeMargin(power2, TwoSides.TWO, unit) ? power1 : power2;
+
+            result.put(TwoSides.ONE, power1);
+            result.put(TwoSides.TWO, power2);
+
+            return new FlowCnecValue(power1, power2);
         } else {
-            return getPower(branch, TwoSides.ONE, unit);
+            result.put(TwoSides.ONE, getPower(branch, TwoSides.ONE, unit));
+            return new FlowCnecValue(power1, Double.NaN);
         }
     }
 
@@ -173,28 +182,47 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     @Override
-    public double computeMargin(double value, Unit unit) {
+    public double computeWorstMargin(Network network, Unit unit) {
         if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
+        FlowCnecValue flowCnecValue = computeValue(network, unit);
         if (getMonitoredSides().size() == 2) {
-            throw new OpenRaoException("cnec " + getId() + " is monitored on both sides. Please use computeMargin using side as parameter");
+            double marginSide1 = computeMargin(flowCnecValue.side1Value(), TwoSides.ONE, unit);
+            double marginSide2 = computeMargin(flowCnecValue.side2Value(), TwoSides.TWO, unit);
+            return Math.min(marginSide1, marginSide2);
+        } else {
+            return computeMargin(flowCnecValue.side1Value(), TwoSides.ONE, unit);
         }
-        return computeMargin(value, getMonitoredSides().iterator().next(), unit);
     }
 
-    public CnecSecurityStatus getCnecSecurityStatus(double actualValue, Unit unit) {
-        if (computeMargin(actualValue, unit) < 0) {
+    public CnecSecurityStatus computeSecurityStatus(Network network, Unit unit) {
+        if (computeWorstMargin(network, unit) < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
-            if (getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMax() && actualValue > threshold.max().orElseThrow())) {
+
+            FlowCnecValue flowCnecValue = computeValue(network, unit);
+            double marginLowerBoundSideOne = flowCnecValue.side1Value() - getLowerBound(TwoSides.ONE, unit).orElse(Double.NEGATIVE_INFINITY);
+            double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
+
+            if (marginUpperBoundSideOne < 0) {
                 highVoltageConstraints = true;
             }
-            if (getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMin() && actualValue < threshold.min().orElseThrow())) {
+            if (marginLowerBoundSideOne < 0) {
                 lowVoltageConstraints = true;
             }
+
+            if (getMonitoredSides().size() == 2) {
+                double marginLowerBoundSideTwo = flowCnecValue.side2Value() - getLowerBound(TwoSides.TWO, unit).orElse(Double.NEGATIVE_INFINITY);
+                double marginUpperBoundSideTwo = getUpperBound(TwoSides.TWO, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
+                if (marginUpperBoundSideTwo < 0) {
+                    highVoltageConstraints = true;
+                }
+                if (marginLowerBoundSideTwo < 0) {
+                    lowVoltageConstraints = true;
+                }
+            }
+
             if (highVoltageConstraints && lowVoltageConstraints) {
                 return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
             } else if (highVoltageConstraints) {

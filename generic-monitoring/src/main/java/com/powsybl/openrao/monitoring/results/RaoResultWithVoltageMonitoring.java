@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracimpl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
@@ -53,7 +54,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     @Override
-    public double getVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
         if (!unit.equals(Unit.KILOVOLT)) {
             throw new OpenRaoException("Unexpected unit for voltage monitoring result :  " + unit);
         }
@@ -61,7 +62,19 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
         CnecResult voltageCnecResult = voltageMonitoringResult.getCnecResults().stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst().get();
-        return voltageCnecResult.getValue();
+        return ((VoltageCnecValue) voltageCnecResult.getValue()).minValue();
+    }
+
+    @Override
+    public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+        if (!unit.equals(Unit.KILOVOLT)) {
+            throw new OpenRaoException("Unexpected unit for voltage monitoring result :  " + unit);
+        }
+        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
+            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
+        }
+        CnecResult voltageCnecResult = voltageMonitoringResult.getCnecResults().stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst().get();
+        return ((VoltageCnecValue) voltageCnecResult.getValue()).maxValue();
     }
 
     @Override

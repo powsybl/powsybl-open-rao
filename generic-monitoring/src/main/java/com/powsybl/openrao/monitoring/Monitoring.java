@@ -17,8 +17,10 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
+import com.powsybl.openrao.data.cracapi.cnec.CnecValue;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
+import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
 import com.powsybl.openrao.monitoring.results.*;
@@ -135,11 +137,10 @@ public class Monitoring {
         if (!lfSuccess) {
             return makeResultWhenLoadFlowFails(physicalParameter, state, monitoringInput.getCrac(), unit);
         }
-
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
         cnecs.forEach(cnec -> {
-            double value = cnec.computeValue(network, unit);
-            if (cnec.computeMargin(value, unit) < 0) {
+            CnecValue value = cnec.computeValue(network, unit);
+            if (cnec.computeWorstMargin(network, unit) < 0) {
                 // For Cnecs with overshoot, get associated remedial actions
                 Set<NetworkAction> availableNetworkActions = getNetworkActionsAssociatedToCnec(state, monitoringInput.getCrac(), cnec, physicalParameter);
                 // and apply them
@@ -148,7 +149,7 @@ public class Monitoring {
                     appliedNetworkActionsResultList.add(appliedNetworkActionsResult);
                 }
             }
-            CnecResult cnecResult = new CnecResult(cnec, value, unit, cnec.getCnecSecurityStatus(value, unit));
+            CnecResult cnecResult = new CnecResult(cnec, unit, value, cnec.computeWorstMargin(network, unit), cnec.computeSecurityStatus(network, unit));
             cnecResults.add(cnecResult);
         });
 
@@ -164,14 +165,14 @@ public class Monitoring {
             // Re-compute all voltage/angle values
             cnecResults.clear();
             cnecs.forEach(cnec -> {
-                double value = cnec.computeValue(network, unit);
-                CnecResult cnecResult = new CnecResult(cnec, value, unit, cnec.getCnecSecurityStatus(value, unit));
+                CnecValue value = cnec.computeValue(network, unit);
+                CnecResult cnecResult = new CnecResult(cnec, unit, value, cnec.computeWorstMargin(network, unit), cnec.computeSecurityStatus(network, unit));
                 cnecResults.add(cnecResult);
             });
         }
 
         Cnec.CnecSecurityStatus monitoringResultStatus = Cnec.CnecSecurityStatus.SECURE;
-        if (cnecResults.stream().anyMatch(CnecResult::thresholdOvershoot)) {
+        if (cnecResults.stream().anyMatch(cnecResult -> cnecResult.getWorstCnecMargin() < 0)) {
             monitoringResultStatus = MonitoringResult.combineStatuses(
                 cnecResults.stream()
                     .map(CnecResult::getCnecSecurityStatus)
@@ -217,7 +218,8 @@ public class Monitoring {
     private static MonitoringResult makeResultWhenLoadFlowFails(PhysicalParameter physicalParameter, State state, Crac crac, Unit unit) {
         BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
         Set<CnecResult> cnecResults = new HashSet<>();
-        crac.getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, Double.NaN, unit, Cnec.CnecSecurityStatus.FAILURE)));
+        // TODO MBR fix new AngleCnecValue(Double.NaN)
+        crac.getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, unit, new AngleCnecValue(Double.NaN), Double.NaN, Cnec.CnecSecurityStatus.FAILURE)));
         return new MonitoringResult(physicalParameter, cnecResults, new HashMap<>(), Cnec.CnecSecurityStatus.FAILURE);
     }
 
@@ -274,7 +276,6 @@ public class Monitoring {
     }
 
     private AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput) {
-      // TODO MBR simplify this method ?
         Set<RemedialAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
         if (monitoringInput.getPhysicalParameter().equals(PhysicalParameter.VOLTAGE)) {
             for (NetworkAction na : availableNetworkActions) {

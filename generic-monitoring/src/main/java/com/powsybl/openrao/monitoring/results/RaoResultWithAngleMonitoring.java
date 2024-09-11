@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec.CnecSecurityStatus;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
@@ -62,9 +63,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
             throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
         CnecResult angleCnecResult = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst().get();
-
-        // TODO handle unit + remove find method above by a utility methods in AngleCnecResult and VoltageCnecResult
-        return angleCnecResult.getValue();
+        return ((AngleCnecValue) angleCnecResult.getValue()).value();
     }
 
     @Override
