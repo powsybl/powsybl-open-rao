@@ -49,27 +49,12 @@ import static org.mockito.Mockito.when;
  */
 class CastorFullOptimizationTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Crac crac;
     private Network network;
-    private State state1;
-    private State state2;
-    private RangeAction<?> ra1;
-    private RangeAction<?> ra2;
-    private RangeAction<?> ra3;
-    private RangeAction<?> ra4;
-    private RangeAction<?> ra5;
-    private RangeAction<?> ra6;
-    private RangeAction<?> ra7;
-    private RangeAction<?> ra8;
-    private RangeAction<?> ra9;
-    private RangeAction<?> ra10;
-    private NetworkAction na1;
     private Instant preventiveInstant;
-    private Instant autoInstant;
     private Instant curativeInstant;
 
     @BeforeEach
@@ -77,7 +62,6 @@ class CastorFullOptimizationTest {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = Crac.read("small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
-        autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         RaoInput inputs = Mockito.mock(RaoInput.class);
         when(inputs.getNetwork()).thenReturn(network);
