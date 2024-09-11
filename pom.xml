@@ -69,7 +69,6 @@
         <module>sensitivity-analysis</module>
         <module>util</module>
         <module>monitoring</module>
-        <module>generic-monitoring</module>
         <module>tests</module>
     </modules>
 
