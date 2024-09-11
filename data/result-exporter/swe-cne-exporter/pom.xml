@@ -53,11 +53,6 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-angle-monitoring</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
