@@ -137,7 +137,7 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
         return Math.min(marginLowerBound, marginUpperBound);
     }
 
-    public CnecSecurityStatus computeSecurityStatus(Network network, Unit unit) {
+    public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
         VoltageCnecValue voltageValue = computeValue(network, unit);
         double marginLowerBound = voltageValue.minValue() - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
         double marginUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - voltageValue.maxValue();
@@ -153,14 +153,14 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
             }
 
             if (highVoltageConstraints && lowVoltageConstraints) {
-                return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
+                return SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
             } else if (highVoltageConstraints) {
-                return CnecSecurityStatus.HIGH_CONSTRAINT;
+                return SecurityStatus.HIGH_CONSTRAINT;
             } else {
-                return CnecSecurityStatus.LOW_CONSTRAINT;
+                return SecurityStatus.LOW_CONSTRAINT;
             }
         } else {
-            return CnecSecurityStatus.SECURE;
+            return SecurityStatus.SECURE;
         }
     }
 

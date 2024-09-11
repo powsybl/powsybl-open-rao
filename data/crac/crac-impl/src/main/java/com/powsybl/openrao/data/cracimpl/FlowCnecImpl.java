@@ -196,7 +196,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
     }
 
-    public CnecSecurityStatus computeSecurityStatus(Network network, Unit unit) {
+    public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
         if (computeWorstMargin(network, unit) < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
@@ -224,14 +224,14 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             }
 
             if (highVoltageConstraints && lowVoltageConstraints) {
-                return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
+                return SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
             } else if (highVoltageConstraints) {
-                return CnecSecurityStatus.HIGH_CONSTRAINT;
+                return SecurityStatus.HIGH_CONSTRAINT;
             } else {
-                return CnecSecurityStatus.LOW_CONSTRAINT;
+                return SecurityStatus.LOW_CONSTRAINT;
             }
         } else {
-            return CnecSecurityStatus.SECURE;
+            return SecurityStatus.SECURE;
         }
     }
 

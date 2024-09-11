@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec.CnecSecurityStatus;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec.SecurityStatus;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -47,7 +47,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (!angleMonitoringResult.getStatus().equals(CnecSecurityStatus.FAILURE)) {
+        if (!angleMonitoringResult.getStatus().equals(SecurityStatus.FAILURE)) {
             return raoResult.getComputationStatus();
         } else {
             return ComputationStatus.FAILURE;
@@ -95,7 +95,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
-            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.getStatus().equals(CnecSecurityStatus.SECURE);
+            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(instant, u);
         }
@@ -105,7 +105,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     public boolean isSecure(PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
-            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.getStatus().equals(CnecSecurityStatus.SECURE);
+            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(u);
         }
@@ -113,6 +113,6 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure() {
-        return raoResult.isSecure() && angleMonitoringResult.getStatus().equals(CnecSecurityStatus.SECURE);
+        return raoResult.isSecure() && angleMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
     }
 }

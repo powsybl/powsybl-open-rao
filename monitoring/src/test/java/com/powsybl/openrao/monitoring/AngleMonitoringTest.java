@@ -148,7 +148,7 @@ public class AngleMonitoringTest {
         mockCurativeStates();
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.CnecSecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertTrue(angleMonitoringResult.getCnecResults().stream().map(CnecResult::getValue).filter(AngleCnecValue.class::isInstance).allMatch(angleCnecValue -> ((AngleCnecValue) angleCnecValue).value().isNaN()));
         assertEquals(angleMonitoringResult.printConstraints(), List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac."));
@@ -160,7 +160,7 @@ public class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.CnecSecurityStatus.SECURE, angleMonitoringResult.getStatus());
+        assertEquals(Cnec.SecurityStatus.SECURE, angleMonitoringResult.getStatus());
     }
 
     @Test
@@ -170,7 +170,7 @@ public class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.CnecSecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
+        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
             "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°."
@@ -187,7 +187,7 @@ public class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.CnecSecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
+        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."),
@@ -206,7 +206,7 @@ public class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.CnecSecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
+        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."),
@@ -225,7 +225,7 @@ public class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.CnecSecurityStatus.SECURE, angleMonitoringResult.getStatus());
+        assertEquals(Cnec.SecurityStatus.SECURE, angleMonitoringResult.getStatus());
         assertEquals(Set.of(naL1Cur.getId()), angleMonitoringResult.getAppliedRas("coL1 - curative"));
         assertEquals(angleMonitoringResult.printConstraints(), List.of("All ANGLE Cnecs are secure."));
     }
@@ -240,7 +240,7 @@ public class AngleMonitoringTest {
         runAngleMonitoring(scalableZonalData);
         assertEquals(1, angleMonitoringResult.getCnecResults().size());
         assertEquals("acCur1", angleMonitoringResult.getCnecResults().stream().findFirst().orElseThrow().getCnec().getId());
-        assertEquals(Cnec.CnecSecurityStatus.SECURE, angleMonitoringResult.getStatus());
+        assertEquals(Cnec.SecurityStatus.SECURE, angleMonitoringResult.getStatus());
     }
 
     @Test
@@ -252,7 +252,7 @@ public class AngleMonitoringTest {
 
         runAngleMonitoring(scalableZonalData);
 
-        assertEquals(Cnec.CnecSecurityStatus.HIGH_CONSTRAINT, angleMonitoringResult.getStatus());
+        assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, angleMonitoringResult.getStatus());
 
         // Applied cras
         State state = crac.getState("Co-1", curativeInstant);

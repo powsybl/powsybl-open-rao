@@ -135,7 +135,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
         return Math.min(marginOnLowerBound, marginOnUpperBound);
     }
 
-    public CnecSecurityStatus computeSecurityStatus(Network network, Unit unit) {
+    public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
         if (computeWorstMargin(network, unit) < 0) {
             double actualAngleValue = computeValue(network, unit).value();
             boolean highVoltageConstraints = false;
@@ -149,14 +149,14 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
                 lowVoltageConstraints = true;
             }
             if (highVoltageConstraints && lowVoltageConstraints) {
-                return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
+                return SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
             } else if (highVoltageConstraints) {
-                return CnecSecurityStatus.HIGH_CONSTRAINT;
+                return SecurityStatus.HIGH_CONSTRAINT;
             } else {
-                return CnecSecurityStatus.LOW_CONSTRAINT;
+                return SecurityStatus.LOW_CONSTRAINT;
             }
         } else {
-            return CnecSecurityStatus.SECURE;
+            return SecurityStatus.SECURE;
         }
     }
 

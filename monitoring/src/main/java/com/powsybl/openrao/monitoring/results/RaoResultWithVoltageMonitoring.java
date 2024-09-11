@@ -46,7 +46,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (!voltageMonitoringResult.getStatus().equals(Cnec.CnecSecurityStatus.FAILURE)) {
+        if (!voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.FAILURE)) {
             return raoResult.getComputationStatus();
         } else {
             return ComputationStatus.FAILURE;
@@ -110,7 +110,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.CnecSecurityStatus.SECURE);
+            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(instant, u);
         }
@@ -120,7 +120,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     public boolean isSecure(PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.CnecSecurityStatus.SECURE);
+            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(u);
         }
@@ -128,6 +128,6 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure() {
-        return raoResult.isSecure() && voltageMonitoringResult.getStatus().equals(Cnec.CnecSecurityStatus.SECURE);
+        return raoResult.isSecure() && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
     }
 }

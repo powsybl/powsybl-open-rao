@@ -58,7 +58,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
 
     double computeWorstMargin(Network network, Unit unit);
 
-    CnecSecurityStatus computeSecurityStatus(Network network, Unit unit);
+    SecurityStatus computeSecurityStatus(Network network, Unit unit);
 
     /**
      * Returns a tag indicating whether or not the {@link PhysicalParameter} of the Cnec is optimized.
@@ -112,7 +112,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     @Deprecated (since = "3.0.0")
     void setOptimized(boolean optimized);
 
-    enum CnecSecurityStatus {
+    enum SecurityStatus {
         SECURE,
         HIGH_CONSTRAINT,
         LOW_CONSTRAINT,

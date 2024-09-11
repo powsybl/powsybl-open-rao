@@ -4,7 +4,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec.CnecSecurityStatus;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec.SecurityStatus;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,9 +14,9 @@ public class MonitoringResult {
     private PhysicalParameter physicalParameter;
     private Set<CnecResult> cnecResults;
     private Map<State, Set<RemedialAction>> appliedRas;
-    private CnecSecurityStatus status;
+    private SecurityStatus status;
 
-    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult> cnecResults, Map<State, Set<RemedialAction>> appliedRas, CnecSecurityStatus status) {
+    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult> cnecResults, Map<State, Set<RemedialAction>> appliedRas, SecurityStatus status) {
         this.physicalParameter = physicalParameter;
         this.cnecResults = cnecResults;
         this.appliedRas = appliedRas;
@@ -50,12 +50,12 @@ public class MonitoringResult {
         }
     }
 
-    public CnecSecurityStatus getStatus() {
+    public SecurityStatus getStatus() {
         return status;
     }
 
     public List<String> printConstraints() {
-        if (status.equals(CnecSecurityStatus.FAILURE)) {
+        if (status.equals(SecurityStatus.FAILURE)) {
             return List.of(physicalParameter + " monitoring failed due to a load flow divergence or an inconsistency in the crac.");
         }
         List<String> constraints = new ArrayList<>();
@@ -86,25 +86,25 @@ public class MonitoringResult {
         this.status = combineStatuses(this.status, monitoringResult.getStatus());
     }
 
-    public static CnecSecurityStatus combineStatuses(CnecSecurityStatus... statuses) {
-        boolean atLeastOneFailed = Arrays.asList(statuses).contains(CnecSecurityStatus.FAILURE);
+    public static SecurityStatus combineStatuses(SecurityStatus... statuses) {
+        boolean atLeastOneFailed = Arrays.asList(statuses).contains(SecurityStatus.FAILURE);
         if (atLeastOneFailed) {
-            return CnecSecurityStatus.FAILURE;
+            return SecurityStatus.FAILURE;
         }
 
-        boolean atLeastOneHigh = Arrays.asList(statuses).contains(CnecSecurityStatus.HIGH_CONSTRAINT);
-        boolean atLeastOneLow = Arrays.asList(statuses).contains(CnecSecurityStatus.LOW_CONSTRAINT);
-        boolean atLeastOneHighAndLow = Arrays.asList(statuses).contains(CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS) || atLeastOneHigh && atLeastOneLow;
+        boolean atLeastOneHigh = Arrays.asList(statuses).contains(SecurityStatus.HIGH_CONSTRAINT);
+        boolean atLeastOneLow = Arrays.asList(statuses).contains(SecurityStatus.LOW_CONSTRAINT);
+        boolean atLeastOneHighAndLow = Arrays.asList(statuses).contains(SecurityStatus.HIGH_AND_LOW_CONSTRAINTS) || atLeastOneHigh && atLeastOneLow;
 
         if (atLeastOneHighAndLow) {
-            return CnecSecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
+            return SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
         }
         if (atLeastOneHigh) {
-            return CnecSecurityStatus.HIGH_CONSTRAINT;
+            return SecurityStatus.HIGH_CONSTRAINT;
         }
         if (atLeastOneLow) {
-            return CnecSecurityStatus.LOW_CONSTRAINT;
+            return SecurityStatus.LOW_CONSTRAINT;
         }
-        return CnecSecurityStatus.SECURE;
+        return SecurityStatus.SECURE;
     }
 }

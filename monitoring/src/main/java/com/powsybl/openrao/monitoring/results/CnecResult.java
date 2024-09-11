@@ -16,14 +16,14 @@ public class CnecResult<T extends CnecValue> {
     private final T value;
     private final double worstCnecMargin;
 
-    private final Cnec.CnecSecurityStatus cnecSecurityStatus;
+    private final Cnec.SecurityStatus securityStatus;
 
-    public CnecResult(Cnec cnec, Unit unit, T value, double worstCnecMargin, Cnec.CnecSecurityStatus cnecSecurityStatus) {
+    public CnecResult(Cnec cnec, Unit unit, T value, double worstCnecMargin, Cnec.SecurityStatus securityStatus) {
         this.cnec = cnec;
         this.unit = unit;
         this.value = value;
         this.worstCnecMargin = worstCnecMargin;
-        this.cnecSecurityStatus = cnecSecurityStatus;
+        this.securityStatus = securityStatus;
     }
 
     public T getValue() {
@@ -46,8 +46,8 @@ public class CnecResult<T extends CnecValue> {
         return unit;
     }
 
-    public Cnec.CnecSecurityStatus getCnecSecurityStatus() {
-        return cnecSecurityStatus;
+    public Cnec.SecurityStatus getCnecSecurityStatus() {
+        return securityStatus;
     }
 
     public double getWorstCnecMargin() {
