@@ -368,13 +368,13 @@ These parameters (load-flow-and-sensitivity-computation) configure the load-flow
 from inside the RAO.  
 
 #### load-flow-provider
-- **Expected value**: String, should refer to a [PowSyBl load flow provider implementation](https://www.powsybl.org/pages/documentation/simulation/powerflow/)
-- **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](https://www.powsybl.org/pages/documentation/simulation/powerflow/openlf.html))
+- **Expected value**: String, should refer to a [PowSyBl load flow provider implementation](inv:powsyblcore:std:doc#simulation/loadflow/index)
+- **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](inv:powsyblopenloadflow:std:doc#index))
 - **Usage**: the name of the load flow provider to use when a load flow is needed
 
 #### sensitivity-provider
-- **Expected value**: String, should refer to a [PowSyBl sensitivity provider implementation](https://www.powsybl.org/pages/documentation/simulation/sensitivity/)
-- **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](https://www.powsybl.org/pages/documentation/simulation/sensitivity/openlf.html))
+- **Expected value**: String, should refer to a [PowSyBl sensitivity provider implementation](inv:powsyblcore:std:doc#simulation/sensitivity/index)
+- **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](inv:powsyblopenloadflow:std:doc#index))
 - **Usage**: the name of the sensitivity provider to use in the RAO
 
 #### sensitivity-failure-over-cost
@@ -389,7 +389,7 @@ lead to a sensitivity failure, and instead propose a solution whose objective-fu
 network is converging for all contingency scenarios.
 
 #### sensitivity-parameters
-- **Expected value**: SensitivityComputationParameters ([PowSyBl](https://www.powsybl.org/pages/documentation/simulation/sensitivity/) configuration)
+- **Expected value**: SensitivityComputationParameters ([PowSyBl](inv:powsyblcore:std:doc#simulation/sensitivity/configuration) configuration)
 - **Default value**: PowSyBl's default value (it is generally a bad idea to keep the default value for this parameter)
 - **Usage**: sensitivity-parameters is the configuration of the PowSyBl sensitivity engine, which is used within OpenRAO. 
 The underlying "load-flow-parameters" is also used whenever an explicit pure load-flow computation is needed. 
@@ -700,7 +700,7 @@ Zones are seperated by + or -.
 ~~~
 :::
 :::{group-tab} iTools
-Based on PowSyBl's [configuration mechanism](https://www.powsybl.org/pages/documentation/user/configuration/).
+Based on PowSyBl's [configuration mechanism](inv:powsyblcore:std:doc#user/configuration/index).
 ~~~yaml
 rao-objective-function:
   type: MAX_MIN_MARGIN_IN_AMPERE
