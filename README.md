@@ -29,7 +29,7 @@ In order to build **powsybl-open-rao**, you need the following environment avail
 
 ### Installing
 
-Open RAO needs a load flow implementation and a sensitivity analysis implementation at runtime, following the interfaces of **powsybl-core** which documentation is available in [PowSyBl website](https://www.powsybl.org/pages/documentation/). Note that for obvious reasons, included performances, reliability and transparency, Open RAO uses [Powsybl Open Load Flow](https://github.com/powsybl/powsybl-open-loadflow) by default, but you can prefer you own implementation.
+Open RAO needs a load flow implementation and a sensitivity analysis implementation at runtime, following the interfaces of **powsybl-core** which documentation is available [here](https://powsybl.readthedocs.io/projects/powsybl-core). Note that for obvious reasons, included performances, reliability and transparency, Open RAO uses [Powsybl Open Load Flow](https://github.com/powsybl/powsybl-open-loadflow) by default, but you can prefer you own implementation.
 
 ### Running
 
