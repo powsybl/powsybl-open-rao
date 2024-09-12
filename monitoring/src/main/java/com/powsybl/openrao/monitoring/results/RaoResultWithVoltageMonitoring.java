@@ -21,10 +21,7 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,26 +52,32 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
-        if (!unit.equals(Unit.KILOVOLT)) {
-            throw new OpenRaoException("Unexpected unit for voltage monitoring result :  " + unit);
+        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec, unit);
+        if (voltageCnecResultOpt.isPresent()) {
+            return ((VoltageCnecValue) voltageCnecResultOpt.get().getValue()).minValue();
+        } else {
+            return Double.NaN;
         }
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
-        }
-        CnecResult voltageCnecResult = voltageMonitoringResult.getCnecResults().stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst().get();
-        return ((VoltageCnecValue) voltageCnecResult.getValue()).minValue();
     }
 
     @Override
     public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec, unit);
+        if (voltageCnecResultOpt.isPresent()) {
+            return ((VoltageCnecValue) voltageCnecResultOpt.get().getValue()).maxValue();
+        } else {
+            return Double.NaN;
+        }
+    }
+
+    private Optional<CnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         if (!unit.equals(Unit.KILOVOLT)) {
             throw new OpenRaoException("Unexpected unit for voltage monitoring result :  " + unit);
         }
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
-        CnecResult voltageCnecResult = voltageMonitoringResult.getCnecResults().stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst().get();
-        return ((VoltageCnecValue) voltageCnecResult.getValue()).maxValue();
+        return voltageMonitoringResult.getCnecResults().stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst();
     }
 
     @Override

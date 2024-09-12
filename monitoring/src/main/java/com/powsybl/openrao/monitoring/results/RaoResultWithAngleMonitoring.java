@@ -20,15 +20,13 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.RaoResultClone;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * class that enhances rao result with angle monitoring results
+ *
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class RaoResultWithAngleMonitoring extends RaoResultClone {
@@ -62,8 +60,13 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
-        CnecResult angleCnecResult = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst().get();
-        return ((AngleCnecValue) angleCnecResult.getValue()).value();
+        Optional<CnecResult> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
+
+        if (angleCnecResultOpt.isPresent()) {
+            return ((AngleCnecValue) angleCnecResultOpt.get().getValue()).value();
+        } else {
+            return Double.NaN;
+        }
     }
 
     @Override
