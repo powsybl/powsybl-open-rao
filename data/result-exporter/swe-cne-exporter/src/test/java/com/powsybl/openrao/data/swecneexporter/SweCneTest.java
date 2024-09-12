@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
@@ -75,16 +76,6 @@ class SweCneTest {
         }
         RaoResult raoResult = RaoResult.read(inputStream, crac);
 
-        MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
-            Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.SECURE)),
-            Map.of(crac.getCurativeStates().iterator().next(), Set.of(crac.getRangeAction("na1"))),
-            Cnec.SecurityStatus.SECURE);
-
-        MonitoringResult monitoringResultWithFailure = new MonitoringResult(PhysicalParameter.ANGLE,
-            Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.FAILURE)),
-            Map.of(crac.getCurativeStates().iterator().next(), Set.of(crac.getRangeAction("na1"))),
-            Cnec.SecurityStatus.FAILURE);
-
         InputStream inputStream3 = null;
         try {
             inputStream3 = new FileInputStream(SweCneTest.class.getResource("/RaoResultWithFailure.json").getFile());
@@ -92,8 +83,14 @@ class SweCneTest {
             e.printStackTrace();
         }
         RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
+
+        MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
+            Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.SECURE)),
+            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
+            Cnec.SecurityStatus.SECURE);
+
         raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
-        raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, monitoringResultWithFailure);
+        raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, monitoringResult);
     }
 
     @Test

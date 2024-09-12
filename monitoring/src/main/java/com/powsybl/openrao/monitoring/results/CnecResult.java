@@ -55,27 +55,25 @@ public class CnecResult<T extends CnecValue> {
     }
 
     public String print() {
-        switch (value) {
-
-            case VoltageCnecValue voltageValue -> {
-                VoltageCnec voltageCnec = (VoltageCnec) cnec;
-                return String.format("Network element %s at state %s has a min voltage of %.0f kV and a max voltage of %.0f kV.",
-                    voltageCnec.getNetworkElement().getId(),
-                    voltageCnec.getState().getId(),
-                    voltageValue.minValue(),
-                    voltageValue.maxValue());
-            }
-            case AngleCnecValue angleValue -> {
-                AngleCnec angleCnec = (AngleCnec) cnec;
-                return String.format("AngleCnec %s (with importing network element %s and exporting network element %s) at state %s has an angle of %.0f°.",
-                    angleCnec.getId(),
-                    angleCnec.getImportingNetworkElement().getId(),
-                    angleCnec.getExportingNetworkElement().getId(),
-                    cnec.getState().getId(),
-                    angleValue.value());
-
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + value);
+        if (value instanceof VoltageCnecValue) {
+            VoltageCnecValue voltageValue = (VoltageCnecValue) value;
+            VoltageCnec voltageCnec = (VoltageCnec) cnec;
+            return String.format("Network element %s at state %s has a min voltage of %.0f kV and a max voltage of %.0f kV.",
+                voltageCnec.getNetworkElement().getId(),
+                voltageCnec.getState().getId(),
+                voltageValue.minValue(),
+                voltageValue.maxValue());
+        } else if (value instanceof AngleCnecValue) {
+            AngleCnecValue angleValue = (AngleCnecValue) value;
+            AngleCnec angleCnec = (AngleCnec) cnec;
+            return String.format("AngleCnec %s (with importing network element %s and exporting network element %s) at state %s has an angle of %.0f°.",
+                angleCnec.getId(),
+                angleCnec.getImportingNetworkElement().getId(),
+                angleCnec.getExportingNetworkElement().getId(),
+                cnec.getState().getId(),
+                angleValue.value());
+        } else {
+            throw new IllegalStateException("Unexpected value: " + value);
         }
     }
 

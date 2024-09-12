@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
@@ -24,7 +25,6 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,14 +40,11 @@ import static com.powsybl.openrao.data.swecneexporter.SweCneTest.compareCneFiles
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class SweCneDivergentAngleMonitoringTest {
-    private Crac crac;
-    private CracCreationContext cracCreationContext;
-    private Network network;
-    private RaoResultWithAngleMonitoring raoResultWithAngleMonitoring;
 
+    @Test
     @BeforeEach
-    public void setUp() throws IOException {
-        network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
+    void testExport() throws IOException {
+        Network network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
 
         Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2), new RangeActionSpeed("PRA_1", 3));
@@ -57,25 +54,17 @@ class SweCneDivergentAngleMonitoringTest {
         cracCreationParameters.setCracFactoryName("CracImplFactory");
         cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
 
-        cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
-        crac = cracCreationContext.getCrac();
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/RaoResult.json").getFile());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        CracCreationContext cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
+        Crac crac = cracCreationContext.getCrac();
+        InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/RaoResult.json").getFile());
         RaoResult raoResult = RaoResult.read(inputStream, crac);
 
         MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
             Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.FAILURE)),
-            Map.of(crac.getCurativeStates().iterator().next(), Set.of(crac.getRangeAction("na1"))),
+            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
             Cnec.SecurityStatus.FAILURE);
-        raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
-    }
 
-    @Test
-    void testExport() {
+        RaoResultWithAngleMonitoring raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
         CneExporterParameters params = new CneExporterParameters(
             "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
             "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,
@@ -83,11 +72,7 @@ class SweCneDivergentAngleMonitoringTest {
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultWithAngleMonitoring, new RaoParameters(), params, outputStream);
-        try {
-            InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
-            compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
-        } catch (IOException e) {
-            Assertions.fail();
-        }
+        InputStream expectedCneInputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
+        compareCneFiles(expectedCneInputStream, new ByteArrayInputStream(outputStream.toByteArray()));
     }
 }
