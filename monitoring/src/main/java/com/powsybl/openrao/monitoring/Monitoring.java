@@ -315,33 +315,36 @@ public class Monitoring {
      * 2) Stores applied injections on network
      * Returns false if network action must be filtered.
      */
-    private boolean checkElementaryActionAndStoreInjection(Action ea, Network network, String cnecId, String naId, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched, ZonalData<Scalable> scalableZonalData) {
+    private boolean checkElementaryActionAndStoreInjection(Action ea, Network network, String angleCnecId, String naId, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched, ZonalData<Scalable> scalableZonalData) {
         if (!(ea instanceof LoadAction) && !(ea instanceof GeneratorAction)) {
-            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that's not an injection setpoint.", naId, cnecId);
+            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that's not an injection setpoint.", naId, angleCnecId);
             return false;
         }
-
         Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
-        if (ne == null || !ne.getType().equals(IdentifiableType.GENERATOR) || !ne.getType().equals(IdentifiableType.LOAD)) {
-            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has should have a generator or a load injection setpoint.", naId, cnecId);
+
+        if (ne == null) {
+            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has no elementary actions.", naId, angleCnecId);
             return false;
         }
 
         Optional<Substation> substation = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation();
         if (substation.isEmpty()) {
-            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that doesn't have a substation.", naId, cnecId);
+            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that doesn't have a substation.", naId, angleCnecId);
             return false;
         } else {
             Optional<Country> country = substation.get().getCountry();
             if (country.isEmpty()) {
-                BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that doesn't have a country.", naId, cnecId);
+                BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that doesn't have a country.", naId, angleCnecId);
                 return false;
             } else {
-                checkGlsks(country.get(), naId, cnecId, scalableZonalData);
+                checkGlsks(country.get(), naId, angleCnecId, scalableZonalData);
                 if (ne.getType().equals(IdentifiableType.GENERATOR)) {
                     powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP() - ((GeneratorAction) ea).getActivePowerValue().getAsDouble(), Double::sum);
-                } else {
+                } else if (ne.getType().equals(IdentifiableType.LOAD)) {
                     powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0() + ((LoadAction) ea).getActivePowerValue().getAsDouble(), Double::sum);
+                } else {
+                    BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an injection setpoint that's neither a generator nor a load.", naId, angleCnecId);
+                    return false;
                 }
                 networkElementsToBeExcluded.add(ne.getId());
             }
