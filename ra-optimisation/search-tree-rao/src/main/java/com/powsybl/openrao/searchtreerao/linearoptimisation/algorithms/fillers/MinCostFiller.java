@@ -70,7 +70,7 @@ public class MinCostFiller implements ProblemFiller {
      * TC represents the activation cost of all range actions.
      */
     private void buildTotalCostVariable(LinearProblem linearProblem) {
-        linearProblem.addTotalCostVariable(0, LinearProblem.infinity());
+        linearProblem.addTotalCostVariable(0, linearProblem.infinity());
     }
 
     /**
@@ -80,7 +80,7 @@ public class MinCostFiller implements ProblemFiller {
     private void buildRangeActionCostVariable(LinearProblem linearProblem) {
         rangeActions.forEach((state, rangeActionSet) ->
             rangeActionSet.forEach(rangeAction -> {
-                linearProblem.addRangeActionCostVariable(0, LinearProblem.infinity(), rangeAction, state);
+                linearProblem.addRangeActionCostVariable(0, linearProblem.infinity(), rangeAction, state);
             }));
     }
 
@@ -93,7 +93,7 @@ public class MinCostFiller implements ProblemFiller {
     private void buildMinimumMarginVariable(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         if (!validFlowCnecs.isEmpty()) {
             // ub is set to 0: MM value is 0 if network is secure
-            linearProblem.addMinimumMarginVariable(-LinearProblem.infinity(), 0);
+            linearProblem.addMinimumMarginVariable(-linearProblem.infinity(), 0);
         } else {
             // if there is no Cnecs, the minMarginVariable is forced to zero.
             // otherwise it would be unbounded in the LP
@@ -124,13 +124,13 @@ public class MinCostFiller implements ProblemFiller {
             // double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
 
             if (minFlow.isPresent()) {
-                OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 minimumMarginNegative.setCoefficient(minimumMarginVariable, 1);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
-                OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 minimumMarginPositive.setCoefficient(minimumMarginVariable, 1);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }

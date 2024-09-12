@@ -63,6 +63,7 @@ public final class NetworkActionUtils {
     public static class NetworkActionImplTest implements NetworkAction {
 
         private final Set<Action> elementaryActions;
+        private final double activationCost = 0;
 
         public NetworkActionImplTest(Set<Action> elementaryActions) {
             this.elementaryActions = new HashSet<>(elementaryActions);
@@ -95,6 +96,11 @@ public final class NetworkActionUtils {
         @Override
         public UsageMethod getUsageMethod(State state) {
             return null;
+        }
+
+        @Override
+        public double getActivationCost() {
+            return activationCost;
         }
 
         @Override

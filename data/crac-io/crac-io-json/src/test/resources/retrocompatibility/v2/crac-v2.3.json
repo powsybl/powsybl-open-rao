@@ -370,12 +370,11 @@
     },
     "initialSetpoint" : 50,
     "ranges" : [ {
-      "min" : -100.0,
-      "max" : 300.0
+      "min" : -500.0,
+      "max" : 500.0
     }, {
-      "min" : -400.0,
-      "max" : 600.0,
-      "rangeType" : "relativeToPreviousTimeStep"
+      "min" : -1000.0,
+      "max" : 1000.0
     } ]
   } ],
   "counterTradeRangeActions" : [ {

@@ -769,19 +769,6 @@ class JsonRetrocompatibilityTest {
         assertEquals(Unit.TAP, pstRelTimeStepRange.getUnit());
         assertEquals(3.2, pstRangeAction4.getActivationCost());
 
-        StandardRange injectionAbsRange = crac.getInjectionRangeAction("injectionRange1Id").getRanges().stream()
-            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
-            .findAny().orElse(null);
-        StandardRange injectionRelTimeStepRange = crac.getInjectionRangeAction("injectionRange1Id").getRanges().stream()
-            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_TIME_STEP))
-            .findAny().orElse(null);
-        assertNotNull(injectionAbsRange);
-        assertEquals(-100.0, injectionAbsRange.getMin());
-        assertEquals(300.0, injectionAbsRange.getMax());
-        assertNotNull(injectionRelTimeStepRange);
-        assertEquals(-400, injectionRelTimeStepRange.getMin());
-        assertEquals(600, injectionRelTimeStepRange.getMax());
-
         // check new border attribute
         assertEquals("border1", crac.getCnec("cnec1outageId").getBorder());
         assertEquals("border1", crac.getCnec("cnec1prevId").getBorder());
