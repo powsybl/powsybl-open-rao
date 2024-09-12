@@ -24,8 +24,6 @@ import com.powsybl.openrao.data.cracio.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
-import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
-import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultImporter;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCimCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCsaProfileCracCreationContext;
@@ -184,13 +182,6 @@ public final class Helpers {
         ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
         zipInputStream.getNextEntry();
         return zipInputStream;
-    }
-
-    public static AngleMonitoringResult importAngleMonitoringResult(File angleMonitoringResultFile) throws IOException {
-        InputStream inputStream = new FileInputStream(angleMonitoringResultFile);
-        AngleMonitoringResult angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream, CommonTestData.getCrac());
-        inputStream.close();
-        return angleMonitoringResult;
     }
 
     public static File getFile(String path) {

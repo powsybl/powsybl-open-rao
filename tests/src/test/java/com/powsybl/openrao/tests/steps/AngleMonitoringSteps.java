@@ -11,22 +11,20 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
+import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoring;
-import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
-import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultExporter;
-import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultImporter;
+import com.powsybl.openrao.monitoring.Monitoring;
+import com.powsybl.openrao.monitoring.MonitoringInput;
+import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.tests.utils.Helpers;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -59,24 +57,14 @@ public class AngleMonitoringSteps {
         Network network = CommonTestData.getNetwork();
         RaoResult raoResult = CommonTestData.getRaoResult();
         CimGlskDocument cimGlskDocument = CommonTestData.getCimGlskDocument();
-        AngleMonitoringResult result = roundTripOnAngleMonitoringResult(new AngleMonitoring(CommonTestData.getCrac(), network, raoResult, cimGlskDocument, glskOffsetDateTime).run("OpenLoadFlow", loadFlowParameters, numberOfLoadFlowsInParallel), CommonTestData.getCrac());
-        CommonTestData.setAngleMonitoringResult(result);
-    }
-
-    private AngleMonitoringResult roundTripOnAngleMonitoringResult(AngleMonitoringResult angleMonitoringResult, Crac crac) {
-
-        // export AngleMonitoringResult
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new AngleMonitoringResultExporter().export(angleMonitoringResult, outputStream);
-
-        // import AngleMonitoringResult
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        return new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream, crac);
+        MonitoringInput angleMonitoringInput = MonitoringInput.buildWithAngle(network, CommonTestData.getCrac(), raoResult, cimGlskDocument.getZonalScalable(network)).build();
+        MonitoringResult angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
+        CommonTestData.setMonitoringResult(angleMonitoringResult);
     }
 
     @Then("the angle monitoring result is {string}")
     public void statusCheck(String expectedStatus) {
-        assertEquals(CommonTestData.getAngleMonitoringResult().getStatus().toString(), expectedStatus);
+        assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
         assertEquals(expectedStatus.equalsIgnoreCase("secure"), CommonTestData.getRaoResult().isSecure(PhysicalParameter.ANGLE));
     }
 
@@ -94,16 +82,16 @@ public class AngleMonitoringSteps {
             } else {
                 state = CommonTestData.getCrac().getState(contingency, instant);
             }
-            assertTrue(CommonTestData.getAngleMonitoringResult().getAppliedCras().containsKey(state));
-            assertEquals(numberOfCras, CommonTestData.getAngleMonitoringResult().getAppliedCras(state).size());
-            assertTrue(CommonTestData.getAngleMonitoringResult().getAppliedCras(state).stream().anyMatch(networkAction -> networkAction.getId().equals(craName)));
+            assertTrue(CommonTestData.getMonitoringResult().getAppliedRas().containsKey(state));
+            assertEquals(numberOfCras, CommonTestData.getMonitoringResult().getAppliedRas(state).size());
+            assertTrue(CommonTestData.getMonitoringResult().getAppliedRas(state).stream().anyMatch(networkAction -> networkAction.getId().equals(craName)));
         }
     }
 
     @Then("the AngleCnecs should have the following angles:")
     public void angleCnecValues(DataTable arg1) {
         List<Map<String, String>> expectedCnecs = arg1.asMaps(String.class, String.class);
-        assertEquals(expectedCnecs.size(), CommonTestData.getAngleMonitoringResult().getAngleCnecsWithAngle().size());
+        assertEquals(expectedCnecs.size(), CommonTestData.getMonitoringResult().getCnecResults().size());
         for (Map<String, String> expectedCnec : expectedCnecs) {
             String cnecId = expectedCnec.get("AngleCnecId");
             String cnecName = expectedCnec.get("Name");
@@ -118,16 +106,16 @@ public class AngleMonitoringSteps {
                 state = CommonTestData.getCrac().getState(contingency, instant);
             }
 
-            Set<AngleMonitoringResult.AngleResult> angleResults = CommonTestData.getAngleMonitoringResult().getAngleCnecsWithAngle().stream().filter(angleResult -> angleResult.getAngleCnec().getId().equals(cnecId)
-                    && angleResult.getAngleCnec().getName().equals(cnecName)
-                    && angleResult.getAngleCnec().getState().equals(state))
+            Set<CnecResult> angleResults = CommonTestData.getMonitoringResult().getCnecResults().stream().filter(angleResult -> angleResult.getCnec().getId().equals(cnecId)
+                    && angleResult.getCnec().getName().equals(cnecName)
+                    && angleResult.getCnec().getState().equals(state))
                     .collect(Collectors.toSet());
             assertNotNull(angleResults);
             assertEquals(1, angleResults.size());
-            AngleCnec angleCnec = angleResults.iterator().next().getAngleCnec();
-            Double angle = angleResults.iterator().next().getAngle();
+            AngleCnec angleCnec = (AngleCnec) angleResults.iterator().next().getCnec();
+            AngleCnecValue angleValue = (AngleCnecValue) angleResults.iterator().next().getValue();
 
-            assertEquals(expectedAngle, angle, DOUBLE_TOLERANCE);
+            assertEquals(expectedAngle, angleValue.value(), DOUBLE_TOLERANCE);
 
             if (expectedCnec.get("LowerBound") != null) {
                 Optional<Double> lowerBound = angleCnec.getLowerBound(Unit.DEGREE);

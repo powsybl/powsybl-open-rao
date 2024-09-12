@@ -18,8 +18,8 @@ import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.glsk.virtual.hubs.GlskVirtualHubs;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
-import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
-import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitoring;
+import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -71,9 +71,7 @@ public final class CommonTestData {
 
     private static String virtualHubsConfigPath;
 
-    private static String angleMonitoringResultPath;
-
-    private static AngleMonitoringResult angleMonitoringResult;
+    private static MonitoringResult monitoringResult;
 
     private static String timestamp;
 
@@ -82,19 +80,19 @@ public final class CommonTestData {
     }
 
     public static void setRaoResult(RaoResult raoResult) {
-        if (CommonTestData.angleMonitoringResult != null) {
+        if (CommonTestData.monitoringResult != null) {
             // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(raoResult, CommonTestData.angleMonitoringResult);
+            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(raoResult, CommonTestData.monitoringResult);
         } else {
             CommonTestData.raoResult = raoResult;
         }
     }
 
-    public static void setAngleMonitoringResult(AngleMonitoringResult result) {
-        CommonTestData.angleMonitoringResult = result;
+    public static void setMonitoringResult(MonitoringResult result) {
+        CommonTestData.monitoringResult = result;
         if (CommonTestData.raoResult != null) {
             // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(CommonTestData.raoResult, CommonTestData.angleMonitoringResult);
+            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
         }
     }
 
@@ -138,8 +136,7 @@ public final class CommonTestData {
         cimGlskDocument = null;
         referenceProgram = null;
         raoResult = null;
-        angleMonitoringResultPath = null;
-        angleMonitoringResult = null;
+        monitoringResult = null;
     }
 
     @Given("crac file is {string}")
@@ -198,11 +195,6 @@ public final class CommonTestData {
         raoResultPath = getResourcesPath().concat("raoresults/").concat(path);
     }
 
-    @Given("AngleMonitoringResult file is {string}")
-    public static void angleMonitoringResultIs(String path) {
-        angleMonitoringResultPath = getResourcesPath().concat("anglemonitoringresults/").concat(path);
-    }
-
     @When("I import data")
     public static void iImportData() throws IOException {
         loadData(null);
@@ -249,8 +241,8 @@ public final class CommonTestData {
         return raoResult;
     }
 
-    public static AngleMonitoringResult getAngleMonitoringResult() {
-        return angleMonitoringResult;
+    public static MonitoringResult getMonitoringResult() {
+        return monitoringResult;
     }
 
     public static String getTimestamp() {
@@ -333,9 +325,6 @@ public final class CommonTestData {
             }
         }
 
-        if (angleMonitoringResultPath != null) {
-            angleMonitoringResult = importAngleMonitoringResult(getFile(angleMonitoringResultPath));
-        }
     }
 
     private static RaoParameters buildDefaultConfig() {
