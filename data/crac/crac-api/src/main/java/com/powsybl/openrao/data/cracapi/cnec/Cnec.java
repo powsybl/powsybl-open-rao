@@ -54,10 +54,26 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      */
     PhysicalParameter getPhysicalParameter();
 
+    /**
+     * @param network: the network object used to look for actual result of the Cnec
+     * @param unit: the unit object used to look for the kind of the {@link Cnec} and the kind of the {@link CnecValue}
+     * @return a CnecValue  as result of the {@link Cnec} depending on the cnec kind
+     */
     CnecValue computeValue(Network network, Unit unit);
 
+    /**
+     * @param network: the network object used to look for actual result of the Cnec
+     * @param unit: the unit object used to look for the kind of the {@link Cnec}
+     * @return a double as the worst margin of a @{@link CnecValue} relatively to the @{@link Cnec} thresholds
+     */
     double computeWorstMargin(Network network, Unit unit);
 
+
+    /**
+     * @param network: the network object used to look for actual result of the Cnec
+     * @param unit: the unit object used to look for the kind of the {@link Cnec}
+     * Returns a {@link SecurityStatus} describing the {@link Cnec} result compared to the thresholds
+     */
     SecurityStatus computeSecurityStatus(Network network, Unit unit);
 
     /**
@@ -112,13 +128,15 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     @Deprecated (since = "3.0.0")
     void setOptimized(boolean optimized);
 
+    /**
+     * Possible statuses for a cnec result
+     */
     enum SecurityStatus {
         SECURE,
         HIGH_CONSTRAINT,
         LOW_CONSTRAINT,
         HIGH_AND_LOW_CONSTRAINTS,
         FAILURE,
-        UNKNOWN
     }
 
 }

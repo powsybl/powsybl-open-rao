@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
@@ -73,6 +74,30 @@ class VoltageCnecImplTest {
         countries = cnec2.getLocation(network);
         assertEquals(1, countries.size());
         assertTrue(countries.contains(Optional.of(Country.DE)));
+    }
+
+    @Test
+    void testComputeValue() {
+        VoltageCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(200.).withMax(500.).add()
+            .add();
+        Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 400.);
+        assertEquals(400., ((VoltageCnecValue) cnec.computeValue(networkMock1, Unit.KILOVOLT)).minValue(), DOUBLE_TOLERANCE);
+        assertEquals(400., ((VoltageCnecValue) cnec.computeValue(networkMock1, Unit.KILOVOLT)).maxValue(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testComputeSecurityStatus() {
+        VoltageCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(200.).withMax(500.).add()
+            .add();
+        Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 400.);
+        Network networkMock2 = mockBusVoltagesInNetwork("networkElement", 700.);
+        Network networkMock3 = mockBusVoltagesInNetwork("networkElement", 100.);
+
+        assertEquals(Cnec.SecurityStatus.SECURE, cnec.computeSecurityStatus(networkMock1, Unit.KILOVOLT));
+        assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, cnec.computeSecurityStatus(networkMock2, Unit.KILOVOLT));
+        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, cnec.computeSecurityStatus(networkMock3, Unit.KILOVOLT));
     }
 
     @Test

@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,6 +79,47 @@ class AngleCnecImplTest {
         assertEquals(2, countries.size());
         assertTrue(countries.contains(Optional.of(Country.DE)));
         assertTrue(countries.contains(Optional.of(Country.NL)));
+    }
+
+    @Test
+    void testComputeValue() {
+        AngleCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.DEGREE).withMax(500.).add()
+            .add();
+        Network networkMock1 = mockBusAngleInNetwork("exportingNetworkElement", 0., "importingNetworkElement", 300.);
+        Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 900., "importingNetworkElement", 100.);
+
+        assertEquals(-300., ((AngleCnecValue) cnec.computeValue(networkMock1, Unit.DEGREE)).value(), DOUBLE_TOLERANCE);
+        assertEquals(800., ((AngleCnecValue) cnec.computeValue(networkMock2, Unit.DEGREE)).value(), DOUBLE_TOLERANCE);
+
+    }
+
+    @Test
+    void checkComputeSecurityStatusReturnsSecure() {
+        AngleCnec cnec = crac.newAngleCnec()
+            .withId("cnec-1-id")
+            .withExportingNetworkElement("BBE1AA1")
+            .withImportingNetworkElement("BBE2AA1")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
+            .add();
+        Network networkMock = mockBusAngleInNetwork("BBE1AA1", 0., "BBE2AA1", 300.);
+
+        assertEquals(Cnec.SecurityStatus.SECURE, cnec.computeSecurityStatus(networkMock, Unit.DEGREE));
+    }
+
+    @Test
+    void checkComputeSecurityStatusReturnsHighConstraint() {
+        AngleCnec cnec = crac.newAngleCnec()
+            .withId("cnec-1-id")
+            .withExportingNetworkElement("BBE1AA1")
+            .withImportingNetworkElement("BBE2AA1")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
+            .add();
+        Network networkMock = mockBusAngleInNetwork("BBE1AA1", 1200., "BBE2AA1", 300.);
+
+        assertEquals(Cnec.SecurityStatus.SECURE, cnec.computeSecurityStatus(networkMock, Unit.DEGREE));
     }
 
     // test threshold on branches whose nominal voltage is the same on both side

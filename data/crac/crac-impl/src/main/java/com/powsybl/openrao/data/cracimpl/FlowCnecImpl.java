@@ -161,17 +161,19 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
         Branch branch = network.getBranch(getNetworkElement().getId());
         Map<TwoSides, Double> result = new HashMap<>();
-        double power1 = 0;
+        double power1;
+        double power2;
         if (getMonitoredSides().size() == 2) {
             power1 = getPower(branch, TwoSides.ONE, unit);
-            double power2 = getPower(branch, TwoSides.TWO, unit);
+            power2 = getPower(branch, TwoSides.TWO, unit);
 
             result.put(TwoSides.ONE, power1);
             result.put(TwoSides.TWO, power2);
 
             return new FlowCnecValue(power1, power2);
         } else {
-            result.put(TwoSides.ONE, getPower(branch, TwoSides.ONE, unit));
+            power1 = getPower(branch, TwoSides.ONE, unit);
+            result.put(TwoSides.ONE, power1);
             return new FlowCnecValue(power1, Double.NaN);
         }
     }
