@@ -292,13 +292,13 @@ public final class LinearProblem {
         return solver.getConstraint(signedRangeActionVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addInjectionBalanceVariationConstraint(double lb, double ub, State state, int timeStepIndex) {
-        String constraintName = injectionBalanceVariationConstraintId(state, timeStepIndex);
+    public OpenRaoMPConstraint addInjectionBalanceVariationConstraint(double lb, double ub, State state) {
+        String constraintName = injectionBalanceVariationConstraintId(state);
         return solver.makeConstraint(lb, ub, constraintName);
     }
 
-    public OpenRaoMPConstraint getInjectionBalanceVariationConstraint(State state, int timeStepIndex) {
-        return solver.getConstraint(injectionBalanceVariationConstraintId(state, timeStepIndex));
+    public OpenRaoMPConstraint getInjectionBalanceVariationConstraint(State state) {
+        return solver.getConstraint(injectionBalanceVariationConstraintId(state));
     }
 
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {

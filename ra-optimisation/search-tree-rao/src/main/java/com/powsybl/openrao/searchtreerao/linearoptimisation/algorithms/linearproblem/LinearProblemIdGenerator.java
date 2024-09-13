@@ -139,8 +139,8 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SIGNED_VARIATION + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String injectionBalanceVariationConstraintId(State state, int timeStepIndex) {
-        return INJECTION_BALANCE + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR + timeStepIndex;
+    public static String injectionBalanceVariationConstraintId(State state) {
+        return INJECTION_BALANCE + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR;
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold) {

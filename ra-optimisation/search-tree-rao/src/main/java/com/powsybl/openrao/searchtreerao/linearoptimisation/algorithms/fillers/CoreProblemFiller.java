@@ -47,7 +47,6 @@ public class CoreProblemFiller implements ProblemFiller {
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final Unit unit;
     private final boolean raRangeShrinking;
-    private int timeStepIndex = 0;
     private int iteration = 0;
     private final RangeActionsOptimizationParameters.PstModel pstModel;
 
@@ -67,26 +66,6 @@ public class CoreProblemFiller implements ProblemFiller {
         this.unit = unit;
         this.raRangeShrinking = raRangeShrinking;
         this.pstModel = pstModel;
-    }
-
-    public CoreProblemFiller(OptimizationPerimeter optimizationContext,
-                             RangeActionSetpointResult prePerimeterRangeActionSetpoints,
-                             RangeActionActivationResult raActivationFromParentLeaf,
-                             RangeActionsOptimizationParameters rangeActionParameters,
-                             Unit unit,
-                             boolean raRangeShrinking,
-                             RangeActionsOptimizationParameters.PstModel pstModel,
-                             int timeStepIndex) {
-        this.optimizationContext = optimizationContext;
-        this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
-        this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
-        this.raActivationFromParentLeaf = raActivationFromParentLeaf;
-        this.rangeActionParameters = rangeActionParameters;
-        this.unit = unit;
-        this.raRangeShrinking = raRangeShrinking;
-        this.pstModel = pstModel;
-        this.timeStepIndex = timeStepIndex;
     }
 
     @Override
@@ -265,7 +244,7 @@ public class CoreProblemFiller implements ProblemFiller {
                 }
                 if (!injectionRangeActions.isEmpty()) {
                     // create the constraint
-                    OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.addInjectionBalanceVariationConstraint(0., 0., entry.getKey(), timeStepIndex);
+                    OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.addInjectionBalanceVariationConstraint(0., 0., entry.getKey());
                     // add the signed variation variables to the constraint
                     injectionRangeActions.forEach(injectionRangeAction -> buildInjectionBalanceConstraint(linearProblem, injectionRangeAction, entry.getKey(), injectionBalanceConstraint));
                 }
