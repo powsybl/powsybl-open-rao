@@ -39,17 +39,16 @@ import java.util.*;
 public class CoreProblemFiller implements ProblemFiller {
 
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
-
+    private static final double RANGE_SHRINK_RATE = 0.667;
     private final OptimizationPerimeter optimizationContext;
     private final Set<FlowCnec> flowCnecs;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionActivationResult raActivationFromParentLeaf;
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final Unit unit;
-    private int iteration = 0;
-    private static final double RANGE_SHRINK_RATE = 0.667;
     private final boolean raRangeShrinking;
-
+    private int timeStepIndex = 0;
+    private int iteration = 0;
     private final RangeActionsOptimizationParameters.PstModel pstModel;
 
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
@@ -68,6 +67,26 @@ public class CoreProblemFiller implements ProblemFiller {
         this.unit = unit;
         this.raRangeShrinking = raRangeShrinking;
         this.pstModel = pstModel;
+    }
+
+    public CoreProblemFiller(OptimizationPerimeter optimizationContext,
+                             RangeActionSetpointResult prePerimeterRangeActionSetpoints,
+                             RangeActionActivationResult raActivationFromParentLeaf,
+                             RangeActionsOptimizationParameters rangeActionParameters,
+                             Unit unit,
+                             boolean raRangeShrinking,
+                             RangeActionsOptimizationParameters.PstModel pstModel,
+                             int timeStepIndex) {
+        this.optimizationContext = optimizationContext;
+        this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
+        this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
+        this.raActivationFromParentLeaf = raActivationFromParentLeaf;
+        this.rangeActionParameters = rangeActionParameters;
+        this.unit = unit;
+        this.raRangeShrinking = raRangeShrinking;
+        this.pstModel = pstModel;
+        this.timeStepIndex = timeStepIndex;
     }
 
     @Override
@@ -120,17 +139,24 @@ public class CoreProblemFiller implements ProblemFiller {
      *     <li>in MEGAWATT for HVDC range actions</li>
      *     <li>in MEGAWATT for Injection range actions</li>
      * </ul>
-     *
+     * <p>
      * Build one absolute variation variable AV[r] for each RangeAction r
      * This variable describes the absolute difference between the range action setpoint
      * and its initial value. It is given in the same unit as S[r].
-     *
+     * <p>
+     * Build one signed variation variable SV[r] for each InjectionRangeAction r
+     * This variable describes the signed difference between the injection setpoint and its initial value
+     * after taking into account the distribution keys.
      */
     private void buildRangeActionVariables(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
                 linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
                 linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state);
+                if (rangeAction instanceof InjectionRangeAction) {
+                    //signed variation variable needed for balance contraint
+                    linearProblem.addSignedRangeActionVariationVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
+                }
             })
         );
     }
@@ -230,8 +256,21 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
-            .forEach(entry ->
-                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())));
+            .forEach(entry -> {
+                Set<InjectionRangeAction> injectionRangeActions = new HashSet<>();
+                for (RangeAction<?> rangeAction : entry.getValue()) {
+                    if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
+                        injectionRangeActions.add(injectionRangeAction);
+                    }
+                }
+                if (!injectionRangeActions.isEmpty()) {
+                    // create the constraint
+                    OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.addInjectionBalanceVariationConstraint(0., 0., entry.getKey(), timeStepIndex);
+                    // add the signed variation variables to the constraint
+                    injectionRangeActions.forEach(injectionRangeAction -> buildInjectionBalanceConstraint(linearProblem, injectionRangeAction, entry.getKey(), injectionBalanceConstraint));
+                }
+                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey()));
+            });
     }
 
     private void updateRangeActionConstraints(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
@@ -339,6 +378,28 @@ public class CoreProblemFiller implements ProblemFiller {
             varConstraintPositive.setCoefficient(setPointVariable, 1);
             varConstraintPositive.setCoefficient(previousSetpointVariable, -1);
         }
+    }
+
+    /**
+     * Adds signed variation variable of given InjectionRangeAction to balance constraint
+     * sum( {r in RangeActions} SV[r])
+     * Constraint for defining Signed Variation:
+     * SV[r] = (setpoint[r] - prePerimeterSetPoint[r]) * sum(distributionKeys[r])
+     */
+    private void buildInjectionBalanceConstraint(LinearProblem linearProblem, InjectionRangeAction rangeAction, State state, OpenRaoMPConstraint injectionBalanceConstraint) {
+        OpenRaoMPVariable signedInjectionVariationVariable = linearProblem.getSignedRangeActionVariationVariable(rangeAction, state);
+        injectionBalanceConstraint.setCoefficient(signedInjectionVariationVariable, 1);
+
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+
+        double sumDistributionKeys = rangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(d -> d).sum();
+        if (sumDistributionKeys != 0) {
+            double bound = -prePerimeterRangeActionSetpoints.getSetpoint(rangeAction) * sumDistributionKeys;
+            OpenRaoMPConstraint injectionRelativeVariationConstraint = linearProblem.addSignedRangeActionVariationConstraint(bound, bound, rangeAction, state);
+            injectionRelativeVariationConstraint.setCoefficient(signedInjectionVariationVariable, 1);
+            injectionRelativeVariationConstraint.setCoefficient(setPointVariable, -sumDistributionKeys);
+        }
+
     }
 
     private List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction, double infinity) {

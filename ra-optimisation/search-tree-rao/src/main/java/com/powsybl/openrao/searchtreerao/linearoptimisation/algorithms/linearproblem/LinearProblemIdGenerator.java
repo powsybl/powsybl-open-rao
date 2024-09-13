@@ -31,6 +31,8 @@ public final class LinearProblemIdGenerator {
     private static final String TAP_TO_ANGLE_CONVERSION = "taptoangleconversion";
     private static final String UP_OR_DOWN_VARIATION = "upordownvariation";
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
+    private static final String SIGNED_VARIATION = "signedvariation";
+    private static final String INJECTION_BALANCE = "injectionbalance";
     private static final String VIRTUAL_TAP = "virtualtap";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
@@ -127,6 +129,18 @@ public final class LinearProblemIdGenerator {
 
     public static String absoluteRangeActionVariationConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.AbsExtension positiveOrNegative) {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String signedRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SIGNED_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String signedRangeActionVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SIGNED_VARIATION + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String injectionBalanceVariationConstraintId(State state, int timeStepIndex) {
+        return INJECTION_BALANCE + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR + timeStepIndex;
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold) {

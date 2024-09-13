@@ -276,6 +276,31 @@ public final class LinearProblem {
         return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
     }
 
+    public OpenRaoMPVariable addSignedRangeActionVariationVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeNumVar(lb, ub, signedRangeActionVariationVariableId(rangeAction, state));
+    }
+
+    public OpenRaoMPVariable getSignedRangeActionVariationVariable(RangeAction<?> rangeAction, State state) {
+        return solver.getVariable(signedRangeActionVariationVariableId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addSignedRangeActionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, signedRangeActionVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getSignedRangeActionVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(signedRangeActionVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addInjectionBalanceVariationConstraint(double lb, double ub, State state, int timeStepIndex) {
+        String constraintName = injectionBalanceVariationConstraintId(state, timeStepIndex);
+        return solver.makeConstraint(lb, ub, constraintName);
+    }
+
+    public OpenRaoMPConstraint getInjectionBalanceVariationConstraint(State state, int timeStepIndex) {
+        return solver.getConstraint(injectionBalanceVariationConstraintId(state, timeStepIndex));
+    }
+
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
