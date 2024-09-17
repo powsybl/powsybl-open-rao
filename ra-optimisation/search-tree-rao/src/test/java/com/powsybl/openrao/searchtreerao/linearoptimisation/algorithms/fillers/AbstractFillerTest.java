@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -52,10 +53,17 @@ abstract class AbstractFillerTest {
     static final int TAP_INITIAL = 5;
     static final int TAP_IT2 = -7;
 
+    // data related to the Injection Range Action
+    static final double PRE_RESULT_SET_POINT_INJ_0 = 250.;
+    static final double PRE_RESULT_SET_POINT_INJ_1 = -450.;
+
     static final String CNEC_1_ID = "Tieline BE FR - N - preventive"; // monitored on left side
     static final String CNEC_2_ID = "Tieline BE FR - Defaut - N-1 NL1-NL3"; // monitored on right side
     static final String RANGE_ACTION_ID = "PRA_PST_BE";
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
+    static final String INJECTION_RANGE_ACTION_ID_0 = "injectionId0";
+    static final String INJECTION_RANGE_ACTION_ID_1 = "injectionId1";
+    static final String INJECTION_RANGE_ACTION_ID_2 = "injectionId2";
 
     FlowCnec cnec1;
     FlowCnec cnec2;
@@ -116,6 +124,32 @@ abstract class AbstractFillerTest {
                 .add()
                 .withOperator("RTE")
                 .add();
+    }
+
+    protected void addInjectionsInCrac() {
+        crac.removePstRangeAction(RANGE_ACTION_ID);
+        crac.newInjectionRangeAction()
+            .withId(INJECTION_RANGE_ACTION_ID_0)
+            .withNetworkElementAndKey(1., "BBE1AA1 _generator")
+            .withNetworkElementAndKey(1., "BBE2AA1 _generator")
+            .newRange().withMin(100).withMax(1000).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        crac.newInjectionRangeAction()
+            .withId(INJECTION_RANGE_ACTION_ID_1)
+            .withNetworkElementAndKey(1., "DDE1AA1 _load")
+            .newRange().withMin(-1000).withMax(-100).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        crac.newInjectionRangeAction()
+            .withId(INJECTION_RANGE_ACTION_ID_2)
+            .withNetworkElementAndKey(1., "FFR1AA1 _generator")
+            .withNetworkElementAndKey(-1., "FFR2AA1 _generator")
+            .newRange().withMin(100).withMax(1000).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
     }
 
     protected void useNetworkWithTwoPsts() {
