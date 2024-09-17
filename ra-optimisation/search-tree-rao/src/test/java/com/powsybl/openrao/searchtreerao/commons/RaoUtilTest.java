@@ -120,10 +120,11 @@ class RaoUtilTest {
 
     @Test
     void testAmpereWithDc() {
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
+        assertEquals(Unit.AMPERE, RaoUtil.getObjectiveFunctionUnit(raoParameters));
         raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN cannot be calculated with a DC default sensitivity engine", exception.getMessage());
+        assertEquals(Unit.MEGAWATT, RaoUtil.getObjectiveFunctionUnit(raoParameters));
+        raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(false);
+        assertEquals(Unit.AMPERE, RaoUtil.getObjectiveFunctionUnit(raoParameters));
     }
 
     @Test
