@@ -84,23 +84,16 @@ def obj_function_as_str_lines(new_data, file_type):
 def new_rao_param(data: dict, file_path: str, file_type: str) -> dict:
     try:
         obj_fun = data[tag_by_file_type[file_type]]
-        # new_obj_fun to have type and unit on top of obj fun
-        new_obj_fun = {}
-        if "type" in obj_fun:
-            if "MAX_MIN_MARGIN" in obj_fun["type"]:
-                new_obj_fun["type"] = "MAX_MIN_MARGIN"
-            elif "MAX_MIN_RELATIVE_MARGIN" in obj_fun["type"]:
-                new_obj_fun["type"] = "MAX_MIN_RELATIVE_MARGIN"
-            if "MEGAWATT" in obj_fun["type"]:
-                new_obj_fun["unit"] = "MW"
-            elif "AMPERE" in obj_fun["type"]:
-                new_obj_fun["unit"] = "A"
-        for key in obj_fun:
-            if key not in new_obj_fun:
-                new_obj_fun[key] = obj_fun[key]
+        prev_secure = "preventive-stop-criterion" not in obj_fun or obj_fun["preventive-stop-criterion"] == "SECURE"
+        if prev_secure and ("type" in obj_fun or "preventive-stop-criterion" in obj_fun):
+            obj_fun["type"] = "SECURE_FLOW"
+        elif not prev_secure and "type" not in obj_fun:
+            obj_fun["type"] = "MAX_MIN_MARGIN"
+        if "preventive-stop-criterion" in obj_fun:
+            del obj_fun["preventive-stop-criterion"]
     except KeyError as ke:
         raise KeyError("in file " + file_path) from ke
-    data[tag_by_file_type[file_type]] = new_obj_fun
+    data[tag_by_file_type[file_type]] = obj_fun
     return data
 
 

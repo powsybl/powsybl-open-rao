@@ -3,7 +3,6 @@
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "unit" : "MW",
-    "preventive-stop-criterion" : "WRONG",
     "curative-min-obj-improvement" : 0.0
   },
   "range-actions-optimization" : {

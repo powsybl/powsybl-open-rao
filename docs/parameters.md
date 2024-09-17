@@ -22,12 +22,14 @@ These parameters (objective-function) configure the remedial action optimisation
 
 #### type
 - **Expected value**: one of the following:
+  - "SECURE_FLOW"
   - "MAX_MIN_MARGIN"
   - "MAX_MIN_RELATIVE_MARGIN"
-- **Default value**: "MAX_MIN_MARGIN"
+- **Default value**: "SECURE_FLOW"
 - **Usage**: this parameter sets the objective function of the RAO. For now, the existing objective function are:
-  - **MAX_MIN_MARGIN**: maximization of the min(margin), where min(margin) is the smallest margin of all
-    CNECs.
+  - **SECURE_FLOW**: The search-tree will stop as soon as it finds a solution where the minimum margin is positive.
+  - **MAX_MIN_MARGIN**: the search-tree will maximize the minimum margin until it converges to a
+    maximum value, or until another stop criterion has been reached (e.g. [max-preventive-search-tree-depth](#max-preventive-search-tree-depth)).
   - **MAX_MIN_RELATIVE_MARGIN**: same as MAX_MIN_MARGIN, but the margins will be relative
     (divided by the absolute sum of PTDFs) when they are positive.
 
@@ -41,17 +43,6 @@ These parameters (objective-function) configure the remedial action optimisation
   - **AMPERE**: the margins to maximize are considered in A.
     Note that CNECs from different voltage levels will not have the same weight in the objective function depending on the unit
     considered (MW or A). Ampere unit only works in AC-load-flow mode (see [sensitivity-parameters](#sensitivity-parameters)).
-
-#### preventive-stop-criterion
-- **Expected value**: one of the following:
-  - "MIN_OBJECTIVE"
-  - "SECURE"
-- **Default value**: "SECURE"
-- **Usage**: Stop criterion of the preventive RAO search-tree.  
-  - **MIN_OBJECTIVE**: the search-tree will maximize the minimum margin until it converges to a
-  maximum value, or until another stop criterion has been reached (e.g. [max-preventive-search-tree-depth](#max-preventive-search-tree-depth)).  
-  - **SECURE**: the search-tree will stop as soon as it finds a solution where the minimum margin is positive.  
-  *Note: if the best possible minimum margin is negative, both stop criterion will return the same solution.*
 
 #### curative-min-obj-improvement
 - **Expected value**: numeric value, where the unit is that of the objective function
@@ -67,7 +58,7 @@ These parameters (objective-function) configure the remedial action optimisation
   If this parameter is set to false, OpenRAO will stop after preventive if preventive state is unsecure and won't try to 
   improve curative states.
   
-  *Note: Only applied when ["preventive-stop-criterion"](#preventive-stop-criterion) is set to SECURE. In this case, if preventive was unsecure,
+  *Note: Only applied when ["type"](#type) is set to SECURE_FLOW. In this case, if preventive was unsecure,
 second preventive won't be run, even if curative cost is higher, in order to save computation time* 
 
 ### Range actions optimisation parameters
@@ -295,12 +286,10 @@ These parameters (second-preventive-rao) tune the behaviour of the [second preve
     during curative RAO  
   - **POSSIBLE_CURATIVE_IMPROVEMENT**: a 2nd preventive RAO is run only if it is possible to improve a curative perimeter,
     i.e. if the curative RAO stop criterion on at least one contingency is not reached.  
-    This depends on the value of parameter [preventive-stop-criterion](#preventive-stop-criterion):
-    - **SECURE**: 2nd preventive RAO is run if one curative perimeter is not secure after optimisation
-    - **PREVENTIVE_OBJECTIVE**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
+    This depends on the value of parameter [type](#type):
+    - **SECURE_FLOW**: 2nd preventive RAO is run if one curative perimeter is not secure after optimisation
+    - **MAX_MIN_MARGIN** or **MAX_MIN_RELATIVE_MARGIN**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
       after optimisation that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
-    - **PREVENTIVE_OBJECTIVE_AND_SECURE**: 2nd preventive RAO is run if one of the two conditions above is satisfied  
-    - **MIN_OBJECTIVE**: 2nd preventive RAO is always run, trying to improve the minimum margin even more
 
 #### re-optimize-curative-range-actions
 - **Expected value**: true/false
@@ -553,10 +542,9 @@ Zones are seperated by + or -.
 {
   "version" : "2.4",
   "objective-function" : {
-    "type" : "MAX_MIN_RELATIVE_MARGIN",
+    "type" : "SECURE_FLOW",
     "unit" : "A",
     "curative-min-obj-improvement" : 0.0,
-    "preventive-stop-criterion" : "SECURE",
     "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
@@ -672,9 +660,8 @@ Zones are seperated by + or -.
 Based on PowSyBl's [configuration mechanism](inv:powsyblcore:std:doc#user/configuration/index).
 ~~~yaml
 rao-objective-function:
-  type: MAX_MIN_MARGIN
+  type: SECURE_FLOW
   unit: AMPERE
-  preventive-stop-criterion: SECURE
 
 rao-range-actions-optimization:
   max-mip-iterations: 5

@@ -1,9 +1,8 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN",
+    "type" : "SECURE_FLOW",
     "unit" : "MW",
-    "preventive-stop-criterion" : "SECURE",
     "curative-min-obj-improvement" : 0.0
   },
   "range-actions-optimization" : {

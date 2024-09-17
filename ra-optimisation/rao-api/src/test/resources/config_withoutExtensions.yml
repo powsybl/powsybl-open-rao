@@ -1,7 +1,6 @@
 rao-objective-function:
     type: MAX_MIN_MARGIN
     unit: AMPERE
-    preventive-stop-criterion: MIN_OBJECTIVE
     curative-min-obj-improvement: 3.0
     enforce-curative-security: false
 

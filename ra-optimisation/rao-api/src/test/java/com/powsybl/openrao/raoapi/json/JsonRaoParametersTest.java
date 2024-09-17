@@ -55,7 +55,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         // Objective Function parameters
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         parameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
-        parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
         parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         // RangeActionsOptimization parameters
@@ -123,7 +122,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(1, parameters.getExtensions().size());
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
         assertEquals(2, parameters.getExtensions().size());
-        assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         assertEquals(5, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(2, parameters.getTopoOptimizationParameters().getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(5, parameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
@@ -177,7 +176,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "WrongField"})
+    @ValueSource(strings = {"LoopFlowError", "ObjFuncTypeError", "WrongField"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
         assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
