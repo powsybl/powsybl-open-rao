@@ -20,29 +20,23 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  */
 public class ObjectiveFunctionParameters {
     // Default values
-    private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.MAX_MIN_MARGIN;
+    private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.SECURE_FLOW;
     private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
-    private static final PreventiveStopCriterion DEFAULT_PREVENTIVE_STOP_CRITERION = PreventiveStopCriterion.SECURE;
     private static final boolean DEFAULT_ENFORCE_CURATIVE_SECURITY = false;
     // Attributes
     private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
     private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
-    private PreventiveStopCriterion preventiveStopCriterion = DEFAULT_PREVENTIVE_STOP_CRITERION;
     private boolean enforceCurativeSecurity = DEFAULT_ENFORCE_CURATIVE_SECURITY;
 
     // Enum
     public enum ObjectiveFunctionType {
+        SECURE_FLOW,
         MAX_MIN_MARGIN,
         MAX_MIN_RELATIVE_MARGIN;
 
         public boolean relativePositiveMargins() {
             return this.equals(MAX_MIN_RELATIVE_MARGIN);
         }
-    }
-
-    public enum PreventiveStopCriterion {
-        MIN_OBJECTIVE,
-        SECURE
     }
 
     // Getters and setters
@@ -54,16 +48,8 @@ public class ObjectiveFunctionParameters {
         this.type = type;
     }
 
-    public void setPreventiveStopCriterion(PreventiveStopCriterion preventiveStopCriterion) {
-        this.preventiveStopCriterion = preventiveStopCriterion;
-    }
-
     public double getCurativeMinObjImprovement() {
         return curativeMinObjImprovement;
-    }
-
-    public PreventiveStopCriterion getPreventiveStopCriterion() {
-        return preventiveStopCriterion;
     }
 
     public boolean getEnforceCurativeSecurity() {
@@ -82,8 +68,6 @@ public class ObjectiveFunctionParameters {
                     parameters.setType(config.getEnumProperty(TYPE, ObjectiveFunctionType.class,
                             DEFAULT_OBJECTIVE_FUNCTION));
                     parameters.setCurativeMinObjImprovement(config.getDoubleProperty(CURATIVE_MIN_OBJ_IMPROVEMENT, DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT));
-                    parameters.setPreventiveStopCriterion(config.getEnumProperty(PREVENTIVE_STOP_CRITERION, PreventiveStopCriterion.class,
-                            DEFAULT_PREVENTIVE_STOP_CRITERION));
                     parameters.setEnforceCurativeSecurity(config.getBooleanProperty(ENFORCE_CURATIVE_SECURITY, DEFAULT_ENFORCE_CURATIVE_SECURITY));
                 });
         return parameters;

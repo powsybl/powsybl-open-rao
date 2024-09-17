@@ -84,10 +84,11 @@ def obj_function_as_str_lines(new_data, file_type):
 def new_rao_param(data: dict, file_path: str, file_type: str) -> dict:
     try:
         obj_fun = data[tag_by_file_type[file_type]]
-        if "type" in obj_fun and "MAX_MIN_MARGIN" in obj_fun["type"]:
-            obj_fun["type"] = "MAX_MIN_MARGIN"
-        if "type" in obj_fun and "MAX_MIN_RELATIVE_MARGIN" in obj_fun["type"]:
-            obj_fun["type"] = "MAX_MIN_RELATIVE_MARGIN"
+        prev_secure = "preventive-stop-criterion" not in obj_fun or obj_fun["preventive-stop-criterion"] == "SECURE"
+        if prev_secure and ("type" in obj_fun or "preventive-stop-criterion" in obj_fun):
+            obj_fun["type"] = "SECURE_FLOW"
+        if "preventive-stop-criterion" in obj_fun:
+            del obj_fun["preventive-stop-criterion"]
     except KeyError as ke:
         raise KeyError("in file " + file_path) from ke
     data[tag_by_file_type[file_type]] = obj_fun

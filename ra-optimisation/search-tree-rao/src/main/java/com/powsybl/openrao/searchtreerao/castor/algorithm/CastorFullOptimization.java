@@ -191,7 +191,7 @@ public class CastorFullOptimization {
     }
 
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
-        return raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+        return raoParameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)
                 && preventiveOptimalCost > 0
                 && !raoParameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity();
     }
@@ -501,23 +501,19 @@ public class CastorFullOptimization {
             // only compare initial cost with the curative costs
             return false;
         }
-        if (raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+        if (raoParameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)
                 && firstPreventiveResult.getCost() > 0) {
             // in case of curative optimization even if preventive unsecure (see parameter optimize-curative-if-preventive-unsecure)
             // we do not want to run a second preventive that would not be able to fix the situation, to save time
             BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
             return false;
         }
-        ObjectiveFunctionParameters.PreventiveStopCriterion curativeStopCriterion = raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion();
-        switch (curativeStopCriterion) {
-            case MIN_OBJECTIVE:
-                // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
-                return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
-            case SECURE:
-                // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
-                return isAnyResultUnsecure(curativeRaoResults);
-            default:
-                throw new OpenRaoException(String.format("Unknown curative RAO stop criterion: %s", curativeStopCriterion));
+        if (raoParameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW) {
+            // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
+            return isAnyResultUnsecure(curativeRaoResults);
+        } else {
+            // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
+            return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
         }
     }
 
