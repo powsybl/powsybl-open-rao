@@ -102,7 +102,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
 
         FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()), operator, border, state, optimized, monitored,
             thresholds.stream().map(BranchThreshold.class::cast).collect(Collectors.toSet()),
-            reliabilityMargin, nominalVLeft, nominalVRight, iMaxLeft, iMaxRight);
+            nominalVLeft, nominalVRight, iMaxLeft, iMaxRight);
 
         owner.addFlowCnec(cnec);
         return cnec;

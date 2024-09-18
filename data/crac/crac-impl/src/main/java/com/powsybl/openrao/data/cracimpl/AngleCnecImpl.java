@@ -36,9 +36,8 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
                  State state,
                  boolean optimized,
                  boolean monitored,
-                  Set<Threshold> thresholds,
-                 double reliabilityMargin) {
-        super(id, name, Set.of(exportingNetworkElement, importingNetworkElement), operator, border, state, optimized, monitored, reliabilityMargin);
+                  Set<Threshold> thresholds) {
+        super(id, name, Set.of(exportingNetworkElement, importingNetworkElement), operator, border, state, optimized, monitored);
         this.thresholds = thresholds;
         this.exportingNetworkElement = exportingNetworkElement;
         this.importingNetworkElement = importingNetworkElement;
@@ -72,7 +71,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
         if (!limitingThresholds.isEmpty()) {
             double lowerBound = Double.NEGATIVE_INFINITY;
             for (Threshold threshold : limitingThresholds) {
-                double currentBound = threshold.min().orElseThrow() + reliabilityMargin;
+                double currentBound = threshold.min().orElseThrow();
                 if (currentBound > lowerBound) {
                     lowerBound = currentBound;
                 }
@@ -94,7 +93,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
         if (!limitingThresholds.isEmpty()) {
             double upperBound = Double.POSITIVE_INFINITY;
             for (Threshold threshold : limitingThresholds) {
-                double currentBound = threshold.max().orElseThrow() - reliabilityMargin;
+                double currentBound = threshold.max().orElseThrow();
                 if (currentBound < upperBound) {
                     upperBound = currentBound;
                 }

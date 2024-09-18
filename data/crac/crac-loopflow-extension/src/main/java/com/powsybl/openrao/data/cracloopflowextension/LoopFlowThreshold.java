@@ -41,10 +41,4 @@ public interface LoopFlowThreshold extends Extension<FlowCnec> {
      */
     double getThreshold(Unit requestedUnit);
 
-    /**
-     * Get the loopFlow threshold in a given flow unit, taking into account the reliability margin
-     * of the CNEC
-     */
-    double getThresholdWithReliabilityMargin(Unit requestedUnit);
-
 }

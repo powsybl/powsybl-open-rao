@@ -294,7 +294,8 @@ public final class CoreCneCnecsCreator {
     private void getThresholdToMarginMapAsCnec(FlowCnec cnec, Unit unit, boolean deductFrmFromThreshold, Map<Double, Double> thresholdToMarginMap, double flow, TwoSides side) {
         // TODO : remove this when we go back to considering FRM in the exported threshold
         double flowUnitMultiplier = getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
-        double frm = deductFrmFromThreshold ? 0 : cnec.getReliabilityMargin() * flowUnitMultiplier;
+        // TODO: use the cracCreationContext here
+        double frm = deductFrmFromThreshold ? 0 : 0; // cnec.getReliabilityMargin() * flowUnitMultiplier;
         // Only look at fixed thresholds
         double maxThreshold = cnec.getUpperBound(side, unit).orElse(Double.MAX_VALUE) + frm;
         maxThreshold = Double.isNaN(maxThreshold) ? Double.POSITIVE_INFINITY : maxThreshold;
@@ -306,7 +307,8 @@ public final class CoreCneCnecsCreator {
     }
 
     private Analog createFrmMeasurement(FlowCnec cnec) {
-        return newFlowMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, cnec.getReliabilityMargin());
+        // TODO: use the cracCreationContext here
+        return newFlowMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, 0);
     }
 
     private Analog createPtdfZonalSumMeasurement(FlowCnec cnec) {

@@ -24,7 +24,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     protected boolean monitored;
     protected final String operator;
     protected final String border;
-    protected double reliabilityMargin = 0;
 
     protected AbstractCnec(String id,
                            String name,
@@ -33,8 +32,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
                            String border,
                            State state,
                            boolean optimized,
-                           boolean monitored,
-                           double reliabilityMargin) {
+                           boolean monitored) {
         super(id, name);
         this.networkElements = networkElements;
         this.operator = operator;
@@ -42,7 +40,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
         this.state = state;
         this.optimized = optimized;
         this.monitored = monitored;
-        this.reliabilityMargin = reliabilityMargin;
     }
 
     @Override
@@ -88,11 +85,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     }
 
     @Override
-    public double getReliabilityMargin() {
-        return reliabilityMargin;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -113,7 +105,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
         int result = super.hashCode();
         result = 31 * result + networkElements.hashCode();
         result = 31 * result + state.hashCode();
-        result = 31 * result + Double.hashCode(reliabilityMargin);
         return result;
     }
 }

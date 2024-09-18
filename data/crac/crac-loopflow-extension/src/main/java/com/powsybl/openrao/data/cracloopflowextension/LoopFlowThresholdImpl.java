@@ -46,20 +46,6 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
     }
 
     @Override
-    public double getThresholdWithReliabilityMargin(Unit requestedUnit) {
-        switch (requestedUnit) {
-            case MEGAWATT:
-                return getThreshold(requestedUnit) - this.getExtendable().getReliabilityMargin();
-            case AMPERE:
-                return getThreshold(requestedUnit) - convertMWToA(this.getExtendable().getReliabilityMargin());
-            case PERCENT_IMAX:
-                return getThreshold(requestedUnit) - convertAToPercentImax(convertMWToA(this.getExtendable().getReliabilityMargin()));
-            default:
-                throw new OpenRaoException("Loopflow thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
-        }
-    }
-
-    @Override
     public double getThreshold(Unit requestedUnit) {
 
         if (requestedUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
@@ -106,14 +92,14 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
     }
 
     private double convertAToPercentImax(double valueInA) {
-        return valueInA / getCnecFmaxWithoutFrmInA();
+        return valueInA / getCnecFmaxInA();
     }
 
     private double convertPercentImaxToA(double valueInPercent) {
-        return valueInPercent * getCnecFmaxWithoutFrmInA();
+        return valueInPercent * getCnecFmaxInA();
     }
 
-    private double getCnecFmaxWithoutFrmInA() {
+    private double getCnecFmaxInA() {
         double minUpperBound = Math.min(
             getExtendable().getUpperBound(TwoSides.ONE, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
             getExtendable().getUpperBound(TwoSides.TWO, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)
@@ -122,6 +108,6 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
             getExtendable().getLowerBound(TwoSides.ONE, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY),
             getExtendable().getLowerBound(TwoSides.TWO, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY)
         );
-        return Math.min(minUpperBound, -maxLowerBound) + convertMWToA(getExtendable().getReliabilityMargin());
+        return Math.min(minUpperBound, -maxLowerBound);
     }
 }

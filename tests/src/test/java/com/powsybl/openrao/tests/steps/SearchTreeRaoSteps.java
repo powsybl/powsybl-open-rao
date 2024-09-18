@@ -593,7 +593,7 @@ public class SearchTreeRaoSteps {
     @Then("the loopflow threshold on cnec {string} should be {double} MW")
     public void loopflowThresholdInMW(String cnecId, Double expectedFlow) {
         FlowCnec cnec = crac.getFlowCnec(cnecId);
-        assertEquals(expectedFlow, cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+        assertEquals(expectedFlow, cnec.getExtension(LoopFlowThreshold.class).getThreshold(Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
     }
 
     /*
