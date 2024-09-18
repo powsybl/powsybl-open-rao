@@ -117,9 +117,8 @@ public final class ExhaustiveCracCreation {
             .withNetworkElement("ne2Id", "ne2Name")
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOperator("operator3")
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
-            .withReliabilityMargin(20.)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(480.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(480.).withSide(TwoSides.TWO).add()
             .withMonitored()
             .add();
 
@@ -129,9 +128,8 @@ public final class ExhaustiveCracCreation {
             .withInstant(AUTO_INSTANT_ID)
             .withContingency(contingency2Id)
             .withOperator("operator3")
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
-            .withReliabilityMargin(20.)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(480.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(480.).withSide(TwoSides.TWO).add()
             .withMonitored()
             .add();
 
@@ -140,9 +138,8 @@ public final class ExhaustiveCracCreation {
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency(contingency2Id)
             .withOperator("operator3")
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
-            .withReliabilityMargin(20.)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(480.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(480.).withSide(TwoSides.TWO).add()
             .withMonitored()
             .add();
 
@@ -152,7 +149,6 @@ public final class ExhaustiveCracCreation {
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOperator("operator4")
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
-            .withReliabilityMargin(0.)
             .withOptimized()
             .withMonitored()
             .add();
@@ -164,8 +160,7 @@ public final class ExhaustiveCracCreation {
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withOperator("operator1")
-            .newThreshold().withUnit(Unit.DEGREE).withMin(-100.).withMax(100.).add()
-            .withReliabilityMargin(10.)
+            .newThreshold().withUnit(Unit.DEGREE).withMin(-90.).withMax(90.).add()
             .withMonitored()
             .add();
 
@@ -175,8 +170,7 @@ public final class ExhaustiveCracCreation {
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withOperator("operator1")
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(380.).add()
-            .withReliabilityMargin(1.)
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(381.).add()
             .withMonitored()
             .add();
 

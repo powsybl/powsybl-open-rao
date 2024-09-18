@@ -42,7 +42,6 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         }
         gen.writeObjectField(OPTIMIZED, flowCnec.isOptimized());
         gen.writeObjectField(MONITORED, flowCnec.isMonitored());
-        gen.writeNumberField(RELIABILITY_MARGIN, flowCnec.getReliabilityMargin());
 
         serializeIMax(flowCnec, gen);
         serializeNominalVoltage(flowCnec, gen);
