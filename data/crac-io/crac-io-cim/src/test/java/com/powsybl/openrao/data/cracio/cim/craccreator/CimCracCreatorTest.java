@@ -1002,7 +1002,6 @@ class CimCracCreatorTest {
         assertEquals(InstantKind.OUTAGE, duplicate.getState().getInstant().getKind());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
-        assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
         assertEquals(flowCnec.getIMax(TwoSides.ONE), duplicate.getIMax(TwoSides.ONE), 1e-6);
         assertEquals(flowCnec.getIMax(TwoSides.TWO), duplicate.getIMax(TwoSides.TWO), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);

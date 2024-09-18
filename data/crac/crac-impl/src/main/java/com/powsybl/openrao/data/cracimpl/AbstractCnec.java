@@ -105,8 +105,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
             && networkElements.equals(cnec.getNetworkElements())
             && state.equals(cnec.getState())
             && optimized == cnec.isOptimized()
-            && monitored == cnec.isMonitored()
-            && reliabilityMargin == cnec.getReliabilityMargin();
+            && monitored == cnec.isMonitored();
     }
 
     @Override

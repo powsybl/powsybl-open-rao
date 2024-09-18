@@ -63,10 +63,9 @@ class CracValidatorTest {
             .withNominalVoltage(200., TwoSides.TWO)
             .withIMax(2000., TwoSides.ONE)
             .withIMax(4000., TwoSides.TWO)
-            .withReliabilityMargin(15.)
             .withOptimized()
-            .newThreshold().withMin(-100.).withMax(100.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
-            .newThreshold().withMin(-100.).withMax(100.).withUnit(Unit.MEGAWATT).withSide(TwoSides.TWO).add()
+            .newThreshold().withMin(-85.).withMax(85.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
+            .newThreshold().withMin(-85.).withMax(85.).withUnit(Unit.MEGAWATT).withSide(TwoSides.TWO).add()
             .newThreshold().withMin(-1.).withMax(1.).withUnit(Unit.PERCENT_IMAX).withSide(TwoSides.ONE).add()
             .add();
 
@@ -78,7 +77,6 @@ class CracValidatorTest {
             .withNominalVoltage(900., TwoSides.TWO)
             .withIMax(40, TwoSides.ONE)
             .withIMax(40., TwoSides.TWO)
-            .withReliabilityMargin(0.)
             .newThreshold().withMax(1000.).withUnit(Unit.AMPERE).withSide(TwoSides.ONE).add()
             .add();
 
@@ -90,9 +88,8 @@ class CracValidatorTest {
             .withNominalVoltage(700., TwoSides.TWO)
             .withIMax(200., TwoSides.ONE)
             .withIMax(400., TwoSides.TWO)
-            .withReliabilityMargin(1.)
             .withMonitored()
-            .newThreshold().withMin(-1.).withUnit(Unit.PERCENT_IMAX).withSide(TwoSides.TWO).add()
+            .newThreshold().withMin(-0.79).withUnit(Unit.PERCENT_IMAX).withSide(TwoSides.TWO).add()
             .add();
     }
 
@@ -106,7 +103,6 @@ class CracValidatorTest {
         assertEquals(outageInstant, duplicate.getState().getInstant());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
-        assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
         assertEquals(flowCnec.getIMax(TwoSides.ONE), duplicate.getIMax(TwoSides.ONE), 1e-6);
         assertEquals(flowCnec.getIMax(TwoSides.TWO), duplicate.getIMax(TwoSides.TWO), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);

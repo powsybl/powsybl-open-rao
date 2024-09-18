@@ -214,15 +214,14 @@ public final class CommonCracCreation {
             .withContingency("Contingency FR1 FR2")
             .withOptimized(true)
             .withOperator("operator2")
-            .withReliabilityMargin(95.)
             .withNominalVoltage(380.)
             .withIMax(5000.);
         monitoredCnecSides.forEach(side ->
             cnecAdder6.newThreshold()
                 .withUnit(Unit.MEGAWATT)
                 .withSide(TwoSides.ONE)
-                .withMin(-1500.)
-                .withMax(1500.)
+                .withMin(-1405.)
+                .withMax(1405.)
                 .add()
                 .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
