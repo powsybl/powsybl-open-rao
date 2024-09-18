@@ -89,7 +89,7 @@ public final class FlowCnecArrayDeserializer {
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        thresholds = new HashSet<>(BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, nominalV, version));
+                        thresholds = new HashSet<>(BranchThresholdArrayDeserializer.deserialize(jsonParser, nominalV, version));
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -99,10 +99,7 @@ public final class FlowCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
                 }
             }
-            if (reliabilityMargin != 0) {
-                // Workaround to support frm/reliability margin from older versions
-                overrideThresholdsWithReliabilityMargin(flowCnecAdder, thresholds, reliabilityMargin, nominalV, iMax);
-            }
+            overrideThresholdsWithReliabilityMargin(flowCnecAdder, thresholds, reliabilityMargin, nominalV, iMax);
             FlowCnec cnec = flowCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);

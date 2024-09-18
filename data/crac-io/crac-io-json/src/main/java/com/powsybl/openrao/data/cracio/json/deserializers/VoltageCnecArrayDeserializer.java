@@ -81,7 +81,7 @@ public final class VoltageCnecArrayDeserializer {
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        thresholds = new HashSet<>(VoltageThresholdArrayDeserializer.deserialize(jsonParser, voltageCnecAdder));
+                        thresholds = new HashSet<>(VoltageThresholdArrayDeserializer.deserialize(jsonParser));
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -91,10 +91,7 @@ public final class VoltageCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in VoltageCnec: " + jsonParser.getCurrentName());
                 }
             }
-            if (reliabilityMargin != 0) {
-                // Workaround to support frm/reliability margin from older versions
-                overrideThresholdsWithReliabilityMargin(voltageCnecAdder, thresholds, reliabilityMargin);
-            }
+            overrideThresholdsWithReliabilityMargin(voltageCnecAdder, thresholds, reliabilityMargin);
             VoltageCnec cnec = voltageCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);

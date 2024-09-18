@@ -31,10 +31,9 @@ public final class AngleThresholdArrayDeserializer {
     public record AngleThreshold(Unit unit, Double min, Double max) {
     }
 
-    public static Set<AngleThreshold> deserialize(JsonParser jsonParser, AngleCnecAdder ownerAdder) throws IOException {
+    public static Set<AngleThreshold> deserialize(JsonParser jsonParser) throws IOException {
         Set<AngleThreshold> angleThresholds = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            AngleThresholdAdder angleThresholdAdder = ownerAdder.newThreshold(); // TODO: remove this?
             Unit unit = null;
             Double min = null;
             Double max = null;
@@ -42,23 +41,19 @@ public final class AngleThresholdArrayDeserializer {
                 switch (jsonParser.getCurrentName()) {
                     case UNIT:
                         unit = deserializeUnit(jsonParser.nextTextValue());
-                        angleThresholdAdder.withUnit(unit);
                         break;
                     case MIN:
                         jsonParser.nextToken();
                         min = jsonParser.getDoubleValue();
-                        angleThresholdAdder.withMin(min);
                         break;
                     case MAX:
                         jsonParser.nextToken();
                         max = jsonParser.getDoubleValue();
-                        angleThresholdAdder.withMax(max);
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in Threshold: " + jsonParser.getCurrentName());
                 }
             }
-            angleThresholdAdder.add();
             angleThresholds.add(new AngleThreshold(unit, min, max));
         }
         return angleThresholds;

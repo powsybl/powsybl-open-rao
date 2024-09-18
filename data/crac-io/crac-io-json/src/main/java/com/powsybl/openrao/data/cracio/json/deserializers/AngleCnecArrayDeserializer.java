@@ -83,7 +83,7 @@ public final class AngleCnecArrayDeserializer {
                         break;
                     case JsonSerializationConstants.THRESHOLDS:
                         jsonParser.nextToken();
-                        thresholds = new HashSet<>(AngleThresholdArrayDeserializer.deserialize(jsonParser, angleCnecAdder));
+                        thresholds = new HashSet<>(AngleThresholdArrayDeserializer.deserialize(jsonParser));
                         break;
                     case JsonSerializationConstants.EXTENSIONS:
                         jsonParser.nextToken();
@@ -93,10 +93,7 @@ public final class AngleCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in AngleCnec: " + jsonParser.getCurrentName());
                 }
             }
-            if (reliabilityMargin != 0) {
-                // Workaround to support frm/reliability margin from older versions
-                overrideThresholdsWithReliabilityMargin(angleCnecAdder, thresholds, reliabilityMargin);
-            }
+            overrideThresholdsWithReliabilityMargin(angleCnecAdder, thresholds, reliabilityMargin);
             AngleCnec cnec = angleCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
