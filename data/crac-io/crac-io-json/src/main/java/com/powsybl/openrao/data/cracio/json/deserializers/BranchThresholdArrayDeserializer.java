@@ -10,8 +10,6 @@ package com.powsybl.openrao.data.cracio.json.deserializers;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import org.apache.commons.lang3.tuple.Pair;

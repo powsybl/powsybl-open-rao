@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.cracio.fbconstraint;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
@@ -190,7 +191,6 @@ class CriticalBranchReader {
             .withName(branch.getName())
             .withNetworkElement(ucteFlowElementHelper.getIdInNetwork())
             .withInstant(instantId)
-            .withReliabilityMargin(criticalBranch.getFrmMw())
             .withOperator(criticalBranch.getTsoOrigin())
             .withMonitored(criticalBranch.isMNEC())
             .withOptimized(criticalBranch.isCNEC())
@@ -254,20 +254,21 @@ class CriticalBranchReader {
             BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
                 .withUnit(unit)
                 .withSide(side);
-            addLimitsGivenDirection(threshold, branchThresholdAdder);
+            double frm = convertFrmMWToTargetUnit(unit, side);
+            addLimitsGivenDirection(threshold, branchThresholdAdder, frm);
             branchThresholdAdder.add();
         });
     }
 
-    private void addLimitsGivenDirection(double positiveLimit, BranchThresholdAdder branchThresholdAdder) {
+    private void addLimitsGivenDirection(double positiveLimit, BranchThresholdAdder branchThresholdAdder, double frm) {
         if (DIRECT.contains(criticalBranch.getDirection()) && !ucteFlowElementHelper.isInvertedInNetwork()
             || OPPOSITE.contains(criticalBranch.getDirection()) && ucteFlowElementHelper.isInvertedInNetwork()) {
-            branchThresholdAdder.withMax(positiveLimit);
+            branchThresholdAdder.withMax(positiveLimit - frm);
         }
 
         if (DIRECT.contains(criticalBranch.getDirection()) && ucteFlowElementHelper.isInvertedInNetwork()
             || OPPOSITE.contains(criticalBranch.getDirection()) && !ucteFlowElementHelper.isInvertedInNetwork()) {
-            branchThresholdAdder.withMin(-positiveLimit);
+            branchThresholdAdder.withMin(-positiveLimit + frm);
         }
     }
 
@@ -304,6 +305,25 @@ class CriticalBranchReader {
         }
 
         return false;
+    }
+
+    // TODO: make this common with JSON FlowCNEC deserializer?
+    private double convertFrmMWToTargetUnit(Unit unit, TwoSides side) {
+        double nominalVoltage = ucteFlowElementHelper.getNominalVoltage(side);
+        double iMax = ucteFlowElementHelper.getCurrentLimit(side);
+        double frmMw = criticalBranch.getFrmMw();
+        if (Unit.MEGAWATT.equals(unit)) {
+            return frmMw;
+        } else {
+            double frmAmpere = frmMw * 1000f / (nominalVoltage * Math.sqrt(3));
+            if (Unit.AMPERE.equals(unit)) {
+                return frmAmpere;
+            } else if (Unit.PERCENT_IMAX.equals(unit)) {
+                return frmAmpere / iMax;
+            } else {
+                throw new OpenRaoException("Unsupported unit %s for critical branch threshold".formatted(unit));
+            }
+        }
     }
 
 }

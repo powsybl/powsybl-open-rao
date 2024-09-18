@@ -9,8 +9,6 @@ package com.powsybl.openrao.data.cracio.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
-import com.powsybl.openrao.data.cracapi.threshold.AngleThresholdAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 

@@ -51,7 +51,6 @@ public class AdditionalConstraintSeriesCreator {
                 .withName(additionalConstraintSerie.getName())
                 .withMonitored()
                 .withOptimized(false)
-                .withReliabilityMargin(0.)
                 .newThreshold().withUnit(Unit.DEGREE).withMax(additionalConstraintSerie.getQuantityQuantity().doubleValue()).add()
                 .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
                 .withContingency(contingencyId);
