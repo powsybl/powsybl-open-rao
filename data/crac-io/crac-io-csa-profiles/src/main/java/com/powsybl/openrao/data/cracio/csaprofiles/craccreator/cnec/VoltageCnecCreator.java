@@ -58,8 +58,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     private VoltageCnecAdder initVoltageCnec() {
         return crac.newVoltageCnec()
             .withMonitored(true)
-            .withOptimized(false)
-            .withReliabilityMargin(0);
+            .withOptimized(false);
     }
 
     private void addVoltageLimit(VoltageCnecAdder voltageCnecAdder) {

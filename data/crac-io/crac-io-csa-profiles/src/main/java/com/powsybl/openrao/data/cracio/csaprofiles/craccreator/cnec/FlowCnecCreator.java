@@ -82,7 +82,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     }
 
     private FlowCnecAdder initFlowCnec() {
-        return crac.newFlowCnec().withReliabilityMargin(0);
+        return crac.newFlowCnec();
     }
 
     private Identifiable<?> getFlowCnecBranch(String networkElementId) {
