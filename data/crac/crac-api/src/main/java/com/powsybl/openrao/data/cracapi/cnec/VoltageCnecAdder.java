@@ -7,11 +7,8 @@
 
 package com.powsybl.openrao.data.cracapi.cnec;
 
-import com.powsybl.openrao.data.cracapi.threshold.VoltageThresholdAdder;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public interface VoltageCnecAdder extends CnecAdder<VoltageCnec, VoltageCnecAdder> {
-    VoltageThresholdAdder newThreshold();
 }

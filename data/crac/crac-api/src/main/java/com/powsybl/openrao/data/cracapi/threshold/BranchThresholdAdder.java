@@ -7,15 +7,12 @@
 
 package com.powsybl.openrao.data.cracapi.threshold;
 
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface BranchThresholdAdder extends ThresholdAdder<BranchThresholdAdder> {
-
+public interface BranchThresholdAdder extends ThresholdAdder<FlowCnecAdder, BranchThresholdAdder> {
     BranchThresholdAdder withSide(TwoSides side);
-
-    FlowCnecAdder add();
 }

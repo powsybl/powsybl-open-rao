@@ -13,7 +13,9 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
+import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.cracapi.threshold.AngleThresholdAdder;
+import com.powsybl.openrao.data.cracapi.threshold.ThresholdAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -63,7 +65,7 @@ class AngleThresholdAdderImplTest {
 
     @Test
     void testNoUnitFail() {
-        AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold()
+        ThresholdAdder<AngleCnecAdder, AngleThresholdAdder> angleThresholdAdder = crac.newAngleCnec().newThreshold()
             .withMax(1000.0);
         OpenRaoException exception = assertThrows(OpenRaoException.class, angleThresholdAdder::add);
         assertEquals("Cannot add Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());

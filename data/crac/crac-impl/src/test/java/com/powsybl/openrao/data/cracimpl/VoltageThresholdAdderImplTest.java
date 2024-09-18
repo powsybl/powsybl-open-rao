@@ -13,7 +13,8 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.threshold.VoltageThresholdAdder;
+import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
+import com.powsybl.openrao.data.cracapi.threshold.ThresholdAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,14 +55,14 @@ class VoltageThresholdAdderImplTest {
 
     @Test
     void testUnsupportedUnitFail() {
-        VoltageThresholdAdder voltageThresholdAdder = crac.newVoltageCnec().newThreshold();
+        ThresholdAdder<VoltageCnecAdder, ?> voltageThresholdAdder = crac.newVoltageCnec().newThreshold();
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> voltageThresholdAdder.withUnit(Unit.MEGAWATT));
         assertEquals("MW Unit is not suited to measure a VOLTAGE value.", exception.getMessage());
     }
 
     @Test
     void testNoUnitFail() {
-        VoltageThresholdAdder voltageThresholdAdder =
+        ThresholdAdder<VoltageCnecAdder, ?> voltageThresholdAdder =
             crac.newVoltageCnec().newThreshold()
                 .withMax(1000.0);
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageThresholdAdder::add);
@@ -70,7 +71,7 @@ class VoltageThresholdAdderImplTest {
 
     @Test
     void testNoValueFail() {
-        VoltageThresholdAdder voltageThresholdAdder = crac.newVoltageCnec().newThreshold()
+        ThresholdAdder<VoltageCnecAdder, ?> voltageThresholdAdder = crac.newVoltageCnec().newThreshold()
             .withUnit(Unit.KILOVOLT);
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageThresholdAdder::add);
         assertEquals("Cannot add a threshold without min nor max values. Please use withMin() or withMax().", exception.getMessage());

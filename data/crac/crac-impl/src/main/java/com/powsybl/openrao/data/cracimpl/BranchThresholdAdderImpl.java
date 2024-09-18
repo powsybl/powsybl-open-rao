@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class BranchThresholdAdderImpl extends AbstractThresholdAdderImpl<BranchThresholdAdder> implements BranchThresholdAdder {
+public class BranchThresholdAdderImpl extends AbstractThresholdAdderImpl<FlowCnecAdder, BranchThresholdAdder> implements BranchThresholdAdder {
 
     private final FlowCnecAdderImpl ownerAdder;
     private TwoSides side;

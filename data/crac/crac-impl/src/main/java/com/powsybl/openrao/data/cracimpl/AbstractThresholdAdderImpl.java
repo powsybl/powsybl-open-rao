@@ -9,12 +9,13 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 import com.powsybl.openrao.data.cracapi.threshold.ThresholdAdder;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public abstract class AbstractThresholdAdderImpl<I extends ThresholdAdder<I>> implements ThresholdAdder<I> {
+public abstract class AbstractThresholdAdderImpl<I extends CnecAdder<?, I>, J extends ThresholdAdder<I, J>> implements ThresholdAdder<I, J> {
 
     protected Unit unit;
     protected Double max;
@@ -24,15 +25,15 @@ public abstract class AbstractThresholdAdderImpl<I extends ThresholdAdder<I>> im
     }
 
     @Override
-    public I withMax(Double max) {
+    public J withMax(Double max) {
         this.max = max;
-        return (I) this;
+        return (J) this;
     }
 
     @Override
-    public I withMin(Double min) {
+    public J withMin(Double min) {
         this.min = min;
-        return (I) this;
+        return (J) this;
     }
 
     protected void checkThreshold() {

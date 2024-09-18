@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class VoltageThresholdAdderImpl extends AbstractThresholdAdderImpl<VoltageThresholdAdder> implements VoltageThresholdAdder {
+public class VoltageThresholdAdderImpl extends AbstractThresholdAdderImpl<VoltageCnecAdder, VoltageThresholdAdder> implements VoltageThresholdAdder {
 
     private final VoltageCnecAdderImpl ownerAdder;
 

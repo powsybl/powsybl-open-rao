@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.cracapi.cnec;
 
 import com.powsybl.openrao.data.cracapi.IdentifiableAdder;
+import com.powsybl.openrao.data.cracapi.threshold.ThresholdAdder;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -35,6 +36,8 @@ public interface CnecAdder<I extends Cnec<I>, J extends CnecAdder<I, J>> extends
     J withOptimized(boolean optimized);
 
     J withMonitored(boolean monitored);
+
+    ThresholdAdder<J, ?> newThreshold();
 
     I add();
 }

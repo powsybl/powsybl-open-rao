@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class AngleThresholdAdderImpl extends AbstractThresholdAdderImpl<AngleThresholdAdder> implements AngleThresholdAdder {
+public class AngleThresholdAdderImpl extends AbstractThresholdAdderImpl<AngleCnecAdder, AngleThresholdAdder> implements AngleThresholdAdder {
 
     private final AngleCnecAdderImpl ownerAdder;
 

@@ -12,7 +12,5 @@ import com.powsybl.openrao.data.cracapi.cnec.AngleCnecAdder;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface AngleThresholdAdder extends ThresholdAdder<AngleThresholdAdder> {
-
-    AngleCnecAdder add();
+public interface AngleThresholdAdder extends ThresholdAdder<AngleCnecAdder, AngleThresholdAdder> {
 }

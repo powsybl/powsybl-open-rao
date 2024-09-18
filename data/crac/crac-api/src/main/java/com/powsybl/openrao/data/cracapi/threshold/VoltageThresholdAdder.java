@@ -12,7 +12,5 @@ import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface VoltageThresholdAdder extends ThresholdAdder<VoltageThresholdAdder> {
-
-    VoltageCnecAdder add();
+public interface VoltageThresholdAdder extends ThresholdAdder<VoltageCnecAdder, VoltageThresholdAdder> {
 }

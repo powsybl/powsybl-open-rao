@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.cracio.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
-import com.powsybl.openrao.data.cracapi.threshold.VoltageThresholdAdder;
+import com.powsybl.openrao.data.cracapi.threshold.ThresholdAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -27,7 +27,7 @@ public final class VoltageThresholdArrayDeserializer {
 
     public static void deserialize(JsonParser jsonParser, VoltageCnecAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            VoltageThresholdAdder voltageThresholdAdder = ownerAdder.newThreshold();
+            ThresholdAdder<VoltageCnecAdder, ?> voltageThresholdAdder = ownerAdder.newThreshold();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case UNIT:

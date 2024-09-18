@@ -8,18 +8,21 @@
 package com.powsybl.openrao.data.cracapi.threshold;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface ThresholdAdder<I extends ThresholdAdder<I>> {
+public interface ThresholdAdder<I extends CnecAdder<?, I>, J extends ThresholdAdder<I, J>> {
 
     /**
      * if unit is PERCENT_IMAX, the min/max value should be between -1 and 1, where 1 = 100%.
      */
-    I withUnit(Unit unit);
+    J withUnit(Unit unit);
 
-    I withMax(Double max);
+    J withMax(Double max);
 
-    I withMin(Double min);
+    J withMin(Double min);
+
+    I add();
 }

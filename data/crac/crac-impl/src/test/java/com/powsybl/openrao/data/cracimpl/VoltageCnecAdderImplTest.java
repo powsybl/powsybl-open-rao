@@ -12,10 +12,10 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.cracapi.threshold.ThresholdAdder;
-import com.powsybl.openrao.data.cracapi.threshold.VoltageThresholdAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -150,7 +150,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testOptimizedNotMonitored() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec().withId("Cnec ID")
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec().withId("Cnec ID")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withNetworkElement("neId")
@@ -193,7 +193,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testNoIdFail() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withName("cnecName")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
@@ -205,7 +205,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testNoStateInstantFail() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withContingency(contingency1Id)
             .withNetworkElement("neId")
@@ -216,7 +216,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testNoNetworkElementFail() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
@@ -227,7 +227,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testNoThresholdFail() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
@@ -245,7 +245,7 @@ class VoltageCnecAdderImplTest {
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
             .add();
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
@@ -257,7 +257,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testAddPreventiveCnecWithContingencyError() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withContingency(contingency1Id)
@@ -269,7 +269,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testAddOutageCnecWithNoContingencyError() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(OUTAGE_INSTANT_ID)
             .withNetworkElement("neId")
@@ -280,7 +280,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testAddAutoCnecWithNoContingencyError() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(AUTO_INSTANT_ID)
             .withNetworkElement("neId")
@@ -291,7 +291,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testAddCurativeCnecWithNoContingencyError() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(CURATIVE_INSTANT_ID)
             .withNetworkElement("neId")
@@ -302,7 +302,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testAddCurativeCnecWithAbsentContingencyError() {
-        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+        CnecAdder<VoltageCnec, ?> voltageCnecAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("absent-from-crac")
@@ -314,7 +314,7 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testThresholdWithUnitAmpere() {
-        ThresholdAdder<VoltageThresholdAdder> thresholdAdder = crac.newVoltageCnec()
+        ThresholdAdder<VoltageCnecAdder, ?> thresholdAdder = crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(OUTAGE_INSTANT_ID)
             .withContingency(contingency1Id)
