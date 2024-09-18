@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.IdentifiableAdder;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface CnecAdder<J extends CnecAdder<J>> extends IdentifiableAdder<J> {
+public interface CnecAdder<I extends Cnec<I>, J extends CnecAdder<I, J>> extends IdentifiableAdder<J> {
 
     J withNetworkElement(String networkElementId, String networkElementName);
 
@@ -35,4 +35,6 @@ public interface CnecAdder<J extends CnecAdder<J>> extends IdentifiableAdder<J> 
     J withOptimized(boolean optimized);
 
     J withMonitored(boolean monitored);
+
+    I add();
 }

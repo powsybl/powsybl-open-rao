@@ -23,7 +23,7 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> implements AngleCnecAdder {
+public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnec, AngleCnecAdder> implements AngleCnecAdder {
 
     private final Set<Threshold> thresholds = new HashSet<>();
     private String exportingNetworkElementId;

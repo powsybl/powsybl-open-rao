@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> implements FlowCnecAdder {
+public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnec, FlowCnecAdder> implements FlowCnecAdder {
 
     private final Set<BranchThresholdImpl> thresholds = new HashSet<>();
     private Double iMaxLeft = Double.NaN;

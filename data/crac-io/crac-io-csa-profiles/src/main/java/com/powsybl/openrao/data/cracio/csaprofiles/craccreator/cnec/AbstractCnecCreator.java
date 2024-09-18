@@ -88,16 +88,16 @@ public abstract class AbstractCnecCreator {
         return "%s (%s) - %s%s - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, side.name(), acceptableDuration == Integer.MAX_VALUE ? "" : " - TATL " + acceptableDuration);
     }
 
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
+    protected void addCnecBaseInformation(CnecAdder<?, ?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
         initCnecAdder(cnecAdder, contingency, instantId, cnecName);
     }
 
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, TwoSides side, int acceptableDuration) {
+    protected void addCnecBaseInformation(CnecAdder<?, ?> cnecAdder, Contingency contingency, String instantId, TwoSides side, int acceptableDuration) {
         initCnecAdder(cnecAdder, contingency, instantId, getCnecName(instantId, contingency, side, acceptableDuration));
     }
 
-    private void initCnecAdder(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, String cnecName) {
+    private void initCnecAdder(CnecAdder<?, ?> cnecAdder, Contingency contingency, String instantId, String cnecName) {
         cnecAdder.withContingency(contingency == null ? null : contingency.getId())
             .withId(cnecName)
             .withName(cnecName)

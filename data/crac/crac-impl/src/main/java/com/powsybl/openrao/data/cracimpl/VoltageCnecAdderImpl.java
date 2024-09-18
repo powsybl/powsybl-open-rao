@@ -23,7 +23,7 @@ import static java.lang.String.format;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder> implements VoltageCnecAdder {
+public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnec, VoltageCnecAdder> implements VoltageCnecAdder {
 
     private final Set<Threshold> thresholds = new HashSet<>();
     private static final String CNEC_TYPE = "VoltageCnec";

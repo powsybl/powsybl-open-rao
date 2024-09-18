@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.threshold.BranchThresholdAdder;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface FlowCnecAdder extends CnecAdder<FlowCnecAdder> {
+public interface FlowCnecAdder extends CnecAdder<FlowCnec, FlowCnecAdder> {
 
     FlowCnecAdder withIMax(double iMaxInAmpere);
 
@@ -24,6 +24,4 @@ public interface FlowCnecAdder extends CnecAdder<FlowCnecAdder> {
     FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt, TwoSides side);
 
     BranchThresholdAdder newThreshold();
-
-    FlowCnec add();
 }

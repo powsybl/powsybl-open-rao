@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.CnecAdder;
 
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends AbstractIdentifiableAdder<J> implements CnecAdder<J> {
+public abstract class AbstractCnecAdderImpl<I extends Cnec<I>, J extends CnecAdder<I, J>> extends AbstractIdentifiableAdder<J> implements CnecAdder<I, J> {
 
     protected CracImpl owner;
     protected Map<String, String> networkElementsIdAndName = new HashMap<>();

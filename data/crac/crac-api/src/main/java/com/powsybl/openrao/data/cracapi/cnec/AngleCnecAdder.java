@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.threshold.AngleThresholdAdder;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public interface AngleCnecAdder extends CnecAdder<AngleCnecAdder> {
+public interface AngleCnecAdder extends CnecAdder<AngleCnec, AngleCnecAdder> {
 
     AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId);
 
@@ -23,6 +23,4 @@ public interface AngleCnecAdder extends CnecAdder<AngleCnecAdder> {
     AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId, String importingNetworkElementName);
 
     AngleThresholdAdder newThreshold();
-
-    AngleCnec add();
 }
