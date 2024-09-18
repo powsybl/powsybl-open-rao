@@ -26,9 +26,9 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
 public class MinCostFiller implements ProblemFiller {
+    private static final double MARGIN_PENALTY_COEFFICIENT = 1000;
     protected final Set<FlowCnec> optimizedCnecs;
     private final Map<State, Set<RangeAction<?>>> rangeActions;
-    private final double marginPenaltyCoefficient = 1000;
 
     public MinCostFiller(Set<FlowCnec> optimizedCnecs,
                          Map<State, Set<RangeAction<?>>> rangeActions) {
@@ -79,9 +79,7 @@ public class MinCostFiller implements ProblemFiller {
      */
     private void buildRangeActionCostVariable(LinearProblem linearProblem) {
         rangeActions.forEach((state, rangeActionSet) ->
-            rangeActionSet.forEach(rangeAction -> {
-                linearProblem.addRangeActionCostVariable(0, linearProblem.infinity(), rangeAction, state);
-            }));
+            rangeActionSet.forEach(rangeAction -> linearProblem.addRangeActionCostVariable(0, linearProblem.infinity(), rangeAction, state)));
     }
 
     /**
@@ -121,7 +119,6 @@ public class MinCostFiller implements ProblemFiller {
             Optional<Double> maxFlow;
             minFlow = cnec.getLowerBound(side, MEGAWATT);
             maxFlow = cnec.getUpperBound(side, MEGAWATT);
-            // double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
 
             if (minFlow.isPresent()) {
                 OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
@@ -182,8 +179,8 @@ public class MinCostFiller implements ProblemFiller {
         OpenRaoMPVariable totalCostVariable = linearProblem.getTotalCostVariable();
         linearProblem.getObjective().setCoefficient(totalCostVariable, 1);
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
-        // marginPenaltyCoefficient is arbitrary for now
-        linearProblem.getObjective().setCoefficient(minimumMarginVariable, -marginPenaltyCoefficient);
+        // MARGIN_PENALTY_COEFFICIENT value is arbitrary for now
+        linearProblem.getObjective().setCoefficient(minimumMarginVariable, -MARGIN_PENALTY_COEFFICIENT);
 
     }
 

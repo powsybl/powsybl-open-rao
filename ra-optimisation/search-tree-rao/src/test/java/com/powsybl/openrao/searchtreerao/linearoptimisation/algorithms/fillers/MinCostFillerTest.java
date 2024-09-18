@@ -39,7 +39,6 @@ class MinCostFillerTest extends AbstractFillerTest {
     private static final double PST_ACTIVATION_COST = 1.5;
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
-    private MaxMinMarginFiller maxMinMarginFiller;
     private MinCostFiller minCostFiller;
 
     @BeforeEach
@@ -71,10 +70,6 @@ class MinCostFillerTest extends AbstractFillerTest {
             false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
     }
 
-    private void createMaxMinMarginFiller(Unit unit) {
-        maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1), unit);
-    }
-
     private void createMinCostFiller() {
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
         rangeActions.put(cnec1.getState(), Set.of(pstRangeAction));
@@ -91,7 +86,7 @@ class MinCostFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    void fillWithMinCostInMegawatt() {
+    void fillWithMinCostMarginConstraint() {
         createMinCostFiller();
         buildLinearProblem();
 
@@ -115,6 +110,20 @@ class MinCostFillerTest extends AbstractFillerTest {
         assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
         assertEquals(1, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+
+        // check objective
+        assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
+        // 1000 is for the arbitrary penalty coefficient
+        assertEquals(-1000, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost if unsecure
+        assertTrue(linearProblem.minimization());
+    }
+
+    @Test
+    void fillWithMinCostTotalCostConstraints() {
+        createMinCostFiller();
+        buildLinearProblem();
+
+        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check rangeAction cost variable
         OpenRaoMPVariable rangeActionCostVariable = linearProblem.getRangeActionCostVariable(pstRangeAction, cnec1.getState());
@@ -140,10 +149,7 @@ class MinCostFillerTest extends AbstractFillerTest {
         assertEquals(0.0, totalCostConstraint.ub(), DOUBLE_TOLERANCE);
 
         // check objective
-        assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
-        // 1000 is for the arbitrary penalty coefficient
-        assertEquals(-1000, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
-        assertTrue(linearProblem.minimization());
+        assertEquals(1, linearProblem.getObjective().getCoefficient(totalCostVariable), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
         // total number of variables 6 :
