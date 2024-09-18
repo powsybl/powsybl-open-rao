@@ -348,11 +348,11 @@ public final class LinearProblem {
         return solver.getVariable(rangeActionCostVariableId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addActivationCostConstraint(double lb, double ub) {
+    public OpenRaoMPConstraint addTotalCostConstraint(double lb, double ub) {
         return solver.makeConstraint(lb, ub, totalCostConstraintId());
     }
 
-    public OpenRaoMPConstraint getActivationCostConstraint() {
+    public OpenRaoMPConstraint getTotalCostConstraint() {
         return solver.getConstraint(totalCostConstraintId());
     }
 

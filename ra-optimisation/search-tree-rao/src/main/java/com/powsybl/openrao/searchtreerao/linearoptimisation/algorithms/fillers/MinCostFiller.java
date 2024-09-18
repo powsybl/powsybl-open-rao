@@ -49,7 +49,7 @@ public class MinCostFiller implements ProblemFiller {
         // build constraints
         buildSecureCnecsHardConstraints(linearProblem, validFlowCnecs);
         buildRangeActionCostConstraints(linearProblem);
-        buildTotalCostConstraints(linearProblem);
+        buildTotalCostConstraint(linearProblem);
 
         // complete objective
         fillObjectiveWithActivationCost(linearProblem);
@@ -142,10 +142,10 @@ public class MinCostFiller implements ProblemFiller {
      * total cost is the sum of all costs for all RangeActions
      * TC = sum(C[r])
      */
-    private void buildTotalCostConstraints(LinearProblem linearProblem) {
+    private void buildTotalCostConstraint(LinearProblem linearProblem) {
         // create constraint & add variable cost (objective function)
         OpenRaoMPVariable totalCostVariable = linearProblem.getTotalCostVariable();
-        OpenRaoMPConstraint totalCostConstraint = linearProblem.addActivationCostConstraint(0, 0);
+        OpenRaoMPConstraint totalCostConstraint = linearProblem.addTotalCostConstraint(0, 0);
         totalCostConstraint.setCoefficient(totalCostVariable, 1);
 
         // create constraint to set margin to 0

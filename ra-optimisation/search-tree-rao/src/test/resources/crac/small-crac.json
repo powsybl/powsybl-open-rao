@@ -105,6 +105,7 @@
           "rangeType": "absolute"
         }
       ],
+      "cost": 1.5,
       "networkElementId": "BBE2AA1  BBE3AA1  1"
     },
     {
