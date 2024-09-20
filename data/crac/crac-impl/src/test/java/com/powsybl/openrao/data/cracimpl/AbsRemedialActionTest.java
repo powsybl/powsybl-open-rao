@@ -25,20 +25,20 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitr at rte-france.com>}
  */
-public class AbsRemedialActionTest {
+class AbsRemedialActionTest {
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private Network network;
     private Crac crac;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithPreventivePstRange();
     }
 
     @Test
-    public void testGetFlowCnecsConstrainingForOneUsageRule() {
+    void testGetFlowCnecsConstrainingForOneUsageRule() {
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTerminalsConnectionAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()

@@ -6,12 +6,14 @@
  */
 package com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext;
 
+import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+
 import java.util.Map;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface InjectionRangeActionCreationContext extends RemedialActionCreationContext {
+public interface InjectionRangeActionCreationContext extends ElementaryCreationContext {
 
     /**
      * For each injection of the range action in the native CRAC file, get the ID of the equivalent element

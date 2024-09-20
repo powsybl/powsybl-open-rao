@@ -41,13 +41,14 @@ import static java.lang.Integer.parseInt;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class FbConstraintImporter implements Importer<FbConstraintCreationContext> {
+public class FbConstraintImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FbConstraintImporter.class);
     private static final String XML_EXTENSION = "xml";
     private static final String XML_SCHEMA_VERSION = "flowbasedconstraintdocument-";
     private static final String FLOWBASED_CONSTRAINT_V11_SCHEMA_FILE = "/xsd/validation/flowbasedconstraintdocument-11.xsd";
-    private static final String FLOWBASED_CONSTRAINT_V18_SCHEMA_FILE = "/xsd/flowbasedconstraintdocument-18.xsd";
+    private static final String FLOWBASED_CONSTRAINT_V18_SCHEMA_FILE = "/xsd/validation/flowbasedconstraintdocument-18.xsd";
+    private static final String FLOWBASED_CONSTRAINT_V23_SCHEMA_FILE = "/xsd/flowbasedconstraintdocument-23.xsd";
     private static final String ETSO_CODE_LIST_SCHEMA_FILE = "/xsd/etso-code-lists.xsd";
     private static final String ETSO_CORE_CMPTS_SCHEMA_FILE = "/xsd/etso-core-cmpts.xsd";
 
@@ -61,8 +62,7 @@ public class FbConstraintImporter implements Importer<FbConstraintCreationContex
             byte[] bytes = getBytesFromInputStream(inputStream);
             JAXBContext jaxbContext = JAXBContext.newInstance(FlowBasedConstraintDocument.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            FlowBasedConstraintDocument document = (FlowBasedConstraintDocument) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(bytes));
-            return document;
+            return (FlowBasedConstraintDocument) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(bytes));
         } catch (JAXBException | IOException e) {
             throw new OpenRaoException(e);
         }
@@ -129,7 +129,9 @@ public class FbConstraintImporter implements Importer<FbConstraintCreationContex
     }
 
     private String schemaVersion(int flowBasedDocumentVersion) {
-        if (flowBasedDocumentVersion >= 17) {
+        if (flowBasedDocumentVersion >= 23) {
+            return FLOWBASED_CONSTRAINT_V23_SCHEMA_FILE;
+        } else if (flowBasedDocumentVersion >= 17) {
             return FLOWBASED_CONSTRAINT_V18_SCHEMA_FILE;
         } else if (flowBasedDocumentVersion == 11) {
             return FLOWBASED_CONSTRAINT_V11_SCHEMA_FILE;

@@ -47,7 +47,6 @@ class StateTreeTest {
     private State outageState;
     private State curativeState1;
     private State curativeState2;
-    private Instant preventiveInstant;
     private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
@@ -102,7 +101,6 @@ class StateTreeTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
@@ -247,8 +245,8 @@ class StateTreeTest {
     void testErrorOnOutageRa() {
         setUpCustomCrac();
         Crac mockCrac = Mockito.spy(crac);
-        State outageState = crac.getState("contingency-1", outageInstant);
-        Mockito.when(mockCrac.getPotentiallyAvailableNetworkActions(outageState))
+        State outageStateCont1 = crac.getState("contingency-1", outageInstant);
+        Mockito.when(mockCrac.getPotentiallyAvailableNetworkActions(outageStateCont1))
             .thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new StateTree(mockCrac));
         assertEquals("Outage state contingency-1 - outage has available RAs. This is not supported.", exception.getMessage());
@@ -260,7 +258,6 @@ class StateTreeTest {
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
@@ -474,7 +471,7 @@ class StateTreeTest {
     void multiCurativeContingencyScenarioNoArasNoAutoCnecsCase() {
         Crac multipleCurativeInstantsCrac = createCommonMultipleCurativeInstantsCrac();
 
-        StateTree stateTree = new StateTree(multipleCurativeInstantsCrac);
+        stateTree = new StateTree(multipleCurativeInstantsCrac);
 
         List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
         assertEquals(8, contingencyScenarios.size());
@@ -601,7 +598,7 @@ class StateTreeTest {
         Crac multipleCurativeInstantsCrac = createCommonMultipleCurativeInstantsCrac();
         addAutoCnecsToCrac(multipleCurativeInstantsCrac);
 
-        StateTree stateTree = new StateTree(multipleCurativeInstantsCrac);
+        stateTree = new StateTree(multipleCurativeInstantsCrac);
 
         List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
         assertEquals(8, contingencyScenarios.size());
@@ -744,7 +741,7 @@ class StateTreeTest {
         Crac multipleCurativeInstantsCrac = createCommonMultipleCurativeInstantsCrac();
         addArasToCrac(multipleCurativeInstantsCrac);
 
-        StateTree stateTree = new StateTree(multipleCurativeInstantsCrac);
+        stateTree = new StateTree(multipleCurativeInstantsCrac);
 
         List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
         assertEquals(12, contingencyScenarios.size());
@@ -918,7 +915,7 @@ class StateTreeTest {
         addAutoCnecsToCrac(multipleCurativeInstantsCrac);
         addArasToCrac(multipleCurativeInstantsCrac);
 
-        StateTree stateTree = new StateTree(multipleCurativeInstantsCrac);
+        stateTree = new StateTree(multipleCurativeInstantsCrac);
 
         List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
         assertEquals(16, contingencyScenarios.size());

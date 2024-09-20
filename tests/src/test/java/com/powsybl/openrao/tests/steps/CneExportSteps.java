@@ -16,7 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -58,7 +59,6 @@ public class CneExportSteps {
         // maybe because "urn-entsoe-eu-local-extension-types.xsd" is missing in the jar.
         // We don't really need to fix this (will be moved to gridcapa)
         // + there are some unit tests in farao-core
-        //assertTrue(CneHelper.isSweCneValid(exportedCne));
     }
 
     @Then("the exported CNE file is the same as {string}")

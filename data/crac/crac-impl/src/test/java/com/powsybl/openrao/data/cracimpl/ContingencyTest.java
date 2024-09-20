@@ -98,7 +98,7 @@ class ContingencyTest {
 
     @Test
     void testApplyOnDanglingLine() {
-        Network network = Network.read("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/TestCase12NodesHvdc.uct"));
+        network = Network.read("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/TestCase12NodesHvdc.uct"));
         Contingency contingencyImpl = new Contingency("contingency", "contingency", Collections.singletonList(ContingencyElement.of(network.getIdentifiable("BBE2AA1  XLI_OB1B 1"))));
         assertEquals(1, contingencyImpl.getElements().size());
         assertTrue(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
+    @Override
     @BeforeEach
     public void setUp() {
         super.setUp();

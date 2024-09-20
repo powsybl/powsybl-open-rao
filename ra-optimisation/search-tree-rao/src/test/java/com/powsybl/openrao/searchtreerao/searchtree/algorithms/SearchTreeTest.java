@@ -85,7 +85,7 @@ class SearchTreeTest {
     private NetworkActionCombination predefinedNaCombination;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         setSearchTreeInput();
         searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         setSearchTreeParameters();
@@ -225,7 +225,7 @@ class SearchTreeTest {
         when(sensitivityComputer.getBranchResult(network)).thenReturn(null);
         Mockito.doNothing().when(sensitivityComputer).compute(network);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        when(objectiveFunction.evaluate(any(), any(), any(), any())).thenReturn(null);
+        when(objectiveFunction.evaluate(any())).thenReturn(null);
         leaf.evaluate(objectiveFunction, sensitivityComputer);
     }
 
@@ -387,7 +387,7 @@ class SearchTreeTest {
         when(rootLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
     }
 
-    private void mockRootLeafCost(double cost) throws Exception {
+    private void mockRootLeafCost(double cost) {
         when(rootLeaf.getCost()).thenReturn(cost);
         when(rootLeaf.getVirtualCost()).thenReturn(cost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
@@ -405,7 +405,7 @@ class SearchTreeTest {
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
     }
 
-    private void mockLeafsCosts(double rootLeafCostAfterOptim, double childLeafCostAfterOptim, Leaf childLeaf) throws Exception {
+    private void mockLeafsCosts(double rootLeafCostAfterOptim, double childLeafCostAfterOptim, Leaf childLeaf) {
         mockRootLeafCost(rootLeafCostAfterOptim);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
@@ -413,7 +413,7 @@ class SearchTreeTest {
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(eq(network), any(), eq(false));
     }
 
-    private void mockNetworkPool(Network network) throws Exception {
+    private void mockNetworkPool(Network network) {
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         String workingVariantId = "ID";
         when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
@@ -448,7 +448,7 @@ class SearchTreeTest {
         when(mnec.isOptimized()).thenReturn(false);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec));
 
-        RangeAction ra = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra = Mockito.mock(RangeAction.class);
         when(ra.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(ra));
 

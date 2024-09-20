@@ -286,11 +286,11 @@ public class VoltageMonitoring {
         TECHNICAL_LOGS.info("Load-flow computation [start]");
         LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
             .run(networkClone, loadFlowParameters);
-        if (!loadFlowResult.isOk()) {
+        if (!loadFlowResult.isFullyConverged()) {
             BUSINESS_WARNS.warn("LoadFlow error.");
         }
         TECHNICAL_LOGS.info("Load-flow computation [end]");
-        return loadFlowResult.isOk();
+        return loadFlowResult.isFullyConverged();
     }
 
     /**
@@ -334,7 +334,9 @@ public class VoltageMonitoring {
                         atLeastOneLow.set(true);
                     }
                     case FAILURE -> atLeastOneUnknown.set(true);
-                    case SECURE -> { }
+                    case SECURE -> {
+                        //nothing to change
+                    }
                 }
             }
         );
