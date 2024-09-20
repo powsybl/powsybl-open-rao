@@ -52,7 +52,6 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // TODO : we may argue that "ptdfApproximationLevel.shouldUpdatePtdfWithPstChange()=false" has no real advantage anymore
         if (preOptimFlowResult == null) {
             preOptimFlowResult = flowResult;
         }

@@ -58,7 +58,6 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         updateMinimumNegativeMarginDefinition(linearProblem);
         Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult);
         buildMinimumRelativeMarginVariable(linearProblem, validFlowCnecs);
-        // TODO : we may argue that "ptdfApproximationLevel.shouldUpdatePtdfWithPstChange()=false" has no real advantage anymore
         FlowResult flowResultToUse = ptdfApproximationLevel.shouldUpdatePtdfWithPstChange() ? flowResult : preOptimFlowResult;
         buildMinimumRelativeMarginConstraints(linearProblem, validFlowCnecs, flowResultToUse);
         fillObjectiveWithMinRelMargin(linearProblem);
