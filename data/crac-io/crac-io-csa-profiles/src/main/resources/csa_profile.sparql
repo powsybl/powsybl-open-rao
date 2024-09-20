@@ -1,22 +1,9 @@
 #
-# Copyright (c) 2023, RTE (http://www.rte-france.com)
+# Copyright (c) 2024, RTE (http://www.rte-france.com)
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
-
-# query: contingencyEquipment
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-GRAPH <%s> {
-    ?contingencyEquipment
-        rdf:type cim:ContingencyEquipment ;
-        cim:ContingencyEquipment.Equipment ?equipment ;
-        cim:ContingencyElement.Contingency ?contingency ;
-        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
-}
-}
 
 # query: header
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -30,6 +17,19 @@ GRAPH <%s> {
             dcat:startDate ?startDate ;
             dcat:endDate ?endDate ;
         }
+}
+}
+
+# query: contingencyEquipment
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingencyEquipment
+        rdf:type cim:ContingencyEquipment ;
+        cim:ContingencyEquipment.Equipment ?equipment ;
+        cim:ContingencyElement.Contingency ?contingency ;
+        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
 }
 }
 
@@ -354,80 +354,6 @@ GRAPH <%s> {
 }
 }
 
-# query: remedialActionSchedule
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
-
-SELECT *
-{
-    GRAPH <%s> {
-        ?remedialActionSchedule
-            rdf:type nc:RemedialActionSchedule ;
-    }
-}
-
-# query: schemeRemedialAction
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-    GRAPH <%s> {
-    ?schemeRemedialAction
-        rdf:type nc:SchemeRemedialAction ;
-        nc:RemedialAction.kind ?kind ;
-        nc:RemedialAction.normalAvailable ?normalAvailable .
-        OPTIONAL {
-            ?schemeRemedialAction cim:IdentifiedObject.name ?name .
-        }
-        OPTIONAL {
-            ?schemeRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
-        }
-        OPTIONAL {
-            ?schemeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?remedialActionSystemOperator .
-        }
-}
-}
-
-# query: remedialActionScheme
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-    GRAPH <%s> {
-            ?remedialActionScheme
-                rdf:type nc:RemedialActionScheme ;
-                nc:RemedialActionScheme.kind ?kind ;
-                nc:RemedialActionScheme.normalArmed ?normalArmed ;
-                nc:RemedialActionScheme.ArmedRemedialAction ?schemeRemedialAction .
-    }
-}
-
-# query: stage
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-GRAPH <%s> {
-        ?stage
-            rdf:type nc:Stage ;
-            nc:Stage.GridStateAlterationCollection ?gridStateAlterationCollection;
-            nc:Stage.RemedialActionScheme ?remedialActionScheme;
-}
-}
-
-# query: gridStateAlterationCollection
-PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX cim: <http://iec.ch/TC57/CIM100#>
-SELECT *
-{
-GRAPH <%s> {
-    ?gridStateAlterationCollection
-        rdf:type nc:GridStateAlterationCollection ;
-
-}
-}
-
 # query: contingencyOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -728,7 +654,6 @@ GRAPH <%s> {
         }
 }
 }
-
 
 # query: remedialActionDependencyOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>

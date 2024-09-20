@@ -15,16 +15,12 @@ import com.powsybl.openrao.data.cracio.csaprofiles.nc.Contingency;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyEquipment;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.CurrentLimit;
-import com.powsybl.openrao.data.cracio.csaprofiles.nc.GridStateAlterationCollection;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.GridStateAlterationRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.NCObject;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionGroup;
-import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionScheme;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RotatingMachineAction;
-import com.powsybl.openrao.data.cracio.csaprofiles.nc.SchemeRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ShuntCompensatorModification;
-import com.powsybl.openrao.data.cracio.csaprofiles.nc.Stage;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.StaticPropertyRange;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.TapChanger;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.TapPositionAction;
@@ -45,15 +41,11 @@ public enum Query {
     CONTINGENCY_EQUIPMENT(ContingencyEquipment.class, CsaProfileKeyword.CONTINGENCY, null, Map.of()),
     CONTINGENCY_WITH_REMEDIAL_ACTION(ContingencyWithRemedialAction.class, CsaProfileKeyword.REMEDIAL_ACTION, OverridableAttribute.ENABLED, Map.of(OverridableAttribute.ENABLED.getDefaultName(), true)),
     CURRENT_LIMIT(CurrentLimit.class, CsaProfileKeyword.CGMES, OverridableAttribute.VALUE, Map.of()),
-    GRID_STATE_ALTERATION_COLLECTION(GridStateAlterationCollection.class, CsaProfileKeyword.REMEDIAL_ACTION, null, Map.of()),
     GRID_STATE_ALTERATION_REMEDIAL_ACTION(GridStateAlterationRemedialAction.class, CsaProfileKeyword.REMEDIAL_ACTION, OverridableAttribute.AVAILABLE, Map.of()),
     REMEDIAL_ACTION_DEPENDENCY(RemedialActionDependency.class, CsaProfileKeyword.REMEDIAL_ACTION, OverridableAttribute.ENABLED, Map.of(OverridableAttribute.ENABLED.getDefaultName(), true)),
     REMEDIAL_ACTION_GROUP(RemedialActionGroup.class, CsaProfileKeyword.REMEDIAL_ACTION, null, Map.of()),
-    REMEDIAL_ACTION_SCHEME(RemedialActionScheme.class, CsaProfileKeyword.REMEDIAL_ACTION, OverridableAttribute.ARMED, Map.of()),
     ROTATING_MACHINE_ACTION(RotatingMachineAction.class, CsaProfileKeyword.REMEDIAL_ACTION, OverridableAttribute.ENABLED, Map.of(OverridableAttribute.ENABLED.getDefaultName(), true)),
-    SCHEME_REMEDIAL_ACTION(SchemeRemedialAction.class, CsaProfileKeyword.REMEDIAL_ACTION, OverridableAttribute.AVAILABLE, Map.of()),
     SHUNT_COMPENSATOR_MODIFICATION(ShuntCompensatorModification.class, CsaProfileKeyword.REMEDIAL_ACTION, OverridableAttribute.ENABLED, Map.of(OverridableAttribute.ENABLED.getDefaultName(), true)),
-    STAGE(Stage.class, CsaProfileKeyword.REMEDIAL_ACTION, null, Map.of()),
     STATIC_PROPERTY_RANGE(StaticPropertyRange.class, CsaProfileKeyword.REMEDIAL_ACTION, OverridableAttribute.VALUE, Map.of()),
     TAP_CHANGER(TapChanger.class, CsaProfileKeyword.CGMES, null, Map.of()),
     TAP_POSITION_ACTION(TapPositionAction.class, CsaProfileKeyword.REMEDIAL_ACTION, OverridableAttribute.ENABLED, Map.of(OverridableAttribute.ENABLED.getDefaultName(), true)),
