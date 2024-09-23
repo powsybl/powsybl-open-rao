@@ -96,10 +96,6 @@ public class CsaProfileCrac {
         }).collect(Collectors.toSet());
     }
 
-    public Set<TapChanger> getTapChangers() {
-        return new NcPropertyBagsConverter<>(TapChanger::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.CGMES, CsaProfileConstants.REQUEST_TAP_CHANGER));
-    }
-
     private void setOverridingData(OffsetDateTime importTimestamp) {
         overridingData = new HashMap<>();
         Arrays.stream(Query.values()).forEach(query -> addDataFromTripleStoreToMap(overridingData, query, importTimestamp));
