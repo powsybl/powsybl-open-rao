@@ -38,7 +38,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     }
 
     public void addAngleCnecs() {
-        if (nativeAssessedElement.inBaseCase()) {
+        if (Boolean.TRUE.equals(nativeAssessedElement.inBaseCase())) {
             addAngleCnec(crac.getPreventiveInstant().getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {

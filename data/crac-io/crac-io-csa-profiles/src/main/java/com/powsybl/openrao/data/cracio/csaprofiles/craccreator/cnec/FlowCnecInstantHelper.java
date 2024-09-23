@@ -6,6 +6,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaInstant;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaOperator;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 
 import java.util.HashMap;
@@ -20,7 +21,6 @@ class FlowCnecInstantHelper {
     private final int curative2InstantDuration;
     private final int curative3InstantDuration;
 
-    private final Set<String> tsos = Set.of("REE", "REN", "RTE");
     private final Set<String> instants = Set.of(CsaInstant.CURATIVE_1.getInstantName(), CsaInstant.CURATIVE_2.getInstantName(), CsaInstant.CURATIVE_3.getInstantName());
 
     public FlowCnecInstantHelper(CracCreationParameters parameters) {
@@ -48,9 +48,9 @@ class FlowCnecInstantHelper {
 
     private void checkUsePatlInFinalStateMap(CsaCracCreationParameters csaParameters) {
         Map<String, Boolean> usePatlInFinalState = csaParameters.getUsePatlInFinalState();
-        for (String tso : tsos) {
-            if (!usePatlInFinalState.containsKey(tso)) {
-                throw new OpenRaoException("use-patl-in-final-state map is missing \"" + tso + "\" key.");
+        for (CsaOperator operator : CsaOperator.values()) {
+            if (!usePatlInFinalState.containsKey(operator.name())) {
+                throw new OpenRaoException("use-patl-in-final-state map is missing \"" + operator.name() + "\" key.");
             }
         }
     }

@@ -38,7 +38,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     }
 
     public void addVoltageCnecs() {
-        if (nativeAssessedElement.inBaseCase()) {
+        if (Boolean.TRUE.equals(nativeAssessedElement.inBaseCase())) {
             addVoltageCnec(crac.getPreventiveInstant().getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {

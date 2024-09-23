@@ -201,7 +201,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, Map<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
         // Preventive CNEC
-        if (nativeAssessedElement.inBaseCase()) {
+        if (Boolean.TRUE.equals(nativeAssessedElement.inBaseCase())) {
             thresholds.getOrDefault(Integer.MAX_VALUE, Map.of()).forEach((twoSides, threshold) -> {
                 String cnecName = getCnecName(crac.getPreventiveInstant().getId(), null, twoSides, Integer.MAX_VALUE);
                 addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), twoSides, threshold, Integer.MAX_VALUE, useMaxAndMinThresholds);

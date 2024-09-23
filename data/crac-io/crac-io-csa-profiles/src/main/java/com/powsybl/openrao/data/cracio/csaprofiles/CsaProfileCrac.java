@@ -35,12 +35,14 @@ public class CsaProfileCrac {
 
     private final Map<String, Set<String>> keywordMap;
     private Map<String, String> overridingData;
+    private Map<Class<? extends NCObject>, Set<? extends NCObject>> queriedNativeObjects;
 
     public CsaProfileCrac(TripleStore tripleStoreCsaProfileCrac, Map<String, Set<String>> keywordMap) {
         this.tripleStoreCsaProfileCrac = tripleStoreCsaProfileCrac;
         this.queryCatalogCsaProfileCrac = new QueryCatalog(CsaProfileConstants.SPARQL_FILE_CSA_PROFILE);
         this.keywordMap = keywordMap;
         this.overridingData = new HashMap<>();
+        this.queriedNativeObjects = new HashMap<>();
     }
 
     public void clearContext(String context) {
@@ -85,8 +87,11 @@ public class CsaProfileCrac {
      * @return set of native objects
      */
     public <T extends NCObject> Set<T> getNativeObjects(Class<T> nativeType) {
+        if (queriedNativeObjects.containsKey(nativeType)) {
+            return (Set<T>) queriedNativeObjects.get(nativeType);
+        }
         Query query = Arrays.stream(Query.values()).filter(q -> nativeType.equals(q.getNativeClass())).findFirst().orElseThrow();
-        return getPropertyBags(query).stream().map(pb -> {
+        Set<T> nativeObjects = getPropertyBags(query).stream().map(pb -> {
             try {
                 return NativeParser.fromPropertyBag(pb, nativeType, query.getDefaultValues());
             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException |
@@ -94,6 +99,8 @@ public class CsaProfileCrac {
                 throw new OpenRaoException(e);
             }
         }).collect(Collectors.toSet());
+        queriedNativeObjects.put(nativeType, nativeObjects);
+        return nativeObjects;
     }
 
     private void setOverridingData(OffsetDateTime importTimestamp) {
@@ -108,22 +115,29 @@ public class CsaProfileCrac {
         PropertyBags propertyBagsResult = queryTripleStore(query.getTitle() + "Overriding", tripleStoreCsaProfileCrac.contextNames());
         for (PropertyBag propertyBag : propertyBagsResult) {
             if (!CsaProfileKeyword.CGMES.equals(query.getTargetProfilesKeyword())) {
-                if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileKeyword.STEADY_STATE_INSTRUCTION) && CsaProfileCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
-                    String id = propertyBag.getId(query.getTitle());
-                    String overridingValue = propertyBag.get(query.getOverridableAttribute().getOverridingName());
-                    dataMap.put(id, overridingValue);
-                }
+                overrideDataFromSsi(dataMap, query, importTimestamp, propertyBag);
             } else {
                 if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileKeyword.STEADY_STATE_HYPOTHESIS)) {
-                    OffsetDateTime scenarioTime = OffsetDateTime.parse(propertyBag.get("scenarioTime"));
-                    if (importTimestamp.isEqual(scenarioTime)) {
-                        String id = propertyBag.getId(query.getTitle());
-                        String overridingValue = propertyBag.get(query.getOverridableAttribute().getOverridingName());
-                        dataMap.put(id, overridingValue);
-                    }
+                    overrideDataFromSsh(dataMap, query, importTimestamp, propertyBag);
                 }
             }
+        }
+    }
 
+    private static void overrideDataFromSsi(Map<String, String> dataMap, Query query, OffsetDateTime importTimestamp, PropertyBag propertyBag) {
+        if (CsaProfileCracUtils.checkProfileKeyword(propertyBag, CsaProfileKeyword.STEADY_STATE_INSTRUCTION) && CsaProfileCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
+            String id = propertyBag.getId(query.getTitle());
+            String overridingValue = propertyBag.get(query.getOverridableAttribute().getOverridingName());
+            dataMap.put(id, overridingValue);
+        }
+    }
+
+    private static void overrideDataFromSsh(Map<String, String> dataMap, Query query, OffsetDateTime importTimestamp, PropertyBag propertyBag) {
+        OffsetDateTime scenarioTime = OffsetDateTime.parse(propertyBag.get("scenarioTime"));
+        if (importTimestamp.isEqual(scenarioTime)) {
+            String id = propertyBag.getId(query.getTitle());
+            String overridingValue = propertyBag.get(query.getOverridableAttribute().getOverridingName());
+            dataMap.put(id, overridingValue);
         }
     }
 
