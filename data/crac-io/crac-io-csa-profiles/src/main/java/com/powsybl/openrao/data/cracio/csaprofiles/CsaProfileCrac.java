@@ -165,6 +165,10 @@ public class CsaProfileCrac {
         return new NcPropertyBagsConverter<>(RemedialActionDependency::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SCHEME_REMEDIAL_ACTION_DEPENDENCY, CsaProfileConstants.REQUEST_REMEDIAL_ACTION_DEPENDENCY));
     }
 
+    public Set<TapChanger> getTapChangers() {
+        return new NcPropertyBagsConverter<>(TapChanger::fromPropertyBag).convert(getPropertyBags(CsaProfileKeyword.CGMES, CsaProfileConstants.REQUEST_TAP_CHANGER));
+    }
+
     private void setOverridingData(OffsetDateTime importTimestamp) {
         overridingData = new HashMap<>();
         for (OverridingObjectsFields overridingObject : OverridingObjectsFields.values()) {

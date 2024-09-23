@@ -16,7 +16,7 @@ public record TapPositionAction(String mrid, String tapChangerId, String propert
     public static TapPositionAction fromPropertyBag(PropertyBag propertyBag) {
         return new TapPositionAction(
             propertyBag.getId(CsaProfileConstants.TAP_POSITION_ACTION),
-            propertyBag.getId(CsaProfileConstants.TAP_CHANGER),
+            propertyBag.getId(CsaProfileConstants.TAP_CHANGER_ID),
             propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE),
             Boolean.parseBoolean(propertyBag.getOrDefault(CsaProfileConstants.NORMAL_ENABLED, "true")),
             propertyBag.getId(CsaProfileConstants.REQUEST_GRID_STATE_ALTERATION_REMEDIAL_ACTION),
