@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileKeyword;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.NCObject;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.PropertyReference;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -21,6 +22,7 @@ import java.time.DateTimeException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -117,5 +119,14 @@ public final class CsaProfileCracUtils {
 
     public static String getTsoNameFromUrl(String url) {
         return TsoEICode.fromEICode(getEicFromUrl(url)).getDisplayName();
+    }
+
+    public static <T extends NCObject> Map<String, Set<T>> aggregateBy(Set<T> ncObjects, Function<T, String> groupingAttribute) {
+        Map<String, Set<T>> ncObjectsPerAttribute = new HashMap<>();
+        for (T ncObject : ncObjects) {
+            String attributeValue = groupingAttribute.apply(ncObject);
+            ncObjectsPerAttribute.computeIfAbsent(attributeValue, k -> new HashSet<>()).add(ncObject);
+        }
+        return ncObjectsPerAttribute;
     }
 }

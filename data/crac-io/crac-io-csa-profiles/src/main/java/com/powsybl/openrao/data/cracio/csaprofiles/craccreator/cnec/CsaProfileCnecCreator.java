@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.CurrentLimit;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.VoltageLimit;
@@ -57,7 +56,7 @@ public class CsaProfileCnecCreator {
         this.crac = crac;
         this.network = network;
         this.nativeAssessedElements = nativeCrac.getNativeObjects(AssessedElement.class);
-        this.nativeAssessedElementWithContingenciesPerNativeAssessedElement = new NcAggregator<>(AssessedElementWithContingency::assessedElement).aggregate(nativeCrac.getNativeObjects(AssessedElementWithContingency.class));
+        this.nativeAssessedElementWithContingenciesPerNativeAssessedElement = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(AssessedElementWithContingency.class), AssessedElementWithContingency::assessedElement);
         this.nativeCurrentLimitPerId = nativeCrac.getNativeObjects(CurrentLimit.class).stream().collect(Collectors.toMap(CurrentLimit::mrid, currentLimit -> currentLimit));
         this.nativeVoltageLimitPerId = nativeCrac.getNativeObjects(VoltageLimit.class).stream().collect(Collectors.toMap(VoltageLimit::mrid, voltageLimit -> voltageLimit));
         this.nativeVoltageAngleLimitPerId = nativeCrac.getNativeObjects(VoltageAngleLimit.class).stream().collect(Collectors.toMap(VoltageAngleLimit::mrid, voltageAngleLimit -> voltageAngleLimit));

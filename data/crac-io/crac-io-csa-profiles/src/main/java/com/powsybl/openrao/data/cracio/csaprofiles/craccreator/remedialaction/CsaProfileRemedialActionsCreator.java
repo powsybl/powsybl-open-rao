@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationCon
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
@@ -55,10 +54,10 @@ public class CsaProfileRemedialActionsCreator {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
-        Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getNativeObjects(TapChanger.class)).entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
+        Map<String, String> pstPerTapChanger = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(TapChanger.class), TapChanger::powerTransformer).entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network, pstPerTapChanger);
-        Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction).aggregate(nativeCrac.getNativeObjects(AssessedElementWithRemedialAction.class));
-        Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeCrac.getNativeObjects(ContingencyWithRemedialAction.class));
+        Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(AssessedElementWithRemedialAction.class), AssessedElementWithRemedialAction::remedialAction);
+        Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(ContingencyWithRemedialAction.class), ContingencyWithRemedialAction::remedialAction);
         this.nativeRemedialActions = new HashSet<>();
         this.nativeRemedialActions.addAll(nativeCrac.getNativeObjects(GridStateAlterationRemedialAction.class));
         this.nativeRemedialActions.addAll(nativeCrac.getNativeObjects(SchemeRemedialAction.class));

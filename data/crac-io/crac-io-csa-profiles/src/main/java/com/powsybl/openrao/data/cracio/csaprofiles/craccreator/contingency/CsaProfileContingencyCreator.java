@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.Contingency;
@@ -49,7 +49,7 @@ public class CsaProfileContingencyCreator {
         this.crac = crac;
         this.network = network;
         this.nativeContingencies = nativeCrac.getNativeObjects(Contingency.class);
-        this.nativeContingencyEquipmentsPerNativeContingency = new NcAggregator<>(ContingencyEquipment::contingency).aggregate(nativeCrac.getNativeObjects(ContingencyEquipment.class));
+        this.nativeContingencyEquipmentsPerNativeContingency = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(ContingencyEquipment.class), ContingencyEquipment::contingency);
         this.cracCreationContext = cracCreationContext;
         this.createAndAddContingencies();
     }
