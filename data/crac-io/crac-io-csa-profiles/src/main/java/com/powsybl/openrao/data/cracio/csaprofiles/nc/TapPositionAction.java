@@ -9,5 +9,5 @@ package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record TapPositionAction(String mrid, String tapChangerId, String propertyReference, Boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) implements NCObject {
+public record TapPositionAction(String mrid, String tapChangerId, String propertyReference, Boolean normalEnabled, String gridStateAlterationRemedialAction, String gridStateAlterationCollection) implements GridStateAlteration {
 }

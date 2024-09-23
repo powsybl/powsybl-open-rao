@@ -75,14 +75,14 @@ public class CsaProfileRemedialActionsCreator {
             boolean isSchemeRemedialAction = nativeRemedialAction instanceof SchemeRemedialAction;
             try {
                 checkKind(nativeRemedialAction, isSchemeRemedialAction);
-                if (!nativeRemedialAction.normalAvailable()) {
+                if (Boolean.FALSE.equals(nativeRemedialAction.normalAvailable())) {
                     throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because normalAvailable is set to false", nativeRemedialAction.mrid()));
                 }
                 String elementaryActionsAggregatorId = isSchemeRemedialAction ? elementaryActionsHelper.getGridStateAlterationCollection(nativeRemedialAction.mrid()) : nativeRemedialAction.mrid(); // collectionIdIfAutoOrElseRemedialActionId
                 RemedialActionType remedialActionType = getRemedialActionType(nativeRemedialAction.mrid(), elementaryActionsAggregatorId, isSchemeRemedialAction);
                 RemedialActionAdder<?> remedialActionAdder;
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid(), elementaryActionsAggregatorId, alterations);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction).getOrDefault(elementaryActionsAggregatorId, Set.of()), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction).getOrDefault(elementaryActionsAggregatorId, Set.of()), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction).getOrDefault(elementaryActionsAggregatorId, Set.of()), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid(), alterations);
                     fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
                 } else {
                     if (elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).size() > 1) {
