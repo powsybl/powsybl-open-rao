@@ -66,7 +66,7 @@ public final class OnConstraintUsageRuleHelper {
                 continue;
             }
 
-            if (!nativeAssessedElementWithRemedialAction.normalEnabled()) {
+            if (Boolean.FALSE.equals(nativeAssessedElementWithRemedialAction.normalEnabled())) {
                 cnecStatusMap.put(nativeAssessedElementWithRemedialAction.assessedElement(), new AssociationStatus(false, null, "OnConstraint usage rule for remedial action %s with assessed element %s ignored because the association is disabled.".formatted(remedialActionId, nativeAssessedElementWithRemedialAction.assessedElement())));
                 continue;
             }

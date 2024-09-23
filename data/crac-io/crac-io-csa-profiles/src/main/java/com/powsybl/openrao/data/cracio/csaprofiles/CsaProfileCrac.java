@@ -22,7 +22,6 @@ import com.powsybl.triplestore.api.TripleStore;
 import java.lang.reflect.InvocationTargetException;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
