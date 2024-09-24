@@ -44,58 +44,109 @@ def read_data(file_path) -> tuple[dict, str]:
         with open(file_path, 'r') as file:
             return yaml.safe_load(file), "yaml"  # ["rao-parameters"]
 
-def extract_leading_whitespace(line):
-    leading_whitespace = ""
-    for char in line:
-        if char.isspace():
-            leading_whitespace += char
+
+class SpecialJSONEncoder(json.JSONEncoder):
+    """A JSON Encoder closer to actual rao parameter json format"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.indentation_level = 0
+
+    def encode(self, o):
+        """Encode JSON object *o* with respect to single line lists."""
+
+        if isinstance(o, (list, tuple)):
+            if len(o) == 0:
+                return "[ ]"
+            else:
+                return "[ " + ", ".join(self.encode(el) for el in o) + " ]"
+
+        elif isinstance(o, dict):
+            self.indentation_level += 1
+            output = [self.indent_str + f"{json.dumps(k)} : {self.encode(v)}" for k, v in o.items()]
+            self.indentation_level -= 1
+            return "{\n" + ",\n".join(output) + "\n" + self.indent_str + "}"
+
+        elif isinstance(o, float):
+            return f"{o}".replace("e-0", "E-").replace("1E", "1.0E").replace("0.0001", "1.0E-4")  # dangerous hack
+
         else:
-            break
-    return leading_whitespace
-
-def write_data(new_data, file_path, file_type):
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-        lines_to_write = []
-        inside_obj_fun_to_replace = False
-        for line in lines:
-            if tag_by_file_type[file_type] in line and tag_by_file_type[file_type] in new_data:
-                leading_whitespace = extract_leading_whitespace(line)
-                inside_obj_fun_to_replace = True
-            if inside_obj_fun_to_replace and ((file_type == "json" and "}" in line) or (file_type == "yaml" and line == "\n")):
-                obj_fun_str = f'"{tag_by_file_type[file_type]}" : ' + obj_function_as_str_lines(new_data, file_type)
-                for new_line in obj_fun_str.splitlines(True):
-                    lines_to_write.append(leading_whitespace + new_line)
-                inside_obj_fun_to_replace = False
-            elif not inside_obj_fun_to_replace:
-                lines_to_write.append(line)
-    with open(file_path, 'w') as file:
-        file.writelines(lines_to_write)
+            return json.dumps(o)
 
 
-def obj_function_as_str_lines(new_data, file_type):
-    if file_type == "json":
-        return json.dumps(new_data[tag_by_file_type[file_type]], indent=2, separators=(',', ' : ')) + ',\n'
-    else:
-        return yaml.dump(new_data[tag_by_file_type[file_type]], default_flow_style=False) + '\n'
+    @property
+    def indent_str(self) -> str:
+        return " " * self.indentation_level * self.indent
+
+    def iterencode(self, o, **kwargs):
+        """Required to also work with `json.dump`."""
+        return self.encode(o)
 
 
 
 def new_rao_param(data: dict, file_path: str, file_type: str) -> dict:
     try:
-        obj_fun = data[tag_by_file_type[file_type]]
-        prev_secure = "preventive-stop-criterion" not in obj_fun or obj_fun["preventive-stop-criterion"] == "SECURE"
-        if prev_secure and ("type" in obj_fun or "preventive-stop-criterion" in obj_fun):
-            obj_fun["type"] = "SECURE_FLOW"
-        elif not prev_secure and "type" not in obj_fun:
-            obj_fun["type"] = "MAX_MIN_MARGIN"
-        if "preventive-stop-criterion" in obj_fun:
-            del obj_fun["preventive-stop-criterion"]
+        move_to_extension(data, tag_by_file_type[file_type], ["curative-min-obj-improvement"])
+        move_to_extension(data, "range-actions-optimization", ["linear-optimization-solver", "max-mip-iterations", "pst-sensitivity-threshold", "hvdc-penalty-cost", "injection-ra-sensitivity-threshold", "pst-model", "ra-range-shrinking"])
+        move_to_extension(data, "topological-actions-optimization", ["max-preventive-search-tree-depth", "max-auto-search-tree-depth", "max-curative-search-tree-depth", "predefined-combinations", "skip-actions-far-from-most-limiting-element", "max-number-of-boundaries-for-skipping-actions"])
+        move_to_extension(data, "second-preventive-rao")
+        move_to_extension(data, "load-flow-and-sensitivity-computation", ["load-flow-provider", "sensitivity-provider", "sensitivity-failure-overcost"])
+        move_sensitivity_parameters_to_extension(data)
+        if "range-actions-optimization" in data:
+            new_names = {"pst-penalty-cost": "pst-ra-min-impact-threshold", "hvdc-penalty-cost": "hvdc-ra-min-impact-threshold", "injection-ra-penalty-cost": "injection-ra-min-impact-threshold"}
+            data["range-actions-optimization"] = {new_names[k] if k in new_names else k: v for k, v in data["range-actions-optimization"].items()}
+        if "multi-threading" in data and any(data["multi-threading"]):
+            data["multi-threading"] = {"available-cpus": max(v for k, v in data["multi-threading"].items())}
+        # TODO : move from extensions to extensions
     except KeyError as ke:
         raise KeyError("in file " + file_path) from ke
-    data[tag_by_file_type[file_type]] = obj_fun
     return data
 
+
+def move_sensitivity_parameters_to_extension(data: dict):
+    name_level_1 = "load-flow-and-sensitivity-computation"
+    if name_level_1 in data and "sensitivity-parameters" in data[name_level_1]:
+        param_level_1 = data[name_level_1]
+        sensitivity_params = param_level_1["sensitivity-parameters"]
+        if "load-flow-parameters" in sensitivity_params:
+            load_flow_param = sensitivity_params["load-flow-parameters"]
+            data["load-flow-parameters"] = load_flow_param
+            del sensitivity_params["load-flow-parameters"]
+        if any(k for k in sensitivity_params if k != "version"):
+            st_params = get_or_create_st_params(data)
+            if name_level_1 not in st_params:
+                st_params[name_level_1] = {}
+            st_params[name_level_1]["sensitivity-parameters"] = sensitivity_params
+        del param_level_1["sensitivity-parameters"]
+        del data[name_level_1]
+
+
+def move_to_extension(data: dict, name_level1: str, names_level2 : list | None = None):
+    if name_level1 in data:
+        param_level_1: dict = data[name_level1]
+        if names_level2 is None:
+            st_params = get_or_create_st_params(data)
+            st_params[name_level1] = param_level_1
+            del data[name_level1]
+        else:
+            if any(set(names_level2).intersection(param_level_1.keys())):
+                st_params = get_or_create_st_params(data)
+                if name_level1 not in st_params:
+                    st_params[name_level1] = {}
+                for name_level_2 in names_level2:
+                    if name_level_2 in param_level_1:
+                        st_params[name_level1][name_level_2] = param_level_1[name_level_2]
+                        del param_level_1[name_level_2]
+                if not any(param_level_1):
+                    del data[name_level1]
+
+
+def get_or_create_st_params(data: dict) -> dict:
+    if "extensions" not in data:
+        data["extensions"] = {}
+    if "open-rao-search-tree-parameters" not in data["extensions"]:
+        data["extensions"]["open-rao-search-tree-parameters"] = {}
+    return data["extensions"]["open-rao-search-tree-parameters"]
 
 
 if __name__ == "__main__":
@@ -105,6 +156,7 @@ if __name__ == "__main__":
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
             if rao_parameters_file(file_path):
-                data, file_type = read_data(file_path)
-                new_rao_params = new_rao_param(data, file_path, file_type)
-                write_data(new_rao_params, file_path, file_type)
+                old_rao_param, file_type = read_data(file_path)
+                new_rao_params = new_rao_param(old_rao_param, file_path, file_type)
+                with open(file_path, 'w') as f:
+                    json.dump(new_rao_params, f, indent=2, separators=(',', ' : '), cls=SpecialJSONEncoder)
