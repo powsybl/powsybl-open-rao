@@ -5,6 +5,8 @@
 The RAO parameters allow tuning the RAO:
 - to choose the **business objective function** of the RAO (maximize min margin, get a positive margin, ...)
 - to activate/deactivate optional business **features**
+With its extensions, in particular the open rao search tree extension, its parameters allows:
+- to choose implementation specific parameters
 - to fine-tune the search algorithm, improve **performance** and/or **quality** of results
 
 RAO parameters can be constructed using:
@@ -44,12 +46,6 @@ These parameters (objective-function) configure the remedial action optimisation
     Note that CNECs from different voltage levels will not have the same weight in the objective function depending on the unit
     considered (MW or A). Ampere unit only works in AC-load-flow mode (see [sensitivity-parameters](#sensitivity-parameters)).
 
-#### curative-min-obj-improvement
-- **Expected value**: numeric value, where the unit is that of the objective function
-- **Default value**: 0
-- **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO stop criterion,
-  when it is set to PREVENTIVE_OBJECTIVE or PREVENTIVE_OBJECTIVE_AND_SECURE.
-
 #### enforce-curative-security
 - **Expected value**: true/false
 - **Default value**: false
@@ -65,37 +61,7 @@ second preventive won't be run, even if curative cost is higher, in order to sav
 These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem.md) used to optimise range actions.  
 (See [Modelling CNECs and range actions](/castor/linear-problem/core-problem-filler.md))
 
-#### max-mip-iterations
-- **Expected value**: integer
-- **Default value**: 10
-- **Usage**: defines the maximum number of iterations to be executed by the iterating linear optimiser of the RAO.  
-  One iteration of the iterating linear optimiser includes: the resolution of one linear problem (MIP), an update of the
-  network with the optimal PST taps found in the linear problem, a security analysis of the updated network and an
-  assessment of the objective function based on the results of the security analysis.  
-  The linear problem relies on sensitivity coefficients to estimate the flows on each CNEC, and those estimations might
-  not be perfect when several PSTs taps are significantly changed. When the linear optimisation problem makes a (n+1)th
-  iteration, it refines its solution with new sensitivity coefficients, which better describe the neighbourhood of the 
-  solution found in iteration (n).  
-  Note that the linear optimisation problems usually "converge" with very few iterations (1 to 4 iterations).
-
-#### pst-model
-- **Expected value**: one of the following:
-  - "CONTINUOUS"
-  - "APPROXIMATED_INTEGERS"
-- **Default value**: "CONTINUOUS"
-- **Usage**: the method to model PSTs in the linear problem:  
-  - **CONTINUOUS**: PSTs are represented by their angle set-points; the set-points are continuous optimisation variables
-    and OpenRAO rounds the result to the best tap (around the optimal set-point) after optimisation. This approach is not
-    very precise but does not create integer optimisation variables; thus it is quicker to solve, especially with
-    open-source solvers.  
-  - **APPROXIMATED_INTEGERS**: a PST is represented by its tap positions, and these tap positions are considered
-    proportional to the PST's angle set-point (hence the "approximated" adjective). Thus, these tap positions can be
-    used as a multiplier of the sensitivity values when representing the impact of the PST on CNECs. This approach is
-    more precise and thus has the advantage of better respecting Loop-Flow and MNEC constraints. But it introduces
-    integer variables (tap positions) and can be harder to solve.  
-    See [Using integer variables for PST taps](/castor/linear-problem/discrete-pst-tap-filler.md).
-
-#### pst-penalty-cost
+#### pst-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / ° (per degree)
 - **Default value**: 0.01
 - **Usage**: the pst-penalty-cost represents the cost of changing the PST set-points, it is used within the linear
@@ -105,16 +71,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
   If several solutions are equivalent (e.g. with the same min margin), a strictly positive pst penalty cost will favour
   the ones with the PST taps the closest to the initial situation.  
 
-#### pst-sensitivity-threshold
-- **Expected value**: numeric value, unit: MW / ° (per degree)
-- **Default value**: 0.0
-- **Usage**: the pst sensitivity coefficients which are below the pst-sensitivity-threshold will be considered equal to
-  zero by the linear optimisation problem. Filtering some small sensitivity coefficients have the two following perks 
-  for the RAO:
-  - it decreases the complexity of the optimisation problem by reducing significantly the number of non-zero elements
-  - it can avoid changes of PST set-points when they only allow to earn a few MW on the margins of some CNECs.
-
-#### hvdc-penalty-cost
+#### hvdc-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
 - **Usage**: the hvdc-penalty-cost represents the cost of changing the HVDC set-points, it is used within the linear
@@ -124,109 +81,15 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
   If several solutions are equivalent (e.g. with the same min margin), a strictly positive hvdc penalty cost will favour
   the ones with the HVDC set-points the closest to the initial situation.
 
-#### hvdc-sensitivity-threshold
-- **Expected value**: numeric value, unit: MW / MW
-- **Default value**: 0.0
-- **Usage**: the hvdc sensitivity coefficients which are below the hvdc-sensitivity-threshold will be considered equal
-  to zero by the linear optimisation problem. Filtering some of the small sensitivity coefficients have the two
-  following perks regarding the RAO:
-  - it decreases the complexity of the optimisation problem by reducing significantly the number of non-null elements
-  - it can avoid changes of HVDC set-points when they only allow to earn a few MW on the margins of some CNECs.
-
-#### injection-ra-penalty-cost
+#### injection-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
 - **Usage**: the injection-ra-penalty-cost represents the cost of changing the injection set-points, it is used within the linear
   optimisation problem of the RAO, in the same way as the two types of RangeAction above.
 
-#### injection-ra-sensitivity-threshold
-- **Expected value**: numeric value, unit: MW / MW
-- **Default value**: 0.0
-- **Usage**: the injection sensitivity coefficients which are below the injection-ra-sensitivity-threshold will be
-  considered equal to zero by the linear optimisation problem.  
-  The perks are the same as the two parameters above.
-
-#### ra-range-shrinking
-- **Expected value**: one of the following:
-  - "DISABLED"
-  - "ENABLED"
-  - "ENABLED_IN_FIRST_PRAO_AND_CRAO"
-- **Default value**: "DISABLED"
-- **Usage**: CASTOR makes the approximation that range action sensitivities on CNECs are linear. However, in 
-  active+reactive computations, this approximation may be incorrect. The linear problem can thus find a worse solution 
-  than in its previous iteration.
-  - **DISABLED**: if this situation occurs, the linear problem stops and returns the previous solution,
-    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem.md#algorithm).
-  - **ENABLED**: this introduces two new behaviors to the iterating linear optimiser:
-    1. If the linear problem finds a solution worse than in its previous iteration, it continues iterating.  
-       When stop condition is met ([max-mip-iterations](#max-mip-iterations) reached, or two successive iterations have 
-       the same optimal RA set-points), then the problem returns the best solution it has found.
-    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](/castor/linear-problem/core-problem-filler.md#shrinking-the-allowed-range).
-       These equations have been chosen to force the linear problem convergence while allowing the RA to go 
-       back to its initial solution if needed.  
-  - **ENABLED_IN_FIRST_PRAO_AND_CRAO**:
-    same as **ENABLED** but only for first preventive and curative RAO. This parameter value has been introduced because 
-    sensitivity computations in the second preventive RAO can be slow (due to the larger optimization perimeter), thus 
-    computation time loss may outweigh the gains of RA range shrinking.
-
-#### linear-optimization-solver
-These are parameters that tune the solver used to solve the MIP problem.
-
-##### solver
-- **Expected value**: one of the following:
-  - "CBC"
-  - "SCIP"
-  - "XPRESS"
-- **Default value**: "CBC"
-- **Usage**: the solver called for optimising the linear problem.  
-  Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
-  (open-source), SCIP (commercial) and XPRESS (commercial) for the moment.  
-  If needed, other solvers can be easily added.
-
-##### relative-mip-gap
-- **Expected value**: double
-- **Default value**: 0.0001
-- **Usage**: the relative MILP (Mixed-Integer-Linear-Programming) target gap.  
-  During branch-and-bound algorithm (only in MILP case), the solver will stop branching when this relative gap is
-  reached between the best found objective function and the estimated objective function best bound.
-
-##### solver-specific-parameters
-
-- **Expected value**: String, space-separated parameters (keys and values) understandable by OR-Tools (for example "key1
-  value1 key2 value2")
-- **Default value**: empty
-- **Usage**: this can be used to set solver-specific parameters, when the OR-Tools API and its generic parameters are
-  not enough.
-
 ### Network actions optimisation parameters
 These parameters (topological-actions-optimization) tune the [search-tree algorithm](/castor.md#algorithm) 
 when searching for the best network actions.
-
-#### max-preventive-search-tree-depth
-- **Expected value**: integer
-- **Default value**: 2^32 -1 (max integer value)
-- **Usage**: maximum search-tree depth for preventive optimization.  
-  Applies to the preventive RAO.
-
-#### max-auto-search-tree-depth
-- **Expected value**: integer
-- **Default value**: 2^32 -1 (max integer value)
-- **Usage**: maximum search-tree depth for the optimization of available auto network actions.  
-
-#### max-curative-search-tree-depth
-- **Expected value**: integer
-- **Default value**: 2^32 -1 (max integer value)
-- **Usage**: maximum search-tree depth for curative optimization.  
-  Applies separately to each perimeter-specific curative RAO.
-
-#### predefined-combinations
-- **Expected value**: an array containing sets of network action IDs
-- **Default value**: empty
-- **Usage**: this parameter contains hints for the search-tree RAO, consisting of combinations of multiple network 
-  actions that the user considers interesting to test together during the RAO.  
-  These combinations will be tested in the first search depth of the search-tree
-
-![Search-tree-with-combinations](/_static/img/Search-tree-with-combinations.png){.forced-white-background}
 
 #### absolute-minimum-impact-threshold
 - **Expected value**: numeric value, where the unit is that of the objective function
@@ -246,67 +109,6 @@ when searching for the best network actions.
   topological action improves the objective function by x, with x < solution(depth(n)) x relative-minimum-impact-threshold, 
   it will not be retained by the search-tree.
 
-#### skip-actions-far-from-most-limiting-element
-- **Expected value**: true/false
-- **Default value**: false
-- **Usage**: whether the RAO should skip evaluating topological actions that are geographically far from the most
-  limiting element at the time of the evaluation. Proximity is defined by the number of country boundaries separating 
-  the element from the topological action (see [max-number-of-boundaries-for-skipping-actions](#max-number-of-boundaries-for-skipping-actions)).  
-  Setting this to true allows you to speed up the search tree RAO, while keeping a good precision, since topological
-  actions that are far from the most limiting element have almost no impact on the minimum margin.
-
-#### max-number-of-boundaries-for-skipping-actions
-- **Expected value**: integer (>= 0)
-- **Default value**: 2
-- **Usage**: the maximum number of country boundaries between the most limiting element and the topological actions that
-  shall be evaluated. The most limiting element is defined as the element with the minimum margin at **the time of this
-  evaluation**.  
-  If the most limiting element has nodes in two countries, the smallest distance is considered.  
-  If the value is set to zero, only topological actions in the same country as the most limiting element will be 
-  evaluated in the search-tree.  
-  If the value is set to 1, topological actions from direct neighbors will also be considered, etc.  
-  *Note that the topology of the network is automatically deduced from the network file: countries sharing tie lines are
-  considered direct neighbors; dangling lines are not considered linked (ie BE and DE are not considered neighbors, even
-  though they share the Alegro line)*
-
-### Second preventive RAO parameters
-These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](/castor/rao-steps.md#second-preventive-rao).
-
-#### execution-condition
-- **Expected value**: one of the following:
-  - "DISABLED"
-  - "COST_INCREASE"
-  - "POSSIBLE_CURATIVE_IMPROVEMENT"
-- **Default value**: "DISABLED"
-- **Usage**: configures whether a 2nd preventive RAO should be run after the curative RAO.  
-  *Note: if there are automatons, and if a 2nd preventive RAO is run, then a 2nd automaton RAO is also run*  
-  - **DISABLED**: 2nd preventive RAO is not run  
-  - **COST_INCREASE**: a 2nd preventive RAO is run if the RAO's overall cost has increased after optimisation compared to
-    before optimisation; for example due to a curative CNEC margin decreased in 1st preventive RAO and not reverted
-    during curative RAO  
-  - **POSSIBLE_CURATIVE_IMPROVEMENT**: a 2nd preventive RAO is run only if it is possible to improve a curative perimeter,
-    i.e. if the curative RAO stop criterion on at least one contingency is not reached.  
-    This depends on the value of parameter [type](#type):
-    - **SECURE_FLOW**: 2nd preventive RAO is run if one curative perimeter is not secure after optimisation
-    - **MAX_MIN_MARGIN** or **MAX_MIN_RELATIVE_MARGIN**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
-      after optimisation that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
-
-#### re-optimize-curative-range-actions
-- **Expected value**: true/false
-- **Default value**: false
-- **Usage**: 
-  - **false**: the 2nd preventive RAO will optimize only the preventive remedial actions, keeping **all** optimal 
-    curative remedial actions selected during the curative RAO.
-  - **true**: the 2nd preventive RAO will optimize preventive remedial actions **and** curative range actions, keeping 
-    only the optimal curative **topological** actions computed in the curative RAO.
-
-#### hint-from-first-preventive-rao
-- **Expected value**: true/false
-- **Default value**: false
-- **Usage**: if set to true, the RAO will use the optimal combination of network actions found in the first preventive
-  RAO, as a predefined combination ("hint") to test at the first search depth of the second preventive RAO. This way, 
-  if this combination is optimal in the 2nd preventive RAO as well, getting to the optimal solution will be much faster.
-
 ### CNECs that should not be optimised
 These parameters (not-optimized-cnecs) allow the activation of region-specific features, that de-activate the
 optimisation of specific CNECs in specific conditions.
@@ -322,77 +124,286 @@ optimisation of specific CNECs in specific conditions.
   This parameter has no effect on the preventive RAO.  
   This parameter should be set to true for CORE CC.
 
-### Load-flow and sensitivity computation parameters
-These parameters (load-flow-and-sensitivity-computation) configure the load-flow and sensitivity computations providers 
-from inside the RAO.  
+## Extensions
+The following extensions can be added to RaoParameters:
+- to configure implementation specific parameters
+- when needed, in order to activate specific RAO features
 
-#### load-flow-provider
+### Open Rao Search Tree Parameters extension
+
+This extension is used to configure implementation specific parameters
+
+#### Objective function parameters
+
+These parameters (objective-function) configure the remedial action optimisation's objective function.
+
+##### curative-min-obj-improvement
+- **Expected value**: numeric value, where the unit is that of the objective function
+- **Default value**: 0
+- **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO stop criterion,
+  when it is set to PREVENTIVE_OBJECTIVE or PREVENTIVE_OBJECTIVE_AND_SECURE.
+
+#### Range actions optimisation parameters
+These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem.md) used to optimise range actions.  
+(See [Modelling CNECs and range actions](/castor/linear-problem/core-problem-filler.md))
+
+##### max-mip-iterations
+- **Expected value**: integer
+- **Default value**: 10
+- **Usage**: defines the maximum number of iterations to be executed by the iterating linear optimiser of the RAO.  
+  One iteration of the iterating linear optimiser includes: the resolution of one linear problem (MIP), an update of the
+  network with the optimal PST taps found in the linear problem, a security analysis of the updated network and an
+  assessment of the objective function based on the results of the security analysis.  
+  The linear problem relies on sensitivity coefficients to estimate the flows on each CNEC, and those estimations might
+  not be perfect when several PSTs taps are significantly changed. When the linear optimisation problem makes a (n+1)th
+  iteration, it refines its solution with new sensitivity coefficients, which better describe the neighbourhood of the
+  solution found in iteration (n).  
+  Note that the linear optimisation problems usually "converge" with very few iterations (1 to 4 iterations).
+
+##### pst-model
+- **Expected value**: one of the following:
+  - "CONTINUOUS"
+  - "APPROXIMATED_INTEGERS"
+- **Default value**: "CONTINUOUS"
+- **Usage**: the method to model PSTs in the linear problem:
+  - **CONTINUOUS**: PSTs are represented by their angle set-points; the set-points are continuous optimisation variables
+    and OpenRAO rounds the result to the best tap (around the optimal set-point) after optimisation. This approach is not
+    very precise but does not create integer optimisation variables; thus it is quicker to solve, especially with
+    open-source solvers.
+  - **APPROXIMATED_INTEGERS**: a PST is represented by its tap positions, and these tap positions are considered
+    proportional to the PST's angle set-point (hence the "approximated" adjective). Thus, these tap positions can be
+    used as a multiplier of the sensitivity values when representing the impact of the PST on CNECs. This approach is
+    more precise and thus has the advantage of better respecting Loop-Flow and MNEC constraints. But it introduces
+    integer variables (tap positions) and can be harder to solve.  
+    See [Using integer variables for PST taps](/castor/linear-problem/discrete-pst-tap-filler.md).
+
+##### pst-sensitivity-threshold
+- **Expected value**: numeric value, unit: MW / ° (per degree)
+- **Default value**: 0.0
+- **Usage**: the pst sensitivity coefficients which are below the pst-sensitivity-threshold will be considered equal to
+  zero by the linear optimisation problem. Filtering some small sensitivity coefficients have the two following perks
+  for the RAO:
+  - it decreases the complexity of the optimisation problem by reducing significantly the number of non-zero elements
+  - it can avoid changes of PST set-points when they only allow to earn a few MW on the margins of some CNECs.
+
+##### hvdc-sensitivity-threshold
+- **Expected value**: numeric value, unit: MW / MW
+- **Default value**: 0.0
+- **Usage**: the hvdc sensitivity coefficients which are below the hvdc-sensitivity-threshold will be considered equal
+  to zero by the linear optimisation problem. Filtering some of the small sensitivity coefficients have the two
+  following perks regarding the RAO:
+  - it decreases the complexity of the optimisation problem by reducing significantly the number of non-null elements
+  - it can avoid changes of HVDC set-points when they only allow to earn a few MW on the margins of some CNECs.
+
+##### injection-ra-sensitivity-threshold
+- **Expected value**: numeric value, unit: MW / MW
+- **Default value**: 0.0
+- **Usage**: the injection sensitivity coefficients which are below the injection-ra-sensitivity-threshold will be
+  considered equal to zero by the linear optimisation problem.  
+  The perks are the same as the two parameters above.
+
+##### ra-range-shrinking
+- **Expected value**: one of the following:
+  - "DISABLED"
+  - "ENABLED"
+  - "ENABLED_IN_FIRST_PRAO_AND_CRAO"
+- **Default value**: "DISABLED"
+- **Usage**: CASTOR makes the approximation that range action sensitivities on CNECs are linear. However, in
+  active+reactive computations, this approximation may be incorrect. The linear problem can thus find a worse solution
+  than in its previous iteration.
+  - **DISABLED**: if this situation occurs, the linear problem stops and returns the previous solution,
+    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem.md#algorithm).
+  - **ENABLED**: this introduces two new behaviors to the iterating linear optimiser:
+    1. If the linear problem finds a solution worse than in its previous iteration, it continues iterating.  
+       When stop condition is met ([max-mip-iterations](#max-mip-iterations) reached, or two successive iterations have
+       the same optimal RA set-points), then the problem returns the best solution it has found.
+    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](/castor/linear-problem/core-problem-filler.md#shrinking-the-allowed-range).
+       These equations have been chosen to force the linear problem convergence while allowing the RA to go
+       back to its initial solution if needed.
+  - **ENABLED_IN_FIRST_PRAO_AND_CRAO**:
+    same as **ENABLED** but only for first preventive and curative RAO. This parameter value has been introduced because
+    sensitivity computations in the second preventive RAO can be slow (due to the larger optimization perimeter), thus
+    computation time loss may outweigh the gains of RA range shrinking.
+
+##### linear-optimization-solver
+These are parameters that tune the solver used to solve the MIP problem.
+
+###### solver
+- **Expected value**: one of the following:
+  - "CBC"
+  - "SCIP"
+  - "XPRESS"
+- **Default value**: "CBC"
+- **Usage**: the solver called for optimising the linear problem.  
+  Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
+  (open-source), SCIP (commercial) and XPRESS (commercial) for the moment.  
+  If needed, other solvers can be easily added.
+
+###### relative-mip-gap
+- **Expected value**: double
+- **Default value**: 0.0001
+- **Usage**: the relative MILP (Mixed-Integer-Linear-Programming) target gap.  
+  During branch-and-bound algorithm (only in MILP case), the solver will stop branching when this relative gap is
+  reached between the best found objective function and the estimated objective function best bound.
+
+###### solver-specific-parameters
+
+- **Expected value**: String, space-separated parameters (keys and values) understandable by OR-Tools (for example "key1
+  value1 key2 value2")
+- **Default value**: empty
+- **Usage**: this can be used to set solver-specific parameters, when the OR-Tools API and its generic parameters are
+  not enough.
+
+#### Network actions optimisation parameters
+These parameters (topological-actions-optimization) tune the [search-tree algorithm](/castor.md#algorithm)
+when searching for the best network actions.
+
+##### max-preventive-search-tree-depth
+- **Expected value**: integer
+- **Default value**: 2^32 -1 (max integer value)
+- **Usage**: maximum search-tree depth for preventive optimization.  
+  Applies to the preventive RAO.
+
+##### max-auto-search-tree-depth
+- **Expected value**: integer
+- **Default value**: 2^32 -1 (max integer value)
+- **Usage**: maximum search-tree depth for the optimization of available auto network actions.
+
+##### max-curative-search-tree-depth
+- **Expected value**: integer
+- **Default value**: 2^32 -1 (max integer value)
+- **Usage**: maximum search-tree depth for curative optimization.  
+  Applies separately to each perimeter-specific curative RAO.
+
+##### predefined-combinations
+- **Expected value**: an array containing sets of network action IDs
+- **Default value**: empty
+- **Usage**: this parameter contains hints for the search-tree RAO, consisting of combinations of multiple network
+  actions that the user considers interesting to test together during the RAO.  
+  These combinations will be tested in the first search depth of the search-tree
+
+![Search-tree-with-combinations](/_static/img/Search-tree-with-combinations.png){.forced-white-background}
+
+##### skip-actions-far-from-most-limiting-element
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: whether the RAO should skip evaluating topological actions that are geographically far from the most
+  limiting element at the time of the evaluation. Proximity is defined by the number of country boundaries separating
+  the element from the topological action (see [max-number-of-boundaries-for-skipping-actions](#max-number-of-boundaries-for-skipping-actions)).  
+  Setting this to true allows you to speed up the search tree RAO, while keeping a good precision, since topological
+  actions that are far from the most limiting element have almost no impact on the minimum margin.
+
+##### max-number-of-boundaries-for-skipping-actions
+- **Expected value**: integer (>= 0)
+- **Default value**: 2
+- **Usage**: the maximum number of country boundaries between the most limiting element and the topological actions that
+  shall be evaluated. The most limiting element is defined as the element with the minimum margin at **the time of this
+  evaluation**.  
+  If the most limiting element has nodes in two countries, the smallest distance is considered.  
+  If the value is set to zero, only topological actions in the same country as the most limiting element will be
+  evaluated in the search-tree.  
+  If the value is set to 1, topological actions from direct neighbors will also be considered, etc.  
+  *Note that the topology of the network is automatically deduced from the network file: countries sharing tie lines are
+  considered direct neighbors; dangling lines are not considered linked (ie BE and DE are not considered neighbors, even
+  though they share the Alegro line)*
+
+#### Second preventive RAO parameters
+These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](/castor/rao-steps.md#second-preventive-rao).
+
+##### execution-condition
+- **Expected value**: one of the following:
+  - "DISABLED"
+  - "COST_INCREASE"
+  - "POSSIBLE_CURATIVE_IMPROVEMENT"
+- **Default value**: "DISABLED"
+- **Usage**: configures whether a 2nd preventive RAO should be run after the curative RAO.  
+  *Note: if there are automatons, and if a 2nd preventive RAO is run, then a 2nd automaton RAO is also run*
+  - **DISABLED**: 2nd preventive RAO is not run
+  - **COST_INCREASE**: a 2nd preventive RAO is run if the RAO's overall cost has increased after optimisation compared to
+    before optimisation; for example due to a curative CNEC margin decreased in 1st preventive RAO and not reverted
+    during curative RAO
+  - **POSSIBLE_CURATIVE_IMPROVEMENT**: a 2nd preventive RAO is run only if it is possible to improve a curative perimeter,
+    i.e. if the curative RAO stop criterion on at least one contingency is not reached.  
+    This depends on the value of parameter [type](#type):
+    - **SECURE_FLOW**: 2nd preventive RAO is run if one curative perimeter is not secure after optimisation
+    - **MAX_MIN_MARGIN** or **MAX_MIN_RELATIVE_MARGIN**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
+      after optimisation that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
+
+##### re-optimize-curative-range-actions
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**:
+  - **false**: the 2nd preventive RAO will optimize only the preventive remedial actions, keeping **all** optimal
+    curative remedial actions selected during the curative RAO.
+  - **true**: the 2nd preventive RAO will optimize preventive remedial actions **and** curative range actions, keeping
+    only the optimal curative **topological** actions computed in the curative RAO.
+
+##### hint-from-first-preventive-rao
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: if set to true, the RAO will use the optimal combination of network actions found in the first preventive
+  RAO, as a predefined combination ("hint") to test at the first search depth of the second preventive RAO. This way,
+  if this combination is optimal in the 2nd preventive RAO as well, getting to the optimal solution will be much faster.
+
+#### CNECs that should not be optimised
+These parameters (not-optimized-cnecs) allow the activation of region-specific features, that de-activate the
+optimisation of specific CNECs in specific conditions.
+
+##### do-not-optimize-curative-cnecs-for-tsos-without-cras
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: if this parameter is set to true, the RAO will detect TSOs not sharing any curative remedial actions (in
+  the CRAC). During the curative RAO, these TSOs' CNECs will not be taken into account in the minimum margin objective
+  function, unless the applied curative remedial actions decrease their margins (compared to their margins before
+  applying any curative action).  
+  If it is set to false, all CNECs are treated equally in the curative RAO.  
+  This parameter has no effect on the preventive RAO.  
+  This parameter should be set to true for CORE CC.
+
+#### Load-flow and sensitivity computation parameters
+These parameters (load-flow-and-sensitivity-computation) configure the load-flow and sensitivity computations providers
+from inside the RAO.
+
+##### load-flow-provider
 - **Expected value**: String, should refer to a [PowSyBl load flow provider implementation](inv:powsyblcore:std:doc#simulation/loadflow/index)
 - **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](inv:powsyblopenloadflow:std:doc#index))
 - **Usage**: the name of the load flow provider to use when a load flow is needed
 
-#### sensitivity-provider
+##### sensitivity-provider
 - **Expected value**: String, should refer to a [PowSyBl sensitivity provider implementation](inv:powsyblcore:std:doc#simulation/sensitivity/index)
 - **Default value**: "OpenLoadFlow" (see [OpenLoadFlow](inv:powsyblopenloadflow:std:doc#index))
 - **Usage**: the name of the sensitivity provider to use in the RAO
 
-#### sensitivity-failure-over-cost
+##### sensitivity-failure-over-cost
 - **Expected value**: numeric value, where the unit is that of the objective function
 - **Default value**: 10000.0
-- **Usage**: if the systematic sensitivity analysis fails (= diverged) due to a combination of remedial actions, its 
-objective function assessment will be penalized by this value. In other words, the criterion for this combination of RA 
-will be (e.g.) : minMargin - sensitivity-failure-over-cost.  
-If this parameter is strictly positive, the RAO will discriminate the combinations of RA for which the systematic 
-analysis didn't converge. The RAO might therefore put aside the solution with the best objective-function if it has 
-lead to a sensitivity failure, and instead propose a solution whose objective-function is worse, but whose associated 
-network is converging for all contingency scenarios.
+- **Usage**: if the systematic sensitivity analysis fails (= diverged) due to a combination of remedial actions, its
+  objective function assessment will be penalized by this value. In other words, the criterion for this combination of RA
+  will be (e.g.) : minMargin - sensitivity-failure-over-cost.  
+  If this parameter is strictly positive, the RAO will discriminate the combinations of RA for which the systematic
+  analysis didn't converge. The RAO might therefore put aside the solution with the best objective-function if it has
+  lead to a sensitivity failure, and instead propose a solution whose objective-function is worse, but whose associated
+  network is converging for all contingency scenarios.
 
-#### sensitivity-parameters
+##### sensitivity-parameters
 - **Expected value**: SensitivityComputationParameters ([PowSyBl](inv:powsyblcore:std:doc#simulation/sensitivity/configuration) configuration)
 - **Default value**: PowSyBl's default value (it is generally a bad idea to keep the default value for this parameter)
-- **Usage**: sensitivity-parameters is the configuration of the PowSyBl sensitivity engine, which is used within OpenRAO. 
-The underlying "load-flow-parameters" is also used whenever an explicit pure load-flow computation is needed. 
+- **Usage**: sensitivity-parameters is the configuration of the PowSyBl sensitivity engine, which is used within OpenRAO.
+  The underlying "load-flow-parameters" is also used whenever an explicit pure load-flow computation is needed.
 
-### Multi-threading parameters
+#### Multi-threading parameters
 These parameters (multi-threading) allow you to run a RAO making the most out of your computation resources.
 
-#### contingency-scenarios-in-parallel
+##### available-cpus
 - **Expected value**: integer
 - **Default value**: 1
-- **Usage**: number of contingency scenarios (auto + curative instants) to optimise in parallel.  
-  This parameter should therefore not exceed the number of cores of the computer on which the computation is made.  
-  *Note that the more contingencies are optimised in parallel, the more RAM is required by the RAO, and that the performance
+- **Usage**: It should not exceed the number of cores of the computer on which the computation is made.
+  Then it is used for:
+  - number of contingency scenarios (auto + curative instants) to optimise in parallel.  
+  - number of combination of remedial actions that the search-tree will investigate in
+    parallel during the <ins>automaton</ins> RAO.
+  *Note that the more available cpus is configured, the more RAM is required by the RAO, and that the performance
   of the RAO might significantly decrease on a machine with limited memory resources.*
-
-#### preventive-leaves-in-parallel
-- **Expected value**: integer
-- **Default value**: 1
-- **Usage**: this parameter sets the number of combination of remedial actions that the search-tree will investigate in 
-  parallel during the <ins>preventive</ins> RAO.  
-  It should therefore not exceed the number of cores of the computer on which the computation is made.  
-  *Note that the more leaves are optimised in parallel, the more RAM is required by the RAO, and that the performance
-  of the RAO might significantly decrease on a machine with limited memory resources.*
-
-#### auto-leaves-in-parallel
-- **Expected value**: integer
-- **Default value**: 1
-- **Usage**: this parameter sets the number of combination of remedial actions that the search-tree will investigate in
-  parallel during the <ins>automaton</ins> RAO.  
-  It is separated from [preventive-leaves-in-parallel](#preventive-leaves-in-parallel) and [curative-leaves-in-parallel](#curative-leaves-in-parallel)
-  because during the curative RAO we also have the option to parallelize the contingency scenarios, so a compromise should be found. It is generally
-  best to set this parameter to 1 and to maximize [contingency-scenarios-in-parallel](#contingency-scenarios-in-parallel). Besides, there are generally fewer available auto remedial action than curative remedial actions.
-
-#### curative-leaves-in-parallel
-- **Expected value**: integer
-- **Default value**: 1
-- **Usage**: this parameter sets the number of combination of remedial actions that the search-tree will investigate in 
-  parallel during the <ins>curative</ins> RAO.  
-  It is separated from [preventive-leaves-in-parallel](#preventive-leaves-in-parallel) because during the curative RAO
-  we also have the option to parallelize the contingency scenarios, so a compromise should be found. It is generally
-  best to set this parameter to 1 and to maximize [contingency-scenarios-in-parallel](#contingency-scenarios-in-parallel).
-
-## Extensions
-The following extensions can be added to RaoParameters when needed, in order to activate specific RAO features.
 
 ### Loop-flow extension
 Adding a LoopFlowParameters extension to RaoParameters will activate [loop-flow constraints](/castor/special-features/loop-flows.md).  
@@ -540,101 +551,107 @@ Zones are seperated by + or -.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "2.4",
+  "version" : "2.5",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "unit" : "A",
-    "curative-min-obj-improvement" : 0.0,
     "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
-    "max-mip-iterations" : 5,
-    "pst-penalty-cost" : 0.01,
-    "pst-sensitivity-threshold" : 0.0,
-    "pst-model" : "APPROXIMATED_INTEGERS",
-    "hvdc-penalty-cost" : 0.001,
-    "hvdc-sensitivity-threshold" : 0.0,
-    "injection-ra-penalty-cost" : 0.001,
-    "injection-ra-sensitivity-threshold" : 0.0,
-    "linear-optimization-solver" : {
-      "solver" : "CBC",
-      "relative-mip-gap" : 0.001,
-      "solver-specific-parameters" : "THREADS 10 MAXTIME 3000"
-    }
+    "pst-ra-min-impact-threshold" : 0.01,
+    "hvdc-ra-min-impact-threshold" : 0.001,
+    "injection-ra-min-impact-threshold" : 0.001
   },
   "topological-actions-optimization" : {
-    "max-preventive-search-tree-depth" : 2,
-    "max-auto-search-tree-depth" : 1,
-    "max-curative-search-tree-depth" : 2,
-    "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 1.0,
-    "skip-actions-far-from-most-limiting-element" : false,
-    "max-number-of-boundaries-for-skipping-actions" : 2
-  },
-  "multi-threading" : {
-    "contingency-scenarios-in-parallel" : 4,
-    "preventive-leaves-in-parallel" : 4,
-    "curative-leaves-in-parallel" : 1
-  },
-  "second-preventive-rao" : {
-    "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
-    "re-optimize-curative-range-actions" : false,
-    "hint-from-first-preventive-rao" : true
+    "absolute-minimum-impact-threshold" : 1.0
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
-  "load-flow-and-sensitivity-computation" : {
-    "load-flow-provider" : "OpenLoadFlow",
-    "sensitivity-provider" : "OpenLoadFlow",
-    "sensitivity-failure-over-cost" : 0.0,
-    "sensitivity-parameters" : {
-      "version" : "1.0",
-      "load-flow-parameters" : {
-        "version" : "1.9",
-        "voltageInitMode" : "DC_VALUES",
-        "transformerVoltageControlOn" : false,
-        "phaseShifterRegulationOn" : true,
-        "noGeneratorReactiveLimits" : false,
-        "twtSplitShuntAdmittance" : false,
-        "shuntCompensatorVoltageControlOn" : false,
-        "readSlackBus" : true,
-        "writeSlackBus" : false,
-        "dc" : false,
-        "distributedSlack" : true,
-        "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
-        "dcUseTransformerRatio" : true,
-        "countriesToBalance" : [ "TR", "BE", "SI", "CH", "AL", "ES", "SK", "BA", "RO", "PT", "DE", "AT", "FR", "CZ", "ME", "NL", "PL", "GR", "IT", "UA", "HU", "BG", "MK", "HR", "RS" ],
-        "connectedComponentMode" : "MAIN",
-        "hvdcAcEmulation" : true,
-        "dcPowerFactor" : 1.0,
-        "extensions" : {
-          "open-load-flow-parameters" : {
-            "plausibleActivePowerLimit" : 10000.0,
-            "minPlausibleTargetVoltage" : 0.5,
-            "maxPlausibleTargetVoltage" : 1.5, 
-            "maxNewtonRaphsonIterations" : 100,
-            "newtonRaphsonConvEpsPerEq" : 1.0E-3,
-            "slackBusSelectionMode" : "MOST_MESHED",
-            "slackBusesIds" : [ ],
-            "throwsExceptionInCaseOfSlackDistributionFailure" : false,
-            "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
-            "loadPowerFactorConstant" : false,
-            "addRatioToLinesWithDifferentNominalVoltageAtBothEnds" : true,
-            "slackBusPMaxMismatch" : 1.0,
-            "voltagePerReactivePowerControl" : false,
-            "voltageInitModeOverride" : "NONE",
-            "transformerVoltageControlMode" : "WITH_GENERATOR_VOLTAGE_CONTROL",
-            "minRealisticVoltage" : 0.5,
-            "maxRealisticVoltage" : 1.5,
-            "reactiveRangeCheckMode" : "MAX"
+  "extensions" : {
+    "open-rao-search-tree-parameters": {
+      "objective-function" : {
+        "curative-min-obj-improvement" : 0.0
+      },
+      "range-actions-optimization" : {
+        "max-mip-iterations" : 5,
+        "pst-sensitivity-threshold" : 0.0,
+        "pst-model" : "APPROXIMATED_INTEGERS",
+        "hvdc-sensitivity-threshold" : 0.0,
+        "injection-ra-sensitivity-threshold" : 0.0,
+        "linear-optimization-solver" : {
+          "solver" : "CBC",
+          "relative-mip-gap" : 0.001,
+          "solver-specific-parameters" : "THREADS 10 MAXTIME 3000"
+        }
+      },
+      "topological-actions-optimization" : {
+        "max-preventive-search-tree-depth" : 2,
+        "max-auto-search-tree-depth" : 1,
+        "max-curative-search-tree-depth" : 2,
+        "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
+        "skip-actions-far-from-most-limiting-element" : false,
+        "max-number-of-boundaries-for-skipping-actions" : 2
+      },
+      "multi-threading" : {
+        "available-cpus" : 4
+      },
+      "second-preventive-rao" : {
+        "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
+        "re-optimize-curative-range-actions" : false,
+        "hint-from-first-preventive-rao" : true
+      },
+      "load-flow-and-sensitivity-computation" : {
+        "load-flow-provider" : "OpenLoadFlow",
+        "sensitivity-provider" : "OpenLoadFlow",
+        "sensitivity-failure-over-cost" : 0.0,
+        "sensitivity-parameters" : {
+          "version" : "1.0",
+          "load-flow-parameters" : {
+            "version" : "1.9",
+            "voltageInitMode" : "DC_VALUES",
+            "transformerVoltageControlOn" : false,
+            "phaseShifterRegulationOn" : true,
+            "noGeneratorReactiveLimits" : false,
+            "twtSplitShuntAdmittance" : false,
+            "shuntCompensatorVoltageControlOn" : false,
+            "readSlackBus" : true,
+            "writeSlackBus" : false,
+            "dc" : false,
+            "distributedSlack" : true,
+            "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
+            "dcUseTransformerRatio" : true,
+            "countriesToBalance" : [ "TR", "BE", "SI", "CH", "AL", "ES", "SK", "BA", "RO", "PT", "DE", "AT", "FR", "CZ", "ME", "NL", "PL", "GR", "IT", "UA", "HU", "BG", "MK", "HR", "RS" ],
+            "connectedComponentMode" : "MAIN",
+            "hvdcAcEmulation" : true,
+            "dcPowerFactor" : 1.0,
+            "extensions" : {
+              "open-load-flow-parameters" : {
+                "plausibleActivePowerLimit" : 10000.0,
+                "minPlausibleTargetVoltage" : 0.5,
+                "maxPlausibleTargetVoltage" : 1.5,
+                "maxNewtonRaphsonIterations" : 100,
+                "newtonRaphsonConvEpsPerEq" : 1.0E-3,
+                "slackBusSelectionMode" : "MOST_MESHED",
+                "slackBusesIds" : [ ],
+                "throwsExceptionInCaseOfSlackDistributionFailure" : false,
+                "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
+                "loadPowerFactorConstant" : false,
+                "addRatioToLinesWithDifferentNominalVoltageAtBothEnds" : true,
+                "slackBusPMaxMismatch" : 1.0,
+                "voltagePerReactivePowerControl" : false,
+                "voltageInitModeOverride" : "NONE",
+                "transformerVoltageControlMode" : "WITH_GENERATOR_VOLTAGE_CONTROL",
+                "minRealisticVoltage" : 0.5,
+                "maxRealisticVoltage" : 1.5,
+                "reactiveRangeCheckMode" : "MAX"
+              }
+            }
           }
         }
       }
-    }
-  },
-  "extensions" : {
+    },
     "loop-flow-parameters" : {
       "acceptable-increase" : 10.0,
       "ptdf-approximation" : "FIXED_PTDF",
@@ -664,15 +681,21 @@ rao-objective-function:
   unit: AMPERE
 
 rao-range-actions-optimization:
+  pst-ra-min-impact-threshold: 0.01
+  
+search-tree-range-actions-optimization:
   max-mip-iterations: 5
-  pst-penalty-cost: 0.01
   pst-sensitivity-threshold: 0.01
   pst-model: APPROXIMATED_INTEGERS
 
-rao-linear-optimization-solver:
+search-tree-linear-optimization-solver:
   solver: CBC
 
 rao-topological-actions-optimization:
+  relative-minimum-impact-threshold: 0.0
+  absolute-minimum-impact-threshold: 2.0
+
+search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
   max-auto-search-tree-depth: 2
   max-curative-search-tree-depth: 3
@@ -680,12 +703,10 @@ rao-topological-actions-optimization:
   relative-minimum-impact-threshold: 0.0
   absolute-minimum-impact-threshold: 2.0
 
-rao-multi-threading:
-  contingency-scenarios-in-parallel: 4
-  preventive-leaves-in-parallel: 4
-  curative-leaves-in-parallel: 1
+search-tree-multi-threading:
+  available-cpus: 4
 
-rao-second-preventive-rao:
+search-tree-second-preventive-rao:
   execution-condition: POSSIBLE_CURATIVE_IMPROVEMENT
   re-optimize-curative-range-actions: true
   hint-from-first-preventive-rao: true
@@ -693,7 +714,7 @@ rao-second-preventive-rao:
 rao-not-optimized-cnecs:
   do-not-optimize-curative-cnecs-for-tsos-without-cras: false
 
-rao-load-flow-and-sensitivity-computation:
+search-tree-load-flow-and-sensitivity-computation:
   load-flow-provider: OpenLoadFlow
   sensitivity-provider: OpenLoadFlow
 

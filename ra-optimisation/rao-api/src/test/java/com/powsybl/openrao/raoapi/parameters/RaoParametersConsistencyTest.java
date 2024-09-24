@@ -8,9 +8,12 @@ package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.iidm.network.Country;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,6 +23,13 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class RaoParametersConsistencyTest {
     private final RaoParameters parameters = new RaoParameters();
+    private OpenRaoSearchTreeParameters stParameters;
+
+    @BeforeEach
+    public void generalSetUp() {
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        stParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+    }
 
     @Test
     void testSetBoundariesFromCountryCodes() {
@@ -74,42 +84,37 @@ class RaoParametersConsistencyTest {
 
     @Test
     void testMaxNumberOfBoundariesForSkippingNetworkActionsBounds() {
-        TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
-        topoOptimizationParameters.setMaxNumberOfBoundariesForSkippingActions(300);
-        assertEquals(300, topoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions());
-        topoOptimizationParameters.setMaxNumberOfBoundariesForSkippingActions(-2);
-        assertEquals(0, topoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions());
+        stParameters.getTopoOptimizationParameters().setMaxNumberOfBoundariesForSkippingActions(300);
+        assertEquals(300, stParameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
+        stParameters.getTopoOptimizationParameters().setMaxNumberOfBoundariesForSkippingActions(-2);
+        assertEquals(0, stParameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
     }
 
     @Test
     void testNegativeCurativeRaoMinObjImprovement() {
-        ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        objectiveFunctionParameters.setCurativeMinObjImprovement(100);
-        assertEquals(100, objectiveFunctionParameters.getCurativeMinObjImprovement(), 1e-6);
-        objectiveFunctionParameters.setCurativeMinObjImprovement(-100);
-        assertEquals(100, objectiveFunctionParameters.getCurativeMinObjImprovement(), 1e-6);
+        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(100);
+        assertEquals(100, stParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
+        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(-100);
+        assertEquals(100, stParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
     }
 
     @Test
     void testNegativeSensitivityFailureOverCost() {
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
-        loadFlowAndSensitivityParameters.setSensitivityFailureOvercost(60000);
-        assertEquals(60000, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), 1e-6);
-        loadFlowAndSensitivityParameters.setSensitivityFailureOvercost(-20000);
-        assertEquals(20000, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), 1e-6);
+        stParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(60000);
+        assertEquals(60000, stParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost(), 1e-6);
+        stParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(-20000);
+        assertEquals(20000, stParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost(), 1e-6);
     }
 
     @Test
     void testFailsOnLowSensitivityThreshold() {
-        RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
-
-        Exception e = assertThrows(OpenRaoException.class, () -> rangeActionsOptimizationParameters.setPstSensitivityThreshold(0.));
+        Exception e = assertThrows(OpenRaoException.class, () -> stParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.));
         assertEquals("pstSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> rangeActionsOptimizationParameters.setHvdcSensitivityThreshold(1e-7));
+        e = assertThrows(OpenRaoException.class, () -> stParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(1e-7));
         assertEquals("hvdcSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> rangeActionsOptimizationParameters.setInjectionRaSensitivityThreshold(0.));
+        e = assertThrows(OpenRaoException.class, () -> stParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.));
         assertEquals("injectionRaSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
     }
 }

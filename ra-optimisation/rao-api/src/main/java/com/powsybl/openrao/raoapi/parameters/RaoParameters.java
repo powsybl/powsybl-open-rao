@@ -25,10 +25,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
     private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
     private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
-    private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
-    private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
     private NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
-    private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
 
     // Getters and setters
     public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -43,20 +40,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.topoOptimizationParameters = topoOptimizationParameters;
     }
 
-    public void setMultithreadingParameters(MultithreadingParameters multithreadingParameters) {
-        this.multithreadingParameters = multithreadingParameters;
-    }
-
-    public void setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters secondPreventiveRaoParameters) {
-        this.secondPreventiveRaoParameters = secondPreventiveRaoParameters;
-    }
-
     public void setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters notOptimizedCnecsParameters) {
         this.notOptimizedCnecsParameters = notOptimizedCnecsParameters;
-    }
-
-    public void setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters) {
-        this.loadFlowAndSensitivityParameters = loadFlowAndSensitivityParameters;
     }
 
     public ObjectiveFunctionParameters getObjectiveFunctionParameters() {
@@ -71,20 +56,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return topoOptimizationParameters;
     }
 
-    public MultithreadingParameters getMultithreadingParameters() {
-        return multithreadingParameters;
-    }
-
-    public SecondPreventiveRaoParameters getSecondPreventiveRaoParameters() {
-        return secondPreventiveRaoParameters;
-    }
-
     public NotOptimizedCnecsParameters getNotOptimizedCnecsParameters() {
         return notOptimizedCnecsParameters;
-    }
-
-    public LoadFlowAndSensitivityParameters getLoadFlowAndSensitivityParameters() {
-        return loadFlowAndSensitivityParameters;
     }
 
     public boolean hasExtension(Class classType) {
@@ -127,10 +100,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         parameters.setObjectiveFunctionParameters(ObjectiveFunctionParameters.load(platformConfig));
         parameters.setRangeActionsOptimizationParameters(RangeActionsOptimizationParameters.load(platformConfig));
         parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig));
-        parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
-        parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
         parameters.setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters.load(platformConfig));
-        parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));
     }
 
     private void loadExtensions(PlatformConfig platformConfig) {

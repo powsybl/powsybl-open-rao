@@ -4,48 +4,16 @@ rao-objective-function:
   curative-min-obj-improvement: 3.0
 
 rao-range-actions-optimization:
-  max-mip-iterations: 2
-  pst-penalty-cost: 0.02
-  pst-sensitivity-threshold: 0.2
-  pst-model: APPROXIMATED_INTEGERS
-  hvdc-penalty-cost: 0.002
-  hvdc-sensitivity-threshold: 0.2
-  injection-ra-penalty-cost: 0.003
-  injection-ra-sensitivity-threshold: 0.3
-
-rao-linear-optimization-solver:
-  solver: XPRESS
-  relative-mip-gap: 0.004
-  solver-specific-parameters: BLABLABLA
+  pst-ra-min-impact-threshold: 0.02
+  hvdc-ra-min-impact-threshold: 0.002
+  injection-ra-min-impact-threshold: 0.003
 
 rao-topological-actions-optimization:
-  max-preventive-search-tree-depth: 3
-  max-auto-search-tree-depth: 2
-  max-curative-search-tree-depth: 3
-  predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
   relative-minimum-impact-threshold: 0.02
   absolute-minimum-impact-threshold: 2.0
-  skip-actions-far-from-most-limiting-element: true
-  max-number-of-boundaries-for-skipping-actions: 3
-
-rao-second-preventive-rao:
-  execution-condition: POSSIBLE_CURATIVE_IMPROVEMENT
-  re-optimize-curative-range-actions: true
-  hint-from-first-preventive-rao: true
 
 rao-not-optimized-cnecs:
   do-not-optimize-curative-cnecs-for-tsos-without-cras: false
-
-rao-load-flow-and-sensitivity-computation:
-  load-flow-provider: LOADFLOW_PROVIDER
-  sensitivity-provider: SENSI_PROVIDER
-  sensitivity-failure-overcost: 2
-
-rao-multi-threading:
-  contingency-scenarios-in-parallel: 4
-  preventive-leaves-in-parallel: 5
-  auto-leaves-in-parallel: 3
-  curative-leaves-in-parallel: 6
 
 rao-loop-flow-parameters:
   acceptable-increase: 11.0
@@ -63,3 +31,39 @@ rao-relative-margins-parameters:
   ptdf-boundaries: [ "{FR}-{BE}", "{FR}-{DE}" ]
   ptdf-approximation: UPDATE_PTDF_WITH_TOPO_AND_PST
   ptdf-sum-lower-bound: 0.02
+
+search-tree-objective-function:
+  curative-min-obj-improvement: 3.0
+
+search-tree-range-actions-optimization:
+  max-mip-iterations: 2
+  pst-sensitivity-threshold: 0.2
+  pst-model: APPROXIMATED_INTEGERS
+  hvdc-sensitivity-threshold: 0.2
+  injection-ra-sensitivity-threshold: 0.3
+
+search-tree-linear-optimization-solver:
+  solver: XPRESS
+  relative-mip-gap: 0.004
+  solver-specific-parameters: BLABLABLA
+
+search-tree-topological-actions-optimization:
+  max-preventive-search-tree-depth: 3
+  max-auto-search-tree-depth: 2
+  max-curative-search-tree-depth: 3
+  predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
+  skip-actions-far-from-most-limiting-element: true
+  max-number-of-boundaries-for-skipping-actions: 3
+
+search-tree-second-preventive-rao:
+  execution-condition: POSSIBLE_CURATIVE_IMPROVEMENT
+  re-optimize-curative-range-actions: true
+  hint-from-first-preventive-rao: true
+
+search-tree-load-flow-and-sensitivity-computation:
+  load-flow-provider: LOADFLOW_PROVIDER
+  sensitivity-provider: SENSI_PROVIDER
+  sensitivity-failure-overcost: 2
+
+search-tree-multi-threading:
+  available-cpus: 5

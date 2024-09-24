@@ -3,79 +3,19 @@
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "unit" : "A",
-    "curative-min-obj-improvement" : 983.0,
     "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
-    "max-mip-iterations" : 30,
-    "pst-penalty-cost" : 10.0,
-    "pst-sensitivity-threshold" : 0.2,
-    "pst-model" : "APPROXIMATED_INTEGERS",
-    "hvdc-penalty-cost" : 1.0,
-    "hvdc-sensitivity-threshold" : 0.3,
-    "injection-ra-penalty-cost" : 1.2,
-    "injection-ra-sensitivity-threshold" : 0.7,
-    "ra-range-shrinking" : "ENABLED",
-    "linear-optimization-solver" : {
-      "solver" : "SCIP",
-      "relative-mip-gap" : 1.0E-5,
-      "solver-specific-parameters" : "TREEMEMORYLIMIT 20"
-    }
+    "pst-ra-min-impact-threshold" : 10.0,
+    "hvdc-ra-min-impact-threshold" : 1.0,
+    "injection-ra-min-impact-threshold" : 1.2
   },
   "topological-actions-optimization" : {
-    "max-preventive-search-tree-depth" : 10,
-    "max-auto-search-tree-depth" : 3,
-    "max-curative-search-tree-depth" : 10,
-    "predefined-combinations" : [ [ "na-id-1", "na-id-2" ], [ "na-id-1", "na-id-3", "na-id-4" ] ],
     "relative-minimum-impact-threshold" : 0.1,
-    "absolute-minimum-impact-threshold" : 20.0,
-    "skip-actions-far-from-most-limiting-element" : false,
-    "max-number-of-boundaries-for-skipping-actions" : 2
-  },
-  "second-preventive-rao" : {
-    "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
-    "re-optimize-curative-range-actions" : true,
-    "hint-from-first-preventive-rao" : true
+    "absolute-minimum-impact-threshold" : 20.0
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
-  },
-  "load-flow-and-sensitivity-computation" : {
-    "load-flow-provider" : "OpenLoadFlowProvider",
-    "sensitivity-provider" : "OpenSensitivityAnalysis",
-    "sensitivity-failure-overcost" : 10000.0,
-    "sensitivity-parameters" : {
-      "version" : "1.1",
-      "load-flow-parameters" : {
-        "version" : "1.9",
-        "voltageInitMode" : "UNIFORM_VALUES",
-        "transformerVoltageControlOn" : false,
-        "phaseShifterRegulationOn" : false,
-        "useReactiveLimits" : true,
-        "twtSplitShuntAdmittance" : false,
-        "shuntCompensatorVoltageControlOn" : false,
-        "readSlackBus" : true,
-        "writeSlackBus" : false,
-        "dc" : false,
-        "distributedSlack" : true,
-        "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
-        "dcUseTransformerRatio" : true,
-        "countriesToBalance" : [ ],
-        "connectedComponentMode" : "MAIN",
-        "hvdcAcEmulation" : true,
-        "dcPowerFactor" : 1.0
-      },
-      "flow-flow-sensitivity-value-threshold" : 0.0,
-      "voltage-voltage-sensitivity-value-threshold" : 0.0,
-      "flow-voltage-sensitivity-value-threshold" : 0.0,
-      "angle-flow-sensitivity-value-threshold" : 0.0
-    }
-  },
-  "multi-threading" : {
-    "contingency-scenarios-in-parallel" : 15,
-    "preventive-leaves-in-parallel" : 21,
-    "auto-leaves-in-parallel" : 30,
-    "curative-leaves-in-parallel" : 22
   },
   "extensions" : {
     "mnec-parameters" : {
@@ -94,6 +34,71 @@
       "constraint-adjustment-coefficient" : 0.5,
       "violation-cost" : 0.0,
       "countries" : [ "BE", "FR" ]
+    },
+    "open-rao-search-tree-parameters" : {
+      "objective-function" : {
+        "curative-min-obj-improvement" : 983.0
+      },
+      "range-actions-optimization" : {
+        "max-mip-iterations" : 30,
+        "pst-sensitivity-threshold" : 0.2,
+        "pst-model" : "APPROXIMATED_INTEGERS",
+        "hvdc-sensitivity-threshold" : 0.3,
+        "injection-ra-sensitivity-threshold" : 0.7,
+        "ra-range-shrinking" : "ENABLED",
+        "linear-optimization-solver" : {
+          "solver" : "SCIP",
+          "relative-mip-gap" : 1.0E-5,
+          "solver-specific-parameters" : "TREEMEMORYLIMIT 20"
+        }
+      },
+      "topological-actions-optimization" : {
+        "max-preventive-search-tree-depth" : 10,
+        "max-auto-search-tree-depth" : 3,
+        "max-curative-search-tree-depth" : 10,
+        "predefined-combinations" : [ [ "na-id-1", "na-id-2" ], [ "na-id-1", "na-id-3", "na-id-4" ] ],
+        "skip-actions-far-from-most-limiting-element" : false,
+        "max-number-of-boundaries-for-skipping-actions" : 2
+      },
+      "second-preventive-rao" : {
+        "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
+        "re-optimize-curative-range-actions" : true,
+        "hint-from-first-preventive-rao" : true
+      },
+      "load-flow-and-sensitivity-computation" : {
+        "load-flow-provider" : "OpenLoadFlowProvider",
+        "sensitivity-provider" : "OpenSensitivityAnalysis",
+        "sensitivity-failure-overcost" : 10000.0,
+        "sensitivity-parameters" : {
+          "version" : "1.1",
+          "load-flow-parameters" : {
+            "version" : "1.9",
+            "voltageInitMode" : "UNIFORM_VALUES",
+            "transformerVoltageControlOn" : false,
+            "phaseShifterRegulationOn" : false,
+            "useReactiveLimits" : true,
+            "twtSplitShuntAdmittance" : false,
+            "shuntCompensatorVoltageControlOn" : false,
+            "readSlackBus" : true,
+            "writeSlackBus" : false,
+            "dc" : false,
+            "distributedSlack" : true,
+            "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
+            "dcUseTransformerRatio" : true,
+            "countriesToBalance" : [ ],
+            "connectedComponentMode" : "MAIN",
+            "hvdcAcEmulation" : true,
+            "dcPowerFactor" : 1.0
+          },
+          "flow-flow-sensitivity-value-threshold" : 0.0,
+          "voltage-voltage-sensitivity-value-threshold" : 0.0,
+          "flow-voltage-sensitivity-value-threshold" : 0.0,
+          "angle-flow-sensitivity-value-threshold" : 0.0
+        }
+      },
+      "multi-threading" : {
+        "available-cpus" : 21
+      }
     }
   }
 }

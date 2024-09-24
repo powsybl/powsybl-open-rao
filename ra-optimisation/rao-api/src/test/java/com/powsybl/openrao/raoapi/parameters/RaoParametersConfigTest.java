@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import java.nio.file.FileSystem;
 import java.util.*;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.ObjectiveFunctionParameters.getCurativeMinObjImprovement;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 
@@ -44,99 +45,95 @@ class RaoParametersConfigTest {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");
         objectiveFunctionModuleConfig.setStringProperty("unit", "AMPERE");
-        objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         objectiveFunctionModuleConfig.setStringProperty("enforce-curative-security", "false");
-
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
+        MapModuleConfig objectiveFunctionModuleConfigExt = platformCfg.createModuleConfig("search-tree-objective-function");
+        objectiveFunctionModuleConfigExt.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
+        RaoParameters parameters = RaoParameters.load(platformCfg);
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, objectiveFunctionParameters.getType());
         assertEquals(Unit.AMPERE, objectiveFunctionParameters.getUnit());
-        assertEquals(123, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
+        assertEquals(123, getCurativeMinObjImprovement(parameters), DOUBLE_TOLERANCE);
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
     }
 
     @Test
     void checkRangeActionsOptimizationConfig() {
         MapModuleConfig rangeActionsOptimizationModuleConfig = platformCfg.createModuleConfig("rao-range-actions-optimization");
-        rangeActionsOptimizationModuleConfig.setStringProperty("max-mip-iterations", Objects.toString(4));
-        rangeActionsOptimizationModuleConfig.setStringProperty("pst-penalty-cost", Objects.toString(44));
-        rangeActionsOptimizationModuleConfig.setStringProperty("pst-sensitivity-threshold", Objects.toString(7));
-        rangeActionsOptimizationModuleConfig.setStringProperty("pst-model", "APPROXIMATED_INTEGERS");
-        rangeActionsOptimizationModuleConfig.setStringProperty("hvdc-penalty-cost", Objects.toString(33));
-        rangeActionsOptimizationModuleConfig.setStringProperty("hvdc-sensitivity-threshold", Objects.toString(8));
-        rangeActionsOptimizationModuleConfig.setStringProperty("injection-ra-penalty-cost", Objects.toString(22));
-        rangeActionsOptimizationModuleConfig.setStringProperty("injection-ra-sensitivity-threshold", Objects.toString(9));
-        MapModuleConfig linearOptimizationSolverModuleConfig = platformCfg.createModuleConfig("rao-linear-optimization-solver");
+        rangeActionsOptimizationModuleConfig.setStringProperty("pst-ra-min-impact-threshold", Objects.toString(44));
+        rangeActionsOptimizationModuleConfig.setStringProperty("hvdc-ra-min-impact-threshold", Objects.toString(33));
+        rangeActionsOptimizationModuleConfig.setStringProperty("injection-ra-min-impact-threshold", Objects.toString(22));
+        MapModuleConfig rangeActionsOptimizationModuleConfigExt = platformCfg.createModuleConfig("search-tree-range-actions-optimization");
+        rangeActionsOptimizationModuleConfigExt.setStringProperty("max-mip-iterations", Objects.toString(4));
+        rangeActionsOptimizationModuleConfigExt.setStringProperty("pst-sensitivity-threshold", Objects.toString(7));
+        rangeActionsOptimizationModuleConfigExt.setStringProperty("pst-model", "APPROXIMATED_INTEGERS");
+        rangeActionsOptimizationModuleConfigExt.setStringProperty("hvdc-sensitivity-threshold", Objects.toString(8));
+        rangeActionsOptimizationModuleConfigExt.setStringProperty("injection-ra-sensitivity-threshold", Objects.toString(9));
+        MapModuleConfig linearOptimizationSolverModuleConfig = platformCfg.createModuleConfig("search-tree-linear-optimization-solver");
         linearOptimizationSolverModuleConfig.setStringProperty("solver", "XPRESS");
         linearOptimizationSolverModuleConfig.setStringProperty("relative-mip-gap", Objects.toString(22));
         linearOptimizationSolverModuleConfig.setStringProperty("solver-specific-parameters", "blabla");
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg);
         RangeActionsOptimizationParameters params = parameters.getRangeActionsOptimizationParameters();
-        assertEquals(4, params.getMaxMipIterations(), DOUBLE_TOLERANCE);
-        assertEquals(44, params.getPstPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(7, params.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, params.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, params.getRaRangeShrinking());
-        assertEquals(33, params.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(8, params.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(22, params.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(9, params.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.Solver.XPRESS, params.getLinearOptimizationSolver().getSolver());
-        assertEquals(22, params.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
-        assertEquals("blabla", params.getLinearOptimizationSolver().getSolverSpecificParameters());
+        com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        assertEquals(4, paramsExt.getMaxMipIterations(), DOUBLE_TOLERANCE);
+        assertEquals(44, params.getPstRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(7, paramsExt.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, paramsExt.getPstModel());
+        assertEquals(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, paramsExt.getRaRangeShrinking());
+        assertEquals(33, params.getHvdcRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(8, paramsExt.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(22, params.getInjectionRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(9, paramsExt.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.Solver.XPRESS, paramsExt.getLinearOptimizationSolver().getSolver());
+        assertEquals(22, paramsExt.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
+        assertEquals("blabla", paramsExt.getLinearOptimizationSolver().getSolverSpecificParameters());
     }
 
     @Test
     void checkTopoActionsOptimizationConfig() {
         MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
-        topoActionsModuleConfig.setStringProperty("max-preventive-search-tree-depth", Objects.toString(3));
-        topoActionsModuleConfig.setStringProperty("max-auto-search-tree-depth", Objects.toString(2));
-        topoActionsModuleConfig.setStringProperty("max-curative-search-tree-depth", Objects.toString(3));
-        topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} + {na22}", "{na41} + {na5} + {na6}"));
         topoActionsModuleConfig.setStringProperty("relative-minimum-impact-threshold", Objects.toString(0.9));
         topoActionsModuleConfig.setStringProperty("absolute-minimum-impact-threshold", Objects.toString(22));
-        topoActionsModuleConfig.setStringProperty("skip-actions-far-from-most-limiting-element", Objects.toString(true));
-        topoActionsModuleConfig.setStringProperty("max-number-of-boundaries-for-skipping-actions", Objects.toString(3333));
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
+        MapModuleConfig topoActionsModuleConfigExt = platformCfg.createModuleConfig("search-tree-topological-actions-optimization");
+        topoActionsModuleConfigExt.setStringProperty("max-preventive-search-tree-depth", Objects.toString(3));
+        topoActionsModuleConfigExt.setStringProperty("max-auto-search-tree-depth", Objects.toString(2));
+        topoActionsModuleConfigExt.setStringProperty("max-curative-search-tree-depth", Objects.toString(3));
+        topoActionsModuleConfigExt.setStringListProperty("predefined-combinations", List.of("{na12} + {na22}", "{na41} + {na5} + {na6}"));
+        topoActionsModuleConfigExt.setStringProperty("skip-actions-far-from-most-limiting-element", Objects.toString(true));
+        topoActionsModuleConfigExt.setStringProperty("max-number-of-boundaries-for-skipping-actions", Objects.toString(3333));
+        RaoParameters parameters = RaoParameters.load(platformCfg);
         TopoOptimizationParameters params = parameters.getTopoOptimizationParameters();
-        assertEquals(3, params.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(2, params.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(3, params.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(List.of("na12", "na22"), List.of("na41", "na5", "na6")), params.getPredefinedCombinations());
+        com.powsybl.openrao.raoapi.parameters.extensions.TopoOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
+        assertEquals(3, paramsExt.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, paramsExt.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, paramsExt.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(List.of("na12", "na22"), List.of("na41", "na5", "na6")), paramsExt.getPredefinedCombinations());
         assertEquals(0.9, params.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(22, params.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
-        assertTrue(params.getSkipActionsFarFromMostLimitingElement());
-        assertEquals(3333, params.getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
+        assertTrue(paramsExt.getSkipActionsFarFromMostLimitingElement());
+        assertEquals(3333, paramsExt.getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void checkMultiThreadingConfig() {
-        MapModuleConfig multiThreadingModuleConfig = platformCfg.createModuleConfig("rao-multi-threading");
-        multiThreadingModuleConfig.setStringProperty("contingency-scenarios-in-parallel", Objects.toString(3));
-        multiThreadingModuleConfig.setStringProperty("preventive-leaves-in-parallel", Objects.toString(23));
-        multiThreadingModuleConfig.setStringProperty("auto-leaves-in-parallel", Objects.toString(17));
-        multiThreadingModuleConfig.setStringProperty("curative-leaves-in-parallel", Objects.toString(43));
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
-        MultithreadingParameters params = parameters.getMultithreadingParameters();
-        assertEquals(3, params.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(23, params.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(17, params.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(43, params.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
+        MapModuleConfig multiThreadingModuleConfig = platformCfg.createModuleConfig("search-tree-multi-threading");
+        multiThreadingModuleConfig.setStringProperty("available-cpus", Objects.toString(43));
+        RaoParameters parameters = RaoParameters.load(platformCfg);
+        MultithreadingParameters params = parameters.getExtension(OpenRaoSearchTreeParameters.class).getMultithreadingParameters();
+        assertEquals(43, params.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(43, params.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(1, params.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(1, params.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void checkSecondPreventiveRaoConfig() {
-        MapModuleConfig secondPreventiveRaoModuleConfig = platformCfg.createModuleConfig("rao-second-preventive-rao");
+        MapModuleConfig secondPreventiveRaoModuleConfig = platformCfg.createModuleConfig("search-tree-second-preventive-rao");
         secondPreventiveRaoModuleConfig.setStringProperty("execution-condition", "POSSIBLE_CURATIVE_IMPROVEMENT");
         secondPreventiveRaoModuleConfig.setStringProperty("re-optimize-curative-range-actions", Objects.toString(false));
         secondPreventiveRaoModuleConfig.setStringProperty("hint-from-first-preventive-rao", Objects.toString(true));
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
-        SecondPreventiveRaoParameters params = parameters.getSecondPreventiveRaoParameters();
+        RaoParameters parameters = RaoParameters.load(platformCfg);
+        SecondPreventiveRaoParameters params = parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT, params.getExecutionCondition());
         assertFalse(params.getReOptimizeCurativeRangeActions());
         assertTrue(params.getHintFromFirstPreventiveRao());
@@ -146,24 +143,22 @@ class RaoParametersConfigTest {
     void checkNotOptimizedCnecsConfig() {
         MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringProperty("do-not-optimize-curative-cnecs-for-tsos-without-cras", Objects.toString(false));
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
+        RaoParameters parameters = RaoParameters.load(platformCfg);
         NotOptimizedCnecsParameters params = parameters.getNotOptimizedCnecsParameters();
         assertFalse(params.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
     }
 
     @Test
     void checkLoadFlowParametersConfig() {
-        MapModuleConfig loadFlowModuleConfig = platformCfg.createModuleConfig("rao-load-flow-and-sensitivity-computation");
+        MapModuleConfig loadFlowModuleConfig = platformCfg.createModuleConfig("search-tree-load-flow-and-sensitivity-computation");
         loadFlowModuleConfig.setStringProperty("load-flow-provider", "Bonjour");
         loadFlowModuleConfig.setStringProperty("sensitivity-provider", "Au revoir");
         loadFlowModuleConfig.setStringProperty("sensitivity-failure-overcost", Objects.toString(32));
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
-        LoadFlowAndSensitivityParameters params = parameters.getLoadFlowAndSensitivityParameters();
-        assertEquals("Bonjour", params.getLoadFlowProvider());
-        assertEquals("Au revoir", params.getSensitivityProvider());
-        assertEquals(32, params.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
+        RaoParameters parameters = RaoParameters.load(platformCfg);
+        LoadFlowAndSensitivityParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
+        assertEquals("Bonjour", paramsExt.getLoadFlowProvider());
+        assertEquals("Au revoir", paramsExt.getSensitivityProvider());
+        assertEquals(32, paramsExt.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -217,15 +212,15 @@ class RaoParametersConfigTest {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");
         objectiveFunctionModuleConfig.setStringProperty("unit", "AMPERE");
-        objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
-        MapModuleConfig rangeActionsOptimizationModuleConfig = platformCfg.createModuleConfig("rao-range-actions-optimization");
-        rangeActionsOptimizationModuleConfig.setStringProperty("max-mip-iterations", Objects.toString(32));
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
+        MapModuleConfig objectiveFunctionExtModuleConfig = platformCfg.createModuleConfig("search-tree-objective-function");
+        objectiveFunctionExtModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
+        MapModuleConfig rangeActionsOptimizationExtModuleConfig = platformCfg.createModuleConfig("search-tree-range-actions-optimization");
+        rangeActionsOptimizationExtModuleConfig.setStringProperty("max-mip-iterations", Objects.toString(32));
+        RaoParameters parameters = RaoParameters.load(platformCfg);
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         assertEquals(Unit.AMPERE, parameters.getObjectiveFunctionParameters().getUnit());
-        assertEquals(123, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
-        assertEquals(32, parameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), 1e-6);
+        assertEquals(123, parameters.getExtension(OpenRaoSearchTreeParameters.class).getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
+        assertEquals(32, parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getMaxMipIterations(), 1e-6);
         assertTrue(Objects.isNull(parameters.getExtension(LoopFlowParametersExtension.class)));
         assertTrue(Objects.isNull(parameters.getExtension(MnecParametersExtension.class)));
         assertTrue(Objects.isNull(parameters.getExtension(RelativeMarginsParametersExtension.class)));
@@ -233,18 +228,16 @@ class RaoParametersConfigTest {
 
     @Test
     void inconsistentPredefinedCombinations1() {
-        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
+        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("search-tree-topological-actions-optimization");
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12 + {na22}", "{na41} + {na5} + {na6}"));
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(OpenRaoException.class, () -> RaoParameters.load(parameters, platformCfg));
+        assertThrows(OpenRaoException.class, () -> RaoParameters.load(platformCfg));
     }
 
     @Test
     void inconsistentPredefinedCombinations2() {
-        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
+        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("search-tree-topological-actions-optimization");
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} - {na22}", "{na41} + {na5} + {na6}"));
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(OpenRaoException.class, () -> RaoParameters.load(parameters, platformCfg));
+        assertThrows(OpenRaoException.class, () -> RaoParameters.load(platformCfg));
     }
 
     @Test

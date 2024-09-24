@@ -6,28 +6,34 @@
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
-    "max-mip-iterations" : 5,
-    "pst-penalty-cost" : 0.01,
-    "pst-sensitivity-threshold" : 1.0E-6
+    "pst-ra-min-impact-threshold" : 0.01
   },
   "topological-actions-optimization" : {
-    "absolute-minimum-impact-threshold" : 1.0,
-    "skip-actions-far-from-most-limiting-element" : true
-  },
-  "second-preventive-rao" : {
-    "execution-condition" : "COST_INCREASE",
-    "hint-from-first-preventive-rao" : true
+    "absolute-minimum-impact-threshold" : 1.0
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
   },
   "extensions" : {
-  "mnec-parameters" : {
-    "acceptable-margin-decrease" : 888.0
-  },
-  "relative-margins-parameters" : {
-    "ptdf-boundaries" : [ "{FR}-{ES}"],
-    "ptdf-sum-lower-bound" : 0.06
+    "mnec-parameters" : {
+      "acceptable-margin-decrease" : 888.0
+    },
+    "relative-margins-parameters" : {
+      "ptdf-boundaries" : [ "{FR}-{ES}" ],
+      "ptdf-sum-lower-bound" : 0.06
+    },
+    "open-rao-search-tree-parameters" : {
+      "range-actions-optimization" : {
+        "max-mip-iterations" : 5,
+        "pst-sensitivity-threshold" : 1.0E-6
+      },
+      "topological-actions-optimization" : {
+        "skip-actions-far-from-most-limiting-element" : true
+      },
+      "second-preventive-rao" : {
+        "execution-condition" : "COST_INCREASE",
+        "hint-from-first-preventive-rao" : true
+      }
+    }
   }
-}
 }

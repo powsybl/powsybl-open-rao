@@ -32,6 +32,9 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityProvider;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -91,13 +94,13 @@ public final class ToolProvider {
                                                                             Instant outageInstant) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
-            .withSensitivityProviderName(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider())
-            .withParameters(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters())
+            .withSensitivityProviderName(getSensitivityProvider(raoParameters))
+            .withParameters(getSensitivityWithLoadFlowParameters(raoParameters))
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
             .withAppliedRemedialActions(appliedRemedialActions)
             .withOutageInstant(outageInstant);
 
-        if (!raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
+        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
         }
 

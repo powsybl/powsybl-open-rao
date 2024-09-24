@@ -5,32 +5,36 @@
     "unit" : "MW"
   },
   "range-actions-optimization" : {
-    "max-mip-iterations" : 5,
-    "pst-penalty-cost" : 0.01,
-    "pst-sensitivity-threshold" : 1.0E-6
+    "pst-ra-min-impact-threshold" : 0.01
   },
   "topological-actions-optimization" : {
-    "max-preventive-search-tree-depth" : 5,
-    "max-auto-search-tree-depth" : 2,
-    "max-curative-search-tree-depth" : 5,
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 0.0,
-    "skip-actions-far-from-most-limiting-element" : false,
-    "max-number-of-boundaries-for-skipping-actions" : 2
+    "absolute-minimum-impact-threshold" : 0.0
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
-  },
-  "multi-threading" : {
-    "preventive-leaves-in-parallel" : 8,
-    "auto-leaves-in-parallel" : 4,
-    "curative-leaves-in-parallel" : 3
   },
   "extensions" : {
     "mnec-parameters" : {
       "acceptable-margin-decrease" : 33.0,
       "violation-cost" : 23.0,
       "constraint-adjustment-coefficient" : 4.0
+    },
+    "open-rao-search-tree-parameters" : {
+      "range-actions-optimization" : {
+        "max-mip-iterations" : 5,
+        "pst-sensitivity-threshold" : 1.0E-6
+      },
+      "topological-actions-optimization" : {
+        "max-preventive-search-tree-depth" : 5,
+        "max-auto-search-tree-depth" : 2,
+        "max-curative-search-tree-depth" : 5,
+        "skip-actions-far-from-most-limiting-element" : false,
+        "max-number-of-boundaries-for-skipping-actions" : 2
+      },
+      "multi-threading" : {
+        "available-cpus" : 8
+      }
     }
   }
 }

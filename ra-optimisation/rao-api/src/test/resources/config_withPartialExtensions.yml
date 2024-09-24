@@ -1,43 +1,14 @@
 rao-objective-function:
     type: MAX_MIN_MARGIN
-    curative-min-obj-improvement: 3.0
 
 rao-range-actions-optimization:
-    pst-penalty-cost: 0.02
-    pst-sensitivity-threshold: 0.2
-    pst-model: APPROXIMATED_INTEGERS
-    ra-range-shrinking: ENABLED
-    hvdc-penalty-cost: 0.002
-    hvdc-sensitivity-threshold: 0.2
-    injection-ra-penalty-cost: 0.003
-    injection-ra-sensitivity-threshold: 0.3
-
-rao-linear-optimization-solver:
-    relative-mip-gap: 0.004
-    solver-specific-parameters: BLABLABLA
+    pst-ra-min-impact-threshold: 0.02
+    hvdc-ra-min-impact-threshold: 0.002
+    injection-ra-min-impact-threshold: 0.003
 
 rao-topological-actions-optimization:
-    max-preventive-search-tree-depth: 3
-    max-auto-search-tree-depth: 2
-    max-curative-search-tree-depth: 3
-    predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
     relative-minimum-impact-threshold: 0.02
     absolute-minimum-impact-threshold: 2.0
-    skip-actions-far-from-most-limiting-element: true
-    max-number-of-boundaries-for-skipping-actions: 2
-
-rao-second-preventive-rao:
-    re-optimize-curative-range-actions: true
-    hint-from-first-preventive-rao: true
-
-rao-load-flow-and-sensitivity-computation:
-    sensitivity-provider: SENSI_PROVIDER
-    sensitivity-failure-overcost: 2
-
-rao-multi-threading:
-    preventive-leaves-in-parallel: 5
-    auto-leaves-in-parallel: 2
-    curative-leaves-in-parallel: 6
 
 rao-loop-flow-parameters:
     ptdf-approximation: UPDATE_PTDF_WITH_TOPO
@@ -48,3 +19,36 @@ rao-loop-flow-parameters:
 rao-relative-margins-parameters:
     ptdf-approximation: UPDATE_PTDF_WITH_TOPO_AND_PST
     ptdf-sum-lower-bound: 0.02
+
+search-tree-objective-function:
+    curative-min-obj-improvement: 3.0
+
+search-tree-range-actions-optimization:
+    pst-sensitivity-threshold: 0.2
+    pst-model: APPROXIMATED_INTEGERS
+    ra-range-shrinking: ENABLED
+    hvdc-sensitivity-threshold: 0.2
+    injection-ra-sensitivity-threshold: 0.3
+
+search-tree-linear-optimization-solver:
+    relative-mip-gap: 0.004
+    solver-specific-parameters: BLABLABLA
+
+search-tree-topological-actions-optimization:
+    max-preventive-search-tree-depth: 3
+    max-auto-search-tree-depth: 2
+    max-curative-search-tree-depth: 3
+    predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
+    skip-actions-far-from-most-limiting-element: true
+    max-number-of-boundaries-for-skipping-actions: 2
+
+search-tree-second-preventive-rao:
+    re-optimize-curative-range-actions: true
+    hint-from-first-preventive-rao: true
+
+search-tree-load-flow-and-sensitivity-computation:
+    sensitivity-provider: SENSI_PROVIDER
+    sensitivity-failure-overcost: 2
+
+search-tree-multi-threading:
+    available-cpus: 5

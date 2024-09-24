@@ -1,7 +1,13 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN",
-    "curative-min-obj-improvement" : 10000.0
+    "type" : "MAX_MIN_MARGIN"
+  },
+  "extensions" : {
+    "open-rao-search-tree-parameters" : {
+      "objective-function" : {
+        "curative-min-obj-improvement" : 10000.0
+      }
+    }
   }
 }
