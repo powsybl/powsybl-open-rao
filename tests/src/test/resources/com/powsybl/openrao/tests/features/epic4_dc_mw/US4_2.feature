@@ -9,7 +9,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
   Scenario: US 4.2.1: MW thresholds in DC mode and min margin in MW
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_MW.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the worst margin is 19.0 MW
     And the value of the objective function after CRA should be -19.0
@@ -22,7 +22,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
   Scenario: US 4.2.2: MW thresholds in AC mode and min margin in MW
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_MW.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the worst margin is 19.0 MW
     And the value of the objective function after CRA should be -19.0
@@ -35,7 +35,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
   Scenario: US 4.2.3: A thresholds in DC mode and min margin in MW
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_A.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the worst margin is 15.0 MW
     Then the value of the objective function after CRA should be -15.0
@@ -62,7 +62,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
   Scenario: US 4.2.5: mixed thresholds in DC mode and min margin in MW
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_mixed.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the worst margin is 19.0 MW
     Then the value of the objective function after CRA should be -19.0
@@ -74,7 +74,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
   Scenario: US 4.2.6: mixed thresholds in AC mode and min margin in MW
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_mixed.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the worst margin is 19.0 MW
     Then the value of the objective function after CRA should be -19.0

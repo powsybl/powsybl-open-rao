@@ -9,7 +9,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
   Scenario: US 15.11.3.1: 1 auto HVDC
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us11-3case1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
     And the setpoint of RangeAction "ARA_HVDC" should be 0.0 MW in preventive

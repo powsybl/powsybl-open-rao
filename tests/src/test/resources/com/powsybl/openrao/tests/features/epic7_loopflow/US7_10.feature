@@ -9,7 +9,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
   Scenario: US 7.10.1: Simple search tree RAO without LF limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -143.0 MW
@@ -97,7 +97,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
   Scenario: US 7.10.5: Complex search tree RAO without LF limitation
     Given network file is "common/TestCase12Nodes2PSTs.uct"
     Given crac file is "epic7/crac_lf_rao_4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -251.0 MW

@@ -9,7 +9,7 @@ Feature: US 7.9: Linear RAO with loopflow limitation
   Scenario: US 7.9.1: linear RAO without LF limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
     And the worst margin is 224.0 MW

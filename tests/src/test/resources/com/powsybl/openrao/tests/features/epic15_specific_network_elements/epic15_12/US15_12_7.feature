@@ -9,7 +9,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   Scenario: US 15.12.7.1: UCTE HVDC as InjectionRangeAction with one preventive CNEC
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case1.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "PRA_HVDC" should be 1406 MW in preventive
     And the worst margin is 380 MW
@@ -19,7 +19,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   Scenario: US 15.12.7.2: UCTE HVDC as InjectionRangeAction with two preventive CNECs
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case2.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "PRA_HVDC" should be 1985 MW in preventive
     And the worst margin is 172 MW
@@ -30,7 +30,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   Scenario: US 15.12.7.3: UCTE HVDC as InjectionRangeAction with PST range action and two preventive CNECs
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case3.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "PRA_HVDC" should be 828 MW in preventive
     And the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 15 in preventive
@@ -42,7 +42,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   Scenario: US 15.12.7.4: UCTE HVDC as InjectionRangeAction with outage CNEC
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case4.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "PRA_HVDC" should be 929 MW in preventive
     And the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 14 in preventive
@@ -56,7 +56,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   Scenario: US 15.12.7.5: UCTE HVDC as InjectionRangeAction with one curative perimeter
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case5.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "PRA_HVDC" should be 1230 MW in preventive
     And the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 10 in preventive
@@ -71,7 +71,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   Scenario: US 15.12.7.6: UCTE HVDC as InjectionRangeAction with two curative perimeters and negative initial flow
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case6.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "PRA_HVDC" should be 1661 MW in preventive
     And the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 3 in preventive
@@ -89,7 +89,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   Scenario: US 15.12.7.7: UCTE HVDC as InjectionRangeAction with a negative optimal setpoint
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case7.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "PRA_HVDC" should be -353 MW in preventive
     And the worst margin is 47 MW
@@ -99,7 +99,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
   Scenario: US 15.12.7.8: UCTE HVDC as InjectionRangeAction and PST filtering
     Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
     Given crac file is "epic15/cseCrac_ep15us12-5case8.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     Given crac creation parameters file is "epic15/us_15_2_7.json"
     When I launch search_tree_rao
     Then the setpoint of RangeAction "CRA_HVDC" should be 1406 MW after "co1_be1_fr5" at "curative"
