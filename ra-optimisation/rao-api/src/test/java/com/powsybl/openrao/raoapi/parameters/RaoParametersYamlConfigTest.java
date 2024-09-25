@@ -7,10 +7,10 @@
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.*;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.RaRangeShrinking;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.Solver;
 import com.powsybl.commons.config.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Country;
@@ -48,28 +48,30 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
-        assertEquals(2, rangeActionsOptimizationParameters.getMaxMipIterations(), DOUBLE_TOLERANCE);
-        assertEquals(0.02, rangeActionsOptimizationParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.2, rangeActionsOptimizationParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, rangeActionsOptimizationParameters.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, rangeActionsOptimizationParameters.getRaRangeShrinking());
-        assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.2, rangeActionsOptimizationParameters.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.3, rangeActionsOptimizationParameters.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.Solver.XPRESS, rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolver());
-        assertEquals(0.004, rangeActionsOptimizationParameters.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
-        assertEquals("BLABLABLA", rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolverSpecificParameters());
+        com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionsOptimizationParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        assertEquals(2, rangeActionsOptimizationParametersExt.getMaxMipIterations(), DOUBLE_TOLERANCE);
+        assertEquals(0.02, rangeActionsOptimizationParameters.getPstRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.2, rangeActionsOptimizationParametersExt.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(PstModel.APPROXIMATED_INTEGERS, rangeActionsOptimizationParametersExt.getPstModel());
+        assertEquals(RaRangeShrinking.DISABLED, rangeActionsOptimizationParametersExt.getRaRangeShrinking());
+        assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.2, rangeActionsOptimizationParametersExt.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.3, rangeActionsOptimizationParametersExt.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(Solver.XPRESS, rangeActionsOptimizationParametersExt.getLinearOptimizationSolver().getSolver());
+        assertEquals(0.004, rangeActionsOptimizationParametersExt.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
+        assertEquals("BLABLABLA", rangeActionsOptimizationParametersExt.getLinearOptimizationSolver().getSolverSpecificParameters());
 
         TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
-        assertEquals(3, topoOptimizationParameters.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(2, topoOptimizationParameters.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(3, topoOptimizationParameters.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), topoOptimizationParameters.getPredefinedCombinations());
+        com.powsybl.openrao.raoapi.parameters.extensions.TopoOptimizationParameters topoOptimizationParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
+        assertEquals(3, topoOptimizationParametersExt.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, topoOptimizationParametersExt.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, topoOptimizationParametersExt.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), topoOptimizationParametersExt.getPredefinedCombinations());
         assertEquals(0.02, topoOptimizationParameters.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(2.0, topoOptimizationParameters.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
-        assertTrue(topoOptimizationParameters.getSkipActionsFarFromMostLimitingElement());
-        assertEquals(3, topoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
+        assertTrue(topoOptimizationParametersExt.getSkipActionsFarFromMostLimitingElement());
+        assertEquals(3, topoOptimizationParametersExt.getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
 
         MultithreadingParameters multithreadingParameters = parameters.getMultithreadingParameters();
         assertEquals(4, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
@@ -85,7 +87,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
         assertFalse(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
 
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
         assertEquals("LOADFLOW_PROVIDER", loadFlowAndSensitivityParameters.getLoadFlowProvider());
         assertEquals("SENSI_PROVIDER", loadFlowAndSensitivityParameters.getSensitivityProvider());
         assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
@@ -129,28 +131,30 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
-        assertEquals(2, rangeActionsOptimizationParameters.getMaxMipIterations(), DOUBLE_TOLERANCE);
-        assertEquals(0.02, rangeActionsOptimizationParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.2, rangeActionsOptimizationParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, rangeActionsOptimizationParameters.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, rangeActionsOptimizationParameters.getRaRangeShrinking());
-        assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.2, rangeActionsOptimizationParameters.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.3, rangeActionsOptimizationParameters.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.Solver.XPRESS, rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolver());
-        assertEquals(0.004, rangeActionsOptimizationParameters.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
-        assertEquals("BLABLABLA", rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolverSpecificParameters());
+        com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionsOptimizationParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        assertEquals(2, rangeActionsOptimizationParametersExt.getMaxMipIterations(), DOUBLE_TOLERANCE);
+        assertEquals(0.02, rangeActionsOptimizationParameters.getPstRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.2, rangeActionsOptimizationParametersExt.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(PstModel.APPROXIMATED_INTEGERS, rangeActionsOptimizationParametersExt.getPstModel());
+        assertEquals(RaRangeShrinking.DISABLED, rangeActionsOptimizationParametersExt.getRaRangeShrinking());
+        assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.2, rangeActionsOptimizationParametersExt.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.3, rangeActionsOptimizationParametersExt.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(Solver.XPRESS, rangeActionsOptimizationParametersExt.getLinearOptimizationSolver().getSolver());
+        assertEquals(0.004, rangeActionsOptimizationParametersExt.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
+        assertEquals("BLABLABLA", rangeActionsOptimizationParametersExt.getLinearOptimizationSolver().getSolverSpecificParameters());
 
         TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
-        assertEquals(3, topoOptimizationParameters.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(2, topoOptimizationParameters.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(3, topoOptimizationParameters.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), topoOptimizationParameters.getPredefinedCombinations());
+        com.powsybl.openrao.raoapi.parameters.extensions.TopoOptimizationParameters topoOptimizationParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
+        assertEquals(3, topoOptimizationParametersExt.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, topoOptimizationParametersExt.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, topoOptimizationParametersExt.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), topoOptimizationParametersExt.getPredefinedCombinations());
         assertEquals(0.02, topoOptimizationParameters.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(2.0, topoOptimizationParameters.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
-        assertTrue(topoOptimizationParameters.getSkipActionsFarFromMostLimitingElement());
-        assertEquals(3, topoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
+        assertTrue(topoOptimizationParametersExt.getSkipActionsFarFromMostLimitingElement());
+        assertEquals(3, topoOptimizationParametersExt.getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
 
         MultithreadingParameters multithreadingParameters = parameters.getMultithreadingParameters();
         assertEquals(4, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
@@ -166,10 +170,10 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
         assertFalse(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
 
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
-        assertEquals("LOADFLOW_PROVIDER", loadFlowAndSensitivityParameters.getLoadFlowProvider());
-        assertEquals("SENSI_PROVIDER", loadFlowAndSensitivityParameters.getSensitivityProvider());
-        assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
+        assertEquals("LOADFLOW_PROVIDER", loadFlowAndSensitivityParametersExt.getLoadFlowProvider());
+        assertEquals("SENSI_PROVIDER", loadFlowAndSensitivityParametersExt.getSensitivityProvider());
+        assertEquals(2, loadFlowAndSensitivityParametersExt.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
 
         // EXTENSIONS
         assertEquals(0, parameters.getExtensions().size());
@@ -197,28 +201,30 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
-        assertEquals(10, rangeActionsOptimizationParameters.getMaxMipIterations(), DOUBLE_TOLERANCE);
-        assertEquals(0.02, rangeActionsOptimizationParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.2, rangeActionsOptimizationParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, rangeActionsOptimizationParameters.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED, rangeActionsOptimizationParameters.getRaRangeShrinking());
-        assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.2, rangeActionsOptimizationParameters.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.3, rangeActionsOptimizationParameters.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.Solver.CBC, rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolver());
-        assertEquals(0.004, rangeActionsOptimizationParameters.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
-        assertEquals("BLABLABLA", rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolverSpecificParameters());
+        com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionsOptimizationParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        assertEquals(10, rangeActionsOptimizationParametersExt.getMaxMipIterations(), DOUBLE_TOLERANCE);
+        assertEquals(0.02, rangeActionsOptimizationParameters.getPstRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.2, rangeActionsOptimizationParametersExt.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(PstModel.APPROXIMATED_INTEGERS, rangeActionsOptimizationParametersExt.getPstModel());
+        assertEquals(RaRangeShrinking.ENABLED, rangeActionsOptimizationParametersExt.getRaRangeShrinking());
+        assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.2, rangeActionsOptimizationParametersExt.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.3, rangeActionsOptimizationParametersExt.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(Solver.CBC, rangeActionsOptimizationParametersExt.getLinearOptimizationSolver().getSolver());
+        assertEquals(0.004, rangeActionsOptimizationParametersExt.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
+        assertEquals("BLABLABLA", rangeActionsOptimizationParametersExt.getLinearOptimizationSolver().getSolverSpecificParameters());
 
         TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
-        assertEquals(3, topoOptimizationParameters.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(2, topoOptimizationParameters.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(3, topoOptimizationParameters.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), topoOptimizationParameters.getPredefinedCombinations());
+        com.powsybl.openrao.raoapi.parameters.extensions.TopoOptimizationParameters topoOptimizationParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
+        assertEquals(3, topoOptimizationParametersExt.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, topoOptimizationParametersExt.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(3, topoOptimizationParametersExt.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), topoOptimizationParametersExt.getPredefinedCombinations());
         assertEquals(0.02, topoOptimizationParameters.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(2.0, topoOptimizationParameters.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
-        assertTrue(topoOptimizationParameters.getSkipActionsFarFromMostLimitingElement());
-        assertEquals(2, topoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
+        assertTrue(topoOptimizationParametersExt.getSkipActionsFarFromMostLimitingElement());
+        assertEquals(2, topoOptimizationParametersExt.getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
 
         MultithreadingParameters multithreadingParameters = parameters.getMultithreadingParameters();
         assertEquals(1, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
@@ -234,10 +240,10 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
         assertFalse(notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
 
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
-        assertEquals("OpenLoadFlow", loadFlowAndSensitivityParameters.getLoadFlowProvider());
-        assertEquals("SENSI_PROVIDER", loadFlowAndSensitivityParameters.getSensitivityProvider());
-        assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
+        assertEquals("OpenLoadFlow", loadFlowAndSensitivityParametersExt.getLoadFlowProvider());
+        assertEquals("SENSI_PROVIDER", loadFlowAndSensitivityParametersExt.getSensitivityProvider());
+        assertEquals(2, loadFlowAndSensitivityParametersExt.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
 
         // EXTENSIONS
         assertEquals(2, parameters.getExtensions().size());
@@ -268,11 +274,11 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
     @Test
     void testConfigWithOpenLoadFlowExtension() throws IOException {
         RaoParameters parameters = loadRaoParameters("config_withOpenLoadFlowExtension");
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
-        assertEquals("OpenLoadFlow", loadFlowAndSensitivityParameters.getLoadFlowProvider());
-        assertEquals("OpenLoadFlow", loadFlowAndSensitivityParameters.getSensitivityProvider());
-        assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
-        OpenLoadFlowParameters olfParams = loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class);
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
+        assertEquals("OpenLoadFlow", loadFlowAndSensitivityParametersExt.getLoadFlowProvider());
+        assertEquals("OpenLoadFlow", loadFlowAndSensitivityParametersExt.getSensitivityProvider());
+        assertEquals(2, loadFlowAndSensitivityParametersExt.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
+        OpenLoadFlowParameters olfParams = loadFlowAndSensitivityParametersExt.getSensitivityWithLoadFlowParameters().getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class);
         assertNotNull(olfParams);
         assertEquals(0.444, olfParams.getMinPlausibleTargetVoltage(), DOUBLE_TOLERANCE);
         assertEquals(1.444, olfParams.getMaxPlausibleTargetVoltage(), DOUBLE_TOLERANCE);

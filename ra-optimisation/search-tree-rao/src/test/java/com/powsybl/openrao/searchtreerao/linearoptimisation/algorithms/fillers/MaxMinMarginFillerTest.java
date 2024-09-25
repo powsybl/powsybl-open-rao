@@ -56,9 +56,9 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
         coreProblemFiller = new CoreProblemFiller(

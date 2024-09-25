@@ -210,6 +210,7 @@ public class Leaf implements OptimizationResult {
                     .withObjectiveFunctionUnit(parameters.getObjectiveFunctionUnit())
                     .withRelativePositiveMargins(parameters.relativePositiveMargins())
                     .withRangeActionParameters(parameters.getRangeActionParameters())
+                    .withRangeActionParametersExtension(parameters.getRangeActionParametersExtension())
                     .withMnecParameters(parameters.getMnecParameters())
                     .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
                     .withLoopFlowParameters(parameters.getLoopFlowParameters())

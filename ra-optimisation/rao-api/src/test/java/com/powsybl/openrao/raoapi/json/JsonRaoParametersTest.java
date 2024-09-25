@@ -8,13 +8,10 @@ package com.powsybl.openrao.raoapi.json;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.*;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.RaRangeShrinking;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -51,30 +48,32 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     @Test
     void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters openRaoSTParams = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         // Objective Function parameters
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
         parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         // RangeActionsOptimization parameters
-        parameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
-        parameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(10);
-        parameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.2);
-        parameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(1);
-        parameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(0.3);
-        parameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(1.2);
-        parameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.7);
-        parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("TREEMEMORYLIMIT 20");
-        parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.SCIP);
-        parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(1e-5);
-        parameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
-        parameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
+        openRaoSTParams.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
+        parameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(10);
+        openRaoSTParams.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.2);
+        parameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(1);
+        openRaoSTParams.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(0.3);
+        parameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(1.2);
+        openRaoSTParams.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.7);
+        openRaoSTParams.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("TREEMEMORYLIMIT 20");
+        openRaoSTParams.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.SCIP);
+        openRaoSTParams.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(1e-5);
+        openRaoSTParams.getRangeActionsOptimizationParameters().setPstModel(PstModel.APPROXIMATED_INTEGERS);
+        openRaoSTParams.getRangeActionsOptimizationParameters().setRaRangeShrinking(RaRangeShrinking.ENABLED);
         // TopologicalActions optimization parameters
-        parameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(10);
-        parameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(3);
-        parameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(10);
+        openRaoSTParams.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(10);
+        openRaoSTParams.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(3);
+        openRaoSTParams.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(10);
         parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(0.1);
         parameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20);
-        parameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
+        openRaoSTParams.getTopoOptimizationParameters().setPredefinedCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
         // Multi-threading parameters
         parameters.getMultithreadingParameters().setContingencyScenariosInParallel(15);
         parameters.getMultithreadingParameters().setPreventiveLeavesInParallel(21);
@@ -87,8 +86,8 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         // Not optimized cnecs parameters
         parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
         // LoadFlow and sensitivity parameters
-        parameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider("OpenLoadFlowProvider");
-        parameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenSensitivityAnalysis");
+        openRaoSTParams.getLoadFlowAndSensitivityParameters().setLoadFlowProvider("OpenLoadFlowProvider");
+        openRaoSTParams.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenSensitivityAnalysis");
         // Extensions
         // -- LoopFlow parameters
         parameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
@@ -121,16 +120,17 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
         assertEquals(2, parameters.getExtensions().size());
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, parameters.getObjectiveFunctionParameters().getType());
-        assertEquals(5, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(2, parameters.getTopoOptimizationParameters().getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(5, parameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
+        TopoOptimizationParameters topoOptimizationParametersExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
+        assertEquals(5, topoOptimizationParametersExt.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(2, topoOptimizationParametersExt.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(5, topoOptimizationParametersExt.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(0, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(1, parameters.getTopoOptimizationParameters().getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(8, parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
         assertEquals(4, parameters.getMultithreadingParameters().getAutoLeavesInParallel());
         assertEquals(3, parameters.getMultithreadingParameters().getCurativeLeavesInParallel());
-        assertTrue(parameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
-        assertEquals(2, parameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
+        assertTrue(topoOptimizationParametersExt.getSkipActionsFarFromMostLimitingElement());
+        assertEquals(2, topoOptimizationParametersExt.getMaxNumberOfBoundariesForSkippingActions());
         assertTrue(parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE, parameters.getSecondPreventiveRaoParameters().getExecutionCondition());
         assertTrue(parameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao());
