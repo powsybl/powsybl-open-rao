@@ -5,7 +5,7 @@
 
 Feature: US 10.6: Add minimum relative margin binary variable
 
-  @fast @rao @mock @ac @contingency-scenarios @relative
+  @fast @rao @mock @dc @contingency-scenarios @relative
   Scenario: US 10.6.1: Simple case, with 2 curative states and very low cnec thresholds
     #Check that even with an infeasible linear problem, the RAO goes on.
     Given network file is "common/TestCase16Nodes.uct" for CORE CC

@@ -9,7 +9,7 @@ Feature: US 12.9: CORE CNE export for CBCORA with inverted branches
   Scenario: 12.9.1: CBCORA with inverted branches
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_6_4_withInvertedLines.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_mnecDimin20.json"
     Given RaoResult file is "epic12/RaoResult_12_6_4_withInvertedLines.json"
     When I export CORE CNE at "2019-01-08 01:59"
     Then the CORE CNE file is xsd-compliant

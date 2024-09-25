@@ -75,7 +75,7 @@ Feature: US 15.10.1: Modify voltage level topology as remedial action (2 nodes c
     Given network file is "epic15/TestCase12Nodes_forCSE_3nodes.uct"
     Given crac file is "epic15/cseCrac_ep15us10-1case6.xml"
     Given crac creation parameters file is "epic15/CseCracCreationParameters_15_10_1_6.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
     And the remedial action "RA1" is used in preventive

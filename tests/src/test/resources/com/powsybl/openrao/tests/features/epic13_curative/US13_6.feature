@@ -25,7 +25,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     And the tap of PstRangeAction "pst_be" should be 14 after "co1_fr2_fr3_1" at "curative"
     And the value of the objective function after CRA should be -999
 
-  @fast @rao @mock @ac @contingency-scenarios @mnec
+  @fast @rao @mock @dc @contingency-scenarios @mnec
   Scenario: US 13.6.2: CBCORA - Curative MNECs should have a positive margin
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case2.xml"
@@ -44,20 +44,20 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     And the margin on cnec "NL1-NL3-D - curative" after CRA should be 0.0 MW
     And the value of the objective function after CRA should be 140
 
-  @fast @rao @mock @ac @contingency-scenarios @mnec
+  @fast @rao @mock @dc @contingency-scenarios @mnec
   Scenario: US 13.6.3: CBCORA - Curative MNECs limited by their initial margin - CRAs only
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case3.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_mnecDimin20.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
     And the value of the objective function after CRA should be 286
 
-  @fast @rao @mock @ac @contingency-scenarios @mnec
+  @fast @rao @mock @dc @contingency-scenarios @mnec
   Scenario: US 13.6.4: CBCORA - Curative MNECs limited by their initial margin - PRAs and CRAs
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case4.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_mnecDimin20.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -103.0 MW
     And 1 remedial actions are used in preventive
@@ -123,7 +123,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     And the worst margin is 705 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     And the value of the objective function after CRA should be -705
 
-  @fast @rao @mock @ac @contingency-scenarios @mnec
+  @fast @rao @mock @dc @contingency-scenarios @mnec
   Scenario: US 13.6.8: Curative perimeter with pure MNECs only
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case8.xml"
@@ -146,7 +146,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     And the value of the objective function after ARA should be -71
     And the value of the objective function after CRA should be -390
 
-  @fast @rao @mock @ac @contingency-scenarios @mnec
+  @fast @rao @mock @dc @contingency-scenarios @mnec
   Scenario: US 13.6.11: Curative with pure MNECs only - PST CRA should remove MNEC constraint
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us6case11.xml"

@@ -31,7 +31,7 @@ Feature: US 12.6: CORE CNE export for preventive case
   Scenario: 12.6.4: Test case with a CBCORA file and a MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_6_4.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     Given RaoResult file is "epic12/RaoResult_12_6_4.json"
     When I export CORE CNE at "2019-01-08 01:00"
     Then the CORE CNE file is xsd-compliant
