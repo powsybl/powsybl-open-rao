@@ -10,7 +10,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
@@ -57,11 +57,11 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         // RangeActionsOptimization parameters
         parameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
-        parameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(10);
+        parameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(10);
         parameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.2);
-        parameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(1);
+        parameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(1);
         parameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(0.3);
-        parameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(1.2);
+        parameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(1.2);
         parameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.7);
         parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("TREEMEMORYLIMIT 20");
         parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.SCIP);

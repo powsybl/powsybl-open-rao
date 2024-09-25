@@ -32,12 +32,12 @@ public final class RaoParametersCommons {
     public static final String RANGE_ACTIONS_OPTIMIZATION = "range-actions-optimization";
     public static final String RANGE_ACTIONS_OPTIMIZATION_SECTION = "rao-range-actions-optimization";
     public static final String MAX_MIP_ITERATIONS = "max-mip-iterations";
-    public static final String PST_PENALTY_COST = "pst-penalty-cost";
+    public static final String PST_RA_MIN_IMPACT_THRESHOLD = "pst-ra-min-impact_threshold";
     public static final String PST_SENSITIVITY_THRESHOLD = "pst-sensitivity-threshold";
     public static final String PST_MODEL = "pst-model";
-    public static final String HVDC_PENALTY_COST = "hvdc-penalty-cost";
+    public static final String HVDC_RA_MIN_IMPACT_THRESHOLD = "hvdc-ra-min-impact_threshold";
     public static final String HVDC_SENSITIVITY_THRESHOLD = "hvdc-sensitivity-threshold";
-    public static final String INJECTION_RA_PENALTY_COST = "injection-ra-penalty-cost";
+    public static final String INJECTION_RA_MIN_IMPACT_THRESHOLD = "injection-ra-min-impact_threshold";
     public static final String INJECTION_RA_SENSITIVITY_THRESHOLD = "injection-ra-sensitivity-threshold";
     public static final String LINEAR_OPTIMIZATION_SOLVER = "linear-optimization-solver";
     public static final String LINEAR_OPTIMIZATION_SOLVER_SECTION = "rao-linear-optimization-solver";
@@ -119,6 +119,7 @@ public final class RaoParametersCommons {
     public static final String RELATIVE_MARGINS_SECTION = "rao-relative-margins-parameters";
     public static final String PTDF_BOUNDARIES = "ptdf-boundaries";
     public static final String PTDF_SUM_LOWER_BOUND = "ptdf-sum-lower-bound";
+    public static final String SEARCH_TREE_PARAMETERS = "open-rao-search-tree-parameters";
 
     public static PtdfApproximation stringToPtdfApproximation(String string) {
         try {

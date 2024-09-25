@@ -7,8 +7,8 @@
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class TreeParametersTest {
     RaoParameters raoParameters;
+
+    OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters raoParametersRangeActionsOptimizationExt;
+
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
     @BeforeEach
@@ -30,7 +33,9 @@ class TreeParametersTest {
         raoParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(6);
         raoParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(4);
         raoParameters.getMultithreadingParameters().setCurativeLeavesInParallel(2);
-        raoParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParametersRangeActionsOptimizationExt = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        raoParametersRangeActionsOptimizationExt.setRaRangeShrinking(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED);
     }
 
     @Test
@@ -50,7 +55,7 @@ class TreeParametersTest {
         raoParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(15);
         raoParameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(5);
         raoParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(15);
-        raoParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO);
+        raoParametersRangeActionsOptimizationExt.setRaRangeShrinking(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO);
         treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());
@@ -59,7 +64,7 @@ class TreeParametersTest {
         assertEquals(15, treeParameters.maximumSearchDepth());
         assertTrue(treeParameters.raRangeShrinking());
 
-        raoParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
+        raoParametersRangeActionsOptimizationExt.setRaRangeShrinking(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters);
         assertTrue(treeParameters.raRangeShrinking());
     }
@@ -68,7 +73,7 @@ class TreeParametersTest {
     void testCurativeSecureStopCriterion() {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
         raoParameters.getMultithreadingParameters().setCurativeLeavesInParallel(16);
-        raoParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO);
+        raoParametersRangeActionsOptimizationExt.setRaRangeShrinking(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO);
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());
@@ -86,7 +91,7 @@ class TreeParametersTest {
         raoParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(0);
         raoParameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(0);
         raoParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(0);
-        raoParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
+        raoParametersRangeActionsOptimizationExt.setRaRangeShrinking(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());
@@ -129,7 +134,7 @@ class TreeParametersTest {
         // test with min objective
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(false);
-        raoParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED);
+        raoParametersRangeActionsOptimizationExt.setRaRangeShrinking(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED);
         TreeParameters treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.stopCriterion());
@@ -140,7 +145,7 @@ class TreeParametersTest {
         // test with secure
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
         raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(false);
-        raoParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO);
+        raoParametersRangeActionsOptimizationExt.setRaRangeShrinking(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO);
         treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());
@@ -152,7 +157,7 @@ class TreeParametersTest {
         // other combinations
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
         raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(false);
-        raoParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
+        raoParametersRangeActionsOptimizationExt.setRaRangeShrinking(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());

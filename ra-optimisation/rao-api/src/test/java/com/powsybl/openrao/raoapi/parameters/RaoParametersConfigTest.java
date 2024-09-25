@@ -71,18 +71,19 @@ class RaoParametersConfigTest {
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
         RangeActionsOptimizationParameters params = parameters.getRangeActionsOptimizationParameters();
-        assertEquals(4, params.getMaxMipIterations(), DOUBLE_TOLERANCE);
-        assertEquals(44, params.getPstPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(7, params.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, params.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, params.getRaRangeShrinking());
-        assertEquals(33, params.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(8, params.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(22, params.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(9, params.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.Solver.XPRESS, params.getLinearOptimizationSolver().getSolver());
-        assertEquals(22, params.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
-        assertEquals("blabla", params.getLinearOptimizationSolver().getSolverSpecificParameters());
+        OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        assertEquals(4, paramsExt.getMaxMipIterations(), DOUBLE_TOLERANCE);
+        assertEquals(44, params.getPstRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(7, paramsExt.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, paramsExt.getPstModel());
+        assertEquals(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, paramsExt.getRaRangeShrinking());
+        assertEquals(33, params.getHvdcRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(8, paramsExt.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(22, params.getInjectionRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(9, paramsExt.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.Solver.XPRESS, paramsExt.getLinearOptimizationSolver().getSolver());
+        assertEquals(22, paramsExt.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
+        assertEquals("blabla", paramsExt.getLinearOptimizationSolver().getSolverSpecificParameters());
     }
 
     @Test
@@ -220,7 +221,7 @@ class RaoParametersConfigTest {
         RaoParameters.load(parameters, platformCfg);
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         assertEquals(123, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
-        assertEquals(32, parameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), 1e-6);
+        assertEquals(32, parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getMaxMipIterations(), 1e-6);
         assertTrue(Objects.isNull(parameters.getExtension(LoopFlowParametersExtension.class)));
         assertTrue(Objects.isNull(parameters.getExtension(MnecParametersExtension.class)));
         assertTrue(Objects.isNull(parameters.getExtension(RelativeMarginsParametersExtension.class)));

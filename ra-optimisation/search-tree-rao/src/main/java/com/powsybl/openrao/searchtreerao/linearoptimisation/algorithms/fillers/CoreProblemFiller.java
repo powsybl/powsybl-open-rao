@@ -408,11 +408,11 @@ public class CoreProblemFiller implements ProblemFiller {
 
                 // If the range action has been filtered out, then absoluteVariationVariable is null
                 if (absoluteVariationVariable != null && ra instanceof PstRangeAction) {
-                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getPstPenaltyCost());
+                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getPstRAMinImpactThreshold());
                 } else if (absoluteVariationVariable != null && ra instanceof HvdcRangeAction) {
-                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getHvdcPenaltyCost());
+                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getHvdcRAMinImpactThreshold());
                 } else if (absoluteVariationVariable != null && ra instanceof InjectionRangeAction) {
-                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getInjectionRaPenaltyCost());
+                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getInjectionRAMinImpactThreshold());
                 }
             }
         ));

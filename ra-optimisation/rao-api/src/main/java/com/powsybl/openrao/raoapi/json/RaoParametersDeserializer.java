@@ -7,6 +7,8 @@
 package com.powsybl.openrao.raoapi.json;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.json.extensions.JsonMultiThreadingParameters;
+import com.powsybl.openrao.raoapi.json.extensions.JsonSecondPreventiveRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -58,14 +60,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                 case TOPOLOGICAL_ACTIONS_OPTIMIZATION:
                     parser.nextToken();
                     JsonTopoOptimizationParameters.deserialize(parser, parameters);
-                    break;
-                case MULTI_THREADING:
-                    parser.nextToken();
-                    JsonMultiThreadingParameters.deserialize(parser, parameters);
-                    break;
-                case SECOND_PREVENTIVE_RAO:
-                    parser.nextToken();
-                    JsonSecondPreventiveRaoParameters.deserialize(parser, parameters);
                     break;
                 case NOT_OPTIMIZED_CNECS:
                     parser.nextToken();

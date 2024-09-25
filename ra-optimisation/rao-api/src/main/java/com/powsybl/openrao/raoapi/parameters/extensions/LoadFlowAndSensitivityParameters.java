@@ -5,15 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.raoapi.parameters;
+package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
  * LoadFlow and sensitivity computation parameters for RAO
@@ -21,6 +22,13 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class LoadFlowAndSensitivityParameters {
+    private static final String DEFAULT_LOADFLOW_PROVIDER = "OpenLoadFlow";
+    private static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
+    private static final double DEFAULT_SENSITIVITY_FAILURE_OVERCOST = 10000;
+    private String loadFlowProvider = DEFAULT_LOADFLOW_PROVIDER;
+    private String sensitivityProvider = DEFAULT_SENSITIVITY_PROVIDER;
+
+    private double sensitivityFailureOvercost = DEFAULT_SENSITIVITY_FAILURE_OVERCOST;
     private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters = cleanLoadFlowParameters(new SensitivityAnalysisParameters());
 
     // Getters and setters
@@ -30,6 +38,33 @@ public class LoadFlowAndSensitivityParameters {
 
     public void setSensitivityWithLoadFlowParameters(SensitivityAnalysisParameters sensitivityWithLoadFlowParameters) {
         this.sensitivityWithLoadFlowParameters = cleanLoadFlowParameters(sensitivityWithLoadFlowParameters);
+    }
+
+    public String getLoadFlowProvider() {
+        return loadFlowProvider;
+    }
+
+    public void setLoadFlowProvider(String loadFlowProvider) {
+        this.loadFlowProvider = loadFlowProvider;
+    }
+
+    public String getSensitivityProvider() {
+        return sensitivityProvider;
+    }
+
+    public void setSensitivityProvider(String sensitivityProvider) {
+        this.sensitivityProvider = sensitivityProvider;
+    }
+
+    public double getSensitivityFailureOvercost() {
+        return sensitivityFailureOvercost;
+    }
+
+    public void setSensitivityFailureOvercost(double sensitivityFailureOvercost) {
+        if (sensitivityFailureOvercost < 0) {
+            BUSINESS_WARNS.warn("The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer to make the loadflow diverge. Thus, it will be set to + {}", sensitivityFailureOvercost, -sensitivityFailureOvercost);
+        }
+        this.sensitivityFailureOvercost = Math.abs(sensitivityFailureOvercost);
     }
 
     public static LoadFlowAndSensitivityParameters load(PlatformConfig platformConfig) {
