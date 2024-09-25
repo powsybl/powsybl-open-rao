@@ -6,11 +6,12 @@
  */
 package com.powsybl.openrao.raoapi.json;
 
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.io.IOException;
 
@@ -32,11 +33,14 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         JsonObjectiveFunctionParameters.serialize(parameters, jsonGenerator);
         JsonRangeActionsOptimizationParameters.serialize(parameters, jsonGenerator);
         JsonTopoOptimizationParameters.serialize(parameters, jsonGenerator);
-        JsonSecondPreventiveRaoParameters.serialize(parameters, jsonGenerator);
         JsonNotOptimizedCnecsParameters.serialize(parameters, jsonGenerator);
-        JsonLoadFlowAndSensitivityComputationParameters.serialize(parameters, jsonGenerator, serializerProvider);
-        JsonMultiThreadingParameters.serialize(parameters, jsonGenerator);
+        serializeLoadFlowParameters(parameters, jsonGenerator, serializerProvider);
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
         jsonGenerator.writeEndObject();
+    }
+
+    private static void serializeLoadFlowParameters(RaoParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        jsonGenerator.writeFieldName(LOAD_FLOW_PARAMETERS);
+        JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
     }
 }

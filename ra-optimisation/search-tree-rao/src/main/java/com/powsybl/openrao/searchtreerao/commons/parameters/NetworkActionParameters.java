@@ -8,12 +8,14 @@ package com.powsybl.openrao.searchtreerao.commons.parameters;
 
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.TopoOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 
 import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.raoapi.parameters.extensions.TopoOptimizationParameters.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -60,12 +62,13 @@ public class NetworkActionParameters {
         return maxNumberOfBoundariesForSkippingNetworkActions;
     }
 
-    public static NetworkActionParameters buildFromRaoParameters(TopoOptimizationParameters topoOptimizationParameters, Crac crac) {
-        return new NetworkActionParameters(computePredefinedCombinations(crac, topoOptimizationParameters),
+    public static NetworkActionParameters buildFromRaoParameters(RaoParameters raoParameters, Crac crac) {
+        TopoOptimizationParameters topoOptimizationParameters = raoParameters.getTopoOptimizationParameters();
+        return new NetworkActionParameters(computePredefinedCombinations(crac, raoParameters),
                 topoOptimizationParameters.getAbsoluteMinImpactThreshold(),
                 topoOptimizationParameters.getRelativeMinImpactThreshold(),
-                topoOptimizationParameters.getSkipActionsFarFromMostLimitingElement(),
-                topoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions());
+                isSkipActionsFarFromMostLimitingElement(raoParameters),
+                getMaxNumberOfBoundariesForSkippingActions(raoParameters));
     }
 
     public void addNetworkActionCombination(NetworkActionCombination networkActionCombination) {
@@ -95,8 +98,8 @@ public class NetworkActionParameters {
         return Objects.hash(predefinedCombinations, absoluteNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold, skipNetworkActionFarFromMostLimitingElements, maxNumberOfBoundariesForSkippingNetworkActions);
     }
 
-    public static List<NetworkActionCombination> computePredefinedCombinations(Crac crac, TopoOptimizationParameters topoOptimizationParameters) {
-        List<List<String>> predefinedCombinationsIds = topoOptimizationParameters.getPredefinedCombinations();
+    public static List<NetworkActionCombination> computePredefinedCombinations(Crac crac, RaoParameters raoParameters) {
+        List<List<String>> predefinedCombinationsIds = getPredefinedCombinations(raoParameters);
         List<NetworkActionCombination> computedPredefinedCombinations = new ArrayList<>();
         predefinedCombinationsIds.forEach(networkActionIds -> {
             Optional<NetworkActionCombination> optNaCombination = computePredefinedCombinationsFromIds(networkActionIds, crac);

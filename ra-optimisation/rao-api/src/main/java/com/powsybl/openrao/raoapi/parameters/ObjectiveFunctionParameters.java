@@ -11,7 +11,6 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 /**
  * Objective function parameters for RAO
@@ -21,11 +20,9 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 public class ObjectiveFunctionParameters {
     // Default values
     private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.SECURE_FLOW;
-    private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
     private static final boolean DEFAULT_ENFORCE_CURATIVE_SECURITY = false;
     // Attributes
     private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
-    private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
     private boolean enforceCurativeSecurity = DEFAULT_ENFORCE_CURATIVE_SECURITY;
 
     // Enum
@@ -48,10 +45,6 @@ public class ObjectiveFunctionParameters {
         this.type = type;
     }
 
-    public double getCurativeMinObjImprovement() {
-        return curativeMinObjImprovement;
-    }
-
     public boolean getEnforceCurativeSecurity() {
         return enforceCurativeSecurity;
     }
@@ -67,16 +60,8 @@ public class ObjectiveFunctionParameters {
                 .ifPresent(config -> {
                     parameters.setType(config.getEnumProperty(TYPE, ObjectiveFunctionType.class,
                             DEFAULT_OBJECTIVE_FUNCTION));
-                    parameters.setCurativeMinObjImprovement(config.getDoubleProperty(CURATIVE_MIN_OBJ_IMPROVEMENT, DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT));
                     parameters.setEnforceCurativeSecurity(config.getBooleanProperty(ENFORCE_CURATIVE_SECURITY, DEFAULT_ENFORCE_CURATIVE_SECURITY));
                 });
         return parameters;
-    }
-
-    public void setCurativeMinObjImprovement(double curativeRaoMinObjImprovement) {
-        if (curativeRaoMinObjImprovement < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
-        }
-        this.curativeMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
     }
 }

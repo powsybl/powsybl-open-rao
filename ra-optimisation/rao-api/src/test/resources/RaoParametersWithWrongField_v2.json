@@ -69,7 +69,7 @@
         "sensitivity-failure-overcost" : 10000.0
       },
       "multi-threading" : {
-        "available-cpus" : 1
+        "wrong" : 1
       }
     }
   }

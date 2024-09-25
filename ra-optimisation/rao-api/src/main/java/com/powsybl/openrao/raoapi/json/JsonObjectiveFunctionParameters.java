@@ -27,7 +27,6 @@ final class JsonObjectiveFunctionParameters {
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(OBJECTIVE_FUNCTION);
         jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getType());
-        jsonGenerator.writeNumberField(CURATIVE_MIN_OBJ_IMPROVEMENT, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement());
         jsonGenerator.writeBooleanField(ENFORCE_CURATIVE_SECURITY, parameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity());
         jsonGenerator.writeEndObject();
     }
@@ -37,10 +36,6 @@ final class JsonObjectiveFunctionParameters {
             switch (jsonParser.getCurrentName()) {
                 case TYPE:
                     raoParameters.getObjectiveFunctionParameters().setType(stringToObjectiveFunction(jsonParser.nextTextValue()));
-                    break;
-                case CURATIVE_MIN_OBJ_IMPROVEMENT:
-                    jsonParser.nextToken();
-                    raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble());
                     break;
                 case ENFORCE_CURATIVE_SECURITY:
                     jsonParser.nextToken();

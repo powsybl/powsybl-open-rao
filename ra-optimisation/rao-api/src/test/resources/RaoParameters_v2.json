@@ -34,53 +34,5 @@
     "connectedComponentMode" : "MAIN",
     "hvdcAcEmulation" : true,
     "dcPowerFactor" : 1.0
-  },
-  "extensions" : {
-    "open-rao-search-tree-parameters" : {
-      "objective-function" : {
-        "curative-min-obj-improvement" : 0.0
-      },
-      "range-actions-optimization" : {
-        "max-mip-iterations" : 10,
-        "pst-sensitivity-threshold" : 1.0E-6,
-        "pst-model" : "CONTINUOUS",
-        "hvdc-sensitivity-threshold" : 1.0E-6,
-        "injection-ra-sensitivity-threshold" : 1.0E-6,
-        "ra-range-shrinking" : "DISABLED",
-        "linear-optimization-solver" : {
-          "solver" : "CBC",
-          "relative-mip-gap" : 1.0E-4,
-          "solver-specific-parameters" : null
-        }
-      },
-      "topological-actions-optimization" : {
-        "max-preventive-search-tree-depth" : 2147483647,
-        "max-auto-search-tree-depth" : 2147483647,
-        "max-curative-search-tree-depth" : 2147483647,
-        "predefined-combinations" : [ ],
-        "skip-actions-far-from-most-limiting-element" : false,
-        "max-number-of-boundaries-for-skipping-actions" : 2
-      },
-      "second-preventive-rao" : {
-        "execution-condition" : "DISABLED",
-        "re-optimize-curative-range-actions" : false,
-        "hint-from-first-preventive-rao" : false
-      },
-      "load-flow-and-sensitivity-computation" : {
-        "load-flow-provider" : "OpenLoadFlow",
-        "sensitivity-provider" : "OpenLoadFlow",
-        "sensitivity-failure-overcost" : 10000.0,
-        "sensitivity-parameters" : {
-          "version" : "1.1",
-          "flow-flow-sensitivity-value-threshold" : 0.0,
-          "voltage-voltage-sensitivity-value-threshold" : 0.0,
-          "flow-voltage-sensitivity-value-threshold" : 0.0,
-          "angle-flow-sensitivity-value-threshold" : 0.0
-        }
-      },
-      "multi-threading" : {
-        "available-cpus" : 1
-      }
-    }
   }
 }

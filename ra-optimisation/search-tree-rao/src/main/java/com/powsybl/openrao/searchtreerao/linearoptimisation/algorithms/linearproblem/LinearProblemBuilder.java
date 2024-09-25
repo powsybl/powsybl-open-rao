@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -18,6 +18,8 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.getPstModel;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -68,7 +70,7 @@ public class LinearProblemBuilder {
         }
 
         // MIP optimization vs. CONTINUOUS optimization
-        if (parameters.getRangeActionParameters().getPstModel().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
             Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
             Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
             this.withProblemFiller(buildIntegerPstTapFiller(pstRangeActions));
@@ -97,7 +99,7 @@ public class LinearProblemBuilder {
         return this;
     }
 
-    public LinearProblemBuilder withSolver(RangeActionsOptimizationParameters.Solver solver) {
+    public LinearProblemBuilder withSolver(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.Solver solver) {
         this.solver = solver;
         return this;
     }
@@ -121,10 +123,11 @@ public class LinearProblemBuilder {
         return new CoreProblemFiller(
             inputs.getOptimizationPerimeter(),
             inputs.getPrePerimeterSetpoints(),
-                parameters.getRangeActionParameters(),
+            parameters.getRangeActionParameters(),
+            parameters.getRangeActionParametersExtension(),
             parameters.getObjectiveFunctionUnit(),
             parameters.getRaRangeShrinking(),
-            parameters.getRangeActionParameters().getPstModel()
+            getPstModel(parameters.getRangeActionParametersExtension())
         );
     }
 
@@ -193,7 +196,7 @@ public class LinearProblemBuilder {
             inputs.getOptimizationPerimeter().getRangeActionsPerState(),
             inputs.getPrePerimeterSetpoints(),
             parameters.getRaLimitationParameters(),
-            parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
+            getPstModel(parameters.getRangeActionParametersExtension()) == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
             inputs.getNetwork());
     }
 

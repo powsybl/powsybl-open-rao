@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
 import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import com.powsybl.openrao.tests.utils.Helpers;
@@ -43,8 +42,6 @@ public final class CommonTestData {
     private static final String DEFAULT_RAO_PARAMETERS_PATH = "configurations/common/RaoParameters_default.json";
 
     private static String dataPrefix = "src/test/resources/files/";
-
-    private static String overrideLinearSolver = null;
 
     private static String networkPath;
     private static Boolean coreCcNetworkPreprocessing = false;
@@ -108,14 +105,6 @@ public final class CommonTestData {
 
     public static String getResourcesPath() {
         return dataPrefix;
-    }
-
-    public static void setLinearSolver(String solver) {
-        overrideLinearSolver = solver;
-    }
-
-    public static void resetLinearSolver() {
-        overrideLinearSolver = null;
     }
 
     @Before
@@ -297,9 +286,6 @@ public final class CommonTestData {
             raoParameters = buildConfig(getFile(raoParametersPath));
         } else {
             raoParameters = buildDefaultConfig();
-        }
-        if (overrideLinearSolver != null) {
-            raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
         }
 
         // GLSK
