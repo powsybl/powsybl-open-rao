@@ -6,14 +6,15 @@
  */
 package com.powsybl.openrao.raoapi.json;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -59,21 +60,13 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     JsonTopoOptimizationParameters.deserialize(parser, parameters);
                     break;
-                case MULTI_THREADING:
-                    parser.nextToken();
-                    JsonMultiThreadingParameters.deserialize(parser, parameters);
-                    break;
-                case SECOND_PREVENTIVE_RAO:
-                    parser.nextToken();
-                    JsonSecondPreventiveRaoParameters.deserialize(parser, parameters);
-                    break;
                 case NOT_OPTIMIZED_CNECS:
                     parser.nextToken();
                     JsonNotOptimizedCnecsParameters.deserialize(parser, parameters);
                     break;
-                case LOAD_FLOW_AND_SENSITIVITY_COMPUTATION:
+                case LOAD_FLOW_PARAMETERS:
                     parser.nextToken();
-                    JsonLoadFlowAndSensitivityComputationParameters.deserialize(parser, parameters);
+                    JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
                     break;
                 case "extensions":
                     parser.nextToken();

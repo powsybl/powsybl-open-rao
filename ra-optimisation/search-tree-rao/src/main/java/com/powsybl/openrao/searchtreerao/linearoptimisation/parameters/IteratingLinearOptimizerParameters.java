@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.parameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.LinearOptimizationSolver;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
@@ -23,12 +24,13 @@ public final class IteratingLinearOptimizerParameters {
     private final Unit objectiveFunctionUnit;
     private final boolean relativePositiveMargins;
     private final RangeActionsOptimizationParameters rangeActionParameters;
+    private final com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
     private final MnecParametersExtension mnecParameters;
     private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
     private final LoopFlowParametersExtension loopFlowParameters;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final RangeActionLimitationParameters raLimitationParameters;
-    private final RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
+    private final LinearOptimizationSolver solverParameters;
 
     private final int maxNumberOfIterations;
     private final boolean raRangeShrinking;
@@ -36,17 +38,19 @@ public final class IteratingLinearOptimizerParameters {
     private IteratingLinearOptimizerParameters(Unit objectiveFunctionUnit,
                                                boolean relativePositiveMargins,
                                                RangeActionsOptimizationParameters rangeActionParameters,
+                                               com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension,
                                                MnecParametersExtension mnecParameters,
                                                RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
                                                LoopFlowParametersExtension loopFlowParameters,
                                                UnoptimizedCnecParameters unoptimizedCnecParameters,
                                                RangeActionLimitationParameters raLimitationParameters,
-                                               RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
+                                               LinearOptimizationSolver solverParameters,
                                                int maxNumberOfIterations,
                                                boolean raRangeShrinking) {
         this.objectiveFunctionUnit = objectiveFunctionUnit;
         this.relativePositiveMargins = relativePositiveMargins;
         this.rangeActionParameters = rangeActionParameters;
+        this.rangeActionParametersExtension = rangeActionParametersExtension;
         this.mnecParameters = mnecParameters;
         this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
         this.loopFlowParameters = loopFlowParameters;
@@ -73,8 +77,16 @@ public final class IteratingLinearOptimizerParameters {
         return mnecParameters != null;
     }
 
+    public boolean isRaoWithSolverParameters() {
+        return solverParameters != null;
+    }
+
     public RangeActionsOptimizationParameters getRangeActionParameters() {
         return rangeActionParameters;
+    }
+
+    public com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters getRangeActionParametersExtension() {
+        return rangeActionParametersExtension;
     }
 
     public MnecParametersExtension getMnecParameters() {
@@ -97,7 +109,7 @@ public final class IteratingLinearOptimizerParameters {
         return raLimitationParameters;
     }
 
-    public RangeActionsOptimizationParameters.LinearOptimizationSolver getSolverParameters() {
+    public LinearOptimizationSolver getSolverParameters() {
         return solverParameters;
     }
 
@@ -118,12 +130,14 @@ public final class IteratingLinearOptimizerParameters {
         private Unit objectiveFunctionUnit;
         private boolean relativePositiveMargins;
         private RangeActionsOptimizationParameters rangeActionParameters;
+        private com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
+
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
         private LoopFlowParametersExtension loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private RangeActionLimitationParameters raLimitationParameters;
-        private RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
+        private LinearOptimizationSolver solverParameters;
         private int maxNumberOfIterations;
         private boolean raRangeShrinking;
 
@@ -139,6 +153,11 @@ public final class IteratingLinearOptimizerParameters {
 
         public LinearOptimizerParametersBuilder withRangeActionParameters(RangeActionsOptimizationParameters rangeActionParameters) {
             this.rangeActionParameters = rangeActionParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withRangeActionParametersExtension(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParameters) {
+            this.rangeActionParametersExtension = rangeActionParameters;
             return this;
         }
 
@@ -167,7 +186,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters) {
+        public LinearOptimizerParametersBuilder withSolverParameters(LinearOptimizationSolver solverParameters) {
             this.solverParameters = solverParameters;
             return this;
         }
@@ -191,6 +210,7 @@ public final class IteratingLinearOptimizerParameters {
                 objectiveFunctionUnit,
                 relativePositiveMargins,
                 rangeActionParameters,
+                rangeActionParametersExtension,
                 mnecParameters,
                 maxMinRelativeMarginParameters,
                 loopFlowParameters,

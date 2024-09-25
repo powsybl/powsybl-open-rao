@@ -5,15 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.raoapi.parameters;
+package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
  * LoadFlow and sensitivity computation parameters for RAO
@@ -79,7 +81,7 @@ public class LoadFlowAndSensitivityParameters {
         return parameters;
     }
 
-    private SensitivityAnalysisParameters cleanLoadFlowParameters(SensitivityAnalysisParameters sensitivityAnalysisParameters) {
+    private static SensitivityAnalysisParameters cleanLoadFlowParameters(SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         LoadFlowParameters loadFlowParameters = sensitivityAnalysisParameters.getLoadFlowParameters();
         // we have to clean load flow parameters.
         // the slack bus must not be written because it could pollute the sensitivity analyses.
@@ -92,5 +94,33 @@ public class LoadFlowAndSensitivityParameters {
             loadFlowParameters.setHvdcAcEmulation(false);
         }
         return sensitivityAnalysisParameters;
+    }
+
+    public static String getLoadFlowProvider(RaoParameters raoParameters) {
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider();
+        }
+        return DEFAULT_LOADFLOW_PROVIDER;
+    }
+
+    public static double getSensitivityFailureOvercost(RaoParameters raoParameters) {
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost();
+        }
+        return DEFAULT_SENSITIVITY_FAILURE_OVERCOST;
+    }
+
+    public static String getSensitivityProvider(RaoParameters raoParameters) {
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityProvider();
+        }
+        return DEFAULT_SENSITIVITY_PROVIDER;
+    }
+
+    public static SensitivityAnalysisParameters getSensitivityWithLoadFlowParameters(RaoParameters raoParameters) {
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters();
+        }
+        return cleanLoadFlowParameters(new SensitivityAnalysisParameters());
     }
 }

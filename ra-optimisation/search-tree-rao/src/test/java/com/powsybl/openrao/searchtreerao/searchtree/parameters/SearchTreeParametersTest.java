@@ -62,8 +62,8 @@ class SearchTreeParametersTest {
         assertEquals(raoParameters.getExtension(MnecParametersExtension.class), searchTreeParameters.getMnecParameters());
         assertEquals(raoParameters.getExtension(RelativeMarginsParametersExtension.class), searchTreeParameters.getMaxMinRelativeMarginParameters());
         assertEquals(raoParameters.getExtension(LoopFlowParametersExtension.class), searchTreeParameters.getLoopFlowParameters());
-        assertEquals(raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver(), searchTreeParameters.getSolverParameters());
-        assertEquals(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), searchTreeParameters.getMaxNumberOfIterations());
+        assertEquals(raoParameters.getExtension(RangeActionsOptimizationParameters.class).getLinearOptimizationSolver(), searchTreeParameters.getSolverParameters());
+        assertEquals(raoParameters.getExtension(RangeActionsOptimizationParameters.class).getMaxMipIterations(), searchTreeParameters.getMaxNumberOfIterations());
     }
 
     @Test

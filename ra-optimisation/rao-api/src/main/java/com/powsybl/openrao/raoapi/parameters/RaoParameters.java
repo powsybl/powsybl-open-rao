@@ -14,6 +14,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
 
@@ -25,10 +26,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
     private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
     private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
-    private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
-    private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
     private NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
-    private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
+    private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
     // Getters and setters
     public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -43,20 +42,12 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.topoOptimizationParameters = topoOptimizationParameters;
     }
 
-    public void setMultithreadingParameters(MultithreadingParameters multithreadingParameters) {
-        this.multithreadingParameters = multithreadingParameters;
-    }
-
-    public void setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters secondPreventiveRaoParameters) {
-        this.secondPreventiveRaoParameters = secondPreventiveRaoParameters;
-    }
-
     public void setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters notOptimizedCnecsParameters) {
         this.notOptimizedCnecsParameters = notOptimizedCnecsParameters;
     }
 
-    public void setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters) {
-        this.loadFlowAndSensitivityParameters = loadFlowAndSensitivityParameters;
+    public void setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
+        this.loadFlowParameters = loadFlowParameters;
     }
 
     public ObjectiveFunctionParameters getObjectiveFunctionParameters() {
@@ -71,24 +62,19 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return topoOptimizationParameters;
     }
 
-    public MultithreadingParameters getMultithreadingParameters() {
-        return multithreadingParameters;
-    }
-
-    public SecondPreventiveRaoParameters getSecondPreventiveRaoParameters() {
-        return secondPreventiveRaoParameters;
-    }
-
     public NotOptimizedCnecsParameters getNotOptimizedCnecsParameters() {
         return notOptimizedCnecsParameters;
     }
 
-    public LoadFlowAndSensitivityParameters getLoadFlowAndSensitivityParameters() {
-        return loadFlowAndSensitivityParameters;
+    public LoadFlowParameters getLoadFlowParameters() {
+        return loadFlowParameters;
     }
 
     public boolean hasExtension(Class classType) {
         return Objects.nonNull(this.getExtension(classType));
+    }
+
+    public void addExtension(Class<com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters> rangeActionsOptimizationParametersClass) {
     }
 
     // ConfigLoader
@@ -127,10 +113,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         parameters.setObjectiveFunctionParameters(ObjectiveFunctionParameters.load(platformConfig));
         parameters.setRangeActionsOptimizationParameters(RangeActionsOptimizationParameters.load(platformConfig));
         parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig));
-        parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
-        parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
         parameters.setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters.load(platformConfig));
-        parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));
+        parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
     }
 
     private void loadExtensions(PlatformConfig platformConfig) {
@@ -139,6 +123,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
             if (extension != null) {
                 addExtension(provider.getExtensionClass(), extension);
             }
+            // TODO: LoadFlowAndSensitivityParameters hasExtension
         }
     }
 }

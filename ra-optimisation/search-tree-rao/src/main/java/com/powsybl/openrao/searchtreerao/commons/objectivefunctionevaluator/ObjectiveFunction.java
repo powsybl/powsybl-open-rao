@@ -19,6 +19,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -83,8 +85,9 @@ public final class ObjectiveFunction {
 
             // sensitivity failure over-cost should be computed on initial sensitivity result too
             // (this allows the RAO to prefer RAs that can remove sensitivity failures)
-            if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
-                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
+            double sensitivityFailureOvercost = getSensitivityFailureOvercost(raoParameters);
+            if (sensitivityFailureOvercost > 0) {
+                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, sensitivityFailureOvercost));
             }
 
             return this.build();
@@ -136,8 +139,9 @@ public final class ObjectiveFunction {
 
             // If sensi failed, create a high virtual cost via SensitivityFailureOvercostEvaluator
             // to ensure that corresponding leaf is not selected
-            if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
-                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
+            double sensitivityFailureOvercost = getSensitivityFailureOvercost(raoParameters);
+            if (sensitivityFailureOvercost > 0) {
+                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, sensitivityFailureOvercost));
             }
 
             return this.build();

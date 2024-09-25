@@ -107,7 +107,7 @@ class NetworkActionParametersTest {
                 List.of("topological-action-1"), // should be filtered (one action only)
                 new ArrayList<>())); // should be filtered
 
-        List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters.getTopoOptimizationParameters());
+        List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters);
 
         assertEquals(5, parameters.getTopoOptimizationParameters().getPredefinedCombinations().size());
         assertEquals(2, naCombinations.size());
