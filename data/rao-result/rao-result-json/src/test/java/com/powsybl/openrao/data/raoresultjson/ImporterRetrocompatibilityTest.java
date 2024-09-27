@@ -138,8 +138,7 @@ class ImporterRetrocompatibilityTest {
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point2RaoResult(raoResult, crac);
-        checkVoltages(raoResult, crac, MinOrMax.MIN, 0);
-        checkVoltages(raoResult, crac, MinOrMax.MAX, 0);
+        checkVoltages(raoResult, crac, 1, 2);
     }
 
     @Test
@@ -483,23 +482,29 @@ class ImporterRetrocompatibilityTest {
         assertEquals(3435., importedRaoResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
         assertEquals(3431., importedRaoResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
 
-        checkVoltages(importedRaoResult, crac, MinOrMax.MIN, 0);
-        checkVoltages(importedRaoResult, crac, MinOrMax.MAX, 0);
+        checkVoltages(importedRaoResult, crac, 1, 1);
     }
 
-    private void checkVoltages(RaoResult importedRaoResult, Crac crac, MinOrMax minOrMax, double valueOffset) {
+    private void checkVoltages(RaoResult importedRaoResult, Crac crac, int primaryVersionNumber, int subVersionNumber) {
         Instant preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
-        assertEquals(4146. + valueOffset, importedRaoResult.getVoltage(null, voltageCnec, minOrMax, KILOVOLT), DOUBLE_TOLERANCE);
+        if (primaryVersionNumber >= 1 && subVersionNumber >= 6) {
+            assertEquals(4156., importedRaoResult.getVoltage(null, voltageCnec, MinOrMax.MAX, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4256., importedRaoResult.getVoltage(preventiveInstant, voltageCnec, MinOrMax.MAX, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4356., importedRaoResult.getVoltage(autoInstant, voltageCnec, MinOrMax.MAX, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4456., importedRaoResult.getVoltage(curativeInstant, voltageCnec, MinOrMax.MAX, KILOVOLT), DOUBLE_TOLERANCE);
+        }
+        assertEquals(4146., importedRaoResult.getVoltage(null, voltageCnec, MinOrMax.MIN, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4246., importedRaoResult.getVoltage(preventiveInstant, voltageCnec, MinOrMax.MIN, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4346., importedRaoResult.getVoltage(autoInstant, voltageCnec, MinOrMax.MIN, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., importedRaoResult.getVoltage(curativeInstant, voltageCnec, MinOrMax.MIN, KILOVOLT), DOUBLE_TOLERANCE);
+
         assertEquals(4141., importedRaoResult.getMargin(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4246. + valueOffset, importedRaoResult.getVoltage(preventiveInstant, voltageCnec, minOrMax, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4241., importedRaoResult.getMargin(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4346. + valueOffset, importedRaoResult.getVoltage(autoInstant, voltageCnec, minOrMax, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4341., importedRaoResult.getMargin(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4446. + valueOffset, importedRaoResult.getVoltage(curativeInstant, voltageCnec, minOrMax, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4441., importedRaoResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
     }
 
@@ -812,8 +817,7 @@ class ImporterRetrocompatibilityTest {
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         testBaseContentOfV1Point2RaoResult(importedRaoResult, crac);
-        checkVoltages(importedRaoResult, crac, MinOrMax.MIN, 0);
-        checkVoltages(importedRaoResult, crac, MinOrMax.MAX, 0);
+        checkVoltages(importedRaoResult, crac, 1, 3);
         // Test computation status map
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getPreventiveState()));
         assertEquals(ComputationStatus.FAILURE, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
@@ -825,8 +829,7 @@ class ImporterRetrocompatibilityTest {
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         testBaseContentOfV1Point2RaoResult(importedRaoResult, crac);
-        checkVoltages(importedRaoResult, crac, MinOrMax.MIN, 0);
-        checkVoltages(importedRaoResult, crac, MinOrMax.MAX, 10);
+        checkVoltages(importedRaoResult, crac, 1, 6);
         // Test computation status map
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getPreventiveState()));
         assertEquals(ComputationStatus.FAILURE, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));

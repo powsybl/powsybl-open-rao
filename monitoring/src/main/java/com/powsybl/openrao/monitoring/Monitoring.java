@@ -30,6 +30,7 @@ import com.powsybl.openrao.util.AbstractNetworkPool;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
@@ -95,31 +96,30 @@ public class Monitoring {
             return monitoringResult;
         }
 
-        try {
-            try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)) {
-                List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
-                    networkPool.submit(() -> {
-                        Network networkClone = networkPool.getAvailableNetwork();
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)) {
+            List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
+                networkPool.submit(() -> {
+                    Network networkClone = networkPool.getAvailableNetwork();
 
-                        Contingency contingency = state.getContingency().orElseThrow();
-                        if (!contingency.isValid(networkClone)) {
-                            throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
-                        }
-                        contingency.toModification().apply(networkClone, (ComputationManager) null);
-                        applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac, raoResult);
-                        Set<Cnec> currentStateCnecs = crac.getCnecs(physicalParameter, state);
-                        monitoringResult.combine(monitorCnecs(state, currentStateCnecs, networkClone, monitoringInput));
-                        networkPool.releaseUsedNetwork(networkClone);
-                        return null;
-                    })).toList();
-                for (ForkJoinTask<Object> task : tasks) {
-                    try {
-                        task.get();
-                    } catch (ExecutionException e) {
-                        throw new OpenRaoException(e);
+                    Contingency contingency = state.getContingency().orElseThrow();
+                    if (!contingency.isValid(networkClone)) {
+                        throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
                     }
+                    contingency.toModification().apply(networkClone, (ComputationManager) null);
+                    applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac, raoResult);
+                    Set<Cnec> currentStateCnecs = crac.getCnecs(physicalParameter, state);
+                    monitoringResult.combine(monitorCnecs(state, currentStateCnecs, networkClone, monitoringInput));
+                    networkPool.releaseUsedNetwork(networkClone);
+                    return null;
+                })).toList();
+            for (ForkJoinTask<Object> task : tasks) {
+                try {
+                    task.get();
+                } catch (ExecutionException e) {
+                    throw new OpenRaoException(e);
                 }
             }
+            networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (Exception e) {
             Thread.currentThread().interrupt();
         }

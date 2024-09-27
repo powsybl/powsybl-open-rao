@@ -27,16 +27,16 @@ Example:
     "voltageCnecId" : "voltageCnecId",
     "initial" : {
       "kilovolt" : {
-        ...
         "minVoltage" : 4146.0,
-        "maxVoltage" : 4156.0
+        "maxVoltage" : 4156.0,
+        ...
       }
     },
     "preventive" : {
       "kilovolt" : {
-        ...
         "minVoltage" : 4246.0,
-        "maxVoltage" : 4256.0
+        "maxVoltage" : 4256.0, 
+        ...
       }
     }, ...
 ~~~
@@ -91,9 +91,9 @@ Example:
     "voltageCnecId" : "voltageCnecId",
     "initial" : {
       "kilovolt" : {
-        "margin" : 4141.0,
-        "minVvoltage" : 4146.0,
-        "maxVvoltage" : 4156.0
+        "minVoltage" : 4146.0,
+        "maxVoltage" : 4156.0,
+        "margin" : 4141.0
       }
     },
     "preventive" : {

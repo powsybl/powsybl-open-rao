@@ -176,8 +176,8 @@ class VoltageCnecImplTest {
     }
 
     private static Network mockBusVoltagesInNetwork(String elementId, double voltage) {
-        Network network = Mockito.mock(Network.class, Mockito.RETURNS_DEEP_STUBS);
-        VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class, Mockito.RETURNS_DEEP_STUBS);
+        Network network = Mockito.mock(Network.class);
+        VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);
         Mockito.when(network.getVoltageLevel(elementId)).thenReturn(voltageLevel);
         BusbarSection busbarSection = Mockito.mock(BusbarSection.class);
         Mockito.when(network.getBusbarSection(elementId)).thenReturn(busbarSection);
