@@ -9,7 +9,7 @@ Feature: US 7.18: Virtual hubs in loopflow computation
   Scenario: 7.18.1 : Loop flow computation with one virtual hub on a classic UCTE node
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf.json"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_virtual_1.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_1.xml"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
@@ -33,7 +33,7 @@ Feature: US 7.18: Virtual hubs in loopflow computation
   Scenario: 7.18.2 Loop flow computation with one virtual hub on a external Xnode border
     Given network file is "epic7/TestCase12Nodes_with_Xnodes_dangling.uct" for CORE CC
     Given crac file is "epic7/crac_lf_xnodes.json"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_virtual_2.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_2.xml"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
@@ -57,7 +57,7 @@ Feature: US 7.18: Virtual hubs in loopflow computation
   Scenario: 7.18.3 RAO with one virtual hub on a external Xnode border
     Given network file is "epic7/TestCase12Nodes_with_Xnodes_dangling.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora_xnodes.xml"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_virtual_2.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_2.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_10_100.json"

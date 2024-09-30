@@ -10,7 +10,7 @@ Feature: US 12.2: export of ptdf factors and relative margins in CORE CNE
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_2_1.xml"
     Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
-    Given Glsk file is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk is "common/glsk_proportional_12nodes.xml"
     Given RaoResult file is "epic12/RaoResult_12_2_1.json"
     When I export CORE CNE at "2019-01-08 22:59"
     Then the CORE CNE file is xsd-compliant

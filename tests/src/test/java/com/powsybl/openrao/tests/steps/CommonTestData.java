@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.tests.steps;
 
-import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -58,10 +58,10 @@ public final class CommonTestData {
     private static String raoParametersPath;
     private static RaoParameters raoParameters;
 
-    private static String glskPath;
-    private static String cimGlskPath;
-    private static ZonalData<SensitivityVariableSet> glsks;
-    private static CimGlskDocument cimGlskDocument;
+    private static String loopflowGlskPath;
+    private static String monitoringGlskPath;
+    private static ZonalData<Scalable> monitoringGlsks;
+    private static ZonalData<SensitivityVariableSet> loopflowGlsks;
 
     private static String raoResultPath;
     private static RaoResult raoResult;
@@ -122,8 +122,8 @@ public final class CommonTestData {
         networkPath = null;
         raoParametersPath = null;
         cracCreationParametersPath = null;
-        glskPath = null;
-        cimGlskPath = null;
+        loopflowGlskPath = null;
+        monitoringGlskPath = null;
         refProgPath = null;
         cracPath = null;
         raoResultPath = null;
@@ -132,8 +132,8 @@ public final class CommonTestData {
         network = null;
         virtualHubsConfigPath = null;
         raoParameters = null;
-        glsks = null;
-        cimGlskDocument = null;
+        loopflowGlsks = null;
+        monitoringGlsks = null;
         referenceProgram = null;
         raoResult = null;
         monitoringResult = null;
@@ -170,14 +170,14 @@ public final class CommonTestData {
         raoParametersPath = getResourcesPath().concat("configurations/").concat(path);
     }
 
-    @Given("Glsk file is {string}")
-    public static void glskFileIs(String path) {
-        glskPath = getResourcesPath().concat("glsks/").concat(path);
+    @Given("loopflow glsk is {string}")
+    public static void loopflowGlskFileIs(String path) {
+        loopflowGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
-    @Given("cim glsk file is {string}")
-    public static void cimGlskFileIs(String path) {
-        cimGlskPath = getResourcesPath().concat("glsks/").concat(path);
+    @Given("monitoring glsk file is {string}")
+    public static void monitoringGlskFileIs(String path) {
+        monitoringGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
     @Given("RefProg file is {string}")
@@ -225,12 +225,12 @@ public final class CommonTestData {
         return raoParameters;
     }
 
-    public static ZonalData<SensitivityVariableSet> getGlsks() {
-        return glsks;
+    public static ZonalData<SensitivityVariableSet> getLoopflowGlsks() {
+        return loopflowGlsks;
     }
 
-    public static CimGlskDocument getCimGlskDocument() {
-        return cimGlskDocument;
+    public static ZonalData<Scalable> getMonitoringGlsks() {
+        return monitoringGlsks;
     }
 
     public static ReferenceProgram getReferenceProgram() {
@@ -294,14 +294,15 @@ public final class CommonTestData {
             raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
         }
 
-        // GLSK
-        // for now, only work with UCTE GLSK files, not CIME GLSK file
-        if (glskPath != null) {
-            glsks = importUcteGlskFile(getFile(glskPath), timestamp, network);
+        // Loopflow GLSK
+        // only work with UCTE GLSK files
+        if (loopflowGlskPath != null) {
+            loopflowGlsks = importUcteGlskFile(getFile(loopflowGlskPath), timestamp, network);
         }
 
-        if (cimGlskPath != null) {
-            cimGlskDocument = importCimGlskFile(getFile(cimGlskPath));
+        // Monitoring GLSK
+        if (monitoringGlskPath != null) {
+            monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), network);
         }
 
         // Reference program
@@ -316,10 +317,10 @@ public final class CommonTestData {
 
         // Virtual hubs configuration
         if (virtualHubsConfigPath != null) {
-            if (referenceProgram != null && glsks != null) {
+            if (referenceProgram != null && loopflowGlsks != null) {
                 VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
                 ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram);
-                glsks.addAll(glskOfVirtualHubs);
+                loopflowGlsks.addAll(glskOfVirtualHubs);
             } else {
                 throw new OpenRaoException("In order to import a virtual hubs configuration file, you should define a reference program file and a GLSK file.");
             }

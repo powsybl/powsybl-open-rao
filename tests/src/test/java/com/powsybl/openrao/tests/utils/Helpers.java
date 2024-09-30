@@ -11,6 +11,7 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -138,6 +139,10 @@ public final class Helpers {
         }
 
         return ucteGlskDocument.getZonalGlsks(network, instant);
+    }
+
+    public static ZonalData<Scalable> importMonitoringGlskFile(File monitoringGlskFile, Network network) throws IOException {
+        return CimGlskDocument.importGlsk(new FileInputStream(monitoringGlskFile)).getZonalScalable(network);
     }
 
     public static CimGlskDocument importCimGlskFile(File glskFile) throws IOException {

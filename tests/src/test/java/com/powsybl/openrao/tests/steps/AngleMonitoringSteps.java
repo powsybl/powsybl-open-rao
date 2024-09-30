@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.tests.steps;
 
-import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -20,13 +19,11 @@ import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.tests.utils.Helpers;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,23 +38,18 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AngleMonitoringSteps {
     private static final double DOUBLE_TOLERANCE = 1e-1;
 
-    // TODO : harmonize crac and glsk timestamps.
-    // Temporary double parameters as long as input cimGlskDocument is poorly defined.
-    @When("I launch angle monitoring with crac at {string} and glsk at {string} on {int} threads")
-    public void iLaunchAngleMonitoring(String cracTimestamp, String glskTimestamp, int numberOfLoadFlowsInParallel) throws IOException {
-        runAngleMonitoring(cracTimestamp, glskTimestamp, numberOfLoadFlowsInParallel);
+    @When("I launch angle monitoring at {string} on {int} threads")
+    public void iLaunchAngleMonitoring(String cracTimestamp, int numberOfLoadFlowsInParallel) throws IOException {
+        runAngleMonitoring(cracTimestamp, numberOfLoadFlowsInParallel);
     }
 
-    private void runAngleMonitoring(String cracTimestamp, String glskTimestamp, int numberOfLoadFlowsInParallel) throws IOException {
-        // TODO : why not use RaoParameters' load-flow params?
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+    private void runAngleMonitoring(String cracTimestamp, int numberOfLoadFlowsInParallel) throws IOException {
+        LoadFlowParameters loadFlowParameters = CommonTestData.getRaoParameters().getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters();
         loadFlowParameters.setDc(false);
-        OffsetDateTime glskOffsetDateTime = Helpers.getOffsetDateTimeFromBrusselsTimestamp(glskTimestamp);
         CommonTestData.loadData(cracTimestamp);
         Network network = CommonTestData.getNetwork();
         RaoResult raoResult = CommonTestData.getRaoResult();
-        CimGlskDocument cimGlskDocument = CommonTestData.getCimGlskDocument();
-        MonitoringInput angleMonitoringInput = MonitoringInput.buildWithAngle(network, CommonTestData.getCrac(), raoResult, cimGlskDocument.getZonalScalable(network)).build();
+        MonitoringInput angleMonitoringInput = MonitoringInput.buildWithAngle(network, CommonTestData.getCrac(), raoResult, CommonTestData.getMonitoringGlsks()).build();
         MonitoringResult angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
         CommonTestData.setMonitoringResult(angleMonitoringResult);
     }

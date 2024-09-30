@@ -19,7 +19,7 @@ Feature: US 7.8: Loopflow computation (not within the RAO)
   Scenario: US 7.8.2: loopflow computation on 12 nodes network with proportional GLSKs
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf.json"
-    Given Glsk file is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk is "common/glsk_proportional_12nodes.xml"
     When I launch loopflow_computation with OpenLoadFlow
     Then the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -124.0 MW
     And the loopflow on cnec "NNL1AA1  NNL3AA1  1 - preventive" after loopflow computation should be 354.0 MW
@@ -41,7 +41,7 @@ Feature: US 7.8: Loopflow computation (not within the RAO)
   Scenario: US 7.8.3: loopflow computation on 12 nodes network with proportional GLSKs
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf.json"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk is "common/glsk_lots_of_lf_12nodes.xml"
     When I launch loopflow_computation with OpenLoadFlow
     Then the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -391.0 MW
     And the loopflow on cnec "NNL1AA1  NNL3AA1  1 - preventive" after loopflow computation should be 297.0 MW
