@@ -1,5 +1,14 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.monitoring.results;
 
+/**
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -14,15 +23,15 @@ public class CnecResult<T extends CnecValue> {
     private final Cnec cnec;
     private Unit unit;
     private final T value;
-    private final double worstCnecMargin;
+    private final double margin;
 
     private final Cnec.SecurityStatus securityStatus;
 
-    public CnecResult(Cnec cnec, Unit unit, T value, double worstCnecMargin, Cnec.SecurityStatus securityStatus) {
+    public CnecResult(Cnec cnec, Unit unit, T value, double margin, Cnec.SecurityStatus securityStatus) {
         this.cnec = cnec;
         this.unit = unit;
         this.value = value;
-        this.worstCnecMargin = worstCnecMargin;
+        this.margin = margin;
         this.securityStatus = securityStatus;
     }
 
@@ -50,8 +59,8 @@ public class CnecResult<T extends CnecValue> {
         return securityStatus;
     }
 
-    public double getWorstCnecMargin() {
-        return worstCnecMargin;
+    public double getMargin() {
+        return margin;
     }
 
     public String print() {
@@ -77,9 +86,6 @@ public class CnecResult<T extends CnecValue> {
         }
     }
 
-    public boolean thresholdOvershoot() {
-        return this.getWorstCnecMargin() < 0;
-    }
 }
 
 

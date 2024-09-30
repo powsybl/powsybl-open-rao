@@ -86,8 +86,8 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
         }
 
-        return Math.min(voltageCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - getVoltage(optimizationInstant, voltageCnec, MinOrMax.MAX, unit),
-            getVoltage(optimizationInstant, voltageCnec, MinOrMax.MIN, unit) - voltageCnec.getLowerBound(unit).orElse(-Double.MAX_VALUE));
+        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec, unit);
+        return voltageCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }
 
     @Override

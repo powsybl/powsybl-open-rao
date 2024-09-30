@@ -113,10 +113,10 @@ class VoltageCnecImplTest {
 
         // margin
         Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 400.);
-        assertEquals(100., cnec.computeWorstMargin(networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE); // bound: 500 MW
+        assertEquals(100., cnec.computeMargin(networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE); // bound: 500 MW
 
         Network networkMock2 = mockBusVoltagesInNetwork("networkElement", -300.);
-        assertEquals(800., cnec.computeWorstMargin(networkMock2, Unit.KILOVOLT), DOUBLE_TOLERANCE); // bound: 760 A
+        assertEquals(800., cnec.computeMargin(networkMock2, Unit.KILOVOLT), DOUBLE_TOLERANCE); // bound: 760 A
     }
 
     @Test
@@ -133,10 +133,10 @@ class VoltageCnecImplTest {
         assertEquals(-50., cnec.getLowerBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
 
         Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 300.);
-        assertEquals(-200., cnec.computeWorstMargin(networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(-200., cnec.computeMargin(networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);
 
         Network networkMock2 = mockBusVoltagesInNetwork("networkElement", -200.);
-        assertEquals(-150., cnec.computeWorstMargin(networkMock2, Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(-150., cnec.computeMargin(networkMock2, Unit.KILOVOLT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -147,16 +147,16 @@ class VoltageCnecImplTest {
             .add();
 
         Network networkMock1 = mockBusVoltagesInNetwork("networkElement", -300.);
-        assertEquals(-100, cnec.computeWorstMargin(networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(-100, cnec.computeMargin(networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);
 
         Network networkMock2 = mockBusVoltagesInNetwork("networkElement", 0.);
-        assertEquals(200, cnec.computeWorstMargin(networkMock2, Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(200, cnec.computeMargin(networkMock2, Unit.KILOVOLT), DOUBLE_TOLERANCE);
 
         Network networkMock3 = mockBusVoltagesInNetwork("networkElement", 400.);
-        assertEquals(100, cnec.computeWorstMargin(networkMock3, Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(100, cnec.computeMargin(networkMock3, Unit.KILOVOLT), DOUBLE_TOLERANCE);
 
         Network networkMock4 = mockBusVoltagesInNetwork("networkElement", 800.);
-        assertEquals(-300, cnec.computeWorstMargin(networkMock4, Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(-300, cnec.computeMargin(networkMock4, Unit.KILOVOLT), DOUBLE_TOLERANCE);
     }
 
     // other

@@ -164,27 +164,27 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         double power1;
         double power2;
         if (getMonitoredSides().size() == 2) {
-            power1 = getPower(branch, TwoSides.ONE, unit);
-            power2 = getPower(branch, TwoSides.TWO, unit);
+            power1 = getFlow(branch, TwoSides.ONE, unit);
+            power2 = getFlow(branch, TwoSides.TWO, unit);
 
             result.put(TwoSides.ONE, power1);
             result.put(TwoSides.TWO, power2);
 
             return new FlowCnecValue(power1, power2);
         } else {
-            power1 = getPower(branch, TwoSides.ONE, unit);
+            power1 = getFlow(branch, TwoSides.ONE, unit);
             result.put(TwoSides.ONE, power1);
             return new FlowCnecValue(power1, Double.NaN);
         }
     }
 
-    private double getPower(Branch branch, TwoSides side, Unit unit) {
+    private double getFlow(Branch branch, TwoSides side, Unit unit) {
         double power = unit == Unit.MEGAWATT ? branch.getTerminal(side).getP() : branch.getTerminal(side).getI();
-        return Double.isNaN(power) ? branch.getTerminal(side).getP() * getFlowUnitMultiplier(side) : power;
+        return Double.isNaN(power) ? branch.getTerminal(side).getP() * getFlowUnitMultiplierMegawattToAmpere(side) : power;
     }
 
     @Override
-    public double computeWorstMargin(Network network, Unit unit) {
+    public double computeMargin(Network network, Unit unit) {
         if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
@@ -199,7 +199,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
-        if (computeWorstMargin(network, unit) < 0) {
+        if (computeMargin(network, unit) < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
 
@@ -254,7 +254,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         return super.hashCode();
     }
 
-    private double getFlowUnitMultiplier(TwoSides voltageSide) {
+    private double getFlowUnitMultiplierMegawattToAmpere(TwoSides voltageSide) {
         double nominalVoltage = getNominalVoltage(voltageSide);
         return 1000 / (nominalVoltage * Math.sqrt(3));
     }

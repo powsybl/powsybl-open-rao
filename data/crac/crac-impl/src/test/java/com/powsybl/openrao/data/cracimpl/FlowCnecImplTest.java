@@ -47,11 +47,9 @@ class FlowCnecImplTest {
 
     @Test
     void testGetLocation1() {
-
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         FlowCnec cnec1 = crac.newFlowCnec().withId("cnec-1-id").withNetworkElement("BBE1AA1  BBE2AA1  1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add().add();
-
         FlowCnec cnec2 = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("DDE2AA1  NNL3AA1  1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add().add();
 
         Set<Optional<Country>> countries = cnec1.getLocation(network);
@@ -66,13 +64,13 @@ class FlowCnecImplTest {
 
     @Test
     void testComputeValue() {
-        Network network = Mockito.mock(Network.class, Mockito.RETURNS_DEEP_STUBS);
+        Network network = Mockito.mock(Network.class);
         Branch branch1 = Mockito.mock(Branch.class, Mockito.RETURNS_DEEP_STUBS);
         Mockito.when(network.getBranch("BBE1AA1  BBE2AA1  1")).thenReturn(branch1);
         Mockito.when(branch1.getTerminal(ONE).getP()).thenReturn(300.);
         Mockito.when(branch1.getTerminal(TWO).getP()).thenReturn(1100.);
 
-        Branch branch2 = Mockito.mock(Branch.class, Mockito.RETURNS_DEEP_STUBS);
+        Branch branch2 = Mockito.mock(Branch.class);
         Mockito.when(network.getBranch("DDE2AA1  NNL3AA1  1")).thenReturn(branch2);
         Mockito.when(branch2.getTerminal(ONE).getP()).thenReturn(100.);
 
@@ -107,11 +105,11 @@ class FlowCnecImplTest {
             .newThreshold().withUnit(MEGAWATT).withMin(500.).withMax(1000.).withSide(TwoSides.ONE).add()
             .newThreshold().withUnit(MEGAWATT).withMin(2000.).withMax(3000.).withSide(TwoSides.TWO).add()
             .add();
-        assertThrows(OpenRaoException.class, () -> cnecWithTwoSides.computeWorstMargin(network, KILOVOLT));
-        assertEquals(-900., cnecWithTwoSides.computeWorstMargin(network, MEGAWATT));
+        assertThrows(OpenRaoException.class, () -> cnecWithTwoSides.computeMargin(network, KILOVOLT));
+        assertEquals(-900., cnecWithTwoSides.computeMargin(network, MEGAWATT));
 
         FlowCnec cnecWithOneSide = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("DDE2AA1  NNL3AA1  1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add().add();
-        assertEquals(900., cnecWithOneSide.computeWorstMargin(network, MEGAWATT));
+        assertEquals(900., cnecWithOneSide.computeMargin(network, MEGAWATT));
     }
 
     @Test
@@ -130,7 +128,7 @@ class FlowCnecImplTest {
             .newThreshold().withUnit(MEGAWATT).withMin(500.).withMax(1000.).withSide(TwoSides.ONE).add()
             .newThreshold().withUnit(MEGAWATT).withMin(2000.).withMax(3000.).withSide(TwoSides.TWO).add()
             .add();
-        assertThrows(OpenRaoException.class, () -> cnecWithTwoSides.computeWorstMargin(network, KILOVOLT));
+        assertThrows(OpenRaoException.class, () -> cnecWithTwoSides.computeMargin(network, KILOVOLT));
         assertEquals(Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS, cnecWithTwoSides.computeSecurityStatus(network, MEGAWATT));
 
         FlowCnec cnecWithOneSide = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("DDE2AA1  NNL3AA1  1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add().add();

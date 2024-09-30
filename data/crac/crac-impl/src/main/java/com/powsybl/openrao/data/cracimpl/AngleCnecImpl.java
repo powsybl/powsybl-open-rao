@@ -124,7 +124,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     }
 
     @Override
-    public double computeWorstMargin(Network network, Unit unit) {
+    public double computeMargin(Network network, Unit unit) {
         if (!unit.equals(Unit.DEGREE)) {
             throw new OpenRaoException("AngleCnec margin can only be requested in DEGREE");
         }
@@ -136,7 +136,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     }
 
     public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
-        if (computeWorstMargin(network, unit) < 0) {
+        if (computeMargin(network, unit) < 0) {
             double actualAngleValue = computeValue(network, unit).value();
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;

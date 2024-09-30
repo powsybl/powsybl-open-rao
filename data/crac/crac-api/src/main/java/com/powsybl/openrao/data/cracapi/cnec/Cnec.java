@@ -66,8 +66,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      * @param unit: the unit object used to look for the kind of the {@link Cnec}
      * @return a double as the worst margin of a @{@link CnecValue} relatively to the @{@link Cnec} thresholds
      */
-    double computeWorstMargin(Network network, Unit unit);
-
+    double computeMargin(Network network, Unit unit);
 
     /**
      * @param network: the network object used to look for actual result of the Cnec

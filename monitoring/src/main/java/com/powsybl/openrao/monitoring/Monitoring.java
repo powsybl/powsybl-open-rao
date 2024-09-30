@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.monitoring;
 
 import com.powsybl.action.*;
@@ -36,6 +42,11 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
+/**
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 public class Monitoring {
 
     private final String loadFlowProvider;
@@ -136,12 +147,14 @@ public class Monitoring {
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
         boolean lfSuccess = computeLoadFlow(network);
         if (!lfSuccess) {
-            return makeResultWhenLoadFlowFails(physicalParameter, state, monitoringInput.getCrac(), unit);
+            CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
+            monitoringInput.getCrac().getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, unit, cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
+            BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
+            return new MonitoringResult(physicalParameter, cnecResults, new HashMap<>(), Cnec.SecurityStatus.FAILURE);
         }
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
         cnecs.forEach(cnec -> {
-            CnecValue value = cnec.computeValue(network, unit);
-            if (cnec.computeWorstMargin(network, unit) < 0) {
+            if (cnec.computeMargin(network, unit) < 0) {
                 // For Cnecs with overshoot, get associated remedial actions
                 Set<NetworkAction> availableNetworkActions = getNetworkActionsAssociatedToCnec(state, monitoringInput.getCrac(), cnec, physicalParameter);
                 // and apply them
@@ -150,7 +163,7 @@ public class Monitoring {
                     appliedNetworkActionsResultList.add(appliedNetworkActionsResult);
                 }
             }
-            CnecResult cnecResult = new CnecResult(cnec, unit, value, cnec.computeWorstMargin(network, unit), cnec.computeSecurityStatus(network, unit));
+            CnecResult cnecResult = new CnecResult(cnec, unit, cnec.computeValue(network, unit), cnec.computeMargin(network, unit), cnec.computeSecurityStatus(network, unit));
             cnecResults.add(cnecResult);
         });
 
@@ -166,14 +179,17 @@ public class Monitoring {
             // Re-compute all voltage/angle values
             cnecResults.clear();
             cnecs.forEach(cnec -> {
-                CnecValue value = cnec.computeValue(network, unit);
-                CnecResult cnecResult = new CnecResult(cnec, unit, value, cnec.computeWorstMargin(network, unit), cnec.computeSecurityStatus(network, unit));
+                CnecResult cnecResult = new CnecResult(cnec,
+                    unit,
+                    cnec.computeValue(network, unit),
+                    cnec.computeMargin(network, unit),
+                    cnec.computeSecurityStatus(network, unit));
                 cnecResults.add(cnecResult);
             });
         }
 
         Cnec.SecurityStatus monitoringResultStatus = Cnec.SecurityStatus.SECURE;
-        if (cnecResults.stream().anyMatch(cnecResult -> cnecResult.getWorstCnecMargin() < 0)) {
+        if (cnecResults.stream().anyMatch(cnecResult -> cnecResult.getMargin() < 0)) {
             monitoringResultStatus = MonitoringResult.combineStatuses(
                 cnecResults.stream()
                     .map(CnecResult::getCnecSecurityStatus)
@@ -214,14 +230,6 @@ public class Monitoring {
         } else {
             applyOptimalRemedialActions(state, network, raoResult);
         }
-    }
-
-    private static MonitoringResult makeResultWhenLoadFlowFails(PhysicalParameter physicalParameter, State state, Crac crac, Unit unit) {
-        BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
-        Set<CnecResult> cnecResults = new HashSet<>();
-        CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
-        crac.getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, unit, cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
-        return new MonitoringResult(physicalParameter, cnecResults, new HashMap<>(), Cnec.SecurityStatus.FAILURE);
     }
 
     /**

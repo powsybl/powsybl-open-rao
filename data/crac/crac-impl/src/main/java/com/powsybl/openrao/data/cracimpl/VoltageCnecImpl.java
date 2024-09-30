@@ -126,7 +126,7 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     }
 
     @Override
-    public double computeWorstMargin(Network network, Unit unit) {
+    public double computeMargin(Network network, Unit unit) {
         if (!unit.equals(Unit.KILOVOLT)) {
             throw new OpenRaoException("VoltageCnec margin can only be requested in KILOVOLT");
         }
@@ -138,13 +138,14 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     }
 
     public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
-        VoltageCnecValue voltageValue = computeValue(network, unit);
-        double marginLowerBound = voltageValue.minValue() - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-        double marginUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - voltageValue.maxValue();
-
-        if (marginLowerBound < 0 || marginUpperBound < 0) {
+        if (computeMargin(network, unit) < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
+
+            VoltageCnecValue voltageValue = computeValue(network, unit);
+            double marginLowerBound = voltageValue.minValue() - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+            double marginUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - voltageValue.maxValue();
+
             if (marginUpperBound < 0) {
                 highVoltageConstraints = true;
             }

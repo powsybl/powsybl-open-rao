@@ -71,8 +71,8 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
-        return Math.min(angleCnec.getUpperBound(unit).orElse(Double.MAX_VALUE) - getAngle(optimizationInstant, angleCnec, unit),
-            getAngle(optimizationInstant, angleCnec, unit) - angleCnec.getLowerBound(unit).orElse(-Double.MAX_VALUE));
+        Optional<CnecResult> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
+        return angleCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }
 
     @Override

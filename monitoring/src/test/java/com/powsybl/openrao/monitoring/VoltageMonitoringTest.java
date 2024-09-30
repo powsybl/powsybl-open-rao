@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.monitoring;
 
 import com.powsybl.contingency.ContingencyElementType;
@@ -127,7 +133,7 @@ public class VoltageMonitoringTest {
         assertEquals(400., voltageCnecValue.minValue(), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageCnecValue.maxValue(), VOLTAGE_TOLERANCE);
         assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().noneMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("All VOLTAGE Cnecs are secure."), voltageMonitoringResult.printConstraints());
     }
 
@@ -137,7 +143,7 @@ public class VoltageMonitoringTest {
         addVoltageCnec("vc2", PREVENTIVE_INSTANT_ID, null, "VL2", 385., null);
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().noneMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("All VOLTAGE Cnecs are secure."), voltageMonitoringResult.printConstraints());
     }
 
@@ -146,7 +152,7 @@ public class VoltageMonitoringTest {
         addVoltageCnec("vc", PREVENTIVE_INSTANT_ID, null, "VL1", 300., 350.);
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).anyMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
             "Network element VL1 at state preventive has a min voltage of 400 kV and a max voltage of 400 kV."), voltageMonitoringResult.printConstraints());
     }
@@ -156,7 +162,7 @@ public class VoltageMonitoringTest {
         addVoltageCnec("vc", PREVENTIVE_INSTANT_ID, null, "VL1", 401., 410.);
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).anyMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
             "Network element VL1 at state preventive has a min voltage of 400 kV and a max voltage of 400 kV."), voltageMonitoringResult.printConstraints());
     }
@@ -172,8 +178,8 @@ public class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(CnecResult::thresholdOvershoot));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).noneMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
             "Network element VL2 at state preventive has a min voltage of 368 kV and a max voltage of 368 kV."), voltageMonitoringResult.printConstraints());
     }
@@ -189,8 +195,8 @@ public class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(CnecResult::thresholdOvershoot));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
             "Network element VL2 at state preventive has a min voltage of 368 kV and a max voltage of 368 kV.", "Network element VL3 at state preventive has a min voltage of 383 kV and a max voltage of 383 kV."), voltageMonitoringResult.printConstraints());
     }
@@ -206,8 +212,8 @@ public class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).noneMatch(CnecResult::thresholdOvershoot));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).noneMatch(cr -> cr.getMargin() < 0));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
             "Network element VL3 at state preventive has a min voltage of 400 kV and a max voltage of 400 kV."), voltageMonitoringResult.printConstraints());
     }
@@ -223,8 +229,8 @@ public class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(CnecResult::thresholdOvershoot));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
             "Network element VL2 at state preventive has a min voltage of 368 kV and a max voltage of 368 kV.", "Network element VL3 at state preventive has a min voltage of 400 kV and a max voltage of 400 kV."), voltageMonitoringResult.printConstraints());
     }
@@ -241,8 +247,8 @@ public class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(CnecResult::thresholdOvershoot));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).noneMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
             "Network element VL2 at state preventive has a min voltage of 379 kV and a max voltage of 379 kV."), voltageMonitoringResult.printConstraints());
     }
@@ -258,10 +264,10 @@ public class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).allMatch(CnecResult::thresholdOvershoot));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).allMatch(CnecResult::thresholdOvershoot));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2b")).allMatch(CnecResult::thresholdOvershoot));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1b")).noneMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).allMatch(cr -> cr.getMargin() < 0));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).allMatch(cr -> cr.getMargin() < 0));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2b")).allMatch(cr -> cr.getMargin() < 0));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1b")).noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
                 "Network element VL2 at state coL1 - curative has a min voltage of 368 kV and a max voltage of 368 kV.",
                 "Network element VL3 at state coL2 - curative has a min voltage of 400 kV and a max voltage of 400 kV.",
@@ -283,7 +289,7 @@ public class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().noneMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("All VOLTAGE Cnecs are secure."), voltageMonitoringResult.printConstraints());
     }
 
@@ -297,7 +303,7 @@ public class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).allMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).allMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
             "Network element VL2 at state co3 - curative has a min voltage of 368 kV and a max voltage of 368 kV."), voltageMonitoringResult.printConstraints());
     }
@@ -315,8 +321,8 @@ public class VoltageMonitoringTest {
 
         // VL46 HIGH and VL45 LOW
         assertEquals(Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("VL45")).anyMatch(CnecResult::thresholdOvershoot));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("VL46")).anyMatch(CnecResult::thresholdOvershoot));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("VL45")).anyMatch(cr -> cr.getMargin() < 0));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("VL46")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of(
                 "Some VOLTAGE Cnecs are not secure:",
                 "Network element VL45 at state preventive has a min voltage of 144 kV and a max voltage of 148 kV.",

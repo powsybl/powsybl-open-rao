@@ -254,13 +254,10 @@ public interface Crac extends Identifiable<Crac> {
 
     Set<Cnec> getCnecs(PhysicalParameter physicalParameter, State state);
 
-
     /**
      * Find a Cnec by its id, returns null if the Cnec does not exists
      */
     Cnec getCnec(String cnecId);
-
-
 
     /**
      * Gather all the BranchCnecs present in the Crac. It returns a set because Cnecs

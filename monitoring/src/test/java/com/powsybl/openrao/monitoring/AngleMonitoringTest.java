@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.monitoring;
 
 import com.google.common.base.Suppliers;
@@ -52,8 +58,6 @@ public class AngleMonitoringTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
-
-    private OffsetDateTime glskOffsetDateTime;
     private Network network;
     private Crac crac;
     private RaoResult raoResult;
@@ -82,7 +86,6 @@ public class AngleMonitoringTest {
         CimCracCreationContext cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
         crac = cracCreationContext.getCrac();
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
-        glskOffsetDateTime = OffsetDateTime.parse("2021-04-02T05:30Z");
     }
 
     public void setUpCracFactory(String networkFileName) {
@@ -93,7 +96,6 @@ public class AngleMonitoringTest {
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
-        glskOffsetDateTime = OffsetDateTime.parse("2017-04-12T02:30Z");
     }
 
     public void mockPreventiveState() {

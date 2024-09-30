@@ -137,10 +137,10 @@ class AngleCnecImplTest {
 
         // margin
         Network networkMock1 = mockBusAngleInNetwork("exportingNetworkElement", 0., "importingNetworkElement", 300.);
-        assertEquals(800., cnec.computeWorstMargin(networkMock1, Unit.DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(800., cnec.computeMargin(networkMock1, Unit.DEGREE), DOUBLE_TOLERANCE);
 
         Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", 0.);
-        assertEquals(200., cnec.computeWorstMargin(networkMock2, Unit.DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(200., cnec.computeMargin(networkMock2, Unit.DEGREE), DOUBLE_TOLERANCE);
 
     }
 
@@ -158,10 +158,10 @@ class AngleCnecImplTest {
         assertEquals(-50., cnec.getLowerBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
 
         Network networkMock1 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", 0.);
-        assertEquals(-200, cnec.computeWorstMargin(networkMock1, Unit.DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-200, cnec.computeMargin(networkMock1, Unit.DEGREE), DOUBLE_TOLERANCE);
 
         Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 0., "importingNetworkElement", 200.);
-        assertEquals(-150., cnec.computeWorstMargin(networkMock2, Unit.DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-150., cnec.computeMargin(networkMock2, Unit.DEGREE), DOUBLE_TOLERANCE);
 
     }
 
@@ -173,16 +173,16 @@ class AngleCnecImplTest {
             .add();
 
         Network networkMock1 = mockBusAngleInNetwork("exportingNetworkElement", 0., "importingNetworkElement", 300.);
-        assertEquals(-100, cnec.computeWorstMargin(networkMock1, Unit.DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-100, cnec.computeMargin(networkMock1, Unit.DEGREE), DOUBLE_TOLERANCE);
 
         Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", 300.);
-        assertEquals(200, cnec.computeWorstMargin(networkMock2, Unit.DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(200, cnec.computeMargin(networkMock2, Unit.DEGREE), DOUBLE_TOLERANCE);
 
         Network networkMock3 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", -100.);
-        assertEquals(100, cnec.computeWorstMargin(networkMock3, Unit.DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(100, cnec.computeMargin(networkMock3, Unit.DEGREE), DOUBLE_TOLERANCE);
 
         Network networkMock4 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", -500.);
-        assertEquals(-300, cnec.computeWorstMargin(networkMock4, Unit.DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-300, cnec.computeMargin(networkMock4, Unit.DEGREE), DOUBLE_TOLERANCE);
     }
 
     // other

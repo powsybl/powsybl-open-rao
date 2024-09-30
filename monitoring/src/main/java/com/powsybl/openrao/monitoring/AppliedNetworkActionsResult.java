@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.openrao.monitoring;
-
-// result is Set<NetworkAction> if voltage monitoring
-// result is Set<NetworkAction> , networkElementsToBeExcluded and power to redispatch if angle monitoring
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
@@ -10,6 +13,9 @@ import java.util.*;
 
 import static java.lang.String.format;
 
+/**
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 public class AppliedNetworkActionsResult {
 
     public static final class AppliedNetworkActionsResultBuilder {
@@ -27,11 +33,13 @@ public class AppliedNetworkActionsResult {
             return this;
         }
 
+        // applies only for Angle monitoring
         public AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder withNetworkElementsToBeExcluded(Set<String> networkElementsToBeExcluded) {
             this.networkElementsToBeExcluded = networkElementsToBeExcluded;
             return this;
         }
 
+        // applies only for Angle monitoring
         public AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder withPowerToBeRedispatched(Map<Country, Double> powerToBeRedispatched) {
             this.powerToBeRedispatched = powerToBeRedispatched;
             return this;
@@ -44,20 +52,11 @@ public class AppliedNetworkActionsResult {
             appliedNetworkActionsResult.powerToBeRedispatched = powerToBeRedispatched;
             return appliedNetworkActionsResult;
         }
-
     }
 
     private Set<RemedialAction> appliedNetworkActions;
     private Set<String> networkElementsToBeExcluded;
     private Map<Country, Double> powerToBeRedispatched;
-
-    public static AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder builderForVoltageMonitoring(Set<RemedialAction> appliedNetworkActions) {
-        return new AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions);
-    }
-
-    public static AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder builderForAngleMonitoring(Set<RemedialAction> appliedNetworkActions, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched) {
-        return new AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions).withNetworkElementsToBeExcluded(networkElementsToBeExcluded).withPowerToBeRedispatched(powerToBeRedispatched);
-    }
 
     public Set<RemedialAction> getAppliedNetworkActions() {
         return appliedNetworkActions;
