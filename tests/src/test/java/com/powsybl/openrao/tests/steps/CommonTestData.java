@@ -302,7 +302,7 @@ public final class CommonTestData {
 
         // Monitoring GLSK
         if (monitoringGlskPath != null) {
-            monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), network);
+            monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), timestamp, network);
         }
 
         // Reference program
