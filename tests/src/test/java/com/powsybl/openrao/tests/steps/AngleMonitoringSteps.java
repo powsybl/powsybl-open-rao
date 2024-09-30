@@ -44,7 +44,7 @@ public class AngleMonitoringSteps {
     }
 
     private void runAngleMonitoring(String cracTimestamp, int numberOfLoadFlowsInParallel) throws IOException {
-        LoadFlowParameters loadFlowParameters = CommonTestData.getRaoParameters().getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
         CommonTestData.loadData(cracTimestamp);
         Network network = CommonTestData.getNetwork();

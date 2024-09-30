@@ -141,13 +141,18 @@ public final class Helpers {
         return ucteGlskDocument.getZonalGlsks(network, instant);
     }
 
-    public static ZonalData<Scalable> importMonitoringGlskFile(File monitoringGlskFile, Network network) throws IOException {
-        return CimGlskDocument.importGlsk(new FileInputStream(monitoringGlskFile)).getZonalScalable(network);
-    }
+    public static ZonalData<Scalable> importMonitoringGlskFile(File monitoringGlskFile, String timestamp, Network network) throws IOException {
+        InputStream inputStream = new FileInputStream(monitoringGlskFile);
+        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(inputStream);
 
-    public static CimGlskDocument importCimGlskFile(File glskFile) throws IOException {
-        InputStream inputStream = new FileInputStream(glskFile);
-        return CimGlskDocument.importGlsk(inputStream);
+        Instant instant;
+        if (timestamp == null) {
+            instant = cimGlskDocument.getInstantStart();
+        } else {
+            instant = getOffsetDateTimeFromBrusselsTimestamp(timestamp).toInstant();
+        }
+
+        return cimGlskDocument.getZonalScalable(network, instant);
     }
 
     private static Instant getStartInstantOfUcteGlsk(UcteGlskDocument ucteGlskDocument) {

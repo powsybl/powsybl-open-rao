@@ -14,7 +14,7 @@ Feature: US 13.8: cross-validation curative and relative margin
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case6.json"
     Given configuration file is "epic13/RaoParameters_relMargin_ampere.json"
-    Given loopflow glsk is "common/glsk_proportional_16nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch search_tree_rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
@@ -63,7 +63,7 @@ Feature: US 13.8: cross-validation curative and relative margin
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us8case2.json"
     Given configuration file is "epic13/RaoParameters_relMargin_ampere.json"
-    Given loopflow glsk is "common/glsk_proportional_16nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch search_tree_rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive

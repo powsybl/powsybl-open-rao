@@ -170,7 +170,7 @@ public final class CommonTestData {
         raoParametersPath = getResourcesPath().concat("configurations/").concat(path);
     }
 
-    @Given("loopflow glsk is {string}")
+    @Given("loopflow glsk file is {string}")
     public static void loopflowGlskFileIs(String path) {
         loopflowGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
@@ -302,7 +302,7 @@ public final class CommonTestData {
 
         // Monitoring GLSK
         if (monitoringGlskPath != null) {
-            monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), network);
+            monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), timestamp, network);
         }
 
         // Reference program
