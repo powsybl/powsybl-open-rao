@@ -19,7 +19,7 @@ Feature: US 12.6: CORE CNE export for preventive case
   Scenario: 12.6.3: Preventive case with loopflows
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic12/crac_lf_rao_3_cbcora.xml"
-    Given loopflow glsk is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100_BE_NL.json"
     Given RaoResult file is "epic12/RaoResult_12_6_3.json"

@@ -11,7 +11,7 @@ Feature: US 10.6: Add minimum relative margin binary variable
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic10/SL_ep10us6case1.json"
     Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
-    Given loopflow glsk is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     When I launch search_tree_rao
     And the worst margin is -1188.90 MW
     And the value of the objective function after CRA should be 1188.90

@@ -20,7 +20,7 @@ Feature: US 7.9: Linear RAO with loopflow limitation
   Scenario: US 7.9.2: linear RAO with LF limited by predefined threshold (10% of Fmax)
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
-    Given loopflow glsk is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_10_100.json"
     When I launch loopflow search_tree_rao with default loopflow limit as 10.0 percent of pmax
     Then the worst margin is 198.0 MW
@@ -43,7 +43,7 @@ Feature: US 7.9: Linear RAO with loopflow limitation
   Scenario: US 7.9.3: linear RAO with LF limited by initial value
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
-    Given loopflow glsk is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_10_100.json"
     When I launch loopflow search_tree_rao with default loopflow limit as 5.0 percent of pmax
     Then the worst margin is 166.0 MW

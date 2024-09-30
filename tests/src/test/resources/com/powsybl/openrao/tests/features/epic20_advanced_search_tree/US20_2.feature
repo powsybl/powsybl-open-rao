@@ -9,7 +9,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
   Scenario: US 20.2.1: LF constraint in curative is solved by 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us2case1.xml"
-    Given loopflow glsk is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then 0 remedial actions are used in preventive
@@ -25,7 +25,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
   Scenario: US 20.2.2: LF constraint in curative is solved by CRA + 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us2case2.xml"
-    Given loopflow glsk is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then 0 remedial actions are used in preventive
@@ -43,7 +43,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
   Scenario: US 20.2.3: LF constraint avoided on preventive CNEC in 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us2case3.xml"
-    Given loopflow glsk is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive

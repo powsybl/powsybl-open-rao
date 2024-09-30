@@ -170,7 +170,7 @@ public final class CommonTestData {
         raoParametersPath = getResourcesPath().concat("configurations/").concat(path);
     }
 
-    @Given("loopflow glsk is {string}")
+    @Given("loopflow glsk file is {string}")
     public static void loopflowGlskFileIs(String path) {
         loopflowGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
