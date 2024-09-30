@@ -357,7 +357,7 @@ public class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(Cnec.SecurityStatus.FAILURE, voltageMonitoringResult.getStatus());
-        assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
+        assertEquals(0, voltageMonitoringResult.getAppliedRas().get(crac.getPreventiveState()).size());
     }
 
     @Test

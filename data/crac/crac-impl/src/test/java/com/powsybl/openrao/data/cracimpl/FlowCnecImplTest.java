@@ -70,7 +70,7 @@ class FlowCnecImplTest {
         Mockito.when(branch1.getTerminal(ONE).getP()).thenReturn(300.);
         Mockito.when(branch1.getTerminal(TWO).getP()).thenReturn(1100.);
 
-        Branch branch2 = Mockito.mock(Branch.class);
+        Branch branch2 = Mockito.mock(Branch.class, Mockito.RETURNS_DEEP_STUBS);
         Mockito.when(network.getBranch("DDE2AA1  NNL3AA1  1")).thenReturn(branch2);
         Mockito.when(branch2.getTerminal(ONE).getP()).thenReturn(100.);
 

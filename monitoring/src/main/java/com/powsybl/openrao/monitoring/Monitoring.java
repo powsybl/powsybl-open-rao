@@ -114,7 +114,11 @@ public class Monitoring {
 
                     Contingency contingency = state.getContingency().orElseThrow();
                     if (!contingency.isValid(networkClone)) {
-                        throw new OpenRaoException("Unable to apply contingency " + contingency.getId());
+                        networkPool.releaseUsedNetwork(networkClone);
+                        String failureReason = "Unable to apply contingency " + contingency.getId();
+                        MonitoringResult failedMonitoringResult = makeFailedMonitoringResultForState(monitoringInput, physicalParameter, state, failureReason);
+                        monitoringResult.combine(failedMonitoringResult);
+                        return null;
                     }
                     contingency.toModification().apply(networkClone, (ComputationManager) null);
                     applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac, raoResult);
@@ -123,6 +127,7 @@ public class Monitoring {
                     networkPool.releaseUsedNetwork(networkClone);
                     return null;
                 })).toList();
+
             for (ForkJoinTask<Object> task : tasks) {
                 try {
                     task.get();
@@ -147,10 +152,8 @@ public class Monitoring {
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
         boolean lfSuccess = computeLoadFlow(network);
         if (!lfSuccess) {
-            CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
-            monitoringInput.getCrac().getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, unit, cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
-            BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
-            return new MonitoringResult(physicalParameter, cnecResults, new HashMap<>(), Cnec.SecurityStatus.FAILURE);
+            String failureReason = "Load-flow computation failed at state {}. Skipping this state." + state;
+            return makeFailedMonitoringResultForState(monitoringInput, physicalParameter, state, failureReason);
         }
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
         cnecs.forEach(cnec -> {
@@ -173,8 +176,8 @@ public class Monitoring {
         if (appliedNetworkActionsResultList.stream().map(AppliedNetworkActionsResult::getAppliedNetworkActions).findAny().isPresent()) {
             boolean loadFlowIsOk = computeLoadFlow(network);
             if (!loadFlowIsOk) {
-                BUSINESS_WARNS.warn("Load-flow computation failed at state {} after applying RAs. Skipping this state.", state);
-                return new MonitoringResult(physicalParameter, cnecResults, Map.of(state, Collections.emptySet()), Cnec.SecurityStatus.FAILURE);
+                String failureReason = "Load-flow computation failed at state {} after applying RAs. Skipping this state." + state;
+                return makeFailedMonitoringResultForState(monitoringInput, physicalParameter, state, failureReason);
             }
             // Re-compute all voltage/angle values
             cnecResults.clear();
@@ -387,5 +390,13 @@ public class Monitoring {
         if (!glskCountries.contains(country)) {
             throw new OpenRaoException(String.format("INFEASIBLE Angle Monitoring : Glsks were not defined for country %s. Remedial action %s of AngleCnec %s is ignored.", country.getName(), naId, angleCnecId));
         }
+    }
+
+    private MonitoringResult makeFailedMonitoringResultForState(MonitoringInput monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
+        BUSINESS_WARNS.warn(failureReason);
+        Set<CnecResult> cnecResults = new HashSet<>();
+        CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
+        monitoringInput.getCrac().getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
+        return new MonitoringResult(physicalParameter, cnecResults, Map.of(state, Collections.emptySet()), Cnec.SecurityStatus.FAILURE);
     }
 }
