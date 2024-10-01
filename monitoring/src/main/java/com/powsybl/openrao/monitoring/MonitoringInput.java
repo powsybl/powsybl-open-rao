@@ -9,6 +9,7 @@ package com.powsybl.openrao.monitoring;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -54,6 +55,9 @@ public class MonitoringInput {
         }
 
         public MonitoringInputBuilder withScalableZonalData(ZonalData<Scalable> scalableZonalData) {
+            if (!physicalParameter.equals(PhysicalParameter.ANGLE)) {
+                throw new OpenRaoException("Monitoring with scalable is possible only if physicalParameter is ANGLE");
+            }
             this.scalableZonalData = scalableZonalData;
             return this;
         }
