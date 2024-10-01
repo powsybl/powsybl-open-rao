@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.parameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
@@ -29,8 +30,8 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
 
     private static final String CAPACITY_CALCULATION_REGION_EIC_CODE = "capacity-calculation-region-eic-code";
     private static final String SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS = "sps-max-time-to-implement-threshold-in-seconds";
-    private static final String USE_PATL_IN_FINAL_STATE = "use-patl-in-final-state";
-    private static final String CRA_APPLICATION_WINDOW = "cra-application-window";
+    private static final String TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE = "tsos-which-do-not-use-patl-in-final-state";
+    private static final String CURATIVE_BATCH_POST_OUTAGE_TIME = "curative-batch-post-outage-time";
     private static final String BORDERS = "borders";
     private static final String NAME = "name";
     private static final String EIC = "eic";
@@ -41,8 +42,8 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
         jsonGenerator.writeStartObject();
         serializeCapacityCalculationRegionEicCode(csaParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
         serializeSpsMaxTimeToImplementThresholdInSeconds(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds(), jsonGenerator);
-        serializeUsePatlInFinalState(csaParameters.getUsePatlInFinalState(), jsonGenerator);
-        serializeCraApplicationWindow(csaParameters.getCraApplicationWindow(), jsonGenerator);
+        serializeTsosWhichDoNotUsePatlInFinalState(csaParameters.getTsosWhichDoNotUsePatlInFinalState(), jsonGenerator);
+        serializeCurativeBatchPostOutageTime(csaParameters.getCurativeBatchPostOutageTime(), jsonGenerator);
         serializeBorders(csaParameters.getBorders(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
@@ -59,13 +60,13 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
                     jsonParser.nextToken();
                     parameters.setSpsMaxTimeToImplementThresholdInSeconds(jsonParser.readValueAs(Integer.class));
                     break;
-                case USE_PATL_IN_FINAL_STATE:
+                case TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE:
                     jsonParser.nextToken();
-                    parameters.setUsePatlInFinalState(deserializeUsePatlInFinalStateMap(jsonParser));
+                    parameters.setTsosWhichDoNotUsePatlInFinalState(jsonParser.readValueAs(new TypeReference<HashSet<String>>() { }));
                     break;
-                case CRA_APPLICATION_WINDOW:
+                case CURATIVE_BATCH_POST_OUTAGE_TIME:
                     jsonParser.nextToken();
-                    parameters.setCraApplicationWindow(deserializeCraApplicationWindowMap(jsonParser));
+                    parameters.setCurativeBatchPostOutageTime(deserializeCraApplicationWindowMap(jsonParser));
                     break;
                 case BORDERS:
                     jsonParser.nextToken();
@@ -102,27 +103,27 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
         jsonGenerator.writeStringField(SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS, spsMaxTimeToImplementThresholdInSeconds.toString());
     }
 
-    private void serializeUsePatlInFinalState(Map<String, Boolean> usePatlInFinalState, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName(USE_PATL_IN_FINAL_STATE);
-        jsonGenerator.writeStartObject();
-        usePatlInFinalState.forEach((tso, usePatl) -> {
+    private void serializeTsosWhichDoNotUsePatlInFinalState(Set<String> usePatlInFinalState, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE);
+        jsonGenerator.writeStartArray();
+        usePatlInFinalState.forEach(tso -> {
             try {
-                jsonGenerator.writeBooleanField(tso, usePatl);
+                jsonGenerator.writeString(tso);
             } catch (IOException e) {
-                throw new OpenRaoException("Could not serialize " + USE_PATL_IN_FINAL_STATE + " map. Reason: " + e.getMessage());
+                throwSerializationError(TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE, e);
             }
         });
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeEndArray();
     }
 
-    private void serializeCraApplicationWindow(Map<String, Integer> craApplicationWindow, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName(CRA_APPLICATION_WINDOW);
+    private void serializeCurativeBatchPostOutageTime(Map<String, Integer> craApplicationWindow, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(CURATIVE_BATCH_POST_OUTAGE_TIME);
         jsonGenerator.writeStartObject();
         craApplicationWindow.forEach((instant, duration) -> {
             try {
                 jsonGenerator.writeNumberField(instant, duration);
             } catch (IOException e) {
-                throw new OpenRaoException("Could not serialize " + CRA_APPLICATION_WINDOW + " map. Reason: " + e.getMessage());
+                throwSerializationError(CURATIVE_BATCH_POST_OUTAGE_TIME, e);
             }
         });
         jsonGenerator.writeEndObject();
@@ -139,7 +140,7 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
                 jsonGenerator.writeStringField(DEFAULT_FOR_TSO, border.defaultForTso());
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
-                throw new OpenRaoException("Could not serialize " + BORDERS + " map. Reason: " + e.getMessage());
+                throwSerializationError(BORDERS, e);
             }
         });
         jsonGenerator.writeEndArray();
@@ -148,14 +149,6 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     @Override
     public CsaCracCreationParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         return deserializeAndUpdate(jsonParser, deserializationContext, new CsaCracCreationParameters());
-    }
-
-    private Map<String, Boolean> deserializeUsePatlInFinalStateMap(JsonParser jsonParser) throws IOException {
-        Map<String, Boolean> usePatlInFinalState = new HashMap<>();
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            usePatlInFinalState.put(jsonParser.getCurrentName(), jsonParser.nextBooleanValue());
-        }
-        return usePatlInFinalState;
     }
 
     private Map<String, Integer> deserializeCraApplicationWindowMap(JsonParser jsonParser) throws IOException {
@@ -176,5 +169,9 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
             borders.add(new Border(borderData.get(NAME), borderData.get(EIC), borderData.get(DEFAULT_FOR_TSO)));
         }
         return borders;
+    }
+
+    private static void throwSerializationError(String nonSerializableField, IOException e) {
+        throw new OpenRaoException("Could not serialize " + nonSerializableField + " map. Reason: " + e.getMessage());
     }
 }

@@ -5,7 +5,9 @@ import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracio.csaprofiles.parameters.Border;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.mockito.Mockito;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FlowCnecInstantHelperTest {
 
+    private Instant outageInstant;
+    private Instant autoInstant;
+    private Instant curative1Instant;
+    private Instant curative2Instant;
+    private Instant curative3Instant;
+    private List<Instant> instants;
     private LoadingLimits.TemporaryLimit tatl0;
     private LoadingLimits.TemporaryLimit tatl182;
     private LoadingLimits.TemporaryLimit tatl300;
@@ -35,52 +44,34 @@ class FlowCnecInstantHelperTest {
 
     @BeforeEach
     void setUp() {
+        initInstants();
         initTatls();
         initCracCreationParameters();
-        helper = new FlowCnecInstantHelper(parameters);
-    }
-
-    @Test
-    void getTsosWhichDoNotUsePatlInFinalState() {
-        assertEquals(Set.of("REE"), helper.getTsosWhichDoNotUsePatlInFinalState());
-    }
-
-    @Test
-    void checkCracCreationParametersWithoutCsaExtension() {
-        CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(cracCreationParameters));
-        assertEquals("No CsaCracCreatorParameters extension provided.", exception.getMessage());
-    }
-
-    @Test
-    void checkCracCreationParametersWithMissingTso() {
-        csaParameters.setUsePatlInFinalState(Map.of("REE", false, "REN", true, "ELIA", true));
-        parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(parameters));
-        assertEquals("use-patl-in-final-state map is missing \"RTE\" key.", exception.getMessage());
+        instants = List.of(outageInstant, autoInstant, curative1Instant, curative2Instant, curative3Instant);
+        helper = new FlowCnecInstantHelper(csaParameters, instants);
     }
 
     @Test
     void checkCracCreationParametersWithMissingInstant() {
-        csaParameters.setCraApplicationWindow(Map.of("curative 1", 300, "curative 2", 600, "preventive", 0));
+        csaParameters.setCurativeBatchPostOutageTime(Map.of("curative 1", 300, "curative 2", 600, "preventive", 0));
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(parameters));
-        assertEquals("cra-application-window map is missing \"curative 3\" key.", exception.getMessage());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(csaParameters, instants));
+        assertEquals("curative-batch-post-outage-time map is missing \"curative 3\" key.", exception.getMessage());
     }
 
     @Test
     void checkCracCreationParametersWithCurative1LongerThanCurative2() {
-        csaParameters.setCraApplicationWindow(Map.of("curative 1", 600, "curative 2", 300, "curative 3", 1200));
+        csaParameters.setCurativeBatchPostOutageTime(Map.of("curative 1", 600, "curative 2", 300, "curative 3", 1200));
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(parameters));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(csaParameters, instants));
         assertEquals("The TATL acceptable duration for curative 1 cannot be longer than the acceptable duration for curative 2.", exception.getMessage());
     }
 
     @Test
     void checkCracCreationParametersWithCurative2LongerThanCurative3() {
-        csaParameters.setCraApplicationWindow(Map.of("curative 1", 300, "curative 2", 1200, "curative 3", 600));
+        csaParameters.setCurativeBatchPostOutageTime(Map.of("curative 1", 300, "curative 2", 1200, "curative 3", 600));
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(parameters));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(csaParameters, instants));
         assertEquals("The TATL acceptable duration for curative 2 cannot be longer than the acceptable duration for curative 3.", exception.getMessage());
     }
 
@@ -277,7 +268,46 @@ class FlowCnecInstantHelperTest {
     private void initCracCreationParameters() {
         parameters = new CracCreationParameters();
         csaParameters = new CsaCracCreationParameters();
+        csaParameters.setCurativeBatchPostOutageTime(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
+        csaParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
+    }
+
+    private void initInstants() {
+        outageInstant = Mockito.mock(Instant.class);
+        autoInstant = Mockito.mock(Instant.class);
+        curative1Instant = Mockito.mock(Instant.class);
+        curative2Instant = Mockito.mock(Instant.class);
+        curative3Instant = Mockito.mock(Instant.class);
+        Mockito.when(outageInstant.getId()).thenReturn("outage");
+        Mockito.when(outageInstant.isOutage()).thenReturn(true);
+        Mockito.when(outageInstant.isAuto()).thenReturn(false);
+        Mockito.when(outageInstant.isCurative()).thenReturn(false);
+        Mockito.when(autoInstant.getId()).thenReturn("auto");
+        Mockito.when(autoInstant.isOutage()).thenReturn(false);
+        Mockito.when(autoInstant.isAuto()).thenReturn(true);
+        Mockito.when(autoInstant.isCurative()).thenReturn(false);
+        Mockito.when(curative1Instant.getId()).thenReturn("curative 1");
+        Mockito.when(curative1Instant.isOutage()).thenReturn(false);
+        Mockito.when(curative1Instant.isAuto()).thenReturn(false);
+        Mockito.when(curative1Instant.isCurative()).thenReturn(true);
+        Mockito.when(curative2Instant.getId()).thenReturn("curative 2");
+        Mockito.when(curative2Instant.isOutage()).thenReturn(false);
+        Mockito.when(curative2Instant.isAuto()).thenReturn(false);
+        Mockito.when(curative2Instant.isCurative()).thenReturn(true);
+        Mockito.when(curative3Instant.getId()).thenReturn("curative 3");
+        Mockito.when(curative3Instant.isOutage()).thenReturn(false);
+        Mockito.when(curative3Instant.isAuto()).thenReturn(false);
+        Mockito.when(curative3Instant.isCurative()).thenReturn(true);
+        Mockito.when(curative1Instant.comesBefore(curative1Instant)).thenReturn(false);
+        Mockito.when(curative1Instant.comesBefore(curative2Instant)).thenReturn(true);
+        Mockito.when(curative1Instant.comesBefore(curative3Instant)).thenReturn(true);
+        Mockito.when(curative2Instant.comesBefore(curative1Instant)).thenReturn(false);
+        Mockito.when(curative2Instant.comesBefore(curative2Instant)).thenReturn(false);
+        Mockito.when(curative2Instant.comesBefore(curative3Instant)).thenReturn(true);
+        Mockito.when(curative3Instant.comesBefore(curative1Instant)).thenReturn(false);
+        Mockito.when(curative3Instant.comesBefore(curative2Instant)).thenReturn(false);
+        Mockito.when(curative3Instant.comesBefore(curative3Instant)).thenReturn(false);
     }
 
     private void initTatls() {

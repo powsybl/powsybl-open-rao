@@ -3,17 +3,14 @@
   "extensions": {
     "CsaCracCreatorParameters": {
       "capacity-calculation-region-eic-code": "10Y1001C--00095L",
-      "use-patl-in-final-state": {
-        "REE": false,
-        "REN": 100,
-        "RTE": true
-      },
-      "cra-application-window": {
+      "tsos-which-do-not-use-patl-in-final-state": [
+        "REE"
+      ],
+      "curative-batch-post-outage-time": {
         "curative 1": 300,
         "curative 2": 600,
         "curative 3": 1200
-      }
-    },
+      },
     "borders": [
       {
         "name": "ES-FR",
@@ -26,5 +23,6 @@
         "default-for-tso": "REN"
       }
     ]
+  }
   }
 }

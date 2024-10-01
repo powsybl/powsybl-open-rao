@@ -24,6 +24,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -45,20 +46,20 @@ class JsonCsaCracCreationParametersTest {
         assertNotNull(csaCracCreationParameters);
         assertEquals("10XFR-RTE------Q", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
         assertEquals(60, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
-        assertEquals(Map.of("REE", false, "REN", false, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
-        assertEquals(Map.of("curative 1", 0, "curative 2", 200, "curative 3", 500), csaCracCreationParameters.getCraApplicationWindow());
+        assertEquals(Set.of("REE"), csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState());
+        assertEquals(Map.of("curative 1", 0, "curative 2", 200, "curative 3", 500), csaCracCreationParameters.getCurativeBatchPostOutageTime());
         assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), csaCracCreationParameters.getBorders());
     }
 
     @Test
-    void deserializeDefaultParameters() {
+    void deserializeDefaultSweParameters() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters.json"));
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
         assertEquals(0, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
-        assertEquals(Map.of("REE", false, "REN", true, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
-        assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCraApplicationWindow());
+        assertEquals(Set.of("REE"), csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState());
+        assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCurativeBatchPostOutageTime());
         assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), csaCracCreationParameters.getBorders());
     }
 
@@ -74,7 +75,7 @@ class JsonCsaCracCreationParametersTest {
     }
 
     @Test
-    void serializeValidParameters() {
+    void serializeDefaultParameters() {
         CracCreationParameters parameters = new CracCreationParameters();
         CsaCracCreationParameters csaParameters = new CsaCracCreationParameters();
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
@@ -90,9 +91,9 @@ class JsonCsaCracCreationParametersTest {
         assertNotNull(csaCracCreationParameters);
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
         assertEquals(0, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
-        assertEquals(Map.of("REE", false, "REN", true, "RTE", true), csaCracCreationParameters.getUsePatlInFinalState());
-        assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCraApplicationWindow());
-        assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), csaCracCreationParameters.getBorders());
+        assertTrue(csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().isEmpty());
+        assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCurativeBatchPostOutageTime());
+        assertTrue(csaCracCreationParameters.getBorders().isEmpty());
     }
 
 }

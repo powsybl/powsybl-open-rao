@@ -4,69 +4,41 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 class FlowCnecInstantHelper {
+    private final CsaCracCreationParameters csaCracCreationParameters;
+    private final List<Instant> instants;
 
-    private final Set<String> tsosWhichDoNotUsePatlInFinalState;
-    private final int curative1InstantDuration;
-    private final int curative2InstantDuration;
-    private final int curative3InstantDuration;
-
-    private final Set<String> tsos = Set.of("REE", "REN", "RTE");
-    private final Set<String> instants = Set.of(CsaProfileConstants.CURATIVE_1_INSTANT, CsaProfileConstants.CURATIVE_2_INSTANT, CsaProfileConstants.CURATIVE_3_INSTANT);
-
-    public FlowCnecInstantHelper(CracCreationParameters parameters) {
-        CsaCracCreationParameters csaParameters = parameters.getExtension(CsaCracCreationParameters.class);
-        checkCsaExtension(csaParameters);
-        checkUsePatlInFinalStateMap(csaParameters);
-        checkCraApplicationWindowMap(csaParameters);
-        tsosWhichDoNotUsePatlInFinalState = csaParameters.getUsePatlInFinalState().entrySet().stream().filter(entry -> !entry.getValue()).map(Map.Entry::getKey).collect(Collectors.toSet());
-        curative1InstantDuration = csaParameters.getCraApplicationWindow().get(CsaProfileConstants.CURATIVE_1_INSTANT);
-        curative2InstantDuration = csaParameters.getCraApplicationWindow().get(CsaProfileConstants.CURATIVE_2_INSTANT);
-        curative3InstantDuration = csaParameters.getCraApplicationWindow().get(CsaProfileConstants.CURATIVE_3_INSTANT);
-    }
-
-    public Set<String> getTsosWhichDoNotUsePatlInFinalState() {
-        return tsosWhichDoNotUsePatlInFinalState;
+    public FlowCnecInstantHelper(CsaCracCreationParameters csaCracCreationParameters, List<Instant> instants) {
+        this.csaCracCreationParameters = csaCracCreationParameters;
+        this.instants = new ArrayList<>(instants);
+        checkCraApplicationWindowMap();
     }
 
     // CSA CRAC Creation Parameters checking
 
-    private static void checkCsaExtension(CsaCracCreationParameters csaParameters) {
-        if (csaParameters == null) {
-            throw new OpenRaoException("No CsaCracCreatorParameters extension provided.");
-        }
-    }
-
-    private void checkUsePatlInFinalStateMap(CsaCracCreationParameters csaParameters) {
-        Map<String, Boolean> usePatlInFinalState = csaParameters.getUsePatlInFinalState();
-        for (String tso : tsos) {
-            if (!usePatlInFinalState.containsKey(tso)) {
-                throw new OpenRaoException("use-patl-in-final-state map is missing \"" + tso + "\" key.");
+    private void checkCraApplicationWindowMap() {
+        Map<String, Integer> curativeBatchPostOutageTimeMap = csaCracCreationParameters.getCurativeBatchPostOutageTime();
+        List<Instant> curativeInstants = instants.stream().filter(Instant::isCurative).sorted(Instant::compareTo).toList();
+        for (Instant curativeInstant : curativeInstants) {
+            if (!curativeBatchPostOutageTimeMap.containsKey(curativeInstant.getId())) {
+                throw new OpenRaoException("curative-batch-post-outage-time map is missing \"" + curativeInstant.getId() + "\" key.");
             }
         }
-    }
-
-    private void checkCraApplicationWindowMap(CsaCracCreationParameters csaParameters) {
-        Map<String, Integer> craApplicationWindow = csaParameters.getCraApplicationWindow();
-        for (String instant : instants) {
-            if (!craApplicationWindow.containsKey(instant)) {
-                throw new OpenRaoException("cra-application-window map is missing \"" + instant + "\" key.");
+        for (int instantIndex = 0; instantIndex < curativeInstants.size() - 1; instantIndex++) {
+            if (curativeBatchPostOutageTimeMap.get(curativeInstants.get(instantIndex).getId()) >= curativeBatchPostOutageTimeMap.get(curativeInstants.get(instantIndex + 1).getId())) {
+                throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(curativeInstants.get(instantIndex).getId(), curativeInstants.get(instantIndex + 1).getId()));
             }
-        }
-        if (craApplicationWindow.get(CsaProfileConstants.CURATIVE_1_INSTANT) >= craApplicationWindow.get(CsaProfileConstants.CURATIVE_2_INSTANT)) {
-            throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(CsaProfileConstants.CURATIVE_1_INSTANT, CsaProfileConstants.CURATIVE_2_INSTANT));
-        }
-        if (craApplicationWindow.get(CsaProfileConstants.CURATIVE_2_INSTANT) >= craApplicationWindow.get(CsaProfileConstants.CURATIVE_3_INSTANT)) {
-            throw new OpenRaoException("The TATL acceptable duration for %s cannot be longer than the acceptable duration for %s.".formatted(CsaProfileConstants.CURATIVE_2_INSTANT, CsaProfileConstants.CURATIVE_3_INSTANT));
         }
     }
 
@@ -78,16 +50,21 @@ class FlowCnecInstantHelper {
 
     public Map<String, Integer> mapPostContingencyInstantsAndLimitDurations(Branch<?> branch, TwoSides side, String tso) {
         Map<String, Integer> instantToLimit = new HashMap<>();
-        boolean doNotUsePatlInFinalState = tsosWhichDoNotUsePatlInFinalState.contains(tso);
+        Map<String, Integer> curativeBatchPostOutageTimeMap = csaCracCreationParameters.getCurativeBatchPostOutageTime();
+        boolean doNotUsePatlInFinalState = csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().contains(tso);
         Set<Integer> tatlDurations = getAllTatlDurationsOnSide(branch, side);
         // raise exception if a TSO not using the PATL has no TATL either
         // associate instant to TATL duration, or Integer.MAX_VALUE if PATL
         int longestDuration = doNotUsePatlInFinalState ? tatlDurations.stream().max(Integer::compareTo).orElse(Integer.MAX_VALUE) : Integer.MAX_VALUE; // longest TATL duration or infinite (PATL)
-        instantToLimit.put(CsaProfileConstants.OUTAGE_INSTANT, tatlDurations.stream().filter(tatlDuration -> tatlDuration >= 0 && tatlDuration < curative1InstantDuration).max(Integer::compareTo).orElse(getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, 0, longestDuration)));
-        instantToLimit.put(CsaProfileConstants.AUTO_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative1InstantDuration, longestDuration));
-        instantToLimit.put(CsaProfileConstants.CURATIVE_1_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative2InstantDuration, longestDuration));
-        instantToLimit.put(CsaProfileConstants.CURATIVE_2_INSTANT, getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curative3InstantDuration, longestDuration));
-        instantToLimit.put(CsaProfileConstants.CURATIVE_3_INSTANT, longestDuration);
+        Instant outageInstant = instants.stream().filter(Instant::isOutage).findFirst().get();
+        Optional<Instant> autoInstant = instants.stream().filter(Instant::isAuto).findFirst();
+        List<Instant> curativeInstants = instants.stream().filter(Instant::isCurative).sorted(Instant::compareTo).toList();
+        instantToLimit.put(outageInstant.getId(), tatlDurations.stream().filter(tatlDuration -> tatlDuration >= 0 && tatlDuration < curativeBatchPostOutageTimeMap.get(curativeInstants.get(0).getId())).max(Integer::compareTo).orElse(getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, 0, longestDuration)));
+        autoInstant.ifPresent(instant -> instantToLimit.put(instant.getId(), getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curativeBatchPostOutageTimeMap.get(curativeInstants.get(0).getId()), longestDuration)));
+        for (int instantIndex = 0; instantIndex < curativeInstants.size() - 1; instantIndex++) {
+            instantToLimit.put(curativeInstants.get(instantIndex).getId(), getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curativeBatchPostOutageTimeMap.get(curativeInstants.get(instantIndex + 1).getId()), longestDuration));
+        }
+        instantToLimit.put(curativeInstants.get(curativeInstants.size() - 1).getId(), longestDuration);
         return instantToLimit;
     }
 
