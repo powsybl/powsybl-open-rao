@@ -101,7 +101,7 @@ public final class JsonCracCreationParametersConstants {
         return map;
     }
 
-    private static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser) throws IOException {
+    public static Pair<String, RaUsageLimits> deserializeRaUsageLimits(JsonParser jsonParser) throws IOException {
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         String instant = null;
         while (!jsonParser.nextToken().isStructEnd()) {
