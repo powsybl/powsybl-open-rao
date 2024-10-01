@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
+import com.powsybl.openrao.data.cracapi.cnec.CnecValue;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -27,10 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -497,5 +495,46 @@ class VoltageMonitoringTest {
         assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
         assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
     }
+
+    @Test
+    void testVoltageMonitoringWithNonValidContingency() {
+        setUpCracFactory("network.xiidm");
+
+        // Type BATTERY is put in purpose to simulate a contingency valid scenario
+        crac.newContingency().withId("coL3").withContingencyElement("L1", ContingencyElementType.BATTERY).add();
+        addVoltageCnec("vc", CURATIVE_INSTANT_ID, "coL3", "VL2", 340., 350.);
+
+        addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 390., 399.);
+
+        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
+
+        runVoltageMonitoring();
+        assertEquals(Cnec.SecurityStatus.FAILURE, voltageMonitoringResult.getStatus());
+        assertEquals(2, voltageMonitoringResult.getCnecResults().size());
+
+        Optional<CnecResult> vcCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vc")).findFirst();
+        CnecValue vcCnecOptCnecValue = vcCnecOpt.get().getValue();
+        Cnec.SecurityStatus vcCnecOptSecurityStatus = vcCnecOpt.get().getCnecSecurityStatus();
+        double vcMargin = vcCnecOpt.get().getMargin();
+
+        assertTrue(vcCnecOptCnecValue instanceof VoltageCnecValue);
+        assertEquals(Double.NaN, ((VoltageCnecValue) vcCnecOptCnecValue).minValue());
+        assertEquals(Double.NaN, ((VoltageCnecValue) vcCnecOptCnecValue).maxValue());
+        assertEquals(Cnec.SecurityStatus.FAILURE, vcCnecOptSecurityStatus);
+        assertEquals(Double.NaN, vcMargin);
+
+        Optional<CnecResult> vcPrevCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vcPrev")).findFirst();
+        CnecValue vcPrevCnecOptCnecValue = vcPrevCnecOpt.get().getValue();
+        Cnec.SecurityStatus vcPrevCnecOptSecurityStatus = vcPrevCnecOpt.get().getCnecSecurityStatus();
+        double vcPrevMargin = vcPrevCnecOpt.get().getMargin();
+
+        assertTrue(vcPrevCnecOptCnecValue instanceof VoltageCnecValue);
+        assertEquals(400., ((VoltageCnecValue) vcPrevCnecOptCnecValue).minValue(), 0.01);
+        assertEquals(400., ((VoltageCnecValue) vcPrevCnecOptCnecValue).maxValue(), 0.01);
+        assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, vcPrevCnecOptSecurityStatus);
+        assertEquals(-1.0, vcPrevMargin, 0.01);
+
+    }
+
 }
 

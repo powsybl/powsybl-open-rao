@@ -20,6 +20,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
+import com.powsybl.openrao.data.cracapi.cnec.CnecValue;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
@@ -290,6 +291,42 @@ class AngleMonitoringTest {
         // angle values
         assertEquals(5.22, raoResultWithAngleMonitoring.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
         assertEquals(-19.33, raoResultWithAngleMonitoring.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec2"), Unit.DEGREE), ANGLE_TOLERANCE);
+    }
+
+    @Test
+    void testAngleMonitoringWithNonValidContingency() {
+        setUpCracFactory("network.xiidm");
+        crac.newContingency().withId("coL1").withContingencyElement("L1", ContingencyElementType.LINE).add();
+        // Type BATTERY is put in purpose to simulate a contingency valid scenario
+        crac.newContingency().withId("coL2").withContingencyElement("L2", ContingencyElementType.BATTERY).add();
+        acCur1 = addAngleCnec("acCur1", CURATIVE_INSTANT_ID, "coL1", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
+        acCur1 = addAngleCnec("acCur2", CURATIVE_INSTANT_ID, "coL2", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
+
+        ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
+
+        runAngleMonitoring(scalableZonalData);
+        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+        assertEquals(2, angleMonitoringResult.getCnecResults().size());
+
+        Optional<CnecResult> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).findFirst();
+        CnecValue acCur1CnecValue = acCur1CnecOpt.get().getValue();
+        Cnec.SecurityStatus acCur1SecurityStatus = acCur1CnecOpt.get().getCnecSecurityStatus();
+        double acCur1Margin = acCur1CnecOpt.get().getMargin();
+
+        assertTrue(acCur1CnecValue instanceof AngleCnecValue);
+        assertEquals(-7.71, ((AngleCnecValue) acCur1CnecValue).value(), 0.01);
+        assertEquals(Cnec.SecurityStatus.SECURE, acCur1SecurityStatus);
+        assertEquals(0.28, acCur1Margin, 0.01);
+
+        Optional<CnecResult> acCur2CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur2")).findFirst();
+        CnecValue acCur2CnecValue = acCur2CnecOpt.get().getValue();
+        Cnec.SecurityStatus acCur2SecurityStatus = acCur2CnecOpt.get().getCnecSecurityStatus();
+        double acCur2Margin = acCur2CnecOpt.get().getMargin();
+
+        assertTrue(acCur2CnecValue instanceof AngleCnecValue);
+        assertEquals(Double.NaN, ((AngleCnecValue) acCur2CnecValue).value(), 0.01);
+        assertEquals(Cnec.SecurityStatus.FAILURE, acCur2SecurityStatus);
+        assertEquals(Double.NaN, acCur2Margin, 0.01);
     }
 
 }
