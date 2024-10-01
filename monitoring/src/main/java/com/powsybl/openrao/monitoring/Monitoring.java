@@ -114,10 +114,8 @@ public class Monitoring {
 
                     Contingency contingency = state.getContingency().orElseThrow();
                     if (!contingency.isValid(networkClone)) {
+                        monitoringResult.combine(makeFailedMonitoringResultForState(monitoringInput, physicalParameter, state, "Unable to apply contingency " + contingency.getId()));
                         networkPool.releaseUsedNetwork(networkClone);
-                        String failureReason = "Unable to apply contingency " + contingency.getId();
-                        MonitoringResult failedMonitoringResult = makeFailedMonitoringResultForState(monitoringInput, physicalParameter, state, failureReason);
-                        monitoringResult.combine(failedMonitoringResult);
                         return null;
                     }
                     contingency.toModification().apply(networkClone, (ComputationManager) null);
@@ -174,8 +172,8 @@ public class Monitoring {
 
         // If some action were applied, recompute a loadflow
         if (appliedNetworkActionsResultList.stream().map(AppliedNetworkActionsResult::getAppliedNetworkActions).findAny().isPresent()) {
-            boolean loadFlowIsOk = computeLoadFlow(network);
-            if (!loadFlowIsOk) {
+            lfSuccess = computeLoadFlow(network);
+            if (!lfSuccess) {
                 String failureReason = "Load-flow computation failed at state {} after applying RAs. Skipping this state." + state;
                 return makeFailedMonitoringResultForState(monitoringInput, physicalParameter, state, failureReason);
             }

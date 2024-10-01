@@ -179,7 +179,13 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     private double getFlow(Branch branch, TwoSides side, Unit unit) {
-        double power = unit == Unit.MEGAWATT ? branch.getTerminal(side).getP() : branch.getTerminal(side).getI();
+        double power = branch.getTerminal(side).getP();
+        if (unit.equals(Unit.AMPERE)) {
+            power = branch.getTerminal(side).getI();
+            return Double.isNaN(power) ? branch.getTerminal(side).getP() * getFlowUnitMultiplierMegawattToAmpere(side) : power;
+        } else if (!unit.equals(Unit.MEGAWATT)) {
+            throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
+        }
         return Double.isNaN(power) ? branch.getTerminal(side).getP() * getFlowUnitMultiplierMegawattToAmpere(side) : power;
     }
 
