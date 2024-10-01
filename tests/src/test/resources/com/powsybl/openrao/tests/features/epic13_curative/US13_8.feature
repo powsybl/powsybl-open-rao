@@ -45,12 +45,14 @@ Feature: US 13.8: cross-validation curative and relative margin
     And the remedial action "open_be1_be4" is used in preventive
     And the remedial action "open_fr1_fr2" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -15 in preventive
-    Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
+    And the tap of PstRangeAction "pst_fr" should be 12 after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 300 A on cnec "BBE4AA1  FFR5AA1  1 - preventive"
     And the margin on cnec "BBE4AA1  FFR5AA1  1 - preventive" after PRA should be 300 A
     And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 308 A
-    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 659 A
-    Then the margin on cnec "BBE4AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 344 A
+    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 408 A
+    Then the margin on cnec "BBE4AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 411 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 470 A
     And the value of the objective function after CRA should be -300
 
@@ -67,13 +69,15 @@ Feature: US 13.8: cross-validation curative and relative margin
     And the remedial action "open_be1_be4" is used in preventive
     And the remedial action "open_fr1_fr2" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -16 in preventive
-    Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
+    And the tap of PstRangeAction "pst_fr" should be 12 after "co1_fr2_fr3_1" at "curative"
     And the worst relative margin is 278 A on cnec "BBE2AA1  FFR3AA1  1 - preventive"
     And the relative margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 278 A
-    Then the relative margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 793 A
-    Then the relative margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 372 A
+    Then the relative margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 494 A
+    Then the relative margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 508 A
     And the relative margin on cnec "BBE4AA1  FFR5AA1  1 - preventive" after PRA should be 514 A
     And the relative margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 543 A
-    Then the relative margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 433 A
-    Then the relative margin on cnec "BBE4AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 604 A
+    Then the relative margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 604 A
+    Then the relative margin on cnec "BBE4AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 726 A
     And the value of the objective function after CRA should be -278
