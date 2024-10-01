@@ -50,7 +50,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
 
         // Get list of valid flow CNECs
         Set<FlowCnec> validFlowCnecs = getValidFlowCnecs(sensitivityResult);
@@ -63,11 +63,6 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
         // update minimum margin objective function constraints
         updateMinimumMarginConstraints(linearProblem, validFlowCnecs);
-    }
-
-    @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // nothing to do
     }
 
     @Override

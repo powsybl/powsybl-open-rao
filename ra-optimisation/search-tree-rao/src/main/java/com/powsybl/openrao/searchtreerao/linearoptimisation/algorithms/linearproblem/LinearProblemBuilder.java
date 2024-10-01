@@ -14,6 +14,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Curative
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ public class LinearProblemBuilder {
     private RangeActionsOptimizationParameters.Solver solver;
     private double relativeMipGap = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_RELATIVE_MIP_GAP;
     private String solverSpecificParameters = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
+    private RangeActionActivationResult initialRangeActionActivationResult;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
 
@@ -38,7 +40,8 @@ public class LinearProblemBuilder {
         this.withSolver(parameters.getSolverParameters().getSolver())
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
             .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters())
-            .withProblemFiller(buildCoreProblemFiller());
+            .withProblemFiller(buildCoreProblemFiller())
+            .withInitialRangeActionActivationResult(inputs.getRaActivationFromParentLeaf());
 
         // max.min margin, or max.min relative margin
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
@@ -82,11 +85,11 @@ public class LinearProblemBuilder {
             this.withProblemFiller(buildRaUsageLimitsFiller());
         }
 
-        return new LinearProblem(problemFillers, solver, relativeMipGap, solverSpecificParameters);
+        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters);
     }
 
     public LinearProblem build() {
-        return new LinearProblem(problemFillers, solver, relativeMipGap, solverSpecificParameters);
+        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters);
     }
 
     public LinearProblemBuilder withProblemFiller(ProblemFiller problemFiller) {
@@ -109,12 +112,16 @@ public class LinearProblemBuilder {
         return this;
     }
 
+    public LinearProblemBuilder withInitialRangeActionActivationResult(RangeActionActivationResult rangeActionActivationResult) {
+        this.initialRangeActionActivationResult = rangeActionActivationResult;
+        return this;
+    }
+
     private ProblemFiller buildCoreProblemFiller() {
         return new CoreProblemFiller(
             inputs.getOptimizationPerimeter(),
             inputs.getPrePerimeterSetpoints(),
-            inputs.getRaActivationFromParentLeaf(),
-            parameters.getRangeActionParameters(),
+                parameters.getRangeActionParameters(),
             parameters.getObjectiveFunctionUnit(),
             parameters.getRaRangeShrinking(),
             parameters.getRangeActionParameters().getPstModel()
@@ -164,7 +171,6 @@ public class LinearProblemBuilder {
 
     private ProblemFiller buildIntegerPstTapFiller(Map<State, Set<PstRangeAction>> pstRangeActions) {
         return new DiscretePstTapFiller(
-            inputs.getNetwork(),
             inputs.getOptimizationPerimeter(),
             pstRangeActions,
             inputs.getPrePerimeterSetpoints()
@@ -173,7 +179,6 @@ public class LinearProblemBuilder {
 
     private ProblemFiller buildDiscretePstGroupFiller(Map<State, Set<PstRangeAction>> pstRangeActions) {
         return new DiscretePstGroupFiller(
-            inputs.getNetwork(),
             inputs.getOptimizationPerimeter().getMainOptimizationState(),
             pstRangeActions
         );
