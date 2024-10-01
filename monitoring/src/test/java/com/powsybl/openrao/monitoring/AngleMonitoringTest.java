@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 
-public class AngleMonitoringTest {
+class AngleMonitoringTest {
     private static final double ANGLE_TOLERANCE = 0.5;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";

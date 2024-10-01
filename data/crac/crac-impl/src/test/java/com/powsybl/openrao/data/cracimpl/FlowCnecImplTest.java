@@ -65,14 +65,22 @@ class FlowCnecImplTest {
     @Test
     void testComputeValue() {
         Network network = Mockito.mock(Network.class);
-        Branch branch1 = Mockito.mock(Branch.class, Mockito.RETURNS_DEEP_STUBS);
-        Mockito.when(network.getBranch("BBE1AA1  BBE2AA1  1")).thenReturn(branch1);
-        Mockito.when(branch1.getTerminal(ONE).getP()).thenReturn(300.);
-        Mockito.when(branch1.getTerminal(TWO).getP()).thenReturn(1100.);
+        Branch branch1 = Mockito.mock(Branch.class);
+        Terminal terminal11 = Mockito.mock(Terminal.class);
+        Terminal terminal12 = Mockito.mock(Terminal.class);
+        Terminal terminal21 = Mockito.mock(Terminal.class);
 
-        Branch branch2 = Mockito.mock(Branch.class, Mockito.RETURNS_DEEP_STUBS);
+        Mockito.when(network.getBranch("BBE1AA1  BBE2AA1  1")).thenReturn(branch1);
+        Mockito.when(terminal11.getP()).thenReturn(300.);
+        Mockito.when(terminal12.getP()).thenReturn(1100.);
+
+        Mockito.when(branch1.getTerminal(ONE)).thenReturn(terminal11);
+        Mockito.when(branch1.getTerminal(TWO)).thenReturn(terminal12);
+
+        Branch branch2 = Mockito.mock(Branch.class);
         Mockito.when(network.getBranch("DDE2AA1  NNL3AA1  1")).thenReturn(branch2);
-        Mockito.when(branch2.getTerminal(ONE).getP()).thenReturn(100.);
+        Mockito.when(terminal21.getP()).thenReturn(100.);
+        Mockito.when(branch2.getTerminal(ONE)).thenReturn(terminal21);
 
         FlowCnec cnecWithTwoSides = crac.newFlowCnec().withId("cnec-1-id").withNetworkElement("BBE1AA1  BBE2AA1  1").withInstant(PREVENTIVE_INSTANT_ID)
             .newThreshold().withUnit(MEGAWATT).withMin(500.).withMax(1000.).withSide(TwoSides.ONE).add()

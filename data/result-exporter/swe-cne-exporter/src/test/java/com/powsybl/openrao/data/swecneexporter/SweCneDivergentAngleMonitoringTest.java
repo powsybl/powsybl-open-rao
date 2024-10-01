@@ -25,7 +25,6 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -42,7 +41,6 @@ import static com.powsybl.openrao.data.swecneexporter.SweCneTest.compareCneFiles
 class SweCneDivergentAngleMonitoringTest {
 
     @Test
-    @BeforeEach
     void testExport() throws IOException {
         Network network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");

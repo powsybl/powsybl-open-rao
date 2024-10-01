@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class VoltageMonitoringTest {
+class VoltageMonitoringTest {
     private static final double VOLTAGE_TOLERANCE = 0.5;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
