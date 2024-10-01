@@ -1,5 +1,21 @@
 {
   "crac-factory": "CracImplFactory",
+  "ra-usage-limits-per-instant": [ {
+    "instant" : "curative 1",
+    "max-elementary-actions-per-tso" : {
+      "RTE" : 1
+    }
+  }, {
+    "instant" : "curative 2",
+    "max-elementary-actions-per-tso" : {
+      "RTE" : 3
+    }
+  }, {
+    "instant" : "curative 3",
+    "max-elementary-actions-per-tso" : {
+      "RTE" : 7
+    }
+  } ],
   "extensions": {
     "CsaCracCreatorParameters": {
       "capacity-calculation-region-eic-code": 100,

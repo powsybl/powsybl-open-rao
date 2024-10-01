@@ -38,6 +38,7 @@ public final class JsonCracCreationParametersConstants {
     public static final String MAX_TOPO_PER_TSO = "max-topo-per-tso";
     public static final String MAX_PST_PER_TSO = "max-pst-per-tso";
     public static final String MAX_RA_PER_TSO = "max-ra-per-tso";
+    public static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "max-elementary-actions-per-tso";
 
     private JsonCracCreationParametersConstants() {
         // should not be instantiated
@@ -75,6 +76,7 @@ public final class JsonCracCreationParametersConstants {
             jsonGenerator.writeObjectField(MAX_TOPO_PER_TSO, new TreeMap<>(raUsageLimits.getMaxTopoPerTso()));
             jsonGenerator.writeObjectField(MAX_PST_PER_TSO, new TreeMap<>(raUsageLimits.getMaxPstPerTso()));
             jsonGenerator.writeObjectField(MAX_RA_PER_TSO, new TreeMap<>(raUsageLimits.getMaxRaPerTso()));
+            jsonGenerator.writeObjectField(MAX_ELEMENTARY_ACTIONS_PER_TSO, new TreeMap<>(raUsageLimits.getMaxElementaryActionsPerTso()));
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
@@ -129,6 +131,10 @@ public final class JsonCracCreationParametersConstants {
                 case MAX_RA_PER_TSO:
                     jsonParser.nextToken();
                     raUsageLimits.setMaxRaPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case MAX_ELEMENTARY_ACTIONS_PER_TSO:
+                    jsonParser.nextToken();
+                    raUsageLimits.setMaxElementaryActionsPerTso(readStringToPositiveIntMap(jsonParser));
                     break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize ra-usage-limits-per-instant parameters: unexpected field in %s (%s)", RA_USAGE_LIMITS_PER_INSTANT, jsonParser.getCurrentName()));

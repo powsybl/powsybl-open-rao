@@ -7,6 +7,7 @@
 package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.cracapi.RaUsageLimits;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.Border;
@@ -53,6 +54,10 @@ class JsonCsaCracCreationParametersTest {
     @Test
     void deserializeDefaultParameters() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters.json"));
+        Map<String, RaUsageLimits> raUsageLimitsMap = importedParameters.getRaUsageLimitsPerInstant();
+        assertEquals(Map.of("RTE", 1), raUsageLimitsMap.get("curative 1").getMaxElementaryActionsPerTso());
+        assertEquals(Map.of("RTE", 3), raUsageLimitsMap.get("curative 2").getMaxElementaryActionsPerTso());
+        assertEquals(Map.of("RTE", 7), raUsageLimitsMap.get("curative 3").getMaxElementaryActionsPerTso());
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
