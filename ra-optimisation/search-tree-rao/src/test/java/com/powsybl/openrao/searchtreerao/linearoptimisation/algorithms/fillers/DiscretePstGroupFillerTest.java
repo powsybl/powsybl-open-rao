@@ -63,21 +63,18 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
         CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters,
+                rangeActionParameters,
             Unit.MEGAWATT,
             false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(state, Set.of(pstRa1, pstRa2));
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
-            network,
             optimizationPerimeter,
             pstRangeActions,
             initialRangeActionSetpointResult);
 
         DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
-            network,
             state,
             pstRangeActions);
 
@@ -86,6 +83,7 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             .withProblemFiller(discretePstTapFiller)
             .withProblemFiller(discretePstGroupFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
 
         // fill problem
@@ -121,8 +119,12 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
         // update with a tap of -10
         double newAlpha = tapToAngle.get(-10);
         RangeActionActivationResult updatedRangeActionActivationResult = new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(pstRa1, newAlpha, pstRa2, newAlpha)));
-        discretePstTapFiller.updateBetweenSensiIteration(linearProblem, flowResult, sensitivityResult, updatedRangeActionActivationResult);
-        discretePstGroupFiller.updateBetweenSensiIteration(linearProblem, flowResult, sensitivityResult, updatedRangeActionActivationResult);
+        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, updatedRangeActionActivationResult);
+        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, updatedRangeActionActivationResult);
+
+        // Re-fetch the constraints because the MIP has been rebuilt
+        groupTap1C = linearProblem.getPstGroupTapConstraint(pstRa1, state);
+        groupTap2C = linearProblem.getPstGroupTapConstraint(pstRa2, state);
 
         // check constraints
         assertEquals(-10, groupTap1C.lb(), 1e-6);

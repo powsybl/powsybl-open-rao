@@ -34,6 +34,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private final double loopFlowAcceptableAugmentation;
     private final double loopFlowViolationCost;
     private final double loopFlowConstraintAdjustmentCoefficient;
+    private FlowResult preOptimFlowResult; // = flow result used in the first "fill" iteration
 
     public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, LoopFlowParametersExtension loopFlowParameters) {
         this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -50,13 +51,12 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        buildLoopFlowConstraintsAndUpdateObjectiveFunction(linearProblem, getValidLoopFlowCnecs(sensitivityResult), flowResult);
-    }
-
-    @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        updateLoopFlowConstraints(linearProblem, getValidLoopFlowCnecs(sensitivityResult), flowResult);
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        if (preOptimFlowResult == null) {
+            preOptimFlowResult = flowResult;
+        }
+        FlowResult flowResultToUse = loopFlowPtdfApproximationLevel.shouldUpdatePtdfWithPstChange() ? flowResult : preOptimFlowResult;
+        buildLoopFlowConstraintsAndUpdateObjectiveFunction(linearProblem, getValidLoopFlowCnecs(sensitivityResult), flowResultToUse);
     }
 
     @Override
@@ -87,7 +87,6 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * and a "virtual cost" is added to objective function as "loopflowViolationVariable * Loopflow violation cost"
      */
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(LinearProblem linearProblem, Set<FlowCnec> validLoopFlowCnecs, FlowResult flowResult) {
-
         for (FlowCnec cnec : validLoopFlowCnecs) {
             for (TwoSides side : cnec.getMonitoredSides()) {
 
@@ -134,32 +133,6 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
                 //update objective function with loopflowViolationCost
                 linearProblem.getObjective().setCoefficient(loopflowViolationVariable, loopFlowViolationCost / cnec.getMonitoredSides().size());
-            }
-        }
-    }
-
-    /**
-     * Update LoopFlow constraints' bounds when commercial flows have changed
-     */
-    private void updateLoopFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validLoopFlowCnecs, FlowResult flowResult) {
-
-        if (!loopFlowPtdfApproximationLevel.shouldUpdatePtdfWithPstChange()) {
-            return;
-        }
-
-        for (FlowCnec loopFlowCnec : validLoopFlowCnecs) {
-            for (TwoSides side : loopFlowCnec.getMonitoredSides()) {
-                double loopFlowUpperBound = getLoopFlowUpperBound(loopFlowCnec, side);
-                if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
-                    continue;
-                }
-                double commercialFlow = flowResult.getCommercialFlow(loopFlowCnec, side, Unit.MEGAWATT);
-
-                OpenRaoMPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.LOWER_BOUND);
-                positiveLoopflowViolationConstraint.setLb(-loopFlowUpperBound + commercialFlow);
-
-                OpenRaoMPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.UPPER_BOUND);
-                negativeLoopflowViolationConstraint.setUb(loopFlowUpperBound + commercialFlow);
             }
         }
     }

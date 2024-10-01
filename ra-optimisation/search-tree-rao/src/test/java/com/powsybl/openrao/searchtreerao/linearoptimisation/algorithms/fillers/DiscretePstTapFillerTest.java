@@ -84,7 +84,6 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
             Unit.MEGAWATT,
             false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
@@ -93,7 +92,6 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         pstRangeActions.put(preventiveState, Set.of(pstRangeAction));
         pstRangeActions.put(curativeState, Set.of(cra));
         discretePstTapFiller = new DiscretePstTapFiller(
-            network,
             optimizationPerimeter,
             pstRangeActions,
             initialRangeActionSetpointResult);
@@ -102,6 +100,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(discretePstTapFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
 
         // fill linear problem
@@ -202,7 +201,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         // pra optimal tap = -4, cra optimal tap = -6
         rangeActionActivationResultBeforeUpdate.putResult(pra, preventiveState, tapToAngle.get(-4));
         rangeActionActivationResultBeforeUpdate.putResult(cra, curativeState, tapToAngle.get(-6));
-        discretePstTapFiller.updateBetweenSensiIteration(linearProblem, flowResult, sensitivityResult, rangeActionActivationResultBeforeUpdate);
+        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, rangeActionActivationResultBeforeUpdate);
 
         checkContent(pra, preventiveState, -4, -15, 15, false);
         checkContent(cra, curativeState, -6, -16, 16, false);
