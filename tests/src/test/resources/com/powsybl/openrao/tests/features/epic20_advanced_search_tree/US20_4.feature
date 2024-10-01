@@ -5,7 +5,7 @@
 
 Feature: US 20.4: Handle MNECs in second preventive optimization
 
-  @fast @rao @mock @ac @second-preventive @mnec
+  @fast @rao @mock @dc @second-preventive @mnec
   Scenario: US 20.4.1: MNEC constraint in curative is solved by 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us4case1.xml"
@@ -21,7 +21,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 MW
     Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
 
-  @fast @rao @mock @ac @second-preventive @mnec
+  @fast @rao @mock @dc @second-preventive @mnec
   Scenario: US 20.4.2: MNEC constraint in curative is solved by CRA + 2P
     Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us4case2.xml"
@@ -38,7 +38,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 MW
     Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
 
-  @fast @rao @mock @ac @second-preventive @mnec
+  @fast @rao @mock @dc @second-preventive @mnec
   Scenario: US 20.4.3: MNEC constraint avoided on preventive MNEC in 2P
     Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us4case3.xml"

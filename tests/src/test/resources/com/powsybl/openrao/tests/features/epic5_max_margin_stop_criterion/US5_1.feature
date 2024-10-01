@@ -70,7 +70,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Then the remedial action "Open tie-line FR1 FR2" is used in preventive
     Then the remedial action "Open tie-line FR1 FR3" is used in preventive
 
-  @fast @rao @mock @ac @preventive-only
+  @fast @rao @mock @dc @preventive-only
   Scenario: US 5.1.4.b: maximum margin stop criterion: absolute minimum impact threshold not reached
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1.json"

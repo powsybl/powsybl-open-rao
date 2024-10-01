@@ -27,7 +27,7 @@ Feature: US 91.11: optimize computations for SECURE stop criterion
   Scenario: US 91.11.3: Skip curative optimization
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic91/CBCORA_ep91us11case3.xml"
-    Given configuration file is "common/RaoParameters_posMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_posMargin_ac.json"
     When I launch search_tree_rao at "2019-01-08 00:30"
     Then its security status should be "UNSECURED"
     And 0 remedial actions are used in preventive

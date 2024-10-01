@@ -5,15 +5,15 @@
 
 Feature: US 7.9: Linear RAO with loopflow limitation
 
-  @fast @rao @mock @ac @preventive-only
+  @fast @rao @mock @dc @preventive-only
   Scenario: US 7.9.1: linear RAO without LF limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
-    And the worst margin is 224.0 MW
-    And the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 224.0 MW
+    And the worst margin is 219.0 MW
+    And the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 219.0 MW
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
 
   @fast @rao @mock @ac @preventive-only @loopflow
@@ -21,7 +21,7 @@ Feature: US 7.9: Linear RAO with loopflow limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_10_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_ac_lf_false_10_100.json"
     When I launch loopflow search_tree_rao with default loopflow limit as 10.0 percent of pmax
     Then the worst margin is 198.0 MW
     And the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 198.0 MW
@@ -44,7 +44,7 @@ Feature: US 7.9: Linear RAO with loopflow limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_10_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_ac_lf_false_10_100.json"
     When I launch loopflow search_tree_rao with default loopflow limit as 5.0 percent of pmax
     Then the worst margin is 166.0 MW
     And the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 166.0 MW
