@@ -25,6 +25,9 @@
     },
     "max-ra-per-tso" : {
       "FR" : 7
+    },
+    "max-elementary-actions-per-tso" : {
+      "FR" : 10
     }
   } ]
 }

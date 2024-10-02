@@ -60,6 +60,7 @@ class CracCreationParametersJsonTest {
         expectedLimitsPreventive.setMaxRaPerTso(Map.of("FR", 4));
         expectedLimitsPreventive.setMaxTopoPerTso(Map.of("FR", 2));
         expectedLimitsPreventive.setMaxPstPerTso(Map.of("FR", 3));
+        expectedLimitsPreventive.setMaxElementaryActionsPerTso(Map.of("FR", 10));
         RaUsageLimits expectedLimitsCurative = new RaUsageLimits();
         expectedLimitsCurative.setMaxRa(7);
         expectedLimitsCurative.setMaxTso(2);
