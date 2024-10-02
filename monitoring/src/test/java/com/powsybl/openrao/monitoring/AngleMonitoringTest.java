@@ -15,6 +15,7 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
@@ -26,6 +27,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 
@@ -327,6 +329,34 @@ class AngleMonitoringTest {
         assertEquals(Double.NaN, ((AngleCnecValue) acCur2CnecValue).value(), 0.01);
         assertEquals(Cnec.SecurityStatus.FAILURE, acCur2SecurityStatus);
         assertEquals(Double.NaN, acCur2Margin, 0.01);
+    }
+
+    @Test
+    void testWithRaoResultUpdate() {
+        setUpCracFactory("network.xiidm");
+        mockPreventiveState();
+        mockCurativeStatesSecure();
+        naL1Cur = crac.newNetworkAction()
+            .withId("Injection L1 - 2")
+            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(50.).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+        ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
+
+        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(raoResult.isSecure()).thenReturn(true);
+
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
+        RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput);
+
+        assertThrows(OpenRaoException.class, () -> raoResultWithAngleMonitoring.getAngle(crac.getPreventiveState().getInstant(), acCur1, Unit.DEGREE));
+        assertEquals(2.22, raoResultWithAngleMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), acCur1, Unit.DEGREE), 0.01);
+        assertEquals(Set.of(naL1Cur), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID))));
+        assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
+        assertEquals(ComputationStatus.DEFAULT, raoResultWithAngleMonitoring.getComputationStatus());
+        assertFalse(raoResultWithAngleMonitoring.isSecure(crac.getInstant(CURATIVE_INSTANT_ID), PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure());
     }
 
 }

@@ -541,30 +541,35 @@ class VoltageMonitoringTest {
 
     @Test
     void testWithRaoResultUpdate() {
-
         setUpCracFactory("network.xiidm");
-        VoltageCnec vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 390., 399.);
+        VoltageCnec vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 400., 450.);
 
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
         VoltageCnec vcCur = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
 
-        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(raoResult.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, MinOrMax.MIN, Unit.KILOVOLT)).thenReturn(5.);
-        when(raoResult.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, MinOrMax.MAX, Unit.KILOVOLT)).thenReturn(100.);
+        NetworkAction networkAction = crac.newNetworkAction()
+            .withId("Open L1 - 1")
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vcCur.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
 
-        when(raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(pst));
-        when(raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst)).thenReturn(-20.);
+        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(raoResult.isSecure()).thenReturn(true);
 
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
         RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput);
 
-        // Status checks
         assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE));
-        assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring.getComputationStatus());
         assertThrows(OpenRaoException.class, () -> raoResultWithVoltageMonitoring.getMinVoltage(crac.getPreventiveState().getInstant(), vcPrev, MinOrMax.MIN, Unit.KILOVOLT));
-        assertEquals(5., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, MinOrMax.MIN, Unit.KILOVOLT));
-        assertEquals(100., raoResultWithVoltageMonitoring.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, MinOrMax.MAX, Unit.KILOVOLT));
-
+        assertEquals(400., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, MinOrMax.MIN, Unit.KILOVOLT));
+        assertEquals(400, raoResultWithVoltageMonitoring.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, MinOrMax.MAX, Unit.KILOVOLT));
+        assertEquals(-1., raoResultWithVoltageMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
+        assertEquals(Set.of(networkAction), raoResultWithVoltageMonitoring.getActivatedNetworkActionsDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID))));
+        assertTrue(raoResultWithVoltageMonitoring.isActivatedDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID)), networkAction));
+        assertEquals(ComputationStatus.DEFAULT, raoResultWithVoltageMonitoring.getComputationStatus());
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(crac.getInstant(CURATIVE_INSTANT_ID), PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure());
     }
 
 }
