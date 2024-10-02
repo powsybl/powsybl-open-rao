@@ -52,7 +52,8 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
-        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec, unit);
+        unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
+        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
             return ((VoltageCnecValue) voltageCnecResultOpt.get().getValue()).minValue();
         } else {
@@ -62,7 +63,8 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
-        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec, unit);
+        unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
+        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
             return ((VoltageCnecValue) voltageCnecResultOpt.get().getValue()).maxValue();
         } else {
@@ -70,10 +72,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         }
     }
 
-    private Optional<CnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
-        if (!unit.equals(Unit.KILOVOLT)) {
-            throw new OpenRaoException("Unexpected unit for voltage monitoring result :  " + unit);
-        }
+    private Optional<CnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
@@ -82,11 +81,12 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public double getMargin(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
+        unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
         }
 
-        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec, unit);
+        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         return voltageCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }
 

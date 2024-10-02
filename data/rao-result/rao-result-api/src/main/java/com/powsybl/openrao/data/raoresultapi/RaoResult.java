@@ -102,7 +102,6 @@ public interface RaoResult {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
 
-
     /**
      * It gives the margin on a {@link FlowCnec} at a given {@link Instant} and in a
      * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the

@@ -54,9 +54,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
-        if (!unit.equals(Unit.DEGREE)) {
-            throw new OpenRaoException("Unexpected unit for angle monitoring result : " + unit);
-        }
+        unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
@@ -71,6 +69,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
+        unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
         Optional<CnecResult> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
         return angleCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }
