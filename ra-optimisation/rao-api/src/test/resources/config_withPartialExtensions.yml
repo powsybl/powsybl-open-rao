@@ -1,6 +1,5 @@
 rao-objective-function:
     preventive-stop-criterion: MIN_OBJECTIVE
-    curative-stop-criterion: PREVENTIVE_OBJECTIVE
     curative-min-obj-improvement: 3.0
 
 rao-range-actions-optimization:

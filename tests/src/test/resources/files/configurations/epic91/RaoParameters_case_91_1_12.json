@@ -2,9 +2,9 @@
   "version" : "2.5",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_AMPERE",
-    "curative-min-obj-improvement" : 0.0,
+    "curative-min-obj-improvement" : 10000.0,
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
-    "curative-stop-criterion" : "MIN_OBJECTIVE"
+    "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,

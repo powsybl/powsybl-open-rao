@@ -4,7 +4,7 @@
     "type" : "MAX_MIN_MARGIN_IN_AMPERE",
     "curative-min-obj-improvement" : 628.0,
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
-    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE"
+    "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,
