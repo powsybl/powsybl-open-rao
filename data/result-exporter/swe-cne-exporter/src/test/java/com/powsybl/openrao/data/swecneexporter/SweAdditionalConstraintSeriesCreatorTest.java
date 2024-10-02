@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.AdditionalConstraintSeries;
 import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitoring;
-import org.checkerframework.checker.units.qual.Angle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

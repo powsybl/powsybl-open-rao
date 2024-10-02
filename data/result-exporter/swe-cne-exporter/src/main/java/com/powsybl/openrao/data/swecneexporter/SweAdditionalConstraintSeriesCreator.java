@@ -76,7 +76,6 @@ public class SweAdditionalConstraintSeriesCreator {
             additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedObjectId());
             additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
             additionalConstraintSeries.setName(angleCnec.getName());
-            // TODO: change number of decimals here? yeah I think so
             additionalConstraintSeries.setQuantityQuantity(roundAngleValue(angleCnec, crac, raoResult));
             return additionalConstraintSeries;
         }
@@ -94,9 +93,9 @@ public class SweAdditionalConstraintSeriesCreator {
         int numberOfDecimals = 1;
         for (Threshold threshold : angleCnec.getThresholds()) {
             if (threshold.max().isPresent() && angle > threshold.max().get()) {
-                numberOfDecimals = Math.max(numberOfDecimals, (int) - Math.log10(angle - threshold.max().get()) + 1);
+                numberOfDecimals = Math.max(numberOfDecimals, (int) -Math.log10(angle - threshold.max().get()) + 1);
             } else if (threshold.min().isPresent() && angle < threshold.min().get()) {
-                numberOfDecimals = Math.max(numberOfDecimals, (int) - Math.log10(threshold.min().get() - angle) + 1);
+                numberOfDecimals = Math.max(numberOfDecimals, (int) -Math.log10(threshold.min().get() - angle) + 1);
             }
         }
         return BigDecimal.valueOf(angle).setScale(numberOfDecimals, RoundingMode.HALF_UP);
