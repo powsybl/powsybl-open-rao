@@ -162,20 +162,20 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
         List<Pair<String, Integer>> curativeInstants = new ArrayList<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String name = null;
-            Integer timeAfterOutage = null;
+            Integer applicationTime = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                 if (NAME.equals(jsonParser.getCurrentName())) {
                     name = jsonParser.nextTextValue();
                 } else if (APPLICATION_TIME.equals(jsonParser.getCurrentName())) {
-                    timeAfterOutage = jsonParser.nextIntValue(0);
+                    applicationTime = jsonParser.nextIntValue(0);
                 } else {
                     throw new OpenRaoException("Unexpected field in %s: %s".formatted(CURATIVE_INSTANTS, jsonParser.getCurrentName()));
                 }
             }
-            if (name == null || timeAfterOutage == null) {
+            if (name == null || applicationTime == null) {
                 throw new OpenRaoException("Incomplete data for curative instant; please provide both a %s and an %s".formatted(NAME, APPLICATION_TIME));
             }
-            curativeInstants.add(Pair.of(name, timeAfterOutage));
+            curativeInstants.add(Pair.of(name, applicationTime));
         }
         return curativeInstants;
     }
