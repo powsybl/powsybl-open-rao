@@ -51,7 +51,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         if (csaCracCreationParameters == null) {
             throw new OpenRaoException("No CsaCracCreatorParameters extension provided.");
         }
-        this.instantHelper = new FlowCnecInstantHelper(csaCracCreationParameters, crac.getSortedInstants());
+        this.instantHelper = new FlowCnecInstantHelper(csaCracCreationParameters, crac);
         checkCnecDefinitionMode();
     }
 

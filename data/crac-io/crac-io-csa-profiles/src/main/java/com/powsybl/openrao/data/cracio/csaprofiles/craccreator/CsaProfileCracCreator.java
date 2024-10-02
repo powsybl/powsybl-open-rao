@@ -38,14 +38,14 @@ class CsaProfileCracCreator {
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;
-        addCsaInstants();
+        addCsaInstants(); // TODO: update this using parameters
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 
         this.nativeCrac.setForTimestamp(offsetDateTime);
 
         createContingencies();
         createCnecs(cracCreationParameters);
-        createRemedialActions(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
+        createRemedialActions(csaParameters.getAutoInstantApplicationTime());
 
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);

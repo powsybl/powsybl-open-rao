@@ -6,11 +6,22 @@
       "tsos-which-do-not-use-patl-in-final-state": [
         "REE"
       ],
-      "curative-batch-post-outage-time": {
-        "curative 1": 300,
-        "curative 2": "Hello world!",
-        "curative 3": 1200
-      },
+      "auto-instant-application-time": 0,
+      "curative-instants": [
+        {
+          "name": "curative 1",
+          "application-time": 300,
+          "unknown-curative-instant-field": "Hello world!"
+        },
+        {
+          "name": "curative 2",
+          "application-time": 600
+        },
+        {
+          "name": "curative 3",
+          "application-time": 1200
+        }
+      ],
       "borders": [
         {
           "name": "ES-FR",

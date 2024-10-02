@@ -8,10 +8,11 @@ package com.powsybl.openrao.data.cracio.csaprofiles.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,9 +20,9 @@ import java.util.Set;
  */
 public class CsaCracCreationParameters extends AbstractExtension<CracCreationParameters> {
     private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
-    private int spsMaxTimeToImplementThresholdInSeconds = 0;
     private Set<String> tsosWhichDoNotUsePatlInFinalState = Set.of();
-    private Map<String, Integer> curativeBatchPostOutageTime = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
+    private int autoInstantApplicationTime = 0;
+    private List<Pair<String, Integer>> curativeInstants = List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 600), Pair.of("curative 3", 1200));
     private Set<Border> borders = Set.of();
 
     @Override
@@ -37,8 +38,12 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
         return tsosWhichDoNotUsePatlInFinalState;
     }
 
-    public Map<String, Integer> getCurativeBatchPostOutageTime() {
-        return curativeBatchPostOutageTime;
+    public int getAutoInstantApplicationTime() {
+        return autoInstantApplicationTime;
+    }
+
+    public List<Pair<String, Integer>> getCurativeInstants() {
+        return curativeInstants;
     }
 
     public Set<Border> getBorders() {
@@ -49,20 +54,16 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
         this.capacityCalculationRegionEicCode = capacityCalculationRegionEicCode;
     }
 
-    public int getSpsMaxTimeToImplementThresholdInSeconds() {
-        return spsMaxTimeToImplementThresholdInSeconds;
-    }
-
-    public void setSpsMaxTimeToImplementThresholdInSeconds(int spsMaxTimeToImplementThresholdInSeconds) {
-        this.spsMaxTimeToImplementThresholdInSeconds = spsMaxTimeToImplementThresholdInSeconds;
+    public void setAutoInstantApplicationTime(int autoInstantApplicationTime) {
+        this.autoInstantApplicationTime = autoInstantApplicationTime;
     }
 
     public void setTsosWhichDoNotUsePatlInFinalState(Set<String> tsosWhichDoNotUsePatlInFinalState) {
         this.tsosWhichDoNotUsePatlInFinalState = new HashSet<>(tsosWhichDoNotUsePatlInFinalState);
     }
 
-    public void setCurativeBatchPostOutageTime(Map<String, Integer> curativeBatchPostOutageTime) {
-        this.curativeBatchPostOutageTime = new HashMap<>(curativeBatchPostOutageTime);
+    public void setCurativeInstants(List<Pair<String, Integer>> curativeInstants) {
+        this.curativeInstants = new ArrayList<>(curativeInstants);
     }
 
     public void setBorders(Set<Border> borders) {

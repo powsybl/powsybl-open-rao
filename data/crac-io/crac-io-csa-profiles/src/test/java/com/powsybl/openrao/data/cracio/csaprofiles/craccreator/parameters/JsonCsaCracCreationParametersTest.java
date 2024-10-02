@@ -12,13 +12,14 @@ import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.Border;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.JsonCsaCracCreationParameters;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,27 +41,37 @@ class JsonCsaCracCreationParametersTest {
     }
 
     @Test
-    void deserializeValidParameters() {
-        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters-json-csa-crac-creation-parameters-test.json"));
-        CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
-        assertNotNull(csaCracCreationParameters);
-        assertEquals("10XFR-RTE------Q", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
-        assertEquals(60, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
-        assertEquals(Set.of("REE"), csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState());
-        assertEquals(Map.of("curative 1", 0, "curative 2", 200, "curative 3", 500), csaCracCreationParameters.getCurativeBatchPostOutageTime());
-        assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), csaCracCreationParameters.getBorders());
-    }
-
-    @Test
     void deserializeDefaultSweParameters() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/csa-crac-parameters.json"));
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
-        assertEquals(0, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
+        assertEquals(0, csaCracCreationParameters.getAutoInstantApplicationTime());
         assertEquals(Set.of("REE"), csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState());
-        assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCurativeBatchPostOutageTime());
+        assertEquals(List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 600), Pair.of("curative 3", 1200)), csaCracCreationParameters.getCurativeInstants());
         assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), csaCracCreationParameters.getBorders());
+    }
+
+    @Test
+    void deserializeParametersWithExtraCurativeInstantField() {
+        OpenRaoException importException;
+        try (InputStream inputStream = getClass().getResourceAsStream("/parameters/csa-crac-parameters-curative-instants-nok-1.json")) {
+            importException = assertThrows(OpenRaoException.class, () -> JsonCracCreationParameters.read(inputStream));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals("Unexpected field in curative-instants: unknown-curative-instant-field", importException.getMessage());
+    }
+
+    @Test
+    void deserializeParametersWithMissingCurativeInstantField() {
+        OpenRaoException importException;
+        try (InputStream inputStream = getClass().getResourceAsStream("/parameters/csa-crac-parameters-curative-instants-nok-2.json")) {
+            importException = assertThrows(OpenRaoException.class, () -> JsonCracCreationParameters.read(inputStream));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals("Incomplete data for curative instant; please provide both a name and an application-time", importException.getMessage());
     }
 
     @Test
@@ -90,9 +101,9 @@ class JsonCsaCracCreationParametersTest {
         CsaCracCreationParameters csaCracCreationParameters = importedParameters.getExtension(CsaCracCreationParameters.class);
         assertNotNull(csaCracCreationParameters);
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
-        assertEquals(0, csaCracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
+        assertEquals(0, csaCracCreationParameters.getAutoInstantApplicationTime());
         assertTrue(csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().isEmpty());
-        assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCurativeBatchPostOutageTime());
+        assertEquals(List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 600), Pair.of("curative 3", 1200)), csaCracCreationParameters.getCurativeInstants());
         assertTrue(csaCracCreationParameters.getBorders().isEmpty());
     }
 
