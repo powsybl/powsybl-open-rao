@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParametersConstants;
 import com.powsybl.openrao.data.cracapi.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
@@ -29,7 +30,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.cracio.json.JsonSerializationConstants.*;
-import static com.powsybl.openrao.data.cracio.json.JsonSerializationConstants.INSTANT;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -67,16 +67,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
     private void serializeRaUsageLimits(Crac crac, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(RA_USAGE_LIMITS_PER_INSTANT);
         for (Map.Entry<Instant, RaUsageLimits> entry : crac.getRaUsageLimitsPerInstant().entrySet()) {
-            RaUsageLimits raUsageLimits = entry.getValue();
-            gen.writeStartObject();
-            gen.writeStringField(INSTANT, entry.getKey().getId());
-            gen.writeNumberField(MAX_RA, raUsageLimits.getMaxRa());
-            gen.writeNumberField(MAX_TSO, raUsageLimits.getMaxTso());
-            gen.writeObjectField(MAX_TOPO_PER_TSO, new TreeMap<>(raUsageLimits.getMaxTopoPerTso()));
-            gen.writeObjectField(MAX_PST_PER_TSO, new TreeMap<>(raUsageLimits.getMaxPstPerTso()));
-            gen.writeObjectField(MAX_RA_PER_TSO, new TreeMap<>(raUsageLimits.getMaxRaPerTso()));
-            gen.writeObjectField(MAX_ELEMENTARY_ACTIONS_PER_TSO, new TreeMap<>(raUsageLimits.getMaxElementaryActionsPerTso()));
-            gen.writeEndObject();
+            JsonCracCreationParametersConstants.serializeRaUsageLimitForOneInstant(gen, Map.entry(entry.getKey().getId(), entry.getValue()));
         }
         gen.writeEndArray();
     }
