@@ -68,22 +68,22 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given Glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the worst margin is 524.0 MW
+    Then the worst margin is 505.0 MW
     And the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
-    And the margin on cnec "003_FR-DE - outage" after PRA should be 921.0 MW
-    And the margin on cnec "003_FR-DE - curative" after CRA should be 1130.0 MW
+    And the margin on cnec "003_FR-DE - outage" after PRA should be 505.0 MW
+    And the margin on cnec "003_FR-DE - curative" after CRA should be 714.0 MW
     And the remedial action "Open BE1 BE3" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 after "CO1" at "curative"
     And the loopflow threshold on cnec "001_FR-DE - preventive" should be 1200.0 MW
     And the initial loopflow on cnec "001_FR-DE - preventive" should be -124.0 MW
     And the loopflow on cnec "001_FR-DE - preventive" after PRA should be -200.0 MW
-    And the loopflow threshold on cnec "003_FR-DE - outage" should be 1600.0 MW
+    And the loopflow threshold on cnec "003_FR-DE - outage" should be 1268.0 MW
     And the initial loopflow on cnec "003_FR-DE - outage" should be -342.0 MW
     And the loopflow on cnec "003_FR-DE - outage" after PRA should be -396.0 MW
-    And the loopflow threshold on cnec "003_FR-DE - curative" should be 1600.0 MW
+    And the loopflow threshold on cnec "003_FR-DE - curative" should be 1268.0 MW
     And the initial loopflow on cnec "003_FR-DE - curative" should be -342.0 MW
     And the loopflow on cnec "003_FR-DE - curative" after CRA should be -605.0 MW
-    And the value of the objective function after CRA should be -524
+    And the value of the objective function after CRA should be -505
 
   @fast @rao @mock @dc @contingency-scenarios @loopflow
   Scenario: US 13.7.4 : Curative RAO with loop-flows with constraining thresholds in curative
@@ -92,13 +92,13 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given Glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the worst margin is 524.0 MW
-    And the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
+    Then the worst margin is 921.0 MW
+    And the margin on cnec "001_FR-DE - preventive" after PRA should be 940.0 MW
     And the margin on cnec "003_FR-DE - outage" after PRA should be 921.0 MW
     And the margin on cnec "003_FR-DE - curative" after CRA should be 1012.0 MW
     And the remedial action "Open BE1 BE3" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -7 after "CO1" at "curative"
-    And the loopflow threshold on cnec "001_FR-DE - preventive" should be 1200.0 MW
+    And the loopflow threshold on cnec "001_FR-DE - preventive" should be 1450.0 MW
     And the initial loopflow on cnec "001_FR-DE - preventive" should be -124.0 MW
     And the loopflow on cnec "001_FR-DE - preventive" after PRA should be -200.0 MW
     And the loopflow threshold on cnec "003_FR-DE - outage" should be 500.0 MW
@@ -107,7 +107,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     And the loopflow threshold on cnec "003_FR-DE - curative" should be 500.0 MW
     And the initial loopflow on cnec "003_FR-DE - curative" should be -342.0 MW
     And the loopflow on cnec "003_FR-DE - curative" after CRA should be -487.0 MW
-    And the value of the objective function after CRA should be -524
+    And the value of the objective function after CRA should be -921
 
   @fast @rao @mock @dc @contingency-scenarios @loopflow
   Scenario: US 13.7.5 : Curative RAO with loop-flows with constraining initial values in curative
@@ -139,14 +139,14 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given Glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic13/RaoParameters_ep13us7case6.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the worst margin is 524.0 MW
-    And the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
+    Then the worst margin is 921.0 MW
+    And the margin on cnec "001_FR-DE - preventive" after PRA should be 940.0 MW
     And the margin on cnec "003_FR-DE - outage" after PRA should be 921.0 MW
     And the margin on cnec "003_FR-DE - curative" after CRA should be 1028.0 MW
     And the remedial action "Open BE1 BE3" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 after "CO1" at "curative"
     And the remedial action "Open NL1 NL3" is used after "CO1" at "curative"
-    And the loopflow threshold on cnec "001_FR-DE - preventive" should be 1200.0 MW
+    And the loopflow threshold on cnec "001_FR-DE - preventive" should be 1450.0 MW
     And the initial loopflow on cnec "001_FR-DE - preventive" should be -124.0 MW
     And the loopflow on cnec "001_FR-DE - preventive" after PRA should be -147.0 MW
     And the loopflow threshold on cnec "003_FR-DE - outage" should be 500.0 MW
@@ -155,4 +155,4 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     And the loopflow threshold on cnec "003_FR-DE - curative" should be 500.0 MW
     And the initial loopflow on cnec "003_FR-DE - curative" should be -342.0 MW
     And the loopflow on cnec "003_FR-DE - curative" after CRA should be -452.0 MW
-    And the value of the objective function after CRA should be -524
+    And the value of the objective function after CRA should be -921

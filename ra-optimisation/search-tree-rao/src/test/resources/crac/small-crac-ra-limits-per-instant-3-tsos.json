@@ -116,8 +116,8 @@
     "nominalV" : [ 400.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
-      "min" : -1000.0,
-      "max" : 1000.0,
+      "min" : -1700.0,
+      "max" : 1700.0,
       "side" : "left"
     } ]
   }, {
@@ -133,8 +133,8 @@
     "nominalV" : [ 400.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
-      "min" : -600.0,
-      "max" : 600.0,
+      "min" : -1000.0,
+      "max" : 1000.0,
       "side" : "left"
     } ]
   } ],

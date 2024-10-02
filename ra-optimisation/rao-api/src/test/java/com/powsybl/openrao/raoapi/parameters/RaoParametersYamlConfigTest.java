@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
+
 class RaoParametersYamlConfigTest extends AbstractSerDeTest {
     static final double DOUBLE_TOLERANCE = 1e-6;
 
@@ -42,11 +43,9 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         RaoParameters parameters = loadRaoParameters("config_withExtensions");
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        assertTrue(objectiveFunctionParameters.getForbidCostIncrease());
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, objectiveFunctionParameters.getType());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
         assertEquals(3, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
-        assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
-        assertEquals(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE, objectiveFunctionParameters.getCurativeStopCriterion());
+        assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
         assertEquals(2, rangeActionsOptimizationParameters.getMaxMipIterations(), DOUBLE_TOLERANCE);
@@ -125,12 +124,9 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         RaoParameters parameters = loadRaoParameters("config_withoutExtensions");
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        assertTrue(objectiveFunctionParameters.getForbidCostIncrease());
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, objectiveFunctionParameters.getType());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
         assertEquals(3, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
-        assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
-        assertEquals(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE, objectiveFunctionParameters.getCurativeStopCriterion());
-        assertTrue(objectiveFunctionParameters.getOptimizeCurativeIfPreventiveUnsecure());
+        assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
         assertEquals(2, rangeActionsOptimizationParameters.getMaxMipIterations(), DOUBLE_TOLERANCE);
@@ -196,11 +192,9 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         RaoParameters parameters = loadRaoParameters("config_withPartialExtensions");
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        assertTrue(objectiveFunctionParameters.getForbidCostIncrease());
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, objectiveFunctionParameters.getType());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
         assertEquals(3, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
-        assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
-        assertEquals(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE, objectiveFunctionParameters.getCurativeStopCriterion());
+        assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
         assertEquals(10, rangeActionsOptimizationParameters.getMaxMipIterations(), DOUBLE_TOLERANCE);

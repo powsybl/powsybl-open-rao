@@ -1,12 +1,9 @@
 {
-  "version" : "2.4",
+  "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN_IN_AMPERE",
-    "forbid-cost-increase" : true,
-    "preventive-stop-criterion" : "MIN_OBJECTIVE",
-    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE",
+    "type" : "MAX_MIN_MARGIN",
     "curative-min-obj-improvement" : 3.0,
-    "optimize-curative-if-preventive-unsecure" : false
+    "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 2,

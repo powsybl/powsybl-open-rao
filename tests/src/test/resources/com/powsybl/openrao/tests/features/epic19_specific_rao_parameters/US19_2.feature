@@ -11,19 +11,8 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given crac file is "epic19/SL_ep19us2case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then 3 remedial actions are used in preventive
-    And the remedial action "open_be1_be4" is used in preventive
-    And the remedial action "open_fr1_fr2" is used in preventive
-    And the tap of PstRangeAction "pst_be" should be -15 in preventive
-    Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_fr" should be -5 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is -810 A on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
-    And the margin on cnec "BBE4AA1  FFR5AA1  1 - preventive" after PRA should be 300 A
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 308 A
-    Then the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -810 A
-    Then the margin on cnec "BBE4AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 335 A
-    Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 352 A
-    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 392 A
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    And the worst margin is -686.35 A on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 19.2.2: Check that the maximum number of network actions per TSO is respected in curative - reference run
@@ -74,10 +63,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given crac file is "epic19/SL_ep19us2case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then 2 remedial actions are used in preventive
-    And the remedial action "open_be1_be4" is used in preventive
-    And the remedial action "open_fr1_fr2" is used in preventive
-    And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 19.2.6: Check country filtering is well done in curative

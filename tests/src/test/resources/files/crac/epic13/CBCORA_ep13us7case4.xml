@@ -15,7 +15,7 @@
     <criticalBranch id="001_FR-DE">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch eic="1234567890123450" from="FFR2AA1 " name="FFR2AA1  DDE3AA1  1" order="1" to="DDE3AA1 "/>
-      <imaxA>2888</imaxA>
+      <imaxA>3488</imaxA>
       <imaxType>SEASONAL</imaxType>
       <permanentImaxFactor>1.5</permanentImaxFactor>
       <temporaryImaxFactor>1.5</temporaryImaxFactor>
@@ -29,7 +29,7 @@
     <criticalBranch id="002_FR-DE">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch eic="1234567890123450" from="FFR2AA1 " name="FFR2AA1  DDE3AA1  1" order="1" to="DDE3AA1 "/>
-      <imaxA>2888</imaxA>
+      <imaxA>3488</imaxA>
       <imaxType>SEASONAL</imaxType>
       <permanentImaxFactor>1.5</permanentImaxFactor>
       <temporaryImaxFactor>1.5</temporaryImaxFactor>
