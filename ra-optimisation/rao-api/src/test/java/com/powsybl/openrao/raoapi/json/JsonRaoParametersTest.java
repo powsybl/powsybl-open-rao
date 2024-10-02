@@ -10,7 +10,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
@@ -52,19 +52,16 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         // Objective Function parameters
-        parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
-        parameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
-        parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
-        parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
+        parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
-        parameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
+        parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         // RangeActionsOptimization parameters
         parameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
-        parameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(10);
+        parameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(10);
         parameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.2);
-        parameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(1);
+        parameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(1);
         parameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(0.3);
-        parameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(1.2);
+        parameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(1.2);
         parameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.7);
         parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("TREEMEMORYLIMIT 20");
         parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.SCIP);
@@ -123,7 +120,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(1, parameters.getExtensions().size());
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
         assertEquals(2, parameters.getExtensions().size());
-        assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         assertEquals(5, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(2, parameters.getTopoOptimizationParameters().getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(5, parameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
@@ -177,7 +174,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "CurStopCriterionError", "WrongField"})
+    @ValueSource(strings = {"LoopFlowError", "ObjFuncTypeError", "WrongField"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
         assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));

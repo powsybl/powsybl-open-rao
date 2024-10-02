@@ -31,7 +31,7 @@
       <branch eic="1234567890123450" from="DDE1AA1" name="ThresholdPrevOppo" order="1" to="DDE3AA1"/>
       <imaxFactor>0.95</imaxFactor>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>0.5</permanentImaxFactor>
+      <permanentImaxFactor>0.6</permanentImaxFactor>
       <temporaryImaxFactor>0.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>70</minRAMfactor>

@@ -1,12 +1,9 @@
 {
-  "version" : "2.4",
+  "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
-    "forbid-cost-increase" : false,
-    "preventive-stop-criterion" : "SECURE",
-    "curative-stop-criterion" : "MIN_OBJECTIVE",
+    "type" : "SECURE_FLOW",
     "curative-min-obj-improvement" : 0.0,
-    "optimize-curative-if-preventive-unsecure" : false
+    "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,

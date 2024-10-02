@@ -13,10 +13,11 @@ Feature: US 15.7: Injection setpoint with absolute and relative target
     Then the remedial action "cra_2" is used in preventive
     Then the worst margin is 545.8 MW
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @dc @contingency-scenarios
   Scenario: US 15.7.2: Curative search tree RAO with absolute injectionSetpoint curative ra
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic15/cse_crac_1_curative_ra.xml"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_maximizing_curative.json"
     When I launch search_tree_rao at "2021-04-30 22:30"
     Then 0 remedial actions are used in preventive
     And the remedial action "cra_1" is used after "outage_1" at "curative"

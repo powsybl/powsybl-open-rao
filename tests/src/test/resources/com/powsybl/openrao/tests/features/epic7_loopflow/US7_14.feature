@@ -28,17 +28,17 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     And the loopflow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after loopflow computation should be 106.0 MW
     And the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after loopflow computation should be -210.0 MW
 
-  @fast @rao @mock @ac @preventive-only @loopflow
+  @fast @rao @mock @dc @preventive-only @loopflow
   Scenario: 7.14.2 : run a search tree RAO with a refProg file
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100.json"
     When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
 
-    Then the worst margin is -473.0 MW
-    Then the worst margin is -473.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
+    Then the worst margin is -500.0 MW
+    Then the worst margin is -500.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
     Then the tap of PstRangeAction "PRA_PST_BE" should be 16 in preventive
     Then the remedial action "Open FR1 FR2" is used in preventive
 
@@ -58,13 +58,13 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     And the initial loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" should be -210.0 MW
     And the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -201.0 MW
 
-  @fast @rao @mock @ac @preventive-only @loopflow
+  @fast @rao @mock @dc @preventive-only @loopflow
   Scenario: 7.14.3 : run another search tree RAO with a refProg file
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
     Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100.json"
     When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
 
     Then the worst margin is -378.0 MW

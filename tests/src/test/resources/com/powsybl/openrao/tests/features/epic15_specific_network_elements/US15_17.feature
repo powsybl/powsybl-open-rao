@@ -10,7 +10,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 15.12.5.1, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
     And the setpoint of RangeAction "PRA_HVDC" should be 1422 MW in preventive
@@ -22,7 +22,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 15.12.5.2, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
     And the setpoint of RangeAction "PRA_HVDC" should be 2008 MW in preventive
@@ -35,7 +35,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 15.12.5.3, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used in preventive
     And the setpoint of RangeAction "PRA_HVDC" should be 810 MW in preventive
@@ -49,7 +49,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 15.12.5.4, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used in preventive
     And the setpoint of RangeAction "PRA_HVDC" should be 917 MW in preventive
@@ -65,7 +65,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 15.12.5.5, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case5.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_maximizing_curative.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used in preventive
     And the setpoint of RangeAction "PRA_HVDC" should be 1236 MW in preventive
@@ -83,7 +83,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 15.12.5.6, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case6.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_maximizing_curative.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used in preventive
     And the setpoint of RangeAction "PRA_HVDC" should be 1652 MW in preventive
@@ -105,7 +105,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 15.12.5.7, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case7.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
     And the setpoint of RangeAction "PRA_HVDC" should be -307 MW in preventive
@@ -117,7 +117,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 15.12.5.8, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case8.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co1_be1_fr5" at "curative"
@@ -130,7 +130,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 15.12.5.9, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case9.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
     And the setpoint of RangeAction "PRA_HVDC" should be -307 MW in preventive

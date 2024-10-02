@@ -1,17 +1,14 @@
 {
-  "version" : "2.4",
+  "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
-    "forbid-cost-increase" : false,
-    "curative-min-obj-improvement" : 0.0,
-    "preventive-stop-criterion" : "MIN_OBJECTIVE",
-    "curative-stop-criterion" : "MIN_OBJECTIVE"
+    "type" : "WRONG",
+    "curative-min-obj-improvement" : 0.0
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,
     "pst-penalty-cost" : 0.01,
     "pst-sensitivity-threshold" : 1.0E-6,
-    "pst-model" : "APPROXIMATED_INTEGERS",
+    "pst-model" : "CONTINUOUS",
     "hvdc-penalty-cost" : 0.001,
     "hvdc-sensitivity-threshold" : 1.0E-6,
     "injection-ra-penalty-cost" : 0.001,
@@ -28,14 +25,9 @@
     "max-curative-search-tree-depth" : 2147483647,
     "predefined-combinations" : [ ],
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 1.0,
+    "absolute-minimum-impact-threshold" : 0.0,
     "skip-actions-far-from-most-limiting-element" : false,
     "max-number-of-boundaries-for-skipping-actions" : 2
-  },
-  "multi-threading" : {
-    "contingency-scenarios-in-parallel" : 1,
-    "preventive-leaves-in-parallel" : 1,
-    "curative-leaves-in-parallel" : 1
   },
   "second-preventive-rao" : {
     "execution-condition" : "DISABLED",
@@ -52,7 +44,7 @@
     "sensitivity-parameters" : {
       "version" : "1.0",
       "load-flow-parameters" : {
-        "version" : "1.9",
+        "version" : "1.8",
         "voltageInitMode" : "UNIFORM_VALUES",
         "transformerVoltageControlOn" : false,
         "phaseShifterRegulationOn" : false,
@@ -61,9 +53,9 @@
         "shuntCompensatorVoltageControlOn" : false,
         "readSlackBus" : true,
         "writeSlackBus" : true,
-        "dc" : true,
+        "dc" : false,
         "distributedSlack" : true,
-        "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
+        "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
         "dcUseTransformerRatio" : true,
         "countriesToBalance" : [ ],
         "connectedComponentMode" : "MAIN",
@@ -71,17 +63,18 @@
       }
     }
   },
+  "multi-threading" : {
+    "contingency-scenarios-in-parallel" : 1,
+    "preventive-leaves-in-parallel" : 1,
+    "auto-leaves-in-parallel" : 1,
+    "curative-leaves-in-parallel" : 1
+  },
   "extensions" : {
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 50.0,
-      "violation-cost" : 10.0,
-      "constraint-adjustment-coefficient" : 0.0
-    },
     "loop-flow-parameters" : {
       "acceptable-increase" : 0.0,
-      "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
-      "constraint-adjustment-coefficient" : 0.5,
-      "violation-cost" : 100.0,
+      "ptdf-approximation" : "FIXED_PTDF",
+      "constraint-adjustment-coefficient" : 0.0,
+      "violation-cost" : 0.0,
       "countries" : [ ]
     }
   }

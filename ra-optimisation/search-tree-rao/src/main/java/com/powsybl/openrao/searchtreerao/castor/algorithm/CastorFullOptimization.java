@@ -20,7 +20,7 @@ import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -158,9 +158,9 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
             mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, raoInput.getCrac());
             // log results
-            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, RaoUtil.getObjectiveFunctionUnit(raoParameters), raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
-            return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
+            return postCheckResults(mergedRaoResults, initialOutput, raoParameters);
         }
 
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
@@ -184,16 +184,16 @@ public class CastorFullOptimization {
         // Log final results
         if (logFinalResultsOutsideOfSecondPreventive) {
             BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
-            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, RaoUtil.getObjectiveFunctionUnit(raoParameters), raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
 
-        return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
+        return postCheckResults(mergedRaoResults, initialOutput, raoParameters);
     }
 
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
-        return raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+        return raoParameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)
                 && preventiveOptimalCost > 0
-                && !raoParameters.getObjectiveFunctionParameters().getOptimizeCurativeIfPreventiveUnsecure();
+                && !raoParameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity();
     }
 
     /**
@@ -223,7 +223,7 @@ public class CastorFullOptimization {
     /**
      * Return initial result if RAO has increased cost
      */
-    private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, ObjectiveFunctionParameters objectiveFunctionParameters) {
+    private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, RaoParameters raoParameters) {
         RaoResult finalRaoResult = raoResult;
 
         double initialCost = initialResult.getCost();
@@ -234,12 +234,12 @@ public class CastorFullOptimization {
         double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
         double finalVirtualCost = finalRaoResult.getVirtualCost(lastInstant);
 
-        if (objectiveFunctionParameters.getForbidCostIncrease() && finalCost > initialCost) {
+        if (finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
                 formatDouble(initialCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
                 formatDouble(finalCost), formatDouble(finalFunctionalCost), formatDouble(finalVirtualCost));
             // log results
-            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, objectiveFunctionParameters.getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, RaoUtil.getObjectiveFunctionUnit(raoParameters), raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
             finalRaoResult = new UnoptimizedRaoResultImpl(initialResult);
             finalCost = initialCost;
             finalFunctionalCost = initialFunctionalCost;
@@ -501,29 +501,19 @@ public class CastorFullOptimization {
             // only compare initial cost with the curative costs
             return false;
         }
-        if (raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
-                && firstPreventiveResult.getCost() > 0) {
-            // in case of curative optimization even if preventive unsecure (see parameter optimize-curative-if-preventive-unsecure)
-            // we do not want to run a second preventive that would not be able to fix the situation, to save time
-            BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
-            return false;
-        }
-        ObjectiveFunctionParameters.CurativeStopCriterion curativeStopCriterion = raoParameters.getObjectiveFunctionParameters().getCurativeStopCriterion();
-        switch (curativeStopCriterion) {
-            case MIN_OBJECTIVE:
-                // Run 2nd preventive RAO in all cases
-                return true;
-            case SECURE:
-                // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
-                return isAnyResultUnsecure(curativeRaoResults);
-            case PREVENTIVE_OBJECTIVE:
-                // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
-                return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
-            case PREVENTIVE_OBJECTIVE_AND_SECURE:
-                // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter or is unsecure
-                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
-            default:
-                throw new OpenRaoException(String.format("Unknown curative RAO stop criterion: %s", curativeStopCriterion));
+        ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType = raoParameters.getObjectiveFunctionParameters().getType();
+        if (objectiveFunctionType.equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)) {
+            if (firstPreventiveResult.getCost() > 0) {
+                // in case of curative optimization even if preventive unsecure (see parameter enforce-curative-security)
+                // we do not want to run a second preventive that would not be able to fix the situation, to save time
+                BUSINESS_LOGS.info("First preventive RAO was not able to fix all preventive constraints, second preventive RAO cancelled to save computation time.");
+                return false;
+            }
+            // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
+            return isAnyResultUnsecure(curativeRaoResults);
+        } else {  // MIN OBJECTIVE
+            // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
+            return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
         }
     }
 
@@ -613,7 +603,7 @@ public class CastorFullOptimization {
                 newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult(), secondPreventiveRaoResult.remedialActionsExcluded(), postCraSensitivityAnalysisOutput));
             }
         }
-        RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, parameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+        RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, RaoUtil.getObjectiveFunctionUnit(parameters), parameters.getObjectiveFunctionParameters().getType().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
         return new PreventiveAndCurativesRaoResultImpl(stateTree,
             initialOutput,

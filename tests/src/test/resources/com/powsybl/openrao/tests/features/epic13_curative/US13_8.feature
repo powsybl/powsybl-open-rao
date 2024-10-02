@@ -33,7 +33,7 @@ Feature: US 13.8: cross-validation curative and relative margin
     Then the relative margin on cnec "BBE4AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 693 A
     And the value of the objective function after CRA should be 244
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @relative
   Scenario: US 13.8.2: Full optimization in absolute margin with positive margin in curative
     # Curative limiting element of previous case has been removed so that limiting element in curative has a positive
     # absolute margin. This case is a reference for the following one.
@@ -56,7 +56,7 @@ Feature: US 13.8: cross-validation curative and relative margin
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 470 A
     And the value of the objective function after CRA should be -300
 
-  @fast @rao @mock @ac @contingency-scenarios @relative @relative
+  @fast @rao @mock @ac @contingency-scenarios @relative
   Scenario: US 13.8.3: Full optimization in relative margin with positive margin in curative
     # Optimizations in both preventive and curative are slightly different since due to PTDF factor limiting elements
     # are not the same in both situations.

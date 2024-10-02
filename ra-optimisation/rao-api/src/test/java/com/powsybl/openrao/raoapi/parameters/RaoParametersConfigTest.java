@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
+
 class RaoParametersConfigTest {
     private PlatformConfig mockedPlatformConfig;
     private InMemoryPlatformConfig platformCfg;
@@ -40,22 +41,16 @@ class RaoParametersConfigTest {
     @Test
     void checkObjectiveFunctionConfig() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
-        objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE");
-        objectiveFunctionModuleConfig.setStringProperty("forbid-cost-increase", Objects.toString(true));
+        objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
-        objectiveFunctionModuleConfig.setStringProperty("preventive-stop-criterion", "MIN_OBJECTIVE");
-        objectiveFunctionModuleConfig.setStringProperty("curative-stop-criterion", "PREVENTIVE_OBJECTIVE");
-        objectiveFunctionModuleConfig.setStringProperty("optimize-curative-if-preventive-unsecure", "true");
+        objectiveFunctionModuleConfig.setStringProperty("enforce-curative-security", "false");
 
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        assertTrue(objectiveFunctionParameters.getForbidCostIncrease());
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, objectiveFunctionParameters.getType());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, objectiveFunctionParameters.getType());
         assertEquals(123, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
-        assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
-        assertEquals(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE, objectiveFunctionParameters.getCurativeStopCriterion());
-        assertTrue(objectiveFunctionParameters.getOptimizeCurativeIfPreventiveUnsecure());
+        assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
     }
 
     @Test
@@ -76,18 +71,19 @@ class RaoParametersConfigTest {
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
         RangeActionsOptimizationParameters params = parameters.getRangeActionsOptimizationParameters();
-        assertEquals(4, params.getMaxMipIterations(), DOUBLE_TOLERANCE);
-        assertEquals(44, params.getPstPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(7, params.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, params.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, params.getRaRangeShrinking());
-        assertEquals(33, params.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(8, params.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(22, params.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(9, params.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(RangeActionsOptimizationParameters.Solver.XPRESS, params.getLinearOptimizationSolver().getSolver());
-        assertEquals(22, params.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
-        assertEquals("blabla", params.getLinearOptimizationSolver().getSolverSpecificParameters());
+        OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        assertEquals(4, paramsExt.getMaxMipIterations(), DOUBLE_TOLERANCE);
+        assertEquals(44, params.getPstRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(7, paramsExt.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, paramsExt.getPstModel());
+        assertEquals(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, paramsExt.getRaRangeShrinking());
+        assertEquals(33, params.getHvdcRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(8, paramsExt.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(22, params.getInjectionRAMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(9, paramsExt.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(OpenRaoSearchTreeParameters.RangeActionsOptimizationParameters.Solver.XPRESS, paramsExt.getLinearOptimizationSolver().getSolver());
+        assertEquals(22, paramsExt.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
+        assertEquals("blabla", paramsExt.getLinearOptimizationSolver().getSolverSpecificParameters());
     }
 
     @Test
@@ -217,15 +213,15 @@ class RaoParametersConfigTest {
     @Test
     void checkMultipleConfigs() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
-        objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE");
+        objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         MapModuleConfig rangeActionsOptimizationModuleConfig = platformCfg.createModuleConfig("rao-range-actions-optimization");
         rangeActionsOptimizationModuleConfig.setStringProperty("max-mip-iterations", Objects.toString(32));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, parameters.getObjectiveFunctionParameters().getType());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         assertEquals(123, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
-        assertEquals(32, parameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), 1e-6);
+        assertEquals(32, parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getMaxMipIterations(), 1e-6);
         assertTrue(Objects.isNull(parameters.getExtension(LoopFlowParametersExtension.class)));
         assertTrue(Objects.isNull(parameters.getExtension(MnecParametersExtension.class)));
         assertTrue(Objects.isNull(parameters.getExtension(RelativeMarginsParametersExtension.class)));

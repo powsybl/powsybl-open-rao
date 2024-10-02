@@ -68,12 +68,12 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.01);
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
         parameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
 
