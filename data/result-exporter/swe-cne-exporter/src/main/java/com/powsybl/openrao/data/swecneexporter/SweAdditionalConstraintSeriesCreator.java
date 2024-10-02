@@ -12,6 +12,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
+import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.AngleCnecCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -75,9 +76,29 @@ public class SweAdditionalConstraintSeriesCreator {
             additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedObjectId());
             additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
             additionalConstraintSeries.setName(angleCnec.getName());
-            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
+            // TODO: change number of decimals here? yeah I think so
+            additionalConstraintSeries.setQuantityQuantity(roundAngleValue(angleCnec, crac, raoResult));
             return additionalConstraintSeries;
         }
         return null;
+    }
+
+    /**
+     * Round the angle value of an AngleCNEC with a relevant number decimals.
+     * Generally, only one decimal suffices but in case of very small violations,
+     * the number of decimals must be increased so the violation can be
+     * read directly in the results.
+     */
+    static BigDecimal roundAngleValue(AngleCnec angleCnec, Crac crac, RaoResult raoResult) {
+        double angle = raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE);
+        int numberOfDecimals = 1;
+        for (Threshold threshold : angleCnec.getThresholds()) {
+            if (threshold.max().isPresent() && angle > threshold.max().get()) {
+                numberOfDecimals = Math.max(numberOfDecimals, (int) - Math.log10(angle - threshold.max().get()) + 1);
+            } else if (threshold.min().isPresent() && angle < threshold.min().get()) {
+                numberOfDecimals = Math.max(numberOfDecimals, (int) - Math.log10(threshold.min().get() - angle) + 1);
+            }
+        }
+        return BigDecimal.valueOf(angle).setScale(numberOfDecimals, RoundingMode.HALF_UP);
     }
 }
