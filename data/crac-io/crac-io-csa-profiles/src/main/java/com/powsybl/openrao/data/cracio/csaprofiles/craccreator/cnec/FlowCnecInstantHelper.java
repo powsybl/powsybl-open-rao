@@ -57,6 +57,7 @@ class FlowCnecInstantHelper {
         // raise exception if a TSO not using the PATL has no TATL either
         // associate instant to TATL duration, or Integer.MAX_VALUE if PATL
         int longestDuration = doNotUsePatlInFinalState ? tatlDurations.stream().max(Integer::compareTo).orElse(Integer.MAX_VALUE) : Integer.MAX_VALUE; // longest TATL duration or infinite (PATL)
+        // TODO: check with TSOs if auto-instant-application-time should not be used here instead
         instantToLimit.put(crac.getInstant(InstantKind.OUTAGE).getId(), tatlDurations.stream().filter(tatlDuration -> tatlDuration >= 0 && tatlDuration < curativeInstantsData.get(0).getRight()).max(Integer::compareTo).orElse(getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, 0, longestDuration)));
         instantToLimit.put(crac.getInstant(InstantKind.AUTO).getId(), getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curativeInstantsData.get(0).getRight(), longestDuration));
         for (int instantIndex = 0; instantIndex < curativeInstantsData.size() - 1; instantIndex++) {
