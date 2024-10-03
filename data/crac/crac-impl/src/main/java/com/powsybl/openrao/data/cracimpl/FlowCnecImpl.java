@@ -195,6 +195,14 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
         FlowCnecValue flowCnecValue = computeValue(network, unit);
+        return getMinimimMarginBetweenTwoSides(unit, flowCnecValue);
+    }
+
+    private double computeMargin(FlowCnecValue flowCnecValue, Unit unit) {
+        return getMinimimMarginBetweenTwoSides(unit, flowCnecValue);
+    }
+
+    private double getMinimimMarginBetweenTwoSides(Unit unit, FlowCnecValue flowCnecValue) {
         if (getMonitoredSides().size() == 2) {
             double marginSide1 = computeMargin(flowCnecValue.side1Value(), TwoSides.ONE, unit);
             double marginSide2 = computeMargin(flowCnecValue.side2Value(), TwoSides.TWO, unit);
@@ -205,11 +213,12 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
-        if (computeMargin(network, unit) < 0) {
+        FlowCnecValue flowCnecValue = computeValue(network, unit);
+
+        if (computeMargin(flowCnecValue, unit) < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
 
-            FlowCnecValue flowCnecValue = computeValue(network, unit);
             double marginLowerBoundSideOne = flowCnecValue.side1Value() - getLowerBound(TwoSides.ONE, unit).orElse(Double.NEGATIVE_INFINITY);
             double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
 

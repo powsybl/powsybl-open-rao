@@ -201,6 +201,20 @@ class AngleCnecImplTest {
         assertNotEquals(cnec1.hashCode(), cnec2.hashCode());
     }
 
+    @Test
+    void testComputeSecurityStatus() {
+        AngleCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()
+            .add();
+        Network networkMockWithBusAngleWithinThresholds = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", 0.);
+        Network networkMockWithBusAngleLowerThanThresholds = mockBusAngleInNetwork("exportingNetworkElement", -300., "importingNetworkElement", 0.);
+        Network networkMockWithBusAngleHigherThanThresholds = mockBusAngleInNetwork("exportingNetworkElement", 1300., "importingNetworkElement", 0.);
+
+        assertEquals(Cnec.SecurityStatus.SECURE, cnec.computeSecurityStatus(networkMockWithBusAngleWithinThresholds, Unit.DEGREE));
+        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, cnec.computeSecurityStatus(networkMockWithBusAngleLowerThanThresholds, Unit.DEGREE));
+        assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, cnec.computeSecurityStatus(networkMockWithBusAngleHigherThanThresholds, Unit.DEGREE));
+    }
+
     private static Network mockBusAngleInNetwork(String exportingElement, double expAngle, String importingElement, double impAngle) {
         Network network = Mockito.mock(Network.class);
         VoltageLevel exportingVl = Mockito.mock(VoltageLevel.class);

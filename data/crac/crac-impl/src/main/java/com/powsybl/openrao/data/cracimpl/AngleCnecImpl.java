@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.cracimpl;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
@@ -64,10 +63,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
 
     @Override
     public Optional<Double> getLowerBound(Unit requestedUnit) {
-        if (!requestedUnit.equals(Unit.DEGREE)) {
-            throw new OpenRaoException("AngleCnec lowerBound can only be requested in DEGREE");
-        }
-
+        requestedUnit.checkPhysicalParameter(PhysicalParameter.ANGLE);
         Set<Threshold> limitingThresholds = thresholds.stream()
             .filter(Threshold::limitsByMin)
             .collect(Collectors.toSet());
@@ -87,10 +83,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
 
     @Override
     public Optional<Double> getUpperBound(Unit requestedUnit) {
-        if (!requestedUnit.equals(Unit.DEGREE)) {
-            throw new OpenRaoException("AngleCnec upperBound can only be requested in DEGREE");
-        }
-
+        requestedUnit.checkPhysicalParameter(PhysicalParameter.ANGLE);
         Set<Threshold> limitingThresholds = thresholds.stream()
             .filter(Threshold::limitsByMax)
             .collect(Collectors.toSet());
@@ -114,9 +107,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
 
     @Override
     public AngleCnecValue computeValue(Network network, Unit unit) {
-        if (!unit.equals(Unit.DEGREE)) {
-            throw new OpenRaoException("AngleCnec margin can only be requested in DEGREE");
-        }
+        unit.checkPhysicalParameter(getPhysicalParameter());
         VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(exportingNetworkElement.getId(), network);
         VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(importingNetworkElement.getId(), network);
         return new AngleCnecValue(exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
@@ -125,19 +116,23 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
 
     @Override
     public double computeMargin(Network network, Unit unit) {
-        if (!unit.equals(Unit.DEGREE)) {
-            throw new OpenRaoException("AngleCnec margin can only be requested in DEGREE");
-        }
-
+        unit.checkPhysicalParameter(getPhysicalParameter());
         AngleCnecValue actualAngleValue = computeValue(network, unit);
         double marginOnLowerBound = actualAngleValue.value() - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
         double marginOnUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualAngleValue.value();
         return Math.min(marginOnLowerBound, marginOnUpperBound);
     }
 
+    private double computeMargin(double actualAngleValue, Unit unit) {
+        double marginOnLowerBound = actualAngleValue - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualAngleValue;
+        return Math.min(marginOnLowerBound, marginOnUpperBound);
+    }
+
     public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
-        if (computeMargin(network, unit) < 0) {
-            double actualAngleValue = computeValue(network, unit).value();
+        double actualAngleValue = computeValue(network, unit).value();
+
+        if (computeMargin(actualAngleValue, unit) < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
             if (getThresholds().stream()
