@@ -22,9 +22,12 @@ import com.powsybl.openrao.data.swecneexporter.xsd.Analog;
 import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredRegisteredResource;
 import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredSeries;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
+import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.computeNumberOfRelevantDecimals;
 
 /**
  * Generates MonitoredSeries for SWE CNE format
@@ -96,7 +99,7 @@ public class SweMonitoredSeriesCreator {
                 flow = flowOnSide;
             }
         }
-        return flow;
+        return BigDecimal.valueOf(flow).setScale(computeNumberOfRelevantDecimals(margin), RoundingMode.HALF_UP).doubleValue();
     }
 
     private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext, Set<CnecCreationContext> cnecCreationContexts, boolean includeMeasurements) {
