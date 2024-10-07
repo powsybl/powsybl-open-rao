@@ -13,14 +13,19 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -120,5 +125,13 @@ abstract class AbstractFillerTest {
 
     protected void useNetworkWithTwoPsts() {
         network = NetworkImportsUtil.import12NodesWith2PstsNetwork();
+    }
+
+    protected RangeActionActivationResult getInitialRangeActionActivationResult() {
+        return getInitialRangeActionActivationResult(crac.getRangeActions());
+    }
+
+    protected RangeActionActivationResult getInitialRangeActionActivationResult(Set<RangeAction<?>> rangeActionSet) {
+        return new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions()));
     }
 }
