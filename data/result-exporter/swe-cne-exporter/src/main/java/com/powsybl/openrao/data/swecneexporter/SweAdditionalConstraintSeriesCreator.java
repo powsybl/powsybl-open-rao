@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.computeNumberOfRelevantDecimals;
@@ -93,10 +94,12 @@ public class SweAdditionalConstraintSeriesCreator {
         double angle = raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE);
         int numberOfDecimals = 1;
         for (Threshold threshold : angleCnec.getThresholds()) {
-            if (threshold.max().isPresent()) {
-                numberOfDecimals = Math.max(numberOfDecimals, computeNumberOfRelevantDecimals(angle - threshold.max().get()));
-            } else if (threshold.min().isPresent()) {
-                numberOfDecimals = Math.max(numberOfDecimals, computeNumberOfRelevantDecimals(threshold.min().get() - angle));
+            Optional<Double> maxValue = threshold.max();
+            Optional<Double> minValue = threshold.min();
+            if (maxValue.isPresent()) {
+                numberOfDecimals = Math.max(numberOfDecimals, computeNumberOfRelevantDecimals(angle - maxValue.get()));
+            } else if (minValue.isPresent()) {
+                numberOfDecimals = Math.max(numberOfDecimals, computeNumberOfRelevantDecimals(minValue.get() - angle));
             }
         }
         return BigDecimal.valueOf(angle).setScale(numberOfDecimals, RoundingMode.HALF_UP);
