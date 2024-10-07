@@ -240,8 +240,8 @@ public class MonitoredSeriesCreator {
         MeasurementCreationContext measurementCreationContext = MeasurementCreationContext.imported();
 
         FlowCnecAdder flowCnecAdder = crac.newFlowCnec()
-            .withInstant(instant.getId());
-        flowCnecAdder.withNetworkElement(branchHelper.getBranch().getId());
+            .withInstant(instant.getId())
+            .withNetworkElement(branchHelper.getBranch().getId());
 
         String cnecId;
         try {
@@ -270,28 +270,24 @@ public class MonitoredSeriesCreator {
             addCnecsOnState(flowCnecAdder, cnecId, null, instant, measurementCreationContext, branchHelper.getIdInNetwork());
         } else {
             String finalCnecId = cnecId;
-            contingencies.forEach(contingency ->
-                addCnecsOnState(flowCnecAdder, finalCnecId, contingency, instant, measurementCreationContext, branchHelper.getIdInNetwork())
-            );
+            contingencies.forEach(contingency -> {
+                String contingencyId = contingency.getId();
+                flowCnecAdder.withContingency(contingencyId);
+                String cnecIdWithContingency = finalCnecId + " - " + contingencyId;
+                addCnecsOnState(flowCnecAdder, cnecIdWithContingency, contingency, instant, measurementCreationContext, branchHelper.getIdInNetwork());
+            });
         }
 
         return measurementCreationContext;
     }
 
-    private void addCnecsOnState(FlowCnecAdder flowCnecAdder, String cnecId, Contingency contingency, Instant instant, MeasurementCreationContext measurementCreationContext, String networkElementId) {
+    private void addCnecsOnState(FlowCnecAdder flowCnecAdder, String cnecIdWithContingency, Contingency contingency, Instant instant, MeasurementCreationContext measurementCreationContext, String networkElementId) {
         String contingencyId = Objects.isNull(contingency) ? "" : contingency.getId();
-        String cnecIdCopy = cnecId;
+        String fullCnecId = cnecIdWithContingency + " - " + instant.getId();
 
-        if (!instant.isPreventive()) {
-            flowCnecAdder.withContingency(contingencyId);
-            cnecIdCopy += " - " + contingencyId;
-        }
-        flowCnecAdder.withInstant(instant.getId());
-        cnecIdCopy += " - " + instant.getId();
-
-        if (Objects.isNull(crac.getFlowCnec(cnecIdCopy))) {
-            flowCnecAdder.withId(cnecIdCopy);
-            flowCnecAdder.withName(cnecIdCopy).add();
+        if (Objects.isNull(crac.getFlowCnec(fullCnecId))) {
+            flowCnecAdder.withId(fullCnecId);
+            flowCnecAdder.withName(fullCnecId).add();
         } else {
             // If a CNEC with the same ID has already been created, we assume that the 2 CNECs are the same
             // (we know network element and state are the same, we assume that thresholds are the same.
@@ -301,7 +297,7 @@ public class MonitoredSeriesCreator {
                 String.format("Multiple CNECs on same network element (%s) and same state (%s%s%s) have been detected. Only one CNEC will be created.", networkElementId, contingencyId, Objects.isNull(contingency) ? "" : " - ", instant)
             );
         }
-        measurementCreationContext.addCnecCreationContext(contingencyId, instant, CnecCreationContext.imported(cnecIdCopy));
+        measurementCreationContext.addCnecCreationContext(contingencyId, instant, CnecCreationContext.imported(fullCnecId));
     }
 
     private String addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, CgmesBranchHelper branchHelper, String cnecId, String direction, double threshold) {

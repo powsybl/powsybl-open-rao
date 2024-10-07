@@ -44,11 +44,11 @@ public class PstRangeActionCreator {
     private PstRangeActionAdder pstRangeActionAdder;
     private final Country sharedDomain;
 
-    public PstRangeActionCreator(RemedialActionSeries remedialActionSeries, RemedialActionRegisteredResource remedialActionRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain) {
+    public PstRangeActionCreator(RemedialActionSeries remedialActionSeries, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain) {
         this.createdRemedialActionId = remedialActionSeries.getMRID();
         this.createdRemedialActionName = remedialActionSeries.getName();
         this.applicationModeMarketObjectStatus = remedialActionSeries.getApplicationModeMarketObjectStatusStatus();
-        this.pstRegisteredResource = remedialActionRegisteredResource;
+        this.pstRegisteredResource = remedialActionSeries.getRegisteredResource().get(0);
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
         this.cnecs = cnecs;

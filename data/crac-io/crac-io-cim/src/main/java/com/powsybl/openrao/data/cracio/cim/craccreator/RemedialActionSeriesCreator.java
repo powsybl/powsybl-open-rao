@@ -270,8 +270,7 @@ public class RemedialActionSeriesCreator {
                 }
                 if (!pstRangeActionCreators.containsKey(createdRemedialActionId)
                     || !pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionCreationContext().isImported()) {
-                    PstRangeActionCreator pstRangeActionCreator = new PstRangeActionCreator(remedialActionSeries, remedialActionRegisteredResource,
-                        contingencies, invalidContingencies, cnecs, sharedDomain);
+                    PstRangeActionCreator pstRangeActionCreator = new PstRangeActionCreator(remedialActionSeries, contingencies, invalidContingencies, cnecs, sharedDomain);
                     pstRangeActionCreator.createPstRangeActionAdder(crac, network, cimCracCreationParameters);
                     pstRangeActionCreators.put(createdRemedialActionId, pstRangeActionCreator);
                 } else {
