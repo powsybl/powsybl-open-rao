@@ -10,17 +10,12 @@ package com.powsybl.openrao.data.corecneexporter;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.corecneexporter.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.io.Exporter;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import org.apache.commons.lang3.NotImplementedException;
 import org.xml.sax.SAXException;
 
@@ -43,6 +38,8 @@ import java.util.Objects;
 import java.util.Properties;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
+import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getParametersFromProperties;
+import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getRaoParametersFromProperties;
 
 /**
  * Xml export of the CNE file
@@ -118,82 +115,5 @@ public class CoreCneExporter implements Exporter {
             return false;
         }
         return true;
-    }
-
-    private static RaoParameters getRaoParametersFromProperties(Properties properties) {
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins();
-        ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType = getObjectiveFunctionTypeFromString(properties.getProperty("objective-function-type"));
-        raoParameters.getObjectiveFunctionParameters().setType(objectiveFunctionType);
-        boolean withLoopFlow = Boolean.parseBoolean(properties.getProperty("with-loop-flows", "false"));
-        if (withLoopFlow) {
-            raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        }
-        double mnecAcceptableMarginDiminution = Double.parseDouble(properties.getProperty("mnec-acceptable-margin-diminution", "0"));
-        if (mnecAcceptableMarginDiminution != 0) {
-            MnecParametersExtension mnecParametersExtension = new MnecParametersExtension();
-            mnecParametersExtension.setAcceptableMarginDecrease(mnecAcceptableMarginDiminution);
-            raoParameters.addExtension(MnecParametersExtension.class, mnecParametersExtension);
-        }
-        return raoParameters;
-    }
-
-    private static ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunctionTypeFromString(String objectiveFunctionType) {
-        switch (objectiveFunctionType) {
-            case "max-min-relative-margin-in-ampere" -> {
-                return ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
-            }
-            case "max-min-relative-margin-in-megawatt" -> {
-                return ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
-            }
-            case "max-min-margin-in-ampere" -> {
-                return ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE;
-            }
-            case "max-min-margin-in-megawatt" -> {
-                return ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT;
-            }
-            default -> throw new OpenRaoException("Unknown ObjectiveFunctionType %s".formatted(objectiveFunctionType));
-        }
-    }
-
-    private static CneExporterParameters getParametersFromProperties(Properties properties) {
-        return new CneExporterParameters(
-            properties.getProperty("document-id"),
-            Integer.parseInt(properties.getProperty("revision-number")),
-            properties.getProperty("domain-id"),
-            getProcessTypeFromString(properties.getProperty("process-type")),
-            properties.getProperty("sender-id"),
-            getRoleTypeFromString(properties.getProperty("sender-role")),
-            properties.getProperty("receiver-id"),
-            getRoleTypeFromString(properties.getProperty("receiver-role")),
-            properties.getProperty("time-interval")
-        );
-    }
-
-    private static CneExporterParameters.ProcessType getProcessTypeFromString(String processType) {
-        switch (processType) {
-            case "A48" -> {
-                return CneExporterParameters.ProcessType.DAY_AHEAD_CC;
-            }
-            case "Z01" -> {
-                return CneExporterParameters.ProcessType.Z01;
-            }
-            default -> throw new OpenRaoException("Unknown ProcessType %s".formatted(processType));
-        }
-    }
-
-    private static CneExporterParameters.RoleType getRoleTypeFromString(String roleType) {
-        switch (roleType) {
-            case "A36" -> {
-                return CneExporterParameters.RoleType.CAPACITY_COORDINATOR;
-            }
-            case "A44" -> {
-                return CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR;
-            }
-            case "A04" -> {
-                return CneExporterParameters.RoleType.SYSTEM_OPERATOR;
-            }
-            default -> throw new OpenRaoException("Unknown RoleRype %s".formatted(roleType));
-        }
     }
 }

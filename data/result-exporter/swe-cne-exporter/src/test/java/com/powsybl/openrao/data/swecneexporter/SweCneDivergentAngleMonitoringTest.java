@@ -7,18 +7,15 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
-import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
 import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultImporter;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Properties;
 import java.util.Set;
 
 import static com.powsybl.openrao.data.swecneexporter.SweCneTest.compareCneFiles;
@@ -73,13 +71,18 @@ class SweCneDivergentAngleMonitoringTest {
 
     @Test
     void testExport() {
-        CneExporterParameters params = new CneExporterParameters(
-                "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
-                "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,
-                "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
-                "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new SweCneExporter().exportCne(crac, (CimCracCreationContext) cracCreationContext, raoResultWithAngleMonitoring, new RaoParameters(), params, outputStream);
+        Properties properties = new Properties();
+        properties.setProperty("document-id", "documentId");
+        properties.setProperty("revision-number", "1");
+        properties.setProperty("domain-id", "domainId");
+        properties.setProperty("process-type", "Z01");
+        properties.setProperty("sender-id", "senderId");
+        properties.setProperty("sender-role", "A04");
+        properties.setProperty("receiver-id", "receiverId");
+        properties.setProperty("receiver-role", "A36");
+        properties.setProperty("time-interval", "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
+        new SweCneExporter().exportData(raoResultWithAngleMonitoring, cracCreationContext, properties, outputStream);
         try {
             InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
