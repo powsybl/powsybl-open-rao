@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.cracio.commons.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.cracutil.CracValidator;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +40,7 @@ class CimCracCreator {
         RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getTimeSeries());
-        this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId());
+        this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId(), network.getCaseDate().toInstant().atOffset(ZoneOffset.UTC));
 
         // Get warning messages from parameters parsing
         CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);

@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.Network;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 
@@ -63,7 +62,7 @@ public class SweCne {
         }
 
         OffsetDateTime offsetDateTime = cracCreationContext.getTimeStamp().withMinute(0);
-        fillHeader(sweCneHelper.getNetwork().getCaseDate().toInstant().atOffset(ZoneOffset.UTC));
+        fillHeader(cracCreationContext.getNetworkCaseDate());
         addTimeSeriesToCne(offsetDateTime);
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 

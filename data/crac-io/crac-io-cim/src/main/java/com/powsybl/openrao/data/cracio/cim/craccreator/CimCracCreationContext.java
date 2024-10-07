@@ -29,15 +29,17 @@ public class CimCracCreationContext implements CracCreationContext {
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private final CracCreationReport creationReport;
     private final OffsetDateTime timeStamp;
+    private final OffsetDateTime networkCaseDate;
     private final String networkName;
 
-    CimCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName) {
+    CimCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName, OffsetDateTime networkCaseDate) {
         this.crac = crac;
         creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.angleCnecCreationContexts = new HashSet<>();
         this.voltageCnecCreationContexts = new HashSet<>();
         this.networkName = networkName;
+        this.networkCaseDate = networkCaseDate;
     }
 
     protected CimCracCreationContext(CimCracCreationContext toCopy) {
@@ -51,6 +53,7 @@ public class CimCracCreationContext implements CracCreationContext {
         this.creationReport = toCopy.creationReport;
         this.timeStamp = toCopy.timeStamp;
         this.networkName = toCopy.networkName;
+        this.networkCaseDate = toCopy.networkCaseDate;
     }
 
     @Override
@@ -211,6 +214,10 @@ public class CimCracCreationContext implements CracCreationContext {
 
     public ElementaryCreationContext getContingencyCreationContextByName(String contingencyName) {
         return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectName().equals(contingencyName)).findAny().orElse(null);
+    }
+
+    public OffsetDateTime getNetworkCaseDate() {
+        return networkCaseDate;
     }
 
     void setCreationFailure() {
