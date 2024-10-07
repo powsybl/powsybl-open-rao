@@ -17,6 +17,8 @@ import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCr
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.SweCneExporter;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -28,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -50,16 +53,43 @@ public final class CneHelper {
         // should not be instantiated
     }
 
-    public static String exportCoreCne(Crac crac, CracCreationContext cracCreationContext, Network network, RaoResult raoResult, RaoParameters raoParameters) {
+    public static String exportCoreCne(CracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters) {
         if (!(cracCreationContext instanceof UcteCracCreationContext)) {
             throw new OpenRaoException("CORE CNE export can only handle UcteCracCreationContext");
         }
-        CneExporterParameters exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 1, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "22XCORESO------S", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
-            "2021-10-30T22:00Z/2021-10-31T23:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        (new CoreCneExporter()).exportCne(crac, (UcteCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream);
+        Properties properties = new Properties();
+        fillPropertiesWithCneExporterParameters(properties);
+        fillPropertiesWithRaoParameters(properties, raoParameters);
+        raoResult.write("CORE CNE", cracCreationContext, properties, outputStream);
         return outputStream.toString();
+    }
+
+    private static void fillPropertiesWithCneExporterParameters(Properties properties) {
+        properties.setProperty("document-id", "22XCORESO------S-20211115-F299v1");
+        properties.setProperty("revision-number", "1");
+        properties.setProperty("domain-id", "10YDOM-REGION-1V");
+        properties.setProperty("process-type", "A48");
+        properties.setProperty("sender-id", "22XCORESO------S");
+        properties.setProperty("sender-role", "A44");
+        properties.setProperty("receiver-id", "17XTSO-CS------W");
+        properties.setProperty("receiver-role", "A36");
+        properties.setProperty("time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
+    }
+
+    private static void fillPropertiesWithRaoParameters(Properties properties, RaoParameters raoParameters) {
+        switch (raoParameters.getObjectiveFunctionParameters().getType()) {
+            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE -> properties.setProperty("objective-function-type", "max-min-relative-margin-in-ampere");
+            case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT -> properties.setProperty("objective-function-type", "max-min-relative-margin-in-megawatt");
+            case MAX_MIN_MARGIN_IN_AMPERE -> properties.setProperty("objective-function-type", "max-min-margin-in-ampere");
+            case MAX_MIN_MARGIN_IN_MEGAWATT -> properties.setProperty("objective-function-type", "max-min-margin-in-megawatt");
+        }
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
+            properties.setProperty("with-loop-flows", "true");
+        }
+        if (raoParameters.hasExtension(MnecParametersExtension.class)) {
+            properties.setProperty("mnec-acceptable-margin-diminution", String.valueOf(raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease()));
+        }
     }
 
     public static String exportSweCne(Crac crac, CracCreationContext cracCreationContext, Network network, RaoResult raoResult, RaoParameters raoParameters) {

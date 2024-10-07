@@ -31,7 +31,7 @@ public class CneExportSteps {
     public void iExportCoreCne(String timestamp) throws IOException {
         cneVersion = CneHelper.CneVersion.CORE;
         CommonTestData.loadData(timestamp);
-        exportedCne = CneHelper.exportCoreCne(CommonTestData.getCrac(), CommonTestData.getCracCreationContext(), CommonTestData.getNetwork(), CommonTestData.getRaoResult(), CommonTestData.getRaoParameters());
+        exportedCne = CneHelper.exportCoreCne(CommonTestData.getCracCreationContext(), CommonTestData.getRaoResult(), CommonTestData.getRaoParameters());
     }
 
     @Then("the CORE CNE file is xsd-compliant")
