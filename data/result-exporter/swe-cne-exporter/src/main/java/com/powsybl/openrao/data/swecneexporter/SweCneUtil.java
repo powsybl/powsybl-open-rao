@@ -35,6 +35,8 @@ public final class SweCneUtil {
     private SweCneUtil() {
     }
 
+    private static final double ROUNDING_EPSILON = 1e-8; // "noise" required to avoid side effects when rounding negative powers of 10
+
     // Creation of time interval
     public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime offsetDateTime) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'");
@@ -106,7 +108,6 @@ public final class SweCneUtil {
      * @return number of decimals
      */
     public static int computeNumberOfRelevantDecimals(double measuredConstraint) {
-        double epsilon = 1e-8; // "noise" required to avoid side effects with negative powers of 10
-        return measuredConstraint <= 0 ? 1 : Math.max(1, (int) -Math.log10(measuredConstraint + epsilon) + 1);
+        return measuredConstraint <= 0 ? 1 : Math.max(1, (int) -Math.log10(measuredConstraint + ROUNDING_EPSILON) + 1);
     }
 }
