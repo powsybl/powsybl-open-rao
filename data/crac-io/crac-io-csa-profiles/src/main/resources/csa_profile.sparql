@@ -798,3 +798,21 @@ GRAPH <%s> {
         nc:RemedialActionDependency.enabled ?enabled .
 }
 }
+
+# query: tapChanger
+PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT *
+{
+VALUES ?type { cim:PhaseTapChangerSymmetrical cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerLinear cim:PhaseTapChangerTabular cim:RatioTapChanger }
+GRAPH <%s> {
+    ?tapChanger rdf:type ?type .
+
+    # Conditionally bind the correct TransformerEnd based on the type of the tap changer
+    BIND(IF(?type = cim:RatioTapChanger, cim:RatioTapChanger.TransformerEnd, cim:PhaseTapChanger.TransformerEnd) AS ?transformerEndProperty)
+
+    ?tapChanger ?transformerEndProperty ?transformerEnd .
+
+    ?transformerEnd rdf:type cim:PowerTransformerEnd ;
+                    cim:PowerTransformerEnd.PowerTransformer ?powerTransformer .
+}
+}

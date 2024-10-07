@@ -29,10 +29,12 @@ import java.util.*;
 public class PstRangeActionCreator {
     private final Crac crac;
     private final Network network;
+    private final Map<String, String> pstPerTapChanger;
 
-    public PstRangeActionCreator(Crac crac, Network network) {
+    public PstRangeActionCreator(Crac crac, Network network, Map<String, String> pstPerTapChanger) {
         this.crac = crac;
         this.network = network;
+        this.pstPerTapChanger = pstPerTapChanger;
     }
 
     public PstRangeActionAdder getPstRangeActionAdder(boolean isGroup, String elementaryActionsAggregatorId, TapPositionAction nativeTapPositionAction, Map<String, Set<StaticPropertyRange>> linkedStaticPropertyRanges, String remedialActionId) {
@@ -50,7 +52,11 @@ public class PstRangeActionCreator {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because the field normalEnabled in TapPositionAction is set to false", remedialActionId));
         }
         CsaProfileCracUtils.checkPropertyReference(remedialActionId, "TapPositionAction", PropertyReference.TAP_CHANGER, nativeTapPositionAction.propertyReference());
-        IidmPstHelper iidmPstHelper = new IidmPstHelper(nativeTapPositionAction.tapChangerId(), network);
+        if (!pstPerTapChanger.containsKey(nativeTapPositionAction.tapChangerId())) {
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Remedial action %s will not be imported because no PowerTransformer was found in the network for TapChanger %s", remedialActionId, nativeTapPositionAction.tapChangerId()));
+        }
+        String pstId = pstPerTapChanger.get(nativeTapPositionAction.tapChangerId());
+        IidmPstHelper iidmPstHelper = new IidmPstHelper(pstId, network);
         if (!iidmPstHelper.isValid()) {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Remedial action %s will not be imported because %s", remedialActionId, iidmPstHelper.getInvalidReason()));
         }
@@ -59,7 +65,7 @@ public class PstRangeActionCreator {
             pstRangeActionAdder.withGroupId(elementaryActionsAggregatorId);
         }
         pstRangeActionAdder
-            .withNetworkElement(nativeTapPositionAction.tapChangerId())
+            .withNetworkElement(pstId)
             .withInitialTap(iidmPstHelper.getInitialTap())
             .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap());
 
