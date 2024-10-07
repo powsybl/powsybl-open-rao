@@ -7,12 +7,12 @@
 
 package com.powsybl.openrao.data.raoresultapi.io;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.io.OutputStream;
-import java.util.Set;
+import java.util.Properties;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -23,5 +23,7 @@ public interface Exporter {
      */
     String getFormat();
 
-    void exportData(RaoResult raoResult, Crac crac, Set<Unit> flowUnits, OutputStream outputStream);
+    void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream);
+
+    void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream);
 }
