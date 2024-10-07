@@ -55,7 +55,6 @@ class SweMonitoredSeriesCreatorTest {
 
         Mockito.when(sweCneHelper.getCrac()).thenReturn(crac);
         Mockito.when(sweCneHelper.getRaoResult()).thenReturn(raoResult);
-        Mockito.when(sweCneHelper.getNetwork()).thenReturn(network); // TODO: remove
         Instant preventiveInstant = mockInstant(true, PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
         Instant outageInstant = mockInstant(false, OUTAGE_INSTANT_ID, InstantKind.OUTAGE);
         Instant autoInstant = mockInstant(false, AUTO_INSTANT_ID, InstantKind.AUTO);

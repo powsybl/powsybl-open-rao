@@ -37,7 +37,6 @@ public class TieLineTest {
         network.getDanglingLine("XES_PT11 PPT3AA1  1").setProperty("CGMES.TopologicalNode_Boundary", "XES_PT11_mRID");
 
         SweCneHelper helper = Mockito.mock(SweCneHelper.class);
-        Mockito.when(helper.getNetwork()).thenReturn(network);
 
         CimCracCreationContext cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         Map<String, Branch<?>> networkBranches = new HashMap<>();
