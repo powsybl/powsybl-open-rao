@@ -8,19 +8,19 @@ public final class PstRangeActionSeriesCreationContext extends RemedialActionSer
     private final String networkElementNativeMrid;
     private final String networkElementNativeName;
 
-    private PstRangeActionSeriesCreationContext(String nativeId, Set<String> createdIds, String networkElementNativeMrid, String networkElementNativeName,
-                                                ImportStatus importStatus, boolean isAltered, boolean isInverted, String importStatusDetail) {
-        super(nativeId, createdIds, importStatus, isAltered, isInverted, importStatusDetail);
+    private PstRangeActionSeriesCreationContext(String nativeId, ImportStatus importStatus, boolean isAltered, String importStatusDetail,
+                                                String networkElementNativeMrid, String networkElementNativeName) {
+        super(nativeId, Set.of(nativeId), importStatus, isAltered, false, importStatusDetail);
         this.networkElementNativeMrid = networkElementNativeMrid;
         this.networkElementNativeName = networkElementNativeName;
     }
 
     public static PstRangeActionSeriesCreationContext notImported(String nativeId, ImportStatus importStatus, String importStatusDetail) {
-        return new PstRangeActionSeriesCreationContext(nativeId, Set.of(nativeId), null, null, importStatus, false, false, importStatusDetail);
+        return new PstRangeActionSeriesCreationContext(nativeId, importStatus, false, importStatusDetail, null, null);
     }
 
-    public static PstRangeActionSeriesCreationContext imported(String nativeId, String networkElementNativeMrid, String networkElementNativeName, boolean isAltered, String importStatusDetail) {
-        return new PstRangeActionSeriesCreationContext(nativeId, Set.of(nativeId), networkElementNativeMrid, networkElementNativeName, ImportStatus.IMPORTED, isAltered, false, importStatusDetail);
+    public static PstRangeActionSeriesCreationContext imported(String nativeId, boolean isAltered, String importStatusDetail, String networkElementNativeMrid, String networkElementNativeName) {
+        return new PstRangeActionSeriesCreationContext(nativeId, ImportStatus.IMPORTED, isAltered, importStatusDetail, networkElementNativeMrid, networkElementNativeName);
     }
 
     public String getNetworkElementNativeMrid() {

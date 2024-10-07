@@ -426,6 +426,20 @@ public interface Crac extends Identifiable<Crac> {
      */
     Set<RangeAction<?>> getPotentiallyAvailableRangeActions(State state);
 
+    default boolean isRangeActionPreventive(RangeAction<?> rangeAction) {
+        return isRangeActionAvailableInState(rangeAction, getPreventiveState());
+    }
+
+    default boolean isRangeActionAutoOrCurative(RangeAction<?> rangeAction) {
+        return getStates().stream()
+            .filter(state -> state.getInstant().isAuto() || state.getInstant().isCurative())
+            .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state));
+    }
+
+    default boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state) {
+        return getPotentiallyAvailableRangeActions(state).contains(rangeAction);
+    }
+
     /**
      * Find a range action by its id, returns null if the range action does not exists
      */
