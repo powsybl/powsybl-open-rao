@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cneexportercommons;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
@@ -19,6 +20,7 @@ import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getParametersF
 import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getRaoParametersFromProperties;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -64,6 +66,16 @@ class CneUtilTest {
     }
 
     @Test
+    void testGetRaoParametersFromPropertiesUnknownObjectiveFunctionType() {
+        Properties properties = new Properties();
+        properties.setProperty("objective-function-type", "???");
+        properties.setProperty("with-loop-flows", "true");
+        properties.setProperty("mnec-acceptable-margin-diminution", "20.5");
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> getRaoParametersFromProperties(properties));
+        assertEquals("Unknown ObjectiveFunctionType ???", exception.getMessage());
+    }
+
+    @Test
     void testGetParametersFromProperties() {
         Properties propertiesDayAheadCc = createDefaultProperties();
         propertiesDayAheadCc.setProperty("process-type", "A48");
@@ -86,6 +98,23 @@ class CneUtilTest {
         assertEquals(CneExporterParameters.RoleType.SYSTEM_OPERATOR, parametersZ01.getReceiverRole());
     }
 
+    @Test
+    void testGetParametersFromPropertiesWithUnknownEnumFields() {
+        Properties propertiesUnknownProcessType = createDefaultProperties();
+        propertiesUnknownProcessType.setProperty("process-type", "???");
+        propertiesUnknownProcessType.setProperty("sender-role", "A36");
+        propertiesUnknownProcessType.setProperty("receiver-role", "A44");
+        OpenRaoException exceptionUnknownProcessType = assertThrows(OpenRaoException.class, () -> getParametersFromProperties(propertiesUnknownProcessType));
+        assertEquals("Unknown ProcessType ???", exceptionUnknownProcessType.getMessage());
+
+        Properties propertiesUnknownRoleType = createDefaultProperties();
+        propertiesUnknownRoleType.setProperty("process-type", "A48");
+        propertiesUnknownRoleType.setProperty("sender-role", "???");
+        propertiesUnknownRoleType.setProperty("receiver-role", "A44");
+        OpenRaoException exceptionUnknownRoleType = assertThrows(OpenRaoException.class, () -> getParametersFromProperties(propertiesUnknownRoleType));
+        assertEquals("Unknown RoleType ???", exceptionUnknownRoleType.getMessage());
+    }
+
     private static Properties createDefaultProperties() {
         Properties properties = new Properties();
         properties.setProperty("document-id", "documentId");
@@ -104,5 +133,12 @@ class CneUtilTest {
         assertEquals("senderId", cneExporterParameters.getSenderId());
         assertEquals("receiverId", cneExporterParameters.getReceiverId());
         assertEquals("2021-10-30T22:00Z/2021-10-31T23:00Z", cneExporterParameters.getTimeInterval());
+    }
+
+    @Test
+    void testGetParametersFromMissingProperties() {
+        Properties properties = createDefaultProperties();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> getParametersFromProperties(properties));
+        assertEquals("Could not parse CNE exporter parameters because mandatory property process-type is missing.", exception.getMessage());
     }
 }

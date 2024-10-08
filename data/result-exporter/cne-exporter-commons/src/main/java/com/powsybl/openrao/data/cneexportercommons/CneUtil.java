@@ -30,6 +30,18 @@ import java.util.*;
 public final class CneUtil {
     private static final double FLOAT_LIMIT = 999999;
     private static Set<String> usedUniqueIds;
+    private static final String DOCUMENT_ID = "document-id";
+    private static final String REVISION_NUMBER = "revision-number";
+    private static final String DOMAIN_ID = "domain-id";
+    private static final String PROCESS_TYPE = "process-type";
+    private static final String SENDER_ID = "sender-id";
+    private static final String SENDER_ROLE = "sender-role";
+    private static final String RECEIVER_ID = "receiver-id";
+    private static final String RECEIVER_ROLE = "receiver-role";
+    private static final String TIME_INTERVAL = "time-interval";
+    private static final String OBJECTIVE_FUNCTION_TYPE = "objective-function-type";
+    private static final String WITH_LOOP_FLOWS = "with-loop-flows";
+    private static final String MNEC_ACCEPTABLE_MARGIN_DIMINUTION = "mnec-acceptable-margin-diminution";
 
     private CneUtil() {
     }
@@ -84,13 +96,13 @@ public final class CneUtil {
     public static RaoParameters getRaoParametersFromProperties(Properties properties) {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins();
-        ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType = getObjectiveFunctionTypeFromString(properties.getProperty("objective-function-type", "max-min-relative-margin-in-megawatt"));
+        ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType = getObjectiveFunctionTypeFromString(properties.getProperty(OBJECTIVE_FUNCTION_TYPE, "max-min-relative-margin-in-megawatt"));
         raoParameters.getObjectiveFunctionParameters().setType(objectiveFunctionType);
-        boolean withLoopFlow = Boolean.parseBoolean(properties.getProperty("with-loop-flows", "false"));
+        boolean withLoopFlow = Boolean.parseBoolean(properties.getProperty(WITH_LOOP_FLOWS, "false"));
         if (withLoopFlow) {
             raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         }
-        double mnecAcceptableMarginDiminution = Double.parseDouble(properties.getProperty("mnec-acceptable-margin-diminution", "0"));
+        double mnecAcceptableMarginDiminution = Double.parseDouble(properties.getProperty(MNEC_ACCEPTABLE_MARGIN_DIMINUTION, "0"));
         if (mnecAcceptableMarginDiminution != 0) {
             MnecParametersExtension mnecParametersExtension = new MnecParametersExtension();
             mnecParametersExtension.setAcceptableMarginDecrease(mnecAcceptableMarginDiminution);
@@ -115,16 +127,23 @@ public final class CneUtil {
 
     public static CneExporterParameters getParametersFromProperties(Properties properties) {
         return new CneExporterParameters(
-            properties.getProperty("document-id"),
-            Integer.parseInt(properties.getProperty("revision-number")),
-            properties.getProperty("domain-id"),
-            getProcessTypeFromString(properties.getProperty("process-type")),
-            properties.getProperty("sender-id"),
-            getRoleTypeFromString(properties.getProperty("sender-role")),
-            properties.getProperty("receiver-id"),
-            getRoleTypeFromString(properties.getProperty("receiver-role")),
-            properties.getProperty("time-interval")
+            getPropertyOrThrowException(properties, DOCUMENT_ID),
+            Integer.parseInt(getPropertyOrThrowException(properties, REVISION_NUMBER)),
+            getPropertyOrThrowException(properties, DOMAIN_ID),
+            getProcessTypeFromString(getPropertyOrThrowException(properties, PROCESS_TYPE)),
+            getPropertyOrThrowException(properties, SENDER_ID),
+            getRoleTypeFromString(getPropertyOrThrowException(properties, SENDER_ROLE)),
+            getPropertyOrThrowException(properties, RECEIVER_ID),
+            getRoleTypeFromString(getPropertyOrThrowException(properties, RECEIVER_ROLE)),
+            getPropertyOrThrowException(properties, TIME_INTERVAL)
         );
+    }
+
+    private static String getPropertyOrThrowException(Properties properties, String propertyName) {
+        if (properties.containsKey(propertyName)) {
+            return properties.getProperty(propertyName);
+        }
+        throw new OpenRaoException("Could not parse CNE exporter parameters because mandatory property %s is missing.".formatted(propertyName));
     }
 
     private static CneExporterParameters.ProcessType getProcessTypeFromString(String processType) {
@@ -150,7 +169,7 @@ public final class CneUtil {
             case "A04" -> {
                 return CneExporterParameters.RoleType.SYSTEM_OPERATOR;
             }
-            default -> throw new OpenRaoException("Unknown RoleRype %s".formatted(roleType));
+            default -> throw new OpenRaoException("Unknown RoleType %s".formatted(roleType));
         }
     }
 }
