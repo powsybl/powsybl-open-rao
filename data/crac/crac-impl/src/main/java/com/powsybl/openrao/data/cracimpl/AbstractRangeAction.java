@@ -24,6 +24,11 @@ public abstract class AbstractRangeAction<T extends RangeAction<T>> extends Abst
         this.groupId = groupId;
     }
 
+    AbstractRangeAction(String id, String name, String operator, Set<UsageRule> usageRules, String groupId, Integer speed, double activationCost) {
+        super(id, name, operator, usageRules, speed, activationCost);
+        this.groupId = groupId;
+    }
+
     @Override
     public Optional<String> getGroupId() {
         return Optional.ofNullable(groupId);

@@ -70,6 +70,7 @@ public final class JsonSerializationConstants {
 
     public static final String GROUP_ID = "groupId";
     public static final String SPEED = "speed";
+    public static final String COST = "cost";
 
     public static final String CONTINGENCIES = "contingencies";
     public static final String CONTINGENCY_ID = "contingencyId";
