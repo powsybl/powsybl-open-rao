@@ -9,7 +9,7 @@ Feature: US 11.1: Handle mnecs in linear RAO
   Scenario: US 11.1.1: reference run, no mnec
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_ref.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
@@ -22,7 +22,7 @@ Feature: US 11.1: Handle mnecs in linear RAO
   Scenario: US 11.1.2: margin on MNEC should stay positive (initial margin > 50MW)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_1_2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
     And the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
@@ -35,7 +35,7 @@ Feature: US 11.1: Handle mnecs in linear RAO
   Scenario: US 11.1.3: margin on MNEC should stay above initial value -50 MW [1] (initial margin < 0MW)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_1_3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
     And the tap of PstRangeAction "PRA_PST_BE" should be -7 in preventive
@@ -47,7 +47,7 @@ Feature: US 11.1: Handle mnecs in linear RAO
   Scenario: US 11.1.4: margin on MNEC should stay above initial value -50 MW [2] (50MW > initial margin > 0MW)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_1_4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
     And the tap of PstRangeAction "PRA_PST_BE" should be -7 in preventive

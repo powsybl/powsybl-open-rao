@@ -1,7 +1,7 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
+    "type" : "MAX_MIN_MARGIN",
     "curative-min-obj-improvement" : 10000.0,
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
     "enforce-curative-security" : false
@@ -10,7 +10,7 @@
     "max-mip-iterations" : 10,
     "pst-penalty-cost" : 0.01,
     "pst-sensitivity-threshold" : 1.0E-6,
-    "pst-model" : "CONTINUOUS",
+    "pst-model" : "APPROXIMATED_INTEGERS",
     "hvdc-penalty-cost" : 0.001,
     "hvdc-sensitivity-threshold" : 1.0E-6,
     "injection-ra-penalty-cost" : 0.001,
@@ -60,7 +60,7 @@
         "shuntCompensatorVoltageControlOn" : false,
         "readSlackBus" : true,
         "writeSlackBus" : true,
-        "dc" : false,
+        "dc" : true,
         "distributedSlack" : true,
         "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
         "dcUseTransformerRatio" : true,
@@ -72,9 +72,16 @@
   },
   "extensions" : {
     "mnec-parameters" : {
-      "acceptable-margin-decrease" : 180.0,
+      "acceptable-margin-decrease" : 50.0,
       "violation-cost" : 10.0,
       "constraint-adjustment-coefficient" : 0.0
+    },
+    "loop-flow-parameters" : {
+      "acceptable-increase" : 0.0,
+      "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
+      "constraint-adjustment-coefficient" : 0.5,
+      "violation-cost" : 100.0,
+      "countries" : [ ]
     }
   }
 }

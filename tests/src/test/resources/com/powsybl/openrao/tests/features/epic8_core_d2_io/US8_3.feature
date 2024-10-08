@@ -10,5 +10,5 @@ Feature: US 8.3: Handle elementName tag
     Given network file is "epic8/US2-3-case1-elementName.uct" for CORE CC
     Given crac file is "epic8/12nodes_pst_topo_frm_cbcora_elementName.xml"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the value of the objective function after CRA should be 24.0
+    Then the value of the objective function after CRA should be 44.0
     Then the margin on cnec "Cnec1 - preventive" after PRA should be -24.0 MW

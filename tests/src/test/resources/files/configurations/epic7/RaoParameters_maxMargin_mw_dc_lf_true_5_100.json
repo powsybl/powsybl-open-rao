@@ -1,7 +1,7 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
+    "type" : "MAX_MIN_MARGIN",
     "curative-min-obj-improvement" : 10000.0,
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
     "enforce-curative-security" : false
@@ -60,7 +60,7 @@
         "shuntCompensatorVoltageControlOn" : false,
         "readSlackBus" : true,
         "writeSlackBus" : true,
-        "dc" : false,
+        "dc" : true,
         "distributedSlack" : true,
         "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
         "dcUseTransformerRatio" : true,
@@ -75,6 +75,13 @@
       "acceptable-margin-decrease" : 50.0,
       "violation-cost" : 10.0,
       "constraint-adjustment-coefficient" : 0.0
+    },
+    "loop-flow-parameters" : {
+      "acceptable-increase" : 0.0,
+      "ptdf-approximation" : "FIXED_PTDF",
+      "constraint-adjustment-coefficient" : 5.0,
+      "violation-cost" : 100.0,
+      "countries" : [ ]
     }
   }
 }

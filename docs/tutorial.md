@@ -293,9 +293,9 @@ loadFlowAndSensitivityParameters.setLoadFlowProvider("OpenLoadFlow");
 loadFlowAndSensitivityParameters.setSensitivityWithLoadFlowParameters(sensitivityAnalysisParameters);
 raoParameters.setLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
 
-// Ask the RAO to maximize minimum margin in MW, and to stop when network is secure (i.e. when margins are positive)
+// Ask the RAO to maximize minimum margin, and to stop when network is secure (i.e. when margins are positive)
 ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
-objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
+objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
 objectiveFunctionParameters.setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
 objectiveFunctionParameters.setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
 raoParameters.setObjectiveFunctionParameters(objectiveFunctionParameters);
@@ -575,9 +575,9 @@ public class Main {
         loadFlowAndSensitivityParameters.setSensitivityWithLoadFlowParameters(sensitivityAnalysisParameters);
         raoParameters.setLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
 
-        // Ask the RAO to maximize minimum margin in MW, and to stop when network is secure (i.e. when margins are positive)
+        // Ask the RAO to maximize minimum margin, and to stop when network is secure (i.e. when margins are positive)
         ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
-        objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
+        objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         objectiveFunctionParameters.setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
         objectiveFunctionParameters.setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
         raoParameters.setObjectiveFunctionParameters(objectiveFunctionParameters);

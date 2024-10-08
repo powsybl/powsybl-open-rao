@@ -9,7 +9,7 @@ Feature: US 15.3: Handle transformers
   Scenario: US 15.3.1: Handle transformers on a small test case in DC
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_1.uct"
     Given crac file is "epic15/SL_ep15us3case1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_fr1" is used in preventive

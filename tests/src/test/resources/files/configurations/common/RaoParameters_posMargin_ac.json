@@ -1,10 +1,9 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
-    "curative-min-obj-improvement" : 10000.0,
-    "preventive-stop-criterion" : "MIN_OBJECTIVE",
-    "enforce-curative-security" : false
+    "type" : "MAX_MIN_MARGIN",
+    "curative-min-obj-improvement" : 0.0,
+    "preventive-stop-criterion" : "SECURE"
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,
@@ -72,7 +71,7 @@
   },
   "extensions" : {
     "mnec-parameters" : {
-      "acceptable-margin-decrease" : 20.0,
+      "acceptable-margin-decrease" : 50.0,
       "violation-cost" : 10.0,
       "constraint-adjustment-coefficient" : 0.0
     }

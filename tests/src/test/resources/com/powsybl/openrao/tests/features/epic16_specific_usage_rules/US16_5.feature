@@ -196,7 +196,7 @@ Feature: User Story #16.5: activate remedial actions only after a constraint in 
   Scenario: US 16.5.14: Trigger ARA only after a given outage
     Given network file is "epic16/12Nodes3ParallelLines.uct"
     Given crac file is "epic16/crac_16_5_14.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     # An overload is created in the Netherlands only after co_nl1_nl_2_1
     # Thus, the OnFlowConstraintInCountry ARA must be triggered only after this contingency
@@ -209,7 +209,7 @@ Feature: User Story #16.5: activate remedial actions only after a constraint in 
   Scenario: US 16.5.15: Trigger CRA only after a given outage
     Given network file is "epic16/12Nodes4ParallelLines.uct"
     Given crac file is "epic16/crac_16_5_15.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt.json"
     When I launch search_tree_rao
     # An overload is created in the Netherlands only after co_nl1_nl_2_1
     # Thus, the OnFlowConstraintInCountry CRA must be triggered only after this contingency

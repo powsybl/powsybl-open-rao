@@ -35,7 +35,7 @@ rao:
     default: SearchTreeRao
 
 rao-parameters:
-    objective-function: MAX_MIN_MARGIN_IN_MEGAWATT
+    objective-function: MAX_MIN_MARGIN
     max-number-of-iterations: 2
     pst-penalty-cost: 0.01
     pst-sensitivity-threshold : 0.2
