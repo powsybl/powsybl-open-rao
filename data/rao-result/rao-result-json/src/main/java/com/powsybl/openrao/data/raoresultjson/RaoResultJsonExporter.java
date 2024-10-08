@@ -32,6 +32,9 @@ import java.util.Set;
  */
 @AutoService(Exporter.class)
 public class RaoResultJsonExporter implements Exporter {
+    private static final String FLOWS_IN_AMPERES = "flows-in-amperes";
+    private static final String FLOWS_IN_MEGAWATTS = "flows-in-megawatts";
+
     @Override
     public String getFormat() {
         return "JSON";
@@ -44,8 +47,8 @@ public class RaoResultJsonExporter implements Exporter {
 
     @Override
     public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
-        boolean flowsInAmperes = Boolean.parseBoolean(properties.getProperty("flows-in-amperes", "false"));
-        boolean flowsInMegawatts = Boolean.parseBoolean(properties.getProperty("flows-in-megawatts", "false"));
+        boolean flowsInAmperes = Boolean.parseBoolean(properties.getProperty(FLOWS_IN_AMPERES, "false"));
+        boolean flowsInMegawatts = Boolean.parseBoolean(properties.getProperty(FLOWS_IN_MEGAWATTS, "false"));
         if (!flowsInAmperes && !flowsInMegawatts) {
             throw new OpenRaoException("At least one flow unit should be used");
         }
