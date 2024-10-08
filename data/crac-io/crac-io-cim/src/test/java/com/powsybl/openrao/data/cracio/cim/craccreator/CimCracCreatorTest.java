@@ -361,7 +361,7 @@ class CimCracCreatorTest {
         assertContingencyNotImported("Co-4", "Co-4-name", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertContingencyNotImported("Co-5", "Co-5-name", INCOMPLETE_DATA);
 
-        assertEquals(4, cracCreationContext.getCreationReport().getReport().size()); // 2 fake contingencies, 1 altered
+        assertEquals(4, cracCreationContext.getCreationReport().getReport().size()); // 2 fake contingencies, 1 altered, 1 CRAC content
     }
 
     @Test
