@@ -7,12 +7,15 @@
 
 package com.powsybl.openrao.data.cracio.cim.craccreator;
 
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,15 +32,20 @@ public class CimCracCreationContext implements CracCreationContext {
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private final CracCreationReport creationReport;
     private final OffsetDateTime timeStamp;
+    private final OffsetDateTime networkCaseDate;
     private final String networkName;
+    private Map<String, Branch<?>> networkBranches;
 
-    CimCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName) {
+    CimCracCreationContext(Crac crac, OffsetDateTime timeStamp, Network network) {
         this.crac = crac;
         creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.angleCnecCreationContexts = new HashSet<>();
         this.voltageCnecCreationContexts = new HashSet<>();
-        this.networkName = networkName;
+        this.networkName = network.getNameOrId();
+        this.networkCaseDate = network.getCaseDate().toInstant().atOffset(ZoneOffset.UTC);
+        networkBranches = new HashMap<>();
+        network.getBranches().forEach(branch -> networkBranches.put(branch.getId(), branch));
     }
 
     protected CimCracCreationContext(CimCracCreationContext toCopy) {
@@ -51,6 +59,8 @@ public class CimCracCreationContext implements CracCreationContext {
         this.creationReport = toCopy.creationReport;
         this.timeStamp = toCopy.timeStamp;
         this.networkName = toCopy.networkName;
+        this.networkCaseDate = toCopy.networkCaseDate;
+        this.networkBranches = new HashMap<>(toCopy.networkBranches);
     }
 
     @Override
@@ -211,6 +221,14 @@ public class CimCracCreationContext implements CracCreationContext {
 
     public ElementaryCreationContext getContingencyCreationContextByName(String contingencyName) {
         return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectName().equals(contingencyName)).findAny().orElse(null);
+    }
+
+    public OffsetDateTime getNetworkCaseDate() {
+        return networkCaseDate;
+    }
+
+    public Map<String, Branch<?>> getNetworkBranches() {
+        return networkBranches;
     }
 
     void setCreationFailure() {
