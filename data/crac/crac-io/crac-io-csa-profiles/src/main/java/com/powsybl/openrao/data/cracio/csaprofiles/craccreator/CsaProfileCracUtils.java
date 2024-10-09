@@ -12,8 +12,8 @@ import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileKeyword;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.OverridingObjectsFields;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.PropertyReference;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.NCObject;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.PropertyReference;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -22,6 +22,7 @@ import java.time.DateTimeException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,13 +84,13 @@ public final class CsaProfileCracUtils {
     }
 
     public static boolean checkProfileValidityInterval(PropertyBag propertyBag, OffsetDateTime importTimestamp) {
-        String startTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
-        String endTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
+        String startTime = propertyBag.get(CsaProfileConstants.START_DATE);
+        String endTime = propertyBag.get(CsaProfileConstants.END_DATE);
         return isValidInterval(importTimestamp, startTime, endTime);
     }
 
     public static boolean checkProfileKeyword(PropertyBag propertyBag, CsaProfileKeyword csaProfileKeyword) {
-        String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
+        String keyword = propertyBag.get(CsaProfileConstants.KEYWORD);
         return csaProfileKeyword.toString().equals(keyword);
     }
 
@@ -99,12 +100,12 @@ public final class CsaProfileCracUtils {
         return returnSet;
     }
 
-    public static PropertyBags overrideData(PropertyBags propertyBags, Map<String, String> dataMap, OverridingObjectsFields overridingObjectsFields) {
+    public static PropertyBags overrideQuery(PropertyBags propertyBags, Query query, Map<String, String> dataMap) {
         for (PropertyBag propertyBag : propertyBags) {
-            String id = propertyBag.getId(overridingObjectsFields.getObjectName());
+            String id = propertyBag.getId(query.getTitle());
             String data = dataMap.get(id);
             if (data != null) {
-                propertyBag.put(overridingObjectsFields.getInitialFieldName(), data);
+                propertyBag.put(query.getOverridableAttribute().getDefaultName(), data);
             }
         }
         return propertyBags;
@@ -118,5 +119,14 @@ public final class CsaProfileCracUtils {
 
     public static String getTsoNameFromUrl(String url) {
         return TsoEICode.fromEICode(getEicFromUrl(url)).getDisplayName();
+    }
+
+    public static <T extends NCObject> Map<String, Set<T>> aggregateBy(Set<T> ncObjects, Function<T, String> groupingAttribute) {
+        Map<String, Set<T>> ncObjectsPerAttribute = new HashMap<>();
+        for (T ncObject : ncObjects) {
+            String attributeValue = groupingAttribute.apply(ncObject);
+            ncObjectsPerAttribute.computeIfAbsent(attributeValue, k -> new HashSet<>()).add(ncObject);
+        }
+        return ncObjectsPerAttribute;
     }
 }

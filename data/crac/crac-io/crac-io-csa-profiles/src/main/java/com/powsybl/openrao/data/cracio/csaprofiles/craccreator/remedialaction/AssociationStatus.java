@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.remedialaction;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.ElementCombinationConstraintKind;
 
 /**
  * @author Thomas Bouquet <thomas.bouquet at rte-france.com>

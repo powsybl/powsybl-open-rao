@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.LimitTypeKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.LimitTypeKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.VoltageLimit;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -37,7 +37,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     }
 
     public void addVoltageCnecs() {
-        if (nativeAssessedElement.inBaseCase()) {
+        if (Boolean.TRUE.equals(nativeAssessedElement.inBaseCase())) {
             addVoltageCnec(crac.getPreventiveInstant().getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {

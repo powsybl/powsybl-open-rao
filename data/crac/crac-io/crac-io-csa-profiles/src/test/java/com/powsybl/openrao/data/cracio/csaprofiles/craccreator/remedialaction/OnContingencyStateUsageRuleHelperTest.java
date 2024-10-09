@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.remedialaction;
 
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.cracimpl.CracImpl;
 import org.junit.jupiter.api.Test;
@@ -30,13 +30,13 @@ class OnContingencyStateUsageRuleHelperTest {
         crac.newContingency().withId("contingency-4").add();
         crac.newContingency().withId("contingency-6").add();
 
-        ContingencyWithRemedialAction contingency1WithRemedialAction = new ContingencyWithRemedialAction("co1xra", "contingency-1", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        ContingencyWithRemedialAction contingency2WithRemedialAction = new ContingencyWithRemedialAction("co2xra", "contingency-2", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
-        ContingencyWithRemedialAction contingency3WithRemedialAction = new ContingencyWithRemedialAction("co3xra", "contingency-3", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", false);
-        ContingencyWithRemedialAction contingency4WithRemedialAction = new ContingencyWithRemedialAction("co4xra", "contingency-4", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.excluded", true);
-        ContingencyWithRemedialAction contingency5WithRemedialAction = new ContingencyWithRemedialAction("co5xra", "contingency-5", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        ContingencyWithRemedialAction contingency6WithRemedialActionIncluded = new ContingencyWithRemedialAction("co6xra-included", "contingency-6", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        ContingencyWithRemedialAction contingency6WithRemedialActionConsidered = new ContingencyWithRemedialAction("co6xra-considered", "contingency-6", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
+        ContingencyWithRemedialAction contingency1WithRemedialAction = new ContingencyWithRemedialAction("co1xra", "contingency-1", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        ContingencyWithRemedialAction contingency2WithRemedialAction = new ContingencyWithRemedialAction("co2xra", "contingency-2", "remedial-action", "ElementCombinationConstraintKind.considered", true);
+        ContingencyWithRemedialAction contingency3WithRemedialAction = new ContingencyWithRemedialAction("co3xra", "contingency-3", "remedial-action", "ElementCombinationConstraintKind.included", false);
+        ContingencyWithRemedialAction contingency4WithRemedialAction = new ContingencyWithRemedialAction("co4xra", "contingency-4", "remedial-action", "ElementCombinationConstraintKind.excluded", true);
+        ContingencyWithRemedialAction contingency5WithRemedialAction = new ContingencyWithRemedialAction("co5xra", "contingency-5", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        ContingencyWithRemedialAction contingency6WithRemedialActionIncluded = new ContingencyWithRemedialAction("co6xra-included", "contingency-6", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        ContingencyWithRemedialAction contingency6WithRemedialActionConsidered = new ContingencyWithRemedialAction("co6xra-considered", "contingency-6", "remedial-action", "ElementCombinationConstraintKind.considered", true);
 
         Map<String, AssociationStatus> contingencyStatusMap = OnContingencyStateUsageRuleHelper.processContingenciesLinkedToRemedialAction(crac, "remedial-action", Set.of(contingency1WithRemedialAction, contingency2WithRemedialAction, contingency3WithRemedialAction, contingency4WithRemedialAction, contingency5WithRemedialAction, contingency6WithRemedialActionIncluded, contingency6WithRemedialActionConsidered));
         assertEquals(

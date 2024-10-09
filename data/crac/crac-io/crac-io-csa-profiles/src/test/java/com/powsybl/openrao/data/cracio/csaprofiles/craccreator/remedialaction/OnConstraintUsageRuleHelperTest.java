@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyWithRemedialAction;
@@ -114,24 +114,24 @@ class OnConstraintUsageRuleHelperTest {
 
         // Add AssessedElementWithRemedialAction property bags
 
-        AssessedElementWithRemedialAction assessedElement1WithRemedialAction = new AssessedElementWithRemedialAction("ae1xra", "assessed-element-1", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        AssessedElementWithRemedialAction assessedElement2WithRemedialAction = new AssessedElementWithRemedialAction("ae2xra", "assessed-element-2", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        AssessedElementWithRemedialAction assessedElement4WithRemedialAction = new AssessedElementWithRemedialAction("ae4xra", "assessed-element-4", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", false);
-        AssessedElementWithRemedialAction assessedElement5WithRemedialActionIncluded = new AssessedElementWithRemedialAction("ae5xra-included", "assessed-element-5", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        AssessedElementWithRemedialAction assessedElement5WithRemedialActionConsidered = new AssessedElementWithRemedialAction("ae5xra-considered", "assessed-element-5", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
-        AssessedElementWithRemedialAction assessedElement6WithRemedialAction = new AssessedElementWithRemedialAction("ae6xra", "assessed-element-6", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.excluded", true);
-        AssessedElementWithRemedialAction assessedElement7WithRemedialAction = new AssessedElementWithRemedialAction("ae7xra", "assessed-element-7", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        AssessedElementWithRemedialAction assessedElement8WithRemedialActionIncluded = new AssessedElementWithRemedialAction("ae8xra-included", "assessed-element-8", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        AssessedElementWithRemedialAction assessedElement8WithRemedialActionConsidered = new AssessedElementWithRemedialAction("ae8xra-considered", "assessed-element-8", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
+        AssessedElementWithRemedialAction assessedElement1WithRemedialAction = new AssessedElementWithRemedialAction("ae1xra", "assessed-element-1", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement2WithRemedialAction = new AssessedElementWithRemedialAction("ae2xra", "assessed-element-2", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement4WithRemedialAction = new AssessedElementWithRemedialAction("ae4xra", "assessed-element-4", "remedial-action", "ElementCombinationConstraintKind.considered", false);
+        AssessedElementWithRemedialAction assessedElement5WithRemedialActionIncluded = new AssessedElementWithRemedialAction("ae5xra-included", "assessed-element-5", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement5WithRemedialActionConsidered = new AssessedElementWithRemedialAction("ae5xra-considered", "assessed-element-5", "remedial-action", "ElementCombinationConstraintKind.considered", true);
+        AssessedElementWithRemedialAction assessedElement6WithRemedialAction = new AssessedElementWithRemedialAction("ae6xra", "assessed-element-6", "remedial-action", "ElementCombinationConstraintKind.excluded", true);
+        AssessedElementWithRemedialAction assessedElement7WithRemedialAction = new AssessedElementWithRemedialAction("ae7xra", "assessed-element-7", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement8WithRemedialActionIncluded = new AssessedElementWithRemedialAction("ae8xra-included", "assessed-element-8", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        AssessedElementWithRemedialAction assessedElement8WithRemedialActionConsidered = new AssessedElementWithRemedialAction("ae8xra-considered", "assessed-element-8", "remedial-action", "ElementCombinationConstraintKind.considered", true);
 
         assessedElementWithRemedialActions = Set.of(assessedElement1WithRemedialAction, assessedElement2WithRemedialAction, assessedElement4WithRemedialAction, assessedElement5WithRemedialActionIncluded, assessedElement5WithRemedialActionConsidered, assessedElement6WithRemedialAction, assessedElement7WithRemedialAction, assessedElement8WithRemedialActionIncluded, assessedElement8WithRemedialActionConsidered);
 
         // Add ContingencyWithRemedialAction property bags
 
-        ContingencyWithRemedialAction contingency1WithRemedialAction = new ContingencyWithRemedialAction("co1xra", "contingency-1", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        ContingencyWithRemedialAction contingency2WithRemedialAction = new ContingencyWithRemedialAction("co2xra", "contingency-2", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
-        ContingencyWithRemedialAction contingency3WithRemedialAction = new ContingencyWithRemedialAction("co3xra", "contingency-3", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included", true);
-        ContingencyWithRemedialAction contingency4WithRemedialAction = new ContingencyWithRemedialAction("co4xra", "contingency-4", "remedial-action", "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered", true);
+        ContingencyWithRemedialAction contingency1WithRemedialAction = new ContingencyWithRemedialAction("co1xra", "contingency-1", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        ContingencyWithRemedialAction contingency2WithRemedialAction = new ContingencyWithRemedialAction("co2xra", "contingency-2", "remedial-action", "ElementCombinationConstraintKind.considered", true);
+        ContingencyWithRemedialAction contingency3WithRemedialAction = new ContingencyWithRemedialAction("co3xra", "contingency-3", "remedial-action", "ElementCombinationConstraintKind.included", true);
+        ContingencyWithRemedialAction contingency4WithRemedialAction = new ContingencyWithRemedialAction("co4xra", "contingency-4", "remedial-action", "ElementCombinationConstraintKind.considered", true);
 
         contingencyWithRemedialActions = Set.of(contingency1WithRemedialAction, contingency2WithRemedialAction, contingency3WithRemedialAction, contingency4WithRemedialAction);
     }

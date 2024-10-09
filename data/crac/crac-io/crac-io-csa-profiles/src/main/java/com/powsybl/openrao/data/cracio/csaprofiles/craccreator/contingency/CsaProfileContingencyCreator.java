@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.Contingency;
@@ -48,8 +48,8 @@ public class CsaProfileContingencyCreator {
     public CsaProfileContingencyCreator(Crac crac, Network network, CsaProfileCrac nativeCrac, CsaProfileCracCreationContext cracCreationContext) {
         this.crac = crac;
         this.network = network;
-        this.nativeContingencies = nativeCrac.getContingencies();
-        this.nativeContingencyEquipmentsPerNativeContingency = new NcAggregator<>(ContingencyEquipment::contingency).aggregate(nativeCrac.getContingencyEquipments());
+        this.nativeContingencies = nativeCrac.getNativeObjects(Contingency.class);
+        this.nativeContingencyEquipmentsPerNativeContingency = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(ContingencyEquipment.class), ContingencyEquipment::contingency);
         this.cracCreationContext = cracCreationContext;
         this.createAndAddContingencies();
     }
@@ -72,7 +72,7 @@ public class CsaProfileContingencyCreator {
     private void addContingency(Contingency nativeContingency, Set<ContingencyEquipment> nativeContingencyEquipments) {
         List<String> alterations = new ArrayList<>();
 
-        if (!nativeContingency.normalMustStudy()) {
+        if (Boolean.FALSE.equals(nativeContingency.normalMustStudy())) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, formatNotImportedMessage(nativeContingency.mrid(), "its field mustStudy is set to false"));
         }
 
