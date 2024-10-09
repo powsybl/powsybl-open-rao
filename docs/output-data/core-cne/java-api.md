@@ -1,7 +1,7 @@
 After completing the RAO, the user can export the CORE CNE file using this method of [CoreCneExporter](https://github.com/powsybl/powsybl-open-rao/blob/main/data/result-exporter/core-cne-exporter/src/main/java/com/powsybl/openrao/data/corecneexporter/CoreCneExporter.java):
 
 ~~~java
-public void exportCne(Crac crac, Network network,
+public void exportCne(Crac crac,
     UcteCracCreationContext cracCreationContext,
     RaoResult raoResult, RaoParameters raoParameters,
     CneExporterParameters exporterParameters, OutputStream outputStream)
@@ -9,7 +9,6 @@ public void exportCne(Crac crac, Network network,
 
 With:
 - **crac**: the [CRAC object](/input-data/crac/json.md) used for the RAO.
-- **network**: the network used in the RAO (not modified with any remedial action).
 - **cracCreationContext**: the [CracCreationContext object](/input-data/crac/creation-context.md) generated during 
   [CRAC creation](/input-data/crac/import.md). CORE CNE export only handles [UcteCracCreationContext](/input-data/crac/creation-context.md#ucte-implementation) 
   subtype, because it follows the UCTE conventions.
@@ -57,5 +56,5 @@ CneExporterParameters exporterParameters = new CneExporterParameters("DOCUMENT_I
                                           "2021-10-30T22:00Z/2021-10-31T23:00Z");
 // Export CNE to output stream
 OutputStream os = ...
-new CoreCneExporter().exportCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters, os); 
+new CoreCneExporter().exportCne(crac, cracCreationContext, raoResult, raoParameters, exporterParameters, os); 
 ~~~

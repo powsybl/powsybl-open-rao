@@ -7,12 +7,16 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredRegisteredResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,9 +37,13 @@ public class TieLineTest {
         network.getDanglingLine("XES_PT11 PPT3AA1  1").setProperty("CGMES.TopologicalNode_Boundary", "XES_PT11_mRID");
 
         SweCneHelper helper = Mockito.mock(SweCneHelper.class);
-        Mockito.when(helper.getNetwork()).thenReturn(network);
 
-        monitoredSeriesCreator = new SweMonitoredSeriesCreator(helper, Mockito.mock(CimCracCreationContext.class));
+        CimCracCreationContext cracCreationContext = Mockito.mock(CimCracCreationContext.class);
+        Map<String, Branch<?>> networkBranches = new HashMap<>();
+        network.getBranches().forEach(branch -> networkBranches.put(branch.getId(), branch));
+        Mockito.when(cracCreationContext.getNetworkBranches()).thenReturn(networkBranches);
+
+        monitoredSeriesCreator = new SweMonitoredSeriesCreator(helper, cracCreationContext);
     }
 
     @Test

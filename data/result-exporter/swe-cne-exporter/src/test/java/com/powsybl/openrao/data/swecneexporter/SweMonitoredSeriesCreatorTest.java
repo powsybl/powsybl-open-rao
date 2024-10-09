@@ -42,6 +42,7 @@ class SweMonitoredSeriesCreatorTest {
     private RaoResult raoResult;
     private CimCracCreationContext cracCreationContext;
     private Network network;
+    private Map<String, Branch<?>> networkBranches;
 
     @BeforeEach
     public void setup() {
@@ -50,10 +51,10 @@ class SweMonitoredSeriesCreatorTest {
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         this.sweCneHelper = Mockito.mock(SweCneHelper.class);
         this.network = Mockito.mock(Network.class);
+        this.networkBranches = new HashMap<>();
 
         Mockito.when(sweCneHelper.getCrac()).thenReturn(crac);
         Mockito.when(sweCneHelper.getRaoResult()).thenReturn(raoResult);
-        Mockito.when(sweCneHelper.getNetwork()).thenReturn(network);
         Instant preventiveInstant = mockInstant(true, PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
         Instant outageInstant = mockInstant(false, OUTAGE_INSTANT_ID, InstantKind.OUTAGE);
         Instant autoInstant = mockInstant(false, AUTO_INSTANT_ID, InstantKind.AUTO);
@@ -99,6 +100,16 @@ class SweMonitoredSeriesCreatorTest {
         setCnecResult(mscc3, crac.getInstant(AUTO_INSTANT_ID), contingency, -105);
         setCnecResult(mscc3, crac.getInstant(CURATIVE_INSTANT_ID), contingency, 95);
 
+        addCnecToCracAndNetwork("ms1Id", crac.getInstant(PREVENTIVE_INSTANT_ID), null, "ms1ResourceId");
+        addCnecToCracAndNetwork("ms2Id", crac.getInstant(PREVENTIVE_INSTANT_ID), contingency, "ms2ResourceId");
+        addCnecToCracAndNetwork("ms2Id", crac.getInstant(OUTAGE_INSTANT_ID), contingency, "ms2ResourceId");
+        addCnecToCracAndNetwork("ms2Id", crac.getInstant(CURATIVE_INSTANT_ID), contingency, "ms2ResourceId");
+        addCnecToCracAndNetwork("ms2Id", crac.getInstant(PREVENTIVE_INSTANT_ID), contingency, "ms2ResourceId");
+        addCnecToCracAndNetwork("ms3Id", crac.getInstant(OUTAGE_INSTANT_ID), contingency, "ms3ResourceId");
+        addCnecToCracAndNetwork("ms3Id", crac.getInstant(AUTO_INSTANT_ID), contingency, "ms3ResourceId");
+        addCnecToCracAndNetwork("ms3Id", crac.getInstant(CURATIVE_INSTANT_ID), contingency, "ms3ResourceId");
+
+        Mockito.when(cracCreationContext.getNetworkBranches()).thenReturn(networkBranches);
         SweMonitoredSeriesCreator monitoredSeriesCreator = new SweMonitoredSeriesCreator(sweCneHelper, cracCreationContext);
 
         List<MonitoredSeries> basecaseMonitoredSeries = monitoredSeriesCreator.generateMonitoredSeries(null);
@@ -189,6 +200,7 @@ class SweMonitoredSeriesCreatorTest {
         Mockito.when(network.getBranch(resourceId)).thenReturn(branch);
 
         Mockito.when(crac.getFlowCnec(cnecId)).thenReturn(cnec);
+        networkBranches.put(resourceId, branch);
     }
 
     private void setCnecResult(MonitoredSeriesCreationContext mscc, Instant instant, Contingency contingency, double flow) {

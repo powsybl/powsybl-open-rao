@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -347,6 +348,8 @@ class CimCracCreatorTest {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), cracCreationParameters);
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(2, cracCreationContext.getCrac().getRaUsageLimits(preventiveInstant).getMaxRa());
+        assertEquals(OffsetDateTime.of(2021, 2, 9, 19, 30, 0, 0, ZoneOffset.UTC), cracCreationContext.getNetworkCaseDate());
+        assertEquals(14, cracCreationContext.getNetworkBranches().size());
     }
 
     @Test

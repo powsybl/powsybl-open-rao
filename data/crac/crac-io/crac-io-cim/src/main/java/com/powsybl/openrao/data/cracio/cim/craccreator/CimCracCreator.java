@@ -39,7 +39,7 @@ class CimCracCreator {
         RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getTimeSeries());
-        this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network.getNameOrId());
+        this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network);
 
         // Get warning messages from parameters parsing
         CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);

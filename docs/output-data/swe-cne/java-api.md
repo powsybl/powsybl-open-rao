@@ -1,7 +1,7 @@
 After completing the RAO, the user can export the SWE CNE file using this method of [SweCneExporter](https://github.com/powsybl/powsybl-open-rao/blob/main/data/result-exporter/swe-cne-exporter/src/main/java/com/powsybl/openrao/data/swecneexporter/SweCneExporter.java):
 
 ~~~java
-public void exportCne(Crac crac, Network network, 
+public void exportCne(Crac crac, 
         CimCracCreationContext cracCreationContext, 
         RaoResult raoResult, RaoParameters raoParameters, 
         CneExporterParameters exporterParameters, OutputStream outputStream)
@@ -9,7 +9,6 @@ public void exportCne(Crac crac, Network network,
 
 With:
 - **crac**: the [CRAC object](/input-data/crac/json.md) used for the RAO.
-- **network**: the network used in the RAO (not modified with any remedial action).
 - **cracCreationContext**: the [CimCracCreationContext object](/input-data/crac/creation-context.md#cim-implementation) generated during
   [CRAC creation](/input-data/crac/import.md) from a native [CIM CRAC file](/input-data/crac/cim.md).
 - **raoResult**: the [RaoResult](/output-data/rao-result.md) object containing selected remedial actions and flow
@@ -64,5 +63,5 @@ CneExporterParameters exporterParameters = new CneExporterParameters("DOCUMENT_I
                                             "2021-10-30T22:00Z/2021-10-31T23:00Z");
 // Export CNE to output stream
 OutputStream os = ...
-new SweCneExporter().exportCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters, os); 
+new SweCneExporter().exportCne(crac, cracCreationContext, raoResult, raoParameters, exporterParameters, os); 
 ~~~

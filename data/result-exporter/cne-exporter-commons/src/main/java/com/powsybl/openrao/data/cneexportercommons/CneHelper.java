@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
-import com.powsybl.iidm.network.Network;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.PATL_MEASUREMENT_TYPE;
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.TATL_MEASUREMENT_TYPE;
@@ -25,16 +24,14 @@ import static com.powsybl.openrao.data.cneexportercommons.CneConstants.TATL_MEAS
 public class CneHelper {
 
     private Crac crac;
-    private Network network;
     private boolean relativePositiveMargins;
     private boolean withLoopflows;
     private RaoResult raoResult;
     private CneExporterParameters exporterParameters;
     private double mnecAcceptableMarginDiminution;
 
-    public CneHelper(Crac crac, Network network, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public CneHelper(Crac crac, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         this.crac = crac;
-        this.network = network;
         this.raoResult = raoResult;
         this.exporterParameters = exporterParameters;
 
@@ -53,10 +50,6 @@ public class CneHelper {
 
     public double getMnecAcceptableMarginDiminution() {
         return mnecAcceptableMarginDiminution;
-    }
-
-    public Network getNetwork() {
-        return network;
     }
 
     public Crac getCrac() {
