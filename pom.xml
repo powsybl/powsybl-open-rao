@@ -116,7 +116,7 @@
         <maven.source.version>3.2.1</maven.source.version>
         <maven.templating.version>1.0.0</maven.templating.version>
         <mockito.inline.version>5.2.0</mockito.inline.version>
-        <powsybl.core.version>6.4.1</powsybl.core.version>
+        <powsybl.core.version>6.5.0-SNAPSHOT</powsybl.core.version>
         <powsybl.entsoe.version>2.10.1</powsybl.entsoe.version>
         <powsybl.openloadflow.version>1.12.2</powsybl.openloadflow.version>
         <slf4j.version>1.7.36</slf4j.version>

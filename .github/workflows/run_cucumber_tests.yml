@@ -13,6 +13,13 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
+      - name: Checkout powsybl-core sources
+        uses: actions/checkout@v1
+        with:
+          repository: powsybl/powsybl-core
+          ref: refs/heads/nro/checks_NM
+      - name: Build and install powsybl-core with Maven
+        run: mvn --batch-mode -DskipTests=true --file ../powsybl-core/pom.xml install
       - name: Install OpenRAO with Maven
         run: mvn --batch-mode install -DskipTests=true
       - name: Run cucumber tests with Maven
@@ -28,6 +35,13 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
+      - name: Checkout powsybl-core sources
+        uses: actions/checkout@v1
+        with:
+          repository: powsybl/powsybl-core
+          ref: refs/heads/nro/checks_NM
+      - name: Build and install powsybl-core with Maven
+        run: mvn --batch-mode -DskipTests=true --file ../powsybl-core/pom.xml install
       - name: Install OpenRAO with Maven
         run: mvn --batch-mode install -DskipTests=true
       - name: Run cucumber tests with Maven
