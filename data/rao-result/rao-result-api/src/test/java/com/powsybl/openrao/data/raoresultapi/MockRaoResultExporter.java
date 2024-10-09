@@ -8,12 +8,12 @@
 package com.powsybl.openrao.data.raoresultapi;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.io.Exporter;
 
 import java.io.OutputStream;
-import java.util.Set;
+import java.util.Properties;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -26,7 +26,14 @@ public class MockRaoResultExporter implements Exporter {
     }
 
     @Override
-    public void exportData(RaoResult raoResult, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
+    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+        if (raoResult instanceof MockRaoResult mockRaoResult) {
+            mockRaoResult.setExportSuccessful();
+        }
+    }
+
+    @Override
+    public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
         if (raoResult instanceof MockRaoResult mockRaoResult) {
             mockRaoResult.setExportSuccessful();
         }

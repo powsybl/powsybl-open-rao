@@ -7,14 +7,16 @@
 
 package com.powsybl.openrao.data.corecneexporter;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.corecneexporter.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.data.raoresultapi.io.Exporter;
+import org.apache.commons.lang3.NotImplementedException;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -33,8 +35,11 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Objects;
+import java.util.Properties;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
+import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getParametersFromProperties;
+import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getRaoParametersFromProperties;
 
 /**
  * Xml export of the CNE file
@@ -42,13 +47,16 @@ import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CoreCneExporter {
+@AutoService(Exporter.class)
+public class CoreCneExporter implements Exporter {
+    @Override
+    public String getFormat() {
+        return "CORE CNE";
+    }
 
-    public void exportCne(Crac crac,
-                          UcteCracCreationContext cracCreationContext,
-                          RaoResult raoResult, RaoParameters raoParameters,
-                          CneExporterParameters exporterParameters, OutputStream outputStream) {
-        CoreCne cne = new CoreCne(crac, cracCreationContext, raoResult, raoParameters, exporterParameters);
+    @Override
+    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+        CoreCne cne = new CoreCne(cracCreationContext.getCrac(), (UcteCracCreationContext) cracCreationContext, raoResult, getRaoParametersFromProperties(properties), getParametersFromProperties(properties));
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();
@@ -79,6 +87,11 @@ public class CoreCneExporter {
         }
     }
 
+    @Override
+    public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
+        throw new NotImplementedException("CracCreationContext is required for CNE export.");
+    }
+
     private static String getSchemaFile(String schemaName) {
         return Objects.requireNonNull(CoreCneExporter.class.getResource("/xsd/" + schemaName)).toExternalForm();
     }
@@ -90,8 +103,8 @@ public class CoreCneExporter {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 
             Source[] source = {new StreamSource(getSchemaFile(CNE_XSD_2_4)),
-                               new StreamSource(getSchemaFile(CODELISTS_XSD)),
-                               new StreamSource(getSchemaFile(LOCALTYPES_XSD))};
+                new StreamSource(getSchemaFile(CODELISTS_XSD)),
+                new StreamSource(getSchemaFile(LOCALTYPES_XSD))};
             Schema schema = factory.newSchema(source);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 

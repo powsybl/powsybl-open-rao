@@ -8,11 +8,11 @@
 package com.powsybl.openrao.data.raoresultapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,15 +33,14 @@ class RaoResultExportTest {
 
     @Test
     void testExportWithUnknownExporter() {
-        Set<Unit> emptySet = Set.of();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.write("unknownFormat", null, emptySet, null));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.write("unknownFormat", (CracCreationContext) null, null, null));
         assertEquals("Export format unknownFormat not supported", exception.getMessage());
         assertFalse(raoResult.wasExportSuccessful());
     }
 
     @Test
     void testExportCracWithValidExporter() {
-        raoResult.write("Mock", null, Set.of(), null);
+        raoResult.write("Mock", (CracCreationContext) null, new Properties(), null);
         assertTrue(raoResult.wasExportSuccessful());
     }
 }

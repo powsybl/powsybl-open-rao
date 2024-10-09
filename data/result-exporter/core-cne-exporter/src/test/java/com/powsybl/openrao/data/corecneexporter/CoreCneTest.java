@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class CoreCneTest {
     private Crac crac;
-    private Network network;
     private RaoResult raoResult;
     private RaoParameters raoParameters;
     private CneExporterParameters exporterParameters;
@@ -40,7 +38,6 @@ class CoreCneTest {
     @BeforeEach
     public void setUp() {
         CneUtil.initUniqueIds();
-        network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         crac = CracFactory.findDefault().create("test-crac");
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
