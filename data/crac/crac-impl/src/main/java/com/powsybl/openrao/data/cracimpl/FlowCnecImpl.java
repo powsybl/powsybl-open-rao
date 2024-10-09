@@ -17,8 +17,6 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -160,21 +158,20 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
         Branch branch = network.getBranch(getNetworkElement().getId());
-        Map<TwoSides, Double> result = new HashMap<>();
-        double power1;
-        double power2;
         if (getMonitoredSides().size() == 2) {
+            double power1;
+            double power2;
             power1 = getFlow(branch, TwoSides.ONE, unit);
             power2 = getFlow(branch, TwoSides.TWO, unit);
-
-            result.put(TwoSides.ONE, power1);
-            result.put(TwoSides.TWO, power2);
-
             return new FlowCnecValue(power1, power2);
         } else {
-            power1 = getFlow(branch, TwoSides.ONE, unit);
-            result.put(TwoSides.ONE, power1);
-            return new FlowCnecValue(power1, Double.NaN);
+            TwoSides monitoredSide = getMonitoredSides().iterator().next();
+            double power = getFlow(branch, monitoredSide, unit);
+            if (monitoredSide.equals(TwoSides.ONE)) {
+                return new FlowCnecValue(power, Double.NaN);
+            } else {
+                return new FlowCnecValue(Double.NaN, power);
+            }
         }
     }
 
@@ -208,7 +205,12 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             double marginSide2 = computeMargin(flowCnecValue.side2Value(), TwoSides.TWO, unit);
             return Math.min(marginSide1, marginSide2);
         } else {
-            return computeMargin(flowCnecValue.side1Value(), TwoSides.ONE, unit);
+            TwoSides monitoredSide = getMonitoredSides().iterator().next();
+            if (monitoredSide.equals(TwoSides.ONE)) {
+                return computeMargin(flowCnecValue.side1Value(), TwoSides.ONE, unit);
+            } else {
+                return computeMargin(flowCnecValue.side2Value(), TwoSides.TWO, unit);
+            }
         }
     }
 
@@ -219,17 +221,18 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
 
-            double marginLowerBoundSideOne = flowCnecValue.side1Value() - getLowerBound(TwoSides.ONE, unit).orElse(Double.NEGATIVE_INFINITY);
-            double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
+            if (getMonitoredSides().contains(TwoSides.ONE)) {
+                double marginLowerBoundSideOne = flowCnecValue.side1Value() - getLowerBound(TwoSides.ONE, unit).orElse(Double.NEGATIVE_INFINITY);
+                double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
 
-            if (marginUpperBoundSideOne < 0) {
-                highVoltageConstraints = true;
+                if (marginUpperBoundSideOne < 0) {
+                    highVoltageConstraints = true;
+                }
+                if (marginLowerBoundSideOne < 0) {
+                    lowVoltageConstraints = true;
+                }
             }
-            if (marginLowerBoundSideOne < 0) {
-                lowVoltageConstraints = true;
-            }
-
-            if (getMonitoredSides().size() == 2) {
+            if (getMonitoredSides().contains(TwoSides.TWO)) {
                 double marginLowerBoundSideTwo = flowCnecValue.side2Value() - getLowerBound(TwoSides.TWO, unit).orElse(Double.NEGATIVE_INFINITY);
                 double marginUpperBoundSideTwo = getUpperBound(TwoSides.TWO, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
                 if (marginUpperBoundSideTwo < 0) {
