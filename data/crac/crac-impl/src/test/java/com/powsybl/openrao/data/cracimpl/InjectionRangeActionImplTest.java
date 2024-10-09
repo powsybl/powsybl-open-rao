@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
@@ -173,5 +175,24 @@ class InjectionRangeActionImplTest {
 
         assertEquals(-1000, ira.getMinAdmissibleSetpoint(0.0), 1e-3);
         assertEquals(400, ira.getMaxAdmissibleSetpoint(0.0), 1e-3);
+    }
+
+    @Test
+    void testRollBackLoad() {
+        InjectionRangeAction ira = crac.newInjectionRangeAction()
+                .withId("injectionRangeActionId")
+                .withNetworkElementAndKey(1., "BBE1AA1 _load")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newRange().withMin(-1300).withMax(400).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+
+        Load load = network.getLoad("BBE1AA1 _load");
+        double initialP0 = load.getP0();
+        NetworkModification rollbackAction = crac.getInjectionRangeAction("injectionRangeActionId").getRollbackModification(network);
+        crac.getInjectionRangeAction("injectionRangeActionId").apply(network, 376);
+        assertEquals(-376, load.getP0(), 1e-2);
+        rollbackAction.apply(network);
+        assertEquals(initialP0, load.getP0(), 1e-2);
     }
 }

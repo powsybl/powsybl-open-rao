@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracapi;
 
 import com.powsybl.action.*;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -164,6 +165,11 @@ public final class NetworkActionUtils {
 
         @Override
         public <E extends Extension<NetworkAction>> Collection<E> getExtensions() {
+            return null;
+        }
+
+        @Override
+        public NetworkModification getRollbackModification(Network network) {
             return null;
         }
     }

@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.cracimpl;
 import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.action.LoadActionBuilder;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
@@ -145,6 +147,43 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         } else {
             throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
         }
+    }
+
+    @Override
+    public NetworkModification getRollbackModification(Network network) {
+        // TODO : mutualize code with "apply"
+        return new NetworkModificationList(
+            injectionDistributionKeys.keySet().stream().map(ne -> {
+                String injectionId = ne.getId();
+                Generator generator = network.getGenerator(injectionId);
+                if (generator != null) {
+                    return new GeneratorActionBuilder()
+                        .withId("id")
+                        .withGeneratorId(injectionId)
+                        .withActivePowerRelativeValue(false)
+                        .withActivePowerValue(generator.getTargetP())
+                        .build()
+                        .toModification();
+                }
+
+                Load load = network.getLoad(injectionId);
+                if (load != null) {
+                    return new LoadActionBuilder()
+                        .withId("id")
+                        .withLoadId(injectionId)
+                        .withRelativeValue(false)
+                        .withActivePowerValue(load.getP0()) // TODO : *-1 ?
+                        .build()
+                        .toModification();
+                }
+
+                if (network.getIdentifiable(injectionId) == null) {
+                    throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
+                } else {
+                    throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
+                }
+            }).collect(Collectors.toList())
+        );
     }
 
     @Override
