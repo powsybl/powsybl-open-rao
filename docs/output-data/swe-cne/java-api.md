@@ -5,7 +5,6 @@ After completing the RAO, the user can export the [`RaoResult`](/output-data/rao
 public void write(CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream)
 ~~~
 
-
 With:
 - **raoResult**: the [RaoResult](/output-data/rao-result.md) object containing selected remedial actions and flow
   results, as well as [angle results](/castor/monitoring/angle-monitoring.md) if the CRAC contains [Angle CNECs](/input-data/crac/json.md#angle-cnecs)
