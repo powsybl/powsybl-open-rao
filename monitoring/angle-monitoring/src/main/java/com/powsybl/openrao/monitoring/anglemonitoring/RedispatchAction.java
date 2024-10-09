@@ -7,18 +7,40 @@
 
 package com.powsybl.openrao.monitoring.anglemonitoring;
 
+import com.powsybl.iidm.modification.scalable.Scalable;
+import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Objects;
+import java.util.Set;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * A redispatch action collects a quantity of power to be redispatched (powerToBeRedispatched) in country (countryName)
  * according to glsks that exclude networkElementsToBeExcluded.
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface RedispatchAction {
+public class RedispatchAction {
+    private final double powerToBeRedispatched;
+    private final Set<String> networkElementsToBeExcluded;
+    private final Scalable scalable;
+
+    RedispatchAction(double powerToBeRedispatched, Set<String> networkElementsToBeExcluded, Scalable scalable) {
+        this.powerToBeRedispatched = powerToBeRedispatched; // positive for generation, negative for load
+        this.networkElementsToBeExcluded = networkElementsToBeExcluded;
+        this.scalable = Objects.requireNonNull(scalable);
+    }
+
     /**
      * Scales power to redispatch (positive for generation, negative for load) on network.
      */
-    void apply(Network network, double powerToRedispatch);
+    public void apply(Network network) {
+        ScalingParameters scalingParameters = new ScalingParameters().setIgnoredInjectionIds(networkElementsToBeExcluded);
+        double redispatchedPower = scalable.scale(network, powerToBeRedispatched, scalingParameters);
+        if (Math.abs(redispatchedPower - powerToBeRedispatched) > 1) {
+            BUSINESS_WARNS.warn("Redispatching failed: asked={} MW, applied={} MW", powerToBeRedispatched, redispatchedPower);
+        }
+    }
 }

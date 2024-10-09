@@ -10,24 +10,26 @@ package com.powsybl.openrao.monitoring.anglemonitoring;
 import com.powsybl.action.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.glsk.cim.CimGlskDocument;
+import com.powsybl.glsk.commons.CountryEICode;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.modification.scalable.Scalable;
+import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.RemedialAction;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.util.AbstractNetworkPool;
-import com.powsybl.glsk.api.GlskPoint;
-import com.powsybl.glsk.cim.CimGlskDocument;
-import com.powsybl.glsk.cim.CimGlskPoint;
-import com.powsybl.glsk.commons.CountryEICode;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.*;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowResult;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -47,34 +49,27 @@ public class AngleMonitoring {
     private final Crac crac;
     private final Network inputNetwork;
     private final RaoResult raoResult;
-    private final CimGlskDocument cimGlskDocument;
-    private final OffsetDateTime glskOffsetDateTime;
+    private final ZonalData<Scalable> scalableZonalData;
 
     private List<AngleMonitoringResult> stateSpecificResults;
-    private final Set<Country> glskCountries;
+    private Set<Country> glskCountries;
 
-    /**
-     * Use this constructor if you want to run angle monitoring with your specific CimGlskDocument
+    @Deprecated
+    /*
+     * Deprecated: use AngleMonitoring(Crac, Network, RaoResult, ZonalData<Scalable>) instead
      */
     public AngleMonitoring(Crac crac, Network inputNetwork, RaoResult raoResult, CimGlskDocument cimGlskDocument, OffsetDateTime glskOffsetDateTime) {
         this.crac = Objects.requireNonNull(crac);
         this.inputNetwork = Objects.requireNonNull(inputNetwork);
         this.raoResult = Objects.requireNonNull(raoResult);
-        this.cimGlskDocument = Objects.requireNonNull(cimGlskDocument);
-        this.glskOffsetDateTime = Objects.requireNonNull(glskOffsetDateTime);
-        this.glskCountries = loadGlskCountries(cimGlskDocument);
+        this.scalableZonalData = cimGlskDocument.getZonalScalable(inputNetwork, Instant.from(glskOffsetDateTime));
     }
 
-    /**
-     * Use this constructor if you want to run angle monitoring with automatically-generated proportional GLSK
-     */
-    public AngleMonitoring(Crac crac, Network inputNetwork, RaoResult raoResult, Set<Country> glskCountries) {
+    public AngleMonitoring(Crac crac, Network inputNetwork, RaoResult raoResult, ZonalData<Scalable> scalableZonalData) {
         this.crac = Objects.requireNonNull(crac);
         this.inputNetwork = Objects.requireNonNull(inputNetwork);
         this.raoResult = Objects.requireNonNull(raoResult);
-        this.cimGlskDocument = null;
-        this.glskOffsetDateTime = null;
-        this.glskCountries = Objects.requireNonNull(glskCountries);
+        this.scalableZonalData = scalableZonalData;
     }
 
     /**
@@ -89,11 +84,11 @@ public class AngleMonitoring {
      * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
      * Returns an AngleMonitoringResult
      */
-
     @Deprecated
     public AngleMonitoringResult run(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel) throws OpenRaoException {
         BUSINESS_LOGS.info("----- Angle monitoring [start]");
         stateSpecificResults = new ArrayList<>();
+        loadGlskCountries();
 
         if (crac.getAngleCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No AngleCnecs defined.");
@@ -396,21 +391,12 @@ public class AngleMonitoring {
         // Apply one redispatch action per country
         for (Map.Entry<Country, Double> redispatchPower : powerToBeRedispatched.entrySet()) {
             BUSINESS_LOGS.info("Redispatching {} MW in {} [start]", redispatchPower.getValue(), redispatchPower.getKey());
-            RedispatchAction redispatchAction;
-            if (cimGlskDocument != null) {
-                Set<CimGlskPoint> countryGlskPoints = cimGlskDocument.getGlskPoints().stream()
-                    .filter(glskPoint -> redispatchPower.getKey().equals(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry())
-                        && isInTimeInterval(glskOffsetDateTime, glskPoint.getPointInterval().getStart().toString(), glskPoint.getPointInterval().getEnd().toString()))
-                    .map(CimGlskPoint.class::cast)
-                    .collect(Collectors.toSet());
-                if (countryGlskPoints.size() > 1) {
-                    throw new OpenRaoException(String.format("> 1 (%s) glskPoints defined for country %s", countryGlskPoints.size(), redispatchPower.getKey().getName()));
-                }
-                redispatchAction = new RedispatchActionWithGlskPoint(networkElementsToBeExcluded, countryGlskPoints.iterator().next());
-            } else {
-                redispatchAction = new RedispatchActionWithAutoGlsk(networkElementsToBeExcluded, redispatchPower.getKey());
+            List<Scalable> countryScalables = scalableZonalData.getDataPerZone().entrySet().stream().filter(entry -> redispatchPower.getKey().equals(new CountryEICode(entry.getKey()).getCountry()))
+                .map(Map.Entry::getValue).toList();
+            if (countryScalables.size() > 1) {
+                throw new OpenRaoException(String.format("> 1 (%s) glskPoints defined for country %s", countryScalables.size(), redispatchPower.getKey().getName()));
             }
-            redispatchAction.apply(networkClone, redispatchPower.getValue());
+            new RedispatchAction(redispatchPower.getValue(), networkElementsToBeExcluded, countryScalables.get(0)).apply(networkClone);
             BUSINESS_LOGS.info("Redispatching {} MW in {} [end]", redispatchPower.getValue(), redispatchPower.getKey());
         }
     }
@@ -475,18 +461,11 @@ public class AngleMonitoring {
         return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), status);
     }
 
-    private static Set<Country> loadGlskCountries(CimGlskDocument cimGlskDocument) {
-        TreeSet<Country> countries = new TreeSet<>(Comparator.comparing(Country::getName));
-        for (GlskPoint glskPoint : cimGlskDocument.getGlskPoints()) {
-            countries.add(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry());
+    private void loadGlskCountries() {
+        glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
+        for (String zone : scalableZonalData.getDataPerZone().keySet()) {
+            glskCountries.add(new CountryEICode(zone).getCountry());
         }
-        return countries;
-    }
-
-    private boolean isInTimeInterval(OffsetDateTime offsetDateTime, String startTime, String endTime) {
-        OffsetDateTime startTimeGlskPoint = OffsetDateTime.parse(startTime);
-        OffsetDateTime endTimeGlskPoint = OffsetDateTime.parse(endTime);
-        return !offsetDateTime.isBefore(startTimeGlskPoint) && offsetDateTime.isBefore(endTimeGlskPoint);
     }
 }
 
