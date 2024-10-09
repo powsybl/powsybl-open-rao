@@ -58,7 +58,7 @@ public final class CneHelper {
             "22XCORESO------S", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-10-30T22:00Z/2021-10-31T23:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        (new CoreCneExporter()).exportCne(crac, network, (UcteCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream);
+        (new CoreCneExporter()).exportCne(crac, (UcteCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream);
         return outputStream.toString();
     }
 
@@ -72,7 +72,7 @@ public final class CneHelper {
             "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        (new SweCneExporter()).exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream);
+        (new SweCneExporter()).exportCne(crac, (CimCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream);
         return outputStream.toString();
     }
 
