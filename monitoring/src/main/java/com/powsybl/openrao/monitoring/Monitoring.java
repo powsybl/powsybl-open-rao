@@ -97,7 +97,9 @@ public class Monitoring {
         if (Objects.nonNull(preventiveState)) {
             applyOptimalRemedialActions(preventiveState, inputNetwork, raoResult);
             Set<Cnec> preventiveStateCnecs = crac.getCnecs(physicalParameter, preventiveState);
-            monitoringResult.combine(monitorCnecs(preventiveState, preventiveStateCnecs, inputNetwork, monitoringInput));
+            MonitoringResult preventiveStateMonitoringResult = monitorCnecs(preventiveState, preventiveStateCnecs, inputNetwork, monitoringInput);
+            preventiveStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
+            monitoringResult.combine(preventiveStateMonitoringResult);
         }
 
         // II) Curative states
@@ -121,7 +123,9 @@ public class Monitoring {
                     contingency.toModification().apply(networkClone, (ComputationManager) null);
                     applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac, raoResult);
                     Set<Cnec> currentStateCnecs = crac.getCnecs(physicalParameter, state);
-                    monitoringResult.combine(monitorCnecs(state, currentStateCnecs, networkClone, monitoringInput));
+                    MonitoringResult currentStateMonitoringResult = monitorCnecs(state, currentStateCnecs, networkClone, monitoringInput);
+                    currentStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
+                    monitoringResult.combine(currentStateMonitoringResult);
                     networkPool.releaseUsedNetwork(networkClone);
                     return null;
                 })).toList();
@@ -158,10 +162,12 @@ public class Monitoring {
             if (cnec.computeMargin(network, unit) < 0) {
                 // For Cnecs with overshoot, get associated remedial actions
                 Set<NetworkAction> availableNetworkActions = getNetworkActionsAssociatedToCnec(state, monitoringInput.getCrac(), cnec, physicalParameter);
-                // and apply them
-                AppliedNetworkActionsResult appliedNetworkActionsResult = applyNetworkActions(network, availableNetworkActions, cnec.getId(), monitoringInput);
-                if (!appliedNetworkActionsResult.getAppliedNetworkActions().isEmpty()) {
-                    appliedNetworkActionsResultList.add(appliedNetworkActionsResult);
+                // if there is any RA(s) available apply it/them
+                if (!availableNetworkActions.isEmpty()) {
+                    AppliedNetworkActionsResult appliedNetworkActionsResult = applyNetworkActions(network, availableNetworkActions, cnec.getId(), monitoringInput);
+                    if (!appliedNetworkActionsResult.getAppliedNetworkActions().isEmpty()) {
+                        appliedNetworkActionsResultList.add(appliedNetworkActionsResult);
+                    }
                 }
             }
             CnecResult cnecResult = new CnecResult(cnec, unit, cnec.computeValue(network, unit), cnec.computeMargin(network, unit), cnec.computeSecurityStatus(network, unit));
@@ -286,17 +292,17 @@ public class Monitoring {
     }
 
     private AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput) {
+        AppliedNetworkActionsResult appliedNetworkActionsResult;
         Set<RemedialAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
         if (monitoringInput.getPhysicalParameter().equals(PhysicalParameter.VOLTAGE)) {
             for (NetworkAction na : availableNetworkActions) {
                 na.apply(network);
                 appliedNetworkActions.add(na);
             }
-            return new AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions)
+            appliedNetworkActionsResult = new AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions)
                 .withNetworkElementsToBeExcluded(new HashSet<>()).withPowerToBeRedispatched(new EnumMap<>(Country.class)).build();
         } else {
             boolean networkActionOk = false;
-
             EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
             Set<String> networkElementsToBeExcluded = new HashSet<>();
             for (NetworkAction na : availableNetworkActions) {
@@ -313,9 +319,11 @@ public class Monitoring {
                     powerToBeRedispatched.putAll(tempPowerToBeRedispatched);
                 }
             }
-            return new AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions)
+            appliedNetworkActionsResult = new AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions)
                 .withNetworkElementsToBeExcluded(networkElementsToBeExcluded).withPowerToBeRedispatched(powerToBeRedispatched).build();
         }
+        BUSINESS_LOGS.info("Applied the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", cnecId, appliedNetworkActions.stream().map(com.powsybl.openrao.data.cracapi.Identifiable::getId).collect(Collectors.joining(", ")));
+        return appliedNetworkActionsResult;
     }
 
     /**

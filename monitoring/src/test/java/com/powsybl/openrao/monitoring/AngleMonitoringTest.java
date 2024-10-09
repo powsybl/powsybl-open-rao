@@ -143,7 +143,7 @@ class AngleMonitoringTest {
 
     private RaoResult runAngleMonitoringAndUpdateRaoResult(ZonalData<Scalable> scalableZonalData) {
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
-        return Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput);
+        return Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
     }
 
     @Test

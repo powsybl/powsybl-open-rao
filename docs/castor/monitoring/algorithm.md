@@ -37,4 +37,4 @@ Here is a detailed description of how the monitoring algorithm operates:
     - If it converges Re-compute all angle/voltage values and create a Cnec result, with updated angles/voltages, list of applied remedial actions in **(2)**, and new cnec status after comparing the new angle/voltage value(s) to their thresholds
 - Assemble all the Angle/Voltage Cnec results in one overall result
 
-![Monitoring algorithm](/_static/img/monitoring_algorithm.png){.forced-white-background}
+![Monitoring algorithm](/_static/img/monitoring-algorithm.png){.forced-white-background}
