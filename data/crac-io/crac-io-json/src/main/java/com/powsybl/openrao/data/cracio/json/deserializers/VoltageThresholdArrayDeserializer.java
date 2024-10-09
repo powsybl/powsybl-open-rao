@@ -8,12 +8,13 @@
 package com.powsybl.openrao.data.cracio.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.cnec.VoltageCnecAdder;
-import com.powsybl.openrao.data.cracapi.threshold.VoltageThresholdAdder;
+import com.powsybl.openrao.commons.Unit;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.cracio.json.JsonSerializationConstants.*;
 
@@ -25,27 +26,34 @@ public final class VoltageThresholdArrayDeserializer {
     private VoltageThresholdArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, VoltageCnecAdder ownerAdder) throws IOException {
+    public record VoltageThreshold(Unit unit, Double min, Double max) {
+    }
+
+    public static Set<VoltageThreshold> deserialize(JsonParser jsonParser) throws IOException {
+        Set<VoltageThreshold> voltageThresholds = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            VoltageThresholdAdder voltageThresholdAdder = ownerAdder.newThreshold();
+            Unit unit = null;
+            Double min = null;
+            Double max = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case UNIT:
-                        voltageThresholdAdder.withUnit(deserializeUnit(jsonParser.nextTextValue()));
+                        unit = deserializeUnit(jsonParser.nextTextValue());
                         break;
                     case MIN:
                         jsonParser.nextToken();
-                        voltageThresholdAdder.withMin(jsonParser.getDoubleValue());
+                        min = jsonParser.getDoubleValue();
                         break;
                     case MAX:
                         jsonParser.nextToken();
-                        voltageThresholdAdder.withMax(jsonParser.getDoubleValue());
+                        max = jsonParser.getDoubleValue();
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in Threshold: " + jsonParser.getCurrentName());
                 }
             }
-            voltageThresholdAdder.add();
+            voltageThresholds.add(new VoltageThreshold(unit, min, max));
         }
+        return voltageThresholds;
     }
 }

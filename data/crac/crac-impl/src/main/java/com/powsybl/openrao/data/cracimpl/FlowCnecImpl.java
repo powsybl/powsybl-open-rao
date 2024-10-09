@@ -41,12 +41,11 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                  boolean optimized,
                  boolean monitored,
                  Set<BranchThreshold> thresholds,
-                 double frm,
                  Double nominalVLeft,
                  Double nominalVRight,
                  Double iMaxLeft,
                  Double iMaxRight) {
-        super(id, name, networkElement, operator, border, state, optimized, monitored, thresholds, frm, nominalVLeft, nominalVRight);
+        super(id, name, networkElement, operator, border, state, optimized, monitored, thresholds, nominalVLeft, nominalVRight);
         this.iMax[0] = iMaxLeft;
         this.iMax[1] = iMaxRight;
     }
@@ -77,7 +76,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
                     currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
-                    currentBound += changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
                     if (currentBound > lowerBound) {
                         lowerBound = currentBound;
                     }
@@ -108,7 +106,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.max().orElseThrow());
                     currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
-                    currentBound -= changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
                     if (currentBound < upperBound) {
                         upperBound = currentBound;
                     }

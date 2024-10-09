@@ -42,7 +42,6 @@ public class AngleCnecSerializer<I extends AngleCnec> extends AbstractJsonSerial
         }
         gen.writeObjectField(OPTIMIZED, angleCnec.isOptimized());
         gen.writeObjectField(MONITORED, angleCnec.isMonitored());
-        gen.writeNumberField(RELIABILITY_MARGIN, angleCnec.getReliabilityMargin());
 
         serializeThresholds(angleCnec, gen);
 

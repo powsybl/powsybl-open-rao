@@ -33,7 +33,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.5";
+    public static final String CRAC_IO_VERSION = "2.6";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -49,6 +49,7 @@ public final class JsonSerializationConstants {
     v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
     v2.4: new names for onConstraint and cnecId, side left/right -> one/two
     v2.5: elementary actions have new type coming from core remedial actions
+    v2.5: deletion of reliability-margin for CNECs
      */
 
     // headers

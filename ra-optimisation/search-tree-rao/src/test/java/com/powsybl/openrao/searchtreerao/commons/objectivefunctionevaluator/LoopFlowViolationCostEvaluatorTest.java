@@ -61,7 +61,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
     private void setInputThresholdWithReliabilityMargin(FlowCnec branchCnec, double inputThresholdWIthReliabilityMargin) {
         LoopFlowThreshold cnecLoopFlowExtension = branchCnec.getExtension(LoopFlowThreshold.class);
-        when(cnecLoopFlowExtension.getThresholdWithReliabilityMargin(Unit.MEGAWATT)).thenReturn(inputThresholdWIthReliabilityMargin);
+        when(cnecLoopFlowExtension.getThreshold(Unit.MEGAWATT)).thenReturn(inputThresholdWIthReliabilityMargin);
     }
 
     private void setInitialLoopFLow(FlowCnec branchCnec, double initialLoopFLow) {

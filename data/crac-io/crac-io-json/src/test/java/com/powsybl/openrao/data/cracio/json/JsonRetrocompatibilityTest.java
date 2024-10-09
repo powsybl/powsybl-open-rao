@@ -808,4 +808,9 @@ class JsonRetrocompatibilityTest {
     private void testContentOfV2Point5Crac(Crac crac) {
         testContentOfV2Point4Crac(crac);
     }
+
+    private void testContentOfV2Point6Crac(Crac crac) {
+        // TODO: update previous tests
+        testContentOfV2Point5Crac(crac);
+    }
 }

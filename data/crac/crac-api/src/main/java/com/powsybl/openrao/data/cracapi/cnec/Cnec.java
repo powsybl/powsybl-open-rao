@@ -41,13 +41,6 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     State getState();
 
     /**
-     * Getter of the reliability margin. This value enables to take a margin compared to what is defined in
-     * the {@code thresholds} of the {@code Cnec}. This margin would be common to all {@code thresholds}.
-     * It should be 0 by default to ensure that there is no inconsistencies with {@code thresholds}.
-     */
-    double getReliabilityMargin();
-
-    /**
      * Getter of the {@link PhysicalParameter} representing the {@code Cnec}.
      * It defines the physical value that will be monitored/optimized for this {@code Cnec}.
      */

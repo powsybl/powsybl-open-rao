@@ -111,21 +111,6 @@ class FlowCnecAdderImplTest {
     }
 
     @Test
-    void testFrmHandling() {
-        double maxValueInMw = 100.0;
-        double frmInMw = 5.0;
-        FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(OUTAGE_INSTANT_ID)
-            .withContingency(contingency1Id)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(ONE).withMax(maxValueInMw).withMin(-maxValueInMw).add()
-            .withReliabilityMargin(frmInMw)
-            .add();
-        assertEquals(maxValueInMw - frmInMw, cnec.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(OpenRaoException::new), 0.0);
-        assertEquals(frmInMw - maxValueInMw, cnec.getLowerBound(ONE, Unit.MEGAWATT).orElseThrow(OpenRaoException::new), 0.0);
-    }
-
-    @Test
     void testNotOptimizedMonitored() {
         FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(OUTAGE_INSTANT_ID)

@@ -126,22 +126,6 @@ class AngleCnecAdderImplTest {
     }
 
     @Test
-    void testReliabilityMarginHandling() {
-        double maxValue = 100.0;
-        double reliabilityMargin = 5.0;
-        AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
-            .withInstant(OUTAGE_INSTANT_ID)
-            .withContingency(contingency1Id)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(maxValue).withMin(-maxValue).add()
-            .withReliabilityMargin(reliabilityMargin)
-            .add();
-        assertEquals(maxValue - reliabilityMargin, cnec.getUpperBound(Unit.DEGREE).orElseThrow(OpenRaoException::new), DOUBLE_TOLERANCE);
-        assertEquals(reliabilityMargin - maxValue, cnec.getLowerBound(Unit.DEGREE).orElseThrow(OpenRaoException::new), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     void testNotOptimizedMonitored() {
         AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
             .withInstant(OUTAGE_INSTANT_ID)

@@ -70,7 +70,7 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
         VoltageCnec cnec = new VoltageCnecImpl(id, name,
             owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()),
             operator, border, state, optimized, monitored,
-            thresholds, reliabilityMargin);
+            thresholds);
 
         owner.addVoltageCnec(cnec);
         return cnec;
