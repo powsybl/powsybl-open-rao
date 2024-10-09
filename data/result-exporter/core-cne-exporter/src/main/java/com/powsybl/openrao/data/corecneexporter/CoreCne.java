@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.iidm.network.Network;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.OffsetDateTime;
@@ -43,9 +42,9 @@ public class CoreCne {
     private final CneHelper cneHelper;
     private final UcteCracCreationContext cracCreationContext;
 
-    public CoreCne(Crac crac, Network network, UcteCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public CoreCne(Crac crac, UcteCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        cneHelper = new CneHelper(crac, raoResult, raoParameters, exporterParameters);
         this.cracCreationContext = cracCreationContext;
     }
 

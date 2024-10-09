@@ -172,7 +172,7 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnec2, 800, -200, -999999999, .2);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();
@@ -224,7 +224,7 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnec1, 80, 20, 200, .1);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();
@@ -262,7 +262,7 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnec1, 80, 20, 200, .1);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();
@@ -340,7 +340,7 @@ class CoreCneCnecsCreatorTest {
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(cnecCur.getState().getContingency().orElseThrow(), curativeInstant))).thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
-        CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();
@@ -393,7 +393,7 @@ class CoreCneCnecsCreatorTest {
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();
