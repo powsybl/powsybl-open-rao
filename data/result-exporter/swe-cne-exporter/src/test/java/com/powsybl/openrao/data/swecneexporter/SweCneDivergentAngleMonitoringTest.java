@@ -25,6 +25,7 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -69,8 +70,13 @@ class SweCneDivergentAngleMonitoringTest {
             "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultWithAngleMonitoring, new RaoParameters(), params, outputStream);
-        InputStream expectedCneInputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
-        compareCneFiles(expectedCneInputStream, new ByteArrayInputStream(outputStream.toByteArray()));
+        new SweCneExporter().exportCne(crac, (CimCracCreationContext) cracCreationContext, raoResultWithAngleMonitoring, new RaoParameters(), params, outputStream);
+        try {
+            InputStream expectedCneInputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
+            compareCneFiles(expectedCneInputStream, new ByteArrayInputStream(outputStream.toByteArray()));
+        } catch (IOException e) {
+            Assertions.fail();
+        }
     }
 }
+
