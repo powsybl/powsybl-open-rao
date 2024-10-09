@@ -19,6 +19,24 @@ jobs:
         with:
           java-version: 17
 
+      - name: Checkout powsybl-core sources
+        uses: actions/checkout@v1
+        with:
+          repository: powsybl/powsybl-core
+          ref: refs/heads/security_analysis_rewrite_operational_limits
+
+      - name: Build and install powsybl-core with Maven
+        run: mvn --batch-mode -DskipTests=true --file ../powsybl-core/pom.xml install
+
+      - name: Checkout powsybl-open-loadflow sources
+        uses: actions/checkout@v1
+        with:
+          repository: powsybl/powsybl-open-loadflow
+          ref: refs/heads/security_analysis_rewrite_operational_limits
+
+      - name: Build and install powsybl-open-loadflow with Maven
+        run: mvn --batch-mode -DskipTests=true --file ../powsybl-open-loadflow/pom.xml install
+
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest'
         run: mvn --batch-mode -Pjacoco install -DskipCucumberTests=true
