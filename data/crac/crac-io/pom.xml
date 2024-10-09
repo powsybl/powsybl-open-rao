@@ -6,21 +6,22 @@
 
     <parent>
         <groupId>com.powsybl</groupId>
-        <artifactId>open-rao-data</artifactId>
+        <artifactId>open-rao-crac</artifactId>
         <version>6.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>open-rao-crac</artifactId>
+    <artifactId>open-rao-crac-io</artifactId>
     <version>6.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>CRAC related modules</name>
-    <description>Module that gathers CRAC api and its implementations</description>
+    <name>CRAC import/export related modules</name>
+    <description>Module that gathers all the CRAC importers and exporters modules</description>
 
     <modules>
-        <module>crac-api</module>
-        <module>crac-impl</module>
-        <module>crac-io</module>
-        <module>crac-loopflow-extension</module>
-        <module>crac-util</module>
+        <module>crac-io-json</module>
+        <module>crac-io-commons</module>
+        <module>crac-io-cse</module>
+        <module>crac-io-cim</module>
+        <module>crac-io-csa-profiles</module>
+        <module>crac-io-fb-constraint</module>
     </modules>
 </project>
