@@ -116,11 +116,14 @@ public final class CsaProfileConstants {
     public static final String REQUEST_REMEDIAL_ACTION_GROUP = "remedialActionGroup";
     public static final String REQUEST_REMEDIAL_ACTION_DEPENDENCY = "remedialActionDependency";
     public static final String ROTATING_MACHINE = "rotatingMachineId";
-    public static final String TAP_CHANGER = "tapChangerId";
+    public static final String TAP_CHANGER_ID = "tapChangerId";
     public static final String NORMAL_VALUE = "normalValue";
     public static final String OVERRIDE_VALUE = "value";
     public static final String STATIC_PROPERTY_RANGE_VALUE_KIND = "valueKind";
     public static final String STATIC_PROPERTY_RANGE_DIRECTION = "direction";
+    public static final String TAP_CHANGER = "tapChanger";
+    public static final String POWER_TRANSFORMER = "powerTransformer";
+    public static final String REQUEST_TAP_CHANGER = "tapChanger";
 
     /**
      * requests for flow cnec
@@ -144,6 +147,7 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION = "scannedForRegion";
     public static final String REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION = "securedForRegion";
     public static final String REQUEST_FLOW_RELIABILITY_MARGIN = "flowReliabilityMargin";
+    public static final String OVERLAPPING_ZONE = "overlappingZone";
 
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
     public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";

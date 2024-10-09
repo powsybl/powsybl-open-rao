@@ -18,7 +18,7 @@ public RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParamete
 
 ~~~
 With:
-- loadFlowProvider: the name of the load-flow computer to use. This should refer to a [PowSyBl load flow provider implementation](https://www.powsybl.org/pages/documentation/simulation/powerflow/)
+- loadFlowProvider: the name of the load-flow computer to use. This should refer to a [PowSyBl load flow provider implementation](inv:powsyblcore:*:*#simulation/loadflow/index)
 - loadFlowParameters: the PowSyBl LoadFlowParameters object to configure load-flow computation.
 - numberOfLoadFlowsInParallel: the number of contingencies to monitor in parallel, allowing a maximum utilization of
   your computing resources (set it to your number of available CPUs).
