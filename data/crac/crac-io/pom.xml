@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>com.powsybl</groupId>
-        <artifactId>open-rao-data</artifactId>
+        <artifactId>open-rao-crac</artifactId>
         <version>6.1.0-SNAPSHOT</version>
     </parent>
 
