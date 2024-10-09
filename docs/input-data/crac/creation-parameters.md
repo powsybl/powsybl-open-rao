@@ -43,7 +43,7 @@ Parameter "crac-factory" allows the user to define which CracFactory implementat
 use. If you do not have a custom implementation (which should be the case of most users), set it to "CracImplFactory".  
 
 ### default-monitored-line-side
-This parameter defines which side(s) of a line the RAO should monitor by default (side is defined as per [PowSyBl](https://www.powsybl.org/pages/documentation/) 
+This parameter defines which side(s) of a line the RAO should monitor by default (side is defined as per [PowSyBl](inv:powsyblcore:*:*#index) 
 convention), when optimizing line's flow margin.    
 Note that this parameter is ignored when the line side to monitor is defined by the native CRAC itself (e.g. when a 
 cross-border tie-line is monitored by one TSO only, then the RAO will automatically detect on which side this TSO is).  
