@@ -238,6 +238,7 @@ public class CimCracCreationContext implements CracCreationContext {
 
     void setCreationSuccess(Crac crac) {
         this.isCreationSuccessful = true;
+        this.creationReport.addSuccessfulImportMessage(crac);
         this.crac = crac;
     }
 }

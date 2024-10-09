@@ -108,6 +108,7 @@ public class FbConstraintCreationContext implements UcteCracCreationContext {
 
     FbConstraintCreationContext creationSucess(Crac crac) {
         this.isCreationSuccessful = true;
+        this.creationReport.addSuccessfulImportMessage(crac);
         this.crac = crac;
         return this;
     }

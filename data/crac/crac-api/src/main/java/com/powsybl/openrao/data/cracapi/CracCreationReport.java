@@ -64,6 +64,18 @@ public final class CracCreationReport {
         TECHNICAL_LOGS.info(message);
     }
 
+    public void addSuccessfulImportMessage(Crac crac) {
+        creationReport.add(
+            "CRAC was successfully imported with %s contingencies, %s FlowCNECs, %s AngleCNECs, %s VoltageCNECs and %s remedial actions (%s range actions and %s network actions).".formatted(
+                crac.getContingencies().size(),
+                crac.getFlowCnecs().size(),
+                crac.getAngleCnecs().size(),
+                crac.getVoltageCnecs().size(),
+                crac.getRemedialActions().size(),
+                crac.getRangeActions().size(),
+                crac.getNetworkActions().size()));
+    }
+
     public void printCreationReport() {
         creationReport.forEach(BUSINESS_LOGS::info);
     }
