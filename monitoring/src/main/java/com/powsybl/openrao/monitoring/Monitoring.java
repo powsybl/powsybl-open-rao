@@ -114,7 +114,7 @@ public class Monitoring {
 
                     Contingency contingency = state.getContingency().orElseThrow();
                     if (!contingency.isValid(networkClone)) {
-                        monitoringResult.combine(makeFailedMonitoringResultForState(monitoringInput, physicalParameter, state, "Unable to apply contingency " + contingency.getId()));
+                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, "Unable to apply contingency " + contingency.getId()));
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
                     }
@@ -151,7 +151,7 @@ public class Monitoring {
         boolean lfSuccess = computeLoadFlow(network);
         if (!lfSuccess) {
             String failureReason = "Load-flow computation failed at state {}. Skipping this state." + state;
-            return makeFailedMonitoringResultForState(monitoringInput, physicalParameter, state, failureReason);
+            return makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, failureReason);
         }
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
         cnecs.forEach(cnec -> {
@@ -175,7 +175,7 @@ public class Monitoring {
             lfSuccess = computeLoadFlow(network);
             if (!lfSuccess) {
                 String failureReason = "Load-flow computation failed at state {} after applying RAs. Skipping this state." + state;
-                return makeFailedMonitoringResultForState(monitoringInput, physicalParameter, state, failureReason);
+                return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
             }
             // Re-compute all voltage/angle values
             cnecResults.clear();
@@ -390,11 +390,15 @@ public class Monitoring {
         }
     }
 
-    private MonitoringResult makeFailedMonitoringResultForState(MonitoringInput monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
-        BUSINESS_WARNS.warn(failureReason);
+    private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
         Set<CnecResult> cnecResults = new HashSet<>();
         CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
         monitoringInput.getCrac().getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
+        return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
+    }
+
+    private MonitoringResult makeFailedMonitoringResultForState(PhysicalParameter physicalParameter, State state, String failureReason, Set<CnecResult> cnecResults) {
+        BUSINESS_WARNS.warn(failureReason);
         return new MonitoringResult(physicalParameter, cnecResults, Map.of(state, Collections.emptySet()), Cnec.SecurityStatus.FAILURE);
     }
 }
