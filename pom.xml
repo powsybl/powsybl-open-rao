@@ -89,7 +89,7 @@
         <!-- Dependencies versions -->
         <apache.commons.lang3>3.13.0</apache.commons.lang3>
         <cucumber.bom.version>7.15.0</cucumber.bom.version>
-        <commonsio.version>2.13.0</commonsio.version>
+        <commonsio.version>2.14.0</commonsio.version>
         <google.autoservice.version>1.1.1</google.autoservice.version>
         <google.guava.version>32.0.0-jre</google.guava.version>
         <google.ortools.version>9.11.4210</google.ortools.version>
