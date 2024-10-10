@@ -118,6 +118,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     CsaProfileCracCreationContext creationSuccess(Crac crac) {
         this.isCreationSuccessful = true;
+        this.creationReport.addSuccessfulImportMessage(crac);
         this.crac = crac;
         return this;
     }
