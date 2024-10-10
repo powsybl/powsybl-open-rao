@@ -9,7 +9,7 @@ Access the angle value of an AngleCnec.
 :::{group-tab} JAVA API
 
 *Note that this feature is not implemented in the default RAO result implementation, as angle CNECs are not optimised
-by the RAO, but monitored by an [angle monitoring module](/castor/monitoring/angle-monitoring.md).*
+by the RAO, but monitored by a [monitoring module](/castor/monitoring/monitoring.md), with **ANGLE** as Physical parameter.*
 
 ~~~java
 // get the angle value for a given angle cnec, at a given state, in a given angle unit
@@ -50,7 +50,7 @@ Access the angle margin value of an AngleCnec.
 :::{group-tab} JAVA API
 
 *Note that this feature is not implemented in the default RAO result implementation, as angle CNECs are not optimised
-by the RAO, but monitored by an [angle monitoring module](/castor/monitoring/angle-monitoring.md).*
+by the RAO, but monitored by a [monitoring module](/castor/monitoring/monitoring.md), with **ANGLE** as Physical parameter.*
 
 ~~~java
 // get the margin value for a given angle cnec, at a given state, in a given angle unit

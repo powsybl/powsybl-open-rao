@@ -2,11 +2,8 @@
 
 ```{toctree}
 :hidden:
-monitoring/angle-monitoring.md
-monitoring/voltage-monitoring.md
+monitoring/monitoring.md
 ```
 
-CASTOR has monitoring modules that can be used apart from the RAO:
-- An AngleMonitoring package to monitor angle values
-- A VoltageMonitoring package to monitor voltage values
+CASTOR has a monitoring module that can be used apart from the RAO to monitor Angles and/or Voltages:
 

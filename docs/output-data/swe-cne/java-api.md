@@ -12,10 +12,10 @@ With:
 - **cracCreationContext**: the [CimCracCreationContext object](/input-data/crac/creation-context.md#cim-implementation) generated during
   [CRAC creation](/input-data/crac/import.md) from a native [CIM CRAC file](/input-data/crac/cim.md).
 - **raoResult**: the [RaoResult](/output-data/rao-result.md) object containing selected remedial actions and flow
-  results, as well as [angle results](/castor/monitoring/angle-monitoring.md) if the CRAC contains [Angle CNECs](/input-data/crac/json.md#angle-cnecs)
+  results, as well as [angle results](/castor/monitoring/monitoring.md) if the CRAC contains [Angle CNECs](/input-data/crac/json.md#angle-cnecs)
   > ⚠️  **NOTE**  
   > The exporter will fail if angle CNECs are present in the CRAC, but the RAO result does not contain angle results.  
-  > See how to compute angle results [here](/castor/monitoring/angle-monitoring/algorithm.md).
+  > See how to compute angle results [here](/castor/monitoring/monitoring-algorithm.md).
 - **raoParameters**: the [RaoParameters](/parameters.md) used in the RAO.
 - **exporterParameters**: a specific object that the user should define, containing meta-information that will be written
   in the header of the CNE file:
