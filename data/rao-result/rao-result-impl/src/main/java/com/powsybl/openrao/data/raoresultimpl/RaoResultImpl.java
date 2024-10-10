@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.raoresultimpl;
 
+import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -97,8 +98,8 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getVoltage(unit);
+    public double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getVoltage(minOrMax, unit);
     }
 
     @Override
