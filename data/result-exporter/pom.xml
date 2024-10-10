@@ -19,6 +19,7 @@
         <module>cne-exporter-commons</module>
         <module>core-cne-exporter</module>
         <module>swe-cne-exporter</module>
+        <module>nc-exporter</module>
     </modules>
 
 </project>
