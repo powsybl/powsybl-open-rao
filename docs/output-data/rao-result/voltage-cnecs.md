@@ -10,7 +10,7 @@ so multiple voltage values can exist).
 :::{group-tab} JAVA API
 
 *Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimised
-by the RAO, but monitored by a [monitoring module](/castor/monitoring/monitoring.md), with **VOLTAGE** as Physical parameter.*
+by the RAO, but monitored by a [monitoring module](/castor/monitoring.md), with **VOLTAGE** as Physical parameter.*
 
 ~~~java
 // get the min or max voltage value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit
@@ -52,7 +52,7 @@ Access the worst voltage margin value (between min & max) of a VoltageCnec.
 :::{group-tab} JAVA API
 
 *Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimised
-by the RAO, but monitored by a [voltage monitoring module](/castor/monitoring/monitoring.md), with **VOLTAGE** as Physical parameter.*
+by the RAO, but monitored by a [voltage monitoring module](/castor/monitoring.md), with **VOLTAGE** as Physical parameter.*
 
 ~~~java
 // get the margin value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit

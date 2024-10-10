@@ -32,7 +32,7 @@ With:
   your computing resources (set it to your number of available CPUs).
 - monitoringInput as built above in step 1.
 
-Here is a complete example while augmenting rao result by voltage monitoring result then augmenting the result by angle monitoring result:
+Here is a complete example while augmenting rao result by voltage monitoring result then augmenting the outcome by angle monitoring result:
 
 ~~~java
 Crac crac = ...
@@ -41,7 +41,7 @@ RaoResult raoResult = Rao.find(...).run(...)
 LoadFlowParameters loadFlowParameters = ..
         
 MonitoringInput voltageMonitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
-RaoResult raoResultWithVoltageMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, voltageMonitoringInput);
+RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, voltageMonitoringInput);
 
 MonitoringInput angleMonitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResultWithVoltageMonitoring).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
 RaoResult raoResultWithVoltageAndAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, angleMonitoringInput);

@@ -1,5 +1,5 @@
 Remedial actions have their own Constraint_Series to report the ones selected by the RAO **or by the 
-[monitoring module](/castor/monitoring/monitoring.md)** while using **ANGLE** as Physical parameter.     
+[monitoring module](/castor/monitoring.md)** while using **ANGLE** as Physical parameter.     
 The remedial actions' Constraint_Series all have a **B56 businessType**.
 
 Example:
