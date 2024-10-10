@@ -53,8 +53,11 @@ CimCracCreationContext cracCreationContext = new CimCracCreator().createCrac(...
 Crac crac = cracCreationContext.getCrac();
 // Run RAO
 RaoResult raoResult = Rao.find(...).run(...)
+// Convert glsk to zonal data
+ZonalData<'Scalable> scalableZonalData = glsk.getZonalScalable(network);        
 // Run angle monitoring and update RAO result
-RaoResult RaoResultWithAngleMonitoring = new AngleMonitoring(crac, network, raoResult, glsk).runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, glskOffsetDateTime);
+MonitoringInput angleMonitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
+RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, angleMonitoringInput);
 // Set CNE header parameters
 CneExporterParameters exporterParameters = new CneExporterParameters("DOCUMENT_ID", 1, "DOMAIN_ID",
                                             CneExporterParameters.ProcessType.DAY_AHEAD_CC, "SENDER_ID",
