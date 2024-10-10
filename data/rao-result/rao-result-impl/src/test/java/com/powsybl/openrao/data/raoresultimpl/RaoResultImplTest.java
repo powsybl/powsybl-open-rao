@@ -323,13 +323,16 @@ class RaoResultImplTest {
 
         VoltageCnecResult result = raoResult.getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
         ElementaryVoltageCnecResult elementaryVoltageCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult.setVoltage(200., KILOVOLT);
+        elementaryVoltageCnecResult.setMinVoltage(200., KILOVOLT);
+        elementaryVoltageCnecResult.setMaxVoltage(220., KILOVOLT);
         elementaryVoltageCnecResult.setMargin(20., KILOVOLT);
         elementaryVoltageCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(autoInstant);
-        elementaryVoltageCnecResult.setVoltage(175., KILOVOLT);
+        elementaryVoltageCnecResult.setMinVoltage(175., KILOVOLT);
+        elementaryVoltageCnecResult.setMaxVoltage(195., KILOVOLT);
         elementaryVoltageCnecResult.setMargin(-5., KILOVOLT);
         elementaryVoltageCnecResult = result.getAndCreateIfAbsentResultForOptimizationState(curativeInstant);
-        elementaryVoltageCnecResult.setVoltage(200., KILOVOLT);
+        elementaryVoltageCnecResult.setMinVoltage(200., KILOVOLT);
+        elementaryVoltageCnecResult.setMaxVoltage(220., KILOVOLT);
         elementaryVoltageCnecResult.setMargin(20., KILOVOLT);
         assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
         assertFalse(raoResult.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
@@ -361,17 +364,20 @@ class RaoResultImplTest {
 
         VoltageCnecResult voltageResult1 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecPreventive"));
         ElementaryVoltageCnecResult elementaryVoltageCnecResult1 = voltageResult1.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult1.setVoltage(400., KILOVOLT);
+        elementaryVoltageCnecResult1.setMinVoltage(400., KILOVOLT);
+        elementaryVoltageCnecResult1.setMaxVoltage(420., KILOVOLT);
         elementaryVoltageCnecResult1.setMargin(40., KILOVOLT);
 
         VoltageCnecResult voltageResult2 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecStateOutageContingency1"));
         ElementaryVoltageCnecResult elementaryVoltageCnecResult2 = voltageResult2.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult2.setVoltage(415., KILOVOLT);
+        elementaryVoltageCnecResult2.setMinVoltage(415., KILOVOLT);
+        elementaryVoltageCnecResult2.setMaxVoltage(435., KILOVOLT);
         elementaryVoltageCnecResult2.setMargin(5., KILOVOLT);
 
         VoltageCnecResult voltageResult3 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecStateCurativeContingency1"));
         ElementaryVoltageCnecResult elementaryVoltageCnecResult3 = voltageResult3.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult3.setVoltage(400., KILOVOLT);
+        elementaryVoltageCnecResult3.setMinVoltage(400., KILOVOLT);
+        elementaryVoltageCnecResult3.setMaxVoltage(420., KILOVOLT);
         elementaryVoltageCnecResult3.setMargin(40., KILOVOLT);
 
         assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));

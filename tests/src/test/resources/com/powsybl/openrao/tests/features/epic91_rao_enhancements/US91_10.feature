@@ -9,7 +9,7 @@ Feature: US 91.10: MIP test cases
   Scenario: US 91.10.1: Non MIP range action optimization cannot respect loopflows
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic91/RaoParameters_maxMargin_mw_ac_lf_false_3_100.json"
     When I launch loopflow search_tree_rao with default loopflow limit as 10.0 percent of pmax
     Then the worst margin is 166.0 MW
@@ -20,7 +20,7 @@ Feature: US 91.10: MIP test cases
   Scenario: US 91.10.2: MIP range action optimization respects loopflows
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic91/RaoParameters_maxMargin_mw_ac_lf_false_3_100_mip.json"
     When I launch loopflow search_tree_rao with default loopflow limit as 10.0 percent of pmax
     Then the worst margin is 198.0 MW

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.raoresultimpl;
 
+import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 
@@ -14,39 +15,38 @@ import com.powsybl.openrao.commons.Unit;
  */
 public class ElementaryVoltageCnecResult {
 
-    private double voltage = Double.NaN;
+    private double minVoltage = Double.NaN;
+    private double maxVoltage = Double.NaN;
     private double margin = Double.NaN;
-    private static final String VOLTAGE_IN_KILOVOLT = "Voltage results are only available in KILOVOLT";
 
-    public double getVoltage(Unit unit) {
-        if (unit.equals(Unit.KILOVOLT)) {
-            return voltage;
-        } else {
-            throw new OpenRaoException(VOLTAGE_IN_KILOVOLT);
+    private void checkUnit(Unit unit) {
+        if (!unit.equals(Unit.KILOVOLT)) {
+            throw new OpenRaoException("Voltage results are only available in KILOVOLT");
         }
+    }
+
+    public double getVoltage(MinOrMax minOrMax, Unit unit) {
+        checkUnit(unit);
+        return minOrMax.equals(MinOrMax.MAX) ? maxVoltage : minVoltage;
     }
 
     public double getMargin(Unit unit) {
-        if (unit.equals(Unit.KILOVOLT)) {
-            return margin;
-        } else {
-            throw new OpenRaoException(VOLTAGE_IN_KILOVOLT);
-        }
+        checkUnit(unit);
+        return margin;
     }
 
-    public void setVoltage(double voltage, Unit unit) {
-        if (unit.equals(Unit.KILOVOLT)) {
-            this.voltage = voltage;
-        } else {
-            throw new OpenRaoException(VOLTAGE_IN_KILOVOLT);
-        }
+    public void setMinVoltage(double voltage, Unit unit) {
+        checkUnit(unit);
+        this.minVoltage = voltage;
+    }
+
+    public void setMaxVoltage(double voltage, Unit unit) {
+        checkUnit(unit);
+        this.maxVoltage = voltage;
     }
 
     public void setMargin(double margin, Unit unit) {
-        if (unit.equals(Unit.KILOVOLT)) {
-            this.margin = margin;
-        } else {
-            throw new OpenRaoException(VOLTAGE_IN_KILOVOLT);
-        }
+        checkUnit(unit);
+        this.margin = margin;
     }
 }

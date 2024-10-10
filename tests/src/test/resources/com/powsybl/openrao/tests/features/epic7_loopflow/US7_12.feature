@@ -9,7 +9,7 @@ Feature: US 7.12: Compute loop-flows for N-1 Cnecs
   Scenario: 7.12.1 : loop-flow computation on 12 nodes network on N and N-1 states
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_2.json"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
 
     And the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -391.0 MW

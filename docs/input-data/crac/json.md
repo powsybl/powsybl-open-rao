@@ -501,7 +501,7 @@ An AngleCnec has the following specificities:
 
 > 💡  **NOTE**
 > AngleCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [AngleMonitoring](/castor/monitoring/angle-monitoring.md) module.
+> [Monitoring](/castor/monitoring.md) module with **ANGLE** as physical parameter.
 
 #### Creating an AngleCnec
 In OpenRAO, AngleCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
@@ -610,7 +610,7 @@ A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has
 
 > 💡  **NOTE**
 > VoltageCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [VoltageMonitoring](/castor/monitoring/voltage-monitoring.md) module.
+> [VoltageMonitoring](/castor/monitoring.md) module with **VOLTAGE** as physical parameter.
 
 #### Creating a VoltageCnec
 In OpenRAO, VoltageCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:

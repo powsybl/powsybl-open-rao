@@ -58,7 +58,7 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-angle-monitoring</artifactId>
+            <artifactId>monitoring</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

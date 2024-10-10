@@ -7,7 +7,9 @@
 
 package com.powsybl.openrao.data.cracimpl;
 
-import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
@@ -61,10 +63,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
 
     @Override
     public Optional<Double> getLowerBound(Unit requestedUnit) {
-        if (!requestedUnit.equals(Unit.DEGREE)) {
-            throw new OpenRaoException("AngleCnec lowerBound can only be requested in DEGREE");
-        }
-
+        requestedUnit.checkPhysicalParameter(PhysicalParameter.ANGLE);
         Set<Threshold> limitingThresholds = thresholds.stream()
             .filter(Threshold::limitsByMin)
             .collect(Collectors.toSet());
@@ -84,10 +83,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
 
     @Override
     public Optional<Double> getUpperBound(Unit requestedUnit) {
-        if (!requestedUnit.equals(Unit.DEGREE)) {
-            throw new OpenRaoException("AngleCnec upperBound can only be requested in DEGREE");
-        }
-
+        requestedUnit.checkPhysicalParameter(PhysicalParameter.ANGLE);
         Set<Threshold> limitingThresholds = thresholds.stream()
             .filter(Threshold::limitsByMax)
             .collect(Collectors.toSet());
@@ -105,19 +101,65 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     }
 
     @Override
-    public double computeMargin(double actualValue, Unit unit) {
-        if (!unit.equals(Unit.DEGREE)) {
-            throw new OpenRaoException("AngleCnec margin can only be requested in DEGREE");
-        }
-
-        double marginOnLowerBound = actualValue - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-        double marginOnUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
-        return Math.min(marginOnLowerBound, marginOnUpperBound);
+    public PhysicalParameter getPhysicalParameter() {
+        return PhysicalParameter.ANGLE;
     }
 
     @Override
-    public PhysicalParameter getPhysicalParameter() {
-        return PhysicalParameter.ANGLE;
+    public AngleCnecValue computeValue(Network network, Unit unit) {
+        unit.checkPhysicalParameter(getPhysicalParameter());
+        VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(exportingNetworkElement.getId(), network);
+        VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(importingNetworkElement.getId(), network);
+        return new AngleCnecValue(exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
+            - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble());
+    }
+
+    @Override
+    public double computeMargin(Network network, Unit unit) {
+        unit.checkPhysicalParameter(getPhysicalParameter());
+        AngleCnecValue actualAngleValue = computeValue(network, unit);
+        double marginOnLowerBound = actualAngleValue.value() - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualAngleValue.value();
+        return Math.min(marginOnLowerBound, marginOnUpperBound);
+    }
+
+    private double computeMargin(double actualAngleValue, Unit unit) {
+        double marginOnLowerBound = actualAngleValue - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualAngleValue;
+        return Math.min(marginOnLowerBound, marginOnUpperBound);
+    }
+
+    public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
+        double actualAngleValue = computeValue(network, unit).value();
+
+        if (computeMargin(actualAngleValue, unit) < 0) {
+            boolean highVoltageConstraints = false;
+            boolean lowVoltageConstraints = false;
+            if (getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMax() && actualAngleValue > threshold.max().orElseThrow())) {
+                highVoltageConstraints = true;
+            }
+            if (getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMin() && actualAngleValue < threshold.min().orElseThrow())) {
+                lowVoltageConstraints = true;
+            }
+            if (highVoltageConstraints && lowVoltageConstraints) {
+                return SecurityStatus.HIGH_AND_LOW_CONSTRAINTS;
+            } else if (highVoltageConstraints) {
+                return SecurityStatus.HIGH_CONSTRAINT;
+            } else {
+                return SecurityStatus.LOW_CONSTRAINT;
+            }
+        } else {
+            return SecurityStatus.SECURE;
+        }
+    }
+
+    private VoltageLevel getVoltageLevelOfElement(String elementId, Network network) {
+        if (network.getBusBreakerView().getBus(elementId) != null) {
+            return network.getBusBreakerView().getBus(elementId).getVoltageLevel();
+        }
+        return network.getVoltageLevel(elementId);
     }
 
     @Override

@@ -7,12 +7,12 @@
 package com.powsybl.openrao.data.raoresultjson;
 
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
@@ -33,9 +33,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.Unit.*;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.openrao.commons.MinOrMax.MAX;
+import static com.powsybl.openrao.commons.MinOrMax.MIN;
+import static com.powsybl.openrao.commons.Unit.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -400,13 +402,17 @@ class RaoResultRoundTripTest {
         VoltageCnec
         */
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
-        assertEquals(4146., raoResult.getVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4146., raoResult.getVoltage(null, voltageCnec, MIN, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4156., raoResult.getVoltage(null, voltageCnec, MAX, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4141., raoResult.getMargin(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4246., raoResult.getVoltage(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4246., raoResult.getVoltage(preventiveInstant, voltageCnec, MIN, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4256., raoResult.getVoltage(preventiveInstant, voltageCnec, MAX, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4241., raoResult.getMargin(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4346., raoResult.getVoltage(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4346., raoResult.getVoltage(autoInstant, voltageCnec, MIN, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4356., raoResult.getVoltage(autoInstant, voltageCnec, MAX, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4341., raoResult.getMargin(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4446., raoResult.getVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., raoResult.getVoltage(curativeInstant, voltageCnec, MIN, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4456., raoResult.getVoltage(curativeInstant, voltageCnec, MAX, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4441., raoResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
     }
 

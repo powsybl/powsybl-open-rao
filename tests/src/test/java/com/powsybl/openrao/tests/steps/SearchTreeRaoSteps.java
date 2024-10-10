@@ -640,7 +640,7 @@ public class SearchTreeRaoSteps {
             crac = CommonTestData.getCrac();
             RaoParameters raoParameters = CommonTestData.getRaoParameters();
             ReferenceProgram referenceProgram = CommonTestData.getReferenceProgram() != null ? CommonTestData.getReferenceProgram() : ReferenceProgramBuilder.buildReferenceProgram(network, loadFlowProvider, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
-            ZonalData<SensitivityVariableSet> glsks = CommonTestData.getGlsks();
+            ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
 
             // run loopFlowComputation
             LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram);

@@ -79,5 +79,4 @@ public interface AngleCnec extends Cnec<AngleCnec> {
      * @return The margin of the {@code AngleCnec} on the given {@code side} with the given {@code unit} taking
      * {@code reliabilityMargin} into account.
      */
-    double computeMargin(double actualValue, Unit unit);
 }

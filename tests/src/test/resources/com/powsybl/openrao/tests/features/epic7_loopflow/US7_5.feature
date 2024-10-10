@@ -9,7 +9,7 @@ Feature: US 7.5: Loopflow ptdf update parameter
   Scenario: US 7.5.0: Rao with loop-flow in DC with FIXED_PTDF
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_same_as_uct.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100.json"
     When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
@@ -29,7 +29,7 @@ Feature: US 7.5: Loopflow ptdf update parameter
   Scenario: US 7.5.1: Rao with loop-flow in DC with UPDATE_PTDF_WITH_TOPO_AND_PST
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_same_as_uct.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_accurate_5_100.json"
     When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
@@ -54,7 +54,7 @@ Feature: US 7.5: Loopflow ptdf update parameter
   Scenario: US 7.5.2: Rao with loop-flow in DC with UPDATE_PTDF_WITH_TOPO
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_same_as_uct.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_inBetween_5_100.json"
     When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax

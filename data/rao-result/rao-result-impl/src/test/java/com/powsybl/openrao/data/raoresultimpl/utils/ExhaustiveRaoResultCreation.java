@@ -287,7 +287,8 @@ public final class ExhaustiveRaoResultCreation {
     }
 
     private static void fillElementaryResult(ElementaryVoltageCnecResult elementaryVoltageCnecResult, double x, double y) {
-        elementaryVoltageCnecResult.setVoltage(x + y + 46, KILOVOLT);
+        elementaryVoltageCnecResult.setMinVoltage(x + y + 46, KILOVOLT);
+        elementaryVoltageCnecResult.setMaxVoltage(x + y + 56, KILOVOLT);
         elementaryVoltageCnecResult.setMargin(x + y + 41, KILOVOLT);
     }
 }

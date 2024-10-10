@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.raoresultjson.serializers;
 
+import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -78,19 +79,23 @@ final class VoltageCnecResultArraySerializer {
 
     private static void serializeVoltageCnecResultForOptimizationStateAndUnit(Instant optInstant, Unit unit, VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
-        double voltage = safeGetVoltage(raoResult, voltageCnec, optInstant, unit);
+        double minVoltage = safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MIN, unit);
+        double maxVoltage = safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MAX, unit);
         double margin = safeGetMargin(raoResult, voltageCnec, optInstant, unit);
 
-        if (Double.isNaN(voltage) && Double.isNaN(margin)) {
+        if (Double.isNaN(minVoltage) && Double.isNaN(maxVoltage) && Double.isNaN(margin)) {
             return;
         }
 
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
-        if (!Double.isNaN(voltage)) {
-            jsonGenerator.writeNumberField(VOLTAGE, Math.round(100.0 * voltage) / 100.0);
-        }
         if (!Double.isNaN(margin)) {
             jsonGenerator.writeNumberField(MARGIN, Math.round(100.0 * margin) / 100.0);
+        }
+        if (!Double.isNaN(minVoltage)) {
+            jsonGenerator.writeNumberField(MIN_VOLTAGE, Math.round(100.0 * minVoltage) / 100.0);
+        }
+        if (!Double.isNaN(maxVoltage)) {
+            jsonGenerator.writeNumberField(MAX_VOLTAGE, Math.round(100.0 * maxVoltage) / 100.0);
         }
         jsonGenerator.writeEndObject();
     }
@@ -109,14 +114,15 @@ final class VoltageCnecResultArraySerializer {
     }
 
     private static boolean containsAnyResultForOptimizationState(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant) {
-        return !Double.isNaN(safeGetVoltage(raoResult, voltageCnec, optInstant, Unit.KILOVOLT)) ||
+        return !Double.isNaN(safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MIN, Unit.KILOVOLT)) ||
+            !Double.isNaN(safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MAX, Unit.KILOVOLT)) ||
             !Double.isNaN(safeGetMargin(raoResult, voltageCnec, optInstant, Unit.KILOVOLT));
     }
 
-    private static double safeGetVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
+    private static double safeGetVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, MinOrMax minOrMax, Unit unit) {
         // methods getVoltage can return an exception if RAO is executed on one state only
         try {
-            return raoResult.getVoltage(optInstant, voltageCnec, unit);
+            return raoResult.getVoltage(optInstant, voltageCnec, minOrMax, unit);
         } catch (OpenRaoException e) {
             return Double.NaN;
         }

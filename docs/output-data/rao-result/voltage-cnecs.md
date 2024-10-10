@@ -3,17 +3,18 @@ Note that you have to use [VoltageCnec](/input-data/crac/json.md#voltage-cnecs) 
 
 #### Voltage
 
-Access the voltage value of an VoltageCnec.
+Access the minimum and maximum voltage values of a VoltageCnec (one VoltageCnec contains multiple physical elements, 
+so multiple voltage values can exist).
 
 ::::{tabs}
 :::{group-tab} JAVA API
 
 *Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimised
-by the RAO, but monitored by a [voltage monitoring module](/castor/monitoring/voltage-monitoring.md).*
+by the RAO, but monitored by a [monitoring module](/castor/monitoring.md), with **VOLTAGE** as Physical parameter.*
 
 ~~~java
-// get the voltage value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit
-double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit);
+// get the min or max voltage value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit
+double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit);
 ~~~
 
 :::
@@ -26,13 +27,15 @@ Example:
     "voltageCnecId" : "voltageCnecId",
     "initial" : {
       "kilovolt" : {
-        "voltage" : 4146.0,
+        "minVoltage" : 4146.0,
+        "maxVoltage" : 4156.0,
         ...
       }
     },
     "preventive" : {
       "kilovolt" : {
-        "voltage" : 4246.0,
+        "minVoltage" : 4246.0,
+        "maxVoltage" : 4256.0, 
         ...
       }
     }, ...
@@ -43,13 +46,13 @@ Example:
 
 #### Margin
 
-Access the voltage margin value of a VoltageCnec.
+Access the worst voltage margin value (between min & max) of a VoltageCnec.
 
 ::::{tabs}
 :::{group-tab} JAVA API
 
 *Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimised
-by the RAO, but monitored by a [voltage monitoring module](/castor/monitoring/voltage-monitoring.md).*
+by the RAO, but monitored by a [voltage monitoring module](/castor/monitoring.md), with **VOLTAGE** as Physical parameter.*
 
 ~~~java
 // get the margin value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit
@@ -66,14 +69,14 @@ Example:
     "voltageCnecId" : "voltageCnecId",
     "initial" : {
       "kilovolt" : {
+        "margin" : 4141.0,
         ...
-        "margin" : 4141.0
       }
     },
     "preventive" : {
       "kilovolt" : {
+        "margin" : 4241.0,
         ...
-        "margin" : 4241.0
       }
     }, ...
 ~~~
@@ -88,14 +91,16 @@ Example:
     "voltageCnecId" : "voltageCnecId",
     "initial" : {
       "kilovolt" : {
-        "voltage" : 4146.0,
+        "minVoltage" : 4146.0,
+        "maxVoltage" : 4156.0,
         "margin" : 4141.0
       }
     },
     "preventive" : {
       "kilovolt" : {
-        "voltage" : 4246.0,
         "margin" : 4241.0
+        "minVoltage" : 4246.0,
+        "maxVoltage" : 4246.0
       }
     }, ...
 ~~~

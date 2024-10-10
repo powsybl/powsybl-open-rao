@@ -71,5 +71,4 @@ public interface VoltageCnec extends Cnec<VoltageCnec> {
      * @return The margin of the {@code VoltageCnec} with the given {@code unit} taking {@code reliabilityMargin}
      *      into account.
      */
-    double computeMargin(double actualValue, Unit unit);
 }

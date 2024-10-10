@@ -54,27 +54,41 @@ final class VoltageCnecResultArrayDeserializer {
             Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
             eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
-            deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
+            deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult, jsonFileVersion);
         }
     }
 
-    private static void deserializeElementaryVoltageCnecResult(JsonParser jsonParser, ElementaryVoltageCnecResult eVoltageCnecResult) throws IOException {
+    private static void deserializeElementaryVoltageCnecResult(JsonParser jsonParser, ElementaryVoltageCnecResult eVoltageCnecResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             if (!jsonParser.getCurrentName().equals(KILOVOLT_UNIT)) {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", VOLTAGECNEC_RESULTS, jsonParser.getCurrentName()));
             } else {
                 jsonParser.nextToken();
-                deserializeElementaryVoltageCnecResultForUnit(jsonParser, eVoltageCnecResult, Unit.KILOVOLT);
+                deserializeElementaryVoltageCnecResultForUnit(jsonParser, eVoltageCnecResult, Unit.KILOVOLT, jsonFileVersion);
             }
         }
     }
 
-    private static void deserializeElementaryVoltageCnecResultForUnit(JsonParser jsonParser, ElementaryVoltageCnecResult eVoltageCnecResult, Unit unit) throws IOException {
+    private static void deserializeElementaryVoltageCnecResultForUnit(JsonParser jsonParser, ElementaryVoltageCnecResult eVoltageCnecResult, Unit unit, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case VOLTAGE:
+                    int primaryVersionNumber = getPrimaryVersionNumber(jsonFileVersion);
+                    int subVersionNumber = getSubVersionNumber(jsonFileVersion);
+                    if (primaryVersionNumber > 1 || subVersionNumber > 5) {
+                        throw new OpenRaoException("Since RaoResult version 1.6, voltage values are divided into min and max.");
+                    }
                     jsonParser.nextToken();
-                    eVoltageCnecResult.setVoltage(jsonParser.getDoubleValue(), unit);
+                    eVoltageCnecResult.setMinVoltage(jsonParser.getDoubleValue(), unit);
+                    eVoltageCnecResult.setMaxVoltage(jsonParser.getDoubleValue(), unit);
+                    break;
+                case MIN_VOLTAGE:
+                    jsonParser.nextToken();
+                    eVoltageCnecResult.setMinVoltage(jsonParser.getDoubleValue(), unit);
+                    break;
+                case MAX_VOLTAGE:
+                    jsonParser.nextToken();
+                    eVoltageCnecResult.setMaxVoltage(jsonParser.getDoubleValue(), unit);
                     break;
                 case MARGIN:
                     jsonParser.nextToken();

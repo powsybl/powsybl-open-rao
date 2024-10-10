@@ -53,7 +53,7 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-angle-monitoring</artifactId>
+            <artifactId>monitoring</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

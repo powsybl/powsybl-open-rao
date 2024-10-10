@@ -11,6 +11,7 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -24,8 +25,6 @@ import com.powsybl.openrao.data.cracio.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
-import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
-import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultImporter;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCimCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCsaProfileCracCreationContext;
@@ -142,9 +141,18 @@ public final class Helpers {
         return ucteGlskDocument.getZonalGlsks(network, instant);
     }
 
-    public static CimGlskDocument importCimGlskFile(File glskFile) throws IOException {
-        InputStream inputStream = new FileInputStream(glskFile);
-        return CimGlskDocument.importGlsk(inputStream);
+    public static ZonalData<Scalable> importMonitoringGlskFile(File monitoringGlskFile, String timestamp, Network network) throws IOException {
+        InputStream inputStream = new FileInputStream(monitoringGlskFile);
+        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(inputStream);
+
+        Instant instant;
+        if (timestamp == null) {
+            instant = cimGlskDocument.getInstantStart();
+        } else {
+            instant = getOffsetDateTimeFromBrusselsTimestamp(timestamp).toInstant();
+        }
+
+        return cimGlskDocument.getZonalScalable(network, instant);
     }
 
     private static Instant getStartInstantOfUcteGlsk(UcteGlskDocument ucteGlskDocument) {
@@ -184,13 +192,6 @@ public final class Helpers {
         ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
         zipInputStream.getNextEntry();
         return zipInputStream;
-    }
-
-    public static AngleMonitoringResult importAngleMonitoringResult(File angleMonitoringResultFile) throws IOException {
-        InputStream inputStream = new FileInputStream(angleMonitoringResultFile);
-        AngleMonitoringResult angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream, CommonTestData.getCrac());
-        inputStream.close();
-        return angleMonitoringResult;
     }
 
     public static File getFile(String path) {
