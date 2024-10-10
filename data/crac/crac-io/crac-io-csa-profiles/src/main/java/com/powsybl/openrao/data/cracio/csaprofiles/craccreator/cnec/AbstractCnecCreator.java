@@ -111,7 +111,7 @@ public abstract class AbstractCnecCreator {
             .withId(cnecName)
             .withName(cnecName)
             .withInstant(instantId)
-            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()))
+            .withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.assessedSystemOperator()))
             .withBorder(border);
         if (cnecAdder instanceof FlowCnecAdder) {
             // The following 2 lines mustn't be called for angle & voltage CNECs
@@ -132,6 +132,6 @@ public abstract class AbstractCnecCreator {
         if (nativeAssessedElement.overlappingZone() != null) {
             return borderPerEic.getOrDefault(CsaProfileCracUtils.getEicFromUrl(nativeAssessedElement.overlappingZone()), null);
         }
-        return borderPerTso.getOrDefault(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), null);
+        return borderPerTso.getOrDefault(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.assessedSystemOperator()), null);
     }
 }
