@@ -35,6 +35,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Set;
 
+import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.computeNumberOfRelevantDecimals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -169,5 +171,18 @@ class SweCneTest {
         } else {
             return !(node.getNodeName().equals("createdDateTime"));
         }
+    }
+
+    @Test
+    void testComputeNumberOfRelevantDecimals() {
+        assertEquals(1, computeNumberOfRelevantDecimals(-100d));
+        assertEquals(1, computeNumberOfRelevantDecimals(100d));
+        assertEquals(1, computeNumberOfRelevantDecimals(10d));
+        assertEquals(1, computeNumberOfRelevantDecimals(1d));
+        assertEquals(1, computeNumberOfRelevantDecimals(0.1));
+        assertEquals(2, computeNumberOfRelevantDecimals(0.01));
+        assertEquals(3, computeNumberOfRelevantDecimals(0.001));
+        assertEquals(4, computeNumberOfRelevantDecimals(0.0002));
+        assertEquals(5, computeNumberOfRelevantDecimals(0.00003));
     }
 }
