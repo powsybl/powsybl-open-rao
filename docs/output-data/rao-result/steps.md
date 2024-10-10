@@ -1,5 +1,5 @@
 This field contains macro information about which steps the [CASTOR RAO](/castor.md#algorithm) executed.  
-(See also: [Forbidding cost increase](/parameters.md#forbid-cost-increase), [Second preventive RAO parameters](/parameters.md#second-preventive-rao-parameters))
+(See also: [Second preventive RAO parameters](/parameters.md#second-preventive-rao-parameters))
 
 | Value                                                    | Did CASTOR run a 1st preventive RAO? | Did CASTOR run a 2nd preventive RAO? | Did the RAO fall back to initial situation? | Did the RAO fall back to 1st preventive RAO result even though a 2nd was run? |  
 |----------------------------------------------------------|--------------------------------------|--------------------------------------|---------------------------------------------|-------------------------------------------------------------------------------|

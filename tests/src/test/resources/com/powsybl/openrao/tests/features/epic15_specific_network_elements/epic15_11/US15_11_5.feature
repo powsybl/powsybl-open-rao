@@ -70,14 +70,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Given crac file is "epic15/crac_15_11_5_1.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
     When I launch search_tree_rao
-    And the remedial action "open_de1_de2_open_nl2_be3 - prev" is not used in preventive
-    And the remedial action "open_de2_nl3 - co1 - auto" is not used after "co1_fr2_de3" at "auto"
-    And the remedial action "close_fr2_de3 - co1 - auto" is used after "co1_fr2_de3" at "auto"
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_de3" at "curative"
-    And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after PRA should be -302.38 MW
-    And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - auto" after ARA should be -223.44 MW
-    And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 240.61 MW
-    And the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_ONLY"
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
 
   @fast @rao @mock @dc @second-preventive
   Scenario: US 15.11.5.6: Considering ARA in 2P improves 2P optimization
