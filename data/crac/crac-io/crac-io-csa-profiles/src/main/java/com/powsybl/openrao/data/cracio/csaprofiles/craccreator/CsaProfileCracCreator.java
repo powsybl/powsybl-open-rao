@@ -38,26 +38,24 @@ class CsaProfileCracCreator {
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;
-        addCsaInstants();
+        addCsaInstants(csaParameters);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 
         this.nativeCrac.setForTimestamp(offsetDateTime);
 
         createContingencies();
         createCnecs(cracCreationParameters);
-        createRemedialActions(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
+        createRemedialActions(csaParameters.getAutoInstantApplicationTime());
 
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
 
-    private void addCsaInstants() {
+    private void addCsaInstants(CsaCracCreationParameters csaCracCreationParameters) {
         crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT, InstantKind.AUTO)
-            .newInstant(CURATIVE_1_INSTANT, InstantKind.CURATIVE)
-            .newInstant(CURATIVE_2_INSTANT, InstantKind.CURATIVE)
-            .newInstant(CURATIVE_3_INSTANT, InstantKind.CURATIVE);
+            .newInstant(AUTO_INSTANT, InstantKind.AUTO);
+        csaCracCreationParameters.getCurativeInstants().forEach(instantData -> crac.newInstant(instantData.getLeft(), InstantKind.CURATIVE));
     }
 
     private void createRemedialActions(int spsMaxTimeToImplementThreshold) {
