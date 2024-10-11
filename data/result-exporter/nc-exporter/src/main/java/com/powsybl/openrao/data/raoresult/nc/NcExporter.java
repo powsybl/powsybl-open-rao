@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.action.Action;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.LoadAction;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -134,7 +135,8 @@ public class NcExporter implements Exporter {
             for (Action elementaryAction : networkAction.getElementaryActions()) {
                 String gridStateIntensityScheduleMRid = generateGridStateIntensityScheduleMRid(elementaryAction.getId(), state);
                 rootRdfElement.appendChild(writeGridStateIntensitySchedule(document, gridStateIntensityScheduleMRid, remedialActionScheduleMRid, elementaryAction.getId()));
-                rootRdfElement.appendChild(writeGenericValueTimePoint(document, gridStateIntensityScheduleMRid, getActionSetpoint(elementaryAction), elementaryAction instanceof SwitchAction || elementaryAction instanceof ShuntCompensatorPositionAction, timeStamp));
+                boolean intSetPoint = elementaryAction instanceof SwitchAction || elementaryAction instanceof ShuntCompensatorPositionAction || elementaryAction instanceof PhaseTapChangerTapPositionAction;
+                rootRdfElement.appendChild(writeGenericValueTimePoint(document, gridStateIntensityScheduleMRid, getActionSetpoint(elementaryAction), intSetPoint, timeStamp));
             }
         }
     }
@@ -149,6 +151,8 @@ public class NcExporter implements Exporter {
             setPoint = generatorAction.getActivePowerValue().orElseThrow();
         } else if (elementaryAction instanceof LoadAction loadAction) {
             setPoint = loadAction.getActivePowerValue().orElseThrow();
+        } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction tapPositionAction) {
+            setPoint = tapPositionAction.getTapPosition();
         } else {
             throw new OpenRaoException("Unsupported elementary action type %s".formatted(elementaryAction.getClass().getSimpleName()));
         }
