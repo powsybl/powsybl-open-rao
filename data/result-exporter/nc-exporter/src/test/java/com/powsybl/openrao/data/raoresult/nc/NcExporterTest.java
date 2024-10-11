@@ -6,6 +6,7 @@ import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -20,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
@@ -35,6 +37,8 @@ class NcExporterTest {
     private PstRangeAction pstRangeAction;
     private RangeAction<?> generatorRangeAction;
     private RaoResult raoResult;
+    private Instant preventiveInstant;
+    private Instant curativeInstant;
 
     @BeforeEach
     private void setUp() {
@@ -44,16 +48,23 @@ class NcExporterTest {
 
     private void initCrac() {
         crac = Mockito.mock(Crac.class);
+
+        preventiveInstant = Mockito.mock(Instant.class);
+        curativeInstant = Mockito.mock(Instant.class);
+
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency-1");
         Contingency contingency2 = Mockito.mock(Contingency.class);
         Mockito.when(contingency2.getId()).thenReturn("contingency-2");
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getContingency()).thenReturn(Optional.empty());
+        Mockito.when(preventiveState.getInstant()).thenReturn(preventiveInstant);
         curativeContingency1State = Mockito.mock(State.class);
         Mockito.when(curativeContingency1State.getContingency()).thenReturn(Optional.of(contingency1));
+        Mockito.when(curativeContingency1State.getInstant()).thenReturn(curativeInstant);
         curativeContingency2State = Mockito.mock(State.class);
         Mockito.when(curativeContingency2State.getContingency()).thenReturn(Optional.of(contingency2));
+        Mockito.when(curativeContingency2State.getInstant()).thenReturn(curativeInstant);
         Mockito.when(crac.getStates()).thenReturn(Set.of(preventiveState, curativeContingency1State, curativeContingency2State));
 
         SwitchAction switchAction = Mockito.mock(SwitchAction.class);
@@ -101,6 +112,7 @@ class NcExporterTest {
         CsaProfileCracCreationContext ncContext = Mockito.mock(CsaProfileCracCreationContext.class);
         Mockito.when(ncContext.getTimeStamp()).thenReturn(OffsetDateTime.of(2024, 10, 10, 14, 42, 0, 0, ZoneOffset.UTC));
         Mockito.when(ncContext.getCrac()).thenReturn(crac);
+        Mockito.when(ncContext.getInstantApplicationTimeMap()).thenReturn(Map.of(preventiveInstant, 0, curativeInstant, 600));
         OutputStream outputStream = null; // new FileOutputStream("RAS.xml");
         new NcExporter().exportData(raoResult, ncContext, null, outputStream);
     }

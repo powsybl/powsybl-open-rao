@@ -10,11 +10,16 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
+import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -39,11 +44,18 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private final String networkName;
 
-    CsaProfileCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName) {
+    private Map<Instant, Integer> instantApplicationTimeMap;
+
+    CsaProfileCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName, CsaCracCreationParameters cracCreationParameters) {
         this.crac = crac;
         this.creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.networkName = networkName;
+        instantApplicationTimeMap = new HashMap<>();
+        instantApplicationTimeMap.put(crac.getPreventiveInstant(), 0);
+        instantApplicationTimeMap.put(crac.getOutageInstant(), 0);
+        instantApplicationTimeMap.put(crac.getInstant(InstantKind.AUTO), cracCreationParameters.getSpsMaxTimeToImplementThresholdInSeconds());
+        cracCreationParameters.getCraApplicationWindow().forEach((instantName, applicationTime) -> instantApplicationTimeMap.put(crac.getInstant(instantName), applicationTime));
     }
 
     protected CsaProfileCracCreationContext(CsaProfileCracCreationContext toCopy) {
@@ -137,5 +149,9 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
             creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeObjectId(), context.getImportStatus(), context.getImportStatusDetail()))
         );
+    }
+
+    public Map<Instant, Integer> getInstantApplicationTimeMap() {
+        return instantApplicationTimeMap;
     }
 }

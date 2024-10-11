@@ -9,6 +9,7 @@ import com.powsybl.action.SwitchAction;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -35,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -54,7 +56,7 @@ public class NcExporter implements Exporter {
             Element rootRdfElement = createRootRdfElement(document);
             rootRdfElement.appendChild(writeProfileHeader(document, timeStamp));
 
-            writeRemedialActionScheduleProfileContent(raoResult, ncCracCreationContext, document, timeStamp, rootRdfElement);
+            writeRemedialActionScheduleProfileContent(raoResult, ncCracCreationContext, document, timeStamp, rootRdfElement, ncCracCreationContext.getInstantApplicationTimeMap());
 
             writeOutputXmlFile(document, outputStream);
         } else {
@@ -107,11 +109,11 @@ public class NcExporter implements Exporter {
         return header;
     }
 
-    private static void writeRemedialActionScheduleProfileContent(RaoResult raoResult, CsaProfileCracCreationContext ncCracCreationContext, Document document, OffsetDateTime timeStamp, Element rootRdfElement) {
+    private static void writeRemedialActionScheduleProfileContent(RaoResult raoResult, CsaProfileCracCreationContext ncCracCreationContext, Document document, OffsetDateTime timeStamp, Element rootRdfElement, Map<Instant, Integer> instantApplicationTimeMap) {
         ncCracCreationContext.getCrac().getStates().forEach(
             state -> {
-                raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> writeRemedialActionResult(document, rootRdfElement, rangeAction, state, raoResult, timeStamp));
-                raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> writeRemedialActionResult(document, rootRdfElement, networkAction, state, raoResult, timeStamp));
+                raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> writeRemedialActionResult(document, rootRdfElement, rangeAction, state, raoResult, timeStamp.plusSeconds(instantApplicationTimeMap.get(state.getInstant()))));
+                raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> writeRemedialActionResult(document, rootRdfElement, networkAction, state, raoResult, timeStamp.plusSeconds(instantApplicationTimeMap.get(state.getInstant()))));
             }
         );
     }
@@ -155,7 +157,7 @@ public class NcExporter implements Exporter {
 
     private static Element writeRemedialActionScheduleElement(Document document, String remedialActionScheduleMRid, RemedialAction<?> remedialAction, State state) {
         Element remedialActionScheduleElement = document.createElement("nc:RemedialActionSchedule");
-        remedialActionScheduleElement.setAttribute("rdf:ID", "#_%s".formatted(remedialActionScheduleMRid));
+        remedialActionScheduleElement.setAttribute("rdf:ID", getMRidReference(remedialActionScheduleMRid));
 
         Element mRidElement = document.createElement("cim:IdentifiedObject.mRID");
         mRidElement.setTextContent(remedialActionScheduleMRid);
@@ -166,12 +168,12 @@ public class NcExporter implements Exporter {
         remedialActionScheduleElement.appendChild(statusKindElement);
 
         Element remedialActionElement = document.createElement("nc:RemedialActionSchedule.RemedialAction");
-        setRdfResourceReference(remedialActionElement, "#_%s".formatted(remedialAction.getId()));
+        setRdfResourceReference(remedialActionElement, getMRidReference(remedialAction.getId()));
         remedialActionScheduleElement.appendChild(remedialActionElement);
 
         state.getContingency().ifPresent(contingency -> {
             Element contingencyElement = document.createElement("nc:RemedialActionSchedule.Contingency");
-            setRdfResourceReference(contingencyElement, "#_%s".formatted(contingency.getId()));
+            setRdfResourceReference(contingencyElement, getMRidReference(contingency.getId()));
             remedialActionScheduleElement.appendChild(contingencyElement);
         });
 
@@ -180,7 +182,7 @@ public class NcExporter implements Exporter {
 
     private static Element writeGridStateIntensitySchedule(Document document, String gridStateIntensityScheduleMRid, String remedialActionScheduleMRid, String elementaryActionId) {
         Element gridStateIntensityScheduleElement = document.createElement("nc:GridStateIntensitySchedule");
-        gridStateIntensityScheduleElement.setAttribute("rdf:ID", "#_%s".formatted(gridStateIntensityScheduleMRid));
+        gridStateIntensityScheduleElement.setAttribute("rdf:ID", getMRidReference(gridStateIntensityScheduleMRid));
 
         Element valueKindElement = document.createElement("nc:GridStateIntensitySchedule.valueKind");
         setRdfResourceReference(valueKindElement, Namespace.NC.getUri() + "ValueOffsetKind.absolute");
@@ -195,11 +197,11 @@ public class NcExporter implements Exporter {
         gridStateIntensityScheduleElement.appendChild(mRidElement);
 
         Element gridStateAlterationElement = document.createElement("nc:GridStateIntensitySchedule.GridStateAlteration");
-        setRdfResourceReference(gridStateAlterationElement, "#_%s".formatted(elementaryActionId));
+        setRdfResourceReference(gridStateAlterationElement, getMRidReference(elementaryActionId));
         gridStateIntensityScheduleElement.appendChild(gridStateAlterationElement);
 
         Element remedialActionScheduleElement = document.createElement("nc:GenericValueSchedule.RemedialActionSchedule");
-        setRdfResourceReference(remedialActionScheduleElement, "#_%s".formatted(remedialActionScheduleMRid));
+        setRdfResourceReference(remedialActionScheduleElement, getMRidReference(remedialActionScheduleMRid));
         gridStateIntensityScheduleElement.appendChild(remedialActionScheduleElement);
 
         return gridStateIntensityScheduleElement;
@@ -219,7 +221,7 @@ public class NcExporter implements Exporter {
         genericValueTimePointElement.appendChild(valueElement);
 
         Element genericValueSchedule = document.createElement("nc:GenericValueTimePoint.GenericValueSchedule");
-        setRdfResourceReference(genericValueSchedule, "#_%s".formatted(genericValueScheduleMRid));
+        setRdfResourceReference(genericValueSchedule, getMRidReference(genericValueScheduleMRid));
         genericValueTimePointElement.appendChild(genericValueSchedule);
 
         return genericValueTimePointElement;
@@ -235,6 +237,10 @@ public class NcExporter implements Exporter {
 
     private static void setRdfResourceReference(Element element, String reference) {
         element.setAttribute("rdf:resource", reference);
+    }
+
+    private static String getMRidReference(String mRid) {
+        return "#_%s".formatted(mRid);
     }
 
     private static void writeOutputXmlFile(Document document, OutputStream outputStream) {

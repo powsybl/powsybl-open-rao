@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator;
 
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -26,7 +27,7 @@ class CsaProfileCracCreationContextTest {
     void testCopyConstructor() {
         Crac crac = Mockito.mock(Crac.class);
         OffsetDateTime offsetDateTime = Mockito.mock(OffsetDateTime.class);
-        CsaProfileCracCreationContext context = new CsaProfileCracCreationContext(crac, offsetDateTime, "network_name");
+        CsaProfileCracCreationContext context = new CsaProfileCracCreationContext(crac, offsetDateTime, "network_name", new CsaCracCreationParameters());
         context.creationSuccess(crac);
 
         ElementaryCreationContext cocc = Mockito.mock(ElementaryCreationContext.class);

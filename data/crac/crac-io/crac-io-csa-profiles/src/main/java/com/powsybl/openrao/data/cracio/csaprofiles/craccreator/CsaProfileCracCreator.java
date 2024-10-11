@@ -36,7 +36,7 @@ class CsaProfileCracCreator {
         CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
-        this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
+        this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId(), csaParameters);
         this.nativeCrac = nativeCrac;
         addCsaInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
