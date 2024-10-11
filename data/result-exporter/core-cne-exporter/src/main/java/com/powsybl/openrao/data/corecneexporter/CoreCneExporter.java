@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.iidm.network.Network;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -45,11 +44,11 @@ import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
  */
 public class CoreCneExporter {
 
-    public void exportCne(Crac crac, Network network,
+    public void exportCne(Crac crac,
                           UcteCracCreationContext cracCreationContext,
                           RaoResult raoResult, RaoParameters raoParameters,
                           CneExporterParameters exporterParameters, OutputStream outputStream) {
-        CoreCne cne = new CoreCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
+        CoreCne cne = new CoreCne(crac, cracCreationContext, raoResult, raoParameters, exporterParameters);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();

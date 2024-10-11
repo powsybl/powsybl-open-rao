@@ -19,7 +19,7 @@ Feature: US 12.9: CORE CNE export for CBCORA with inverted branches
   Scenario: 12.9.2: CBCORA with inverted branches and loopflows
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_9_2.xml"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100_BE_NL.json"
     Given RaoResult file is "epic12/RaoResult_12_9_2.json"
