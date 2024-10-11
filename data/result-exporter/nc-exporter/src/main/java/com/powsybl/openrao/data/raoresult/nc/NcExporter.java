@@ -130,33 +130,37 @@ public class NcExporter implements Exporter {
             // no elementary action -> use remedial action directly
             String gridStateIntensityScheduleMRid = generateGridStateIntensityScheduleMRid(rangeAction.getId(), state);
             rootRdfElement.appendChild(writeGridStateIntensitySchedule(document, gridStateIntensityScheduleMRid, remedialActionScheduleMRid, rangeAction.getId()));
-            rootRdfElement.appendChild(writeGenericValueTimePoint(document, gridStateIntensityScheduleMRid, rangeAction instanceof PstRangeAction pstRangeAction ? raoResult.getOptimizedTapOnState(state, pstRangeAction) : raoResult.getOptimizedSetPointOnState(state, rangeAction), rangeAction instanceof PstRangeAction, timeStamp));
+            rootRdfElement.appendChild(writeGenericValueTimePoint(document, gridStateIntensityScheduleMRid, getRangeActionSetPoint(rangeAction, state, raoResult), timeStamp));
         } else if (remedialAction instanceof NetworkAction networkAction) {
             for (Action elementaryAction : networkAction.getElementaryActions()) {
                 String gridStateIntensityScheduleMRid = generateGridStateIntensityScheduleMRid(elementaryAction.getId(), state);
                 rootRdfElement.appendChild(writeGridStateIntensitySchedule(document, gridStateIntensityScheduleMRid, remedialActionScheduleMRid, elementaryAction.getId()));
-                boolean intSetPoint = elementaryAction instanceof SwitchAction || elementaryAction instanceof ShuntCompensatorPositionAction || elementaryAction instanceof PhaseTapChangerTapPositionAction;
-                rootRdfElement.appendChild(writeGenericValueTimePoint(document, gridStateIntensityScheduleMRid, getActionSetpoint(elementaryAction), intSetPoint, timeStamp));
+                rootRdfElement.appendChild(writeGenericValueTimePoint(document, gridStateIntensityScheduleMRid, getActionSetPoint(elementaryAction), timeStamp));
             }
         }
     }
 
-    private static double getActionSetpoint(Action elementaryAction) {
-        double setPoint;
+    private static Number getRangeActionSetPoint(RangeAction<?> rangeAction, State state, RaoResult raoResult) {
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
+            return raoResult.getOptimizedTapOnState(state, pstRangeAction);
+        }
+        return raoResult.getOptimizedSetPointOnState(state, rangeAction);
+    }
+
+    private static Number getActionSetPoint(Action elementaryAction) {
         if (elementaryAction instanceof SwitchAction switchAction) {
-            setPoint = switchAction.isOpen() ? 1 : 0;
+            return switchAction.isOpen() ? 1 : 0;
         } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
-            setPoint = shuntCompensatorPositionAction.getSectionCount();
+            return shuntCompensatorPositionAction.getSectionCount();
         } else if (elementaryAction instanceof GeneratorAction generatorAction) {
-            setPoint = generatorAction.getActivePowerValue().orElseThrow();
+            return generatorAction.getActivePowerValue().orElseThrow();
         } else if (elementaryAction instanceof LoadAction loadAction) {
-            setPoint = loadAction.getActivePowerValue().orElseThrow();
+            return loadAction.getActivePowerValue().orElseThrow();
         } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction tapPositionAction) {
-            setPoint = tapPositionAction.getTapPosition();
+            return tapPositionAction.getTapPosition();
         } else {
             throw new OpenRaoException("Unsupported elementary action type %s".formatted(elementaryAction.getClass().getSimpleName()));
         }
-        return setPoint;
     }
 
     private static Element writeRemedialActionScheduleElement(Document document, String remedialActionScheduleMRid, RemedialAction<?> remedialAction, State state) {
@@ -211,7 +215,7 @@ public class NcExporter implements Exporter {
         return gridStateIntensityScheduleElement;
     }
 
-    private static Element writeGenericValueTimePoint(Document document, String genericValueScheduleMRid, double setPoint, boolean setPointAsInt, OffsetDateTime timeStamp) {
+    private static Element writeGenericValueTimePoint(Document document, String genericValueScheduleMRid, Number setPoint, OffsetDateTime timeStamp) {
         Element genericValueTimePointElement = document.createElement("nc:GenericValueTimePoint");
 
         // TODO: for CRAs, use curative instant post-outage time as an offset to identify curative batch
@@ -221,7 +225,7 @@ public class NcExporter implements Exporter {
         genericValueTimePointElement.appendChild(atTimeElement);
 
         Element valueElement = document.createElement("nc:GenericValueTimePoint.value");
-        valueElement.setTextContent(setPointAsInt ? String.valueOf((int) setPoint) : String.valueOf(setPoint));
+        valueElement.setTextContent(String.valueOf(setPoint));
         genericValueTimePointElement.appendChild(valueElement);
 
         Element genericValueSchedule = document.createElement("nc:GenericValueTimePoint.GenericValueSchedule");
