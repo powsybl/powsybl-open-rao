@@ -19,7 +19,7 @@
         <!-- open-rao dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-angle-monitoring</artifactId>
+            <artifactId>monitoring</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -135,16 +135,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-voltage-monitoring</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-monitoring-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

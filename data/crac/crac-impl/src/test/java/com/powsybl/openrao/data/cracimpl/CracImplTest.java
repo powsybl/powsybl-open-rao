@@ -13,11 +13,14 @@ import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkActionAdder;
@@ -1254,5 +1257,53 @@ class CracImplTest {
         assertTrue(crac.isRangeActionAutoOrCurative(ra8));
         // ra9 is preventive with same network element as ra8
         assertFalse(crac.isRangeActionAutoOrCurative(ra9));
+    }
+
+    @Test
+    void testGetCnecsWithPhysicalParameter() {
+        crac.newContingency()
+            .withId("co1")
+            .withContingencyElement("neCo", getRandomTypeContingency())
+            .add();
+
+        FlowCnec flowCnec = crac.newFlowCnec()
+            .withId("cnec")
+            .withNetworkElement("anyNetworkElement")
+            .withOperator("operator")
+            .withContingency("co1")
+            .withInstant(CURATIVE_INSTANT_ID)
+            .newThreshold().withMin(-1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
+            .add();
+
+        VoltageCnec voltageCnec = crac.newVoltageCnec()
+            .withId("vc")
+            .withInstant(CURATIVE_INSTANT_ID)
+            .withContingency("co1")
+            .withNetworkElement("VL1")
+            .withMonitored()
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(400.).withMax(450.).add()
+            .add();
+
+        AngleCnec angleCnec = crac.newAngleCnec()
+            .withId("acCur1")
+            .withInstant(CURATIVE_INSTANT_ID)
+            .withContingency("co1")
+            .withImportingNetworkElement("VL1_0")
+            .withExportingNetworkElement("VL2")
+            .withMonitored()
+            .newThreshold().withUnit(Unit.DEGREE).withMin(-8.).withMax(null).add()
+            .add();
+
+        assertEquals(Set.of(flowCnec), crac.getCnecs(PhysicalParameter.FLOW));
+        assertEquals(Set.of(angleCnec), crac.getCnecs(PhysicalParameter.ANGLE));
+        assertEquals(Set.of(voltageCnec), crac.getCnecs(PhysicalParameter.VOLTAGE));
+
+        assertEquals(Collections.emptySet(), crac.getCnecs(PhysicalParameter.FLOW, crac.getPreventiveState()));
+        assertEquals(Collections.emptySet(), crac.getCnecs(PhysicalParameter.ANGLE, crac.getPreventiveState()));
+        assertEquals(Collections.emptySet(), crac.getCnecs(PhysicalParameter.VOLTAGE, crac.getPreventiveState()));
+
+        assertEquals(Set.of(flowCnec), crac.getCnecs(PhysicalParameter.FLOW, crac.getState("co1", crac.getInstant(CURATIVE_INSTANT_ID))));
+        assertEquals(Set.of(angleCnec), crac.getCnecs(PhysicalParameter.ANGLE, crac.getState("co1", crac.getInstant(CURATIVE_INSTANT_ID))));
+        assertEquals(Set.of(voltageCnec), crac.getCnecs(PhysicalParameter.VOLTAGE, crac.getState("co1", crac.getInstant(CURATIVE_INSTANT_ID))));
     }
 }

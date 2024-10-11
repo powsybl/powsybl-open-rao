@@ -10,13 +10,22 @@ package com.powsybl.openrao.data.cracio.commons.api;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
+import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationReport;
+import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
+import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -126,5 +135,35 @@ class CracCreationReportTest {
         assertEquals(2, logsList.size());
         assertEquals("[INFO] [WARN] message1", logsList.get(0).toString());
         assertEquals("[INFO] [ERROR] message2", logsList.get(1).toString());
+    }
+
+    @Test
+    void testAddSuccessfulImportMessage() {
+        Crac crac = Mockito.mock(Crac.class);
+        Contingency contingency1 = Mockito.mock(Contingency.class);
+        Contingency contingency2 = Mockito.mock(Contingency.class);
+        Contingency contingency3 = Mockito.mock(Contingency.class);
+        FlowCnec flowCnec1 = Mockito.mock(FlowCnec.class);
+        FlowCnec flowCnec2 = Mockito.mock(FlowCnec.class);
+        FlowCnec flowCnec3 = Mockito.mock(FlowCnec.class);
+        FlowCnec flowCnec4 = Mockito.mock(FlowCnec.class);
+        AngleCnec angleCnec1 = Mockito.mock(AngleCnec.class);
+        AngleCnec angleCnec2 = Mockito.mock(AngleCnec.class);
+        VoltageCnec voltageCnec = Mockito.mock(VoltageCnec.class);
+        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
+        NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
+        NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
+
+        Mockito.when(crac.getContingencies()).thenReturn(Set.of(contingency1, contingency2, contingency3));
+        Mockito.when(crac.getFlowCnecs()).thenReturn(Set.of(flowCnec1, flowCnec2, flowCnec3, flowCnec4));
+        Mockito.when(crac.getAngleCnecs()).thenReturn(Set.of(angleCnec1, angleCnec2));
+        Mockito.when(crac.getVoltageCnecs()).thenReturn(Set.of(voltageCnec));
+        Mockito.when(crac.getRemedialActions()).thenReturn(Set.of(pstRangeAction, networkAction1, networkAction2));
+        Mockito.when(crac.getRangeActions()).thenReturn(Set.of(pstRangeAction));
+        Mockito.when(crac.getNetworkActions()).thenReturn(Set.of(networkAction1, networkAction2));
+
+        cracCreationReport.addSuccessfulImportMessage(crac);
+        assertEquals(1, cracCreationReport.getReport().size());
+        assertEquals("CRAC was successfully imported with 3 contingencies, 4 FlowCNECs, 2 AngleCNECs, 1 VoltageCNECs and 3 remedial actions (1 range actions and 2 network actions).", cracCreationReport.getReport().get(0));
     }
 }
