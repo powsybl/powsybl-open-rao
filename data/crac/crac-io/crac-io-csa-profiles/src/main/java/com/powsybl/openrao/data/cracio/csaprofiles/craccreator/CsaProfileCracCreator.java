@@ -19,6 +19,9 @@ import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationPar
 import com.powsybl.openrao.data.cracio.commons.RaUsageLimitsAdder;
 
 import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants.*;
 
@@ -55,7 +58,8 @@ class CsaProfileCracCreator {
         crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT, InstantKind.AUTO);
-        csaCracCreationParameters.getCurativeInstants().forEach(instantData -> crac.newInstant(instantData.getLeft(), InstantKind.CURATIVE));
+        List<String> sortedCurativeInstants = csaCracCreationParameters.getCurativeInstants().entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).toList();
+        sortedCurativeInstants.forEach(instantName -> crac.newInstant(instantName, InstantKind.CURATIVE));
     }
 
     private void createRemedialActions(int spsMaxTimeToImplementThreshold) {

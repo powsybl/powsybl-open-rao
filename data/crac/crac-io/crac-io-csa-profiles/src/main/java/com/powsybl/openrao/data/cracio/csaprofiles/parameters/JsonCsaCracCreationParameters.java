@@ -15,13 +15,10 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,7 +57,7 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
                     jsonParser.nextToken();
                     parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
                     break;
-                case AUTO_INSTANT_APPLICATION_TIME: // TODO: redundant imo, < curative 1 should be enough
+                case AUTO_INSTANT_APPLICATION_TIME:
                     jsonParser.nextToken();
                     parameters.setAutoInstantApplicationTime(jsonParser.readValueAs(Integer.class));
                     break;
@@ -120,14 +117,14 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
         jsonGenerator.writeEndArray();
     }
 
-    private void serializeCurativeInstants(List<Pair<String, Integer>> curativeInstants, JsonGenerator jsonGenerator) throws IOException {
+    private void serializeCurativeInstants(Map<String, Integer> curativeInstants, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeFieldName(CURATIVE_INSTANTS);
         jsonGenerator.writeStartArray();
-        curativeInstants.forEach(instantData -> {
+        curativeInstants.forEach((name, applicationTime) -> {
             try {
                 jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField(NAME, instantData.getLeft());
-                jsonGenerator.writeNumberField(APPLICATION_TIME, instantData.getRight());
+                jsonGenerator.writeStringField(NAME, name);
+                jsonGenerator.writeNumberField(APPLICATION_TIME, applicationTime);
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
                 throwSerializationError(CURATIVE_INSTANTS, e);
@@ -158,8 +155,8 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
         return deserializeAndUpdate(jsonParser, deserializationContext, new CsaCracCreationParameters());
     }
 
-    private List<Pair<String, Integer>> deserializeCurativeInstants(JsonParser jsonParser) throws IOException {
-        List<Pair<String, Integer>> curativeInstants = new ArrayList<>();
+    private Map<String, Integer> deserializeCurativeInstants(JsonParser jsonParser) throws IOException {
+        Map<String, Integer> curativeInstants = new HashMap<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String name = null;
             Integer applicationTime = null;
@@ -175,7 +172,7 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
             if (name == null || applicationTime == null) {
                 throw new OpenRaoException("Incomplete data for curative instant; please provide both a %s and an %s".formatted(NAME, APPLICATION_TIME));
             }
-            curativeInstants.add(Pair.of(name, applicationTime));
+            curativeInstants.put(name, applicationTime);
         }
         return curativeInstants;
     }

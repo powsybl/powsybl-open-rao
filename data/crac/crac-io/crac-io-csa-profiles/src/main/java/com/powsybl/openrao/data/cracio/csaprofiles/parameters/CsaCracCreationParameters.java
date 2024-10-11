@@ -8,11 +8,10 @@ package com.powsybl.openrao.data.cracio.csaprofiles.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,7 +21,7 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
     private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
     private Set<String> tsosWhichDoNotUsePatlInFinalState = Set.of();
     private int autoInstantApplicationTime = 0;
-    private List<Pair<String, Integer>> curativeInstants = List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 600), Pair.of("curative 3", 1200));
+    private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
     private Set<Border> borders = Set.of();
 
     @Override
@@ -42,7 +41,7 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
         return autoInstantApplicationTime;
     }
 
-    public List<Pair<String, Integer>> getCurativeInstants() {
+    public Map<String, Integer> getCurativeInstants() {
         return curativeInstants;
     }
 
@@ -62,8 +61,8 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
         this.tsosWhichDoNotUsePatlInFinalState = new HashSet<>(tsosWhichDoNotUsePatlInFinalState);
     }
 
-    public void setCurativeInstants(List<Pair<String, Integer>> curativeInstants) {
-        this.curativeInstants = new ArrayList<>(curativeInstants);
+    public void setCurativeInstants(Map<String, Integer> curativeInstants) {
+        this.curativeInstants = new HashMap<>(curativeInstants);
     }
 
     public void setBorders(Set<Border> borders) {

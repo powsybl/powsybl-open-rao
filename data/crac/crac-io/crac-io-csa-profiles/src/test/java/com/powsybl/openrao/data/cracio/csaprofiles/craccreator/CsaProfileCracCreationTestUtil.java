@@ -34,7 +34,6 @@ import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.Border;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -265,7 +264,7 @@ public final class CsaProfileCracCreationTestUtil {
         cracCreationParameters.addExtension(CsaCracCreationParameters.class, new CsaCracCreationParameters());
         cracCreationParameters.getExtension(CsaCracCreationParameters.class).setCapacityCalculationRegionEicCode("10Y1001C--00095L");
         cracCreationParameters.getExtension(CsaCracCreationParameters.class).setAutoInstantApplicationTime(0);
-        cracCreationParameters.getExtension(CsaCracCreationParameters.class).setCurativeInstants(List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 600), Pair.of("curative 3", 1200)));
+        cracCreationParameters.getExtension(CsaCracCreationParameters.class).setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
         cracCreationParameters.getExtension(CsaCracCreationParameters.class).setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
         cracCreationParameters.getExtension(CsaCracCreationParameters.class).setBorders(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")));
         return cracCreationParameters;

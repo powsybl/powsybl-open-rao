@@ -4,26 +4,22 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracimpl.CracImplFactory;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FlowCnecInstantHelperTest {
@@ -44,30 +40,6 @@ class FlowCnecInstantHelperTest {
         initTatls();
         initCracCreationParameters();
         helper = new FlowCnecInstantHelper(csaParameters, crac);
-    }
-
-    @Test
-    void checkCracCreationParametersWithMissingInstant() {
-        csaParameters.setCurativeInstants(List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 600), Pair.of("preventive", 0)));
-        parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(csaParameters, crac));
-        assertEquals("curative-instants is missing \"curative 3\" instant.", exception.getMessage());
-    }
-
-    @Test
-    void checkCracCreationParametersWithCurative1LongerThanCurative2() {
-        csaParameters.setCurativeInstants(List.of(Pair.of("curative 1", 600), Pair.of("curative 2", 300), Pair.of("curative 3", 1200)));
-        parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(csaParameters, crac));
-        assertEquals("The TATL acceptable duration for curative 1 cannot be longer than the acceptable duration for curative 2.", exception.getMessage());
-    }
-
-    @Test
-    void checkCracCreationParametersWithCurative2LongerThanCurative3() {
-        csaParameters.setCurativeInstants(List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 1200), Pair.of("curative 3", 60)));
-        parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new FlowCnecInstantHelper(csaParameters, crac));
-        assertEquals("The TATL acceptable duration for curative 2 cannot be longer than the acceptable duration for curative 3.", exception.getMessage());
     }
 
     @Test
@@ -263,7 +235,7 @@ class FlowCnecInstantHelperTest {
     private void initCracCreationParameters() {
         parameters = new CracCreationParameters();
         csaParameters = new CsaCracCreationParameters();
-        csaParameters.setCurativeInstants(List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 600), Pair.of("curative 3", 1200)));
+        csaParameters.setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
         csaParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
         parameters.addExtension(CsaCracCreationParameters.class, csaParameters);
     }

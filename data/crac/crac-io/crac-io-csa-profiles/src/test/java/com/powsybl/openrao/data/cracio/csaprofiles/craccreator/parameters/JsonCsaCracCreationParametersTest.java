@@ -12,14 +12,13 @@ import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.Border;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.parameters.JsonCsaCracCreationParameters;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,7 +47,7 @@ class JsonCsaCracCreationParametersTest {
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
         assertEquals(0, csaCracCreationParameters.getAutoInstantApplicationTime());
         assertEquals(Set.of("REE"), csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState());
-        assertEquals(List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 600), Pair.of("curative 3", 1200)), csaCracCreationParameters.getCurativeInstants());
+        assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCurativeInstants());
         assertEquals(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")), csaCracCreationParameters.getBorders());
     }
 
@@ -103,7 +102,7 @@ class JsonCsaCracCreationParametersTest {
         assertEquals("10Y1001C--00095L", csaCracCreationParameters.getCapacityCalculationRegionEicCode());
         assertEquals(0, csaCracCreationParameters.getAutoInstantApplicationTime());
         assertTrue(csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().isEmpty());
-        assertEquals(List.of(Pair.of("curative 1", 300), Pair.of("curative 2", 600), Pair.of("curative 3", 1200)), csaCracCreationParameters.getCurativeInstants());
+        assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), csaCracCreationParameters.getCurativeInstants());
         assertTrue(csaCracCreationParameters.getBorders().isEmpty());
     }
 
