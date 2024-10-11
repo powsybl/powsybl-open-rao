@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -450,9 +451,9 @@ class OneStateOnlyRaoResultImplTest {
         exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optInstant, voltageCnec, AMPERE));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
 
-        exception = assertThrows(OpenRaoException.class, () -> output.getVoltage(optInstant, voltageCnec, MEGAWATT));
+        exception = assertThrows(OpenRaoException.class, () -> output.getVoltage(optInstant, voltageCnec, MinOrMax.MIN, MEGAWATT));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getVoltage(optInstant, voltageCnec, AMPERE));
+        exception = assertThrows(OpenRaoException.class, () -> output.getVoltage(optInstant, voltageCnec, MinOrMax.MAX, AMPERE));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
 
         exception = assertThrows(OpenRaoException.class, () -> output.getAngle(optInstant, angleCnec, MEGAWATT));
