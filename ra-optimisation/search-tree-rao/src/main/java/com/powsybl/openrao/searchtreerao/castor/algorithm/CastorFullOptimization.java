@@ -99,6 +99,7 @@ public class CastorFullOptimization {
         }
         RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),
             initialOutput,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -143,6 +144,7 @@ public class CastorFullOptimization {
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after preventive remedial actions: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),
             preCurativeSensitivityAnalysisOutput,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -422,7 +424,9 @@ public class CastorFullOptimization {
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, loopFlowCnecs, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), raoParameters);
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput);
+        RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(prePerimeterSensitivityOutput);
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput, rangeActionActivationResult);
+
         boolean stopCriterionReached = isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
         if (stopCriterionReached) {
             NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Collections.emptySet());
@@ -680,6 +684,7 @@ public class CastorFullOptimization {
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), crac.getRangeActions())),
             sensiWithPostContingencyRemedialActions,
             parameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);

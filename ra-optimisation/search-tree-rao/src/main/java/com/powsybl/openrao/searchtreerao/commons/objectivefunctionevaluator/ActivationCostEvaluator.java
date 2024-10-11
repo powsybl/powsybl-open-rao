@@ -10,22 +10,23 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Jeremy Wang {@literal <jeremy.wang at rte-france.com>}
  */
-public class MinMarginEvaluator implements CostEvaluator {
+public class ActivationCostEvaluator implements CostEvaluator {
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
+    private final double unsecurePenalty = 10000;
 
-    public MinMarginEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
+    public ActivationCostEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.flowCnecs = flowCnecs;
         this.unit = unit;
         this.marginEvaluator = marginEvaluator;
@@ -33,7 +34,7 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public String getName() {
-        return "min-margin-evaluator";
+        return "activation-cost-evaluator";
     }
 
     @Override
@@ -53,7 +54,6 @@ public class MinMarginEvaluator implements CostEvaluator {
             .filter(Cnec::isOptimized)
             .sorted(Comparator.comparing(margins::get))
             .toList();
-
     }
 
     @Override
@@ -70,32 +70,28 @@ public class MinMarginEvaluator implements CostEvaluator {
         } else {
             limitingElement = costlyElements.get(0);
         }
-        if (limitingElement == null) {
-            // In case there is no limiting element (may happen in perimeters where only MNECs exist),
-            // return a finite value, so that the virtual cost is not hidden by the functional cost
-            // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
-            return Pair.of(-getHighestThresholdAmongFlowCnecs(), costlyElements);
-        }
+        // Cost is the activation cost of the range action
+        // + need to add a huge penalty if not secure
+
+        double activationCost = getTotalActivationCostFromRangeActions(rangeActionActivationResult);
+
         double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
-        if (margin >= Double.MAX_VALUE / 2) {
-            // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
-            // return a finite value, like MNEC case above
-            return Pair.of(-getHighestThresholdAmongFlowCnecs(), costlyElements);
+        if (margin < 0) {
+            activationCost += unsecurePenalty;
         }
-        return Pair.of(-margin, costlyElements);
+        return Pair.of(activationCost, costlyElements);
     }
 
-    private double getHighestThresholdAmongFlowCnecs() {
-        return flowCnecs.stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
-    }
+    private double getTotalActivationCostFromRangeActions(RangeActionActivationResult rangeActionActivationResult) {
+        AtomicReference<Double> totalActivationCost = new AtomicReference<>((double) 0);
 
-    private double getHighestThreshold(FlowCnec flowCnec) {
-        return Math.max(
-            Math.max(
-                flowCnec.getUpperBound(TwoSides.ONE, unit).orElse(0.0),
-                flowCnec.getUpperBound(TwoSides.TWO, unit).orElse(0.0)),
-            Math.max(
-                -flowCnec.getLowerBound(TwoSides.ONE, unit).orElse(0.0),
-                -flowCnec.getLowerBound(TwoSides.TWO, unit).orElse(0.0)));
+        rangeActionActivationResult.getStatesPerRangeAction().forEach((rangeAction, states) -> {
+            states.forEach(state -> {
+                double absoluteVariation = Math.abs(rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state) - rangeActionActivationResult.getOptimizedSetpointOnStatePreceding(rangeAction, state));
+                totalActivationCost.updateAndGet(v -> v + rangeAction.getActivationCost() * absoluteVariation);
+            });
+        });
+
+        return totalActivationCost.get();
     }
 }

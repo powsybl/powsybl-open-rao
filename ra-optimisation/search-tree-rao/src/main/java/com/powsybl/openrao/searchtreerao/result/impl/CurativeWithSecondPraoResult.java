@@ -23,10 +23,7 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.Obje
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -180,6 +177,15 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public Map<RangeAction<?>, Set<State>> getStatesPerRangeAction() {
+        // Some range actions can be excluded from first CRAO (for example if they are only available after a constraint)
+        // but re-optimised in second PRAO
+        Map<RangeAction<?>, Set<State>> statesPerRangeAction = new HashMap<>(firstCraoResult.getStatesPerRangeAction());
+        statesPerRangeAction.putAll(secondPraoResult.getStatesPerRangeAction());
+        return statesPerRangeAction;
+    }
+
+    @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         checkState(state);
         Set<RangeAction<?>> activated = firstCraoResult.getActivatedRangeActions(state).stream().filter(ra -> !isCraIncludedInSecondPreventiveRao(ra)).collect(Collectors.toSet());
@@ -194,6 +200,16 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
             return secondPraoResult.getOptimizedSetpoint(rangeAction, state);
         } else {
             return firstCraoResult.getOptimizedSetpoint(rangeAction, state);
+        }
+    }
+
+    @Override
+    public double getOptimizedSetpointOnStatePreceding(RangeAction<?> rangeAction, State state) {
+        checkState(state);
+        if (isCraIncludedInSecondPreventiveRao(rangeAction)) {
+            return secondPraoResult.getOptimizedSetpointOnStatePreceding(rangeAction, state);
+        } else {
+            return firstCraoResult.getOptimizedSetpointOnStatePreceding(rangeAction, state);
         }
     }
 

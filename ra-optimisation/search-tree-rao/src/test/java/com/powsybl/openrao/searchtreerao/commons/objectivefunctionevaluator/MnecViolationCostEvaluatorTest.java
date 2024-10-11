@@ -114,7 +114,7 @@ class MnecViolationCostEvaluatorTest {
     void getCostlyElements() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.MEGAWATT);
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult).getRight();
+        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult, null).getRight();
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));
@@ -124,7 +124,7 @@ class MnecViolationCostEvaluatorTest {
     void computeCostWithTooLowCost() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10, Unit.MEGAWATT);
 
-        assertEquals(0, evaluator.computeCostAndLimitingElements(currentFlowResult).getLeft(), 1e-12);
+        assertEquals(0, evaluator.computeCostAndLimitingElements(currentFlowResult, null).getLeft(), 1e-12);
     }
 
     @Test
@@ -149,13 +149,13 @@ class MnecViolationCostEvaluatorTest {
 
         assertEquals(
                 expectedCostWithEval1,
-                evaluator1.computeCostAndLimitingElements(currentFlowResult).getLeft(),
+                evaluator1.computeCostAndLimitingElements(currentFlowResult, null).getLeft(),
                 DOUBLE_TOLERANCE
         );
 
         assertEquals(
                 expectedCostWithEval2,
-                evaluator2.computeCostAndLimitingElements(currentFlowResult).getLeft(),
+                evaluator2.computeCostAndLimitingElements(currentFlowResult, null).getLeft(),
                 DOUBLE_TOLERANCE
         );
     }
@@ -164,7 +164,7 @@ class MnecViolationCostEvaluatorTest {
     void testAmperes() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.AMPERE);
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult).getRight();
+        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult, null).getRight();
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));

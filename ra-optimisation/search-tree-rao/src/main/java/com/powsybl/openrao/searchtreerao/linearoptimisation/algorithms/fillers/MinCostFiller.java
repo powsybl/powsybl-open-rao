@@ -174,6 +174,7 @@ public class MinCostFiller implements ProblemFiller {
     /**
      * Add in the objective function of the linear problem the total cost TC
      * Add min margin as penalty if unsecure.
+     * min(TC - MARGIN_PENALTY_COEFFICIENT * MM)
      */
     private void fillObjectiveWithActivationCost(LinearProblem linearProblem) {
         OpenRaoMPVariable totalCostVariable = linearProblem.getTotalCostVariable();

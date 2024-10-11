@@ -128,6 +128,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public Map<RangeAction<?>, Set<State>> getStatesPerRangeAction() {
+        return rangeActionActivationResult.getStatesPerRangeAction();
+    }
+
+    @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         return rangeActionActivationResult.getActivatedRangeActions(state);
     }
@@ -135,6 +140,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         return rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
+    }
+
+    @Override
+    public double getOptimizedSetpointOnStatePreceding(RangeAction<?> rangeAction, State state) {
+        return rangeActionActivationResult.getOptimizedSetpointOnStatePreceding(rangeAction, state);
     }
 
     @Override

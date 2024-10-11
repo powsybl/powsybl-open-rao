@@ -151,7 +151,7 @@ public class Leaf implements OptimizationResult {
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult);
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf);
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
@@ -163,7 +163,7 @@ public class Leaf implements OptimizationResult {
         }
         preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
         preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult);
+        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf);
         status = Status.EVALUATED;
     }
 
@@ -513,6 +513,17 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
+    public Map<RangeAction<?>, Set<State>> getStatesPerRangeAction() {
+        if (status == Status.EVALUATED) {
+            return raActivationResultFromParentLeaf.getStatesPerRangeAction();
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getStatesPerRangeAction();
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         if (status == Status.EVALUATED) {
             return raActivationResultFromParentLeaf.getActivatedRangeActions(state);
@@ -533,6 +544,17 @@ public class Leaf implements OptimizationResult {
             } catch (OpenRaoException e) {
                 return raActivationResultFromParentLeaf.getOptimizedSetpoint(rangeAction, state);
             }
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
+    public double getOptimizedSetpointOnStatePreceding(RangeAction<?> rangeAction, State state) {
+        if (status == Status.EVALUATED) {
+            return raActivationResultFromParentLeaf.getOptimizedSetpointOnStatePreceding(rangeAction, state);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getOptimizedSetpointOnStatePreceding(rangeAction, state);
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }

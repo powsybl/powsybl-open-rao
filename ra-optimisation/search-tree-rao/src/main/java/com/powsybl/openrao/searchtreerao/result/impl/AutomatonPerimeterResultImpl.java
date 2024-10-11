@@ -22,6 +22,8 @@ import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Represents the optimization result of automatons
@@ -37,13 +39,15 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     private final Set<RangeAction<?>> activatedRangeActions;
     private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private final State optimizedState;
+    private final PrePerimeterResult previousPerimeterResult;
 
-    public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> forcedNetworkActions, Set<NetworkAction> selectedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
+    public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> forcedNetworkActions, Set<NetworkAction> selectedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, PrePerimeterResult previousPerimeterResult, State optimizedState) {
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
         this.forcedNetworkActions = forcedNetworkActions;
         this.selectedNetworkActions = selectedNetworkActions;
         this.activatedRangeActions = activatedRangeActions;
         this.rangeActionsWithSetpoint = rangeActionsWithSetpoint;
+        this.previousPerimeterResult = previousPerimeterResult;
         this.optimizedState = optimizedState;
     }
 
@@ -149,6 +153,12 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     }
 
     @Override
+    public Map<RangeAction<?>, Set<State>> getStatesPerRangeAction() {
+        return rangeActionsWithSetpoint.keySet().stream()
+            .collect(Collectors.toMap(Function.identity(), rangeAction -> Set.of(optimizedState)));
+    }
+
+    @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         checkState(state);
         return activatedRangeActions;
@@ -158,6 +168,11 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         checkState(state);
         return rangeActionsWithSetpoint.get(rangeAction);
+    }
+
+    @Override
+    public double getOptimizedSetpointOnStatePreceding(RangeAction<?> rangeAction, State state) {
+        return previousPerimeterResult.getSetpoint(rangeAction);
     }
 
     @Override

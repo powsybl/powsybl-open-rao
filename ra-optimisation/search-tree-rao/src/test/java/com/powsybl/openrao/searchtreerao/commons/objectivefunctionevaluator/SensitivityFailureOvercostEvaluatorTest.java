@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,14 +59,14 @@ class SensitivityFailureOvercostEvaluatorTest {
     @Test
     void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, null).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetCostlyElements() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult).getRight().size());
-        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, Set.of("")).getRight().size());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, null).getRight().size());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, null, new HashSet<>()).getRight().size());
     }
 
     @Test

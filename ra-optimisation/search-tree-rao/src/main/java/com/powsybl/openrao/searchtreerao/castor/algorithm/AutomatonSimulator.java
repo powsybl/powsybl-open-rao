@@ -40,6 +40,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
@@ -138,6 +139,7 @@ public final class AutomatonSimulator {
                 autoSearchTreeResult == null ? new HashSet<>() : new HashSet<>(autoSearchTreeResult.getActivatedNetworkActions()),
                 rangeAutomatonSimulationResult.activatedRangeActions(),
                 rangeAutomatonSimulationResult.rangeActionsWithSetpoint(),
+                prePerimeterSensitivityOutput,
                 automatonState);
             TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation during range automaton simulation.", automatonState.getId());
             RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, automatonState));
@@ -153,6 +155,7 @@ public final class AutomatonSimulator {
             autoSearchTreeResult == null ? new HashSet<>() : new HashSet<>(autoSearchTreeResult.getActivatedNetworkActions()),
             rangeAutomatonSimulationResult.activatedRangeActions(),
             rangeActionsWithSetpoint,
+            prePerimeterSensitivityOutput,
             automatonState);
         TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
         RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(automatonPerimeterResultImpl, automatonState), null, automatonPerimeterResultImpl);
@@ -208,6 +211,7 @@ public final class AutomatonSimulator {
             new HashSet<>(),
             new HashSet<>(),
             new HashMap<>(),
+            prePerimeterSensitivityOutput,
             autoState);
         TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} topological automaton simulation.", autoState.getId(), defineMoment);
         RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, autoState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, autoState));
@@ -764,12 +768,13 @@ public final class AutomatonSimulator {
         FlowResult flowResult = postAutoResult.getFlowResult();
         SensitivityResult sensitivityResult = postAutoResult.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = postAutoResult.getRangeActionSetpointResult();
+        RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         // Gather flowCnecs defined on optimizedState
         Set<FlowCnec> cnecsForOptimizedState = postAutoResult.getObjectiveFunction().getFlowCnecs().stream()
             .filter(flowCnec -> flowCnec.getState().equals(optimizedState)).collect(Collectors.toSet());
         // Build ObjectiveFunctionResult based on cnecsForOptimizedState
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(cnecsForOptimizedState, toolProvider.getLoopFlowCnecs(cnecsForOptimizedState), initialFlowResult, prePerimeterSensitivityOutput, operatorsNotSharingCras, raoParameters);
-        ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult);
+        ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult, rangeActionActivationResult);
         return new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionSetpointResult, objectiveFunctionResult);
 
     }
