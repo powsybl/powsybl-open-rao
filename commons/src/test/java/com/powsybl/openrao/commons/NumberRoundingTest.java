@@ -34,8 +34,8 @@ class NumberRoundingTest {
     @Test
     void testRoundDouble() {
         assertEquals(100d, roundDoubleValue(100d, 1));
-        assertEquals(0.0003, roundDoubleValue(0.0003, 1));
-        assertEquals(0.0001, roundDoubleValue(0.000123456, 1));
+        assertEquals(0.0, roundDoubleValue(0.0003, 1));
+        assertEquals(0.0001, roundDoubleValue(0.000123456, 4));
         assertEquals(0.0001235, roundDoubleValue(0.000123456, 7));
     }
 }

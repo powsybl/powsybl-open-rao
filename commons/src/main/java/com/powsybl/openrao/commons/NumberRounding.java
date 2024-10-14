@@ -29,14 +29,7 @@ public final class NumberRounding {
         return Math.max(1, (int) -Math.log10(Math.abs(value) + ROUNDING_EPSILON) + 1);
     }
 
-    /**
-     * Computes the number of relevant decimals of a value and rounds it with this number of decimals.
-     *
-     * @param value: value to round
-     * @param minimumDecimals: minimum number of decimals to display
-     * @return number of decimals
-     */
     public static double roundDoubleValue(double value, int minimumDecimals) {
-        return BigDecimal.valueOf(value).setScale(Math.max(minimumDecimals, computeNumberOfRelevantDecimals(value)), RoundingMode.HALF_UP).doubleValue();
+        return BigDecimal.valueOf(value).setScale(minimumDecimals, RoundingMode.HALF_UP).doubleValue();
     }
 }
