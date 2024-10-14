@@ -44,6 +44,7 @@ public class NcExporter implements Exporter {
             rootRdfElement.appendChild(header);
 
             new RemedialActionScheduleProfileExporter().addWholeProfile(document, rootRdfElement, header, raoResult, ncCracCreationContext);
+            new SecurityAnalysisResultProfileWriter().addWholeProfile(document, rootRdfElement, header, raoResult, ncCracCreationContext);
 
             writeOutputXmlFile(document, outputStream);
         } else {
