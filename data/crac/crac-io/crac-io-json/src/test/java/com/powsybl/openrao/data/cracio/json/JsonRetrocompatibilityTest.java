@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
+import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.networkaction.SwitchPair;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
@@ -326,6 +327,16 @@ class JsonRetrocompatibilityTest {
         Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
         assertEquals(7, crac.getNetworkActions().size());
         testContentOfV2Point5Crac(crac);
+    }
+
+    @Test
+    void importV2Point6Test() {
+        // ElementaryAction are now Action from powsybl-core (more different types and fields name changes)
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.6.json");
+
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
+        assertEquals(7, crac.getNetworkActions().size());
+        testContentOfV2Point6Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -807,5 +818,18 @@ class JsonRetrocompatibilityTest {
 
     private void testContentOfV2Point5Crac(Crac crac) {
         testContentOfV2Point4Crac(crac);
+    }
+
+    private void testContentOfV2Point6Crac(Crac crac) {
+        testContentOfV2Point5Crac(crac);
+        NetworkAction networkAction = crac.getNetworkAction("complexNetworkAction2Id");
+        LoadAction loadAction = (LoadAction) networkAction.getElementaryActions().stream().filter(action -> action instanceof LoadAction).findAny().get();
+        assertEquals("loadActionLD1", loadAction.getId());
+        DanglingLineAction danglingLineAction = (DanglingLineAction) networkAction.getElementaryActions().stream().filter(action -> action instanceof DanglingLineAction).findAny().get();
+        assertEquals("DanglingLineAction_DL1_-120.0", danglingLineAction.getId());
+        ShuntCompensatorPositionAction shuntCompensatorPositionAction = (ShuntCompensatorPositionAction) networkAction.getElementaryActions().stream().filter(action -> action instanceof ShuntCompensatorPositionAction).findAny().get();
+        assertEquals("ShuntCompensatorPositionAction_SC1_13", shuntCompensatorPositionAction.getId());
+        SwitchAction switchAction = (SwitchAction) networkAction.getElementaryActions().stream().filter(action -> action instanceof SwitchAction).findAny().get();
+        assertEquals("switchActionBR1", switchAction.getId());
     }
 }

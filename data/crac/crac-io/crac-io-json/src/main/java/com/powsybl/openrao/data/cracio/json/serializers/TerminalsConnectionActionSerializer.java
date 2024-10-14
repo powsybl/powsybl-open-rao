@@ -24,6 +24,7 @@ public class TerminalsConnectionActionSerializer extends AbstractJsonSerializer<
     @Override
     public void serialize(TerminalsConnectionAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
+        gen.writeStringField(ACTION_ID, value.getId());
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getElementId());
         gen.writeStringField(ACTION_TYPE, serializeActionType(value.isOpen() ? ActionType.OPEN : ActionType.CLOSE));
         gen.writeEndObject();

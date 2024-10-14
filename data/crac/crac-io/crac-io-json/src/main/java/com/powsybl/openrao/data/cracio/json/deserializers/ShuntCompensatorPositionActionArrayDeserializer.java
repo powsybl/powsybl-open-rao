@@ -34,6 +34,9 @@ public final class ShuntCompensatorPositionActionArrayDeserializer {
             ShuntCompensatorPositionActionAdder adder = ownerAdder.newShuntCompensatorPositionAction();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
+                    case ACTION_ID:
+                        adder.withId(jsonParser.nextTextValue());
+                        break;
                     case NETWORK_ELEMENT_ID:
                         deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
                         break;

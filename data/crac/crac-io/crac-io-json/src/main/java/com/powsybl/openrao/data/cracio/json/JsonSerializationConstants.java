@@ -33,7 +33,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.5";
+    public static final String CRAC_IO_VERSION = "2.6";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -49,6 +49,7 @@ public final class JsonSerializationConstants {
     v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
     v2.4: new names for onConstraint and cnecId, side left/right -> one/two
     v2.5: elementary actions have new type coming from core remedial actions
+    v2.6: addition of elementary actions id
      */
 
     // headers
@@ -115,6 +116,7 @@ public final class JsonSerializationConstants {
     public static final String SHUNTCOMPENSATOR_POSITION_ACTIONS = "shuntCompensatorPositionActions";
     public static final String PHASETAPCHANGER_TAPPOSITION_ACTIONS = "phaseTapChangerTapPositionActions";
     public static final String SWITCH_PAIRS = "switchPairs";
+    public static final String ACTION_ID = "actionId";
 
     public static final String USAGE_METHOD = "usageMethod";
     public static final String ON_INSTANT_USAGE_RULES = "onInstantUsageRules";

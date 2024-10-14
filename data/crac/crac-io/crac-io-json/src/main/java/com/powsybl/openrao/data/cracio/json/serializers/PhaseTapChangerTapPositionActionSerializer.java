@@ -22,6 +22,7 @@ public class PhaseTapChangerTapPositionActionSerializer extends AbstractJsonSeri
     @Override
     public void serialize(PhaseTapChangerTapPositionAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
+        gen.writeStringField(ACTION_ID, value.getId());
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getTransformerId());
         gen.writeNumberField(TAP_POSITION, value.getTapPosition());
         gen.writeEndObject();

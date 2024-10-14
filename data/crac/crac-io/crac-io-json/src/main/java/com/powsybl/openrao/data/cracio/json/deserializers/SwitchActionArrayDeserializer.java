@@ -34,6 +34,9 @@ public final class SwitchActionArrayDeserializer {
             SwitchActionAdder adder = ownerAdder.newSwitchAction();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
+                    case ACTION_ID:
+                        adder.withId(jsonParser.nextTextValue());
+                        break;
                     case NETWORK_ELEMENT_ID:
                         deserializeNetworkElement(jsonParser.nextTextValue(), networkElementsNamesPerId, adder);
                         break;

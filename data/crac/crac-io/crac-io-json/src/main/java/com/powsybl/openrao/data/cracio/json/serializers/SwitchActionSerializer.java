@@ -23,6 +23,7 @@ public class SwitchActionSerializer extends AbstractJsonSerializer<SwitchAction>
     @Override
     public void serialize(SwitchAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
+        gen.writeStringField(ACTION_ID, value.getId());
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getSwitchId());
         gen.writeStringField(ACTION_TYPE, serializeActionType(value.isOpen() ? ActionType.OPEN : ActionType.CLOSE));
         gen.writeEndObject();
