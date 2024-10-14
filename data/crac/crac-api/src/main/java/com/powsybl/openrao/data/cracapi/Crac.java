@@ -10,6 +10,7 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.cracapi.io.Exporter;
 import com.powsybl.openrao.data.cracapi.io.Importer;
@@ -248,6 +249,10 @@ public interface Crac extends Identifiable<Crac> {
      * must not be duplicated and there is no defined order for Cnecs.
      */
     Set<Cnec> getCnecs(State state);
+
+    Set<Cnec> getCnecs(PhysicalParameter physicalParameter);
+
+    Set<Cnec> getCnecs(PhysicalParameter physicalParameter, State state);
 
     /**
      * Find a Cnec by its id, returns null if the Cnec does not exists
