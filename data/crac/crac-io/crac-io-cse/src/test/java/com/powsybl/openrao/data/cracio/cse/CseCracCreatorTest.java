@@ -302,7 +302,7 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_1.xml");
         List<String> creationReport = cracCreationContext.getCreationReport().getReport();
         assertFalse(creationReport.isEmpty());
-        assertEquals(5, creationReport.size());
+        assertEquals(6, creationReport.size());
     }
 
     @Test
@@ -310,7 +310,7 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_2.xml");
         List<String> creationReport = cracCreationContext.getCreationReport().getReport();
         assertFalse(creationReport.isEmpty());
-        assertEquals(4, creationReport.size());
+        assertEquals(5, creationReport.size());
     }
 
     @Test

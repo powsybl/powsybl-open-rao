@@ -507,7 +507,7 @@ class FbConstraintCracCreatorTest {
         creationContext = (FbConstraintCreationContext) Crac.readWithContext("wrong_ts.xml", getClass().getResourceAsStream("/merged_cb/wrong_ts.xml"), network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
-        assertEquals(2, creationContext.getCreationReport().getReport().size());
+        assertEquals(3, creationContext.getCreationReport().getReport().size());
 
         assertEquals(1, crac.getCnecs().size());
         assertCriticalBranchNotImported("BE_CBCO_000001", NOT_FOR_REQUESTED_TIMESTAMP);
@@ -525,7 +525,7 @@ class FbConstraintCracCreatorTest {
         creationContext = (FbConstraintCreationContext) Crac.readWithContext("complex_variants_duplicate_psts.xml", getClass().getResourceAsStream("/merged_cb/complex_variants_duplicate_psts.xml"), network, timestamp, parameters);
         Crac crac = creationContext.getCrac();
 
-        assertEquals(2, creationContext.getCreationReport().getReport().size());
+        assertEquals(3, creationContext.getCreationReport().getReport().size());
 
         // RA_BE_0001 is one same PST as RA_BE_0002
         // RA_BE_0002 has been prioritized due to alphabetical order

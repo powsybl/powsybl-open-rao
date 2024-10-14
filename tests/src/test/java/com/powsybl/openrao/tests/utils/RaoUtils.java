@@ -63,7 +63,7 @@ public final class RaoUtils {
     public static RaoResult runRao(String contingencyId, InstantKind instantKind, String raoType, Double loopflowAsPmaxPercentage,
                                    Integer timeLimitInSeconds) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
-        ZonalData<SensitivityVariableSet> glsks = CommonTestData.getGlsks();
+        ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
         if (Objects.nonNull(raoParameters.getExtension(LoopFlowParametersExtension.class)) && glsks != null) {
             double effectiveLfPercentage = loopflowAsPmaxPercentage == null ? 0.0 : loopflowAsPmaxPercentage;

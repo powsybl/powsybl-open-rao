@@ -1,12 +1,33 @@
-# Monitoring modules
+# Monitoring
 
-```{toctree}
-:hidden:
-monitoring/angle-monitoring.md
-monitoring/voltage-monitoring.md
+CASTOR has a monitoring module that can be used apart from the RAO to monitor Angles and/or Voltages:
+
+## Introduction
+
+```{include} monitoring/introduction.md
+:parser: markdown
 ```
 
-CASTOR has monitoring modules that can be used apart from the RAO:
-- An AngleMonitoring package to monitor angle values
-- A VoltageMonitoring package to monitor voltage values
+## The Java API
 
+```{include} monitoring/java-api.md
+:parser: markdown
+```
+
+## The monitoring result
+
+```{include} monitoring/result.md
+:parser: markdown
+```
+
+## The monitoring algorithm
+
+```{include} monitoring/algorithm.md
+:parser: markdown
+```
+
+## The output logs
+
+```{include} monitoring/logs.md
+:parser: markdown
+```

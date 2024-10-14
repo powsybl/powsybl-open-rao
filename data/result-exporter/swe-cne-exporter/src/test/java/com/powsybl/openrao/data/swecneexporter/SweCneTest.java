@@ -8,17 +8,22 @@
 package com.powsybl.openrao.data.swecneexporter;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.cracio.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
-import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitoring;
-import com.powsybl.openrao.monitoring.anglemonitoring.json.AngleMonitoringResultImporter;
+import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +38,7 @@ import org.xmlunit.diff.Difference;
 import java.io.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -69,13 +75,7 @@ class SweCneTest {
             e.printStackTrace();
         }
         RaoResult raoResult = RaoResult.read(inputStream, crac);
-        InputStream inputStream2 = null;
-        try {
-            inputStream2 = new FileInputStream(SweCneTest.class.getResource("/AngleMonitoringResult.json").getFile());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        AngleMonitoringResult angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream2, crac);
+
         InputStream inputStream3 = null;
         try {
             inputStream3 = new FileInputStream(SweCneTest.class.getResource("/RaoResultWithFailure.json").getFile());
@@ -83,8 +83,14 @@ class SweCneTest {
             e.printStackTrace();
         }
         RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
-        raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
-        raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, angleMonitoringResult);
+
+        MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
+            Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.SECURE)),
+            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
+            Cnec.SecurityStatus.SECURE);
+
+        raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
+        raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, monitoringResult);
     }
 
     @Test
@@ -95,7 +101,7 @@ class SweCneTest {
             "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultWithAngle, new RaoParameters(), params, outputStream);
+        new SweCneExporter().exportCne(crac, (CimCracCreationContext) cracCreationContext, raoResultWithAngle, new RaoParameters(), params, outputStream);
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
@@ -112,7 +118,7 @@ class SweCneTest {
                 "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
                 "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultFailureWithAngle, new RaoParameters(), params, outputStream);
+        new SweCneExporter().exportCne(crac, (CimCracCreationContext) cracCreationContext, raoResultFailureWithAngle, new RaoParameters(), params, outputStream);
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNEWithFailure_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));

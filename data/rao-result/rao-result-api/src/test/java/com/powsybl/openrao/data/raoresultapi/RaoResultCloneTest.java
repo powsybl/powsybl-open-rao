@@ -6,12 +6,13 @@
  */
 package com.powsybl.openrao.data.raoresultapi;
 
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
@@ -23,11 +24,11 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.Unit.*;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
@@ -181,7 +182,8 @@ class RaoResultCloneTest {
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         when(crac.getVoltageCnec("voltageCnecId")).thenReturn(voltageCnec);
 
-        when(raoResult.getVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(144.38);
+        when(raoResult.getVoltage(eq(curativeInstant), eq(voltageCnec), eq(MinOrMax.MIN), any())).thenReturn(144.38);
+        when(raoResult.getVoltage(eq(curativeInstant), eq(voltageCnec), eq(MinOrMax.MAX), any())).thenReturn(154.38);
         // Mock other methods for VoltageCnec as needed
 
         // Mocking computation status map
