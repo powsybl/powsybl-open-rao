@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -78,7 +79,7 @@ class FailedRaoResultImplTest {
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMargin(optInstant, angleCnec, MEGAWATT));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMargin(optInstant, voltageCnec, MEGAWATT));
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getVoltage(optInstant, voltageCnec, MEGAWATT));
+        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getVoltage(optInstant, voltageCnec, MinOrMax.MAX, MEGAWATT));
         Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getAngle(optInstant, angleCnec, MEGAWATT));
         assertEquals("Angle cnecs are not computed in the rao", e.getMessage());
         assertEquals("mocked error message 2", failedRaoResultImpl.getFailureReason());
