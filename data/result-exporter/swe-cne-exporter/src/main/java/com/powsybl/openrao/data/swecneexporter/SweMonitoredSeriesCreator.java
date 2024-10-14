@@ -26,8 +26,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
+import static com.powsybl.openrao.commons.NumberRounding.computeNumberOfRelevantDecimals;
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
-import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.computeNumberOfRelevantDecimals;
 
 /**
  * Generates MonitoredSeries for SWE CNE format

@@ -35,8 +35,6 @@ public final class SweCneUtil {
     private SweCneUtil() {
     }
 
-    private static final double ROUNDING_EPSILON = 1e-8; // "noise" required to avoid side effects when rounding negative powers of 10
-
     // Creation of time interval
     public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime offsetDateTime) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'");
@@ -97,17 +95,5 @@ public final class SweCneUtil {
         return branch.getTerminal(side).getVoltageLevel().getSubstation()
             .flatMap(Substation::getCountry)
             .orElseThrow(() -> new OpenRaoException(String.format("Cannot figure out country of branch \"%s\" on side %s", branch.getId(), side)));
-    }
-
-    /**
-     * Computes the number of relevant decimals to display for a measured constraint (flow or angle).
-     * If the constraint is negative, only one decimal suffices.
-     * In case of very small violations, the number of decimals must be increased so the violation can be read directly in the results.
-     *
-     * @param measuredConstraint: value of the measured constraint
-     * @return number of decimals
-     */
-    public static int computeNumberOfRelevantDecimals(double measuredConstraint) {
-        return measuredConstraint <= 0 ? 1 : Math.max(1, (int) -Math.log10(measuredConstraint + ROUNDING_EPSILON) + 1);
     }
 }

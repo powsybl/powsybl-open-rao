@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.openrao.commons.NumberRounding.computeNumberOfRelevantDecimals;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.computeNumberOfRelevantDecimals;
 
 /**
  * Generates AdditionalConstraintSeries for SWE CNE format
