@@ -43,6 +43,26 @@ class SwitchActionAdderImplTest {
             .add();
 
         SwitchAction switchAction = (SwitchAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("SwitchAction_branchNetworkElementId_OPEN", switchAction.getId());
+        assertEquals("branchNetworkElementId", switchAction.getSwitchId());
+        assertTrue(switchAction.isOpen());
+
+        // check that network element has been added in CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("branchNetworkElementId"));
+    }
+
+    @Test
+    void testOkWithId() {
+        NetworkAction networkAction = networkActionAdder.newSwitchAction()
+            .withId("switchAction")
+            .withNetworkElement("branchNetworkElementId")
+            .withActionType(ActionType.OPEN)
+            .add()
+            .add();
+
+        SwitchAction switchAction = (SwitchAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("switchAction", switchAction.getId());
         assertEquals("branchNetworkElementId", switchAction.getSwitchId());
         assertTrue(switchAction.isOpen());
 

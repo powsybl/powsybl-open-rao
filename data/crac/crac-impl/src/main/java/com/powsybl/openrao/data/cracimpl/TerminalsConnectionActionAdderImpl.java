@@ -33,7 +33,7 @@ public class TerminalsConnectionActionAdderImpl extends AbstractSingleNetworkEle
 
     protected Action buildAction() {
         return new TerminalsConnectionActionBuilder()
-            .withId(String.format("%s_%s_%s", getActionName(), networkElementId, actionType))
+            .withId(createActionName(actionType))
             .withNetworkElementId(networkElementId)
             .withOpen(actionType == ActionType.OPEN)
             .build();

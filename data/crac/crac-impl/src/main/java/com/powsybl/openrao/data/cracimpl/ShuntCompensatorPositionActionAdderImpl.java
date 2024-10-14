@@ -34,7 +34,7 @@ public class ShuntCompensatorPositionActionAdderImpl extends AbstractSingleNetwo
 
     protected Action buildAction() {
         return new ShuntCompensatorPositionActionBuilder()
-            .withId(String.format("%s_%s_%s", getActionName(), networkElementId, sectionCount))
+            .withId(createActionName(sectionCount))
             .withNetworkElementId(networkElementId)
             .withSectionCount(sectionCount)
             .build();

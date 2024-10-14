@@ -43,6 +43,26 @@ class LoadActionAdderImplTest {
             .add();
 
         LoadAction loadAction = (LoadAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("LoadAction_groupNetworkElementId_100.0", loadAction.getId());
+        assertEquals("groupNetworkElementId", loadAction.getLoadId());
+        assertEquals(100., loadAction.getActivePowerValue().getAsDouble(), 1e-3);
+
+        // check that network element have been added to CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("groupNetworkElementId"));
+    }
+
+    @Test
+    void testOkWithId() {
+        NetworkAction networkAction = networkActionAdder.newLoadAction()
+            .withId("loadAction")
+            .withNetworkElement("groupNetworkElementId")
+            .withActivePowerValue(100.)
+            .add()
+            .add();
+
+        LoadAction loadAction = (LoadAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("loadAction", loadAction.getId());
         assertEquals("groupNetworkElementId", loadAction.getLoadId());
         assertEquals(100., loadAction.getActivePowerValue().getAsDouble(), 1e-3);
 

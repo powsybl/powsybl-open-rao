@@ -43,6 +43,26 @@ class DanglingLineActionAdderImplTest {
             .add();
 
         DanglingLineAction danglingLineAction = (DanglingLineAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("DanglingLineAction_groupNetworkElementId_100.0", danglingLineAction.getId());
+        assertEquals("groupNetworkElementId", danglingLineAction.getDanglingLineId());
+        assertEquals(100., danglingLineAction.getActivePowerValue().getAsDouble(), 1e-3);
+
+        // check that network element have been added to CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("groupNetworkElementId"));
+    }
+
+    @Test
+    void testOkWithId() {
+        NetworkAction networkAction = networkActionAdder.newDanglingLineAction()
+            .withId("danglingLineAction")
+            .withNetworkElement("groupNetworkElementId")
+            .withActivePowerValue(100.)
+            .add()
+            .add();
+
+        DanglingLineAction danglingLineAction = (DanglingLineAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("danglingLineAction", danglingLineAction.getId());
         assertEquals("groupNetworkElementId", danglingLineAction.getDanglingLineId());
         assertEquals(100., danglingLineAction.getActivePowerValue().getAsDouble(), 1e-3);
 

@@ -34,7 +34,7 @@ public class SwitchActionAdderImpl extends AbstractSingleNetworkElementActionAdd
 
     protected Action buildAction() {
         return new SwitchActionBuilder()
-            .withId(String.format("%s_%s_%s", getActionName(), networkElementId, actionType))
+            .withId(createActionName(actionType))
             .withNetworkElementId(networkElementId)
             .withOpen(actionType == ActionType.OPEN)
             .build();

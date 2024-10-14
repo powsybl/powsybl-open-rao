@@ -33,7 +33,7 @@ public class DanglingLineActionAdderImpl extends AbstractSingleNetworkElementAct
 
     protected Action buildAction() {
         return new DanglingLineActionBuilder()
-            .withId(String.format("%s_%s_%s", getActionName(), networkElementId, activePowerValue))
+            .withId(createActionName(activePowerValue))
             .withNetworkElementId(networkElementId)
             .withRelativeValue(false)
             .withActivePowerValue(activePowerValue)

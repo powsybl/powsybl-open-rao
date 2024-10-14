@@ -9,6 +9,8 @@
 package com.powsybl.openrao.data.cracapi.networkaction;
 
 public interface SingleNetworkElementActionAdder<T extends SingleNetworkElementActionAdder<T>> {
+    T withId(String id);
+
     T withNetworkElement(String networkElementId);
 
     T withNetworkElement(String networkElementId, String networkElementName);
