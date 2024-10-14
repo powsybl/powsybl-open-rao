@@ -12,13 +12,10 @@ import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProf
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.GridStateAlterationCollection;
-import com.powsybl.openrao.data.cracio.csaprofiles.nc.GridStateAlterationRemedialAction;
-import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionDependency;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionGroup;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionScheme;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RotatingMachineAction;
-import com.powsybl.openrao.data.cracio.csaprofiles.nc.SchemeRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ShuntCompensatorModification;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.Stage;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.StaticPropertyRange;
@@ -35,8 +32,6 @@ import java.util.Set;
  */
 public class ElementaryActionsHelper {
     private final Set<RemedialActionGroup> nativeRemedialActionGroups;
-    private final Set<GridStateAlterationRemedialAction> nativeGridStateAlterationRemedialActions;
-    private final Set<SchemeRemedialAction> nativeSchemeRemedialActions;
     private final Set<RemedialActionScheme> nativeRemedialActionSchemes;
     private final Set<Stage> nativeStages;
     private final Set<GridStateAlterationCollection> nativeGridStateAlterationCollections;
@@ -54,8 +49,6 @@ public class ElementaryActionsHelper {
 
     public ElementaryActionsHelper(CsaProfileCrac nativeCrac) {
         this.nativeRemedialActionGroups = nativeCrac.getRemedialActionGroups();
-        this.nativeGridStateAlterationRemedialActions = nativeCrac.getGridStateAlterationRemedialActions();
-        this.nativeSchemeRemedialActions = nativeCrac.getSchemeRemedialActions();
         this.nativeRemedialActionSchemes = nativeCrac.getRemedialActionSchemes();
         this.nativeStages = nativeCrac.getStages();
         this.nativeGridStateAlterationCollections = nativeCrac.getGridStateAlterationCollections();
@@ -103,10 +96,6 @@ public class ElementaryActionsHelper {
 
     public Map<String, Set<TapPositionAction>> getTapPositionActions(boolean isSchemeRemedialAction) {
         return isSchemeRemedialAction ? nativeTapPositionActionsPerNativeRemedialActionAuto : nativeTapPositionActionsPerNativeRemedialAction;
-    }
-
-    public Set<? extends RemedialAction> getParentRemedialAction(boolean isSchemeRemedialAction) {
-        return isSchemeRemedialAction ? nativeSchemeRemedialActions : nativeGridStateAlterationRemedialActions;
     }
 
     public String getGridStateAlterationCollection(String remedialActionId) {
