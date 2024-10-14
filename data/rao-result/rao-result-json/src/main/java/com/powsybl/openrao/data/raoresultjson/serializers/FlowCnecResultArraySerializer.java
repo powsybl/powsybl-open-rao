@@ -21,6 +21,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import static com.powsybl.openrao.commons.NumberRounding.computeNumberOfRelevantDecimals;
+import static com.powsybl.openrao.commons.NumberRounding.roundDoubleValue;
 import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static com.powsybl.openrao.data.raoresultjson.RaoResultJsonConstants.*;
@@ -111,6 +113,7 @@ final class FlowCnecResultArraySerializer {
 
     private static void serializeFlowCnecFlows(Instant optInstant, Unit unit, FlowCnec flowCnec, TwoSides side, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
         double flow = safeGetFlow(raoResult, flowCnec, side, optInstant, unit);
+        double margin = safeGetMargin(raoResult, flowCnec, optInstant, unit);
         double loopFlow = safeGetLoopFlow(raoResult, flowCnec, side, optInstant, unit);
         double commercialFlow = safeGetCommercialFlow(raoResult, flowCnec, side, optInstant, unit);
         double ptdfZonalSum = safeGetPtdfZonalSum(raoResult, flowCnec, side, optInstant);
@@ -121,7 +124,7 @@ final class FlowCnecResultArraySerializer {
 
         jsonGenerator.writeObjectFieldStart(serializeSide(side));
         if (!Double.isNaN(flow)) {
-            jsonGenerator.writeNumberField(FLOW, Math.round(100.0 * flow) / 100.0);
+            jsonGenerator.writeNumberField(FLOW, roundDoubleValue(flow, Math.max(2, computeNumberOfRelevantDecimals(margin))));
         }
         if (!Double.isNaN(loopFlow)) {
             jsonGenerator.writeNumberField(LOOP_FLOW, Math.round(100.0 * loopFlow) / 100.0);

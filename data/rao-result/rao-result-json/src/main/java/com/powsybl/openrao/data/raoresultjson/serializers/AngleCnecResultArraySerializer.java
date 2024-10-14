@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.powsybl.openrao.commons.NumberRounding.computeNumberOfRelevantDecimals;
+import static com.powsybl.openrao.commons.NumberRounding.roundDoubleValue;
 import static com.powsybl.openrao.data.raoresultjson.RaoResultJsonConstants.*;
 
 /**
@@ -86,11 +88,12 @@ final class AngleCnecResultArraySerializer {
         }
 
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
+        int requiredDecimals = Math.max(2, computeNumberOfRelevantDecimals(margin));
         if (!Double.isNaN(angle)) {
-            jsonGenerator.writeNumberField(ANGLE, Math.round(100.0 * angle) / 100.0);
+            jsonGenerator.writeNumberField(ANGLE, roundDoubleValue(angle, requiredDecimals));
         }
         if (!Double.isNaN(margin)) {
-            jsonGenerator.writeNumberField(MARGIN, Math.round(100.0 * margin) / 100.0);
+            jsonGenerator.writeNumberField(MARGIN, roundDoubleValue(margin, requiredDecimals));
         }
         jsonGenerator.writeEndObject();
     }

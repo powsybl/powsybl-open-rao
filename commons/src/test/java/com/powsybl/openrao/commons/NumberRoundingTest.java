@@ -10,6 +10,7 @@ package com.powsybl.openrao.commons;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.openrao.commons.NumberRounding.computeNumberOfRelevantDecimals;
+import static com.powsybl.openrao.commons.NumberRounding.roundDoubleValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -28,5 +29,13 @@ class NumberRoundingTest {
         assertEquals(4, computeNumberOfRelevantDecimals(0.0002));
         assertEquals(5, computeNumberOfRelevantDecimals(0.00003));
         assertEquals(6, computeNumberOfRelevantDecimals(-0.000008));
+    }
+
+    @Test
+    void testRoundDouble() {
+        assertEquals(100d, roundDoubleValue(100d, 1));
+        assertEquals(0.0003, roundDoubleValue(0.0003, 1));
+        assertEquals(0.0001, roundDoubleValue(0.000123456, 1));
+        assertEquals(0.0001235, roundDoubleValue(0.000123456, 7));
     }
 }

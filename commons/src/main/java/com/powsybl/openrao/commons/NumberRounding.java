@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.commons;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -17,14 +20,23 @@ public final class NumberRounding {
     }
 
     /**
-     * Computes the number of relevant decimals to display for a measured constraint (flow or angle).
-     * If the constraint is negative, only one decimal suffices.
-     * In case of very small violations, the number of decimals must be increased so the violation can be read directly in the results.
+     * Computes the number of relevant decimals of a value.
      *
-     * @param value: value of the measured constraint
+     * @param value: value to round
      * @return number of decimals
      */
     public static int computeNumberOfRelevantDecimals(double value) {
         return Math.max(1, (int) -Math.log10(Math.abs(value) + ROUNDING_EPSILON) + 1);
+    }
+
+    /**
+     * Computes the number of relevant decimals of a value and rounds it with this number of decimals.
+     *
+     * @param value: value to round
+     * @param minimumDecimals: minimum number of decimals to display
+     * @return number of decimals
+     */
+    public static double roundDoubleValue(double value, int minimumDecimals) {
+        return BigDecimal.valueOf(value).setScale(Math.max(minimumDecimals, computeNumberOfRelevantDecimals(value)), RoundingMode.HALF_UP).doubleValue();
     }
 }
