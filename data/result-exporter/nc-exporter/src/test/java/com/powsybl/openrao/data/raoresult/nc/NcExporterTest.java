@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -128,7 +129,7 @@ class NcExporterTest {
         Mockito.when(ncContext.getTimeStamp()).thenReturn(OffsetDateTime.of(2024, 10, 10, 14, 42, 0, 0, ZoneOffset.UTC));
         Mockito.when(ncContext.getCrac()).thenReturn(crac);
         Mockito.when(ncContext.getInstantApplicationTimeMap()).thenReturn(Map.of(preventiveInstant, 0, curative1Instant, 600, curative2Instant, 1200));
-        OutputStream outputStream = null; // new FileOutputStream("RAS.xml");
+        OutputStream outputStream = new FileOutputStream("RAS.xml");
         new NcExporter().exportData(raoResult, ncContext, null, outputStream);
     }
 }
