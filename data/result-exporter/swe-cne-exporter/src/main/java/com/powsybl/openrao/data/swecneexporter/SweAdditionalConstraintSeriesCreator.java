@@ -20,14 +20,13 @@ import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.AdditionalConstraintSeries;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.openrao.commons.NumberRounding.computeNumberOfRelevantDecimals;
+import static com.powsybl.openrao.commons.NumberRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
@@ -92,16 +91,16 @@ public class SweAdditionalConstraintSeriesCreator {
      */
     static BigDecimal roundAngleValue(AngleCnec angleCnec, Crac crac, RaoResult raoResult) {
         double angle = raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE);
-        int numberOfDecimals = 1;
+        double margin = -Double.MAX_VALUE;
         for (Threshold threshold : angleCnec.getThresholds()) {
             Optional<Double> maxValue = threshold.max();
             Optional<Double> minValue = threshold.min();
-            if (maxValue.isPresent()) {
-                numberOfDecimals = Math.max(numberOfDecimals, computeNumberOfRelevantDecimals(angle - maxValue.get()));
-            } else if (minValue.isPresent()) {
-                numberOfDecimals = Math.max(numberOfDecimals, computeNumberOfRelevantDecimals(minValue.get() - angle));
+            if (maxValue.isPresent() && angle > maxValue.get()) {
+                margin = Math.max(margin, maxValue.get() - angle);
+            } else if (minValue.isPresent() && angle < minValue.get()) {
+                margin = Math.max(margin, angle - minValue.get());
             }
         }
-        return BigDecimal.valueOf(angle).setScale(numberOfDecimals, RoundingMode.HALF_UP);
+        return roundValueBasedOnMargin(angle, margin, 2);
     }
 }

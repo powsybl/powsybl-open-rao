@@ -24,8 +24,7 @@ import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredSeries;
 
 import java.util.*;
 
-import static com.powsybl.openrao.commons.NumberRounding.computeNumberOfRelevantDecimals;
-import static com.powsybl.openrao.commons.NumberRounding.roundDoubleValue;
+import static com.powsybl.openrao.commons.NumberRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
 
 /**
@@ -98,7 +97,7 @@ public class SweMonitoredSeriesCreator {
                 flow = flowOnSide;
             }
         }
-        return roundDoubleValue(flow, computeNumberOfRelevantDecimals(margin));
+        return roundValueBasedOnMargin(flow, margin, 2).doubleValue();
     }
 
     private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext, Set<CnecCreationContext> cnecCreationContexts, boolean includeMeasurements) {

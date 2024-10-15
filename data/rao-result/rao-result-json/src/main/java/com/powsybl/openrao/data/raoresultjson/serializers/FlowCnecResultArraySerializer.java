@@ -21,8 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.NumberRounding.computeNumberOfRelevantDecimals;
-import static com.powsybl.openrao.commons.NumberRounding.roundDoubleValue;
+import static com.powsybl.openrao.commons.NumberRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static com.powsybl.openrao.data.raoresultjson.RaoResultJsonConstants.*;
@@ -124,7 +123,7 @@ final class FlowCnecResultArraySerializer {
 
         jsonGenerator.writeObjectFieldStart(serializeSide(side));
         if (!Double.isNaN(flow)) {
-            jsonGenerator.writeNumberField(FLOW, roundDoubleValue(flow, Math.max(2, computeNumberOfRelevantDecimals(margin))));
+            jsonGenerator.writeNumberField(FLOW, roundValueBasedOnMargin(flow, margin, 2));
         }
         if (!Double.isNaN(loopFlow)) {
             jsonGenerator.writeNumberField(LOOP_FLOW, Math.round(100.0 * loopFlow) / 100.0);

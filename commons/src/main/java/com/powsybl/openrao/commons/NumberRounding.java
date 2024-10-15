@@ -26,10 +26,18 @@ public final class NumberRounding {
      * @return number of decimals
      */
     public static int computeNumberOfRelevantDecimals(double value) {
-        return Math.max(1, (int) -Math.log10(Math.abs(value) + ROUNDING_EPSILON) + 1);
+        return value == (int) value ? 1 : Math.max(1, (int) -Math.log10(Math.abs(value - (int) value) + ROUNDING_EPSILON) + 1);
     }
 
-    public static double roundDoubleValue(double value, int minimumDecimals) {
-        return BigDecimal.valueOf(value).setScale(minimumDecimals, RoundingMode.HALF_UP).doubleValue();
+    public static int computeRelevantMarginDecimals(double margin, int defaultDecimals) {
+        if (margin >= 0) {
+            return defaultDecimals; // no violation so no need to be more specific in terms of decimals
+        }
+        // otherwise, if the violation is greater than 1 in absolute value, it is sufficiently high to be seen even if the value is rounded
+        return margin > -1 ? computeNumberOfRelevantDecimals(margin) : defaultDecimals;
+    }
+
+    public static BigDecimal roundValueBasedOnMargin(double value, double margin, int defaultDecimals) {
+        return BigDecimal.valueOf(value).setScale(computeRelevantMarginDecimals(margin, defaultDecimals), RoundingMode.HALF_UP);
     }
 }

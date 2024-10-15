@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.powsybl.openrao.commons.NumberRounding.computeNumberOfRelevantDecimals;
-import static com.powsybl.openrao.commons.NumberRounding.roundDoubleValue;
+import static com.powsybl.openrao.commons.NumberRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.data.raoresultjson.RaoResultJsonConstants.*;
 
 /**
@@ -90,15 +89,14 @@ final class VoltageCnecResultArraySerializer {
         }
 
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
-        int requiredDecimals = Math.max(2, computeNumberOfRelevantDecimals(margin));
         if (!Double.isNaN(margin)) {
-            jsonGenerator.writeNumberField(MARGIN, roundDoubleValue(margin, requiredDecimals));
+            jsonGenerator.writeNumberField(MARGIN, roundValueBasedOnMargin(margin, margin, 2));
         }
         if (!Double.isNaN(minVoltage)) {
-            jsonGenerator.writeNumberField(MIN_VOLTAGE, roundDoubleValue(minVoltage, requiredDecimals));
+            jsonGenerator.writeNumberField(MIN_VOLTAGE, roundValueBasedOnMargin(minVoltage, margin, 2));
         }
         if (!Double.isNaN(maxVoltage)) {
-            jsonGenerator.writeNumberField(MAX_VOLTAGE, roundDoubleValue(maxVoltage, requiredDecimals));
+            jsonGenerator.writeNumberField(MAX_VOLTAGE, roundValueBasedOnMargin(maxVoltage, margin, 2));
         }
         jsonGenerator.writeEndObject();
     }
