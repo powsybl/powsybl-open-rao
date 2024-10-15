@@ -24,16 +24,17 @@ public class LoopFlowParametersConfigLoader implements RaoParameters.ConfigLoade
     @Override
     public LoopFlowParametersExtension load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        LoopFlowParametersExtension parameters = new LoopFlowParametersExtension();
-        platformConfig.getOptionalModuleConfig(LOOP_FLOW_PARAMETERS_SECTION)
-                .ifPresent(config -> {
+        return platformConfig.getOptionalModuleConfig(LOOP_FLOW_PARAMETERS_SECTION)
+                .map(config -> {
+                    LoopFlowParametersExtension parameters = new LoopFlowParametersExtension();
                     parameters.setAcceptableIncrease(config.getDoubleProperty(ACCEPTABLE_INCREASE, LoopFlowParametersExtension.DEFAULT_ACCEPTABLE_INCREASE));
                     parameters.setPtdfApproximation(config.getEnumProperty(PTDF_APPROXIMATION, PtdfApproximation.class, LoopFlowParametersExtension.DEFAULT_PTDF_APPROXIMATION));
                     parameters.setConstraintAdjustmentCoefficient(config.getDoubleProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT, LoopFlowParametersExtension.DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
                     parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, LoopFlowParametersExtension.DEFAULT_VIOLATION_COST));
                     parameters.setCountries(ParametersUtil.convertToCountrySet(config.getStringListProperty(COUNTRIES, new ArrayList<>())));
-                });
-        return parameters;
+                    return parameters;
+                })
+                .orElse(null);
     }
 
     @Override

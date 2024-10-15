@@ -22,14 +22,15 @@ public class MnecParametersConfigLoader implements RaoParameters.ConfigLoader<Mn
     @Override
     public MnecParametersExtension load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        MnecParametersExtension parameters = new MnecParametersExtension();
-        platformConfig.getOptionalModuleConfig(MNEC_PARAMETERS_SECTION)
-                .ifPresent(config -> {
+        return platformConfig.getOptionalModuleConfig(MNEC_PARAMETERS_SECTION)
+                .map(config -> {
+                    MnecParametersExtension parameters = new MnecParametersExtension();
                     parameters.setAcceptableMarginDecrease(config.getDoubleProperty(ACCEPTABLE_MARGIN_DECREASE, MnecParametersExtension.DEFAULT_ACCEPTABLE_MARGIN_DECREASE));
                     parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, MnecParametersExtension.DEFAULT_VIOLATION_COST));
                     parameters.setConstraintAdjustmentCoefficient(config.getDoubleProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT, MnecParametersExtension.DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
-                });
-        return parameters;
+                    return parameters;
+                })
+                .orElse(null);
     }
 
     @Override
