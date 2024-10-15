@@ -135,8 +135,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     private void loadExtensions(PlatformConfig platformConfig) {
         for (ExtensionConfigLoader provider : PARAMETERS_EXTENSIONS_SUPPLIER.get().getProviders()) {
-            if (platformConfig.getOptionalModuleConfig(provider.getExtensionName()).isPresent()) {
-                addExtension(provider.getExtensionClass(), provider.load(platformConfig));
+            Extension extension = provider.load(platformConfig);
+            if (extension != null) {
+                addExtension(provider.getExtensionClass(), extension);
             }
         }
     }
