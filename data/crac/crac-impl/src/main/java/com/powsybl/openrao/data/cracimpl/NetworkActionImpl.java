@@ -9,11 +9,11 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.action.*;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.cracapi.networkaction.*;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageRule;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,41 +45,10 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     @Override
     public boolean hasImpactOnNetwork(Network network) {
         return elementaryActions.stream().anyMatch(elementaryAction -> {
-            if (elementaryAction instanceof GeneratorAction generatorAction) {
-                Generator generator = network.getGenerator(generatorAction.getGeneratorId());
-                return Math.abs(generator.getTargetP() - generatorAction.getActivePowerValue().getAsDouble()) >= EPSILON;
-            } else if (elementaryAction instanceof LoadAction loadAction) {
-                Load load = network.getLoad(loadAction.getLoadId());
-                return Math.abs(load.getP0() - loadAction.getActivePowerValue().getAsDouble()) >= EPSILON;
-            } else if (elementaryAction instanceof DanglingLineAction danglingLineAction) {
-                DanglingLine danglingLine = network.getDanglingLine(danglingLineAction.getDanglingLineId());
-                return Math.abs(danglingLine.getP0() - danglingLineAction.getActivePowerValue().getAsDouble()) >= EPSILON;
-            } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
-                ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorPositionAction.getShuntCompensatorId());
-                return Math.abs(shuntCompensator.getSectionCount() - shuntCompensatorPositionAction.getSectionCount()) > 0;
-            } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
-                PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(phaseTapChangerTapPositionAction.getTransformerId()).getPhaseTapChanger();
-                return phaseTapChangerTapPositionAction.getTapPosition() != phaseTapChanger.getTapPosition();
-            } else if (elementaryAction instanceof SwitchPair switchPair) {
+            if (elementaryAction instanceof SwitchPair switchPair) {
                 return !network.getSwitch(switchPair.getSwitchToOpen().getId()).isOpen() || network.getSwitch(switchPair.getSwitchToClose().getId()).isOpen();
-            } else if (elementaryAction instanceof TerminalsConnectionAction terminalsConnectionAction) {
-                Identifiable<?> element = network.getIdentifiable(terminalsConnectionAction.getElementId());
-                if (element instanceof Branch<?> branch) {
-                    if (terminalsConnectionAction.isOpen()) {
-                        // Line is considered closed if both terminal are connected
-                        return branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected();
-                    } else {
-                        // Line is already considered opened if one of the terminals is disconnected
-                        return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
-                    }
-                } else {
-                    throw new NotImplementedException("TerminalsConnectionAction are only on branches for now");
-                }
-            } else if (elementaryAction instanceof SwitchAction switchAction) {
-                Switch aSwitch = network.getSwitch(switchAction.getSwitchId());
-                return aSwitch.isOpen() != switchAction.isOpen();
             } else {
-                throw new NotImplementedException();
+                return elementaryAction.toModification().hasImpactOnNetwork(network) == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
             }
         });
     }
@@ -96,25 +65,12 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
 
     @Override
     public boolean canBeApplied(Network network) {
-        // TODO: To implement on powsybl-core Action
         return elementaryActions.stream().allMatch(elementaryAction -> {
-            if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
-                ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorPositionAction.getShuntCompensatorId());
-                return shuntCompensatorPositionAction.getSectionCount() <= shuntCompensator.getMaximumSectionCount();
-            } else if (elementaryAction instanceof GeneratorAction || elementaryAction instanceof LoadAction || elementaryAction instanceof DanglingLineAction) {
-                return true;
-            } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
-                // hypothesis: transformer is a two windings transformer
-                PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(phaseTapChangerTapPositionAction.getTransformerId()).getPhaseTapChanger();
-                int tapPosition = phaseTapChangerTapPositionAction.getTapPosition();
-                return tapPosition >= phaseTapChanger.getLowTapPosition() && tapPosition <= phaseTapChanger.getHighTapPosition();
-            } else if (elementaryAction instanceof SwitchPair switchPair) {
+            if (elementaryAction instanceof SwitchPair switchPair) {
                 // It is only applicable if, initially, one switch was closed and the other was open.
                 return network.getSwitch(switchPair.getSwitchToOpen().getId()).isOpen() != network.getSwitch(switchPair.getSwitchToClose().getId()).isOpen();
-            } else if (elementaryAction instanceof TerminalsConnectionAction || elementaryAction instanceof SwitchAction) {
-                return true;
             } else {
-                throw new NotImplementedException();
+                return elementaryAction.toModification().hasImpactOnNetwork(network) != NetworkModificationImpact.CANNOT_BE_APPLIED;
             }
         });
     }
