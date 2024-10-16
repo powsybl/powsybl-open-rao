@@ -29,7 +29,7 @@ Feature: US 12.1: handling of curative optimization in the CORE CNE export
   Scenario: 12.1.3 : Curative case with loopflows (copy of scenario 13.7.4)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_1_3.xml"
-    Given Glsk file is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     Given RaoResult file is "epic12/RaoResult_12_1_3.json"
     When I export CORE CNE at "2019-01-08 00:59"
@@ -50,7 +50,7 @@ Feature: US 12.1: handling of curative optimization in the CORE CNE export
   Scenario: 12.1.5 : Curative case with 2 curative perimeters and relative margins
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_1_5.xml"
-    Given Glsk file is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic13/RaoParameters_relMargin_ampere.json"
     Given RaoResult file is "epic12/RaoResult_12_1_5.json"
     When I export CORE CNE at "2019-01-08 00:00"

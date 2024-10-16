@@ -21,7 +21,6 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
-import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -31,31 +30,28 @@ import java.util.*;
  */
 public class DiscretePstTapFiller implements ProblemFiller {
 
-    private final Network network;
     private final OptimizationPerimeter optimizationPerimeter;
     private final Map<State, Set<PstRangeAction>> rangeActions;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
+    private int iteration = 0;
 
-    public DiscretePstTapFiller(Network network,
-                                OptimizationPerimeter optimizationPerimeter,
+    public DiscretePstTapFiller(OptimizationPerimeter optimizationPerimeter,
                                 Map<State, Set<PstRangeAction>> rangeActions,
                                 RangeActionSetpointResult prePerimeterRangeActionSetpoints) {
-        this.network = network;
         this.optimizationPerimeter = optimizationPerimeter;
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        iteration++;
         rangeActions.entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder())).forEach(entry -> entry.getValue().forEach(rangeAction ->
-                buildPstTapVariablesAndConstraints(linearProblem, rangeAction, entry.getKey())));
-    }
-
-    @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        update(linearProblem, rangeActionActivationResult);
+                buildPstTapVariablesAndConstraints(linearProblem, rangeAction, entry.getKey(), rangeActionActivationResult)));
+        if (iteration > 1) {
+            update(linearProblem, rangeActionActivationResult);
+        }
     }
 
     @Override
@@ -72,11 +68,11 @@ public class DiscretePstTapFiller implements ProblemFiller {
                 updateRelativeRangeConstraints(linearProblem, rangeAction, entry.getKey(), rangeActionActivationResult)));
     }
 
-    private void buildPstTapVariablesAndConstraints(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state) {
+    private void buildPstTapVariablesAndConstraints(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state, RangeActionActivationResult rangeActionActivationResult) {
 
         // compute a few values on PST taps and angle
-        double currentAngle = pstRangeAction.getCurrentSetpoint(network);
-        int currentTap = pstRangeAction.getCurrentTapPosition(network);
+        double currentAngle = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, state);
+        int currentTap = rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
 
         Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationPerimeter, pstRangeAction, state);
         Pair<Integer, Integer> admissibleTaps = getMinAndMaxAdmissibleTaps(pstRangeAction, lastAvailableRangeAction);
