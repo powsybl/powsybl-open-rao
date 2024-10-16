@@ -41,7 +41,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult);
 
         // build variables
@@ -52,11 +52,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
         // complete objective
         fillObjectiveWithMinMargin(linearProblem);
-    }
-
-    @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // Objective does not change, nothing to do
     }
 
     @Override

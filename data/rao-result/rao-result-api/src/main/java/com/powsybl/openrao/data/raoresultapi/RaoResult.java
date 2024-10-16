@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.raoresultapi;
 
 import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -83,12 +84,21 @@ public interface RaoResult {
      * It gives the voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec:      The voltage cnec to be studied.
-     * @param unit:             The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
-     * @return The voltage on the cnec at the optimization state in the given unit.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param voltageCnec      The voltage cnec to be studied.
+     * @param minOrMax         minimum or maximum voltage value on the voltage CNEC
+     * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
+     * @return The min or max voltage on the cnec at the optimization state in the given unit.
      */
-    default double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
+    default double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+        throw new OpenRaoException("Voltage cnecs are not computed in the rao");
+    }
+
+    default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+        throw new OpenRaoException("Voltage cnecs are not computed in the rao");
+    }
+
+    default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
 

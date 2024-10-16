@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
@@ -410,6 +411,24 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         cnecs.addAll(getAngleCnecs(state));
         cnecs.addAll(getVoltageCnecs(state));
         return cnecs;
+    }
+
+    @Override
+    public Set<Cnec> getCnecs(PhysicalParameter physicalParameter) {
+        return switch (physicalParameter) {
+            case ANGLE -> new HashSet<>(getAngleCnecs());
+            case VOLTAGE -> new HashSet<>(getVoltageCnecs());
+            case FLOW -> new HashSet<>(getFlowCnecs());
+        };
+    }
+
+    @Override
+    public Set<Cnec> getCnecs(PhysicalParameter physicalParameter, State state) {
+        return switch (physicalParameter) {
+            case ANGLE -> new HashSet<>(getAngleCnecs(state));
+            case VOLTAGE -> new HashSet<>(getVoltageCnecs(state));
+            case FLOW -> new HashSet<>(getFlowCnecs(state));
+        };
     }
 
     @Override

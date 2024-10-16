@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.tests.steps;
 
-import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -18,8 +18,8 @@ import com.powsybl.openrao.data.cracapi.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.glsk.virtual.hubs.GlskVirtualHubs;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
-import com.powsybl.openrao.monitoring.anglemonitoring.AngleMonitoringResult;
-import com.powsybl.openrao.monitoring.anglemonitoring.RaoResultWithAngleMonitoring;
+import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -58,10 +58,10 @@ public final class CommonTestData {
     private static String raoParametersPath;
     private static RaoParameters raoParameters;
 
-    private static String glskPath;
-    private static String cimGlskPath;
-    private static ZonalData<SensitivityVariableSet> glsks;
-    private static CimGlskDocument cimGlskDocument;
+    private static String loopflowGlskPath;
+    private static String monitoringGlskPath;
+    private static ZonalData<Scalable> monitoringGlsks;
+    private static ZonalData<SensitivityVariableSet> loopflowGlsks;
 
     private static String raoResultPath;
     private static RaoResult raoResult;
@@ -71,9 +71,7 @@ public final class CommonTestData {
 
     private static String virtualHubsConfigPath;
 
-    private static String angleMonitoringResultPath;
-
-    private static AngleMonitoringResult angleMonitoringResult;
+    private static MonitoringResult monitoringResult;
 
     private static String timestamp;
 
@@ -82,19 +80,19 @@ public final class CommonTestData {
     }
 
     public static void setRaoResult(RaoResult raoResult) {
-        if (CommonTestData.angleMonitoringResult != null) {
+        if (CommonTestData.monitoringResult != null) {
             // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(raoResult, CommonTestData.angleMonitoringResult);
+            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(raoResult, CommonTestData.monitoringResult);
         } else {
             CommonTestData.raoResult = raoResult;
         }
     }
 
-    public static void setAngleMonitoringResult(AngleMonitoringResult result) {
-        CommonTestData.angleMonitoringResult = result;
+    public static void setMonitoringResult(MonitoringResult result) {
+        CommonTestData.monitoringResult = result;
         if (CommonTestData.raoResult != null) {
             // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(CommonTestData.raoResult, CommonTestData.angleMonitoringResult);
+            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
         }
     }
 
@@ -124,8 +122,8 @@ public final class CommonTestData {
         networkPath = null;
         raoParametersPath = null;
         cracCreationParametersPath = null;
-        glskPath = null;
-        cimGlskPath = null;
+        loopflowGlskPath = null;
+        monitoringGlskPath = null;
         refProgPath = null;
         cracPath = null;
         raoResultPath = null;
@@ -134,12 +132,11 @@ public final class CommonTestData {
         network = null;
         virtualHubsConfigPath = null;
         raoParameters = null;
-        glsks = null;
-        cimGlskDocument = null;
+        loopflowGlsks = null;
+        monitoringGlsks = null;
         referenceProgram = null;
         raoResult = null;
-        angleMonitoringResultPath = null;
-        angleMonitoringResult = null;
+        monitoringResult = null;
     }
 
     @Given("crac file is {string}")
@@ -173,14 +170,14 @@ public final class CommonTestData {
         raoParametersPath = getResourcesPath().concat("configurations/").concat(path);
     }
 
-    @Given("Glsk file is {string}")
-    public static void glskFileIs(String path) {
-        glskPath = getResourcesPath().concat("glsks/").concat(path);
+    @Given("loopflow glsk file is {string}")
+    public static void loopflowGlskFileIs(String path) {
+        loopflowGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
-    @Given("cim glsk file is {string}")
-    public static void cimGlskFileIs(String path) {
-        cimGlskPath = getResourcesPath().concat("glsks/").concat(path);
+    @Given("monitoring glsk file is {string}")
+    public static void monitoringGlskFileIs(String path) {
+        monitoringGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
     @Given("RefProg file is {string}")
@@ -196,11 +193,6 @@ public final class CommonTestData {
     @Given("RaoResult file is {string}")
     public static void raoResultIs(String path) {
         raoResultPath = getResourcesPath().concat("raoresults/").concat(path);
-    }
-
-    @Given("AngleMonitoringResult file is {string}")
-    public static void angleMonitoringResultIs(String path) {
-        angleMonitoringResultPath = getResourcesPath().concat("anglemonitoringresults/").concat(path);
     }
 
     @When("I import data")
@@ -233,12 +225,12 @@ public final class CommonTestData {
         return raoParameters;
     }
 
-    public static ZonalData<SensitivityVariableSet> getGlsks() {
-        return glsks;
+    public static ZonalData<SensitivityVariableSet> getLoopflowGlsks() {
+        return loopflowGlsks;
     }
 
-    public static CimGlskDocument getCimGlskDocument() {
-        return cimGlskDocument;
+    public static ZonalData<Scalable> getMonitoringGlsks() {
+        return monitoringGlsks;
     }
 
     public static ReferenceProgram getReferenceProgram() {
@@ -249,8 +241,8 @@ public final class CommonTestData {
         return raoResult;
     }
 
-    public static AngleMonitoringResult getAngleMonitoringResult() {
-        return angleMonitoringResult;
+    public static MonitoringResult getMonitoringResult() {
+        return monitoringResult;
     }
 
     public static String getTimestamp() {
@@ -302,14 +294,15 @@ public final class CommonTestData {
             raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
         }
 
-        // GLSK
-        // for now, only work with UCTE GLSK files, not CIME GLSK file
-        if (glskPath != null) {
-            glsks = importUcteGlskFile(getFile(glskPath), timestamp, network);
+        // Loopflow GLSK
+        // only work with UCTE GLSK files
+        if (loopflowGlskPath != null) {
+            loopflowGlsks = importUcteGlskFile(getFile(loopflowGlskPath), timestamp, network);
         }
 
-        if (cimGlskPath != null) {
-            cimGlskDocument = importCimGlskFile(getFile(cimGlskPath));
+        // Monitoring GLSK
+        if (monitoringGlskPath != null) {
+            monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), timestamp, network);
         }
 
         // Reference program
@@ -324,18 +317,15 @@ public final class CommonTestData {
 
         // Virtual hubs configuration
         if (virtualHubsConfigPath != null) {
-            if (referenceProgram != null && glsks != null) {
+            if (referenceProgram != null && loopflowGlsks != null) {
                 VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(new FileInputStream(getFile(virtualHubsConfigPath)));
                 ZonalData<SensitivityVariableSet> glskOfVirtualHubs = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, referenceProgram);
-                glsks.addAll(glskOfVirtualHubs);
+                loopflowGlsks.addAll(glskOfVirtualHubs);
             } else {
                 throw new OpenRaoException("In order to import a virtual hubs configuration file, you should define a reference program file and a GLSK file.");
             }
         }
 
-        if (angleMonitoringResultPath != null) {
-            angleMonitoringResult = importAngleMonitoringResult(getFile(angleMonitoringResultPath));
-        }
     }
 
     private static RaoParameters buildDefaultConfig() {
