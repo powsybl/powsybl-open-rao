@@ -166,7 +166,7 @@ class OnConstraintUsageRuleHelperTest {
         expectedResult.put("assessed-element-7", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-7 ignored because no CNEC was imported by Open RAO from this assessed element."));
         expectedResult.put("assessed-element-8", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-8 ignored because this assessed element has several conflictual links to the remedial action."));
 
-        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElements, assessedElementWithRemedialActions, contingencyWithRemedialActions, cnecCreationContexts));
+        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElementWithRemedialActions, contingencyWithRemedialActions, cnecCreationContexts));
     }
 
     @Test
@@ -186,6 +186,6 @@ class OnConstraintUsageRuleHelperTest {
         expectedResult.put("assessed-element-7", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-7 ignored because no CNEC was imported by Open RAO from this assessed element."));
         expectedResult.put("assessed-element-8", new AssociationStatus(false, null, "OnConstraint usage rule for remedial action remedial-action with assessed element assessed-element-8 ignored because this assessed element has several conflictual links to the remedial action."));
 
-        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElements, assessedElementWithRemedialActions, Set.of(), cnecCreationContexts));
+        assertEquals(expectedResult, OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, "remedial-action", assessedElementWithRemedialActions, Set.of(), cnecCreationContexts));
     }
 }
