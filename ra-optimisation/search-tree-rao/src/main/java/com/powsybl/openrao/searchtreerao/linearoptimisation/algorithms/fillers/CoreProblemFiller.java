@@ -123,8 +123,8 @@ public class CoreProblemFiller implements ProblemFiller {
      * This variable describes the absolute difference between the range action setpoint
      * and its initial value. It is given in the same unit as S[r].
      * <p>
-     * Build one signed variation variable SV[r] for each InjectionRangeAction r
-     * This variable describes the signed difference between the injection setpoint and its initial value
+     * Build one injection variation variable IV[r] for each InjectionRangeAction r
+     * This variable describes the injection difference between the injection setpoint and its initial value
      * after taking into account the distribution keys.
      */
     private void buildRangeActionVariables(LinearProblem linearProblem) {
@@ -133,8 +133,8 @@ public class CoreProblemFiller implements ProblemFiller {
                 linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
                 linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state);
                 if (rangeAction instanceof InjectionRangeAction) {
-                    //signed variation variable needed for balance contraint
-                    linearProblem.addSignedRangeActionVariationVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
+                    //injection variation variable needed for balance contraint
+                    linearProblem.addInjectionVariationVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
                 }
             })
         );
@@ -245,7 +245,7 @@ public class CoreProblemFiller implements ProblemFiller {
                 if (!injectionRangeActions.isEmpty()) {
                     // create the constraint
                     OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.addInjectionBalanceVariationConstraint(0., 0., entry.getKey());
-                    // add the signed variation variables to the constraint
+                    // add the injection variation variables to the constraint
                     injectionRangeActions.forEach(injectionRangeAction -> buildInjectionBalanceConstraint(linearProblem, injectionRangeAction, entry.getKey(), injectionBalanceConstraint));
                 }
                 entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey()));
@@ -360,13 +360,13 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     /**
-     * Adds signed variation variable of given InjectionRangeAction to balance constraint
+     * Adds injection variation variable of given InjectionRangeAction to balance constraint
      * sum( {r in RangeActions} SV[r])
-     * Constraint for defining Signed Variation:
-     * SV[r] = (setpoint[r] - prePerimeterSetPoint[r]) * sum(distributionKeys[r])
+     * Constraint for defining Injection Variation:
+     * IV[r] = (setpoint[r] - prePerimeterSetPoint[r]) * sum(distributionKeys[r])
      */
     private void buildInjectionBalanceConstraint(LinearProblem linearProblem, InjectionRangeAction rangeAction, State state, OpenRaoMPConstraint injectionBalanceConstraint) {
-        OpenRaoMPVariable signedInjectionVariationVariable = linearProblem.getSignedRangeActionVariationVariable(rangeAction, state);
+        OpenRaoMPVariable signedInjectionVariationVariable = linearProblem.getInjectionVariationVariable(rangeAction, state);
         injectionBalanceConstraint.setCoefficient(signedInjectionVariationVariable, 1);
 
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
@@ -374,7 +374,7 @@ public class CoreProblemFiller implements ProblemFiller {
         double sumDistributionKeys = rangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(d -> d).sum();
         if (sumDistributionKeys != 0) {
             double bound = -prePerimeterRangeActionSetpoints.getSetpoint(rangeAction) * sumDistributionKeys;
-            OpenRaoMPConstraint injectionRelativeVariationConstraint = linearProblem.addSignedRangeActionVariationConstraint(bound, bound, rangeAction, state);
+            OpenRaoMPConstraint injectionRelativeVariationConstraint = linearProblem.addInjectionVariationConstraint(bound, bound, rangeAction, state);
             injectionRelativeVariationConstraint.setCoefficient(signedInjectionVariationVariable, 1);
             injectionRelativeVariationConstraint.setCoefficient(setPointVariable, -sumDistributionKeys);
         }

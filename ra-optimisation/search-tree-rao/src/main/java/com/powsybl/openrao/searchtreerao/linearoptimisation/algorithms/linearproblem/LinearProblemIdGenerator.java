@@ -131,7 +131,7 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String signedRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
+    public static String rangeActionInjectionVariationVariableId(RangeAction<?> rangeAction, State state) {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SIGNED_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
     }
 

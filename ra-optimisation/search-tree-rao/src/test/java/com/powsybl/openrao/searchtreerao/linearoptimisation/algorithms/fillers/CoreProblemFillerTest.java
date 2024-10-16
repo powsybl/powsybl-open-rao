@@ -679,22 +679,22 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         InjectionRangeAction injectionRangeAction1 = crac.getInjectionRangeAction(INJECTION_RANGE_ACTION_ID_1);
         InjectionRangeAction injectionRangeAction2 = crac.getInjectionRangeAction(INJECTION_RANGE_ACTION_ID_2);
         OpenRaoMPConstraint balanceConstraint = linearProblem.getInjectionBalanceVariationConstraint(state);
-        OpenRaoMPVariable signedVariationVariableInj0 = linearProblem.getSignedRangeActionVariationVariable(injectionRangeAction0, state);
-        OpenRaoMPVariable signedVariationVariableInj1 = linearProblem.getSignedRangeActionVariationVariable(injectionRangeAction1, state);
+        OpenRaoMPVariable signedVariationVariableInj0 = linearProblem.getInjectionVariationVariable(injectionRangeAction0, state);
+        OpenRaoMPVariable signedVariationVariableInj1 = linearProblem.getInjectionVariationVariable(injectionRangeAction1, state);
         assertNotNull(balanceConstraint);
-        assertThrows(OpenRaoException.class, () -> linearProblem.getSignedRangeActionVariationVariable(injectionRangeAction2, state));
+        assertThrows(OpenRaoException.class, () -> linearProblem.getInjectionVariationVariable(injectionRangeAction2, state));
         assertEquals(1, balanceConstraint.getCoefficient(signedVariationVariableInj0), DOUBLE_TOLERANCE);
         assertEquals(1, balanceConstraint.getCoefficient(signedVariationVariableInj1), DOUBLE_TOLERANCE);
-        // test the signed variation constraints for each injection
-        OpenRaoMPConstraint singedVariationConstraint0 = linearProblem.getSignedRangeActionVariationConstraint(injectionRangeAction0, state);
-        OpenRaoMPConstraint singedVariationConstraint1 = linearProblem.getSignedRangeActionVariationConstraint(injectionRangeAction1, state);
+        // test the injection variation constraints for each injection
+        OpenRaoMPConstraint singedVariationConstraint0 = linearProblem.getInjectionVariationConstraint(injectionRangeAction0, state);
+        OpenRaoMPConstraint singedVariationConstraint1 = linearProblem.getInjectionVariationConstraint(injectionRangeAction1, state);
         OpenRaoMPVariable setPointVariableInj0 = linearProblem.getRangeActionSetpointVariable(injectionRangeAction0, state);
         OpenRaoMPVariable setPointVariableInj1 = linearProblem.getRangeActionSetpointVariable(injectionRangeAction1, state);
         double sumDistributionKeys0 = injectionRangeAction0.getInjectionDistributionKeys().values().stream().mapToDouble(d -> d).sum();
         double sumDistributionKeys1 = injectionRangeAction1.getInjectionDistributionKeys().values().stream().mapToDouble(d -> d).sum();
         assertNotNull(singedVariationConstraint0);
         assertNotNull(singedVariationConstraint1);
-        assertThrows(OpenRaoException.class, () -> linearProblem.getSignedRangeActionVariationConstraint(injectionRangeAction2, state));
+        assertThrows(OpenRaoException.class, () -> linearProblem.getInjectionVariationConstraint(injectionRangeAction2, state));
         assertEquals(1, singedVariationConstraint0.getCoefficient(signedVariationVariableInj0), DOUBLE_TOLERANCE);
         assertEquals(1, singedVariationConstraint1.getCoefficient(signedVariationVariableInj1), DOUBLE_TOLERANCE);
         assertEquals(-sumDistributionKeys0, singedVariationConstraint0.getCoefficient(setPointVariableInj0), DOUBLE_TOLERANCE);

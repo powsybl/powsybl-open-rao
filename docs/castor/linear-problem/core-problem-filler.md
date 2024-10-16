@@ -2,17 +2,19 @@
 
 ## Used input data
 
-| Name                  | Symbol                  | Details                                                                                                                                                                                                                                                                                                                     |
-|-----------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| FlowCnecs             | $c \in \mathcal{C}$     | set of FlowCnecs[^1]. Note that FlowCnecs are all the CBCO for which we compute the flow in the MILP, either: <br> - because we are optimizing their flow (optimized flowCnec = CNEC) <br> - because we are monitoring their flow, and ensuring it does not exceed its threshold (monitored flowCnec = MNEC) <br> - or both |
-| RangeActions          | $r,s \in \mathcal{RA}$  | set of RangeActions and state on which they are applied, could be PSTs, HVDCs, or injection range actions                                                                                                                                                                                                                   |
-| RangeActions          | $r \in \mathcal{RA(s)}$ | set of RangeActions available on state $s$, could be PSTs, HVDCs, or injection range actions                                                                                                                                                                                                                                |
-| Iteration number      | $n$                     | number of current iteration                                                                                                                                                                                                                                                                                                 |
-| ReferenceFlow         | $f_{n}(c)$              | reference flow, for FlowCnec $c$. <br>The reference flow is the flow at the beginning of the current iteration of the MILP, around which the sensitivities are computed                                                                                                                                                     |
-| PrePerimeterSetpoints | $\alpha _0(r)$          | setpoint of RangeAction $r$ at the beginning of the optimization                                                                                                                                                                                                                                                            |
-| ReferenceSetpoints    | $\alpha _n(r)$          | setpoint of RangeAction $r$ at the beginning of the current iteration of the MILP, around which the sensitivities are computed                                                                                                                                                                                              |
-| Sensitivities         | $\sigma _{n}(r,c,s)$    | sensitivity of RangeAction $r$ on FlowCnec $c$ for state $s$                                                                                                                                                                                                                                                                |
-| Previous RA setpoint  | $A_{n-1}(r,s)$          | optimal setpoint of RangeAction $r$ on state $s$ in previous iteration ($n-1$)                                                                                                                                                                                                                                              |
+| Name                        | Symbol                  | Details                                                                                                                                                                                                                                                                                                                     |
+|-----------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| FlowCnecs                   | $c \in \mathcal{C}$     | set of FlowCnecs[^1]. Note that FlowCnecs are all the CBCO for which we compute the flow in the MILP, either: <br> - because we are optimizing their flow (optimized flowCnec = CNEC) <br> - because we are monitoring their flow, and ensuring it does not exceed its threshold (monitored flowCnec = MNEC) <br> - or both |
+| RangeActions                | $r,s \in \mathcal{RA}$  | set of RangeActions and state on which they are applied, could be PSTs, HVDCs, or injection range actions                                                                                                                                                                                                                   |
+| RangeActions                | $r \in \mathcal{RA(s)}$ | set of RangeActions available on state $s$, could be PSTs, HVDCs, or injection range actions                                                                                                                                                                                                                                |
+| InjectionRangeActions       | $r,s \in \mathcal{IRA}$ | set of InjectionRangeActions and state on which they are applied.                                                                                                                                                                                                                                                           |
+| Injection Distribution keys | $d \in \mathcal{DK(r)}$ | set of distribution keys of InjectionRangeAction $r$. Each distribution key is linked to a NetworkElement.                                                                                                                                                                                                                  |
+| Iteration number            | $n$                     | number of current iteration                                                                                                                                                                                                                                                                                                 |
+| ReferenceFlow               | $f_{n}(c)$              | reference flow, for FlowCnec $c$. <br>The reference flow is the flow at the beginning of the current iteration of the MILP, around which the sensitivities are computed                                                                                                                                                     |
+| PrePerimeterSetpoints       | $\alpha _0(r)$          | setpoint of RangeAction $r$ at the beginning of the optimization                                                                                                                                                                                                                                                            |
+| ReferenceSetpoints          | $\alpha _n(r)$          | setpoint of RangeAction $r$ at the beginning of the current iteration of the MILP, around which the sensitivities are computed                                                                                                                                                                                              |
+| Sensitivities               | $\sigma _{n}(r,c,s)$    | sensitivity of RangeAction $r$ on FlowCnec $c$ for state $s$                                                                                                                                                                                                                                                                |
+| Previous RA setpoint        | $A_{n-1}(r,s)$          | optimal setpoint of RangeAction $r$ on state $s$ in previous iteration ($n-1$)                                                                                                                                                                                                                                              |
 
 [^1]: CNECs that belong to a state for which sensitivity computations failed are ignored in the MILP
 
@@ -25,11 +27,12 @@
 
 ## Defined optimization variables
 
-| Name                           | Symbol          | Details                                                                                                           | Type                | Index                                            | Unit                                                      | Lower bound           | Upper bound           |
-|--------------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------|---------------------|--------------------------------------------------|-----------------------------------------------------------|-----------------------|-----------------------|
-| Flow                           | $F(c)$          | flow of FlowCnec $c$                                                                                              | Real value          | One variable for every element of (FlowCnecs)    | MW                                                        | $-\infty$             | $+\infty$             |
-| RA setpoint                    | $A(r,s)$        | setpoint of RangeAction $r$ on state $s$                                                                          | Real value          | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | Range lower bound[^2] | Range upper bound[^2] |
-| RA setpoint absolute variation | $\Delta A(r,s)$ | The absolute setpoint variation of RangeAction $r$ on state $s$, from setpoint on previous state to "RA setpoint" | Real positive value | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | 0                     | $+\infty$             |
+| Name                           | Symbol          | Details                                                                                                           | Type                | Index                                                     | Unit                                                      | Lower bound           | Upper bound           |
+|--------------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------|---------------------|-----------------------------------------------------------|-----------------------------------------------------------|-----------------------|-----------------------|
+| Flow                           | $F(c)$          | flow of FlowCnec $c$                                                                                              | Real value          | One variable for every element of (FlowCnecs)             | MW                                                        | $-\infty$             | $+\infty$             |
+| RA setpoint                    | $A(r,s)$        | setpoint of RangeAction $r$ on state $s$                                                                          | Real value          | One variable for every element of (RangeActions)          | Degrees for PST range actions; MW for other range actions | Range lower bound[^2] | Range upper bound[^2] |
+| RA setpoint absolute variation | $\Delta A(r,s)$ | The absolute setpoint variation of RangeAction $r$ on state $s$, from setpoint on previous state to "RA setpoint" | Real positive value | One variable for every element of (RangeActions)          | Degrees for PST range actions; MW for other range actions | 0                     | $+\infty$             |
+| RA injection variation         | $\Delta I(r,s)$ | The signed variation of one Injection RangeAction $r$ on state $s$, after considering distribution keys.          | Real value          | One variable for every element of (InjectionRangeActions) | MW for other range actions                                | $-\infty$             | $+\infty$             |
 
 [^2]: Range actions' lower & upper bounds are computed using CRAC + network + previous RAO results, depending on the
 types of their ranges: ABSOLUTE, RELATIVE_TO_INITIAL_NETWORK, RELATIVE_TO_PREVIOUS_INSTANT (more
@@ -102,6 +105,28 @@ $$
 
 The value $\frac{2}{3}$ has been chosen to force the linear problem convergence while allowing the RA to go
 back to its initial solution if needed.
+
+### Definition of the injection variation
+
+Define the injection variation. We need to multiply by the sum of the distribution keys in order to match the real variation on the network.
+
+$$
+\begin{equation}
+\Delta I(r,s) = (A(r,s) - \alpha_{0}) * \sum_{d \in \mathcal{DK(r)}} d
+\end{equation}
+$$
+
+with $r$ an InjectionRangeAction, and $s$ the state on which $r$ is evaluated. 
+
+### Balance constraint for Injection RangeActions
+
+The sum of injection variations of all InjectionRangeActions must be equal to 0, for balance reasons.
+
+$$
+\begin{equation}
+\sum_{r,s \in \mathcal{IRA}} ( \Delta I(r,s)) = 0
+\end{equation}
+$$
 
 ## Contribution to the objective function
 
