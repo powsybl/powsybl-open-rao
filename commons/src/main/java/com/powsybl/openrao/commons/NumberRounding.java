@@ -19,12 +19,6 @@ public final class NumberRounding {
     private NumberRounding() {
     }
 
-    /**
-     * Computes the number of relevant decimals of a value.
-     *
-     * @param value: value to round
-     * @return number of decimals
-     */
     public static int computeNumberOfRelevantDecimals(double value, int defaultDecimals) {
         return value == (int) value ? defaultDecimals : Math.max(defaultDecimals, (int) -Math.log10(Math.abs(value - (int) value) + ROUNDING_EPSILON) + 1);
     }
