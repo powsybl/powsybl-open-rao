@@ -22,18 +22,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class NumberRoundingTest {
     @Test
     void testComputeNumberOfRelevantDecimals() {
-        assertEquals(1, computeNumberOfRelevantDecimals(-100d));
-        assertEquals(1, computeNumberOfRelevantDecimals(100d));
-        assertEquals(1, computeNumberOfRelevantDecimals(10d));
-        assertEquals(1, computeNumberOfRelevantDecimals(1d));
-        assertEquals(1, computeNumberOfRelevantDecimals(0.1));
-        assertEquals(2, computeNumberOfRelevantDecimals(0.01));
-        assertEquals(3, computeNumberOfRelevantDecimals(0.001));
-        assertEquals(4, computeNumberOfRelevantDecimals(0.0002));
-        assertEquals(5, computeNumberOfRelevantDecimals(0.00003));
-        assertEquals(6, computeNumberOfRelevantDecimals(-0.000008));
-        assertEquals(6, computeNumberOfRelevantDecimals(-1000.000008));
-        assertEquals(2, computeNumberOfRelevantDecimals(40.01));
+        assertEquals(1, computeNumberOfRelevantDecimals(-100d, 1));
+        assertEquals(1, computeNumberOfRelevantDecimals(100d, 1));
+        assertEquals(3, computeNumberOfRelevantDecimals(10d, 3));
+        assertEquals(1, computeNumberOfRelevantDecimals(1d, 1));
+        assertEquals(1, computeNumberOfRelevantDecimals(0.1, 1));
+        assertEquals(2, computeNumberOfRelevantDecimals(0.01, 1));
+        assertEquals(3, computeNumberOfRelevantDecimals(0.001, 1));
+        assertEquals(4, computeNumberOfRelevantDecimals(0.0002, 1));
+        assertEquals(5, computeNumberOfRelevantDecimals(0.00003, 1));
+        assertEquals(6, computeNumberOfRelevantDecimals(-0.000008, 1));
+        assertEquals(6, computeNumberOfRelevantDecimals(-1000.000008, 1));
+        assertEquals(10, computeNumberOfRelevantDecimals(-1000.000008, 10));
+        assertEquals(2, computeNumberOfRelevantDecimals(40.01, 1));
     }
 
     @Test

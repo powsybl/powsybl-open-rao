@@ -25,8 +25,8 @@ public final class NumberRounding {
      * @param value: value to round
      * @return number of decimals
      */
-    public static int computeNumberOfRelevantDecimals(double value) {
-        return value == (int) value ? 1 : Math.max(1, (int) -Math.log10(Math.abs(value - (int) value) + ROUNDING_EPSILON) + 1);
+    public static int computeNumberOfRelevantDecimals(double value, int defaultDecimals) {
+        return value == (int) value ? defaultDecimals : Math.max(defaultDecimals, (int) -Math.log10(Math.abs(value - (int) value) + ROUNDING_EPSILON) + 1);
     }
 
     public static int computeRelevantMarginDecimals(double margin, int defaultDecimals) {
@@ -34,7 +34,7 @@ public final class NumberRounding {
             return defaultDecimals; // no violation so no need to be more specific in terms of decimals
         }
         // otherwise, if the violation is greater than 1 in absolute value, it is sufficiently high to be seen even if the value is rounded
-        return margin > -1 ? computeNumberOfRelevantDecimals(margin) : defaultDecimals;
+        return margin > -1 ? computeNumberOfRelevantDecimals(margin, defaultDecimals) : defaultDecimals;
     }
 
     public static BigDecimal roundValueBasedOnMargin(double value, double margin, int defaultDecimals) {
