@@ -10,6 +10,7 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cracapi.cnec.*;
 import com.powsybl.openrao.data.cracapi.io.Exporter;
 import com.powsybl.openrao.data.cracapi.io.Importer;
@@ -249,6 +250,10 @@ public interface Crac extends Identifiable<Crac> {
      */
     Set<Cnec> getCnecs(State state);
 
+    Set<Cnec> getCnecs(PhysicalParameter physicalParameter);
+
+    Set<Cnec> getCnecs(PhysicalParameter physicalParameter, State state);
+
     /**
      * Find a Cnec by its id, returns null if the Cnec does not exists
      */
@@ -425,6 +430,20 @@ public interface Crac extends Identifiable<Crac> {
      * Gather all the network actions of a specified state that are potentially available
      */
     Set<RangeAction<?>> getPotentiallyAvailableRangeActions(State state);
+
+    default boolean isRangeActionPreventive(RangeAction<?> rangeAction) {
+        return isRangeActionAvailableInState(rangeAction, getPreventiveState());
+    }
+
+    default boolean isRangeActionAutoOrCurative(RangeAction<?> rangeAction) {
+        return getStates().stream()
+            .filter(state -> state.getInstant().isAuto() || state.getInstant().isCurative())
+            .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state));
+    }
+
+    default boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state) {
+        return getPotentiallyAvailableRangeActions(state).contains(rangeAction);
+    }
 
     /**
      * Find a range action by its id, returns null if the range action does not exists

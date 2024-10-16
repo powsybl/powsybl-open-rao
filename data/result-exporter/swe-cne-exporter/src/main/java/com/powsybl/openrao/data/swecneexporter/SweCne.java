@@ -17,11 +17,9 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.*;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.iidm.network.Network;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,9 +39,9 @@ public class SweCne {
     private final SweCneHelper sweCneHelper;
     private final CimCracCreationContext cracCreationContext;
 
-    public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public SweCne(Crac crac, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        sweCneHelper = new SweCneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        sweCneHelper = new SweCneHelper(crac, raoResult, raoParameters, exporterParameters);
         this.cracCreationContext = cracCreationContext;
     }
 
@@ -63,7 +61,7 @@ public class SweCne {
         }
 
         OffsetDateTime offsetDateTime = cracCreationContext.getTimeStamp().withMinute(0);
-        fillHeader(sweCneHelper.getNetwork().getCaseDate().toInstant().atOffset(ZoneOffset.UTC));
+        fillHeader(cracCreationContext.getNetworkCaseDate());
         addTimeSeriesToCne(offsetDateTime);
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 

@@ -9,7 +9,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
   Scenario: US 13.7.1 : RAO with loop-flows in preventive perimeter limited by their threshold
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case1.xml"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then the worst margin is -337.0 MW
@@ -28,7 +28,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
   Scenario: US 13.7.2 : RAO with loop-flows in preventive perimeter limited by their initial value
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case2.xml"
-    Given Glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then the worst margin is -530.0 MW
@@ -65,7 +65,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
   Scenario: US 13.7.3 : Curative RAO with loop-flows with non constraining thresholds
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case3.xml"
-    Given Glsk file is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then the worst margin is 524.0 MW
@@ -89,7 +89,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
   Scenario: US 13.7.4 : Curative RAO with loop-flows with constraining thresholds in curative
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case4.xml"
-    Given Glsk file is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then the worst margin is 524.0 MW
@@ -113,7 +113,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
   Scenario: US 13.7.5 : Curative RAO with loop-flows with constraining initial values in curative
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case5.xml"
-    Given Glsk file is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then the worst margin is 524.0 MW
@@ -136,7 +136,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
   Scenario: US 13.7.6 : Curative RAO with FIXED_PTDF loop-flow-approximation
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us7case4.xml"
-    Given Glsk file is "common/glsk_proportional_12nodes.xml"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic13/RaoParameters_ep13us7case6.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then the worst margin is 524.0 MW

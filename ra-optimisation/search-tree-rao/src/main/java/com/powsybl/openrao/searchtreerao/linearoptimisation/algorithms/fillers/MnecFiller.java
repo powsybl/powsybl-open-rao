@@ -47,16 +47,11 @@ public class MnecFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         Set<FlowCnec> validMonitoredCnecs = FillersUtil.getFlowCnecsComputationStatusOk(monitoredCnecs, sensitivityResult);
         buildMarginViolationVariable(linearProblem, validMonitoredCnecs);
         buildMnecMarginConstraints(linearProblem, validMonitoredCnecs);
         fillObjectiveWithMnecPenaltyCost(linearProblem, validMonitoredCnecs);
-    }
-
-    @Override
-    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // nothing to do
     }
 
     @Override

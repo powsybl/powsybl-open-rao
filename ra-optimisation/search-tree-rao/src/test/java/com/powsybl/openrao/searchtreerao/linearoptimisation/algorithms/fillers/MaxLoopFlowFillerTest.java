@@ -77,8 +77,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters,
+                rangeActionParameters,
             Unit.MEGAWATT,
             false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS
         );
@@ -104,6 +103,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxLoopFlowFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
