@@ -5,27 +5,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants;
+package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public enum PropertyReference {
-    SWITCH("Switch.open"),
-    ROTATING_MACHINE("RotatingMachine.p"),
-    TAP_CHANGER("TapChanger.step"),
-    SHUNT_COMPENSATOR("ShuntCompensator.sections");
+public enum LimitTypeKind {
+    PATL("patl"),
+    TATL("tatl"),
+    HIGH_VOLTAGE("highVoltage"),
+    LOW_VOLTAGE("lowVoltage");
 
-    PropertyReference(String name) {
+    LimitTypeKind(String name) {
         this.name = name;
     }
 
     private final String name;
-    private static final String URL = "http://energy.referencedata.eu/PropertyReference/";
 
     @Override
     public String toString() {
-        return URL + this.name;
+        return getClass().getSimpleName() + "." + name;
     }
 }

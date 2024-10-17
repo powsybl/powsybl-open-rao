@@ -5,25 +5,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants;
+package com.powsybl.openrao.data.cracio.csaprofiles.nc;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public enum LimitType {
-    ANGLE(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT),
-    CURRENT(CsaProfileConstants.REQUEST_CURRENT_LIMIT),
-    VOLTAGE(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
+public enum RemedialActionKind {
+    CURATIVE("curative"),
+    PREVENTIVE("preventive");
 
-    LimitType(String type) {
-        this.type = type;
+    RemedialActionKind(String name) {
+        this.name = name;
     }
 
-    private final String type;
+    private final String name;
 
     @Override
     public String toString() {
-        return this.type;
+        return getClass().getSimpleName() + "." + name;
     }
 }

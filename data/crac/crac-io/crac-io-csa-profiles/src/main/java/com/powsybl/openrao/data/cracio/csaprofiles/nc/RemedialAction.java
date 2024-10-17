@@ -11,17 +11,17 @@ import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUti
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public interface RemedialAction extends IdentifiedObjectWithOperator {
+public interface RemedialAction extends NCObject {
 
     String mrid();
 
     String name();
 
-    String operator();
+    String remedialActionSystemOperator();
 
     String kind();
 
-    boolean normalAvailable();
+    Boolean normalAvailable();
 
     String timeToImplement();
 
@@ -30,5 +30,9 @@ public interface RemedialAction extends IdentifiedObjectWithOperator {
             return null;
         }
         return CsaProfileCracUtils.convertDurationToSeconds(timeToImplement());
+    }
+
+    default String getUniqueName() {
+        return CsaProfileCracUtils.createElementName(name(), remedialActionSystemOperator()).orElse(mrid());
     }
 }
