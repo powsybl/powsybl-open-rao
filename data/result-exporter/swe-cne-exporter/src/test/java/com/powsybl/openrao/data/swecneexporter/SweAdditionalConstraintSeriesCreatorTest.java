@@ -11,7 +11,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.AngleCnecCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -187,13 +186,14 @@ class SweAdditionalConstraintSeriesCreatorTest {
     @Test
     void testRoundAngleValue() {
         AngleCnec angleCnecWithMax = Mockito.mock(AngleCnec.class);
+        Mockito.when(angleCnecWithMax.getUpperBound(Unit.DEGREE)).thenReturn(Optional.of(40.0));
+        Mockito.when(angleCnecWithMax.getLowerBound(Unit.DEGREE)).thenReturn(Optional.empty());
         AngleCnec angleCnecWithMin = Mockito.mock(AngleCnec.class);
+        Mockito.when(angleCnecWithMin.getUpperBound(Unit.DEGREE)).thenReturn(Optional.empty());
+        Mockito.when(angleCnecWithMin.getLowerBound(Unit.DEGREE)).thenReturn(Optional.of(39.0));
         AngleCnec angleCnecWithMaxAndMin = Mockito.mock(AngleCnec.class);
-
-        Threshold thresholdMax = Mockito.mock(Threshold.class);
-        Mockito.when(thresholdMax.max()).thenReturn(Optional.of(40.0));
-        Threshold thresholdMin = Mockito.mock(Threshold.class);
-        Mockito.when(thresholdMin.min()).thenReturn(Optional.of(39.0));
+        Mockito.when(angleCnecWithMaxAndMin.getUpperBound(Unit.DEGREE)).thenReturn(Optional.of(40.0));
+        Mockito.when(angleCnecWithMaxAndMin.getLowerBound(Unit.DEGREE)).thenReturn(Optional.of(39.0));
 
         Crac mockCrac = Mockito.mock(Crac.class);
         RaoResult mockRaoResult = Mockito.mock(RaoResult.class);
@@ -201,19 +201,16 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(mockCrac.getInstant(InstantKind.CURATIVE)).thenReturn(mockCurativeInstant);
 
         // No violation -> 1 decimal
-        Mockito.when(angleCnecWithMax.getThresholds()).thenReturn(Set.of(thresholdMax));
         Mockito.when(mockRaoResult.getAngle(mockCurativeInstant, angleCnecWithMax, Unit.DEGREE)).thenReturn(39.5);
         assertEquals(39.50, roundAngleValue(angleCnecWithMax, mockCrac, mockRaoResult).doubleValue());
         assertEquals(2, roundAngleValue(angleCnecWithMax, mockCrac, mockRaoResult).scale());
 
         // Big violation -> 1 decimal
-        Mockito.when(angleCnecWithMin.getThresholds()).thenReturn(Set.of(thresholdMin));
         Mockito.when(mockRaoResult.getAngle(mockCurativeInstant, angleCnecWithMin, Unit.DEGREE)).thenReturn(35.0);
         assertEquals(35.00, roundAngleValue(angleCnecWithMin, mockCrac, mockRaoResult).doubleValue());
         assertEquals(2, roundAngleValue(angleCnecWithMin, mockCrac, mockRaoResult).scale());
 
         // 0.002 violation -> 3 decimals
-        Mockito.when(angleCnecWithMaxAndMin.getThresholds()).thenReturn(Set.of(thresholdMax, thresholdMin));
         Mockito.when(mockRaoResult.getAngle(mockCurativeInstant, angleCnecWithMaxAndMin, Unit.DEGREE)).thenReturn(40.002);
         assertEquals(40.002, roundAngleValue(angleCnecWithMaxAndMin, mockCrac, mockRaoResult).doubleValue());
         assertEquals(3, roundAngleValue(angleCnecWithMaxAndMin, mockCrac, mockRaoResult).scale());

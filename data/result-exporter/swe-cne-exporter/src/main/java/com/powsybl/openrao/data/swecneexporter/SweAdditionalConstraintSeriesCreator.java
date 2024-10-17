@@ -12,7 +12,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.AngleCnecCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -24,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
@@ -91,16 +89,9 @@ public class SweAdditionalConstraintSeriesCreator {
      */
     static BigDecimal roundAngleValue(AngleCnec angleCnec, Crac crac, RaoResult raoResult) {
         double angle = raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE);
-        double margin = -Double.MAX_VALUE;
-        for (Threshold threshold : angleCnec.getThresholds()) {
-            Optional<Double> maxValue = threshold.max();
-            Optional<Double> minValue = threshold.min();
-            if (maxValue.isPresent() && angle > maxValue.get()) {
-                margin = Math.max(margin, maxValue.get() - angle);
-            } else if (minValue.isPresent() && angle < minValue.get()) {
-                margin = Math.max(margin, angle - minValue.get());
-            }
-        }
+        double marginOnLowerBound = angle - angleCnec.getLowerBound(Unit.DEGREE).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = angleCnec.getUpperBound(Unit.DEGREE).orElse(Double.POSITIVE_INFINITY) - angle;
+        double margin = Math.min(marginOnLowerBound, marginOnUpperBound);
         return roundValueBasedOnMargin(angle, margin, 2);
     }
 }
