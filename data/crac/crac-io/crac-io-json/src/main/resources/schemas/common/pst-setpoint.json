@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-setpoint.json",
+  "type": "object",
+  "properties": {
+    "networkElementId": {
+      "type": "string"
+    },
+    "setpoint": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "networkElementId",
+    "setpoint"
+  ]
+}

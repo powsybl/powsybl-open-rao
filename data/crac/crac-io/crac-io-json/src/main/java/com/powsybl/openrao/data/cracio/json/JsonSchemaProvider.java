@@ -24,7 +24,7 @@ public final class JsonSchemaProvider {
     private JsonSchemaProvider() {
     }
 
-    private static final String SCHEMA_FILE_BASE_PATH = "/schemas/v%s/crac-v%s.%s-schema.json";
+    private static final String SCHEMA_FILE_BASE_PATH = "/schemas/crac/crac-v%s.%s.json";
     private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
 
@@ -33,7 +33,7 @@ public final class JsonSchemaProvider {
     }
 
     private static JsonSchema getJsonCracSchema(int majorVersion, int minorVersion) {
-        InputStream schemaInputStream = JsonSchemaProvider.class.getResourceAsStream(SCHEMA_FILE_BASE_PATH.formatted(majorVersion, majorVersion, minorVersion));
+        InputStream schemaInputStream = JsonSchemaProvider.class.getResourceAsStream(SCHEMA_FILE_BASE_PATH.formatted(majorVersion, minorVersion));
         if (schemaInputStream == null) {
             throw new OpenRaoException("No JSON Schema found for CRAC v%s.%s.".formatted(majorVersion, minorVersion));
         }

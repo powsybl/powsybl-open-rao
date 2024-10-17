@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org/open-rao-crac-v2.5.schema",
+  "$id": "https://www.powsybl.orgopen-rao-crac-schema=crac-v2.5.schema",
   "title": "CRAC",
   "description": "CRAC data for electric grid operation",
   "type": "object",
@@ -86,7 +86,7 @@
     "networkActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/network-action.json"
+        "$ref": "resource:/schemas/network-action/network-action-v2.5.json"
       }
     }
   },

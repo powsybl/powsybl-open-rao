@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "speed": {
+      "type": "number"
+    },
+    "injectionSetpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/injection-setpoint.json"
+      }
+    },
+    "pstSetpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/pst-setpoint.json"
+      }
+    },
+    "topologicalActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/topological-action.json"
+      }
+    },
+    "switchPairs": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/switch-pair.json"
+      }
+    },
+    "onInstantUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-instant-usage-rule.json"
+      }
+    },
+    "onContingencyStateUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-contingency-state-usage-rule.json"
+      }
+    },
+    "onConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-constraint-usage-rule.json"
+      }
+    },
+    "onFlowConstraintInCountryUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-flow-constraint-in-country-usage-rule.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id"
+  ]
+}
