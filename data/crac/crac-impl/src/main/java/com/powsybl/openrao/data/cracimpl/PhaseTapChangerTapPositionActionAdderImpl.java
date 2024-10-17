@@ -33,7 +33,7 @@ public class PhaseTapChangerTapPositionActionAdderImpl extends AbstractSingleNet
 
     protected Action buildAction() {
         return new PhaseTapChangerTapPositionActionBuilder()
-            .withId(String.format("%s_%s_%s", getActionName(), networkElementId, tapPosition))
+            .withId(createActionName(tapPosition))
             .withNetworkElementId(networkElementId)
             .withTapPosition(tapPosition)
             .withRelativeValue(false)
