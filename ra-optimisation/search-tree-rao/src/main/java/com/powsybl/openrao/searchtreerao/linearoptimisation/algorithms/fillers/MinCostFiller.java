@@ -47,7 +47,7 @@ public class MinCostFiller implements ProblemFiller {
         buildMinimumMarginVariable(linearProblem, validFlowCnecs);
 
         // build constraints
-        buildSecureCnecsHardConstraints(linearProblem, validFlowCnecs);
+        buildSecureCnecsConstraints(linearProblem, validFlowCnecs);
         buildRangeActionCostConstraints(linearProblem);
         buildTotalCostConstraint(linearProblem);
 
@@ -109,7 +109,7 @@ public class MinCostFiller implements ProblemFiller {
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
      */
-    private void buildSecureCnecsHardConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
+    private void buildSecureCnecsConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
 
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
