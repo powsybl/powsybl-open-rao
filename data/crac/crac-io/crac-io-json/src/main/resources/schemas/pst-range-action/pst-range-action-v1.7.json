@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=hvdc-range-action-v1.8.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v1.7.json",
   "type": "object",
   "properties": {
     "id": {
@@ -30,14 +30,23 @@
     "networkElementId": {
       "type": "string"
     },
-    "initialSetpoint": {
+    "initialTap": {
       "type": "number"
+    },
+    "tapToAngleConversionMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
     },
     "ranges": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
+          "rangeType": {
+            "$ref": "resource:/schemas/range-type/range-type-v1.0.json"
+          },
           "max": {
             "type": "number"
           },
@@ -45,43 +54,46 @@
             "type": "number"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "required": [
+          "rangeType"
+        ]
       }
     },
     "onInstantUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-instant-usage-rule/on-instant-usage-rule-v1.8.json"
+        "$ref": "resource:/schemas/on-instant-usage-rule/on-instant-usage-rule-v1.7.json"
       }
     },
     "onContingencyStateUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v1.8.json"
+        "$ref": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v1.7.json"
       }
     },
     "onFlowConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.8.json"
+        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.7.json"
       }
     },
     "onAngleConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.8.json"
+        "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.7.json"
       }
     },
     "onVoltageConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-voltage-constraint-usage-rule/on-voltage-constraint-usage-rule-v1.8.json"
+        "$ref": "resource:/schemas/on-voltage-constraint-usage-rule/on-voltage-constraint-usage-rule-v1.7.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.8.json"
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.7.json"
       }
     }
   },
@@ -89,6 +101,8 @@
   "required": [
     "id",
     "networkElementId",
+    "initialTap",
+    "tapToAngleConversionMap",
     "ranges"
   ]
 }

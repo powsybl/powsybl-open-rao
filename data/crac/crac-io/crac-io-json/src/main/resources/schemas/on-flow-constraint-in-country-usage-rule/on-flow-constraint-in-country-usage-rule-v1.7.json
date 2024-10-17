@@ -1,13 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-angle-constraint-usage-rule-v1.8.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-flow-constraint-in-country-usage-rule-1.7.json",
   "type": "object",
   "properties": {
     "instant": {
       "type": "string"
     },
-    "angleCnecId": {
-      "type": "string"
+    "contingencyId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "country": {
+      "$ref": "resource:/schemas/common/country.json"
     },
     "usageMethod": {
       "$ref": "resource:/schemas/common/usage-method.json"
@@ -16,6 +22,6 @@
   "additionalProperties": false,
   "required": [
     "instant",
-    "angleCnecId"
+    "country"
   ]
 }

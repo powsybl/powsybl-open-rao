@@ -24,7 +24,7 @@
     "injectionSetpoints": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/injection-setpoint/injection-setpoint-v1.8.json"
+        "$ref": "resource:/schemas/injection-setpoint/injection-setpoint-v1.7.json"
       }
     },
     "pstSetpoints": {

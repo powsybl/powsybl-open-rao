@@ -43,7 +43,7 @@ public final class JsonSerializationConstants {
     v1.7: addition of VoltageConstraints usage rules
     v1.8: addition of ShuntCompensator set-point action
     v1.9: addition of counterTradeRangeAction
-    v2.0: addition of instants and change in usage method logic
+    v2.0: addition of instants and change in usage method logic (now mandatory)
     v2.1: addition of ra-usage-limits
     v2.2: addition of contingency id in on-flow-constraint-in-country
     v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
