@@ -47,13 +47,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         checkCnecDefinitionMode();
     }
 
-    private static Set<Country> getBranchLocation(Branch<?> branch) {
-        Set<Country> branchCountries = new HashSet<>();
-        branch.getTerminal(TwoSides.ONE).getVoltageLevel().getSubstation().flatMap(Substation::getCountry).ifPresent(branchCountries::add);
-        branch.getTerminal(TwoSides.TWO).getVoltageLevel().getSubstation().flatMap(Substation::getCountry).ifPresent(branchCountries::add);
-        return branchCountries;
-    }
-
     private void checkCnecDefinitionMode() {
         if (nativeAssessedElement.conductingEquipment() == null && nativeCurrentLimit == null) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no ConductingEquipment or OperationalLimit was provided"));
