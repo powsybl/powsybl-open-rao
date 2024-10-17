@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.3.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.2.json",
   "type": "object",
   "properties": {
     "id": {
@@ -45,7 +45,7 @@
         "type": "object",
         "properties": {
           "rangeType": {
-            "$ref": "resource:/schemas/range-type/range-type-v2.2.json"
+            "$ref": "resource:/schemas/range-type/range-type-v2.1.json"
           },
           "max": {
             "type": "number"
@@ -93,7 +93,7 @@
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/on-flow-constraint-in-country-usage-rule.json"
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.2.json"
       }
     }
   },

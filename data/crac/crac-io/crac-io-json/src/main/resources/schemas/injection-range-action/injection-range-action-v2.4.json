@@ -72,7 +72,7 @@
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/on-flow-constraint-in-country-usage-rule.json"
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.2.json"
       }
     }
   },
