@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-voltage-constraint-usage-rule.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-voltage-constraint-usage-rule-v2.0.json",
   "type": "object",
   "properties": {
     "instant": {
