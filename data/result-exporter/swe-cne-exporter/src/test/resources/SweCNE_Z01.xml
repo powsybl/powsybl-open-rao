@@ -182,7 +182,7 @@
                         <mRID>ac1</mRID>
                         <businessType>B87</businessType>
                         <name>ac1-name</name>
-                        <quantity.quantity>4.0</quantity.quantity>
+                        <quantity.quantity>4.00</quantity.quantity>
                     </AdditionalConstraint_Series>
                     <Contingency_Series>
                         <mRID>Co-1</mRID>
