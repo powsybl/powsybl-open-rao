@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=angle-cnec.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "exportingNetworkElementId": {
+      "type": "string"
+    },
+    "importingNetworkElementId": {
+      "type": "string"
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "border": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "instant": {
+      "type": "string"
+    },
+    "contingencyId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "optimized": {
+      "type": "boolean"
+    },
+    "monitored": {
+      "type": "boolean"
+    },
+    "reliabilityMargin": {
+      "type": "number"
+    },
+    "thresholds": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/angle-threshold.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "exportingNetworkElementId",
+    "importingNetworkElement",
+    "instant",
+    "thresholds"
+  ]
+}

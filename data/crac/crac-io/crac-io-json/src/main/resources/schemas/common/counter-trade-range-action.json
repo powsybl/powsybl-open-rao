@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=counter-trade-range-action.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "groupId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "speed": {
+      "type": "number"
+    },
+    "exportingCountry": {
+      "$ref": "resource:/schemas/common/country.json"
+    },
+    "importingCountry": {
+      "$ref": "resource:/schemas/common/country.json"
+    },
+    "initialSetpoint": {
+      "type": "number"
+    },
+    "ranges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "onInstantUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-instant-usage-rule.json"
+      }
+    },
+    "onContingencyStateUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-contingency-state-usage-rule.json"
+      }
+    },
+    "onConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-constraint-usage-rule.json"
+      }
+    },
+    "onFlowConstraintInCountryUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-flow-constraint-in-country-usage-rule.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "exportingCountry",
+    "importingCountry",
+    "ranges"
+  ]
+}

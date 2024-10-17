@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "speed": {
+      "type": "number"
+    },
+    "terminalsConnectionActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/terminals-connection-action.json"
+      }
+    },
+    "phaseTapChangerTapPositionActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/phase-tap-changer-position-action.json"
+      }
+    },
+    "generatorActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/generator-action.json"
+      }
+    },
+    "loadActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/load-action.json"
+      }
+    },
+    "danglingLineActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/dangling-line-action.json"
+      }
+    },
+    "shuntCompensatorPositionActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/shunt-compensator-position-action.json"
+      }
+    },
+    "switchActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/switch-action.json"
+      }
+    },
+    "switchPairs": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/switch-pair.json"
+      }
+    },
+    "onInstantUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-instant-usage-rule.json"
+      }
+    },
+    "onContingencyStateUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-contingency-state-usage-rule.json"
+      }
+    },
+    "onConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-constraint-usage-rule.json"
+      }
+    },
+    "onFlowConstraintInCountryUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-flow-constraint-in-country-usage-rule.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id"
+  ]
+}
