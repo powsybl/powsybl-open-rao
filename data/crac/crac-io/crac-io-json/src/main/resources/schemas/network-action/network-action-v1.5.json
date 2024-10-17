@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v1.5.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "speed": {
+      "type": "number"
+    },
+    "injectionSetpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/injection-setpoint/injection-setpoint-v1.0.json"
+      }
+    },
+    "pstSetpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/pst-setpoint.json"
+      }
+    },
+    "topologicalActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/topological-action.json"
+      }
+    },
+    "switchPairs": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/switch-pair.json"
+      }
+    },
+    "freeToUseUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/free-to-use-usage-rule.json"
+      }
+    },
+    "onStateUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-state-usage-rule.json"
+      }
+    },
+    "onFlowConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
+      }
+    },
+    "onAngleConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json"
+      }
+    },
+    "onFlowConstraintInCountryUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.3.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id"
+  ]
+}
