@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.cracapi;
 
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.usagerule.OnContingencyStateAdderToRemedialAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
@@ -76,4 +77,11 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     }
 
     OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule();
+
+    /**
+     * Returns a network modification that can roll back the network to its initial state after applying the remedial action
+     * @param network: the network object in its initial state
+     * @return a set of network modifications that can roll back the remedial action if it was applied
+     */
+    NetworkModification getRollbackModification(Network network);
 }

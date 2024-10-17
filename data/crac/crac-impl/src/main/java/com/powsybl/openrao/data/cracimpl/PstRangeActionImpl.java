@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
@@ -213,6 +214,17 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
             throw new OpenRaoException(String.format("Transformer %s is not a PST but is defined as a TapRange", networkElement.getId()));
         }
         return phaseTapChangerFromNetwork;
+    }
+
+    @Override
+    public NetworkModification getRollbackModification(Network network) {
+        return new PhaseTapChangerTapPositionActionBuilder()
+            .withId("id")
+            .withNetworkElementId(networkElement.getId())
+            .withTapPosition(network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger().getTapPosition())
+            .withRelativeValue(false)
+            .build()
+            .toModification();
     }
 
     @Override

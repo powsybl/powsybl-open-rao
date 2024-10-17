@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracimpl;
 
 import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.NetworkElement;
 import com.powsybl.openrao.data.cracapi.range.StandardRange;
@@ -57,6 +58,22 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return Collections.singleton(networkElement);
+    }
+
+    @Override
+    public NetworkModification getRollbackModification(Network network) {
+        // TODO : mutualize code with "apply"
+        HvdcLine hvdcLine = network.getHvdcLine(networkElement.getId());
+        double initialSetpoint = hvdcLine.getActivePowerSetpoint();
+        HvdcLine.ConvertersMode initialConvertersMode = hvdcLine.getConvertersMode();
+        boolean initialAcEmulationEnabled = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) != null && hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled();
+        return new HvdcActionBuilder()
+            .withId("")
+            .withHvdcId(networkElement.getId())
+            .withActivePowerSetpoint(initialSetpoint)
+            .withAcEmulationEnabled(initialAcEmulationEnabled)
+            .withConverterMode(initialConvertersMode)
+            .build().toModification();
     }
 
     @Override
@@ -132,7 +149,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
         }
 
         return this.networkElement.equals(((HvdcRangeAction) o).getNetworkElement())
-                && this.ranges.equals(((HvdcRangeAction) o).getRanges());
+            && this.ranges.equals(((HvdcRangeAction) o).getRanges());
 
     }
 
