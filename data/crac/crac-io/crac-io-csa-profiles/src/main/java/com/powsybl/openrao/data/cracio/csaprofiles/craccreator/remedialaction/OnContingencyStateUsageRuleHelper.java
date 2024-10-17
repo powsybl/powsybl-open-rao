@@ -8,7 +8,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.remedialaction;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyWithRemedialAction;
 
 import java.util.HashMap;
@@ -37,7 +37,7 @@ public final class OnContingencyStateUsageRuleHelper {
                 continue;
             }
 
-            if (!nativeContingencyWithRemedialAction.normalEnabled()) {
+            if (Boolean.FALSE.equals(nativeContingencyWithRemedialAction.normalEnabled())) {
                 contingencyStatusMap.put(nativeContingencyWithRemedialAction.contingency(), new AssociationStatus(false, null, "OnContingencyState usage rule for remedial action %s with contingency %s ignored because the association is disabled.".formatted(remedialActionId, nativeContingencyWithRemedialAction.contingency())));
                 continue;
             }
