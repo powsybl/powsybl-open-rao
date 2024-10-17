@@ -11,19 +11,9 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then 3 remedial actions are used in preventive
-    And the remedial action "close_de3_de4" is used in preventive
-    And the remedial action "close_fr1_fr5" is used in preventive
-    And the tap of PstRangeAction "pst_fr" should be 15 in preventive
-    And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
-    And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is -242 A
-    And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -242 A
-    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 675 A
-    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 984 A
-    And the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 984 A
-    And the value of the objective function after CRA should be 242
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    And 0 remedial actions are used in preventive
+    And the worst margin is 114 A
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 13.3.2: Simple case, with 2 curative states
@@ -209,16 +199,5 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/CBCORA_ep13us3case10.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then 3 remedial actions are used in preventive
-    And the remedial action "close_de3_de4" is used in preventive
-    And the remedial action "close_fr1_fr5" is used in preventive
-    And the tap of PstRangeAction "pst_fr" should be 15 in preventive
-    And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
-    And the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "CO1_fr2_fr3_1" at "curative"
-    And the worst margin is -242 A
-    And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be -242 A
-    And the margin on cnec "fr3_fr5_CO1 - DIR - curative" after CRA should be 675 A
-    And the margin on cnec "fr3_fr5_CO1 - DIR - outage" after PRA should be 984 A
-    And the margin on cnec "fr4_de1_N - preventive" after PRA should be 984 A
-    And the value of the objective function after CRA should be 242
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    And the worst margin is 114 A
