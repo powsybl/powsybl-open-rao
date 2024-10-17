@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-flow-constraint-usage-rule-v1.9.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-voltage-constraint-usage-rule-v1.8.json",
   "type": "object",
   "properties": {
     "instant": {
       "type": "string"
     },
-    "flowCnecId": {
+    "voltageCnecId": {
       "type": "string"
     },
     "usageMethod": {
@@ -16,6 +16,6 @@
   "additionalProperties": false,
   "required": [
     "instant",
-    "flowCnecId"
+    "voltageCnecId"
   ]
 }

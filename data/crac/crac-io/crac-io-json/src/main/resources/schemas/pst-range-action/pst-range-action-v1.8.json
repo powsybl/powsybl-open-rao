@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v1.9.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v1.8.json",
   "type": "object",
   "properties": {
     "id": {
@@ -63,37 +63,37 @@
     "onInstantUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-instant-usage-rule/on-instant-usage-rule-v1.9.json"
+        "$ref": "resource:/schemas/on-instant-usage-rule/on-instant-usage-rule-v1.8.json"
       }
     },
     "onContingencyStateUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v1.9.json"
+        "$ref": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v1.8.json"
       }
     },
     "onFlowConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.9.json"
+        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.8.json"
       }
     },
     "onAngleConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.9.json"
+        "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.8.json"
       }
     },
     "onVoltageConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-voltage-constraint-usage-rule/on-voltage-constraint-usage-rule-v1.9.json"
+        "$ref": "resource:/schemas/on-voltage-constraint-usage-rule/on-voltage-constraint-usage-rule-v1.8.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.9.json"
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.8.json"
       }
     }
   },

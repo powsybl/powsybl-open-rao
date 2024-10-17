@@ -28,6 +28,11 @@ class JsonSchemaProviderTest {
     }
 
     @Test
+    void validateCrac1Point8() throws IOException {
+        assertTrue(validateJsonCrac("/retrocompatibility/v1/crac-v1.8.json", 1, 8));
+    }
+
+    @Test
     void validateCrac1Point9() throws IOException {
         assertTrue(validateJsonCrac("/retrocompatibility/v1/crac-v1.9.json", 1, 9));
     }

@@ -1,12 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-contingency-state-usage-rule-v1.9.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-instant-usage-rule-v1.8.json",
   "type": "object",
   "properties": {
     "instant": {
-      "type": "string"
-    },
-    "contingencyId": {
       "type": "string"
     },
     "usageMethod": {
@@ -15,7 +12,6 @@
   },
   "additionalProperties": false,
   "required": [
-    "instant",
-    "contingencyId"
+    "instant"
   ]
 }

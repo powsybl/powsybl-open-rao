@@ -33,7 +33,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v1.9.json"
+          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v1.8.json"
         }
       }
     },
@@ -56,19 +56,19 @@
     "pstRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/pst-range-action/pst-range-action-v1.9.json"
+        "$ref": "resource:/schemas/pst-range-action/pst-range-action-v1.8.json"
       }
     },
     "hvdcRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/hvdc-range-action/hvdc-range-action-v1.9.json"
+        "$ref": "resource:/schemas/hvdc-range-action/hvdc-range-action-v1.8.json"
       }
     },
     "injectionRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/injection-range-action/injection-range-action-v1.9.json"
+        "$ref": "resource:/schemas/injection-range-action/injection-range-action-v1.8.json"
       }
     },
     "counterTradeRangeActions": {
@@ -80,7 +80,7 @@
     "networkActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/network-action/network-action-v1.9.json"
+        "$ref": "resource:/schemas/network-action/network-action-v1.8.json"
       }
     }
   },
