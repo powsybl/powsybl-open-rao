@@ -45,7 +45,7 @@
         "type": "object",
         "properties": {
           "rangeType": {
-            "$ref": "resource:/schemas/range-type/range-type-v2.1.json"
+            "$ref": "resource:/schemas/range-type/range-type-v2.0.json"
           },
           "max": {
             "type": "number"

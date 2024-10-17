@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.1.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=counter-trade-range-action-v2.0.json",
   "type": "object",
   "properties": {
     "id": {
@@ -27,26 +27,20 @@
     "speed": {
       "type": "number"
     },
-    "networkElementId": {
-      "type": "string"
+    "exportingCountry": {
+      "$ref": "resource:/schemas/common/country.json"
     },
-    "initialTap": {
+    "importingCountry": {
+      "$ref": "resource:/schemas/common/country.json"
+    },
+    "initialSetpoint": {
       "type": "number"
-    },
-    "tapToAngleConversionMap": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "number"
-      }
     },
     "ranges": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "rangeType": {
-            "$ref": "resource:/schemas/range-type/range-type-v2.1.json"
-          },
           "max": {
             "type": "number"
           },
@@ -54,10 +48,7 @@
             "type": "number"
           }
         },
-        "additionalProperties": false,
-        "required": [
-          "rangeType"
-        ]
+        "additionalProperties": false
       }
     },
     "onInstantUsageRules": {
@@ -93,16 +84,15 @@
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.1.json"
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.0.json"
       }
     }
   },
   "additionalProperties": false,
   "required": [
     "id",
-    "networkElementId",
-    "initialTap",
-    "tapToAngleConversionMap",
+    "exportingCountry",
+    "importingCountry",
     "ranges"
   ]
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=counter-trade-range-action-v2.1.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=injection-range-action-v2.0.json",
   "type": "object",
   "properties": {
     "id": {
@@ -27,11 +27,11 @@
     "speed": {
       "type": "number"
     },
-    "exportingCountry": {
-      "$ref": "resource:/schemas/common/country.json"
-    },
-    "importingCountry": {
-      "$ref": "resource:/schemas/common/country.json"
+    "networkElementIdsAndKeys": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
     },
     "initialSetpoint": {
       "type": "number"
@@ -84,15 +84,14 @@
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.1.json"
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.0.json"
       }
     }
   },
   "additionalProperties": false,
   "required": [
     "id",
-    "exportingCountry",
-    "importingCountry",
+    "networkElementIdsAndKeys",
     "ranges"
   ]
 }

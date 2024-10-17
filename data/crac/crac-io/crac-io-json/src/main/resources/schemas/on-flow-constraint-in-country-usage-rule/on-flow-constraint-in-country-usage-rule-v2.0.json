@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-flow-constraint-in-country-usage-rule-2.1.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-flow-constraint-in-country-usage-rule-2.0.json",
   "type": "object",
   "properties": {
     "instant": {

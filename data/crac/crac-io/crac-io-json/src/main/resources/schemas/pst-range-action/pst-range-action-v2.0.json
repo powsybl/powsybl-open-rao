@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=injection-range-action-v2.1.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.0.json",
   "type": "object",
   "properties": {
     "id": {
@@ -27,20 +27,26 @@
     "speed": {
       "type": "number"
     },
-    "networkElementIdsAndKeys": {
+    "networkElementId": {
+      "type": "string"
+    },
+    "initialTap": {
+      "type": "number"
+    },
+    "tapToAngleConversionMap": {
       "type": "object",
       "additionalProperties": {
         "type": "number"
       }
-    },
-    "initialSetpoint": {
-      "type": "number"
     },
     "ranges": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
+          "rangeType": {
+            "$ref": "resource:/schemas/range-type/range-type-v2.0.json"
+          },
           "max": {
             "type": "number"
           },
@@ -48,7 +54,10 @@
             "type": "number"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "required": [
+          "rangeType"
+        ]
       }
     },
     "onInstantUsageRules": {
@@ -84,14 +93,16 @@
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.1.json"
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.0.json"
       }
     }
   },
   "additionalProperties": false,
   "required": [
     "id",
-    "networkElementIdsAndKeys",
+    "networkElementId",
+    "initialTap",
+    "tapToAngleConversionMap",
     "ranges"
   ]
 }
