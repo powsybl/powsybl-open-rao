@@ -33,7 +33,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v1.7.json"
+          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v1.6.json"
         }
       }
     },

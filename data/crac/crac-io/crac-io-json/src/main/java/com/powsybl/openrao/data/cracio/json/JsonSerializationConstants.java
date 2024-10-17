@@ -37,9 +37,10 @@ public final class JsonSerializationConstants {
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
-    v1.3: addition of hvdcRangeAction's and injectionRangeAction's initial setpoints
+    v1.3: addition of hvdcRangeAction's and injectionRangeAction's initial setpoints + onFlowConstraintInCountry
     v1.4: addition of AngleCnecs; frm renamed to reliabilityMargin
     v1.5: addition of VoltageCnecs
+    v1.6: replace FlowCNEC's rule by side, rename freeToUse to onInstant and onState to onContingencyState
     v1.7: addition of VoltageConstraints usage rules
     v1.8: addition of ShuntCompensator set-point action
     v1.9: addition of counterTradeRangeAction

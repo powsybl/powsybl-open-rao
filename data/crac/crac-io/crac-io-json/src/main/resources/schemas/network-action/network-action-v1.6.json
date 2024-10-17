@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v1.7.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v1.6.json",
   "type": "object",
   "properties": {
     "id": {
@@ -18,46 +18,31 @@
         "null"
       ]
     },
-    "groupId": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "speed": {
       "type": "number"
     },
-    "networkElementId": {
-      "type": "string"
-    },
-    "initialTap": {
-      "type": "number"
-    },
-    "tapToAngleConversionMap": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "number"
-      }
-    },
-    "ranges": {
+    "injectionSetpoints": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "rangeType": {
-            "$ref": "resource:/schemas/range-type/range-type-v1.0.json"
-          },
-          "max": {
-            "type": "number"
-          },
-          "min": {
-            "type": "number"
-          }
-        },
-        "additionalProperties": false,
-        "required": [
-          "rangeType"
-        ]
+        "$ref": "resource:/schemas/injection-setpoint/injection-setpoint-v1.0.json"
+      }
+    },
+    "pstSetpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/pst-setpoint.json"
+      }
+    },
+    "topologicalActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/topological-action.json"
+      }
+    },
+    "switchPairs": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/switch-pair.json"
       }
     },
     "onInstantUsageRules": {
@@ -84,12 +69,6 @@
         "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json"
       }
     },
-    "onVoltageConstraintUsageRules": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/on-voltage-constraint-usage-rule/on-voltage-constraint-usage-rule-v1.7.json"
-      }
-    },
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
@@ -99,10 +78,6 @@
   },
   "additionalProperties": false,
   "required": [
-    "id",
-    "networkElementId",
-    "initialTap",
-    "tapToAngleConversionMap",
-    "ranges"
+    "id"
   ]
 }

@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-angle-constraint-usage-rule-v1.7.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-contingency-state-usage-rule-v1.6.json",
   "type": "object",
   "properties": {
     "instant": {
       "type": "string"
     },
-    "angleCnecId": {
+    "contingencyId": {
       "type": "string"
     },
     "usageMethod": {
@@ -16,6 +16,6 @@
   "additionalProperties": false,
   "required": [
     "instant",
-    "angleCnecId"
+    "contingencyId"
   ]
 }

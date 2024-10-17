@@ -1,9 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-instant-usage-rule-v1.8.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-angle-constraint-usage-rule-v1.4.json",
   "type": "object",
   "properties": {
     "instant": {
+      "type": "string"
+    },
+    "angleCnecId": {
       "type": "string"
     },
     "usageMethod": {
@@ -12,6 +15,7 @@
   },
   "additionalProperties": false,
   "required": [
-    "instant"
+    "instant",
+    "angleCnecId"
   ]
 }

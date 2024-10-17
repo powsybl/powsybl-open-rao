@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v1.7.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v1.6.json",
   "type": "object",
   "properties": {
     "id": {
@@ -82,12 +82,6 @@
       "type": "array",
       "items": {
         "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json"
-      }
-    },
-    "onVoltageConstraintUsageRules": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/on-voltage-constraint-usage-rule/on-voltage-constraint-usage-rule-v1.7.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {

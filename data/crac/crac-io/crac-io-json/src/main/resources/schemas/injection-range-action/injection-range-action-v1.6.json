@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v1.7.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=injection-range-action-v1.6.json",
   "type": "object",
   "properties": {
     "id": {
@@ -27,26 +27,20 @@
     "speed": {
       "type": "number"
     },
-    "networkElementId": {
-      "type": "string"
-    },
-    "initialTap": {
-      "type": "number"
-    },
-    "tapToAngleConversionMap": {
+    "networkElementIdsAndKeys": {
       "type": "object",
       "additionalProperties": {
         "type": "number"
       }
+    },
+    "initialSetpoint": {
+      "type": "number"
     },
     "ranges": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "rangeType": {
-            "$ref": "resource:/schemas/range-type/range-type-v1.0.json"
-          },
           "max": {
             "type": "number"
           },
@@ -54,10 +48,7 @@
             "type": "number"
           }
         },
-        "additionalProperties": false,
-        "required": [
-          "rangeType"
-        ]
+        "additionalProperties": false
       }
     },
     "onInstantUsageRules": {
@@ -84,12 +75,6 @@
         "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json"
       }
     },
-    "onVoltageConstraintUsageRules": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/on-voltage-constraint-usage-rule/on-voltage-constraint-usage-rule-v1.7.json"
-      }
-    },
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
@@ -100,9 +85,7 @@
   "additionalProperties": false,
   "required": [
     "id",
-    "networkElementId",
-    "initialTap",
-    "tapToAngleConversionMap",
+    "networkElementIdsAndKeys",
     "ranges"
   ]
 }
