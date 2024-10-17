@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=counter-trade-range-action.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v2.3.json",
   "type": "object",
   "properties": {
     "id": {
@@ -18,37 +18,31 @@
         "null"
       ]
     },
-    "groupId": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "speed": {
       "type": "number"
     },
-    "exportingCountry": {
-      "$ref": "resource:/schemas/common/country.json"
-    },
-    "importingCountry": {
-      "$ref": "resource:/schemas/common/country.json"
-    },
-    "initialSetpoint": {
-      "type": "number"
-    },
-    "ranges": {
+    "injectionSetpoints": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "max": {
-            "type": "number"
-          },
-          "min": {
-            "type": "number"
-          }
-        },
-        "additionalProperties": false
+        "$ref": "resource:/schemas/common/injection-setpoint.json"
+      }
+    },
+    "pstSetpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/pst-setpoint.json"
+      }
+    },
+    "topologicalActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/topological-action.json"
+      }
+    },
+    "switchPairs": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/switch-pair.json"
       }
     },
     "onInstantUsageRules": {
@@ -63,10 +57,22 @@
         "$ref": "resource:/schemas/common/on-contingency-state-usage-rule.json"
       }
     },
-    "onConstraintUsageRules": {
+    "onFlowConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/on-constraint-usage-rule.json"
+        "$ref": "resource:/schemas/common/on-flow-constraint-usage-rule.json"
+      }
+    },
+    "onAngleConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-angle-constraint-usage-rule.json"
+      }
+    },
+    "onVoltageConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-voltage-constraint-usage-rule.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {
@@ -78,9 +84,6 @@
   },
   "additionalProperties": false,
   "required": [
-    "id",
-    "exportingCountry",
-    "importingCountry",
-    "ranges"
+    "id"
   ]
 }

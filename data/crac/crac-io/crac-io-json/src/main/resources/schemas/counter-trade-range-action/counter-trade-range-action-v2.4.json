@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v2.4.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=counter-trade-range-action-v2.4.json",
   "type": "object",
   "properties": {
     "id": {
@@ -18,31 +18,37 @@
         "null"
       ]
     },
+    "groupId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "speed": {
       "type": "number"
     },
-    "injectionSetpoints": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/common/injection-setpoint.json"
-      }
+    "exportingCountry": {
+      "$ref": "resource:/schemas/common/country.json"
     },
-    "pstSetpoints": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/common/pst-setpoint.json"
-      }
+    "importingCountry": {
+      "$ref": "resource:/schemas/common/country.json"
     },
-    "topologicalActions": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/common/topological-action.json"
-      }
+    "initialSetpoint": {
+      "type": "number"
     },
-    "switchPairs": {
+    "ranges": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/switch-pair.json"
+        "type": "object",
+        "properties": {
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
       }
     },
     "onInstantUsageRules": {
@@ -72,6 +78,9 @@
   },
   "additionalProperties": false,
   "required": [
-    "id"
+    "id",
+    "exportingCountry",
+    "importingCountry",
+    "ranges"
   ]
 }

@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=side.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=two-sides.json",
   "enum": [
-    "left",
-    "right"
+    1,
+    2
   ],
   "additionalProperties": false
 }

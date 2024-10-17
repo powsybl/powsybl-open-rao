@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.orgopen-rao-crac-schema=crac-v2.5.schema",
+  "$id": "https://www.powsybl.orgopen-rao-crac-schema=crac-v2.4.schema",
   "title": "CRAC",
   "description": "CRAC data for electric grid operation",
   "type": "object",
@@ -39,7 +39,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/common/flow-cnec.json"
+          "$ref": "resource:/schemas/flow-cnec/flow-cnec-2.4.json"
         }
       }
     },
@@ -62,25 +62,25 @@
     "pstRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/pst-range-action.json"
+        "$ref": "resource:/schemas/pst-range-action/pst-range-action-v2.4.json"
       }
     },
     "hvdcRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/hvdc-range-action.json"
+        "$ref": "resource:/schemas/hvdc-range-action/hvdc-range-action-v2.4.json"
       }
     },
     "injectionRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/injection-range-action.json"
+        "$ref": "resource:/schemas/injection-range-action/injection-range-action-v2.4.json"
       }
     },
     "counterTradeRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/counter-trade-range-action.json"
+        "$ref": "resource:/schemas/counter-trade-range-action/counter-trade-range-action-v2.4.json"
       }
     },
     "networkActions": {

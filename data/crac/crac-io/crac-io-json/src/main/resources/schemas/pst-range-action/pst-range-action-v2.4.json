@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v2.4.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.4.json",
   "type": "object",
   "properties": {
     "id": {
@@ -18,31 +18,46 @@
         "null"
       ]
     },
+    "groupId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "speed": {
       "type": "number"
     },
-    "injectionSetpoints": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/common/injection-setpoint.json"
+    "networkElementId": {
+      "type": "string"
+    },
+    "initialTap": {
+      "type": "number"
+    },
+    "tapToAngleConversionMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
       }
     },
-    "pstSetpoints": {
+    "ranges": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/pst-setpoint.json"
-      }
-    },
-    "topologicalActions": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/common/topological-action.json"
-      }
-    },
-    "switchPairs": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/common/switch-pair.json"
+        "type": "object",
+        "properties": {
+          "rangeType": {
+            "$ref": "resource:/schemas/common/range-type.json"
+          },
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "rangeType"
+        ]
       }
     },
     "onInstantUsageRules": {
@@ -72,6 +87,10 @@
   },
   "additionalProperties": false,
   "required": [
-    "id"
+    "id",
+    "networkElementId",
+    "initialTap",
+    "tapToAngleConversionMap",
+    "ranges"
   ]
 }

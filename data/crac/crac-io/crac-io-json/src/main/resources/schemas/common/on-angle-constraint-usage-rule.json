@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-angle-constraint-usage-rule.json",
+  "type": "object",
+  "properties": {
+    "instant": {
+      "type": "string"
+    },
+    "angleCnecId": {
+      "type": "string"
+    },
+    "usageMethod": {
+      "$ref": "resource:/schemas/common/usage-method.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "instant",
+    "angleCnecId",
+    "usageMethod"
+  ]
+}
