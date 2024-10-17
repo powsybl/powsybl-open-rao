@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.powsybl.openrao.commons.NumberRounding.roundValueBasedOnMargin;
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.data.raoresultjson.RaoResultJsonConstants.*;
 
 /**

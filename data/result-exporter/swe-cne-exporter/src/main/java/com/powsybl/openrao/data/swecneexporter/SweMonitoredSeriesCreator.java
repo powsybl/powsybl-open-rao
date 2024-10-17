@@ -24,7 +24,7 @@ import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredSeries;
 
 import java.util.*;
 
-import static com.powsybl.openrao.commons.NumberRounding.roundValueBasedOnMargin;
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
 
 /**
