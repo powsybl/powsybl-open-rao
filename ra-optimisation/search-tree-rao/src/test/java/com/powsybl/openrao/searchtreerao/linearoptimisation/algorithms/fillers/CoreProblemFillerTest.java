@@ -125,7 +125,6 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
             Unit.MEGAWATT, raRangeShrinking, pstModel);
         buildLinearProblem();

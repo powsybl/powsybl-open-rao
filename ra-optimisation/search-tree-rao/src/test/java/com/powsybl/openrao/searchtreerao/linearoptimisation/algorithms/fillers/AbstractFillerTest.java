@@ -136,7 +136,7 @@ abstract class AbstractFillerTest {
         crac.newInjectionRangeAction()
             .withId(INJECTION_RANGE_ACTION_ID_0)
             .withNetworkElementAndKey(1., "BBE1AA1 _generator")
-            .withNetworkElementAndKey(1., "BBE2AA1 _generator")
+//            .withNetworkElementAndKey(1., "BBE2AA1 _generator")
             .newRange().withMin(100).withMax(1000).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
@@ -150,7 +150,7 @@ abstract class AbstractFillerTest {
 
         crac.newInjectionRangeAction()
             .withId(INJECTION_RANGE_ACTION_ID_2)
-            .withNetworkElementAndKey(1., "FFR1AA1 _generator")
+//            .withNetworkElementAndKey(1., "FFR1AA1 _generator")
             .withNetworkElementAndKey(-1., "FFR2AA1 _generator")
             .newRange().withMin(100).withMax(1000).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
