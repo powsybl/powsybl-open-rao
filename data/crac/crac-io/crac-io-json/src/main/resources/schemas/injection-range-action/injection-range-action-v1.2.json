@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=injection-range-action-v1.2.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "groupId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "speed": {
+      "type": "number"
+    },
+    "networkElementIdsAndKeys": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "ranges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "freeToUseUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/free-to-use-usage-rule.json"
+      }
+    },
+    "onStateUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/on-state-usage-rule.json"
+      }
+    },
+    "onFlowConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "networkElementIdsAndKeys",
+    "ranges"
+  ]
+}
