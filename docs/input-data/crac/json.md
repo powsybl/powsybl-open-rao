@@ -1460,7 +1460,7 @@ For instance, let us consider a CRAC with 3 curative instants and the following 
 
 The maximum number of applicable remedial actions defined for the second curative instant (3) is a cumulated value that includes the maximum number of applicable remedial actions during the first curative instant (1). Thus, if 1 remedial action was applied during the first curative instant, only 2 remedial actions can actually be applied during the second curative instant. Likewise, the maximum number of remedial actions for the third curative instant includes the remedial actions applied at curative 1 and 2 instants. Depending on the number of previously applied remedial actions, the number of actually applicable remedial actions during the third curative instant can vary between 4 and 7.
 
-## Logback
+## Changelog
 
 | Version | Additions                                                                                                    | Deletions                                                            | Other modifications                                                                                                                                                                                             |
 |---------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
