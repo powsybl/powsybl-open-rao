@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v1.4.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=hvdc-range-action-v1.3.json",
   "type": "object",
   "properties": {
     "id": {
@@ -18,31 +18,34 @@
         "null"
       ]
     },
+    "groupId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "speed": {
       "type": "number"
     },
-    "injectionSetpoints": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/injection-setpoint/injection-setpoint-v1.0.json"
-      }
+    "networkElementId": {
+      "type": "string"
     },
-    "pstSetpoints": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/common/pst-setpoint.json"
-      }
+    "initialSetpoint": {
+      "type": "number"
     },
-    "topologicalActions": {
+    "ranges": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/topological-action.json"
-      }
-    },
-    "switchPairs": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/common/switch-pair.json"
+        "type": "object",
+        "properties": {
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
       }
     },
     "freeToUseUsageRules": {
@@ -63,12 +66,6 @@
         "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
       }
     },
-    "onAngleConstraintUsageRules": {
-      "type": "array",
-      "items": {
-        "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json"
-      }
-    },
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
@@ -78,6 +75,8 @@
   },
   "additionalProperties": false,
   "required": [
-    "id"
+    "id",
+    "networkElementId",
+    "ranges"
   ]
 }
