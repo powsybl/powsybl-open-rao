@@ -78,7 +78,7 @@
                         <mRID>AC-1</mRID>
                         <businessType>B87</businessType>
                         <name>Angle-Constraint</name>
-                        <quantity.quantity>20.00</quantity.quantity>
+                        <quantity.quantity>20.0</quantity.quantity>
                     </AdditionalConstraint_Series>
                     <Contingency_Series>
                         <mRID>CO_N1012_N1014</mRID>
