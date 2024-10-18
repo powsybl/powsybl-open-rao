@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static java.lang.String.format;
 
@@ -129,10 +130,10 @@ public final class RaoLogger {
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             TwoSides mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %s %s%s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
-                cnecMargin,
+                roundValueBasedOnMargin(cnecMargin, cnecMargin, 2).doubleValue(),
                 unit,
                 ptdfIfRelative,
                 cnecNetworkElementName,
@@ -204,10 +205,10 @@ public final class RaoLogger {
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %s %s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
-                cnecMargin,
+                roundValueBasedOnMargin(cnecMargin, cnecMargin, 2).doubleValue(),
                 unit,
                 cnecNetworkElementName,
                 cnecStateId,
