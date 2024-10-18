@@ -26,6 +26,7 @@ import java.util.*;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
+import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING;
 
 /**
  * Generates MonitoredSeries for SWE CNE format
@@ -97,7 +98,7 @@ public class SweMonitoredSeriesCreator {
                 flow = flowOnSide;
             }
         }
-        return roundValueBasedOnMargin(flow, margin, 2).doubleValue();
+        return roundValueBasedOnMargin(flow, margin, DEFAULT_DECIMALS_FOR_ROUNDING).doubleValue();
     }
 
     private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext, Set<CnecCreationContext> cnecCreationContexts, boolean includeMeasurements) {

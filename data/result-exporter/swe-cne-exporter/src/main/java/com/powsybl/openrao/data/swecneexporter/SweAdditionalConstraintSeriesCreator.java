@@ -26,6 +26,7 @@ import java.util.Objects;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING;
 
 /**
  * Generates AdditionalConstraintSeries for SWE CNE format
@@ -92,6 +93,6 @@ public class SweAdditionalConstraintSeriesCreator {
         double marginOnLowerBound = angle - angleCnec.getLowerBound(Unit.DEGREE).orElse(Double.NEGATIVE_INFINITY);
         double marginOnUpperBound = angleCnec.getUpperBound(Unit.DEGREE).orElse(Double.POSITIVE_INFINITY) - angle;
         double margin = Math.min(marginOnLowerBound, marginOnUpperBound);
-        return roundValueBasedOnMargin(angle, margin, 2);
+        return roundValueBasedOnMargin(angle, margin, DEFAULT_DECIMALS_FOR_ROUNDING);
     }
 }

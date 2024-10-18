@@ -148,11 +148,11 @@ class SweAdditionalConstraintSeriesCreatorTest {
         assertEquals("AngleCnecId1", contingencyAngleSeries.get(0).getMRID());
         assertEquals("AngleCnecName1", contingencyAngleSeries.get(0).getName());
         assertEquals("B87", contingencyAngleSeries.get(0).getBusinessType());
-        assertEquals(1.37, contingencyAngleSeries.get(0).getQuantityQuantity().doubleValue(), 1.0E-6);
+        assertEquals(1.4, contingencyAngleSeries.get(0).getQuantityQuantity().doubleValue(), 1.0E-6);
         assertEquals("AngleCnecId2", contingencyAngleSeries.get(1).getMRID());
         assertEquals("AngleCnecName2", contingencyAngleSeries.get(1).getName());
         assertEquals("B87", contingencyAngleSeries.get(1).getBusinessType());
-        assertEquals(-21.34, contingencyAngleSeries.get(1).getQuantityQuantity().doubleValue(), 1.0E-6);
+        assertEquals(-21.3, contingencyAngleSeries.get(1).getQuantityQuantity().doubleValue(), 1.0E-6);
     }
 
     @Test
@@ -202,13 +202,13 @@ class SweAdditionalConstraintSeriesCreatorTest {
 
         // No violation -> 1 decimal
         Mockito.when(mockRaoResult.getAngle(mockCurativeInstant, angleCnecWithMax, Unit.DEGREE)).thenReturn(39.5);
-        assertEquals(39.50, roundAngleValue(angleCnecWithMax, mockCrac, mockRaoResult).doubleValue());
-        assertEquals(2, roundAngleValue(angleCnecWithMax, mockCrac, mockRaoResult).scale());
+        assertEquals(39.5, roundAngleValue(angleCnecWithMax, mockCrac, mockRaoResult).doubleValue());
+        assertEquals(1, roundAngleValue(angleCnecWithMax, mockCrac, mockRaoResult).scale());
 
         // Big violation -> 1 decimal
         Mockito.when(mockRaoResult.getAngle(mockCurativeInstant, angleCnecWithMin, Unit.DEGREE)).thenReturn(35.0);
-        assertEquals(35.00, roundAngleValue(angleCnecWithMin, mockCrac, mockRaoResult).doubleValue());
-        assertEquals(2, roundAngleValue(angleCnecWithMin, mockCrac, mockRaoResult).scale());
+        assertEquals(35.0, roundAngleValue(angleCnecWithMin, mockCrac, mockRaoResult).doubleValue());
+        assertEquals(1, roundAngleValue(angleCnecWithMin, mockCrac, mockRaoResult).scale());
 
         // 0.002 violation -> 3 decimals
         Mockito.when(mockRaoResult.getAngle(mockCurativeInstant, angleCnecWithMaxAndMin, Unit.DEGREE)).thenReturn(40.002);
