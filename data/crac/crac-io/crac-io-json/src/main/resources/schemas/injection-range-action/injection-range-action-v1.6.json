@@ -86,6 +86,7 @@
   "required": [
     "id",
     "networkElementIdsAndKeys",
+    "initialSetpoint",
     "ranges"
   ]
 }
