@@ -2,11 +2,11 @@
   "crac-factory": "CracImplFactory",
   "extensions": {
     "CsaCracCreatorParameters": {
-      "capacity-calculation-region-eic-code": "10Y1001C--00095L",
+      "capacity-calculation-region-eic-code": 100,
       "tsos-which-do-not-use-patl-in-final-state": [
         "REE"
       ],
-      "auto-instant-application-time": 60,
+      "auto-instant-application-time": 0,
       "curative-instants": [
         {
           "name": "curative 1",

@@ -19,6 +19,9 @@ import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationPar
 import com.powsybl.openrao.data.cracio.commons.RaUsageLimitsAdder;
 
 import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants.*;
 
@@ -38,26 +41,25 @@ class CsaProfileCracCreator {
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;
-        addCsaInstants();
+        addCsaInstants(csaParameters);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 
         this.nativeCrac.setForTimestamp(offsetDateTime);
 
         createContingencies();
         createCnecs(cracCreationParameters);
-        createRemedialActions(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
+        createRemedialActions(csaParameters.getAutoInstantApplicationTime());
 
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
 
-    private void addCsaInstants() {
+    private void addCsaInstants(CsaCracCreationParameters csaCracCreationParameters) {
         crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT, InstantKind.AUTO)
-            .newInstant(CURATIVE_1_INSTANT, InstantKind.CURATIVE)
-            .newInstant(CURATIVE_2_INSTANT, InstantKind.CURATIVE)
-            .newInstant(CURATIVE_3_INSTANT, InstantKind.CURATIVE);
+            .newInstant(AUTO_INSTANT, InstantKind.AUTO);
+        List<String> sortedCurativeInstants = csaCracCreationParameters.getCurativeInstants().entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).toList();
+        sortedCurativeInstants.forEach(instantName -> crac.newInstant(instantName, InstantKind.CURATIVE));
     }
 
     private void createRemedialActions(int spsMaxTimeToImplementThreshold) {

@@ -8,8 +8,6 @@ package com.powsybl.openrao.data.cracio.csaprofiles.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaBorder;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaOperator;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,10 +19,10 @@ import java.util.Set;
  */
 public class CsaCracCreationParameters extends AbstractExtension<CracCreationParameters> {
     private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
-    private int spsMaxTimeToImplementThresholdInSeconds = 0;
-    private Map<String, Boolean> usePatlInFinalState = Map.of(CsaOperator.REE.toString(), false, CsaOperator.REN.toString(), true, CsaOperator.RTE.toString(), true);
-    private Map<String, Integer> craApplicationWindow = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
-    private Set<Border> borders = Set.of(new Border(CsaBorder.SPAIN_FRANCE.getShortName(), CsaBorder.SPAIN_FRANCE.getEiCode(), CsaOperator.RTE.toString()), new Border(CsaBorder.SPAIN_PORTUGAL.getShortName(), CsaBorder.SPAIN_PORTUGAL.getEiCode(), CsaOperator.REN.toString()));
+    private Set<String> tsosWhichDoNotUsePatlInFinalState = Set.of();
+    private int autoInstantApplicationTime = 0;
+    private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
+    private Set<Border> borders = Set.of();
 
     @Override
     public String getName() {
@@ -35,12 +33,16 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
         return capacityCalculationRegionEicCode;
     }
 
-    public Map<String, Boolean> getUsePatlInFinalState() {
-        return usePatlInFinalState;
+    public Set<String> getTsosWhichDoNotUsePatlInFinalState() {
+        return tsosWhichDoNotUsePatlInFinalState;
     }
 
-    public Map<String, Integer> getCraApplicationWindow() {
-        return craApplicationWindow;
+    public int getAutoInstantApplicationTime() {
+        return autoInstantApplicationTime;
+    }
+
+    public Map<String, Integer> getCurativeInstants() {
+        return curativeInstants;
     }
 
     public Set<Border> getBorders() {
@@ -51,20 +53,16 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
         this.capacityCalculationRegionEicCode = capacityCalculationRegionEicCode;
     }
 
-    public int getSpsMaxTimeToImplementThresholdInSeconds() {
-        return spsMaxTimeToImplementThresholdInSeconds;
+    public void setAutoInstantApplicationTime(int autoInstantApplicationTime) {
+        this.autoInstantApplicationTime = autoInstantApplicationTime;
     }
 
-    public void setSpsMaxTimeToImplementThresholdInSeconds(int spsMaxTimeToImplementThresholdInSeconds) {
-        this.spsMaxTimeToImplementThresholdInSeconds = spsMaxTimeToImplementThresholdInSeconds;
+    public void setTsosWhichDoNotUsePatlInFinalState(Set<String> tsosWhichDoNotUsePatlInFinalState) {
+        this.tsosWhichDoNotUsePatlInFinalState = new HashSet<>(tsosWhichDoNotUsePatlInFinalState);
     }
 
-    public void setUsePatlInFinalState(Map<String, Boolean> usePatlInFinalState) {
-        this.usePatlInFinalState = new HashMap<>(usePatlInFinalState);
-    }
-
-    public void setCraApplicationWindow(Map<String, Integer> craApplicationWindow) {
-        this.craApplicationWindow = new HashMap<>(craApplicationWindow);
+    public void setCurativeInstants(Map<String, Integer> curativeInstants) {
+        this.curativeInstants = new HashMap<>(curativeInstants);
     }
 
     public void setBorders(Set<Border> borders) {
