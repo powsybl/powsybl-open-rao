@@ -13,7 +13,9 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.powsybl.openrao.commons.OpenRaoException;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,8 +30,21 @@ public final class JsonSchemaProvider {
     private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
 
-    public static boolean validateJsonCrac(String cracFile, int majorVersion, int minorVersion) throws IOException {
-        return getJsonCracSchema(majorVersion, minorVersion).validate(MAPPER.readTree(JsonSchemaProvider.class.getResourceAsStream(cracFile))).isEmpty();
+    public static Pair<Integer, Integer> getCracVersion(InputStream inputStream) throws IOException {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inputStream.readAllBytes());
+        for (int majorVersion : JsonSerializationConstants.MAX_MINOR_VERSION_PER_MAJOR_VERSION.keySet()) {
+            for (int minorVersion = 0; minorVersion <= JsonSerializationConstants.MAX_MINOR_VERSION_PER_MAJOR_VERSION.get(majorVersion); minorVersion++) {
+                if (validateJsonCrac(byteArrayInputStream, majorVersion, minorVersion)) {
+                    return Pair.of(majorVersion, minorVersion);
+                }
+                byteArrayInputStream.reset();
+            }
+        }
+        return null;
+    }
+
+    public static boolean validateJsonCrac(InputStream cracInputStream, int majorVersion, int minorVersion) throws IOException {
+        return getJsonCracSchema(majorVersion, minorVersion).validate(MAPPER.readTree(cracInputStream)).isEmpty();
     }
 
     private static JsonSchema getJsonCracSchema(int majorVersion, int minorVersion) {

@@ -39,17 +39,8 @@ public class JsonImport implements Importer {
 
     @Override
     public boolean exists(String filename, InputStream inputStream) {
-        if (!FilenameUtils.getExtension(filename).equals("json")) {
-            return false;
-        }
         try {
-            ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(Crac.class, new CracDeserializer(true));
-            objectMapper.registerModule(module);
-            // TODO: replace this by a call to CracDeserializer.isValid
-            objectMapper.readValue(inputStream, Crac.class);
-            return true;
+            return JsonSchemaProvider.getCracVersion(inputStream) != null;
         } catch (OpenRaoException | IOException e) {
             return false;
         }
