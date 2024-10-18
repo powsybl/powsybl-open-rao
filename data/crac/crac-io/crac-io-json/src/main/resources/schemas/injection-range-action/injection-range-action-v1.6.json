@@ -80,6 +80,10 @@
       "items": {
         "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.3.json"
       }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
     }
   },
   "additionalProperties": false,

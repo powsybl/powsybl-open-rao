@@ -101,15 +101,6 @@
     "type",
     "version",
     "id",
-    "name",
-    "instants",
-    "contingencies",
-    "flowCnecs",
-    "angleCnecs",
-    "voltageCnecs",
-    "pstRangeActions",
-    "hvdcRangeActions",
-    "injectionRangeActions",
-    "networkActions"
+    "name"
   ]
 }

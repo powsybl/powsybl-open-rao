@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -500,5 +501,12 @@ class CracImportExportTest {
         assertEquals(curativeInstant, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
         assertEquals(AVAILABLE, ur.getUsageMethod());
+    }
+
+    @Test
+    void testImportEmptyCrac() throws IOException {
+        Network network = Mockito.mock(Network.class);
+        Crac crac = Crac.read("emptyCrac.json", CracImportExportTest.class.getResourceAsStream("/emptyCrac.json"), network);
+        assertNotNull(crac);
     }
 }

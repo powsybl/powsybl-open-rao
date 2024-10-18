@@ -39,7 +39,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v1.6.json"
+          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v1.7.json"
         }
       }
     },
@@ -95,15 +95,6 @@
     "type",
     "version",
     "id",
-    "name",
-    "instants",
-    "contingencies",
-    "flowCnecs",
-    "angleCnecs",
-    "voltageCnecs",
-    "pstRangeActions",
-    "hvdcRangeActions",
-    "injectionRangeActions",
-    "networkActions"
+    "name"
   ]
 }

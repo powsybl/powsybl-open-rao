@@ -63,6 +63,10 @@
       "items": {
         "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
       }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
     }
   },
   "additionalProperties": false,

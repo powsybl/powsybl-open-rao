@@ -68,6 +68,10 @@
       "items": {
         "$ref": "resource:/schemas/network-action/network-action-v1.4.json"
       }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
     }
   },
   "additionalProperties": false,
@@ -75,13 +79,6 @@
     "type",
     "version",
     "id",
-    "name",
-    "contingencies",
-    "flowCnecs",
-    "angleCnecs",
-    "pstRangeActions",
-    "hvdcRangeActions",
-    "injectionRangeActions",
-    "networkActions"
+    "name"
   ]
 }

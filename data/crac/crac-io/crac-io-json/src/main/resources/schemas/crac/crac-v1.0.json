@@ -54,6 +54,10 @@
       "items": {
         "$ref": "resource:/schemas/network-action/network-action-v1.0.json"
       }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
     }
   },
   "additionalProperties": false,
@@ -61,11 +65,6 @@
     "type",
     "version",
     "id",
-    "name",
-    "contingencies",
-    "flowCnecs",
-    "pstRangeActions",
-    "hvdcRangeActions",
-    "networkActions"
+    "name"
   ]
 }
