@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=ra-usage-limits-per-instant.json",
+  "type": "object",
+  "properties": {
+    "instant": {
+      "type": "string"
+    },
+    "max-ra": {
+      "type": "number"
+    },
+    "max-tso": {
+      "type": "number"
+    },
+    "max-topo-per-tso": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "max-pst-per-tso": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "max-ra-per-tso": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "max-elementary-actions-per-tso": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "instant"
+  ]
+}

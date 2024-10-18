@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=injection-setpoint-v1.8.json",
+  "type": "object",
+  "properties": {
+    "networkElementId": {
+      "type": "string"
+    },
+    "setpoint": {
+      "type": "number"
+    },
+    "unit": {
+      "$ref": "resource:/schemas/common/injection-unit.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "networkElementId",
+    "setpoint",
+    "unit"
+  ]
+}

@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +45,8 @@ class CracImportExportTest {
 
     @Test
     void testExists() {
-        assertTrue(new JsonImport().exists("cracHeader.json", getClass().getResourceAsStream("/cracHeader.json")));
-        assertFalse(new JsonImport().exists("cracHeader.jjson", getClass().getResourceAsStream("/cracHeader.json")));
+        assertTrue(new JsonImport().exists("crac-v2.5.json", getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json")));
+        assertFalse(new JsonImport().exists("cracHeader.json", getClass().getResourceAsStream("/cracHeader.json")));
         assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.json")));
         assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.txt")));
     }
@@ -500,5 +501,12 @@ class CracImportExportTest {
         assertEquals(curativeInstant, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
         assertEquals(AVAILABLE, ur.getUsageMethod());
+    }
+
+    @Test
+    void testImportEmptyCrac() throws IOException {
+        Network network = Mockito.mock(Network.class);
+        Crac crac = Crac.read("emptyCrac.json", CracImportExportTest.class.getResourceAsStream("/emptyCrac.json"), network);
+        assertNotNull(crac);
     }
 }

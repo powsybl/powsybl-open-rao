@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.json.deserializers.CracDeserializer;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,17 +38,8 @@ public class JsonImport implements Importer {
 
     @Override
     public boolean exists(String filename, InputStream inputStream) {
-        if (!FilenameUtils.getExtension(filename).equals("json")) {
-            return false;
-        }
         try {
-            ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(Crac.class, new CracDeserializer(true));
-            objectMapper.registerModule(module);
-            // TODO: replace this by a call to CracDeserializer.isValid
-            objectMapper.readValue(inputStream, Crac.class);
-            return true;
+            return JsonSchemaProvider.getCracVersion(inputStream) != null;
         } catch (OpenRaoException | IOException e) {
             return false;
         }
