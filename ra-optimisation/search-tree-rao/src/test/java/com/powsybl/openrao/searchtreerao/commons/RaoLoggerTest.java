@@ -55,6 +55,7 @@ class RaoLoggerTest {
     private FlowCnec cnec3;
     private FlowCnec cnec4;
     private FlowCnec cnec5;
+    private FlowCnec cnec6;
     private State statePreventive;
     private State stateCo1Auto;
     private State stateCo1Curative;
@@ -85,6 +86,7 @@ class RaoLoggerTest {
         cnec3 = mockCnec("ne3", stateCo2Curative, 10, 100, 10, 200, 0.3);
         cnec4 = mockCnec("ne4", stateCo1Auto, 20, 200, 0, 0, 0.4);
         cnec5 = mockCnec("ne5", stateCo1Curative, 30, 300, 20, 100, 0.5);
+        cnec6 = mockCnec("ne6", stateCo1Curative, -0.0003, -0.0003, -0.002, -0.002, 0.5);
     }
 
     private State mockState(String stateId, Instant instant) {
@@ -128,7 +130,7 @@ class RaoLoggerTest {
         String relativeMargin = relative ? " relative" : "";
         String ptdfString = (ptdf != null) ? format(" (PTDF %f)", ptdf) : "";
         String descriptor = format("%s at state %s", cnec.getNetworkElement().getName(), cnec.getState().getId());
-        return format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s, CNEC ID = \"%s\"", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
+        return format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %s %s%s, element %s, CNEC ID = \"%s\"", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
     }
 
     @Test
@@ -172,6 +174,33 @@ class RaoLoggerTest {
         assertEquals(relativeMarginLog(3, 100, .5, AMPERE, cnec5), summary.get(2));
         assertEquals(relativeMarginLog(4, 200, .3, AMPERE, cnec3), summary.get(3));
         assertEquals(relativeMarginLog(5, 300, .1, AMPERE, cnec1), summary.get(4));
+    }
+
+    @Test
+    void testGetMostLimitingElementsForNarrowMargin() {
+        // Absolute MW
+        when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
+        List<String> summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 1);
+        assertEquals(1, summary.size());
+        assertEquals(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6), summary.get(0));
+
+        // Relative MW
+        when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
+        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5);
+        assertEquals(1, summary.size());
+        assertEquals(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6), summary.get(0));
+
+        // Absolute A
+        when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
+        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5);
+        assertEquals(1, summary.size());
+        assertEquals(absoluteMarginLog(1, -0.002, AMPERE, cnec6), summary.get(0));
+
+        // Relative A
+        when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
+        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5);
+        assertEquals(1, summary.size());
+        assertEquals(absoluteMarginLog(1, -0.002, AMPERE, cnec6), summary.get(0));
     }
 
     @Test
