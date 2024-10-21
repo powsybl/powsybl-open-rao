@@ -81,21 +81,6 @@ class OnContingencyStateAdderImplTest {
     }
 
     @Test
-    void testOkPreventive() {
-        RemedialAction<?> remedialAction = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.FORCED)
-            .add()
-            .add();
-        UsageRule usageRule = remedialAction.getUsageRules().iterator().next();
-
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(usageRule instanceof OnContingencyState);
-        assertEquals(preventiveInstant, ((OnContingencyState) usageRule).getState().getInstant());
-        assertEquals(UsageMethod.FORCED, usageRule.getUsageMethod());
-    }
-
-    @Test
     void testNoInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
             .withContingency("contingencyId")
@@ -139,7 +124,7 @@ class OnContingencyStateAdderImplTest {
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
-        assertEquals("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.", exception.getMessage());
+        assertEquals("OnContingencyState usage rules are not allowed for PREVENTIVE instant. Please use newOnInstantUsageRule() instead.", exception.getMessage());
     }
 
     @Test

@@ -253,14 +253,14 @@ class CracImportExportTest {
         assertEquals("SC1", ((ShuntCompensatorPositionAction) raComplex2Actions.get(3)).getShuntCompensatorId());
 
         // check onInstant usage rule
-        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
+        assertEquals(1, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
         OnInstant onInstant = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
             .filter(ur -> ur instanceof OnInstant)
             .map(ur -> (OnInstant) ur)
             .findAny().orElse(null);
         assertNotNull(onInstant);
         assertEquals(preventiveInstant, onInstant.getInstant());
-        assertEquals(AVAILABLE, onInstant.getUsageMethod());
+        assertEquals(FORCED, onInstant.getUsageMethod());
 
         // check several usage rules
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());
@@ -273,17 +273,6 @@ class CracImportExportTest {
         assertNotNull(onContingencyState);
         assertEquals("contingency1Id", onContingencyState.getContingency().getId());
         assertEquals(curativeInstant, onContingencyState.getInstant());
-        assertEquals(FORCED, onContingencyState.getUsageMethod());
-
-        // check onContingencyState usage Rule (preventive)
-        onContingencyState = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
-            .filter(ur -> ur instanceof OnContingencyState)
-            .map(ur -> (OnContingencyState) ur)
-            .findAny().orElse(null);
-        assertNotNull(onContingencyState);
-        assertNull(onContingencyState.getContingency());
-        assertEquals(crac.getPreventiveState(), onContingencyState.getState());
-        assertEquals(preventiveInstant, onContingencyState.getInstant());
         assertEquals(FORCED, onContingencyState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule

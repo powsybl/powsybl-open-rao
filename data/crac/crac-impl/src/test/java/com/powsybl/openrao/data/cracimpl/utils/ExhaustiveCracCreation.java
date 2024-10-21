@@ -195,8 +195,7 @@ public final class ExhaustiveCracCreation {
             .withOperator("RTE")
             .newPhaseTapChangerTapPositionAction().withTapPosition(5).withNetworkElement("pst").add()
             .newTerminalsConnectionAction().withActionType(ActionType.CLOSE).withNetworkElement("ne1Id").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
-            .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         // network action with one injection set point
