@@ -17,13 +17,18 @@ import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.json.deserializers.CracDeserializer;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.time.OffsetDateTime;
+import java.util.Set;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.getValidationErrors;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -38,9 +43,31 @@ public class JsonImport implements Importer {
 
     @Override
     public boolean exists(String filename, InputStream inputStream) {
+        if (!filename.endsWith(".json")) {
+            return false;
+        }
         try {
-            return JsonSchemaProvider.getCracVersion(inputStream) != null;
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inputStream.readAllBytes());
+            Pair<Integer, Integer> cracVersion = JsonSchemaProvider.getCracVersion(byteArrayInputStream);
+            byteArrayInputStream.reset();
+            if (cracVersion == null) {
+                for (int majorVersion : JsonSerializationConstants.MAX_MINOR_VERSION_PER_MAJOR_VERSION.keySet()) {
+                    for (int minorVersion = 0; minorVersion <= JsonSerializationConstants.MAX_MINOR_VERSION_PER_MAJOR_VERSION.get(majorVersion); minorVersion++) {
+                        Set<String> validationErrors = getValidationErrors(byteArrayInputStream, majorVersion, minorVersion);
+                        // log only the errors based on the declared value in the JSON file
+                        if (!validationErrors.contains("$.version: must be a constant value %s.%s".formatted(majorVersion, minorVersion)) && !validationErrors.contains("$.version: is missing but it is required")) {
+                            TECHNICAL_LOGS.debug("JSON file is not a valid CRAC v{}.{}. Reasons: {}", majorVersion, minorVersion, String.join("; ", validationErrors));
+                            return false;
+                        }
+                        byteArrayInputStream.reset();
+                    }
+                }
+                TECHNICAL_LOGS.debug("JSON file is not a valid CRAC. Reason: version is either missing or not a valid JSON CRAC version.");
+                return false;
+            }
+            return true;
         } catch (OpenRaoException | IOException e) {
+            TECHNICAL_LOGS.debug("JSON file could not be processed as CRAC. Reason: {}", e.getMessage());
             return false;
         }
     }

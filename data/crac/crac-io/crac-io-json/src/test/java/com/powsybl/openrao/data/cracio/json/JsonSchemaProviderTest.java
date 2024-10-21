@@ -13,8 +13,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.getCracVersion;
+import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.getValidationErrors;
 import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.validateJsonCrac;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -29,6 +31,16 @@ class JsonSchemaProviderTest {
     void missingVersion() {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> validateJsonCrac(JsonSchemaProviderTest.class.getResourceAsStream("/invalidCrac.json"), 0, 0));
         assertEquals("No JSON Schema found for CRAC v0.0.", exception.getMessage());
+    }
+
+    @Test
+    void testJsonValidationErrorMessages() throws IOException {
+        Set<String> validationErrors = getValidationErrors(JsonSchemaProviderTest.class.getResourceAsStream("/cracWithErrors.json"), 2, 5);
+        assertEquals(Set.of(
+            "$.instants[3].kind: does not have a value in the enumeration [PREVENTIVE, OUTAGE, AUTO, CURATIVE]",
+            "$.contingencies[2].networkElementsIds: is missing but it is required",
+            "$.contingencies[1].networkElementsIds[0]: integer found, string expected",
+            "$.contingencies[1].networkElementsIds[1]: integer found, string expected"), validationErrors);
     }
 
     @Test

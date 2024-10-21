@@ -6,11 +6,15 @@
  */
 package com.powsybl.openrao.data.cracio.json;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.action.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -27,8 +31,10 @@ import com.powsybl.openrao.data.cracimpl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +54,7 @@ class CracImportExportTest {
         assertTrue(new JsonImport().exists("crac-v2.5.json", getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json")));
         assertFalse(new JsonImport().exists("cracHeader.json", getClass().getResourceAsStream("/cracHeader.json")));
         assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.json")));
-        assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.txt")));
+        assertFalse(new JsonImport().exists("invalidCrac.txt", getClass().getResourceAsStream("/invalidCrac.txt")));
     }
 
     @Test
@@ -504,9 +510,56 @@ class CracImportExportTest {
     }
 
     @Test
+    void testImportNotJsonFile() {
+        InputStream inputStream = Mockito.mock(InputStream.class);
+        assertFalse(new JsonImport().exists("file.xml", inputStream));
+    }
+
+    @Test
     void testImportEmptyCrac() throws IOException {
         Network network = Mockito.mock(Network.class);
         Crac crac = Crac.read("emptyCrac.json", CracImportExportTest.class.getResourceAsStream("/emptyCrac.json"), network);
         assertNotNull(crac);
+    }
+
+    @Test
+    void testImportCracWithErrors() {
+        ListAppender<ILoggingEvent> listAppender = initLogger();
+
+        assertFalse(new JsonImport().exists("cracWithErrors.json", CracImportExportTest.class.getResourceAsStream("/cracWithErrors.json")));
+
+        List<ILoggingEvent> logsList = listAppender.list;
+        assertEquals(1, logsList.size());
+        assertEquals("JSON file is not a valid CRAC v2.5. Reasons: $.instants[3].kind: does not have a value in the enumeration [PREVENTIVE, OUTAGE, AUTO, CURATIVE]; $.contingencies[2].networkElementsIds: is missing but it is required; $.contingencies[1].networkElementsIds[0]: integer found, string expected; $.contingencies[1].networkElementsIds[1]: integer found, string expected", logsList.get(0).getFormattedMessage());
+    }
+
+    @Test
+    void tetsImportJsonFileWhichIsNotCrac() {
+        ListAppender<ILoggingEvent> listAppender = initLogger();
+
+        assertFalse(new JsonImport().exists("invalidCrac.json", CracImportExportTest.class.getResourceAsStream("/invalidCrac.json")));
+
+        List<ILoggingEvent> logsList = listAppender.list;
+        assertEquals(1, logsList.size());
+        assertEquals("JSON file is not a valid CRAC. Reason: version is either missing or not a valid JSON CRAC version.", logsList.get(0).getFormattedMessage());
+    }
+
+    @Test
+    void tetsImportJsonFileWithInvalidVersion() {
+        ListAppender<ILoggingEvent> listAppender = initLogger();
+
+        assertFalse(new JsonImport().exists("cracWithInvalidVersion.json", CracImportExportTest.class.getResourceAsStream("/cracWithInvalidVersion.json")));
+
+        List<ILoggingEvent> logsList = listAppender.list;
+        assertEquals(1, logsList.size());
+        assertEquals("JSON file is not a valid CRAC. Reason: version is either missing or not a valid JSON CRAC version.", logsList.get(0).getFormattedMessage());
+    }
+
+    private static ListAppender<ILoggingEvent> initLogger() {
+        Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        return listAppender;
     }
 }

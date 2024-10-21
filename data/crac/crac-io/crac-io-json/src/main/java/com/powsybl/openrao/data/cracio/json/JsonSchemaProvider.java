@@ -12,12 +12,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
 import com.powsybl.openrao.commons.OpenRaoException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -44,10 +47,14 @@ public final class JsonSchemaProvider {
     }
 
     public static boolean validateJsonCrac(InputStream cracInputStream, int majorVersion, int minorVersion) throws IOException {
-        return getJsonCracSchema(majorVersion, minorVersion).validate(MAPPER.readTree(cracInputStream)).isEmpty();
+        return getValidationErrors(cracInputStream, majorVersion, minorVersion).isEmpty();
     }
 
-    private static JsonSchema getJsonCracSchema(int majorVersion, int minorVersion) {
+    public static Set<String> getValidationErrors(InputStream cracInputStream, int majorVersion, int minorVersion) throws IOException {
+        return getJsonCracSchema(majorVersion, minorVersion).validate(MAPPER.readTree(cracInputStream)).stream().map(ValidationMessage::getMessage).collect(Collectors.toSet());
+    }
+
+    public static JsonSchema getJsonCracSchema(int majorVersion, int minorVersion) {
         InputStream schemaInputStream = JsonSchemaProvider.class.getResourceAsStream(SCHEMA_FILE_BASE_PATH.formatted(majorVersion, minorVersion));
         if (schemaInputStream == null) {
             throw new OpenRaoException("No JSON Schema found for CRAC v%s.%s.".formatted(majorVersion, minorVersion));

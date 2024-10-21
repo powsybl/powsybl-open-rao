@@ -1,29 +1,24 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
   "$id": "https://www.powsybl.org?open-rao-crac-schema=contingency.json",
+  "type": "object",
   "properties": {
-    "contingencies": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "networkElementsIds": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "networkElementsIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "networkElementsIds"
-        ]
+        "type": "string"
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "networkElementsIds"
+  ]
 }

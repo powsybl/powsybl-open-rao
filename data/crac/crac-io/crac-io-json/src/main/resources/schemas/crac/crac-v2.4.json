@@ -39,7 +39,10 @@
       }
     },
     "contingencies": {
-      "$ref": "resource:/schemas/common/contingency.json"
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/common/contingency.json"
+      }
     },
     "flowCnecs": {
       "type": "array",
