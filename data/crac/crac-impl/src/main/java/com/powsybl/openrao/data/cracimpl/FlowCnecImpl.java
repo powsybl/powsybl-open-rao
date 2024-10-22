@@ -223,7 +223,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
             if (getMonitoredSides().contains(TwoSides.ONE)) {
                 double marginLowerBoundSideOne = flowCnecValue.side1Value() - getLowerBound(TwoSides.ONE, unit).orElse(Double.NEGATIVE_INFINITY);
-                double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
+                double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side1Value();
 
                 if (marginUpperBoundSideOne < 0) {
                     highVoltageConstraints = true;
