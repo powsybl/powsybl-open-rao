@@ -50,6 +50,10 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         }
     }
 
+    public Cnec.SecurityStatus getSecurityStatus() {
+        return voltageMonitoringResult.getStatus();
+    }
+
     @Override
     public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);

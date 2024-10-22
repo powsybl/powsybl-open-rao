@@ -52,6 +52,10 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         }
     }
 
+    public SecurityStatus getSecurityStatus() {
+        return angleMonitoringResult.getStatus();
+    }
+
     @Override
     public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
