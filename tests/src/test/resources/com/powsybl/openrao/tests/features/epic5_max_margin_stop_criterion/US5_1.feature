@@ -21,8 +21,8 @@ Feature: US 5.1: Maximum margin stop criterion
     Given crac file is "epic5/SL_ep5us1b.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch search_tree_rao
-    Then its security status should be "SECURED"
-    Then the worst margin is -0.0001 MW
+    Then its security status should be "UNSECURED"
+    Then the worst margin is -0.0001 A
     Then 0 remedial actions are used in preventive
 
   @fast @rao @mock @ac @preventive-only

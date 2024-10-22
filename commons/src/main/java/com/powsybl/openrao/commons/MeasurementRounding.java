@@ -48,7 +48,7 @@ public final class MeasurementRounding {
      */
     public static BigDecimal roundValueBasedOnMargin(double value, double margin, int defaultDecimals) {
         int relevantDecimals;
-        if (margin >= 0 || margin <= -1) {
+        if (Double.isNaN(margin) || margin >= 0 || margin <= -1) {
             relevantDecimals = defaultDecimals;
         } else {
             // for a number x in [0, 1[, the position of the first decimal which is not a 0 is given by ⌈-log10(x)⌉
