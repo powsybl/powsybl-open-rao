@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Instant;
@@ -320,9 +321,10 @@ public class Leaf implements OptimizationResult {
         }
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(this);
-            info += String.format(Locale.ENGLISH, ", cost: %.2f", getCost());
-            info += String.format(Locale.ENGLISH, " (functional: %.2f", getFunctionalCost());
-            info += String.format(Locale.ENGLISH, ", virtual: %.2f%s)", getVirtualCost(),
+            double margin = -getCost();
+            info += String.format(Locale.ENGLISH, ", cost: %s", MeasurementRounding.roundValueBasedOnMargin(getCost(), margin, 2).doubleValue());
+            info += String.format(Locale.ENGLISH, " (functional: %s", MeasurementRounding.roundValueBasedOnMargin(getFunctionalCost(), margin, 2).doubleValue());
+            info += String.format(Locale.ENGLISH, ", virtual: %s%s)", MeasurementRounding.roundValueBasedOnMargin(getVirtualCost(), margin, 2).doubleValue(),
                 virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
         }
         return info;

@@ -785,12 +785,12 @@ class LeafTest {
         when(linearOptimizationResult.getVirtualCostNames()).thenReturn(Set.of("mnec-violation-cost", "loopflow-violation-cost"));
         when(linearOptimizationResult.getVirtualCost("mnec-violation-cost")).thenReturn(42.2);
         when(linearOptimizationResult.getVirtualCost("loopflow-violation-cost")).thenReturn(17.3);
-        assertEquals("Root leaf, no range action(s) activated, cost: -100.50 (functional: -160.00, virtual: 59.50 {mnec-violation-cost=42.2, loopflow-violation-cost=17.3})", leaf.toString());
+        assertEquals("Root leaf, no range action(s) activated, cost: -100.5 (functional: -160.0, virtual: 59.5 {mnec-violation-cost=42.2, loopflow-violation-cost=17.3})", leaf.toString());
         // Without virtual cost
         when(linearOptimizationResult.getVirtualCost()).thenReturn(0.);
         when(linearOptimizationResult.getVirtualCost("mnec-violation-cost")).thenReturn(0.);
         when(linearOptimizationResult.getVirtualCost("loopflow-violation-cost")).thenReturn(0.);
-        assertEquals("Root leaf, no range action(s) activated, cost: -160.00 (functional: -160.00, virtual: 0.00)", leaf.toString());
+        assertEquals("Root leaf, no range action(s) activated, cost: -160.0 (functional: -160.0, virtual: 0.0)", leaf.toString());
     }
 
     @Test

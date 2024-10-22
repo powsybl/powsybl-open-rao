@@ -9,6 +9,7 @@ package com.powsybl.openrao.monitoring.results;
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
+import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
@@ -67,20 +68,20 @@ public class CnecResult<T extends CnecValue> {
         if (value instanceof VoltageCnecValue) {
             VoltageCnecValue voltageValue = (VoltageCnecValue) value;
             VoltageCnec voltageCnec = (VoltageCnec) cnec;
-            return String.format("Network element %s at state %s has a min voltage of %.0f kV and a max voltage of %.0f kV.",
+            return String.format("Network element %s at state %s has a min voltage of %s kV and a max voltage of %s kV.",
                 voltageCnec.getNetworkElement().getId(),
                 voltageCnec.getState().getId(),
-                voltageValue.minValue(),
-                voltageValue.maxValue());
+                MeasurementRounding.roundValueBasedOnMargin(voltageValue.minValue(), margin, 2).doubleValue(),
+                MeasurementRounding.roundValueBasedOnMargin(voltageValue.maxValue(), margin, 2).doubleValue());
         } else if (value instanceof AngleCnecValue) {
             AngleCnecValue angleValue = (AngleCnecValue) value;
             AngleCnec angleCnec = (AngleCnec) cnec;
-            return String.format("AngleCnec %s (with importing network element %s and exporting network element %s) at state %s has an angle of %.0f°.",
+            return String.format("AngleCnec %s (with importing network element %s and exporting network element %s) at state %s has an angle of %s°.",
                 angleCnec.getId(),
                 angleCnec.getImportingNetworkElement().getId(),
                 angleCnec.getExportingNetworkElement().getId(),
                 cnec.getState().getId(),
-                angleValue.value());
+                MeasurementRounding.roundValueBasedOnMargin(angleValue.value(), margin, 2).doubleValue());
         } else {
             throw new IllegalStateException("Unexpected value: " + value);
         }

@@ -10,6 +10,7 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -37,14 +38,24 @@ final class CostResultMapSerializer {
     private static void serializeCostResultForOptimizationState(Instant optInstant, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
         double functionalCost = raoResult.getFunctionalCost(optInstant);
         boolean isFunctionalCostNaN = Double.isNaN(functionalCost);
+        double virtualCost = raoResult.getVirtualCost(optInstant);
+        boolean isVirtualCostNaN = Double.isNaN(virtualCost);
 
-        if (isFunctionalCostNaN && Double.isNaN(raoResult.getVirtualCost(optInstant))) {
+        if (isFunctionalCostNaN && isVirtualCostNaN) {
             return;
+        }
+        double margin;
+        if (isFunctionalCostNaN) {
+            margin = -virtualCost;
+        } else if (isVirtualCostNaN) {
+            margin = -functionalCost;
+        } else {
+            margin = -functionalCost - virtualCost;
         }
 
         jsonGenerator.writeObjectFieldStart(serializeInstantId(optInstant));
         if (!isFunctionalCostNaN) {
-            jsonGenerator.writeNumberField(FUNCTIONAL_COST, Math.round(100.0 * functionalCost) / 100.0);
+            jsonGenerator.writeNumberField(FUNCTIONAL_COST, roundValueBasedOnMargin(functionalCost, margin, 2));
         }
 
         if (containAnyVirtualCostForOptimizationState(raoResult, optInstant)) {
@@ -52,7 +63,7 @@ final class CostResultMapSerializer {
             for (String virtualCostName : raoResult.getVirtualCostNames()) {
                 double virtualCostForAGivenName = raoResult.getVirtualCost(optInstant, virtualCostName);
                 if (!Double.isNaN(virtualCostForAGivenName)) {
-                    jsonGenerator.writeNumberField(virtualCostName, Math.round(100.0 * virtualCostForAGivenName) / 100.0);
+                    jsonGenerator.writeNumberField(virtualCostName, roundValueBasedOnMargin(virtualCostForAGivenName, margin, 2));
                 }
             }
             jsonGenerator.writeEndObject();

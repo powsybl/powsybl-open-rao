@@ -178,7 +178,7 @@ class AngleMonitoringTest {
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
-            "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°."
+            "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -3.68°."
         ), angleMonitoringResult.printConstraints());
 
         double angleValue = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getCnec().equals(acPrev)).map(CnecResult::getValue).map(AngleCnecValue.class::cast).findFirst().get().value();
@@ -195,7 +195,7 @@ class AngleMonitoringTest {
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
-                "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."),
+                "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
             angleMonitoringResult.printConstraints());
     }
 
@@ -214,7 +214,7 @@ class AngleMonitoringTest {
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
-                "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."),
+                "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
             angleMonitoringResult.printConstraints());
     }
 
@@ -273,7 +273,7 @@ class AngleMonitoringTest {
         double angleValue = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getCnec().getId().equals("AngleCnec1")).map(CnecResult::getValue).map(AngleCnecValue.class::cast).findFirst().get().value();
         assertEquals(5.22, angleValue, ANGLE_TOLERANCE);
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
-                "AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5°."),
+                "AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5.22°."),
             angleMonitoringResult.printConstraints());
     }
 

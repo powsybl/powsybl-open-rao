@@ -176,7 +176,7 @@ class CastorFullOptimizationTest {
         // Test final log after RAO fallbacks
         listAppender.stop();
         List<ILoggingEvent> logsList = listAppender.list;
-        assert logsList.get(logsList.size() - 1).toString().equals("[INFO] Cost before RAO = 371.88 (functional: 371.88, virtual: 0.00), cost after RAO = 371.88 (functional: 371.88, virtual: 0.00)");
+        assert logsList.get(logsList.size() - 1).toString().equals("[INFO] Cost before RAO = 371.88 (functional: 371.88, virtual: 0.0), cost after RAO = 371.88 (functional: 371.88, virtual: 0.0)");
     }
 
     @Test

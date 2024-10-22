@@ -35,6 +35,8 @@ public final class SweCneUtil {
     private SweCneUtil() {
     }
 
+    public static int DEFAULT_DECIMALS_FOR_ROUNDING = 1;
+
     // Creation of time interval
     public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime offsetDateTime) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'");
