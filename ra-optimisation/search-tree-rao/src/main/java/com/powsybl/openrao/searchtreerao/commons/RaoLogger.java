@@ -304,6 +304,7 @@ public final class RaoLogger {
         } else if (value <= -Double.MAX_VALUE) {
             return "-infinity";
         } else {
+            // Double.toString, similarly to String formatting with Locale.English ensures doubles are written with "." rather than ","
             return Double.toString(roundValueBasedOnMargin(value, margin, 2).doubleValue());
         }
     }

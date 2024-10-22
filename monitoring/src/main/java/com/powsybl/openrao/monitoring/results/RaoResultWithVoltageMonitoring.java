@@ -33,11 +33,6 @@ import java.util.stream.Stream;
 public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     private final RaoResult raoResult;
-
-    public MonitoringResult getVoltageMonitoringResult() {
-        return voltageMonitoringResult;
-    }
-
     private final MonitoringResult voltageMonitoringResult;
 
     public RaoResultWithVoltageMonitoring(RaoResult raoResult, MonitoringResult voltageMonitoringResult) {

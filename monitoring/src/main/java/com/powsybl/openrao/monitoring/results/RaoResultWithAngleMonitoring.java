@@ -32,11 +32,6 @@ import java.util.stream.Stream;
 public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     private final RaoResult raoResult;
-
-    public MonitoringResult getAngleMonitoringResult() {
-        return angleMonitoringResult;
-    }
-
     private final MonitoringResult angleMonitoringResult;
 
     public RaoResultWithAngleMonitoring(RaoResult raoResult, MonitoringResult angleMonitoringResult) {
