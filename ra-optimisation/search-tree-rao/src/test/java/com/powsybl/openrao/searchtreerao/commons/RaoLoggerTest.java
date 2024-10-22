@@ -55,6 +55,7 @@ class RaoLoggerTest {
     private FlowCnec cnec3;
     private FlowCnec cnec4;
     private FlowCnec cnec5;
+    private FlowCnec cnec6;
     private State statePreventive;
     private State stateCo1Auto;
     private State stateCo1Curative;
@@ -85,6 +86,7 @@ class RaoLoggerTest {
         cnec3 = mockCnec("ne3", stateCo2Curative, 10, 100, 10, 200, 0.3);
         cnec4 = mockCnec("ne4", stateCo1Auto, 20, 200, 0, 0, 0.4);
         cnec5 = mockCnec("ne5", stateCo1Curative, 30, 300, 20, 100, 0.5);
+        cnec6 = mockCnec("ne6", stateCo1Curative, -0.0003, -0.0003, -0.002, -0.002, 0.5);
     }
 
     private State mockState(String stateId, Instant instant) {
@@ -128,7 +130,7 @@ class RaoLoggerTest {
         String relativeMargin = relative ? " relative" : "";
         String ptdfString = (ptdf != null) ? format(" (PTDF %f)", ptdf) : "";
         String descriptor = format("%s at state %s", cnec.getNetworkElement().getName(), cnec.getState().getId());
-        return format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s, CNEC ID = \"%s\"", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
+        return format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %s %s%s, element %s, CNEC ID = \"%s\"", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
     }
 
     @Test
@@ -172,6 +174,33 @@ class RaoLoggerTest {
         assertEquals(relativeMarginLog(3, 100, .5, AMPERE, cnec5), summary.get(2));
         assertEquals(relativeMarginLog(4, 200, .3, AMPERE, cnec3), summary.get(3));
         assertEquals(relativeMarginLog(5, 300, .1, AMPERE, cnec1), summary.get(4));
+    }
+
+    @Test
+    void testGetMostLimitingElementsForNarrowMargin() {
+        // Absolute MW
+        when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
+        List<String> summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 1);
+        assertEquals(1, summary.size());
+        assertEquals(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6), summary.get(0));
+
+        // Relative MW
+        when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
+        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, 5);
+        assertEquals(1, summary.size());
+        assertEquals(absoluteMarginLog(1, -0.0003, MEGAWATT, cnec6), summary.get(0));
+
+        // Absolute A
+        when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
+        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, 5);
+        assertEquals(1, summary.size());
+        assertEquals(absoluteMarginLog(1, -0.002, AMPERE, cnec6), summary.get(0));
+
+        // Relative A
+        when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec6));
+        summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(statePreventive, stateCo1Auto, stateCo1Curative, stateCo2Curative), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, 5);
+        assertEquals(1, summary.size());
+        assertEquals(absoluteMarginLog(1, -0.002, AMPERE, cnec6), summary.get(0));
     }
 
     @Test
@@ -285,14 +314,27 @@ class RaoLoggerTest {
     }
 
     @Test
-    void testFormatDouble() {
-        assertEquals("10.00", RaoLogger.formatDouble(10.));
-        assertEquals("-53.63", RaoLogger.formatDouble(-53.634));
-        assertEquals("-53.64", RaoLogger.formatDouble(-53.635));
-        assertEquals("-infinity", RaoLogger.formatDouble(-Double.MAX_VALUE));
-        assertEquals("+infinity", RaoLogger.formatDouble(Double.MAX_VALUE));
-        assertEquals("-infinity", RaoLogger.formatDouble(-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.00));
-        assertEquals("+infinity", RaoLogger.formatDouble(179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.00));
+    void testFormatDoubleBasedOnMarginWithPositiveMargin() {
+        double margin = 1.2; // margin > 0, formatDoubleBasedOnMargin to default number of decimals = 2;
+        assertEquals("10.0", RaoLogger.formatDoubleBasedOnMargin(10., margin));
+        assertEquals("-53.63", RaoLogger.formatDoubleBasedOnMargin(-53.634, margin));
+        assertEquals("-53.64", RaoLogger.formatDoubleBasedOnMargin(-53.635, margin));
+        assertEquals("-infinity", RaoLogger.formatDoubleBasedOnMargin(-Double.MAX_VALUE, margin));
+        assertEquals("+infinity", RaoLogger.formatDoubleBasedOnMargin(Double.MAX_VALUE, margin));
+        assertEquals("-infinity", RaoLogger.formatDoubleBasedOnMargin(-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.00, margin));
+        assertEquals("+infinity", RaoLogger.formatDoubleBasedOnMargin(179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.00, margin));
+    }
+
+    @Test
+    void testFormatDoubleBasedOnMarginWithNegativeMargin() {
+        double margin = -0.0004; // -1 < margin < 0, formatDoubleBasedOnMargin depending on margin
+        assertEquals("10.0", RaoLogger.formatDoubleBasedOnMargin(10., margin));
+        assertEquals("-53.634", RaoLogger.formatDoubleBasedOnMargin(-53.634, margin));
+        assertEquals("-53.6354", RaoLogger.formatDoubleBasedOnMargin(-53.63535, margin));
+        assertEquals("-infinity", RaoLogger.formatDoubleBasedOnMargin(-Double.MAX_VALUE, margin));
+        assertEquals("+infinity", RaoLogger.formatDoubleBasedOnMargin(Double.MAX_VALUE, margin));
+        assertEquals("-infinity", RaoLogger.formatDoubleBasedOnMargin(-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.00, margin));
+        assertEquals("+infinity", RaoLogger.formatDoubleBasedOnMargin(179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.00, margin));
     }
 
     private ListAppender<ILoggingEvent> registerLogs(Class clazz) {
@@ -347,9 +389,9 @@ class RaoLoggerTest {
         rangeActions.put(fakePST2, 4.);
 
         RaoLogger.logOptimizationSummary(logger, preventive, networkActions, rangeActions, initialObjectiveFunctionResult, objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -210.30, virtual: 10.30 {sensi-fallback-cost=10.3})," +
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.0 (functional: -210.3, virtual: 10.3 {sensi-fallback-cost=10.3})," +
             " 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2," +
-            " cost after preventive optimization = -100.00 (functional: -150.00, virtual: 50.00 {mnec-violation-cost=42.2, loopflow-violation-cost=7.8})", logsList.get(logsList.size() - 1).toString());
+            " cost after preventive optimization = -100.0 (functional: -150.0, virtual: 50.0 {mnec-violation-cost=42.2, loopflow-violation-cost=7.8})", logsList.get(logsList.size() - 1).toString());
 
         // Remove virtual cost for visibility
         when(initialObjectiveFunctionResult.getCost()).thenReturn(-200.);
@@ -364,20 +406,20 @@ class RaoLoggerTest {
         when(objectiveFunctionResult.getVirtualCost("loopflow-violation-cost")).thenReturn(0.);
 
         RaoLogger.logOptimizationSummary(logger, curative, Collections.emptySet(), rangeActions, initialObjectiveFunctionResult, objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"contingency\": initial cost = -200.00 (functional: -200.00, virtual: 0.00)," +
-            " 2 range action(s) activated : PST_2: 4, PST_1: -2, cost after curative optimization = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
+        assertEquals("[INFO] Scenario \"contingency\": initial cost = -200.0 (functional: -200.0, virtual: 0.0)," +
+            " 2 range action(s) activated : PST_2: 4, PST_1: -2, cost after curative optimization = -100.0 (functional: -100.0, virtual: 0.0)", logsList.get(logsList.size() - 1).toString());
 
         RaoLogger.logOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00)," +
-            " no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.0 (functional: -200.0, virtual: 0.0)," +
+            " no remedial actions activated, cost after preventive optimization = -100.0 (functional: -100.0, virtual: 0.0)", logsList.get(logsList.size() - 1).toString());
 
         RaoLogger.logOptimizationSummary(logger, preventive, networkActions, Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00)," +
-            " 1 network action(s) activated : Open_fake_RA, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.0 (functional: -200.0, virtual: 0.0)," +
+            " 1 network action(s) activated : Open_fake_RA, cost after preventive optimization = -100.0 (functional: -100.0, virtual: 0.0)", logsList.get(logsList.size() - 1).toString());
 
         RaoLogger.logOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap(), null, objectiveFunctionResult);
         assertEquals("[INFO] Scenario \"preventive\":" +
-            " no remedial actions activated, cost after preventive optimization = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
+            " no remedial actions activated, cost after preventive optimization = -100.0 (functional: -100.0, virtual: 0.0)", logsList.get(logsList.size() - 1).toString());
 
         assertThrows(java.lang.NullPointerException.class, () -> RaoLogger.logOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, null));
     }
