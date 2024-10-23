@@ -83,4 +83,4 @@ $$
 \end{equation}
 $$
 
-The penalty coefficient was arbitrary chosen to be $1000$. The coefficient needs to be high enough so that any solution that secures the network would have a lower cost that an unsecured network.   
+The penalty coefficient was arbitrarily chosen to be $1000$. The coefficient needs to be high enough so that any solution that secures the network would have a lower cost that an unsecured network.   

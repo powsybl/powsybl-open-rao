@@ -24,7 +24,7 @@ public class ActivationCostEvaluator implements CostEvaluator {
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
-    private final double unsecurePenalty = 10000;
+    private static final double MARGIN_PENALTY_COEFFICIENT = 1000;
 
     public ActivationCostEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.flowCnecs = flowCnecs;
@@ -77,7 +77,7 @@ public class ActivationCostEvaluator implements CostEvaluator {
 
         double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
         if (margin < 0) {
-            activationCost += unsecurePenalty;
+            activationCost -= MARGIN_PENALTY_COEFFICIENT * margin;
         }
         return Pair.of(activationCost, costlyElements);
     }
