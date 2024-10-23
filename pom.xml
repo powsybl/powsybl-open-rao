@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>13</version>
+        <version>19</version>
         <relativePath/>
     </parent>
 
     <artifactId>powsybl-open-rao</artifactId>
-    <version>6.1.0-SNAPSHOT</version>
+    <version>6.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Open RAO</name>
@@ -116,9 +116,9 @@
         <maven.source.version>3.2.1</maven.source.version>
         <maven.templating.version>1.0.0</maven.templating.version>
         <mockito.inline.version>5.2.0</mockito.inline.version>
-        <powsybl.core.version>6.4.1</powsybl.core.version>
-        <powsybl.entsoe.version>2.10.1</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>1.12.2</powsybl.openloadflow.version>
+        <powsybl.core.version>6.5.0</powsybl.core.version>
+        <powsybl.entsoe.version>2.11.0</powsybl.entsoe.version>
+        <powsybl.openloadflow.version>1.13.1</powsybl.openloadflow.version>
         <slf4j.version>1.7.36</slf4j.version>
         <xmlunit.core.version>2.10.0</xmlunit.core.version>
     </properties>

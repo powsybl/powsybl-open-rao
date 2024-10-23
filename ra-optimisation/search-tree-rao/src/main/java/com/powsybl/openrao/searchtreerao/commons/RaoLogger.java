@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static java.lang.String.format;
 
@@ -54,9 +55,9 @@ public final class RaoLogger {
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult);
 
         BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
-            formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
-            formatDouble(prePerimeterObjectiveFunctionResult.getFunctionalCost()),
-            formatDouble(prePerimeterObjectiveFunctionResult.getVirtualCost()));
+            formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getCost(), -prePerimeterObjectiveFunctionResult.getCost()),
+            formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getFunctionalCost(), -prePerimeterObjectiveFunctionResult.getCost()),
+            formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getVirtualCost(), -prePerimeterObjectiveFunctionResult.getCost()));
 
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
             sensitivityAnalysisResult,
@@ -129,10 +130,10 @@ public final class RaoLogger {
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             TwoSides mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %s %s%s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
-                cnecMargin,
+                roundValueBasedOnMargin(cnecMargin, cnecMargin, 2).doubleValue(),
                 unit,
                 ptdfIfRelative,
                 cnecNetworkElementName,
@@ -204,10 +205,10 @@ public final class RaoLogger {
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %s %s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
-                cnecMargin,
+                roundValueBasedOnMargin(cnecMargin, cnecMargin, 2).doubleValue(),
                 unit,
                 cnecNetworkElementName,
                 cnecStateId,
@@ -259,14 +260,15 @@ public final class RaoLogger {
             initialCostString = "";
         } else {
             Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(preOptimObjectiveFunctionResult);
+            double margin = -(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost());
             if (initialVirtualCostDetailed.isEmpty()) {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
+                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin), formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin), formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin));
             } else {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
+                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin), formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin), formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin), initialVirtualCostDetailed);
             }
         }
         logger.info("Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, optimizedState.getInstant(),
-            formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
+            formatDoubleBasedOnMargin(finalObjective.getCost(), -finalObjective.getCost()), formatDoubleBasedOnMargin(finalObjective.getFunctionalCost(), -finalObjective.getCost()), formatDoubleBasedOnMargin(finalObjective.getVirtualCost(), -finalObjective.getCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
     }
 
     public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
@@ -296,13 +298,14 @@ public final class RaoLogger {
             .orElse("preventive");
     }
 
-    public static String formatDouble(double value) {
+    public static String formatDoubleBasedOnMargin(double value, double margin) {
         if (value >= Double.MAX_VALUE) {
             return "+infinity";
         } else if (value <= -Double.MAX_VALUE) {
             return "-infinity";
         } else {
-            return String.format(Locale.ENGLISH, "%.2f", value);
+            // Double.toString, similarly to String formatting with Locale.English ensures doubles are written with "." rather than ","
+            return Double.toString(roundValueBasedOnMargin(value, margin, 2).doubleValue());
         }
     }
 
