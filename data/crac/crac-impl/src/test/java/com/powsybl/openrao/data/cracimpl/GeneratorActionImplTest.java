@@ -167,7 +167,7 @@ class GeneratorActionImplTest {
         GeneratorAction sameGeneratorAction = new GeneratorActionBuilder().withId("id").withGeneratorId("DL1").withActivePowerValue(10).withActivePowerRelativeValue(false).build();
         assertEquals(generatorAction, sameGeneratorAction);
         NetworkAction dummy5 = new NetworkActionImpl("id", "name", "operator", null,
-            new HashSet<>(List.of(generatorAction, sameGeneratorAction)), 0, Set.of());
+            new HashSet<>(List.of(generatorAction, sameGeneratorAction)), 0, null, Set.of());
         assertEquals(1, dummy5.getElementaryActions().size());
     }
 

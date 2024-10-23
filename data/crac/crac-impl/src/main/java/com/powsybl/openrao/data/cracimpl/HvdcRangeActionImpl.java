@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -37,8 +38,8 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     private final double initialSetpoint;
 
     HvdcRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<StandardRange> ranges,
-                        double initialSetpoint, NetworkElement networkElement, String groupId, Integer speed) {
-        super(id, name, operator, usageRules, groupId, speed);
+                        double initialSetpoint, NetworkElement networkElement, String groupId, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
+        super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.networkElement = networkElement;
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;

@@ -167,7 +167,7 @@ class LoadActionImplTest {
         LoadAction sameloadAction = new LoadActionBuilder().withId("id").withLoadId("L1").withActivePowerValue(10).withRelativeValue(false).build();
         assertEquals(loadAction, sameloadAction);
         NetworkAction dummy5 = new NetworkActionImpl("id", "name", "operator", null,
-            new HashSet<>(List.of(loadAction, sameloadAction)), 0, Set.of());
+            new HashSet<>(List.of(loadAction, sameloadAction)), 0, null, Set.of());
         assertEquals(1, dummy5.getElementaryActions().size());
     }
 }
