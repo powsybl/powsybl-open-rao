@@ -155,7 +155,7 @@ class VoltageMonitoringTest {
         assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL1 at state preventive has a min voltage of 400 kV and a max voltage of 400 kV."), voltageMonitoringResult.printConstraints());
+            "Network element VL1 at state preventive has a min voltage of 400.0 kV and a max voltage of 400.0 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -165,7 +165,7 @@ class VoltageMonitoringTest {
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL1 at state preventive has a min voltage of 400 kV and a max voltage of 400 kV."), voltageMonitoringResult.printConstraints());
+            "Network element VL1 at state preventive has a min voltage of 400.0 kV and a max voltage of 400.0 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -182,7 +182,7 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL2 at state preventive has a min voltage of 368 kV and a max voltage of 368 kV."), voltageMonitoringResult.printConstraints());
+            "Network element VL2 at state preventive has a min voltage of 368.12 kV and a max voltage of 368.12 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -199,7 +199,7 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL2 at state preventive has a min voltage of 368 kV and a max voltage of 368 kV.", "Network element VL3 at state preventive has a min voltage of 383 kV and a max voltage of 383 kV."), voltageMonitoringResult.printConstraints());
+            "Network element VL2 at state preventive has a min voltage of 368.12 kV and a max voltage of 368.12 kV.", "Network element VL3 at state preventive has a min voltage of 383.19 kV and a max voltage of 383.19 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -216,7 +216,7 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).noneMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL3 at state preventive has a min voltage of 400 kV and a max voltage of 400 kV."), voltageMonitoringResult.printConstraints());
+            "Network element VL3 at state preventive has a min voltage of 400.0 kV and a max voltage of 400.0 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -233,7 +233,7 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL2 at state preventive has a min voltage of 368 kV and a max voltage of 368 kV.", "Network element VL3 at state preventive has a min voltage of 400 kV and a max voltage of 400 kV."), voltageMonitoringResult.printConstraints());
+            "Network element VL2 at state preventive has a min voltage of 368.12 kV and a max voltage of 368.12 kV.", "Network element VL3 at state preventive has a min voltage of 400.0 kV and a max voltage of 400.0 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -251,7 +251,7 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL2 at state preventive has a min voltage of 379 kV and a max voltage of 379 kV."), voltageMonitoringResult.printConstraints());
+            "Network element VL2 at state preventive has a min voltage of 379.35 kV and a max voltage of 379.35 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -270,9 +270,9 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2b")).allMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1b")).noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-                "Network element VL2 at state coL1 - curative has a min voltage of 368 kV and a max voltage of 368 kV.",
-                "Network element VL3 at state coL2 - curative has a min voltage of 400 kV and a max voltage of 400 kV.",
-                "Network element VL3 at state coL1L2 - curative has a min voltage of 400 kV and a max voltage of 400 kV."),
+                "Network element VL2 at state coL1 - curative has a min voltage of 368.12 kV and a max voltage of 368.12 kV.",
+                "Network element VL3 at state coL2 - curative has a min voltage of 400.0 kV and a max voltage of 400.0 kV.",
+                "Network element VL3 at state coL1L2 - curative has a min voltage of 400.0 kV and a max voltage of 400.0 kV."),
             voltageMonitoringResult.printConstraints());
     }
 
@@ -306,7 +306,7 @@ class VoltageMonitoringTest {
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).allMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL2 at state co3 - curative has a min voltage of 368 kV and a max voltage of 368 kV."), voltageMonitoringResult.printConstraints());
+            "Network element VL2 at state co3 - curative has a min voltage of 368.12 kV and a max voltage of 368.12 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -326,8 +326,8 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("VL46")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of(
                 "Some VOLTAGE Cnecs are not secure:",
-                "Network element VL45 at state preventive has a min voltage of 144 kV and a max voltage of 148 kV.",
-                "Network element VL46 at state preventive has a min voltage of 143 kV and a max voltage of 148 kV."),
+                "Network element VL45 at state preventive has a min voltage of 144.38 kV and a max voltage of 148.41 kV.",
+                "Network element VL46 at state preventive has a min voltage of 143.1 kV and a max voltage of 147.66 kV."),
             voltageMonitoringResult.printConstraints());
     }
 
