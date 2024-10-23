@@ -174,7 +174,7 @@ class PhaseTapChangerTapPositionActionImplTest {
         PhaseTapChangerTapPositionAction samePhaseTapChangerTapPositionAction = new PhaseTapChangerTapPositionActionBuilder().withId("id").withNetworkElementId("T1").withTapPosition(-9).withRelativeValue(false).build();
         assertEquals(phaseTapChangerTapPositionAction, samePhaseTapChangerTapPositionAction);
         NetworkAction dummy5 = new NetworkActionImpl("id", "name", "operator", null,
-            new HashSet<>(List.of(phaseTapChangerTapPositionAction, samePhaseTapChangerTapPositionAction)), 0, Set.of());
+            new HashSet<>(List.of(phaseTapChangerTapPositionAction, samePhaseTapChangerTapPositionAction)), 0, null, Set.of());
         assertEquals(1, dummy5.getElementaryActions().size());
     }
 

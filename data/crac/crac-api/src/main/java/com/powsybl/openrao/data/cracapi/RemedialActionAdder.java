@@ -18,6 +18,8 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
 
     T withSpeed(Integer speed);
 
+    T withActivationCost(Double activationCost);
+
     RemedialAction<?> add();
 
     OnInstantAdder<T> newOnInstantUsageRule();
