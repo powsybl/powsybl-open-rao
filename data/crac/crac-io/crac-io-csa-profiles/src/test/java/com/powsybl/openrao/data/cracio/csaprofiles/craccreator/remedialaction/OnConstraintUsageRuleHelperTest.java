@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class OnConstraintUsageRuleHelperTest {
     private Crac crac;
     private Set<ElementaryCreationContext> cnecCreationContexts;
-    private Set<AssessedElement> assessedElements;
     private Set<AssessedElementWithRemedialAction> assessedElementWithRemedialActions;
     private Set<ContingencyWithRemedialAction> contingencyWithRemedialActions;
 
@@ -109,8 +108,6 @@ class OnConstraintUsageRuleHelperTest {
         AssessedElement assessedElement5 = new AssessedElement("assessed-element-5", true, null, null, null, null, false, true, null, null, 0d, null);
         AssessedElement assessedElement6 = new AssessedElement("assessed-element-6", true, null, null, null, null, false, true, null, null, 0d, null);
         AssessedElement assessedElement8 = new AssessedElement("assessed-element-8", true, null, null, null, null, false, true, null, null, 0d, null);
-
-        assessedElements = Set.of(assessedElement1, assessedElement2, assessedElement3, assessedElement4, assessedElement5, assessedElement6, assessedElement8);
 
         // Add AssessedElementWithRemedialAction property bags
 
