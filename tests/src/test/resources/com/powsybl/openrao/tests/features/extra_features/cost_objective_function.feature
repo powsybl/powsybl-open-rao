@@ -13,9 +13,9 @@ Feature: New objective function using minimal cost
     Given configuration file is "common/RaoParameters_minCost_megawatt_ac.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
-    And the remedial action "pst_be - TS0" is used in preventive
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive - TS0" after PRA should be 0 A
-    And the tap of PstRangeAction "pst_be - TS0" should be 6 in preventive
+    And the remedial action "pst_be" is used in preventive
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 0 A
+    And the tap of PstRangeAction "pst_be" should be 6 in preventive
 
   @fast @rao @mock @ac @preventive-only
   Scenario: Preventive RA with max min margin
@@ -24,6 +24,28 @@ Feature: New objective function using minimal cost
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
-    And the remedial action "pst_be - TS0" is used in preventive
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive - TS0" after PRA should be 70 A
-    And the tap of PstRangeAction "pst_be - TS0" should be 16 in preventive
+    And the remedial action "pst_be" is used in preventive
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 70 A
+    And the tap of PstRangeAction "pst_be" should be 16 in preventive
+
+  @fast @rao @mock @ac @preventive-only
+  Scenario: Preventive RA & NetworkAction 0 with minimal cost
+    Given network file is "common/12NodesProdFR_3PST.uct"
+    Given crac file is "extra_features/crac-cost-with-network-action-0.json"
+    Given configuration file is "common/RaoParameters_minCost_megawatt_ac.json"
+    When I launch search_tree_rao
+    Then 0 remedial actions are used in preventive
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 677 A
+    And the tap of PstRangeAction "pst_be" should be 0 in preventive
+
+  @fast @rao @mock @ac @preventive-only
+  Scenario: Preventive RA & NetworkAction 0 with max min margin
+    Given network file is "common/12NodesProdFR_3PST.uct"
+    Given crac file is "extra_features/crac-cost-with-network-action-0.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    When I launch search_tree_rao
+    Then 2 remedial actions are used in preventive
+    And the remedial action "pst_be" is used in preventive
+    And the remedial action "open-be2-fr3-1" is used in preventive
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 1440 A
+    And the tap of PstRangeAction "pst_be" should be 16 in preventive

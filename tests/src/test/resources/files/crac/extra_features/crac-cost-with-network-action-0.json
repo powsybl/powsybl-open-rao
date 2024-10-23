@@ -35,8 +35,27 @@
       "nominalV" : [ 400.0 ],
       "thresholds" : [ {
         "unit" : "megawatt",
-        "min" : -500.0,
-        "max" : 500.0,
+        "min" : -1000.0,
+        "max" : 1000.0,
+        "side" : "left"
+      } ]
+    },
+    {
+      "id": "NNL2AA1  BBE3AA1  1 - preventive",
+      "name": "NNL2AA1  BBE3AA1  1 - preventive",
+      "networkElementId": "NNL2AA1  BBE3AA1  1",
+      "operator": "BE",
+      "contingencyId" : null,
+      "instant": "preventive",
+      "optimized" : true,
+      "monitored" : false,
+      "reliabilityMargin" : 0.0,
+      "iMax" : [ NaN ],
+      "nominalV" : [ 400.0 ],
+      "thresholds" : [ {
+        "unit" : "megawatt",
+        "min" : -1500.0,
+        "max" : 1500.0,
         "side" : "left"
       } ]
     }
@@ -101,6 +120,18 @@
   ],
   "hvdcRangeActions": [],
   "injectionRangeActions": [],
-  "networkActions": [],
+  "networkActions": [{
+    "id" : "open-be2-fr3-1",
+    "name" : "open-be2-fr3-1",
+    "operator" : null,
+    "onInstantUsageRules" : [ {
+      "instant" : "preventive",
+      "usageMethod" : "available"
+    } ],
+    "topologicalActions" : [ {
+      "networkElementId" : "BBE2AA1  FFR3AA1  1",
+      "actionType" : "open"
+    } ]
+  }],
   "ra-usage-limits-per-instant" : []
 }

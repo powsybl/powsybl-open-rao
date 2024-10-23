@@ -85,12 +85,10 @@ public class ActivationCostEvaluator implements CostEvaluator {
     private double getTotalActivationCostFromRangeActions(RangeActionActivationResult rangeActionActivationResult) {
         AtomicReference<Double> totalActivationCost = new AtomicReference<>((double) 0);
 
-        rangeActionActivationResult.getStatesPerRangeAction().forEach((rangeAction, states) -> {
-            states.forEach(state -> {
-                double absoluteVariation = Math.abs(rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state) - rangeActionActivationResult.getOptimizedSetpointOnStatePreceding(rangeAction, state));
-                totalActivationCost.updateAndGet(v -> v + rangeAction.getActivationCost() * absoluteVariation);
-            });
-        });
+        rangeActionActivationResult.getStatesPerRangeAction().forEach((rangeAction, states) -> states.forEach(state -> {
+            double absoluteVariation = Math.abs(rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state) - rangeActionActivationResult.getOptimizedSetpointOnStatePreceding(rangeAction, state));
+            totalActivationCost.updateAndGet(v -> v + rangeAction.getActivationCost() * absoluteVariation);
+        }));
 
         return totalActivationCost.get();
     }
