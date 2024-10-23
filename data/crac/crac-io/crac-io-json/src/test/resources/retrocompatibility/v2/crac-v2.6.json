@@ -272,6 +272,10 @@
     "networkElementId" : "pst3",
     "groupId" : "group-3-pst",
     "activation-cost": 0.0,
+    "variation-costs": {
+      "up": 0.0,
+      "down": 0.0
+    },
     "initialTap" : 1,
     "tapToAngleConversionMap" : {
       "-1" : 1.0,
@@ -342,6 +346,9 @@
     "name" : "hvdcRange2Name",
     "operator" : "RTE",
     "activation-cost": 100.0,
+    "variation-costs": {
+      "down": 500.0
+    },
     "onConstraintUsageRules" : [ {
       "instant" : "preventive",
       "cnecId" : "cnec3curId",
@@ -361,6 +368,9 @@
     "operator" : null,
     "speed" : 30,
     "activation-cost": 800.0,
+    "variation-costs": {
+      "up": 2000.0
+    },
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency1Id",
@@ -385,6 +395,10 @@
     "operator" : null,
     "speed" : 30,
     "activation-cost": 10000.0,
+    "variation-costs": {
+      "up": 15000.0,
+      "down": 18000.0
+    },
     "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"

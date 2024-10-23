@@ -821,11 +821,29 @@ class JsonRetrocompatibilityTest {
 
     private void testContentOfV2Point6Crac(Crac crac) {
         testContentOfV2Point5Crac(crac);
+
+        // activation cost
         assertEquals(Optional.of(0.0), crac.getPstRangeAction("pstRange3Id").getActivationCost());
+        assertTrue(crac.getPstRangeAction("pstRange1Id").getActivationCost().isEmpty());
+        assertTrue(crac.getRangeAction("hvdcRange1Id").getActivationCost().isEmpty());
         assertEquals(Optional.of(100.0), crac.getRangeAction("hvdcRange2Id").getActivationCost());
         assertEquals(Optional.of(800.0), crac.getRangeAction("injectionRange1Id").getActivationCost());
         assertEquals(Optional.of(10000.0), crac.getRangeAction("counterTradeRange1Id").getActivationCost());
         assertEquals(Optional.of(500.0), crac.getNetworkAction("complexNetworkAction2Id").getActivationCost());
         assertTrue(crac.getNetworkAction("switchPairRaId").getActivationCost().isEmpty());
+
+        // variation costs
+        assertEquals(Optional.of(0.0), crac.getPstRangeAction("pstRange3Id").getVariationCost(RangeAction.VariationDirection.UP));
+        assertEquals(Optional.of(0.0), crac.getPstRangeAction("pstRange3Id").getVariationCost(RangeAction.VariationDirection.DOWN));
+        assertTrue(crac.getPstRangeAction("pstRange1Id").getVariationCost(RangeAction.VariationDirection.UP).isEmpty());
+        assertTrue(crac.getPstRangeAction("pstRange1Id").getVariationCost(RangeAction.VariationDirection.DOWN).isEmpty());
+        assertTrue(crac.getRangeAction("hvdcRange1Id").getVariationCost(RangeAction.VariationDirection.UP).isEmpty());
+        assertTrue(crac.getRangeAction("hvdcRange1Id").getVariationCost(RangeAction.VariationDirection.DOWN).isEmpty());
+        assertTrue(crac.getRangeAction("hvdcRange2Id").getVariationCost(RangeAction.VariationDirection.UP).isEmpty());
+        assertEquals(Optional.of(500.0), crac.getRangeAction("hvdcRange2Id").getVariationCost(RangeAction.VariationDirection.DOWN));
+        assertEquals(Optional.of(2000.0), crac.getRangeAction("injectionRange1Id").getVariationCost(RangeAction.VariationDirection.UP));
+        assertTrue(crac.getRangeAction("injectionRange1Id").getVariationCost(RangeAction.VariationDirection.DOWN).isEmpty());
+        assertEquals(Optional.of(15000.0), crac.getRangeAction("counterTradeRange1Id").getVariationCost(RangeAction.VariationDirection.UP));
+        assertEquals(Optional.of(18000.0), crac.getRangeAction("counterTradeRange1Id").getVariationCost(RangeAction.VariationDirection.DOWN));
     }
 }
