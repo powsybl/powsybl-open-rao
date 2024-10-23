@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.parameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
@@ -28,11 +29,12 @@ import java.util.Set;
 public class JsonCsaCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<CsaCracCreationParameters> {
 
     private static final String CAPACITY_CALCULATION_REGION_EIC_CODE = "capacity-calculation-region-eic-code";
-    private static final String SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS = "sps-max-time-to-implement-threshold-in-seconds";
-    private static final String USE_PATL_IN_FINAL_STATE = "use-patl-in-final-state";
-    private static final String CRA_APPLICATION_WINDOW = "cra-application-window";
-    private static final String BORDERS = "borders";
+    private static final String TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE = "tsos-which-do-not-use-patl-in-final-state";
+    private static final String AUTO_INSTANT_APPLICATION_TIME = "auto-instant-application-time";
+    private static final String CURATIVE_INSTANTS = "curative-instants";
     private static final String NAME = "name";
+    private static final String APPLICATION_TIME = "application-time";
+    private static final String BORDERS = "borders";
     private static final String EIC = "eic";
     private static final String DEFAULT_FOR_TSO = "default-for-tso";
 
@@ -40,9 +42,9 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     public void serialize(CsaCracCreationParameters csaParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         serializeCapacityCalculationRegionEicCode(csaParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
-        serializeSpsMaxTimeToImplementThresholdInSeconds(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds(), jsonGenerator);
-        serializeUsePatlInFinalState(csaParameters.getUsePatlInFinalState(), jsonGenerator);
-        serializeCraApplicationWindow(csaParameters.getCraApplicationWindow(), jsonGenerator);
+        serializeAutoInstantApplicationTime(csaParameters.getAutoInstantApplicationTime(), jsonGenerator);
+        serializeTsosWhichDoNotUsePatlInFinalState(csaParameters.getTsosWhichDoNotUsePatlInFinalState(), jsonGenerator);
+        serializeCurativeInstants(csaParameters.getCurativeInstants(), jsonGenerator);
         serializeBorders(csaParameters.getBorders(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
@@ -55,17 +57,17 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
                     jsonParser.nextToken();
                     parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
                     break;
-                case SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS:
+                case AUTO_INSTANT_APPLICATION_TIME:
                     jsonParser.nextToken();
-                    parameters.setSpsMaxTimeToImplementThresholdInSeconds(jsonParser.readValueAs(Integer.class));
+                    parameters.setAutoInstantApplicationTime(jsonParser.readValueAs(Integer.class));
                     break;
-                case USE_PATL_IN_FINAL_STATE:
+                case TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE:
                     jsonParser.nextToken();
-                    parameters.setUsePatlInFinalState(deserializeUsePatlInFinalStateMap(jsonParser));
+                    parameters.setTsosWhichDoNotUsePatlInFinalState(jsonParser.readValueAs(new TypeReference<HashSet<String>>() { }));
                     break;
-                case CRA_APPLICATION_WINDOW:
+                case CURATIVE_INSTANTS:
                     jsonParser.nextToken();
-                    parameters.setCraApplicationWindow(deserializeCraApplicationWindowMap(jsonParser));
+                    parameters.setCurativeInstants(deserializeCurativeInstants(jsonParser));
                     break;
                 case BORDERS:
                     jsonParser.nextToken();
@@ -98,34 +100,37 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
         jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION_EIC_CODE, eicCode);
     }
 
-    private void serializeSpsMaxTimeToImplementThresholdInSeconds(Integer spsMaxTimeToImplementThresholdInSeconds, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField(SPS_MAX_TIME_TO_IMPLEMENT_THRESHOLD_IN_SECONDS, spsMaxTimeToImplementThresholdInSeconds.toString());
+    private void serializeAutoInstantApplicationTime(Integer spsMaxTimeToImplementThresholdInSeconds, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStringField(AUTO_INSTANT_APPLICATION_TIME, spsMaxTimeToImplementThresholdInSeconds.toString());
     }
 
-    private void serializeUsePatlInFinalState(Map<String, Boolean> usePatlInFinalState, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName(USE_PATL_IN_FINAL_STATE);
-        jsonGenerator.writeStartObject();
-        usePatlInFinalState.forEach((tso, usePatl) -> {
+    private void serializeTsosWhichDoNotUsePatlInFinalState(Set<String> usePatlInFinalState, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE);
+        jsonGenerator.writeStartArray();
+        usePatlInFinalState.forEach(tso -> {
             try {
-                jsonGenerator.writeBooleanField(tso, usePatl);
+                jsonGenerator.writeString(tso);
             } catch (IOException e) {
-                throw new OpenRaoException("Could not serialize " + USE_PATL_IN_FINAL_STATE + " map. Reason: " + e.getMessage());
+                throwSerializationError(TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE, e);
             }
         });
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeEndArray();
     }
 
-    private void serializeCraApplicationWindow(Map<String, Integer> craApplicationWindow, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName(CRA_APPLICATION_WINDOW);
-        jsonGenerator.writeStartObject();
-        craApplicationWindow.forEach((instant, duration) -> {
+    private void serializeCurativeInstants(Map<String, Integer> curativeInstants, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(CURATIVE_INSTANTS);
+        jsonGenerator.writeStartArray();
+        curativeInstants.forEach((name, applicationTime) -> {
             try {
-                jsonGenerator.writeNumberField(instant, duration);
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField(NAME, name);
+                jsonGenerator.writeNumberField(APPLICATION_TIME, applicationTime);
+                jsonGenerator.writeEndObject();
             } catch (IOException e) {
-                throw new OpenRaoException("Could not serialize " + CRA_APPLICATION_WINDOW + " map. Reason: " + e.getMessage());
+                throwSerializationError(CURATIVE_INSTANTS, e);
             }
         });
-        jsonGenerator.writeEndObject();
+        jsonGenerator.writeEndArray();
     }
 
     private void serializeBorders(Set<Border> borders, JsonGenerator jsonGenerator) throws IOException {
@@ -139,7 +144,7 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
                 jsonGenerator.writeStringField(DEFAULT_FOR_TSO, border.defaultForTso());
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
-                throw new OpenRaoException("Could not serialize " + BORDERS + " map. Reason: " + e.getMessage());
+                throwSerializationError(BORDERS, e);
             }
         });
         jsonGenerator.writeEndArray();
@@ -150,20 +155,26 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
         return deserializeAndUpdate(jsonParser, deserializationContext, new CsaCracCreationParameters());
     }
 
-    private Map<String, Boolean> deserializeUsePatlInFinalStateMap(JsonParser jsonParser) throws IOException {
-        Map<String, Boolean> usePatlInFinalState = new HashMap<>();
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            usePatlInFinalState.put(jsonParser.getCurrentName(), jsonParser.nextBooleanValue());
+    private Map<String, Integer> deserializeCurativeInstants(JsonParser jsonParser) throws IOException {
+        Map<String, Integer> curativeInstants = new HashMap<>();
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            String name = null;
+            Integer applicationTime = null;
+            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                if (NAME.equals(jsonParser.getCurrentName())) {
+                    name = jsonParser.nextTextValue();
+                } else if (APPLICATION_TIME.equals(jsonParser.getCurrentName())) {
+                    applicationTime = jsonParser.nextIntValue(0);
+                } else {
+                    throw new OpenRaoException("Unexpected field in %s: %s".formatted(CURATIVE_INSTANTS, jsonParser.getCurrentName()));
+                }
+            }
+            if (name == null || applicationTime == null) {
+                throw new OpenRaoException("Incomplete data for curative instant; please provide both a %s and an %s".formatted(NAME, APPLICATION_TIME));
+            }
+            curativeInstants.put(name, applicationTime);
         }
-        return usePatlInFinalState;
-    }
-
-    private Map<String, Integer> deserializeCraApplicationWindowMap(JsonParser jsonParser) throws IOException {
-        Map<String, Integer> craApplicationWindow = new HashMap<>();
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            craApplicationWindow.put(jsonParser.getCurrentName(), jsonParser.nextIntValue(0));
-        }
-        return craApplicationWindow;
+        return curativeInstants;
     }
 
     private Set<Border> deserializeBorders(JsonParser jsonParser) throws IOException {
@@ -176,5 +187,9 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
             borders.add(new Border(borderData.get(NAME), borderData.get(EIC), borderData.get(DEFAULT_FOR_TSO)));
         }
         return borders;
+    }
+
+    private static void throwSerializationError(String nonSerializableField, IOException e) {
+        throw new OpenRaoException("Could not serialize " + nonSerializableField + " map. Reason: " + e.getMessage());
     }
 }
