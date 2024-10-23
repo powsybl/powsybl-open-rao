@@ -33,7 +33,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.5";
+    public static final String CRAC_IO_VERSION = "2.6";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -49,6 +49,7 @@ public final class JsonSerializationConstants {
     v2.3: addition of RELATIVE_TO_PREVIOUS_TIME_STEP RangeType, and border attribute for cnecs
     v2.4: new names for onConstraint and cnecId, side left/right -> one/two
     v2.5: elementary actions have new type coming from core remedial actions
+    v2.6: addition of activation-cost and variation-costs for remedial actions
      */
 
     // headers
@@ -152,6 +153,11 @@ public final class JsonSerializationConstants {
 
     public static final String COUNTRY = "country";
 
+    public static final String ACTIVATION_COST = "activation-cost";
+    public static final String VALIDATION_COSTS = "validation-costs";
+    public static final String UP = "up";
+    public static final String DOWN = "down";
+
     // instants
     public static final String PREVENTIVE_INSTANT_KIND = "PREVENTIVE";
     public static final String OUTAGE_INSTANT_KIND = "OUTAGE";
@@ -160,12 +166,6 @@ public final class JsonSerializationConstants {
 
     // ra usage limits
     public static final String RA_USAGE_LIMITS_PER_INSTANT = "ra-usage-limits-per-instant";
-    public static final String MAX_RA = "max-ra";
-    public static final String MAX_TSO = "max-tso";
-    public static final String MAX_TOPO_PER_TSO = "max-topo-per-tso";
-    public static final String MAX_PST_PER_TSO = "max-pst-per-tso";
-    public static final String MAX_RA_PER_TSO = "max-ra-per-tso";
-    public static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "max-elementary-actions-per-tso";
 
     // units
     public static final String AMPERE_UNIT = "ampere";

@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -326,6 +327,15 @@ class JsonRetrocompatibilityTest {
         Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
         assertEquals(7, crac.getNetworkActions().size());
         testContentOfV2Point5Crac(crac);
+    }
+
+    @Test
+    void importV2Point6Test() {
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.6.json");
+
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
+        assertEquals(7, crac.getNetworkActions().size());
+        testContentOfV2Point6Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -807,5 +817,15 @@ class JsonRetrocompatibilityTest {
 
     private void testContentOfV2Point5Crac(Crac crac) {
         testContentOfV2Point4Crac(crac);
+    }
+
+    private void testContentOfV2Point6Crac(Crac crac) {
+        testContentOfV2Point5Crac(crac);
+        assertEquals(Optional.of(0.0), crac.getPstRangeAction("pstRange3Id").getActivationCost());
+        assertEquals(Optional.of(100.0), crac.getRangeAction("hvdcRange2Id").getActivationCost());
+        assertEquals(Optional.of(800.0), crac.getRangeAction("injectionRange1Id").getActivationCost());
+        assertEquals(Optional.of(10000.0), crac.getRangeAction("counterTradeRange1Id").getActivationCost());
+        assertEquals(Optional.of(500.0), crac.getNetworkAction("complexNetworkAction2Id").getActivationCost());
+        assertTrue(crac.getNetworkAction("switchPairRaId").getActivationCost().isEmpty());
     }
 }
