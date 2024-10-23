@@ -99,6 +99,10 @@ public final class StandardRangeActionDeserializer {
                 jsonParser.nextToken();
                 standardRangeActionAdder.withSpeed(jsonParser.getIntValue());
                 break;
+            case ACTIVATION_COST:
+                jsonParser.nextToken();
+                standardRangeActionAdder.withActivationCost(jsonParser.getDoubleValue());
+                break;
             default:
                 return false;
         }
