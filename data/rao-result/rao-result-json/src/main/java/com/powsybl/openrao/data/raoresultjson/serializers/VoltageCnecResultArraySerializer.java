@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.data.raoresultjson.RaoResultJsonConstants.*;
 
 /**
@@ -89,13 +90,13 @@ final class VoltageCnecResultArraySerializer {
 
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         if (!Double.isNaN(margin)) {
-            jsonGenerator.writeNumberField(MARGIN, Math.round(100.0 * margin) / 100.0);
+            jsonGenerator.writeNumberField(MARGIN, roundValueBasedOnMargin(margin, margin, 2));
         }
         if (!Double.isNaN(minVoltage)) {
-            jsonGenerator.writeNumberField(MIN_VOLTAGE, Math.round(100.0 * minVoltage) / 100.0);
+            jsonGenerator.writeNumberField(MIN_VOLTAGE, roundValueBasedOnMargin(minVoltage, margin, 2));
         }
         if (!Double.isNaN(maxVoltage)) {
-            jsonGenerator.writeNumberField(MAX_VOLTAGE, Math.round(100.0 * maxVoltage) / 100.0);
+            jsonGenerator.writeNumberField(MAX_VOLTAGE, roundValueBasedOnMargin(maxVoltage, margin, 2));
         }
         jsonGenerator.writeEndObject();
     }

@@ -6,11 +6,10 @@
       "tsos-which-do-not-use-patl-in-final-state": [
         "REE"
       ],
-      "auto-instant-application-time": 60,
+      "auto-instant-application-time": 0,
       "curative-instants": [
         {
-          "name": "curative 1",
-          "application-time": 300
+          "name": "curative 1"
         },
         {
           "name": "curative 2",
