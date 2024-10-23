@@ -154,7 +154,7 @@ public final class JsonSerializationConstants {
     public static final String COUNTRY = "country";
 
     public static final String ACTIVATION_COST = "activation-cost";
-    public static final String VALIDATION_COSTS = "validation-costs";
+    public static final String VARIATION_COSTS = "variation-costs";
     public static final String UP = "up";
     public static final String DOWN = "down";
 
