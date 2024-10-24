@@ -51,7 +51,7 @@ import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getRaoParamete
 public class SweCneExporter implements Exporter {
     @Override
     public String getFormat() {
-        return "SWE CNE";
+        return "SWE-CNE";
     }
 
     @Override
