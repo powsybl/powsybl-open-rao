@@ -324,6 +324,12 @@ public class SearchTreeRaoSteps {
         assertEquals(expectedMargin, worstCnec.getValue(), flowAmpereTolerance(expectedMargin));
     }
 
+    @Then("the worst margin is {double} A with a tolerance of {double} A")
+    public void worstMarginInA(double expectedMargin, double delta) {
+        Pair<FlowCnec, Double> worstCnec = getWorstCnec(Unit.AMPERE, false);
+        assertEquals(expectedMargin, worstCnec.getValue(), delta);
+    }
+
     @Then("the worst margin is {double} A on cnec {string}")
     public void worstMarginAndCnecInA(double expectedMargin, String expectedCnecName) {
         Pair<FlowCnec, Double> worstCnec = getWorstCnec(Unit.AMPERE, false);
@@ -640,7 +646,7 @@ public class SearchTreeRaoSteps {
             crac = CommonTestData.getCrac();
             RaoParameters raoParameters = CommonTestData.getRaoParameters();
             ReferenceProgram referenceProgram = CommonTestData.getReferenceProgram() != null ? CommonTestData.getReferenceProgram() : ReferenceProgramBuilder.buildReferenceProgram(network, loadFlowProvider, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
-            ZonalData<SensitivityVariableSet> glsks = CommonTestData.getGlsks();
+            ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
 
             // run loopFlowComputation
             LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram);

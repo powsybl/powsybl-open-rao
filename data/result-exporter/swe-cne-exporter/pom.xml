@@ -12,7 +12,7 @@
     <parent>
         <artifactId>open-rao-result-exporter</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.1.0-SNAPSHOT</version>
+        <version>6.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -53,7 +53,7 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-angle-monitoring</artifactId>
+            <artifactId>monitoring</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

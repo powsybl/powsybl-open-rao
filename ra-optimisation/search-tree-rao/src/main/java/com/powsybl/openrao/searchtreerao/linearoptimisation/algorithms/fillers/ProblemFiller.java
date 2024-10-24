@@ -17,9 +17,7 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
  */
 public interface ProblemFiller {
 
-    void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult);
-
-    void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult);
+    void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult);
 
     void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult);
 }
