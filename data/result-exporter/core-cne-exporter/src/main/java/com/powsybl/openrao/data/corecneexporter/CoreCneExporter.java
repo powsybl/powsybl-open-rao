@@ -51,7 +51,7 @@ import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getRaoParamete
 public class CoreCneExporter implements Exporter {
     @Override
     public String getFormat() {
-        return "CORE CNE";
+        return "CORE-CNE";
     }
 
     @Override
