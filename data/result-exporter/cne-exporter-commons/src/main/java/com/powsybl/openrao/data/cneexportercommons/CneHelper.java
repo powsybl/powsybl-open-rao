@@ -76,7 +76,7 @@ public class CneHelper {
         return raoResult;
     }
 
-    public boolean getRelativePositiveMargins() {
+    public boolean isRelativePositiveMargins() {
         return relativePositiveMargins;
     }
 
