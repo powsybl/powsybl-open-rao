@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
-import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cneexportercommons.CneHelper;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -26,8 +25,8 @@ import java.util.stream.Collectors;
 public class SweCneHelper extends CneHelper {
     private Map<Contingency, Boolean> contingencyFailureMap = new HashMap<>();
 
-    public SweCneHelper(Crac crac, RaoResult raoResult, Properties properties, CneExporterParameters exporterParameters) {
-        super(crac, raoResult, properties, exporterParameters);
+    public SweCneHelper(Crac crac, RaoResult raoResult, Properties properties) {
+        super(crac, raoResult, properties);
         defineContingencyFailureMap();
     }
 

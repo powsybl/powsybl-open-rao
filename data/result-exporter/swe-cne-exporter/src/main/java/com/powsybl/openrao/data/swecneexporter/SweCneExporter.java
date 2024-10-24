@@ -38,7 +38,6 @@ import java.util.Objects;
 import java.util.Properties;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
-import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getParametersFromProperties;
 
 /**
  * Xml export of the CNE file
@@ -55,7 +54,7 @@ public class SweCneExporter implements Exporter {
 
     @Override
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
-        SweCne cne = new SweCne((CimCracCreationContext) cracCreationContext, raoResult, properties, getParametersFromProperties(properties));
+        SweCne cne = new SweCne((CimCracCreationContext) cracCreationContext, raoResult, properties);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();

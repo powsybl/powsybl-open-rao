@@ -184,12 +184,12 @@ public final class CoreCneCnecsCreator {
         // A01
         measurements.add(createFlowMeasurement(cnec, optimizedInstant, Unit.MEGAWATT, shouldInvertBranchDirection));
         // Z11
-        if (withSumPtdf && cneHelper.isRelativePositiveMargins()) {
+        if (withSumPtdf && cneHelper.getRelativePositiveMargins()) {
             measurements.add(createPtdfZonalSumMeasurement(cnec));
         }
         // A03
         measurements.add(createFrmMeasurement(cnec));
-        if (cneHelper.isWithLoopflows()) {
+        if (cneHelper.isWithLoopFlows()) {
             // Z16 & Z17
             measurements.addAll(createLoopflowMeasurements(cnec, optimizedInstant, shouldInvertBranchDirection));
         }
@@ -256,7 +256,7 @@ public final class CoreCneCnecsCreator {
 
     private Analog createObjectiveValueMeasurement(FlowCnec cnec, Instant optimizedInstant, Unit unit, String measurementType) {
         double margin = getCnecMargin(cnec, optimizedInstant, unit, true);
-        if (cneHelper.isRelativePositiveMargins() && margin > 0) {
+        if (cneHelper.getRelativePositiveMargins() && margin > 0) {
             margin = getCnecRelativeMargin(cnec, optimizedInstant, unit);
         }
         return newFlowMeasurement(measurementType, unit, margin);

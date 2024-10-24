@@ -7,14 +7,12 @@
 
 package com.powsybl.openrao.data.corecneexporter;
 
-import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
 import com.powsybl.openrao.data.corecneexporter.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,8 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CoreCneTest {
     private Crac crac;
     private RaoResult raoResult;
-    private RaoParameters raoParameters;
-    private CneExporterParameters exporterParameters;
     private UcteCracCreationContext cracCreationContext;
 
     @BeforeEach
@@ -41,7 +37,6 @@ class CoreCneTest {
         CneUtil.initUniqueIds();
         crac = CracFactory.findDefault().create("test-crac");
         raoResult = Mockito.mock(RaoResult.class);
-        raoParameters = new RaoParameters();
         cracCreationContext = Mockito.mock(UcteCracCreationContext.class);
         Mockito.when(cracCreationContext.getCrac()).thenReturn(crac);
         Mockito.when(cracCreationContext.getBranchCnecCreationContexts()).thenReturn(new ArrayList<>());
@@ -51,10 +46,19 @@ class CoreCneTest {
 
     @Test
     void testHeader() {
-        exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "22XCORESO------S", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
-            "2021-10-30T22:00:00Z/2021-10-31T23:00:00Z");
-        CoreCne cne = new CoreCne(cracCreationContext, raoResult, new Properties(), exporterParameters);
+        Properties properties = new Properties();
+        properties.setProperty("relative-positive-margins", "true");
+        properties.setProperty("document-id", "22XCORESO------S-20211115-F299v1");
+        properties.setProperty("revision-number", "2");
+        properties.setProperty("domain-id", "10YDOM-REGION-1V");
+        properties.setProperty("process-type", "A48");
+        properties.setProperty("sender-id", "22XCORESO------S");
+        properties.setProperty("sender-role", "A44");
+        properties.setProperty("receiver-id", "17XTSO-CS------W");
+        properties.setProperty("receiver-role", "A36");
+        properties.setProperty("time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
+
+        CoreCne cne = new CoreCne(cracCreationContext, raoResult, properties);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         assertEquals("22XCORESO------S-20211115-F299v1", marketDocument.getMRID());

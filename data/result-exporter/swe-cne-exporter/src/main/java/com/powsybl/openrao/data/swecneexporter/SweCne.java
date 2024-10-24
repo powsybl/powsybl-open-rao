@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.swecneexporter;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -38,9 +37,9 @@ public class SweCne {
     private final SweCneHelper sweCneHelper;
     private final CimCracCreationContext cracCreationContext;
 
-    public SweCne(CimCracCreationContext cracCreationContext, RaoResult raoResult, Properties properties, CneExporterParameters exporterParameters) {
+    public SweCne(CimCracCreationContext cracCreationContext, RaoResult raoResult, Properties properties) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        sweCneHelper = new SweCneHelper(cracCreationContext.getCrac(), raoResult, properties, exporterParameters);
+        sweCneHelper = new SweCneHelper(cracCreationContext.getCrac(), raoResult, properties);
         this.cracCreationContext = cracCreationContext;
     }
 
@@ -73,14 +72,14 @@ public class SweCne {
 
     // fills the header of the CNE
     private void fillHeader(OffsetDateTime offsetDateTime) {
-        marketDocument.setMRID(sweCneHelper.getExporterParameters().getDocumentId());
-        marketDocument.setRevisionNumber(String.valueOf(sweCneHelper.getExporterParameters().getRevisionNumber()));
+        marketDocument.setMRID(sweCneHelper.getDocumentId());
+        marketDocument.setRevisionNumber(String.valueOf(sweCneHelper.getRevisionNumber()));
         marketDocument.setType(CNE_TYPE);
-        marketDocument.setProcessProcessType(sweCneHelper.getExporterParameters().getProcessType().getCode());
-        marketDocument.setSenderMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, sweCneHelper.getExporterParameters().getSenderId()));
-        marketDocument.setSenderMarketParticipantMarketRoleType(sweCneHelper.getExporterParameters().getSenderRole().getCode());
-        marketDocument.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, sweCneHelper.getExporterParameters().getReceiverId()));
-        marketDocument.setReceiverMarketParticipantMarketRoleType(sweCneHelper.getExporterParameters().getReceiverRole().getCode());
+        marketDocument.setProcessProcessType(sweCneHelper.getProcessType());
+        marketDocument.setSenderMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, sweCneHelper.getSenderId()));
+        marketDocument.setSenderMarketParticipantMarketRoleType(sweCneHelper.getSenderRole());
+        marketDocument.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, sweCneHelper.getReceiverId()));
+        marketDocument.setReceiverMarketParticipantMarketRoleType(sweCneHelper.getReceiverRole());
         marketDocument.setCreatedDateTime(createXMLGregorianCalendarNow());
         marketDocument.setTimePeriodTimeInterval(SweCneUtil.createEsmpDateTimeInterval(offsetDateTime));
     }

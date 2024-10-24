@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.corecneexporter;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cneexportercommons.CneHelper;
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
 import com.powsybl.openrao.data.corecneexporter.xsd.ConstraintSeries;
@@ -41,9 +40,9 @@ public class CoreCne {
     private final CneHelper cneHelper;
     private final UcteCracCreationContext cracCreationContext;
 
-    public CoreCne(UcteCracCreationContext cracCreationContext, RaoResult raoResult, Properties properties, CneExporterParameters exporterParameters) {
+    public CoreCne(UcteCracCreationContext cracCreationContext, RaoResult raoResult, Properties properties) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        cneHelper = new CneHelper(cracCreationContext.getCrac(), raoResult, properties, exporterParameters);
+        cneHelper = new CneHelper(cracCreationContext.getCrac(), raoResult, properties);
         this.cracCreationContext = cracCreationContext;
     }
 
@@ -73,17 +72,17 @@ public class CoreCne {
 
     // fills the header with the CNE
     private void fillHeader() {
-        marketDocument.setMRID(cneHelper.getExporterParameters().getDocumentId());
-        marketDocument.setRevisionNumber(String.valueOf(cneHelper.getExporterParameters().getRevisionNumber()));
+        marketDocument.setMRID(cneHelper.getDocumentId());
+        marketDocument.setRevisionNumber(String.valueOf(cneHelper.getRevisionNumber()));
         marketDocument.setType(CNE_TYPE);
-        marketDocument.setProcessProcessType(cneHelper.getExporterParameters().getProcessType().getCode());
-        marketDocument.setSenderMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, cneHelper.getExporterParameters().getSenderId()));
-        marketDocument.setSenderMarketParticipantMarketRoleType(cneHelper.getExporterParameters().getSenderRole().getCode());
-        marketDocument.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, cneHelper.getExporterParameters().getReceiverId()));
-        marketDocument.setReceiverMarketParticipantMarketRoleType(cneHelper.getExporterParameters().getReceiverRole().getCode());
+        marketDocument.setProcessProcessType(cneHelper.getProcessType());
+        marketDocument.setSenderMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, cneHelper.getSenderId()));
+        marketDocument.setSenderMarketParticipantMarketRoleType(cneHelper.getSenderRole());
+        marketDocument.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, cneHelper.getReceiverId()));
+        marketDocument.setReceiverMarketParticipantMarketRoleType(cneHelper.getReceiverRole());
         marketDocument.setCreatedDateTime(createXMLGregorianCalendarNow());
-        marketDocument.setTimePeriodTimeInterval(createEsmpDateTimeIntervalForWholeDay(cneHelper.getExporterParameters().getTimeInterval()));
-        marketDocument.setDomainMRID(createAreaIDString(A01_CODING_SCHEME, cneHelper.getExporterParameters().getDomainId()));
+        marketDocument.setTimePeriodTimeInterval(createEsmpDateTimeIntervalForWholeDay(cneHelper.getTimeInterval()));
+        marketDocument.setDomainMRID(createAreaIDString(A01_CODING_SCHEME, cneHelper.getDomainId()));
     }
 
     // creates and adds the TimeSeries to the CNE
