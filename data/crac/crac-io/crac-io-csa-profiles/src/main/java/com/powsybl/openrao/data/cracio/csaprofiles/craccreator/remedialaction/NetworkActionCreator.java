@@ -133,7 +133,7 @@ public class NetworkActionCreator {
             } else {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("CSA remedial action %s is an injection on rotating machine should be on generator or load only, not on %s", remedialActionId, networkElement.getType()));
             }
-            actionAdder.withNetworkElement(rotatingMachineId).add();
+            actionAdder.withId(nativeRotatingMachineAction.mrid()).withNetworkElement(rotatingMachineId).add();
             return true;
         } else {
             alterations.add("Elementary rotating machine action on rotating machine %s for remedial action %s ignored because the RotatingMachineAction is disabled".formatted(nativeRotatingMachineAction.rotatingMachineId(), remedialActionId));
@@ -159,6 +159,7 @@ public class NetworkActionCreator {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("CSA remedial action %s is an injection on shunt compensator and should be on shunt compensator only, not on %s", remedialActionId, networkElement.getType()));
             }
             networkActionAdder.newShuntCompensatorPositionAction()
+                .withId(nativeShuntCompensatorModification.mrid())
                 .withSectionCount((int) setPointValue)
                 .withNetworkElement(shuntCompensatorId)
                 .add();
@@ -262,6 +263,7 @@ public class NetworkActionCreator {
                 throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("CSA remedial action %s is a topological action and should be on switch only, not on %s", remedialActionId, networkElement.getType()));
             }
             networkActionAdder.newSwitchAction()
+                .withId(nativeTopologyAction.mrid())
                 .withNetworkElement(switchId)
                 .withActionType(nativeStaticPropertyRange.normalValue() == 0d ? ActionType.CLOSE : ActionType.OPEN).add();
             return true;

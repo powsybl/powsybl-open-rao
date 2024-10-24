@@ -23,6 +23,7 @@ public class DanglingLineActionSerializer extends AbstractJsonSerializer<Danglin
     @Override
     public void serialize(DanglingLineAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
+        gen.writeStringField(ACTION_ID, value.getId());
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getDanglingLineId());
         gen.writeNumberField(ACTIVE_POWER_VALUE, value.getActivePowerValue().getAsDouble());
         gen.writeEndObject();

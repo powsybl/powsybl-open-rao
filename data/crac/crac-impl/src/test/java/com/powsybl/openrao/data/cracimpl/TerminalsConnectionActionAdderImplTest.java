@@ -43,6 +43,26 @@ class TerminalsConnectionActionAdderImplTest {
             .add();
 
         TerminalsConnectionAction terminalsConnectionAction = (TerminalsConnectionAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("TerminalsConnectionAction_branchNetworkElementId_OPEN", terminalsConnectionAction.getId());
+        assertEquals("branchNetworkElementId", terminalsConnectionAction.getElementId());
+        assertTrue(terminalsConnectionAction.isOpen());
+
+        // check that network element has been added in CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("branchNetworkElementId"));
+    }
+
+    @Test
+    void testOkWithId() {
+        NetworkAction networkAction = networkActionAdder.newTerminalsConnectionAction()
+            .withId("terminalsConnectionAction")
+            .withNetworkElement("branchNetworkElementId")
+            .withActionType(ActionType.OPEN)
+            .add()
+            .add();
+
+        TerminalsConnectionAction terminalsConnectionAction = (TerminalsConnectionAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("terminalsConnectionAction", terminalsConnectionAction.getId());
         assertEquals("branchNetworkElementId", terminalsConnectionAction.getElementId());
         assertTrue(terminalsConnectionAction.isOpen());
 

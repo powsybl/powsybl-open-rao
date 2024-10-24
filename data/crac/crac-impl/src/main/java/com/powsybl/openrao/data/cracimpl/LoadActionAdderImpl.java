@@ -33,7 +33,7 @@ public class LoadActionAdderImpl extends AbstractSingleNetworkElementActionAdder
 
     protected Action buildAction() {
         return new LoadActionBuilder()
-            .withId(String.format("%s_%s_%s", getActionName(), networkElementId, activePowerValue))
+            .withId(createActionName(activePowerValue))
             .withNetworkElementId(networkElementId)
             .withRelativeValue(false)
             .withActivePowerValue(activePowerValue)

@@ -22,6 +22,7 @@ public class LoadActionSerializer extends AbstractJsonSerializer<LoadAction> {
     @Override
     public void serialize(LoadAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
+        gen.writeStringField(ACTION_ID, value.getId());
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getLoadId());
         gen.writeNumberField(ACTIVE_POWER_VALUE, value.getActivePowerValue().getAsDouble());
         gen.writeEndObject();

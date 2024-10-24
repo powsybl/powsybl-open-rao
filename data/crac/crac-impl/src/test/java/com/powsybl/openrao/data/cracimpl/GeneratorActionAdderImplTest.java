@@ -43,6 +43,26 @@ class GeneratorActionAdderImplTest {
             .add();
 
         GeneratorAction generatorAction = (GeneratorAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("GeneratorAction_groupNetworkElementId_100.0", generatorAction.getId());
+        assertEquals("groupNetworkElementId", generatorAction.getGeneratorId());
+        assertEquals(100., generatorAction.getActivePowerValue().getAsDouble(), 1e-3);
+
+        // check that network element have been added to CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("groupNetworkElementId"));
+    }
+
+    @Test
+    void testOkWithId() {
+        NetworkAction networkAction = networkActionAdder.newGeneratorAction()
+            .withId("generatorAction")
+            .withNetworkElement("groupNetworkElementId")
+            .withActivePowerValue(100.)
+            .add()
+            .add();
+
+        GeneratorAction generatorAction = (GeneratorAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("generatorAction", generatorAction.getId());
         assertEquals("groupNetworkElementId", generatorAction.getGeneratorId());
         assertEquals(100., generatorAction.getActivePowerValue().getAsDouble(), 1e-3);
 
