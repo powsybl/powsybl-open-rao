@@ -7,23 +7,28 @@
 
 package com.powsybl.openrao.data.cracio.json;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.InstantKind;
+import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.threshold.BranchThreshold;
 import com.powsybl.openrao.data.cracapi.threshold.Threshold;
 import com.powsybl.openrao.data.cracapi.usagerule.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -488,6 +493,29 @@ public final class JsonSerializationConstants {
         } else {
             adder.withNetworkElement(networkElementId);
         }
+    }
+
+    public static void serializeActivationCost(RemedialAction<?> remedialAction, JsonGenerator gen) throws IOException {
+        Optional<Double> activationCost = remedialAction.getActivationCost();
+        if (activationCost.isPresent()) {
+            gen.writeNumberField(ACTIVATION_COST, activationCost.get());
+        }
+    }
+
+    public static void serializeVariationCosts(RangeAction<?> rangeAction, JsonGenerator gen) throws IOException {
+        Optional<Double> variationCostUp = rangeAction.getVariationCost(RangeAction.VariationDirection.UP);
+        Optional<Double> variationCostDown = rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN);
+        if (variationCostUp.isEmpty() && variationCostDown.isEmpty()) {
+            return;
+        }
+        gen.writeObjectFieldStart(VARIATION_COSTS);
+        if (variationCostUp.isPresent()) {
+            gen.writeNumberField(UP, variationCostUp.get());
+        }
+        if (variationCostDown.isPresent()) {
+            gen.writeNumberField(DOWN, variationCostDown.get());
+        }
+        gen.writeEndObject();
     }
 
 }
