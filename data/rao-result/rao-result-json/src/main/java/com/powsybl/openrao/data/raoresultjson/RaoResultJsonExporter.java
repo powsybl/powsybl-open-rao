@@ -30,17 +30,16 @@ import java.util.Set;
 /**
  * Rao Result exporter in JSON format.
  * <p/>
- * Accepted properties:
+ * Optional properties:
  * <ul>
  *     <li>
- *         <i>flows-in-amperes</i>: whether to export the flow values in amperes (A) or not.
- *         Accepted values: "true" or "false" (default).
+ *         <i>flows-in-amperes</i>: boolean (default is "false").
  *     </li>
  *     <li>
- *         <i>flows-in-megawatts</i>: whether to export the flow values in megawatts (MW) or not.
- *         Accepted values: "true" or "false" (default).
+ *         <i>flows-in-megawatts</i>: boolean (default is "false").
  *     </li>
  * </ul>
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(Exporter.class)

@@ -40,7 +40,50 @@ import java.util.Properties;
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
 
 /**
- * Xml export of the CNE file
+ * CORE-CNE Rao Result exporter in XML format.
+ * <p/>
+ * Optional properties:
+ * <ul>
+ *     <li>
+ *         <i>relative-positive-margins</i>: boolean (default is "false").
+ *     </li>
+ *     <li>
+ *         <i>with-loop-flows</i>: boolean (default is "false").
+ *     </li>
+ *     <li>
+ *         <i>mnec-acceptable-margin-diminution</i>: double (default is "0").
+ *     </li>
+ * </ul>
+ * Required properties:
+ * <ul>
+ *     <li>
+ *         <i>document-id</i>: string
+ *     </li>
+ *     <li>
+ *         <i>revision-number</i>: integer
+ *     </li>
+ *     <li>
+ *         <i>domain-id</i>: string
+ *     </li>
+ *     <li>
+ *         <i>process-type</i>: string
+ *     </li>
+ *     <li>
+ *         <i>sender-id</i>: string
+ *     </li>
+ *     <li>
+ *         <i>sender-role</i>: string
+ *     </li>
+ *     <li>
+ *         <i>receiver-id</i>: string
+ *     </li>
+ *     <li>
+ *         <i>receiver-role</i>: string
+ *     </li>
+ *     <li>
+ *         <i>time-interval</i>: string
+ *     </li>
+ * </ul>
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
