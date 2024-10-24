@@ -275,6 +275,31 @@ public final class LinearProblem {
         return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
     }
 
+    public OpenRaoMPVariable addInjectionVariationVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeNumVar(lb, ub, rangeActionInjectionVariationVariableId(rangeAction, state));
+    }
+
+    public OpenRaoMPVariable getInjectionVariationVariable(RangeAction<?> rangeAction, State state) {
+        return solver.getVariable(rangeActionInjectionVariationVariableId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addInjectionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, signedRangeActionVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getInjectionVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(signedRangeActionVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addInjectionBalanceVariationConstraint(double lb, double ub, State state) {
+        String constraintName = injectionBalanceVariationConstraintId(state);
+        return solver.makeConstraint(lb, ub, constraintName);
+    }
+
+    public OpenRaoMPConstraint getInjectionBalanceVariationConstraint(State state) {
+        return solver.getConstraint(injectionBalanceVariationConstraintId(state));
+    }
+
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
