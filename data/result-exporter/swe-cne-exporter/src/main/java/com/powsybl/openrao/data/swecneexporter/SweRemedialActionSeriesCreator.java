@@ -153,7 +153,7 @@ public class SweRemedialActionSeriesCreator {
             } else if (usedRa instanceof PstRangeAction pstRangeAction) {
                 return generatePstRaSeries(pstRangeAction, state, context, onlyReference);
             } else if (usedRa instanceof HvdcRangeAction hvdcRangeAction) {
-                // In case of an HVDC, the native crac has one series per direction, we select the one that corresponds to the sign of the setpoint
+                // In case of an HVDC, the native getCrac has one series per direction, we select the one that corresponds to the sign of the setpoint
                 if (context.isInverted() == (raoResult.getOptimizedSetPointOnState(state, hvdcRangeAction) < 0)) {
                     return generateHvdcRaSeries(hvdcRangeAction, state, context);
                 }
