@@ -148,4 +148,18 @@ class LinearProblemBuilderTest {
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
         assertInstanceOf(RaUsageLimitsFiller.class, fillers.get(3));
     }
+
+    @Test
+    void testBuildMinCostContinuous() {
+        when(rangeActionParameters.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST_MEGAWATT);
+
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
+        assertNotNull(linearProblem);
+        List<ProblemFiller> fillers = linearProblem.getFillers();
+        assertEquals(3, fillers.size());
+        assertTrue(fillers.get(0) instanceof CoreProblemFiller);
+        assertTrue(fillers.get(1) instanceof MinCostFiller);
+        assertTrue(fillers.get(2) instanceof ContinuousRangeActionGroupFiller);
+    }
 }

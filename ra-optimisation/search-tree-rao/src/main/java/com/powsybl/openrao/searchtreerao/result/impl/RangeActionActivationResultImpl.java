@@ -16,6 +16,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -108,6 +109,12 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     @Override
+    public Map<RangeAction<?>, Set<State>> getStatesPerRangeAction() {
+        return elementaryResultMap.keySet().stream()
+            .collect(Collectors.toMap(Function.identity(), rangeAction -> elementaryResultMap.get(rangeAction).setPointPerState.keySet()));
+    }
+
+    @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         computeSetpointsPerStatePerPst();
         return elementaryResultMap.entrySet().stream()
@@ -144,6 +151,14 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             throw new OpenRaoException(format("range action %s is not present in the result", rangeAction.getName()));
         }
         return elementaryResultMap.get(rangeAction).refSetpoint;
+    }
+
+    @Override
+    public double getOptimizedSetpointOnStatePreceding(RangeAction<?> rangeAction, State state) {
+        Optional<State> previousStateOptional = getPreviousState(state);
+
+        return previousStateOptional.map(previousState -> getOptimizedSetpoint(rangeAction, previousState))
+            .orElseGet(() -> elementaryResultMap.get(rangeAction).refSetpoint);
     }
 
     private Double getSetpointForState(Map<State, Double> setPointPerState, State state) {
@@ -186,4 +201,5 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             .filter(s -> s.getInstant().comesBefore(state.getInstant()))
             .max(Comparator.comparingInt(s -> s.getInstant().getOrder()));
     }
+
 }

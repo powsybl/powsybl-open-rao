@@ -37,6 +37,15 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         this.importingCountry = importingCountry;
     }
 
+    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
+                                List<StandardRange> ranges, double initialSetpoint, Integer speed, Country exportingCountry, Country importingCountry, double activationCost) {
+        super(id, name, operator, usageRules, groupId, speed, activationCost);
+        this.ranges = ranges;
+        this.initialSetpoint = initialSetpoint;
+        this.exportingCountry = exportingCountry;
+        this.importingCountry = importingCountry;
+    }
+
     @Override
     public List<StandardRange> getRanges() {
         return ranges;

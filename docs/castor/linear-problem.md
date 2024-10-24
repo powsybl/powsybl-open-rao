@@ -5,6 +5,7 @@
 linear-problem/core-problem-filler.md
 linear-problem/max-min-margin-filler.md
 linear-problem/max-min-relative-margin-filler.md
+linear-problem/min-cost-filler.md
 linear-problem/max-loop-flow-filler.md
 linear-problem/mnec-filler.md
 linear-problem/continuous-range-action-group-filler.md

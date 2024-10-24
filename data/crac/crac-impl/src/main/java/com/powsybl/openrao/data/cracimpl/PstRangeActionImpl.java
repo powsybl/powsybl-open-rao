@@ -51,6 +51,18 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         this.smallestAngleStep = computeSmallestAngleStep();
     }
 
+    PstRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<TapRange> ranges,
+                       NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed, double activationCost) {
+        super(id, name, operator, usageRules, groupId, speed, activationCost);
+        this.networkElement = networkElement;
+        this.ranges = ranges;
+        this.initialTapPosition = initialTap;
+        this.tapToAngleConversionMap = tapToAngleConversionMap;
+        this.lowTapPosition = Collections.min(tapToAngleConversionMap.keySet());
+        this.highTapPosition = Collections.max(tapToAngleConversionMap.keySet());
+        this.smallestAngleStep = computeSmallestAngleStep();
+    }
+
     @Override
     public NetworkElement getNetworkElement() {
         return networkElement;

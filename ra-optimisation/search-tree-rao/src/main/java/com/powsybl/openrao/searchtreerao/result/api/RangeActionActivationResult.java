@@ -21,9 +21,13 @@ public interface RangeActionActivationResult {
 
     Set<RangeAction<?>> getRangeActions();
 
+    Map<RangeAction<?>, Set<State>> getStatesPerRangeAction();
+
     Set<RangeAction<?>> getActivatedRangeActions(State state);
 
     double getOptimizedSetpoint(RangeAction<?> rangeAction, State state);
+
+    double getOptimizedSetpointOnStatePreceding(RangeAction<?> rangeAction, State state);
 
     Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state);
 

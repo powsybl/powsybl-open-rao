@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -20,6 +21,7 @@ import java.util.*;
 public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
     private final FlowResult flowResult;
+    private final RangeActionActivationResult rangeActionActivationResult;
     private boolean areCostsComputed;
     private Double functionalCost;
     private Map<String, Double> virtualCosts;
@@ -29,9 +31,11 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private Set<String> excludedContingencies;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
-                                       FlowResult flowResult) {
+                                       FlowResult flowResult,
+                                       RangeActionActivationResult rangeActionActivationResult) {
         this.objectiveFunction = objectiveFunction;
         this.flowResult = flowResult;
+        this.rangeActionActivationResult = rangeActionActivationResult;
         this.areCostsComputed = false;
     }
 
@@ -96,13 +100,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     }
 
     private void computeCosts(Set<String> contingenciesToExclude) {
-        Pair<Double, List<FlowCnec>> functionalCostAndLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, contingenciesToExclude);
+        Pair<Double, List<FlowCnec>> functionalCostAndLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, contingenciesToExclude);
         functionalCost = functionalCostAndLimitingElements.getLeft();
         orderedLimitingElements = functionalCostAndLimitingElements.getRight();
         virtualCosts = new HashMap<>();
         orderedCostlyElements = new HashMap<>();
         getVirtualCostNames().forEach(vcn -> {
-            Pair<Double, List<FlowCnec>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, vcn, contingenciesToExclude);
+            Pair<Double, List<FlowCnec>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, vcn, contingenciesToExclude);
             virtualCosts.put(vcn, virtualCostAndCostlyElements.getLeft());
             orderedCostlyElements.put(vcn, virtualCostAndCostlyElements.getRight());
         });
