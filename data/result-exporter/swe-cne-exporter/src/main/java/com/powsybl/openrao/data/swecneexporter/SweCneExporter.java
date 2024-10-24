@@ -56,7 +56,7 @@ public class SweCneExporter implements Exporter {
 
     @Override
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
-        SweCne cne = new SweCne(cracCreationContext.getCrac(), (CimCracCreationContext) cracCreationContext, raoResult, getRaoParametersFromProperties(properties), getParametersFromProperties(properties));
+        SweCne cne = new SweCne((CimCracCreationContext) cracCreationContext, raoResult, getRaoParametersFromProperties(properties), getParametersFromProperties(properties));
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();

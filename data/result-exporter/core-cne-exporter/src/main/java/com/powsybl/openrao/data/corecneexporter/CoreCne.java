@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.corecneexporter.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.corecneexporter.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.openrao.data.corecneexporter.xsd.Point;
 import com.powsybl.openrao.data.corecneexporter.xsd.SeriesPeriod;
-import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -42,9 +41,9 @@ public class CoreCne {
     private final CneHelper cneHelper;
     private final UcteCracCreationContext cracCreationContext;
 
-    public CoreCne(Crac crac, UcteCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public CoreCne(UcteCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        cneHelper = new CneHelper(crac, raoResult, raoParameters, exporterParameters);
+        cneHelper = new CneHelper(cracCreationContext.getCrac(), raoResult, raoParameters, exporterParameters);
         this.cracCreationContext = cracCreationContext;
     }
 

@@ -11,7 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
-import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
@@ -39,9 +38,9 @@ public class SweCne {
     private final SweCneHelper sweCneHelper;
     private final CimCracCreationContext cracCreationContext;
 
-    public SweCne(Crac crac, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public SweCne(CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        sweCneHelper = new SweCneHelper(crac, raoResult, raoParameters, exporterParameters);
+        sweCneHelper = new SweCneHelper(cracCreationContext.getCrac(), raoResult, raoParameters, exporterParameters);
         this.cracCreationContext = cracCreationContext;
     }
 

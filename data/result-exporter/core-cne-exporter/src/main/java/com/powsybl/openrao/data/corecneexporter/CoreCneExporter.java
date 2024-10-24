@@ -56,7 +56,7 @@ public class CoreCneExporter implements Exporter {
 
     @Override
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
-        CoreCne cne = new CoreCne(cracCreationContext.getCrac(), (UcteCracCreationContext) cracCreationContext, raoResult, getRaoParametersFromProperties(properties), getParametersFromProperties(properties));
+        CoreCne cne = new CoreCne((UcteCracCreationContext) cracCreationContext, raoResult, getRaoParametersFromProperties(properties), getParametersFromProperties(properties));
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();
