@@ -1,4 +1,4 @@
-After completing the RAO, the user can export the [`RaoResult`](/output-data/rao-result.md) object as a CORE CNE file using the `write` method with the `"CORE CNE""` format:
+After completing the RAO, the user can export the [`RaoResult`](/output-data/rao-result.md) object as a CORE CNE file using the `write` method with the `"CORE-CNE""` format:
 
 ~~~java
 // RaoResult interface
@@ -72,5 +72,5 @@ if (raoParameters.hasExtension(MnecParametersExtension.class)) {
 }
 // Export CNE to output stream
 OutputStream os = ...
-raoResult.write("CORE CNE", cracCreationContext, properties, os);
+raoResult.write("CORE-CNE", cracCreationContext, properties, os);
 ~~~

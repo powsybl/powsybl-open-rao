@@ -607,7 +607,7 @@ class RaoResultRoundTripTest {
 
         // Empty properties
         Exception exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, new Properties(), outputStream));
-        assertEquals("At least one flow unit should be used", exception.getMessage());
+        assertEquals("At least one flow unit should be used. Please provide flows-in-amperes and/or flows-in-megawatts in the properties.", exception.getMessage());
     }
 
     @Test
@@ -697,6 +697,6 @@ class RaoResultRoundTripTest {
         properties.setProperty("flows-in-amperes", "Hello world!");
 
         Exception exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, properties, outputStream));
-        assertEquals("At least one flow unit should be used", exception.getMessage());
+        assertEquals("At least one flow unit should be used. Please provide flows-in-amperes and/or flows-in-megawatts in the properties.", exception.getMessage());
     }
 }

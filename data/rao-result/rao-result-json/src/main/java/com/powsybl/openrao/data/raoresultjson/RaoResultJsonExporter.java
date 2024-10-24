@@ -28,6 +28,19 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
+ * Rao Result exporter in JSON format.
+ * <p/>
+ * Accepted properties:
+ * <ul>
+ *     <li>
+ *         <i>flows-in-amperes</i>: whether to export the flow values in amperes (A) or not.
+ *         Accepted values: "true" or "false" (default).
+ *     </li>
+ *     <li>
+ *         <i>flows-in-megawatts</i>: whether to export the flow values in megawatts (MW) or not.
+ *         Accepted values: "true" or "false" (default).
+ *     </li>
+ * </ul>
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(Exporter.class)
@@ -50,7 +63,7 @@ public class RaoResultJsonExporter implements Exporter {
         boolean flowsInAmperes = Boolean.parseBoolean(properties.getProperty(FLOWS_IN_AMPERES, "false"));
         boolean flowsInMegawatts = Boolean.parseBoolean(properties.getProperty(FLOWS_IN_MEGAWATTS, "false"));
         if (!flowsInAmperes && !flowsInMegawatts) {
-            throw new OpenRaoException("At least one flow unit should be used");
+            throw new OpenRaoException("At least one flow unit should be used. Please provide %s and/or %s in the properties.".formatted(FLOWS_IN_AMPERES, FLOWS_IN_MEGAWATTS));
         }
         Set<Unit> flowUnits = new HashSet<>();
         if (flowsInAmperes) {

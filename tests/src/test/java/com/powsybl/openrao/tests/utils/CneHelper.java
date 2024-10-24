@@ -58,7 +58,7 @@ public final class CneHelper {
         Properties properties = new Properties();
         fillPropertiesWithCoreCneExporterParameters(properties);
         fillPropertiesWithRaoParameters(properties, raoParameters);
-        raoResult.write("CORE CNE", cracCreationContext, properties, outputStream);
+        raoResult.write("CORE-CNE", cracCreationContext, properties, outputStream);
         return outputStream.toString();
     }
 
@@ -96,7 +96,7 @@ public final class CneHelper {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Properties properties = new Properties();
         fillPropertiesWithSweCneExporterParameters(properties);
-        raoResult.write("SWE CNE", cracCreationContext, properties, outputStream);
+        raoResult.write("SWE-CNE", cracCreationContext, properties, outputStream);
         return outputStream.toString();
     }
 

@@ -1,4 +1,4 @@
-After completing the RAO, the user can export the [`RaoResult`](/output-data/rao-result.md) object as a SWE CNE file using the `write` method with the `"SWE CNE""` format:
+After completing the RAO, the user can export the [`RaoResult`](/output-data/rao-result.md) object as a SWE CNE file using the `write` method with the `"SWE-CNE""` format:
 
 ~~~java
 // RaoResult interface
@@ -75,5 +75,5 @@ if (raoParameters.hasExtension(MnecParametersExtension.class)) {
 }
 // Export CNE to output stream
 OutputStream os = ...
-raoResult.write("SWE CNE", cracCreationContext, properties, os);
+raoResult.write("SWE-CNE", cracCreationContext, properties, os);
 ~~~
