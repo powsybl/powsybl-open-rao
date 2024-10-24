@@ -139,6 +139,10 @@ public final class NetworkActionArrayDeserializer {
                         jsonParser.nextToken();
                         networkActionAdder.withSpeed(jsonParser.getIntValue());
                         break;
+                    case ACTIVATION_COST:
+                        jsonParser.nextToken();
+                        networkActionAdder.withActivationCost(jsonParser.getDoubleValue());
+                        break;
                     default:
                         throw new OpenRaoException("Unexpected field in NetworkAction: " + jsonParser.getCurrentName());
                 }

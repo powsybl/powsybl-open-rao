@@ -32,7 +32,7 @@ class RemedialActionTest {
     void testNoUsageRulesShouldReturnUndefined() {
         State state = Mockito.mock(State.class);
         Set<UsageRule> usageRules = Collections.emptySet();
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, Collections.emptySet());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, null, Collections.emptySet());
         assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(state));
     }
 
@@ -42,7 +42,7 @@ class RemedialActionTest {
         Instant instant = Mockito.mock(Instant.class);
         Mockito.doReturn(instant).when(state).getInstant();
         Set<UsageRule> usageRules = Set.of(new OnInstantImpl(UsageMethod.AVAILABLE, instant));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, Collections.emptySet());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, 0d, Collections.emptySet());
         assertEquals(UsageMethod.AVAILABLE, ra.getUsageMethod(state));
     }
 
@@ -54,7 +54,7 @@ class RemedialActionTest {
         Set<UsageRule> usageRules = Set.of(
             new OnInstantImpl(UsageMethod.AVAILABLE, instant),
             new OnFlowConstraintInCountryImpl(UsageMethod.FORCED, instant, Optional.empty(), Country.FR));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, Collections.emptySet());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, null, Collections.emptySet());
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
     }
 
@@ -65,7 +65,7 @@ class RemedialActionTest {
         Mockito.doReturn(false).when(instant).isPreventive();
         Mockito.doReturn(instant).when(state).getInstant();
         Set<UsageRule> usageRules = Set.of(new OnContingencyStateImpl(UsageMethod.AVAILABLE, state));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, Collections.emptySet());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, null, Collections.emptySet());
         assertEquals(UsageMethod.AVAILABLE, ra.getUsageMethod(state));
     }
 
@@ -82,7 +82,7 @@ class RemedialActionTest {
         Set<UsageRule> usageRules = Set.of(
             new OnContingencyStateImpl(UsageMethod.AVAILABLE, state),
             new OnConstraintImpl<>(UsageMethod.FORCED, instant, flowCnec));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, Collections.emptySet());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, null, Collections.emptySet());
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
     }
 
@@ -96,7 +96,7 @@ class RemedialActionTest {
         Set<UsageRule> usageRules = Set.of(
             new OnContingencyStateImpl(UsageMethod.AVAILABLE, state),
             new OnInstantImpl(UsageMethod.FORCED, instant));
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, Collections.emptySet());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, null, Collections.emptySet());
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(state));
     }
 
@@ -122,7 +122,7 @@ class RemedialActionTest {
             new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, curativeFlowCnec)
         );
 
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, Collections.emptySet());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, null, Collections.emptySet());
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
         assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
     }
@@ -149,7 +149,7 @@ class RemedialActionTest {
             new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, curativeAngleCnec)
         );
 
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, Collections.emptySet());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, null, Collections.emptySet());
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
         assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
     }
@@ -176,7 +176,7 @@ class RemedialActionTest {
             new OnConstraintImpl<>(UsageMethod.FORCED, autoInstant, curativeVoltageCnec)
         );
 
-        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, Collections.emptySet());
+        AbstractRemedialAction<?> ra = new NetworkActionImpl("id", "name", "operator", usageRules, Collections.emptySet(), 0, null, Collections.emptySet());
         assertEquals(UsageMethod.FORCED, ra.getUsageMethod(autoState));
         assertEquals(UsageMethod.UNDEFINED, ra.getUsageMethod(curativeState));
     }

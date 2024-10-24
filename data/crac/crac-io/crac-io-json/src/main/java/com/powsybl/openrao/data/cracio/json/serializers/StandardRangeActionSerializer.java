@@ -28,6 +28,8 @@ public final class StandardRangeActionSerializer {
         gen.writeStringField(ID, value.getId());
         gen.writeStringField(NAME, value.getName());
         gen.writeStringField(OPERATOR, value.getOperator());
+        serializeActivationCost(value, gen);
+        serializeVariationCosts(value, gen);
         UsageRulesSerializer.serializeUsageRules(value, gen);
         serializeGroupId(value, gen);
         gen.writeNumberField(INITIAL_SETPOINT, value.getInitialSetpoint());

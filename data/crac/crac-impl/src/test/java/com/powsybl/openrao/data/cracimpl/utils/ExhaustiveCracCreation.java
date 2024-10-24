@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.CracFactory;
 import com.powsybl.openrao.data.cracapi.InstantKind;
 import com.powsybl.openrao.data.cracapi.networkaction.ActionType;
 import com.powsybl.openrao.data.cracapi.range.RangeType;
+import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 
 import java.util.HashMap;
@@ -203,6 +204,7 @@ public final class ExhaustiveCracCreation {
         crac.newNetworkAction().withId("injectionSetpointRaId")
             .withName("injectionSetpointRaName")
             .withOperator("RTE")
+            .withActivationCost(75d)
             .newGeneratorAction().withActivePowerValue(260.0).withNetworkElement("injection").add()
             .newOnConstraintUsageRule().withCnec("cnec3autoId").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
@@ -308,6 +310,9 @@ public final class ExhaustiveCracCreation {
             .withName("injectionRange1Name")
             .withNetworkElementAndKey(1., "generator1Id")
             .withNetworkElementAndKey(-1., "generator2Id", "generator2Name")
+            .withActivationCost(100d)
+            .withVariationCost(750d, RangeAction.VariationDirection.UP)
+            .withVariationCost(1000d, RangeAction.VariationDirection.DOWN)
             .newRange().withMin(-500).withMax(500).add()
             .newRange().withMin(-1000).withMax(1000).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("contingency2Id").withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -318,6 +323,8 @@ public final class ExhaustiveCracCreation {
             .withName("counterTradeRange1Name")
             .withExportingCountry(Country.FR)
             .withImportingCountry(Country.DE)
+            .withVariationCost(2000d, RangeAction.VariationDirection.UP)
+            .withVariationCost(1000d, RangeAction.VariationDirection.DOWN)
             .newRange().withMin(-500).withMax(500).add()
             .newRange().withMin(-1000).withMax(1000).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()

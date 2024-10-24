@@ -55,6 +55,11 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
      */
     Optional<Integer> getSpeed();
 
+    /**
+     * Get the cost to spend to activate the remedial action.
+     */
+    Optional<Double> getActivationCost();
+
     Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState);
 
     Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network);

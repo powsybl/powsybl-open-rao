@@ -28,6 +28,8 @@ public class PstRangeActionSerializer extends AbstractJsonSerializer<PstRangeAct
         gen.writeStringField(ID, value.getId());
         gen.writeStringField(NAME, value.getName());
         gen.writeStringField(OPERATOR, value.getOperator());
+        serializeActivationCost(value, gen);
+        serializeVariationCosts(value, gen);
         UsageRulesSerializer.serializeUsageRules(value, gen);
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
         Optional<String> groupId = value.getGroupId();
