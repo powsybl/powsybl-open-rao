@@ -42,6 +42,7 @@ class CoreCneTest {
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
         cracCreationContext = Mockito.mock(UcteCracCreationContext.class);
+        Mockito.when(cracCreationContext.getCrac()).thenReturn(crac);
         Mockito.when(cracCreationContext.getBranchCnecCreationContexts()).thenReturn(new ArrayList<>());
         Mockito.when(cracCreationContext.getRemedialActionCreationContexts()).thenReturn(new ArrayList<>());
         Mockito.when(cracCreationContext.getTimeStamp()).thenReturn(OffsetDateTime.of(2021, 11, 15, 11, 50, 0, 0, ZoneOffset.of("+1")));

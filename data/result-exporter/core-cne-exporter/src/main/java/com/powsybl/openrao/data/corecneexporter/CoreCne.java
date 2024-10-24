@@ -71,7 +71,7 @@ public class CoreCne {
         createAllConstraintSeries(point);
     }
 
-    // fills the header of the CNE
+    // fills the header with the CNE
     private void fillHeader() {
         marketDocument.setMRID(cneHelper.getExporterParameters().getDocumentId());
         marketDocument.setRevisionNumber(String.valueOf(cneHelper.getExporterParameters().getRevisionNumber()));
