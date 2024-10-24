@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=flow-threshold-v2.4.json",
+  "type": "object",
+  "properties": {
+    "unit": {
+      "$ref": "resource:/schemas/common/flow-unit.json"
+    },
+    "max": {
+      "type": "number"
+    },
+    "min": {
+      "type": "number"
+    },
+    "side": {
+      "$ref": "resource:/schemas/common/two-sides.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "unit",
+    "side"
+  ]
+}
