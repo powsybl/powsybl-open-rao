@@ -76,10 +76,8 @@ public final class CneHelper {
 
     private static void fillPropertiesWithRaoParameters(Properties properties, RaoParameters raoParameters) {
         switch (raoParameters.getObjectiveFunctionParameters().getType()) {
-            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE -> properties.setProperty("objective-function-type", "max-min-relative-margin-in-ampere");
-            case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT -> properties.setProperty("objective-function-type", "max-min-relative-margin-in-megawatt");
-            case MAX_MIN_MARGIN_IN_AMPERE -> properties.setProperty("objective-function-type", "max-min-margin-in-ampere");
-            case MAX_MIN_MARGIN_IN_MEGAWATT -> properties.setProperty("objective-function-type", "max-min-margin-in-megawatt");
+            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT -> properties.setProperty("relative-positive-margins", "true");
+            case MAX_MIN_MARGIN_IN_AMPERE, MAX_MIN_MARGIN_IN_MEGAWATT -> properties.setProperty("relative-positive-margins", "false");
         }
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             properties.setProperty("with-loop-flows", "true");

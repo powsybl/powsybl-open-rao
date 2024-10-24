@@ -8,72 +8,18 @@
 package com.powsybl.openrao.data.cneexportercommons;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getParametersFromProperties;
-import static com.powsybl.openrao.data.cneexportercommons.CneUtil.getRaoParametersFromProperties;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class CneUtilTest {
-    @Test
-    void testGetRaoParametersFromProperties() {
-        Properties emptyProperties = new Properties();
-        RaoParameters defaultRaoParameters = getRaoParametersFromProperties(emptyProperties);
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, defaultRaoParameters.getObjectiveFunctionParameters().getType());
-        assertFalse(defaultRaoParameters.hasExtension(LoopFlowParametersExtension.class));
-        assertFalse(defaultRaoParameters.hasExtension(MnecParametersExtension.class));
-
-        Properties propertiesAmpere = new Properties();
-        propertiesAmpere.setProperty("objective-function-type", "max-min-margin-in-ampere");
-        propertiesAmpere.setProperty("with-loop-flows", "true");
-        propertiesAmpere.setProperty("mnec-acceptable-margin-diminution", "0");
-        RaoParameters raoParametersAmpere = getRaoParametersFromProperties(propertiesAmpere);
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE, raoParametersAmpere.getObjectiveFunctionParameters().getType());
-        assertTrue(raoParametersAmpere.hasExtension(LoopFlowParametersExtension.class));
-        assertFalse(raoParametersAmpere.hasExtension(MnecParametersExtension.class));
-
-        Properties propertiesMegawatt = new Properties();
-        propertiesMegawatt.setProperty("objective-function-type", "max-min-margin-in-megawatt");
-        propertiesMegawatt.setProperty("with-loop-flows", "true");
-        propertiesMegawatt.setProperty("mnec-acceptable-margin-diminution", "10");
-        RaoParameters raoParametersMegawatt = getRaoParametersFromProperties(propertiesMegawatt);
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, raoParametersMegawatt.getObjectiveFunctionParameters().getType());
-        assertTrue(raoParametersMegawatt.hasExtension(LoopFlowParametersExtension.class));
-        assertTrue(raoParametersMegawatt.hasExtension(MnecParametersExtension.class));
-        assertEquals(10d, raoParametersMegawatt.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease());
-
-        Properties propertiesRelativeAmpere = new Properties();
-        propertiesRelativeAmpere.setProperty("objective-function-type", "max-min-relative-margin-in-ampere");
-        propertiesRelativeAmpere.setProperty("with-loop-flows", "true");
-        propertiesRelativeAmpere.setProperty("mnec-acceptable-margin-diminution", "20.5");
-        RaoParameters raoParametersRelativeAmpere = getRaoParametersFromProperties(propertiesRelativeAmpere);
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, raoParametersRelativeAmpere.getObjectiveFunctionParameters().getType());
-        assertTrue(raoParametersRelativeAmpere.hasExtension(LoopFlowParametersExtension.class));
-        assertTrue(raoParametersRelativeAmpere.hasExtension(MnecParametersExtension.class));
-        assertEquals(20.5, raoParametersRelativeAmpere.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease());
-    }
-
-    @Test
-    void testGetRaoParametersFromPropertiesUnknownObjectiveFunctionType() {
-        Properties properties = new Properties();
-        properties.setProperty("objective-function-type", "???");
-        properties.setProperty("with-loop-flows", "true");
-        properties.setProperty("mnec-acceptable-margin-diminution", "20.5");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> getRaoParametersFromProperties(properties));
-        assertEquals("Unknown ObjectiveFunctionType ???", exception.getMessage());
-    }
 
     @Test
     void testGetParametersFromProperties() {

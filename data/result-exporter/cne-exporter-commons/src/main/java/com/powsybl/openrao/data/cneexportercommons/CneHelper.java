@@ -10,9 +10,8 @@ package com.powsybl.openrao.data.cneexportercommons;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+
+import java.util.Properties;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.PATL_MEASUREMENT_TYPE;
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.TATL_MEASUREMENT_TYPE;
@@ -26,18 +25,18 @@ public class CneHelper {
     private Crac crac;
     private boolean relativePositiveMargins;
     private boolean withLoopflows;
-    private RaoResult raoResult;
-    private CneExporterParameters exporterParameters;
-    private double mnecAcceptableMarginDiminution;
+    private final RaoResult raoResult;
+    private final CneExporterParameters exporterParameters;
+    private final double mnecAcceptableMarginDiminution;
 
-    public CneHelper(Crac crac, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public CneHelper(Crac crac, RaoResult raoResult, Properties properties, CneExporterParameters exporterParameters) {
         this.crac = crac;
         this.raoResult = raoResult;
         this.exporterParameters = exporterParameters;
 
-        relativePositiveMargins = raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins();
-        withLoopflows = raoParameters.hasExtension(LoopFlowParametersExtension.class);
-        mnecAcceptableMarginDiminution = raoParameters.hasExtension(MnecParametersExtension.class) ? raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease() : 0;
+        relativePositiveMargins = Boolean.parseBoolean((String) properties.getOrDefault("relative-positive-margins", "false"));
+        withLoopflows = Boolean.parseBoolean((String) properties.getOrDefault("with-loop-flows", "false"));
+        mnecAcceptableMarginDiminution = Double.parseDouble((String) properties.getOrDefault("mnec-acceptable-margin-diminution", "0"));
     }
 
     public RaoResult getRaoResult() {

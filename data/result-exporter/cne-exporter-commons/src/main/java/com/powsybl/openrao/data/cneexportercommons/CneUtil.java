@@ -8,10 +8,6 @@
 package com.powsybl.openrao.data.cneexportercommons;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -39,7 +35,7 @@ public final class CneUtil {
     private static final String RECEIVER_ID = "receiver-id";
     private static final String RECEIVER_ROLE = "receiver-role";
     private static final String TIME_INTERVAL = "time-interval";
-    private static final String OBJECTIVE_FUNCTION_TYPE = "objective-function-type";
+    private static final String RELATIVE_POSITIVE_MARGINS = "relative-positive-margins";
     private static final String WITH_LOOP_FLOWS = "with-loop-flows";
     private static final String MNEC_ACCEPTABLE_MARGIN_DIMINUTION = "mnec-acceptable-margin-diminution";
 
@@ -91,38 +87,6 @@ public final class CneUtil {
         }
         usedUniqueIds.add(uuidString);
         return uuidString;
-    }
-
-    public static RaoParameters getRaoParametersFromProperties(Properties properties) {
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins();
-        ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType = getObjectiveFunctionTypeFromString(properties.getProperty(OBJECTIVE_FUNCTION_TYPE, "max-min-relative-margin-in-megawatt"));
-        raoParameters.getObjectiveFunctionParameters().setType(objectiveFunctionType);
-        boolean withLoopFlow = Boolean.parseBoolean(properties.getProperty(WITH_LOOP_FLOWS, "false"));
-        if (withLoopFlow) {
-            raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        }
-        double mnecAcceptableMarginDiminution = Double.parseDouble(properties.getProperty(MNEC_ACCEPTABLE_MARGIN_DIMINUTION, "0"));
-        if (mnecAcceptableMarginDiminution != 0) {
-            MnecParametersExtension mnecParametersExtension = new MnecParametersExtension();
-            mnecParametersExtension.setAcceptableMarginDecrease(mnecAcceptableMarginDiminution);
-            raoParameters.addExtension(MnecParametersExtension.class, mnecParametersExtension);
-        }
-        return raoParameters;
-    }
-
-    private static ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunctionTypeFromString(String objectiveFunctionType) {
-        if ("max-min-relative-margin-in-ampere".equals(objectiveFunctionType)) {
-            return ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
-        } else if ("max-min-relative-margin-in-megawatt".equals(objectiveFunctionType)) {
-            return ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
-        } else if ("max-min-margin-in-ampere".equals(objectiveFunctionType)) {
-            return ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE;
-        } else if ("max-min-margin-in-megawatt".equals(objectiveFunctionType)) {
-            return ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT;
-        } else {
-            throw new OpenRaoException("Unknown ObjectiveFunctionType %s".formatted(objectiveFunctionType));
-        }
     }
 
     public static CneExporterParameters getParametersFromProperties(Properties properties) {

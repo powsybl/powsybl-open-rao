@@ -15,12 +15,12 @@ import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.*;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
 import static com.powsybl.openrao.data.cneexportercommons.CneUtil.createXMLGregorianCalendarNow;
@@ -38,9 +38,9 @@ public class SweCne {
     private final SweCneHelper sweCneHelper;
     private final CimCracCreationContext cracCreationContext;
 
-    public SweCne(CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public SweCne(CimCracCreationContext cracCreationContext, RaoResult raoResult, Properties properties, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        sweCneHelper = new SweCneHelper(cracCreationContext.getCrac(), raoResult, raoParameters, exporterParameters);
+        sweCneHelper = new SweCneHelper(cracCreationContext.getCrac(), raoResult, properties, exporterParameters);
         this.cracCreationContext = cracCreationContext;
     }
 
