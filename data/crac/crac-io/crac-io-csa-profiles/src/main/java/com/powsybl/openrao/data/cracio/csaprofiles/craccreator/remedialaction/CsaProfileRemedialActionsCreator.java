@@ -148,7 +148,7 @@ public class CsaProfileRemedialActionsCreator {
                                    remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
                                    remedialActionAdder, List<String> alterations, Instant instant,
                                boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
-        if (addOnConstraintUsageRules(remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType)) {
+        if (addOnConstraintUsageRules(remedialActionId, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType)) {
             return;
         }
         if (addOnContingencyStateUsageRules(remedialActionId, linkedContingencyWithRemedialActions, remedialActionAdder, alterations, instant, isSchemeRemedialAction, remedialActionType)) {
@@ -158,10 +158,10 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private boolean addOnConstraintUsageRules(String
-                                                  remedialActionId, Set<AssessedElement> nativeAssessedElements, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
+                                                  remedialActionId, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
                                                   remedialActionAdder, List<String> alterations, Instant instant,
                                               boolean isSchemeRemedialAction, RemedialActionType remedialActionType) {
-        Map<String, AssociationStatus> cnecStatusMap = OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, remedialActionId, nativeAssessedElements, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts);
+        Map<String, AssociationStatus> cnecStatusMap = OnConstraintUsageRuleHelper.processCnecsLinkedToRemedialAction(crac, remedialActionId, linkedAssessedElementWithRemedialActions, linkedContingencyWithRemedialActions, cnecCreationContexts);
         cnecStatusMap.forEach((cnecId, cnecStatus) -> {
             if (cnecStatus.isValid()) {
                 Cnec<?> cnec = crac.getCnec(cnecId);
