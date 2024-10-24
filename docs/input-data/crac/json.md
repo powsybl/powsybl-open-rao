@@ -1,8 +1,8 @@
 ---
-title: Internal json CRAC format
+title: Internal JSON CRAC format
 ---
 
-# Internal json CRAC format
+# Internal JSON CRAC format
 
 ## Introduction
 
@@ -902,6 +902,7 @@ crac.newNetworkAction()
 crac.newNetworkAction()
 	.withId("load-action-na-id")
 	.withOperator("operator")
+    .withActivationCost(200d)
 	.newLoadAction()
 		.withActivePowerValue(260.0)
 		.withNetworkElement("load-id")
@@ -1005,6 +1006,7 @@ crac.newNetworkAction()
     "id" : "load-action-na-id",
     "name" : "load-action-na-id",
     "operator" : "operator",
+    "activation-cost": 200.0,
     "freeToUseUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
@@ -1056,6 +1058,7 @@ crac.newNetworkAction()
 🔴⭐ **identifier**  
 ⚪ **name**  
 ⚪ **operator**  
+⚪ **activationCost**  
 ⚪ **freeToUse usage rules**: list of 0 to N FreeToUse usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onState usage rules**: list of 0 to N OnState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
@@ -1187,23 +1190,27 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
 ~~~
 :::
 :::{group-tab} Object fields
-🔴⭐ **identifier**  
-⚪ **name**  
-⚪ **operator**  
-🔴 **network element**: id is mandatory, name is optional  
-⚪ **groupId**: if you want to align this range action with others, set the same groupId for all. You can use any
+- 🔴⭐ **identifier**  
+- ⚪ **name**  
+- ⚪ **operator**
+- ⚪ **activationCost**
+- ⚪ **variationCosts**
+- - ⚪ **up**
+- - ⚪ **down**
+- 🔴 **network element**: id is mandatory, name is optional  
+- ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all. You can use any
 group ID you like, as long as you use the same for all the range actions you want to align.  
-🔵 **speed**: mandatory if it is an automaton  
-🔴 **initial tap**  
-🔴 **tap to angle conversion map**  
-🔴 **tap ranges**: list of 0 to N TapRange  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **range type**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min tap**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max tap**: at least one value must be defined  
-⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+- 🔵 **speed**: mandatory if it is an automaton  
+- 🔴 **initial tap**  
+- 🔴 **tap to angle conversion map**  
+- 🔴 **tap ranges**: list of 0 to N TapRange  
+- - 🔴 **range type**  
+- - 🔵 **min tap**  
+- - 🔵 **max tap**: at least one value must be defined  
+- ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+- ⚪ **onState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+- ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+- ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 :::
 ::::
 
@@ -1254,18 +1261,22 @@ In that case, the validity domain of the HVDC is [-5; 10].
 ~~~
 :::
 :::{group-tab} Object fields
-🔴⭐ **identifier**  
-⚪ **name**  
-⚪ **operator**  
-🔴 **network element**: id is mandatory, name is optional  
-⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
-🔵 **speed**: mandatory if it is an automaton  
-⚪ **hvdc ranges**: list of 0 to N HvdcRange  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
-⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+- 🔴⭐ **identifier**  
+- ⚪ **name**  
+- ⚪ **operator**
+- ⚪ **activationCost**
+- ⚪ **variationCosts**
+- - ⚪ **up**
+- - ⚪ **down**
+- 🔴 **network element**: id is mandatory, name is optional  
+- ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
+- 🔵 **speed**: mandatory if it is an automaton  
+- ⚪ **hvdc ranges**: list of 0 to N HvdcRange  
+- - 🔴 **min**  
+- - 🔴 **max**  
+- ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+- ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+- ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 :::
 ::::
 
@@ -1323,18 +1334,22 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 ~~~
 :::
 :::{group-tab} Object fields
-🔴⭐ **identifier**  
-⚪ **name**  
-⚪ **operator**  
-🔴 **network element and key** (list of 1 to N): id and key are mandatory, name is optional  
-⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
-🔵 **speed**: mandatory if it is an automaton  
-🔴 **ranges**: list of 1 to N Range  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
-⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
-⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
+- 🔴⭐ **identifier**  
+- ⚪ **name**  
+- ⚪ **operator**
+- ⚪ **activationCost**
+- ⚪ **variationCosts**
+- - ⚪ **up**
+- - ⚪ **down**
+- 🔴 **network element and key** (list of 1 to N): id and key are mandatory, name is optional  
+- ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
+- 🔵 **speed**: mandatory if it is an automaton  
+- 🔴 **ranges**: list of 1 to N Range  
+- - 🔴 **min**  
+- - 🔴 **max**  
+- ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
+- ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
+- ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
 :::
 ::::
 
@@ -1352,8 +1367,12 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withId("counter-trade-range-action-id")
         .withGroupId("group-id")
    		.withOperator("operator")
+        .withActivationCost(100d)
+        .withVariationCost(1000d, RangeAction.VariationDirection.UP)
+        .withVariationCost(2000d, RangeAction.VariationDirection.DOWN)
         .withExportingCountry(Country.FR)
         .withImportingCountry(Country.ES)
+        .withInitialSetpoint(50)
         .newRange().withMin(0).withMax(1000).add()
         .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
         .add();     
@@ -1366,7 +1385,12 @@ exported from France to Spain.
 "counterTradeRangeActions" : [ {
     "id" : "counter-trade-range-action-id",
     "name" : "counterTradeRange1Name",
-    "operator" : null,
+    "operator" : "operator",
+    "activation-cost" : 100.0,
+    "variation-costs" : {
+        "up": 1000.0,
+        "down": 2000.0
+    }
     "speed" : 30,
     "onInstantUsageRules" : [ {
         "instant" : "preventive",
@@ -1386,19 +1410,23 @@ exported from France to Spain.
 ~~~
 :::
 :::{group-tab} Object fields
-🔴⭐ **identifier**  
-⚪ **name**  
-⚪ **operator**  
-🔴 **exporting country**  
-🔴 **importing country**  
-⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
-🔵 **speed**: mandatory if it is an automaton  
-⚪ **ranges**: list of 0 to N Range  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
-⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
-⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
-⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
+- 🔴⭐ **identifier**  
+- ⚪ **name**  
+- ⚪ **operator**
+- ⚪ **activationCost**
+- ⚪ **variationCosts**
+- - ⚪ **up**
+- - ⚪ **down**
+- 🔴 **exporting country**  
+- 🔴 **importing country**  
+- ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
+- 🔵 **speed**: mandatory if it is an automaton  
+- ⚪ **ranges**: list of 0 to N Range  
+- - 🔴 **min**  
+- - 🔴 **max**  
+- ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
+- ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
+- ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
 :::
 ::::
 
