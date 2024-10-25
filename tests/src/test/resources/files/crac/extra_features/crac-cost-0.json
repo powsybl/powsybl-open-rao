@@ -96,7 +96,7 @@
           "rangeType": "absolute"
         }
       ],
-      "cost" : 1.1
+      "cost" : 100
     }
   ],
   "hvdcRangeActions": [],

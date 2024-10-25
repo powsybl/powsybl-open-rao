@@ -78,8 +78,11 @@ public final class ObjectiveFunction {
                 marginEvaluator = new BasicMarginEvaluator();
             }
 
-            this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
-
+            if (raoParameters.getObjectiveFunctionParameters().getType().isMinCost()) {
+                this.withFunctionalCostEvaluator(new ActivationCostEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+            } else {
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+            }
             // sensitivity failure over-cost should be computed on initial sensitivity result too
             // (this allows the RAO to prefer RAs that can remove sensitivity failures)
             if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
