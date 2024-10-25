@@ -12,18 +12,7 @@ import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.util.Properties;
 
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.DOCUMENT_ID;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.DOMAIN_ID;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.MNEC_ACCEPTABLE_MARGIN_DIMINUTION;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.PROCESS_TYPE;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.RECEIVER_ID;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.RECEIVER_ROLE;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.RELATIVE_POSITIVE_MARGINS;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.REVISION_NUMBER;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.SENDER_ID;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.SENDER_ROLE;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.TIME_INTERVAL;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.WITH_LOOP_FLOWS;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
