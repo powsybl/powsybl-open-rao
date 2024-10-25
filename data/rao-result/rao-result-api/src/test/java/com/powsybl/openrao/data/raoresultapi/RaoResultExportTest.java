@@ -11,6 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Properties;
 
@@ -42,5 +43,23 @@ class RaoResultExportTest {
     void testExportCracWithValidExporter() {
         raoResult.write("Mock", (CracCreationContext) null, new Properties(), null);
         assertTrue(raoResult.wasExportSuccessful());
+    }
+
+    @Test
+    void testValidateExportData() {
+        OpenRaoException exception;
+        CracCreationContext cracCreationContext = Mockito.mock(CracCreationContext.class);
+        MockRaoResultExporter exporter = new MockRaoResultExporter();
+        // wrong CRAC creation context class
+        exception = assertThrows(OpenRaoException.class, () -> exporter.validateDataToExport(cracCreationContext, new Properties()));
+        assertEquals("Mock exporter expects a MockCracCreationContext.", exception.getMessage());
+        // null properties
+        exception = assertThrows(OpenRaoException.class, () -> exporter.validateDataToExport(new MockCracCreationContext(), null));
+        assertEquals("The export properties cannot be null for Mock export.", exception.getMessage());
+        // missing required properties
+        Properties properties = new Properties();
+        properties.setProperty("property-1", "true");
+        exception = assertThrows(OpenRaoException.class, () -> exporter.validateDataToExport(new MockCracCreationContext(), properties));
+        assertEquals("The mandatory property-2 property is missing for Mock export.", exception.getMessage());
     }
 }

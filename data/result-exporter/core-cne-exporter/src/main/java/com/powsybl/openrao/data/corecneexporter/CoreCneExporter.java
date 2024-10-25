@@ -36,6 +36,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
 
@@ -96,10 +97,18 @@ public class CoreCneExporter implements Exporter {
     }
 
     @Override
+    public Set<String> getRequiredProperties() {
+        return CNE_REQUIRED_PROPERTIES;
+    }
+
+    @Override
+    public Class<? extends CracCreationContext> getCracCreationContextClass() {
+        return UcteCracCreationContext.class;
+    }
+
+    @Override
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
-        if (!(cracCreationContext instanceof UcteCracCreationContext)) {
-            throw new OpenRaoException("CORE-CNE exporter expects a UcteCracCreationContext.");
-        }
+        validateDataToExport(cracCreationContext, properties);
         CoreCne cne = new CoreCne((UcteCracCreationContext) cracCreationContext, raoResult, properties);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();

@@ -7,12 +7,14 @@
 
 package com.powsybl.openrao.data.raoresultapi.io;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -22,6 +24,24 @@ public interface Exporter {
      * Get a unique identifier of the format.
      */
     String getFormat();
+
+    Set<String> getRequiredProperties();
+
+    Class<? extends CracCreationContext> getCracCreationContextClass();
+
+    default void validateDataToExport(CracCreationContext cracCreationContext, Properties properties) {
+        if (!getCracCreationContextClass().isInstance(cracCreationContext)) {
+            throw new OpenRaoException("%s exporter expects a %s.".formatted(getFormat(), getCracCreationContextClass().getSimpleName()));
+        }
+        if (!getRequiredProperties().isEmpty() && properties == null) {
+            throw new OpenRaoException("The export properties cannot be null for %s export.".formatted(getFormat()));
+        }
+        for (String requiredProperty : getRequiredProperties()) {
+            if (!properties.containsKey(requiredProperty)) {
+                throw new OpenRaoException("The mandatory %s property is missing for %s export.".formatted(requiredProperty, getFormat()));
+            }
+        }
+    }
 
     void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream);
 

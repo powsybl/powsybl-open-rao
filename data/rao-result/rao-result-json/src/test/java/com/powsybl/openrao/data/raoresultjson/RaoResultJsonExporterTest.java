@@ -10,11 +10,13 @@ package com.powsybl.openrao.data.raoresultjson;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracio.json.JsonCracCreationContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -31,6 +33,22 @@ class RaoResultJsonExporterTest {
     void testExportWithWrongCracCreationContext() {
         CracCreationContext cracCreationContext = Mockito.mock(CracCreationContext.class);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> exporter.exportData(null, cracCreationContext, null, null));
+        assertEquals("JSON exporter expects a JsonCracCreationContext.", exception.getMessage());
+    }
+
+    @Test
+    void testProperties() {
+        assertTrue(exporter.getRequiredProperties().isEmpty());
+    }
+
+    @Test
+    void testCracCreationContextClass() {
+        assertEquals(JsonCracCreationContext.class, exporter.getCracCreationContextClass());
+    }
+
+    @Test
+    void testWrongCracCreationContextClass() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> exporter.validateDataToExport(Mockito.mock(CracCreationContext.class), null));
         assertEquals("JSON exporter expects a JsonCracCreationContext.", exception.getMessage());
     }
 }

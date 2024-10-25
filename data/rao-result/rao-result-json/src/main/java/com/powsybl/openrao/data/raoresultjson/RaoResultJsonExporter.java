@@ -54,10 +54,18 @@ public class RaoResultJsonExporter implements Exporter {
     }
 
     @Override
+    public Set<String> getRequiredProperties() {
+        return Set.of();
+    }
+
+    @Override
+    public Class<? extends CracCreationContext> getCracCreationContextClass() {
+        return JsonCracCreationContext.class;
+    }
+
+    @Override
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
-        if (!(cracCreationContext instanceof JsonCracCreationContext)) {
-            throw new OpenRaoException("JSON exporter expects a JsonCracCreationContext.");
-        }
+        validateDataToExport(cracCreationContext, properties);
         exportData(raoResult, cracCreationContext.getCrac(), properties, outputStream);
     }
 

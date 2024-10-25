@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cneexportercommons;
 
+import java.util.Set;
+
 /**
  * Constants used in the CNE file
  *
@@ -111,6 +113,7 @@ public final class CneConstants {
     public static final String RECEIVER_ID = "receiver-id";
     public static final String RECEIVER_ROLE = "receiver-role";
     public static final String TIME_INTERVAL = "time-interval";
+    public static final Set<String> CNE_REQUIRED_PROPERTIES = Set.of(DOCUMENT_ID, REVISION_NUMBER, DOMAIN_ID, PROCESS_TYPE, SENDER_ID, SENDER_ROLE, RECEIVER_ID, RECEIVER_ROLE, TIME_INTERVAL);
 
     private CneConstants() { }
 }

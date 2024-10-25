@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.raoresultapi.io.Exporter;
 
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -23,6 +24,16 @@ public class MockRaoResultExporter implements Exporter {
     @Override
     public String getFormat() {
         return "Mock";
+    }
+
+    @Override
+    public Set<String> getRequiredProperties() {
+        return Set.of("property-1", "property-2");
+    }
+
+    @Override
+    public Class<? extends CracCreationContext> getCracCreationContextClass() {
+        return MockCracCreationContext.class;
     }
 
     @Override
