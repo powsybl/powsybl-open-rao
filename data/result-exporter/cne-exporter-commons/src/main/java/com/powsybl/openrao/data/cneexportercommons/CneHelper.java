@@ -12,60 +12,33 @@ import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.util.Properties;
 
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.DOCUMENT_ID;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.DOMAIN_ID;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.MNEC_ACCEPTABLE_MARGIN_DIMINUTION;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.PROCESS_TYPE;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.RECEIVER_ID;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.RECEIVER_ROLE;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.RELATIVE_POSITIVE_MARGINS;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.REVISION_NUMBER;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.SENDER_ID;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.SENDER_ROLE;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.TIME_INTERVAL;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.WITH_LOOP_FLOWS;
+
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class CneHelper {
     private final Crac crac;
     private final RaoResult raoResult;
-    private final boolean relativePositiveMargins;
-    private final boolean withLoopFlows;
-    private final double mnecAcceptableMarginDiminution;
-    private final String documentId;
-    private final int revisionNumber;
-    private final String domainId;
-    private final String processType;
-    private final String senderId;
-    private final String senderRole;
-    private final String receiverId;
-    private final String receiverRole;
-    private final String timeInterval;
-
-    private CneHelper(Crac crac, RaoResult raoResult, boolean relativePositiveMargins, boolean withLoopFlows,
-                      double mnecAcceptableMarginDiminution, String documentId, int revisionNumber, String domainId,
-                      String processType, String senderId, String senderRole, String receiverId, String receiverRole,
-                      String timeInterval) {
-        this.crac = crac;
-        this.raoResult = raoResult;
-        this.relativePositiveMargins = relativePositiveMargins;
-        this.withLoopFlows = withLoopFlows;
-        this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
-        this.documentId = documentId;
-        this.revisionNumber = revisionNumber;
-        this.domainId = domainId;
-        this.processType = processType;
-        this.senderId = senderId;
-        this.senderRole = senderRole;
-        this.receiverId = receiverId;
-        this.receiverRole = receiverRole;
-        this.timeInterval = timeInterval;
-    }
+    private final Properties properties;
 
     public CneHelper(Crac crac, RaoResult raoResult, Properties properties) {
-        this(crac, raoResult,
-            Boolean.parseBoolean((String) properties.getOrDefault("relative-positive-margins", "false")),
-            Boolean.parseBoolean((String) properties.getOrDefault("with-loop-flows", "false")),
-            Double.parseDouble((String) properties.getOrDefault("mnec-acceptable-margin-diminution", "0")),
-            properties.getProperty("document-id"),
-            Integer.parseInt(properties.getProperty("revision-number")),
-            properties.getProperty("domain-id"),
-            properties.getProperty("process-type"),
-            properties.getProperty("sender-id"),
-            properties.getProperty("sender-role"),
-            properties.getProperty("receiver-id"),
-            properties.getProperty("receiver-role"),
-            properties.getProperty("time-interval"));
+        this.crac = crac;
+        this.raoResult = raoResult;
+        this.properties = properties;
     }
 
     public Crac getCrac() {
@@ -77,50 +50,50 @@ public class CneHelper {
     }
 
     public boolean isRelativePositiveMargins() {
-        return relativePositiveMargins;
+        return Boolean.parseBoolean(properties.getProperty(RELATIVE_POSITIVE_MARGINS, "false"));
     }
 
     public boolean isWithLoopFlows() {
-        return withLoopFlows;
+        return Boolean.parseBoolean(properties.getProperty(WITH_LOOP_FLOWS, "false"));
     }
 
     public double getMnecAcceptableMarginDiminution() {
-        return mnecAcceptableMarginDiminution;
+        return Double.parseDouble(properties.getProperty(MNEC_ACCEPTABLE_MARGIN_DIMINUTION, "0"));
     }
 
     public String getDocumentId() {
-        return documentId;
+        return properties.getProperty(DOCUMENT_ID);
     }
 
     public int getRevisionNumber() {
-        return revisionNumber;
+        return Integer.parseInt(properties.getProperty(REVISION_NUMBER));
     }
 
     public String getDomainId() {
-        return domainId;
+        return properties.getProperty(DOMAIN_ID);
     }
 
     public String getProcessType() {
-        return processType;
+        return properties.getProperty(PROCESS_TYPE);
     }
 
     public String getSenderId() {
-        return senderId;
+        return properties.getProperty(SENDER_ID);
     }
 
     public String getSenderRole() {
-        return senderRole;
+        return properties.getProperty(SENDER_ROLE);
     }
 
     public String getReceiverId() {
-        return receiverId;
+        return properties.getProperty(RECEIVER_ID);
     }
 
     public String getReceiverRole() {
-        return receiverRole;
+        return properties.getProperty(RECEIVER_ROLE);
     }
 
     public String getTimeInterval() {
-        return timeInterval;
+        return properties.getProperty(TIME_INTERVAL);
     }
 }

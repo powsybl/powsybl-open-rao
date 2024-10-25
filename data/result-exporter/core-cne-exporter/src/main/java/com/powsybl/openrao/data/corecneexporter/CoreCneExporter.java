@@ -97,6 +97,9 @@ public class CoreCneExporter implements Exporter {
 
     @Override
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+        if (!(cracCreationContext instanceof UcteCracCreationContext)) {
+            throw new OpenRaoException("CORE-CNE exporter expects a UcteCracCreationContext.");
+        }
         CoreCne cne = new CoreCne((UcteCracCreationContext) cracCreationContext, raoResult, properties);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();

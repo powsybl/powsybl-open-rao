@@ -98,5 +98,19 @@ public final class CneConstants {
     public static final String DIVERGENCE_CODE = "B40";
     public static final String DIVERGENCE_TEXT = "Load flow divergence";
 
+    /* Exporter properties */
+    public static final String RELATIVE_POSITIVE_MARGINS = "relative-positive-margins";
+    public static final String WITH_LOOP_FLOWS = "with-loop-flows";
+    public static final String MNEC_ACCEPTABLE_MARGIN_DIMINUTION = "mnec-acceptable-margin-diminution";
+    public static final String DOCUMENT_ID = "document-id";
+    public static final String REVISION_NUMBER = "revision-number";
+    public static final String DOMAIN_ID = "domain-id";
+    public static final String PROCESS_TYPE = "process-type";
+    public static final String SENDER_ID = "sender-id";
+    public static final String SENDER_ROLE = "sender-role";
+    public static final String RECEIVER_ID = "receiver-id";
+    public static final String RECEIVER_ROLE = "receiver-role";
+    public static final String TIME_INTERVAL = "time-interval";
+
     private CneConstants() { }
 }

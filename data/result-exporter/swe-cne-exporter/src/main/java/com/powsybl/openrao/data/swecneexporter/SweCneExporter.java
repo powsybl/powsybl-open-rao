@@ -97,6 +97,9 @@ public class SweCneExporter implements Exporter {
 
     @Override
     public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+        if (!(cracCreationContext instanceof CimCracCreationContext)) {
+            throw new OpenRaoException("SWE-CNE exporter expects a CimCracCreationContext.");
+        }
         SweCne cne = new SweCne((CimCracCreationContext) cracCreationContext, raoResult, properties);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
