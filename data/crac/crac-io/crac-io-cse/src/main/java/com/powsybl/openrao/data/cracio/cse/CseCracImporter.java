@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.cse.xsd.CRACDocumentType;
@@ -35,7 +34,7 @@ import java.util.Objects;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class CseCracImporter implements Importer {
+public class CseCracImporter implements Importer<CseCracCreationContext> {
     private static final String CRAC_CSE_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/cracio/cse/xsd/crac-document_4_23.xsd";
     private static final String ETSO_CORE_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/cracio/cse/xsd/etso-core-cmpts.xsd";
     private static final String ETSO_CODES_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/cracio/cse/xsd/etso-code-lists.xsd";
@@ -88,7 +87,7 @@ public class CseCracImporter implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
+    public CseCracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
         return new CseCracCreator().createCrac(importNativeCrac(inputStream), network, offsetDateTime, cracCreationParameters);
     }
 }

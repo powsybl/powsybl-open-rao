@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.cracio.fbconstraint;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.fbconstraint.xsd.FlowBasedConstraintDocument;
@@ -41,7 +40,7 @@ import static java.lang.Integer.parseInt;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class FbConstraintImporter implements Importer {
+public class FbConstraintImporter implements Importer<FbConstraintCreationContext> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FbConstraintImporter.class);
     private static final String XML_EXTENSION = "xml";
@@ -108,7 +107,7 @@ public class FbConstraintImporter implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
+    public FbConstraintCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
         return new FbConstraintCracCreator().createCrac(importNativeCrac(inputStream), network, offsetDateTime, cracCreationParameters);
     }
 

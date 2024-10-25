@@ -13,7 +13,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.json.deserializers.CracDeserializer;
@@ -31,7 +30,7 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class JsonImport implements Importer {
+public class JsonImport implements Importer<JsonCracCreationContext> {
     @Override
     public String getFormat() {
         return "JSON";
@@ -56,7 +55,7 @@ public class JsonImport implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
+    public JsonCracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
         if (network == null) {
             throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
         }
@@ -66,7 +65,7 @@ public class JsonImport implements Importer {
             module.addDeserializer(Crac.class, new CracDeserializer(cracCreationParameters.getCracFactory(), network));
             objectMapper.registerModule(module);
             Crac crac = objectMapper.readValue(inputStream, Crac.class);
-            CracCreationContext cracCreationContext = new JsonCracCreationContext(true, crac, network.getNameOrId());
+            JsonCracCreationContext cracCreationContext = new JsonCracCreationContext(true, crac, network.getNameOrId());
             if (offsetDateTime != null) {
                 cracCreationContext.getCreationReport().warn("OffsetDateTime was ignored by the JSON CRAC importer");
             }
@@ -74,7 +73,7 @@ public class JsonImport implements Importer {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (OpenRaoException e) {
-            CracCreationContext cracCreationContext = new JsonCracCreationContext(false, null, network.getNameOrId());
+            JsonCracCreationContext cracCreationContext = new JsonCracCreationContext(false, null, network.getNameOrId());
             cracCreationContext.getCreationReport().error(e.getMessage());
             return cracCreationContext;
         }

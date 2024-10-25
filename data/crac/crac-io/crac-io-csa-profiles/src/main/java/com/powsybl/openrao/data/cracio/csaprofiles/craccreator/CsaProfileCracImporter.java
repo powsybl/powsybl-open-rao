@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
@@ -42,7 +41,7 @@ import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfile
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class CsaProfileCracImporter implements Importer {
+public class CsaProfileCracImporter implements Importer<CsaProfileCracCreationContext> {
 
     @Override
     public String getFormat() {
@@ -143,7 +142,7 @@ public class CsaProfileCracImporter implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
+    public CsaProfileCracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
         return new CsaProfileCracCreator().createCrac(importNativeCrac(inputStream), network, offsetDateTime, cracCreationParameters);
     }
 }

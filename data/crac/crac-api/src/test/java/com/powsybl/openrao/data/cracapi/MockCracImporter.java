@@ -19,7 +19,7 @@ import java.time.OffsetDateTime;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 @AutoService(Importer.class)
-public class MockCracImporter implements Importer {
+public class MockCracImporter implements Importer<CracCreationContext> {
 
     static class MockCracCreationContext implements CracCreationContext {
 
