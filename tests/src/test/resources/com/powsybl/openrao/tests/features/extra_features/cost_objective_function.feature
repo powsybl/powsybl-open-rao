@@ -16,6 +16,7 @@ Feature: New objective function using minimal cost
     And the remedial action "pst_be" is used in preventive
     And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 0 A
     And the tap of PstRangeAction "pst_be" should be 6 in preventive
+    And the cost of remedial action "pst_be" should be 2.6
 
   @fast @rao @mock @ac @preventive-only
   Scenario: Preventive RA with max min margin
