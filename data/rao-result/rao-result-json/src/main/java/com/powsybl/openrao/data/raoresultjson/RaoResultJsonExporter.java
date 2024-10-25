@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracio.json.JsonCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.io.Exporter;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultjson.serializers.RaoResultJsonSerializerModule;
@@ -43,7 +44,7 @@ import java.util.Set;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(Exporter.class)
-public class RaoResultJsonExporter implements Exporter {
+public class RaoResultJsonExporter implements Exporter<JsonCracCreationContext> {
     private static final String FLOWS_IN_AMPERES = "flows-in-amperes";
     private static final String FLOWS_IN_MEGAWATTS = "flows-in-megawatts";
 
@@ -53,7 +54,7 @@ public class RaoResultJsonExporter implements Exporter {
     }
 
     @Override
-    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+    public void exportData(RaoResult raoResult, JsonCracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
         exportData(raoResult, cracCreationContext.getCrac(), properties, outputStream);
     }
 

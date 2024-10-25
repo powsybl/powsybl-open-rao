@@ -17,13 +17,13 @@ import java.util.Properties;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public interface Exporter {
+public interface Exporter<T extends CracCreationContext> {
     /**
      * Get a unique identifier of the format.
      */
     String getFormat();
 
-    void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream);
+    void exportData(RaoResult raoResult, T cracCreationContext, Properties properties, OutputStream outputStream);
 
     void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream);
 }

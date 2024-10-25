@@ -89,18 +89,15 @@ import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 @AutoService(Exporter.class)
-public class CoreCneExporter implements Exporter {
+public class CoreCneExporter implements Exporter<UcteCracCreationContext> {
     @Override
     public String getFormat() {
         return "CORE-CNE";
     }
 
     @Override
-    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
-        if (!(cracCreationContext instanceof UcteCracCreationContext)) {
-            throw new OpenRaoException("CORE-CNE exporter expects a UcteCracCreationContext.");
-        }
-        CoreCne cne = new CoreCne((UcteCracCreationContext) cracCreationContext, raoResult, properties);
+    public void exportData(RaoResult raoResult, UcteCracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+        CoreCne cne = new CoreCne(cracCreationContext, raoResult, properties);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();
