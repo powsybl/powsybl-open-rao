@@ -27,7 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.Properties;
 
 import static java.lang.String.format;
 
@@ -116,7 +116,10 @@ public final class RaoUtils {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        raoResult.write("JSON", crac, Set.of(Unit.AMPERE, Unit.MEGAWATT), outputStream);
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        raoResult.write("JSON", crac, properties, outputStream);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
