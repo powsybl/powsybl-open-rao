@@ -11,7 +11,9 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import java.util.Optional;
+
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SEARCH_TREE_PARAMETERS;
 
 public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters> {
     private ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
@@ -20,6 +22,9 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
     private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
     private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
+    private Optional<MnecParameters> mnecParameters = Optional.empty();
+    private Optional<RelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
+    private Optional<LoopFlowParameters> loopFlowParameters = Optional.empty();
 
     // Getters and setters
     public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -46,6 +51,18 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         this.loadFlowAndSensitivityParameters = loadFlowAndSensitivityParameters;
     }
 
+    public void setMnecParameters(MnecParameters mnecParameters) {
+        this.mnecParameters = Optional.of(mnecParameters);
+    }
+
+    public void setRelativeMarginsParameters(RelativeMarginsParameters relativeMarginsParameters) {
+        this.relativeMarginsParameters = Optional.of(relativeMarginsParameters);
+    }
+
+    public void setLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
+        this.loopFlowParameters = Optional.of(loopFlowParameters);
+    }
+
     public ObjectiveFunctionParameters getObjectiveFunctionParameters() {
         return objectiveFunctionParameters;
     }
@@ -68,6 +85,18 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
 
     public LoadFlowAndSensitivityParameters getLoadFlowAndSensitivityParameters() {
         return loadFlowAndSensitivityParameters;
+    }
+
+    public Optional<MnecParameters> getMnecParameters() {
+        return mnecParameters;
+    }
+
+    public Optional<RelativeMarginsParameters> getRelativeMarginsParameters() {
+        return relativeMarginsParameters;
+    }
+
+    public Optional<LoopFlowParameters> getLoopFlowParameters() {
+        return loopFlowParameters;
     }
 
     @Override

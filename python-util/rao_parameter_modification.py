@@ -88,27 +88,10 @@ class SpecialJSONEncoder(json.JSONEncoder):
 
 def new_rao_param(data: dict, file_path: str) -> dict:
     try:
-        move_to_extension(data, "objective-function", ["curative-min-obj-improvement"])
-        move_to_extension(data, "range-actions-optimization",
-                          ["max-mip-iterations", "pst-sensitivity-threshold", "pst-model",
-                           "hvdc-sensitivity-threshold", "injection-ra-sensitivity-threshold",
-                           "ra-range-shrinking", "linear-optimization-solver"])
-        move_to_extension(data, "topological-actions-optimization",
-                          ["max-preventive-search-tree-depth", "max-auto-search-tree-depth",
-                           "max-curative-search-tree-depth", "predefined-combinations",
-                           "skip-actions-far-from-most-limiting-element",
-                           "max-number-of-boundaries-for-skipping-actions"])
-        move_to_extension(data, "second-preventive-rao")
-        move_to_extension(data, "load-flow-and-sensitivity-computation")
-        if "range-actions-optimization" in data:
-            new_names = {"pst-penalty-cost": "pst-ra-min-impact-threshold",
-                         "hvdc-penalty-cost": "hvdc-ra-min-impact-threshold",
-                         "injection-ra-penalty-cost": "injection-ra-min-impact-threshold"}
-            data["range-actions-optimization"] = {new_names[k] if k in new_names else k: v for k, v in
-                                                  data["range-actions-optimization"].items()}
-        if "multi-threading" in data and any(data["multi-threading"]):
-            data["multi-threading"] = {"available-cpus": max(v for k, v in data["multi-threading"].items() if k in ("contingency-scenarios-in-parallel", "preventive-leaves-in-parallel"))}
-        move_to_extension(data, "multi-threading")
+        if "extensions" in data:
+            move_back_to_rao_param(data, "mnec-parameters", ["acceptable-margin-decrease"])
+            move_back_to_rao_param(data, "relative-margins-parameters", ["ptdf-boundaries"])
+            move_back_to_rao_param(data, "loop-flow-parameters", ["acceptable-increase", "countries"])
         if "extensions" in data:
             extensions = data["extensions"]
             # put extensions at the end:
@@ -119,29 +102,27 @@ def new_rao_param(data: dict, file_path: str) -> dict:
     return data
 
 
-def move_to_extension(data: dict, name_level1: str, names_level2: list | None = None):
-    if name_level1 in data:
-        param_level_1: dict = data[name_level1]
-        if names_level2 is None:
-            st_params = get_or_create_st_params(data)
-            st_params[name_level1] = param_level_1
-            del data[name_level1]
-        else:
-            if any(set(names_level2).intersection(param_level_1.keys())):
+def move_back_to_rao_param(data: dict, name_level1: str, names_level2_for_rao: list | None = None):
+    if name_level1 in data["extensions"]:
+        param_level_1: dict = data["extensions"][name_level1]
+        for name_level2 in param_level_1.keys():
+            if name_level2 in names_level2_for_rao:
+                rao_name_level1 = get_or_create_params(data, name_level1)
+                rao_name_level1[name_level2] = param_level_1[name_level2]
+            else:
                 st_params = get_or_create_st_params(data)
-                if name_level1 not in st_params:
-                    st_params[name_level1] = {}
-                for name_level_2 in names_level2:
-                    if name_level_2 in param_level_1:
-                        st_params[name_level1][name_level_2] = param_level_1[name_level_2]
-                        del param_level_1[name_level_2]
-                if not any(param_level_1):
-                    del data[name_level1]
+                ext_name_level1 = get_or_create_params(st_params, name_level1)
+                ext_name_level1[name_level2] = param_level_1[name_level2]
+        del data["extensions"][name_level1]
+
+
+def get_or_create_params(data: dict, name_level1: str) -> dict:
+    if name_level1 not in data:
+        data[name_level1] = {}
+    return data[name_level1]
 
 
 def get_or_create_st_params(data: dict) -> dict:
-    if "extensions" not in data:
-        data["extensions"] = {}
     if "open-rao-search-tree-parameters" not in data["extensions"]:
         data["extensions"]["open-rao-search-tree-parameters"] = {}
     return data["extensions"]["open-rao-search-tree-parameters"]

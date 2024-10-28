@@ -7,43 +7,26 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
-import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.config.PlatformConfig;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PTDF_SUM_LOWER_BOUND;
+
 /**
  * Extension : relative margin parameters for RAO
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class RelativeMarginsParametersExtension extends AbstractExtension<RaoParameters> {
+public class RelativeMarginsParameters {
 
     static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     static final PtdfApproximation DEFAULT_PTDF_APPROXIMATION = PtdfApproximation.FIXED_PTDF;
-    static final List<ZoneToZonePtdfDefinition> DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES = new ArrayList<>();
-    private List<ZoneToZonePtdfDefinition> ptdfBoundaries = DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES;
     // prevents relative margins from diverging to +infinity
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
     private PtdfApproximation ptdfApproximation = DEFAULT_PTDF_APPROXIMATION;
-
-    public List<ZoneToZonePtdfDefinition> getPtdfBoundaries() {
-        return ptdfBoundaries;
-    }
-
-    public List<String> getPtdfBoundariesAsString() {
-        return ptdfBoundaries.stream()
-                .map(ZoneToZonePtdfDefinition::toString)
-                .toList();
-    }
-
-    public void setPtdfBoundariesFromString(List<String> boundaries) {
-        this.ptdfBoundaries = boundaries.stream()
-                .map(ZoneToZonePtdfDefinition::new)
-                .toList();
-    }
 
     public double getPtdfSumLowerBound() {
         return ptdfSumLowerBound;
@@ -61,9 +44,15 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
         this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
-    @Override
-    public String getName() {
-        return RELATIVE_MARGINS;
+    public static Optional<RelativeMarginsParameters> load(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
+        return platformConfig.getOptionalModuleConfig(ST_RELATIVE_MARGINS_SECTION)
+            .map(config -> {
+                RelativeMarginsParameters parameters = new RelativeMarginsParameters();
+                parameters.setPtdfApproximation(config.getEnumProperty(PTDF_APPROXIMATION, PtdfApproximation.class, RelativeMarginsParameters.DEFAULT_PTDF_APPROXIMATION));
+                parameters.setPtdfSumLowerBound(config.getDoubleProperty(PTDF_SUM_LOWER_BOUND, RelativeMarginsParameters.DEFAULT_PTDF_SUM_LOWER_BOUND));
+                return parameters;
+            });
     }
 }
 

@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoapi.parameters;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,38 +33,41 @@ class RaoParametersConsistencyTest {
     @Test
     void testSetBoundariesFromCountryCodes() {
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}"));
-        parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
-        assertEquals(2, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().size());
-        assertEquals(1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(0).getWeight(new EICode(Country.FR)), 1e-6);
-        assertEquals(-1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(0).getWeight(new EICode(Country.ES)), 1e-6);
-        assertEquals(1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(1).getWeight(new EICode(Country.ES)), 1e-6);
-        assertEquals(-1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(1).getWeight(new EICode(Country.PT)), 1e-6);
+        com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters relativeMarginsParameters = new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters();
+        relativeMarginsParameters.setPtdfBoundariesFromString(stringBoundaries);
+        parameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        assertEquals(2, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().size());
+        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode(Country.FR)), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode(Country.ES)), 1e-6);
+        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(1).getWeight(new EICode(Country.ES)), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(1).getWeight(new EICode(Country.PT)), 1e-6);
     }
 
     @Test
     void testSetBoundariesFromEiCodes() {
-        parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{10YBE----------2}-{10YFR-RTE------C}", "{10YBE----------2}-{22Y201903144---9}"));
-        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
-        assertEquals(2, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().size());
-        assertEquals(2, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().size());
-        assertEquals(1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(0).getWeight(new EICode("10YBE----------2")), 1e-6);
-        assertEquals(-1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(0).getWeight(new EICode("10YFR-RTE------C")), 1e-6);
-        assertEquals(1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(1).getWeight(new EICode("10YBE----------2")), 1e-6);
-        assertEquals(-1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(1).getWeight(new EICode("22Y201903144---9")), 1e-6);
+        com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters relativeMarginsParameters = new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters();
+        relativeMarginsParameters.setPtdfBoundariesFromString(stringBoundaries);
+        parameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        assertEquals(2, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().size());
+        assertEquals(2, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().size());
+        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode("10YBE----------2")), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode("10YFR-RTE------C")), 1e-6);
+        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(1).getWeight(new EICode("10YBE----------2")), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(1).getWeight(new EICode("22Y201903144---9")), 1e-6);
     }
 
     @Test
     void testSetBoundariesFromMixOfCodes() {
-        parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         List<String> stringBoundaries = new ArrayList<>(Collections.singletonList("{BE}-{22Y201903144---9}+{22Y201903145---4}-{DE}"));
-        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
-        assertEquals(1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().size());
-        assertEquals(1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(0).getWeight(new EICode(Country.BE)), 1e-6);
-        assertEquals(-1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(0).getWeight(new EICode(Country.DE)), 1e-6);
-        assertEquals(1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(0).getWeight(new EICode("22Y201903145---4")), 1e-6);
-        assertEquals(-1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(0).getWeight(new EICode("22Y201903144---9")), 1e-6);
+        com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters relativeMarginsParameters = new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters();
+        relativeMarginsParameters.setPtdfBoundariesFromString(stringBoundaries);
+        parameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().size());
+        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode(Country.BE)), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode(Country.DE)), 1e-6);
+        assertEquals(1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode("22Y201903145---4")), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginsParameters().get().getPtdfBoundaries().get(0).getWeight(new EICode("22Y201903144---9")), 1e-6);
     }
 
     @Test

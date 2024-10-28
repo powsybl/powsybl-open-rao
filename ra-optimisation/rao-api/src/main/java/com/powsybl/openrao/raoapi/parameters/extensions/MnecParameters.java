@@ -7,36 +7,25 @@
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.config.PlatformConfig;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+
 /**
  * Extension : MNEC parameters for RAO
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
-    static final double DEFAULT_ACCEPTABLE_MARGIN_DECREASE = 50.0;
+public class MnecParameters {
     static final double DEFAULT_VIOLATION_COST = 10.0;
     static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    private double acceptableMarginDecrease = DEFAULT_ACCEPTABLE_MARGIN_DECREASE;
     // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double violationCost = DEFAULT_VIOLATION_COST;
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
-
-    @Override
-    public String getName() {
-        return MNEC_PARAMETERS;
-    }
-
-    public double getAcceptableMarginDecrease() {
-        return acceptableMarginDecrease;
-    }
-
-    public void setAcceptableMarginDecrease(double acceptableMarginDecrease) {
-        this.acceptableMarginDecrease = acceptableMarginDecrease;
-    }
 
     public double getViolationCost() {
         return violationCost;
@@ -52,5 +41,16 @@ public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
 
     public void setConstraintAdjustmentCoefficient(double constraintAdjustmentCoefficient) {
         this.constraintAdjustmentCoefficient = constraintAdjustmentCoefficient;
+    }
+
+    public static Optional<MnecParameters> load(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
+        return platformConfig.getOptionalModuleConfig(ST_MNEC_PARAMETERS_SECTION)
+            .map(config -> {
+                MnecParameters parameters = new MnecParameters();
+                parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, MnecParameters.DEFAULT_VIOLATION_COST));
+                parameters.setConstraintAdjustmentCoefficient(config.getDoubleProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT, MnecParameters.DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
+                return parameters;
+            });
     }
 }

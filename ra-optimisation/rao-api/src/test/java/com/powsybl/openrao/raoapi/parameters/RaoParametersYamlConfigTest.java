@@ -94,29 +94,29 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
 
         // EXTENSIONS
-        assertEquals(4, parameters.getExtensions().size());
+        assertEquals(1, parameters.getExtensions().size());
 
-        LoopFlowParametersExtension loopFlowParameters = parameters.getExtension(LoopFlowParametersExtension.class);
-        assertNotNull(loopFlowParameters);
-        assertEquals(11, loopFlowParameters.getAcceptableIncrease(), DOUBLE_TOLERANCE);
-        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, loopFlowParameters.getPtdfApproximation());
-        assertEquals(12, loopFlowParameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
-        assertEquals(13, loopFlowParameters.getViolationCost(), DOUBLE_TOLERANCE);
+        assertTrue(parameters.getLoopFlowParameters().isPresent());
+        assertTrue(searchTreeParameters.getLoopFlowParameters().isPresent());
+        assertEquals(11, parameters.getLoopFlowParameters().get().getAcceptableIncrease(), DOUBLE_TOLERANCE);
+        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, searchTreeParameters.getLoopFlowParameters().get().getPtdfApproximation());
+        assertEquals(12, searchTreeParameters.getLoopFlowParameters().get().getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        assertEquals(13, searchTreeParameters.getLoopFlowParameters().get().getViolationCost(), DOUBLE_TOLERANCE);
         Set<Country> expectedCountries = Set.of(Country.FR, Country.ES, Country.PT);
-        assertEquals(expectedCountries, loopFlowParameters.getCountries());
+        assertEquals(expectedCountries, parameters.getLoopFlowParameters().get().getCountries());
 
-        MnecParametersExtension mnecParametersExtension = parameters.getExtension(MnecParametersExtension.class);
-        assertNotNull(mnecParametersExtension);
-        assertEquals(55, mnecParametersExtension.getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
-        assertEquals(11, mnecParametersExtension.getViolationCost(), DOUBLE_TOLERANCE);
-        assertEquals(12, mnecParametersExtension.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        assertTrue(parameters.getMnecParameters().isPresent());
+        assertTrue(searchTreeParameters.getMnecParameters().isPresent());
+        assertEquals(55, parameters.getMnecParameters().get().getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
+        assertEquals(11, searchTreeParameters.getMnecParameters().get().getViolationCost(), DOUBLE_TOLERANCE);
+        assertEquals(12, searchTreeParameters.getMnecParameters().get().getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
 
-        RelativeMarginsParametersExtension relativeMarginsParametersExtension = parameters.getExtension(RelativeMarginsParametersExtension.class);
-        assertNotNull(relativeMarginsParametersExtension);
+        assertTrue(parameters.getRelativeMarginsParameters().isPresent());
+        assertTrue(searchTreeParameters.getRelativeMarginsParameters().isPresent());
         List<String> expectedBoundaries = List.of("{FR}-{BE}", "{FR}-{DE}");
-        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST, relativeMarginsParametersExtension.getPtdfApproximation());
-        assertEquals(0.02, relativeMarginsParametersExtension.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
-        assertEquals(expectedBoundaries, relativeMarginsParametersExtension.getPtdfBoundariesAsString());
+        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfApproximation());
+        assertEquals(0.02, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
+        assertEquals(expectedBoundaries, parameters.getRelativeMarginsParameters().get().getPtdfBoundariesAsString());
 
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withExtensions.json");
@@ -146,14 +146,8 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         // EXTENSIONS
         assertEquals(0, parameters.getExtensions().size());
 
-        LoopFlowParametersExtension loopFlowParameters = parameters.getExtension(LoopFlowParametersExtension.class);
-        assertNull(loopFlowParameters);
-
-        MnecParametersExtension mnecParametersExtension = parameters.getExtension(MnecParametersExtension.class);
-        assertNull(mnecParametersExtension);
-
-        RelativeMarginsParametersExtension relativeMarginsParametersExtension = parameters.getExtension(RelativeMarginsParametersExtension.class);
-        assertNull(relativeMarginsParametersExtension);
+        OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+        assertNull(searchTreeParameters);
 
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withoutExtensions.json");
@@ -214,26 +208,24 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(2, loadFlowAndSensitivityParametersExt.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
 
         // EXTENSIONS
-        assertEquals(3, parameters.getExtensions().size());
+        assertEquals(1, parameters.getExtensions().size());
 
-        LoopFlowParametersExtension loopFlowParameters = parameters.getExtension(LoopFlowParametersExtension.class);
-        assertNotNull(loopFlowParameters);
-        assertEquals(0, loopFlowParameters.getAcceptableIncrease(), DOUBLE_TOLERANCE);
-        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, loopFlowParameters.getPtdfApproximation());
-        assertEquals(12, loopFlowParameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
-        assertEquals(13, loopFlowParameters.getViolationCost(), DOUBLE_TOLERANCE);
+        assertTrue(parameters.getLoopFlowParameters().isPresent());
+        assertTrue(searchTreeParameters.getLoopFlowParameters().isPresent());
+        assertEquals(0, parameters.getLoopFlowParameters().get().getAcceptableIncrease(), DOUBLE_TOLERANCE);
+        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, searchTreeParameters.getLoopFlowParameters().get().getPtdfApproximation());
+        assertEquals(12, searchTreeParameters.getLoopFlowParameters().get().getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        assertEquals(13, searchTreeParameters.getLoopFlowParameters().get().getViolationCost(), DOUBLE_TOLERANCE);
         Set<Country> expectedCountries = Set.of(Country.FR, Country.ES, Country.PT);
-        assertEquals(expectedCountries, loopFlowParameters.getCountries());
+        assertEquals(expectedCountries, parameters.getLoopFlowParameters().get().getCountries());
 
-        MnecParametersExtension mnecParametersExtension = parameters.getExtension(MnecParametersExtension.class);
-        assertNull(mnecParametersExtension);
+        assertTrue(parameters.getMnecParameters().isEmpty());
+        assertTrue(searchTreeParameters.getMnecParameters().isEmpty());
 
-        RelativeMarginsParametersExtension relativeMarginsParametersExtension = parameters.getExtension(RelativeMarginsParametersExtension.class);
-        assertNotNull(relativeMarginsParametersExtension);
-        List<String> expectedBoundaries = Collections.emptyList();
-        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST, relativeMarginsParametersExtension.getPtdfApproximation());
-        assertEquals(0.02, relativeMarginsParametersExtension.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
-        assertEquals(expectedBoundaries, relativeMarginsParametersExtension.getPtdfBoundariesAsString());
+        assertTrue(parameters.getRelativeMarginsParameters().isEmpty());
+        assertTrue(searchTreeParameters.getRelativeMarginsParameters().isPresent());
+        assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfApproximation());
+        assertEquals(0.02, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
 
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withPartialExtensions.json");

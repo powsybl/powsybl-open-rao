@@ -14,12 +14,10 @@
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
   },
+  "mnec-parameters" : {
+    "acceptable-margin-decrease" : 33.0
+  },
   "extensions" : {
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 33.0,
-      "violation-cost" : 23.0,
-      "constraint-adjustment-coefficient" : 4.0
-    },
     "open-rao-search-tree-parameters" : {
       "range-actions-optimization" : {
         "max-mip-iterations" : 5,
@@ -34,6 +32,10 @@
       },
       "multi-threading" : {
         "available-cpus" : 8
+      },
+      "mnec-parameters" : {
+        "violation-cost" : 23.0,
+        "constraint-adjustment-coefficient" : 4.0
       }
     }
   }

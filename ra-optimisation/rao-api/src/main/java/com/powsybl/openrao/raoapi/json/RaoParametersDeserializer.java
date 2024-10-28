@@ -63,6 +63,18 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     JsonNotOptimizedCnecsParameters.deserialize(parser, parameters);
                     break;
+                case MNEC_PARAMETERS:
+                    parser.nextToken();
+                    JsonMnecParameters.deserialize(parser, parameters);
+                    break;
+                case RELATIVE_MARGINS:
+                    parser.nextToken();
+                    JsonRelativeMarginsParameters.deserialize(parser, parameters);
+                    break;
+                case LOOP_FLOW_PARAMETERS:
+                    parser.nextToken();
+                    JsonLoopFlowParameters.deserialize(parser, parameters);
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters);

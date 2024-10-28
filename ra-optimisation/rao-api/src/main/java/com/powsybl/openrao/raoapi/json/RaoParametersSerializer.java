@@ -33,6 +33,9 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         JsonRangeActionsOptimizationParameters.serialize(parameters, jsonGenerator);
         JsonTopoOptimizationParameters.serialize(parameters, jsonGenerator);
         JsonNotOptimizedCnecsParameters.serialize(parameters, jsonGenerator);
+        JsonMnecParameters.serialize(parameters, jsonGenerator);
+        JsonRelativeMarginsParameters.serialize(parameters, jsonGenerator);
+        JsonLoopFlowParameters.serialize(parameters, jsonGenerator);
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
         jsonGenerator.writeEndObject();
     }

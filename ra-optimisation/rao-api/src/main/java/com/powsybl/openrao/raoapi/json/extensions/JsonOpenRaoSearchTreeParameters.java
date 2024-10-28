@@ -33,6 +33,9 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
         JsonSecondPreventiveRaoParameters.serialize(parameters, jsonGenerator);
         JsonLoadFlowAndSensitivityComputationParameters.serialize(parameters, jsonGenerator, serializerProvider);
         JsonMultiThreadingParameters.serialize(parameters, jsonGenerator);
+        JsonMnecParameters.serialize(parameters, jsonGenerator);
+        JsonRelativeMarginsParameters.serialize(parameters, jsonGenerator);
+        JsonLoopFlowParameters.serialize(parameters, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -68,6 +71,18 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
                 case LOAD_FLOW_AND_SENSITIVITY_COMPUTATION:
                     parser.nextToken();
                     JsonLoadFlowAndSensitivityComputationParameters.deserialize(parser, parameters);
+                    break;
+                case MNEC_PARAMETERS:
+                    parser.nextToken();
+                    JsonMnecParameters.deserialize(parser, parameters);
+                    break;
+                case RELATIVE_MARGINS:
+                    parser.nextToken();
+                    JsonRelativeMarginsParameters.deserialize(parser, parameters);
+                    break;
+                case LOOP_FLOW_PARAMETERS:
+                    parser.nextToken();
+                    JsonLoopFlowParameters.deserialize(parser, parameters);
                     break;
                 default:
                     throw new OpenRaoException("Unexpected field in open rao search tree parameters: " + parser.getCurrentName());
