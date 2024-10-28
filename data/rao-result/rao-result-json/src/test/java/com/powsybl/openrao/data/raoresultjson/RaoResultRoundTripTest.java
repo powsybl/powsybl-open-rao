@@ -29,8 +29,8 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
@@ -60,7 +60,10 @@ class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new RaoResultJsonExporter().exportData(raoResult, crac, Set.of(MEGAWATT, AMPERE), outputStream);
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        new RaoResultJsonExporter().exportData(raoResult, crac, properties, outputStream);
 
         ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
         crac.write("JSON", outputStream2);
@@ -79,7 +82,10 @@ class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        raoResult.write("JSON", crac, Set.of(MEGAWATT, AMPERE), outputStream);
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        raoResult.write("JSON", crac, properties, outputStream);
 
         ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
         crac.write("JSON", outputStream2);
@@ -423,7 +429,10 @@ class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new RaoResultJsonExporter().exportData(raoResult, crac, Set.of(MEGAWATT, AMPERE), outputStream);
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        new RaoResultJsonExporter().exportData(raoResult, crac, properties, outputStream);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -439,7 +448,10 @@ class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        raoResult.write("JSON", crac, Set.of(MEGAWATT, AMPERE), outputStream);
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        raoResult.write("JSON", crac, properties, outputStream);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -593,25 +605,9 @@ class RaoResultRoundTripTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         RaoResultJsonExporter raoResultExporter = new RaoResultJsonExporter();
 
-        // Empty set
-        Set<Unit> emptySet = Collections.emptySet();
-        Exception exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, emptySet, outputStream));
-        assertEquals("At least one flow unit should be defined", exception.getMessage());
-
-        // "TAP" unit
-        Set<Unit> tapSingleton = Set.of(TAP);
-        exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, tapSingleton, outputStream));
-        assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
-
-        // "DEGREE" unit
-        Set<Unit> degreeSingleton = Set.of(DEGREE);
-        exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, degreeSingleton, outputStream));
-        assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
-
-        // "KILOVOLT" + "AMPERE" units
-        Set<Unit> kvAndAmp = Set.of(KILOVOLT, AMPERE);
-        exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, kvAndAmp, outputStream));
-        assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
+        // Empty properties
+        Exception exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, new Properties(), outputStream));
+        assertEquals("At least one flow unit should be used. Please provide rao-result.export.json.flows-in-amperes and/or rao-result.export.json.flows-in-megawatts in the properties.", exception.getMessage());
     }
 
     @Test
@@ -622,7 +618,9 @@ class RaoResultRoundTripTest {
 
         // RoundTrip with Ampere only
         ByteArrayOutputStream outputStreamAmpere = new ByteArrayOutputStream();
-        new RaoResultJsonExporter().exportData(raoResult, crac, Set.of(AMPERE), outputStreamAmpere);
+        Properties propertiesAmperes = new Properties();
+        propertiesAmperes.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        new RaoResultJsonExporter().exportData(raoResult, crac, propertiesAmperes, outputStreamAmpere);
         ByteArrayInputStream inputStreamAmpere = new ByteArrayInputStream(outputStreamAmpere.toByteArray());
         RaoResult importedRaoResultAmpere = new RaoResultJsonImporter().importData(inputStreamAmpere, crac);
 
@@ -631,7 +629,9 @@ class RaoResultRoundTripTest {
 
         // RoundTrip with MW only
         ByteArrayOutputStream outputStreamMegawatt = new ByteArrayOutputStream();
-        raoResult.write("JSON", crac, Set.of(MEGAWATT), outputStreamMegawatt);
+        Properties propertiesMegawatts = new Properties();
+        propertiesMegawatts.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        raoResult.write("JSON", crac, propertiesMegawatts, outputStreamMegawatt);
         ByteArrayInputStream inputStreamMegawatt = new ByteArrayInputStream(outputStreamMegawatt.toByteArray());
         RaoResult importedRaoResultMegawatt = RaoResult.read(inputStreamMegawatt, crac);
 
@@ -646,7 +646,9 @@ class RaoResultRoundTripTest {
 
         // RoundTrip with Ampere only
         ByteArrayOutputStream outputStreamAmpere = new ByteArrayOutputStream();
-        raoResult.write("JSON", crac, Set.of(AMPERE), outputStreamAmpere);
+        Properties propertiesAmperes = new Properties();
+        propertiesAmperes.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        raoResult.write("JSON", crac, propertiesAmperes, outputStreamAmpere);
         ByteArrayInputStream inputStreamAmpere = new ByteArrayInputStream(outputStreamAmpere.toByteArray());
         RaoResult importedRaoResultAmpere = RaoResult.read(inputStreamAmpere, crac);
 
@@ -655,7 +657,9 @@ class RaoResultRoundTripTest {
 
         // RoundTrip with MW only
         ByteArrayOutputStream outputStreamMegawatt = new ByteArrayOutputStream();
-        raoResult.write("JSON", crac, Set.of(MEGAWATT), outputStreamMegawatt);
+        Properties propertiesMegawatts = new Properties();
+        propertiesMegawatts.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        raoResult.write("JSON", crac, propertiesMegawatts, outputStreamMegawatt);
         ByteArrayInputStream inputStreamMegawatt = new ByteArrayInputStream(outputStreamMegawatt.toByteArray());
         RaoResult importedRaoResultMegawatt = RaoResult.read(inputStreamMegawatt, crac);
 
@@ -678,5 +682,21 @@ class RaoResultRoundTripTest {
         assertTrue(Double.isNaN(raoResult.getFlow(null, cnecP, ONE, AMPERE)));
         assertTrue(Double.isNaN(raoResult.getFlow(null, cnecP, TWO, AMPERE)));
         assertTrue(Double.isNaN(raoResult.getMargin(null, cnecP, AMPERE)));
+    }
+
+    @Test
+    void exportWithInvalidProperties() {
+        // get exhaustive CRAC and RaoResult
+        Crac crac = ExhaustiveCracCreation.create();
+        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        RaoResultJsonExporter raoResultExporter = new RaoResultJsonExporter();
+
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "Hello world!");
+
+        Exception exception = assertThrows(OpenRaoException.class, () -> raoResultExporter.exportData(raoResult, crac, properties, outputStream));
+        assertEquals("At least one flow unit should be used. Please provide rao-result.export.json.flows-in-amperes and/or rao-result.export.json.flows-in-megawatts in the properties.", exception.getMessage());
     }
 }
