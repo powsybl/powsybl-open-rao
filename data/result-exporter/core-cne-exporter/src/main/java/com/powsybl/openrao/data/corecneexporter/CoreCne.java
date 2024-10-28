@@ -42,7 +42,7 @@ public class CoreCne {
 
     public CoreCne(UcteCracCreationContext cracCreationContext, RaoResult raoResult, Properties properties) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        cneHelper = new CneHelper(cracCreationContext.getCrac(), raoResult, properties);
+        cneHelper = new CneHelper(cracCreationContext.getCrac(), raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         this.cracCreationContext = cracCreationContext;
     }
 

@@ -92,15 +92,15 @@ class SweCneTest {
         raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, monitoringResult);
 
         properties = new Properties();
-        properties.setProperty("document-id", "documentId");
-        properties.setProperty("revision-number", "1");
-        properties.setProperty("domain-id", "domainId");
-        properties.setProperty("process-type", "Z01");
-        properties.setProperty("sender-id", "senderId");
-        properties.setProperty("sender-role", "A04");
-        properties.setProperty("receiver-id", "receiverId");
-        properties.setProperty("receiver-role", "A36");
-        properties.setProperty("time-interval", "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
+        properties.setProperty("rao-result.export.swe-cne.document-id", "documentId");
+        properties.setProperty("rao-result.export.swe-cne.revision-number", "1");
+        properties.setProperty("rao-result.export.swe-cne.domain-id", "domainId");
+        properties.setProperty("rao-result.export.swe-cne.process-type", "Z01");
+        properties.setProperty("rao-result.export.swe-cne.sender-id", "senderId");
+        properties.setProperty("rao-result.export.swe-cne.sender-role", "A04");
+        properties.setProperty("rao-result.export.swe-cne.receiver-id", "receiverId");
+        properties.setProperty("rao-result.export.swe-cne.receiver-role", "A36");
+        properties.setProperty("rao-result.export.swe-cne.time-interval", "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
     }
 
     @Test

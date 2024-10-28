@@ -32,6 +32,7 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
+import static com.powsybl.openrao.data.corecneexporter.CoreCneUtil.CORE_CNE_EXPORT_PROPERTIES_PREFIX;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
 
@@ -93,16 +94,16 @@ class CoreCneRemedialActionsCreatorTest {
         cnecsConstraintSeries.get(3).setBusinessType("B54");
 
         properties = new Properties();
-        properties.setProperty("relative-positive-margins", "true");
-        properties.setProperty("document-id", "22XCORESO------S-20211115-F299v1");
-        properties.setProperty("revision-number", "10");
-        properties.setProperty("domain-id", "10YDOM-REGION-1V");
-        properties.setProperty("process-type", "A48");
-        properties.setProperty("sender-id", "22XCORESO------S");
-        properties.setProperty("sender-role", "A44");
-        properties.setProperty("receiver-id", "17XTSO-CS------W");
-        properties.setProperty("receiver-role", "A36");
-        properties.setProperty("time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
+        properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
+        properties.setProperty("rao-result.export.core-cne.document-id", "22XCORESO------S-20211115-F299v1");
+        properties.setProperty("rao-result.export.core-cne.revision-number", "10");
+        properties.setProperty("rao-result.export.core-cne.domain-id", "10YDOM-REGION-1V");
+        properties.setProperty("rao-result.export.core-cne.process-type", "A48");
+        properties.setProperty("rao-result.export.core-cne.sender-id", "22XCORESO------S");
+        properties.setProperty("rao-result.export.core-cne.sender-role", "A44");
+        properties.setProperty("rao-result.export.core-cne.receiver-id", "17XTSO-CS------W");
+        properties.setProperty("rao-result.export.core-cne.receiver-role", "A36");
+        properties.setProperty("rao-result.export.core-cne.time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
     }
 
     @Test
@@ -117,7 +118,7 @@ class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), new ArrayList<>());
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
@@ -152,7 +153,7 @@ class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(false);
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), new ArrayList<>());
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
@@ -173,7 +174,7 @@ class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(pstRangeAction));
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), new ArrayList<>());
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
@@ -198,7 +199,7 @@ class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstRangeAction)).thenReturn(16);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
 
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), cnecsConstraintSeries);
 
@@ -250,7 +251,7 @@ class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getOptimizedTapOnState(crac.getState("contingency-id", curativeInstant), pstRangeAction)).thenReturn(16);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
 
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), cnecsConstraintSeries);
 
@@ -297,7 +298,7 @@ class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Set.of(networkAction));
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), new ArrayList<>());
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
@@ -316,7 +317,7 @@ class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(networkAction));
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
 
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), cnecsConstraintSeries);
 
@@ -359,7 +360,7 @@ class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", outageInstant))).thenReturn(new HashSet());
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", curativeInstant))).thenReturn(Set.of(networkAction));
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
 
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), cnecsConstraintSeries);
 
@@ -404,7 +405,7 @@ class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         UcteCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
         MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
@@ -447,7 +448,7 @@ class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstRangeAction)).thenReturn(16);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         UcteCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
         MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
@@ -502,7 +503,7 @@ class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getOptimizedTapOnState(crac.getState("contingency-id", curativeInstant), pstRangeAction)).thenReturn(16);
         Mockito.when(raoResult.isActivatedDuringState(crac.getState("contingency-id", curativeInstant), pstRangeAction)).thenReturn(true);
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         UcteCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
         MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);

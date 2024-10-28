@@ -23,11 +23,13 @@ public class CneHelper {
     private final Crac crac;
     private final RaoResult raoResult;
     private final Properties properties;
+    private final String propertiesPrefix;
 
-    public CneHelper(Crac crac, RaoResult raoResult, Properties properties) {
+    public CneHelper(Crac crac, RaoResult raoResult, Properties properties, String propertiesPrefix) {
         this.crac = crac;
         this.raoResult = raoResult;
         this.properties = properties;
+        this.propertiesPrefix = propertiesPrefix;
     }
 
     public Crac getCrac() {
@@ -39,50 +41,50 @@ public class CneHelper {
     }
 
     public boolean isRelativePositiveMargins() {
-        return Boolean.parseBoolean(properties.getProperty(RELATIVE_POSITIVE_MARGINS, "false"));
+        return Boolean.parseBoolean(properties.getProperty(propertiesPrefix + RELATIVE_POSITIVE_MARGINS, "false"));
     }
 
     public boolean isWithLoopFlows() {
-        return Boolean.parseBoolean(properties.getProperty(WITH_LOOP_FLOWS, "false"));
+        return Boolean.parseBoolean(properties.getProperty(propertiesPrefix + WITH_LOOP_FLOWS, "false"));
     }
 
     public double getMnecAcceptableMarginDiminution() {
-        return Double.parseDouble(properties.getProperty(MNEC_ACCEPTABLE_MARGIN_DIMINUTION, "0"));
+        return Double.parseDouble(properties.getProperty(propertiesPrefix + MNEC_ACCEPTABLE_MARGIN_DIMINUTION, "0"));
     }
 
     public String getDocumentId() {
-        return properties.getProperty(DOCUMENT_ID);
+        return properties.getProperty(propertiesPrefix + DOCUMENT_ID);
     }
 
     public int getRevisionNumber() {
-        return Integer.parseInt(properties.getProperty(REVISION_NUMBER));
+        return Integer.parseInt(properties.getProperty(propertiesPrefix + REVISION_NUMBER));
     }
 
     public String getDomainId() {
-        return properties.getProperty(DOMAIN_ID);
+        return properties.getProperty(propertiesPrefix + DOMAIN_ID);
     }
 
     public String getProcessType() {
-        return properties.getProperty(PROCESS_TYPE);
+        return properties.getProperty(propertiesPrefix + PROCESS_TYPE);
     }
 
     public String getSenderId() {
-        return properties.getProperty(SENDER_ID);
+        return properties.getProperty(propertiesPrefix + SENDER_ID);
     }
 
     public String getSenderRole() {
-        return properties.getProperty(SENDER_ROLE);
+        return properties.getProperty(propertiesPrefix + SENDER_ROLE);
     }
 
     public String getReceiverId() {
-        return properties.getProperty(RECEIVER_ID);
+        return properties.getProperty(propertiesPrefix + RECEIVER_ID);
     }
 
     public String getReceiverRole() {
-        return properties.getProperty(RECEIVER_ROLE);
+        return properties.getProperty(propertiesPrefix + RECEIVER_ROLE);
     }
 
     public String getTimeInterval() {
-        return properties.getProperty(TIME_INTERVAL);
+        return properties.getProperty(propertiesPrefix + TIME_INTERVAL);
     }
 }

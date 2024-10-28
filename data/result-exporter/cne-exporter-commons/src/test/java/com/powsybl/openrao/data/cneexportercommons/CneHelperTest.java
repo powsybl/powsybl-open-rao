@@ -28,20 +28,20 @@ class CneHelperTest {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
 
         Properties properties = new Properties();
-        properties.setProperty("relative-positive-margins", "true");
-        properties.setProperty("with-loop-flows", "false");
-        properties.setProperty("mnec-acceptable-margin-diminution", "50");
-        properties.setProperty("document-id", "documentId");
-        properties.setProperty("revision-number", "1");
-        properties.setProperty("domain-id", "domainId");
-        properties.setProperty("process-type", "Z01");
-        properties.setProperty("sender-id", "senderId");
-        properties.setProperty("sender-role", "A04");
-        properties.setProperty("receiver-id", "receiverId");
-        properties.setProperty("receiver-role", "A36");
-        properties.setProperty("time-interval", "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
+        properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
+        properties.setProperty("rao-result.export.core-cne.with-loop-flows", "false");
+        properties.setProperty("rao-result.export.core-cne.mnec-acceptable-margin-diminution", "50");
+        properties.setProperty("rao-result.export.core-cne.document-id", "documentId");
+        properties.setProperty("rao-result.export.core-cne.revision-number", "1");
+        properties.setProperty("rao-result.export.core-cne.domain-id", "domainId");
+        properties.setProperty("rao-result.export.core-cne.process-type", "Z01");
+        properties.setProperty("rao-result.export.core-cne.sender-id", "senderId");
+        properties.setProperty("rao-result.export.core-cne.sender-role", "A04");
+        properties.setProperty("rao-result.export.core-cne.receiver-id", "receiverId");
+        properties.setProperty("rao-result.export.core-cne.receiver-role", "A36");
+        properties.setProperty("rao-result.export.core-cne.time-interval", "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, "rao-result.export.core-cne.");
 
         assertEquals(crac, cneHelper.getCrac());
         assertEquals(raoResult, cneHelper.getRaoResult());

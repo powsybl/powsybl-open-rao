@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
+import static com.powsybl.openrao.data.corecneexporter.CoreCneUtil.CORE_CNE_EXPORT_PROPERTIES_PREFIX;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -62,17 +63,17 @@ class CoreCneCnecsCreatorTest {
         raoParameters = new RaoParameters();
 
         properties = new Properties();
-        properties.setProperty("relative-positive-margins", "true");
-        properties.setProperty("relative-positive-margins", "true");
-        properties.setProperty("document-id", "22XCORESO------S-20211115-F299v1");
-        properties.setProperty("revision-number", "2");
-        properties.setProperty("domain-id", "10YDOM-REGION-1V");
-        properties.setProperty("process-type", "A48");
-        properties.setProperty("sender-id", "22XCORESO------S");
-        properties.setProperty("sender-role", "A44");
-        properties.setProperty("receiver-id", "17XTSO-CS------W");
-        properties.setProperty("receiver-role", "A36");
-        properties.setProperty("time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
+        properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
+        properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
+        properties.setProperty("rao-result.export.core-cne.document-id", "22XCORESO------S-20211115-F299v1");
+        properties.setProperty("rao-result.export.core-cne.revision-number", "2");
+        properties.setProperty("rao-result.export.core-cne.domain-id", "10YDOM-REGION-1V");
+        properties.setProperty("rao-result.export.core-cne.process-type", "A48");
+        properties.setProperty("rao-result.export.core-cne.sender-id", "22XCORESO------S");
+        properties.setProperty("rao-result.export.core-cne.sender-role", "A44");
+        properties.setProperty("rao-result.export.core-cne.receiver-id", "17XTSO-CS------W");
+        properties.setProperty("rao-result.export.core-cne.receiver-role", "A36");
+        properties.setProperty("rao-result.export.core-cne.time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
     }
 
     private void checkConstraintSeriesContent(ConstraintSeries cs, FlowCnec cnec, String businessType, List<String> countries, boolean asMnec,
@@ -178,7 +179,7 @@ class CoreCneCnecsCreatorTest {
 
         mockCnecResult(cnec2, 800, -200, -999999999, .2);
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();
@@ -230,7 +231,7 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnec1, 80, 20, 200, .1);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();
@@ -268,7 +269,7 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnec1, 80, 20, 200, .1);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();
@@ -345,7 +346,7 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnecCur, 85, 28, 208, .1);
 
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(cnecCur.getState().getContingency().orElseThrow(), curativeInstant))).thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();
@@ -396,9 +397,9 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnec1, 80, 20, 200, .1);
         Mockito.when(raoResult.getLoopFlow(any(), eq(cnec1), eq(TwoSides.TWO), eq(Unit.MEGAWATT))).thenReturn(123.);
 
-        properties.setProperty("with-loop-flows", "true");
+        properties.setProperty("rao-result.export.core-cne.with-loop-flows", "true");
 
-        CneHelper cneHelper = new CneHelper(crac, raoResult, properties);
+        CneHelper cneHelper = new CneHelper(crac, raoResult, properties, CORE_CNE_EXPORT_PROPERTIES_PREFIX);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
         List<ConstraintSeries> cnecsConstraintSeries = cneCnecsCreator.generate();

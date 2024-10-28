@@ -117,8 +117,8 @@ public final class RaoUtils {
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Properties properties = new Properties();
-        properties.setProperty("flows-in-amperes", "true");
-        properties.setProperty("flows-in-megawatts", "true");
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
         raoResult.write("JSON", crac, properties, outputStream);
 
         // import RaoResult

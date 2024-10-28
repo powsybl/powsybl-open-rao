@@ -63,27 +63,27 @@ public final class CneHelper {
     }
 
     private static void fillPropertiesWithCoreCneExporterParameters(Properties properties) {
-        properties.setProperty("document-id", "22XCORESO------S-20211115-F299v1");
-        properties.setProperty("revision-number", "1");
-        properties.setProperty("domain-id", "10YDOM-REGION-1V");
-        properties.setProperty("process-type", "A48");
-        properties.setProperty("sender-id", "22XCORESO------S");
-        properties.setProperty("sender-role", "A44");
-        properties.setProperty("receiver-id", "17XTSO-CS------W");
-        properties.setProperty("receiver-role", "A36");
-        properties.setProperty("time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
+        properties.setProperty("rao-result.export.core-cne.document-id", "22XCORESO------S-20211115-F299v1");
+        properties.setProperty("rao-result.export.core-cne.revision-number", "1");
+        properties.setProperty("rao-result.export.core-cne.domain-id", "10YDOM-REGION-1V");
+        properties.setProperty("rao-result.export.core-cne.process-type", "A48");
+        properties.setProperty("rao-result.export.core-cne.sender-id", "22XCORESO------S");
+        properties.setProperty("rao-result.export.core-cne.sender-role", "A44");
+        properties.setProperty("rao-result.export.core-cne.receiver-id", "17XTSO-CS------W");
+        properties.setProperty("rao-result.export.core-cne.receiver-role", "A36");
+        properties.setProperty("rao-result.export.core-cne.time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
     }
 
     private static void fillPropertiesWithRaoParameters(Properties properties, RaoParameters raoParameters) {
         switch (raoParameters.getObjectiveFunctionParameters().getType()) {
-            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT -> properties.setProperty("relative-positive-margins", "true");
-            case MAX_MIN_MARGIN_IN_AMPERE, MAX_MIN_MARGIN_IN_MEGAWATT -> properties.setProperty("relative-positive-margins", "false");
+            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
+            case MAX_MIN_MARGIN_IN_AMPERE, MAX_MIN_MARGIN_IN_MEGAWATT -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "false");
         }
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
-            properties.setProperty("with-loop-flows", "true");
+            properties.setProperty("rao-result.export.core-cne.with-loop-flows", "true");
         }
         if (raoParameters.hasExtension(MnecParametersExtension.class)) {
-            properties.setProperty("mnec-acceptable-margin-diminution", String.valueOf(raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease()));
+            properties.setProperty("rao-result.export.core-cne.mnec-acceptable-margin-diminution", String.valueOf(raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease()));
         }
     }
 
@@ -99,15 +99,15 @@ public final class CneHelper {
     }
 
     private static void fillPropertiesWithSweCneExporterParameters(Properties properties) {
-        properties.setProperty("document-id", "documentId");
-        properties.setProperty("revision-number", "3");
-        properties.setProperty("domain-id", "domainId");
-        properties.setProperty("process-type", "A48");
-        properties.setProperty("sender-id", "senderId");
-        properties.setProperty("sender-role", "A44");
-        properties.setProperty("receiver-id", "receiverId");
-        properties.setProperty("receiver-role", "A36");
-        properties.setProperty("time-interval", "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
+        properties.setProperty("rao-result.export.swe-cne.document-id", "documentId");
+        properties.setProperty("rao-result.export.swe-cne.revision-number", "3");
+        properties.setProperty("rao-result.export.swe-cne.domain-id", "domainId");
+        properties.setProperty("rao-result.export.swe-cne.process-type", "A48");
+        properties.setProperty("rao-result.export.swe-cne.sender-id", "senderId");
+        properties.setProperty("rao-result.export.swe-cne.sender-role", "A44");
+        properties.setProperty("rao-result.export.swe-cne.receiver-id", "receiverId");
+        properties.setProperty("rao-result.export.swe-cne.receiver-role", "A36");
+        properties.setProperty("rao-result.export.swe-cne.time-interval", "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
     }
 
     public static boolean isCoreCneValid(String cneContent) {

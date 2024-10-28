@@ -40,7 +40,7 @@ class SweCneExporterTest {
 
     @Test
     void testProperties() {
-        assertEquals(Set.of("document-id", "revision-number", "domain-id", "process-type", "sender-id", "sender-role", "receiver-id", "receiver-role", "time-interval"), exporter.getRequiredProperties());
+        assertEquals(Set.of("rao-result.export.swe-cne.document-id", "rao-result.export.swe-cne.revision-number", "rao-result.export.swe-cne.domain-id", "rao-result.export.swe-cne.process-type", "rao-result.export.swe-cne.sender-id", "rao-result.export.swe-cne.sender-role", "rao-result.export.swe-cne.receiver-id", "rao-result.export.swe-cne.receiver-role", "rao-result.export.swe-cne.time-interval"), exporter.getRequiredProperties());
     }
 
     @Test
@@ -63,15 +63,15 @@ class SweCneExporterTest {
     @Test
     void testMissingRequiredProperty() {
         Properties properties = new Properties();
-        properties.setProperty("document-id", "");
-        properties.setProperty("revision-number", "");
-        properties.setProperty("domain-id", "");
-        properties.setProperty("sender-id", "");
-        properties.setProperty("sender-role", "");
-        properties.setProperty("receiver-id", "");
-        properties.setProperty("receiver-role", "");
-        properties.setProperty("time-interval", "");
+        properties.setProperty("rao-result.export.swe-cne.document-id", "");
+        properties.setProperty("rao-result.export.swe-cne.revision-number", "");
+        properties.setProperty("rao-result.export.swe-cne.domain-id", "");
+        properties.setProperty("rao-result.export.swe-cne.sender-id", "");
+        properties.setProperty("rao-result.export.swe-cne.sender-role", "");
+        properties.setProperty("rao-result.export.swe-cne.receiver-id", "");
+        properties.setProperty("rao-result.export.swe-cne.receiver-role", "");
+        properties.setProperty("rao-result.export.swe-cne.time-interval", "");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> exporter.validateDataToExport(Mockito.mock(CimCracCreationContext.class), properties));
-        assertEquals("The mandatory process-type property is missing for SWE-CNE export.", exception.getMessage());
+        assertEquals("The mandatory rao-result.export.swe-cne.process-type property is missing for SWE-CNE export.", exception.getMessage());
     }
 }

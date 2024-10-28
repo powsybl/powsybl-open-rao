@@ -27,8 +27,13 @@ public class MockRaoResultExporter implements Exporter {
     }
 
     @Override
+    public String getPropertyPrefix() {
+        return "rao-result.export.mock.";
+    }
+
+    @Override
     public Set<String> getRequiredProperties() {
-        return Set.of("property-1", "property-2");
+        return Set.of("rao-result.export.mock.property-1", "rao-result.export.mock.property-2");
     }
 
     @Override

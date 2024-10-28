@@ -45,12 +45,18 @@ import java.util.Set;
  */
 @AutoService(Exporter.class)
 public class RaoResultJsonExporter implements Exporter {
+    private static final String JSON_EXPORT_PROPERTIES_PREFIX = "rao-result.export.json.";
     private static final String FLOWS_IN_AMPERES = "flows-in-amperes";
     private static final String FLOWS_IN_MEGAWATTS = "flows-in-megawatts";
 
     @Override
     public String getFormat() {
         return "JSON";
+    }
+
+    @Override
+    public String getPropertyPrefix() {
+        return JSON_EXPORT_PROPERTIES_PREFIX;
     }
 
     @Override
@@ -71,10 +77,10 @@ public class RaoResultJsonExporter implements Exporter {
 
     @Override
     public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
-        boolean flowsInAmperes = Boolean.parseBoolean(properties.getProperty(FLOWS_IN_AMPERES, "false"));
-        boolean flowsInMegawatts = Boolean.parseBoolean(properties.getProperty(FLOWS_IN_MEGAWATTS, "false"));
+        boolean flowsInAmperes = Boolean.parseBoolean(properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, "false"));
+        boolean flowsInMegawatts = Boolean.parseBoolean(properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS, "false"));
         if (!flowsInAmperes && !flowsInMegawatts) {
-            throw new OpenRaoException("At least one flow unit should be used. Please provide %s and/or %s in the properties.".formatted(FLOWS_IN_AMPERES, FLOWS_IN_MEGAWATTS));
+            throw new OpenRaoException("At least one flow unit should be used. Please provide %s and/or %s in the properties.".formatted(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS));
         }
         Set<Unit> flowUnits = new HashSet<>();
         if (flowsInAmperes) {

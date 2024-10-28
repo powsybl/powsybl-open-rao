@@ -58,8 +58,8 @@ class RaoResultExportTest {
         assertEquals("The export properties cannot be null for Mock export.", exception.getMessage());
         // missing required properties
         Properties properties = new Properties();
-        properties.setProperty("property-1", "true");
+        properties.setProperty("rao-result.export.mock.property-1", "true");
         exception = assertThrows(OpenRaoException.class, () -> exporter.validateDataToExport(new MockCracCreationContext(), properties));
-        assertEquals("The mandatory property-2 property is missing for Mock export.", exception.getMessage());
+        assertEquals("The mandatory rao-result.export.mock.property-2 property is missing for Mock export.", exception.getMessage());
     }
 }

@@ -40,7 +40,7 @@ class CoreCneExporterTest {
 
     @Test
     void testProperties() {
-        assertEquals(Set.of("document-id", "revision-number", "domain-id", "process-type", "sender-id", "sender-role", "receiver-id", "receiver-role", "time-interval"), exporter.getRequiredProperties());
+        assertEquals(Set.of("rao-result.export.core-cne.document-id", "rao-result.export.core-cne.revision-number", "rao-result.export.core-cne.domain-id", "rao-result.export.core-cne.process-type", "rao-result.export.core-cne.sender-id", "rao-result.export.core-cne.sender-role", "rao-result.export.core-cne.receiver-id", "rao-result.export.core-cne.receiver-role", "rao-result.export.core-cne.time-interval"), exporter.getRequiredProperties());
     }
 
     @Test
@@ -63,15 +63,15 @@ class CoreCneExporterTest {
     @Test
     void testMissingRequiredProperty() {
         Properties properties = new Properties();
-        properties.setProperty("document-id", "");
-        properties.setProperty("revision-number", "");
-        properties.setProperty("process-type", "");
-        properties.setProperty("sender-id", "");
-        properties.setProperty("sender-role", "");
-        properties.setProperty("receiver-id", "");
-        properties.setProperty("receiver-role", "");
-        properties.setProperty("time-interval", "");
+        properties.setProperty("rao-result.export.core-cne.document-id", "");
+        properties.setProperty("rao-result.export.core-cne.revision-number", "");
+        properties.setProperty("rao-result.export.core-cne.process-type", "");
+        properties.setProperty("rao-result.export.core-cne.sender-id", "");
+        properties.setProperty("rao-result.export.core-cne.sender-role", "");
+        properties.setProperty("rao-result.export.core-cne.receiver-id", "");
+        properties.setProperty("rao-result.export.core-cne.receiver-role", "");
+        properties.setProperty("rao-result.export.core-cne.time-interval", "");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> exporter.validateDataToExport(Mockito.mock(UcteCracCreationContext.class), properties));
-        assertEquals("The mandatory domain-id property is missing for CORE-CNE export.", exception.getMessage());
+        assertEquals("The mandatory rao-result.export.core-cne.domain-id property is missing for CORE-CNE export.", exception.getMessage());
     }
 }

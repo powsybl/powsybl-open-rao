@@ -37,8 +37,10 @@ import java.io.StringWriter;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
+import static com.powsybl.openrao.data.corecneexporter.CoreCneUtil.CORE_CNE_EXPORT_PROPERTIES_PREFIX;
 
 /**
  * CORE-CNE Rao Result exporter in XML format.
@@ -97,8 +99,13 @@ public class CoreCneExporter implements Exporter {
     }
 
     @Override
+    public String getPropertyPrefix() {
+        return CORE_CNE_EXPORT_PROPERTIES_PREFIX;
+    }
+
+    @Override
     public Set<String> getRequiredProperties() {
-        return CNE_REQUIRED_PROPERTIES;
+        return CNE_REQUIRED_PROPERTIES.stream().map(propertyName -> getPropertyPrefix() + propertyName).collect(Collectors.toSet());
     }
 
     @Override

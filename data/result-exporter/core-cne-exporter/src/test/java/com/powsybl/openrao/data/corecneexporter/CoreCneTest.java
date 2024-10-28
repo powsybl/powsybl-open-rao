@@ -47,16 +47,16 @@ class CoreCneTest {
     @Test
     void testHeader() {
         Properties properties = new Properties();
-        properties.setProperty("relative-positive-margins", "true");
-        properties.setProperty("document-id", "22XCORESO------S-20211115-F299v1");
-        properties.setProperty("revision-number", "2");
-        properties.setProperty("domain-id", "10YDOM-REGION-1V");
-        properties.setProperty("process-type", "A48");
-        properties.setProperty("sender-id", "22XCORESO------S");
-        properties.setProperty("sender-role", "A44");
-        properties.setProperty("receiver-id", "17XTSO-CS------W");
-        properties.setProperty("receiver-role", "A36");
-        properties.setProperty("time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
+        properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
+        properties.setProperty("rao-result.export.core-cne.document-id", "22XCORESO------S-20211115-F299v1");
+        properties.setProperty("rao-result.export.core-cne.revision-number", "2");
+        properties.setProperty("rao-result.export.core-cne.domain-id", "10YDOM-REGION-1V");
+        properties.setProperty("rao-result.export.core-cne.process-type", "A48");
+        properties.setProperty("rao-result.export.core-cne.sender-id", "22XCORESO------S");
+        properties.setProperty("rao-result.export.core-cne.sender-role", "A44");
+        properties.setProperty("rao-result.export.core-cne.receiver-id", "17XTSO-CS------W");
+        properties.setProperty("rao-result.export.core-cne.receiver-role", "A36");
+        properties.setProperty("rao-result.export.core-cne.time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
 
         CoreCne cne = new CoreCne(cracCreationContext, raoResult, properties);
         cne.generate();

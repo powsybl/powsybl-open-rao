@@ -19,6 +19,8 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.SWE_CNE_EXPORT_PROPERTIES_PREFIX;
+
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
@@ -26,7 +28,7 @@ public class SweCneHelper extends CneHelper {
     private Map<Contingency, Boolean> contingencyFailureMap = new HashMap<>();
 
     public SweCneHelper(Crac crac, RaoResult raoResult, Properties properties) {
-        super(crac, raoResult, properties);
+        super(crac, raoResult, properties, SWE_CNE_EXPORT_PROPERTIES_PREFIX);
         defineContingencyFailureMap();
     }
 
