@@ -33,7 +33,7 @@ With:
     be formatted as follows: "YYYY-MM-DDTHH:MMZ/YYYY-MM-DDTHH:MMZ" (start date / end date).
   - **`"rao-result.export.core-cne.relative-positive-margins"`** (optional, default is `"false"`)
   - **`"rao-result.export.core-cne.with-loop-flows"`** (optional, default is `"false"`)
-  - **`"rao-result.export.core-cne.mnec-acceptable-margin-diminution"`** (optional, default is `"0"`, should match the input RaoParameters)
+  - **`"rao-result.export.core-cne.mnec-acceptable-margin-diminution"`** (optional, default is `"0"`)
 
 Here is a complete example:
 
