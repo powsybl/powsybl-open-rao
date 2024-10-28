@@ -99,7 +99,7 @@ public class SweCneExporter implements Exporter {
     }
 
     @Override
-    public String getPropertyPrefix() {
+    public String getPropertiesPrefix() {
         return SWE_CNE_EXPORT_PROPERTIES_PREFIX;
     }
 

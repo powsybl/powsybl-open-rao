@@ -25,7 +25,7 @@ public interface Exporter {
      */
     String getFormat();
 
-    String getPropertyPrefix();
+    String getPropertiesPrefix();
 
     Set<String> getRequiredProperties();
 

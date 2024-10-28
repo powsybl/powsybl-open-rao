@@ -99,13 +99,13 @@ public class CoreCneExporter implements Exporter {
     }
 
     @Override
-    public String getPropertyPrefix() {
+    public String getPropertiesPrefix() {
         return CORE_CNE_EXPORT_PROPERTIES_PREFIX;
     }
 
     @Override
     public Set<String> getRequiredProperties() {
-        return CNE_REQUIRED_PROPERTIES.stream().map(propertyName -> getPropertyPrefix() + propertyName).collect(Collectors.toSet());
+        return CNE_REQUIRED_PROPERTIES.stream().map(propertyName -> getPropertiesPrefix() + propertyName).collect(Collectors.toSet());
     }
 
     @Override
