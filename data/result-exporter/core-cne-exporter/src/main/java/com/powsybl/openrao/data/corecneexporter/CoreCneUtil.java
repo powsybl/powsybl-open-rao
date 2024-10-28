@@ -30,6 +30,8 @@ public final class CoreCneUtil {
     private CoreCneUtil() {
     }
 
+    public static final String CORE_CNE_EXPORT_PROPERTIES_PREFIX = "rao-result.export.core-cne.";
+
     // Creation of time interval
     public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime offsetDateTime) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'");

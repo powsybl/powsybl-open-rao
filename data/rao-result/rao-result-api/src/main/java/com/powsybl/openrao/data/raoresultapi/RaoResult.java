@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RemedialAction;
 import com.powsybl.openrao.data.cracapi.State;
@@ -33,6 +34,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -495,25 +497,58 @@ public interface RaoResult {
     /**
      * Write CRAC data into a file
      *
-     * @param exporters    candidate CRAC exporters
-     * @param format       desired output CRAC data type
-     * @param outputStream file where to write the CRAC data
+     * @param exporters           candidate CRAC exporters
+     * @param format              desired output CRAC data type
+     * @param cracCreationContext CRAC creation context that contains the original CRAC
+     * @param properties          specific information needed for export
+     * @param outputStream        file where to write the CRAC data
      */
-    private void write(List<Exporter> exporters, String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
+    private void write(List<Exporter> exporters, String format, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
         exporters.stream()
             .filter(ex -> format.equals(ex.getFormat()))
             .findAny()
             .orElseThrow(() -> new OpenRaoException("Export format " + format + " not supported"))
-            .exportData(this, crac, flowUnits, outputStream);
+            .exportData(this, cracCreationContext, properties, outputStream);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param format              desired output CRAC data type
+     * @param cracCreationContext CRAC creation context that contains the original CRAC
+     * @param properties          specific information needed for export
+     * @param outputStream        file where to write the CRAC data
+     */
+    default void write(String format, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+        write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, cracCreationContext, properties, outputStream);
+    }
+
+    /**
+     * Write CRAC data into a file
+     *
+     * @param exporters    candidate CRAC exporters
+     * @param format       desired output CRAC data type
+     * @param crac         CRAC data
+     * @param properties   specific information needed for export
+     * @param outputStream file where to write the CRAC data
+     */
+    private void write(List<Exporter> exporters, String format, Crac crac, Properties properties, OutputStream outputStream) {
+        exporters.stream()
+            .filter(ex -> format.equals(ex.getFormat()))
+            .findAny()
+            .orElseThrow(() -> new OpenRaoException("Export format " + format + " not supported"))
+            .exportData(this, crac, properties, outputStream);
     }
 
     /**
      * Write CRAC data into a file
      *
      * @param format       desired output CRAC data type
+     * @param crac         CRAC data
+     * @param properties   specific information needed for export
      * @param outputStream file where to write the CRAC data
      */
-    default void write(String format, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
-        write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, crac, flowUnits, outputStream);
+    default void write(String format, Crac crac, Properties properties, OutputStream outputStream) {
+        write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, crac, properties, outputStream);
     }
 }

@@ -6,17 +6,16 @@
  */
 package com.powsybl.openrao.tests.utils;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
 import com.powsybl.openrao.data.corecneexporter.CoreCneExporter;
-import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.SweCneExporter;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -28,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -50,30 +50,64 @@ public final class CneHelper {
         // should not be instantiated
     }
 
-    public static String exportCoreCne(Crac crac, CracCreationContext cracCreationContext, Network network, RaoResult raoResult, RaoParameters raoParameters) {
+    public static String exportCoreCne(CracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters) {
         if (!(cracCreationContext instanceof UcteCracCreationContext)) {
             throw new OpenRaoException("CORE CNE export can only handle UcteCracCreationContext");
         }
-        CneExporterParameters exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 1, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "22XCORESO------S", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
-            "2021-10-30T22:00Z/2021-10-31T23:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        (new CoreCneExporter()).exportCne(crac, (UcteCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream);
+        Properties properties = new Properties();
+        fillPropertiesWithCoreCneExporterParameters(properties);
+        fillPropertiesWithRaoParameters(properties, raoParameters);
+        raoResult.write("CORE-CNE", cracCreationContext, properties, outputStream);
         return outputStream.toString();
     }
 
-    public static String exportSweCne(Crac crac, CracCreationContext cracCreationContext, Network network, RaoResult raoResult, RaoParameters raoParameters) {
+    private static void fillPropertiesWithCoreCneExporterParameters(Properties properties) {
+        properties.setProperty("rao-result.export.core-cne.document-id", "22XCORESO------S-20211115-F299v1");
+        properties.setProperty("rao-result.export.core-cne.revision-number", "1");
+        properties.setProperty("rao-result.export.core-cne.domain-id", "10YDOM-REGION-1V");
+        properties.setProperty("rao-result.export.core-cne.process-type", "A48");
+        properties.setProperty("rao-result.export.core-cne.sender-id", "22XCORESO------S");
+        properties.setProperty("rao-result.export.core-cne.sender-role", "A44");
+        properties.setProperty("rao-result.export.core-cne.receiver-id", "17XTSO-CS------W");
+        properties.setProperty("rao-result.export.core-cne.receiver-role", "A36");
+        properties.setProperty("rao-result.export.core-cne.time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
+    }
+
+    private static void fillPropertiesWithRaoParameters(Properties properties, RaoParameters raoParameters) {
+        switch (raoParameters.getObjectiveFunctionParameters().getType()) {
+            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
+            case MAX_MIN_MARGIN_IN_AMPERE, MAX_MIN_MARGIN_IN_MEGAWATT -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "false");
+        }
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
+            properties.setProperty("rao-result.export.core-cne.with-loop-flows", "true");
+        }
+        if (raoParameters.hasExtension(MnecParametersExtension.class)) {
+            properties.setProperty("rao-result.export.core-cne.mnec-acceptable-margin-diminution", String.valueOf(raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease()));
+        }
+    }
+
+    public static String exportSweCne(CracCreationContext cracCreationContext, RaoResult raoResult) {
         if (!(cracCreationContext instanceof CimCracCreationContext)) {
             throw new OpenRaoException("SWE CNE export can only handle CimCracCreationContext");
         }
-        CneExporterParameters exporterParameters = new CneExporterParameters(
-            "documentId", 3, "domainId", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "senderId", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
-            "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
-            "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        (new SweCneExporter()).exportCne(crac, (CimCracCreationContext) cracCreationContext, raoResult, raoParameters, exporterParameters, outputStream);
+        Properties properties = new Properties();
+        fillPropertiesWithSweCneExporterParameters(properties);
+        raoResult.write("SWE-CNE", cracCreationContext, properties, outputStream);
         return outputStream.toString();
+    }
+
+    private static void fillPropertiesWithSweCneExporterParameters(Properties properties) {
+        properties.setProperty("rao-result.export.swe-cne.document-id", "documentId");
+        properties.setProperty("rao-result.export.swe-cne.revision-number", "3");
+        properties.setProperty("rao-result.export.swe-cne.domain-id", "domainId");
+        properties.setProperty("rao-result.export.swe-cne.process-type", "A48");
+        properties.setProperty("rao-result.export.swe-cne.sender-id", "senderId");
+        properties.setProperty("rao-result.export.swe-cne.sender-role", "A44");
+        properties.setProperty("rao-result.export.swe-cne.receiver-id", "receiverId");
+        properties.setProperty("rao-result.export.swe-cne.receiver-role", "A36");
+        properties.setProperty("rao-result.export.swe-cne.time-interval", "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
     }
 
     public static boolean isCoreCneValid(String cneContent) {

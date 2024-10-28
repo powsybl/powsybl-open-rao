@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.cneexportercommons;
 
+import java.util.Set;
+
 /**
  * Constants used in the CNE file
  *
@@ -97,6 +99,21 @@ public final class CneConstants {
     public static final String UNSECURE_TEXT = "Network is unsecure";
     public static final String DIVERGENCE_CODE = "B40";
     public static final String DIVERGENCE_TEXT = "Load flow divergence";
+
+    /* Exporter properties */
+    public static final String RELATIVE_POSITIVE_MARGINS = "relative-positive-margins";
+    public static final String WITH_LOOP_FLOWS = "with-loop-flows";
+    public static final String MNEC_ACCEPTABLE_MARGIN_DIMINUTION = "mnec-acceptable-margin-diminution";
+    public static final String DOCUMENT_ID = "document-id";
+    public static final String REVISION_NUMBER = "revision-number";
+    public static final String DOMAIN_ID = "domain-id";
+    public static final String PROCESS_TYPE = "process-type";
+    public static final String SENDER_ID = "sender-id";
+    public static final String SENDER_ROLE = "sender-role";
+    public static final String RECEIVER_ID = "receiver-id";
+    public static final String RECEIVER_ROLE = "receiver-role";
+    public static final String TIME_INTERVAL = "time-interval";
+    public static final Set<String> CNE_REQUIRED_PROPERTIES = Set.of(DOCUMENT_ID, REVISION_NUMBER, DOMAIN_ID, PROCESS_TYPE, SENDER_ID, SENDER_ROLE, RECEIVER_ID, RECEIVER_ROLE, TIME_INTERVAL);
 
     private CneConstants() { }
 }
