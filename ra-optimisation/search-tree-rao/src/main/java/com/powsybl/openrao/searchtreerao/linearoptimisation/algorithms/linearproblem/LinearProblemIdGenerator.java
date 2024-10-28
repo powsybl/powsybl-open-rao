@@ -24,6 +24,7 @@ public final class LinearProblemIdGenerator {
     private static final String FLOW = "flow";
     private static final String RELATIVE = "relative";
     private static final String SET_POINT = "setpoint";
+    private static final String SET_POINT_VARIATION = "setpointvariation";
 
     private static final String TAP = "tap";
     private static final String TAP_VARIATION = "tapvariation";
@@ -65,6 +66,10 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
+    public static String rangeActionSetPointVariationVariableId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension variationDirection, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SET_POINT_VARIATION + SEPARATOR + variationDirection.toString() + VARIABLE_SUFFIX;
+    }
+
     public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.RaRangeShrinking raRangeShrinking) {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + SET_POINT + SEPARATOR + raRangeShrinking.toString() + CONSTRAINT_SUFFIX;
     }
@@ -79,6 +84,10 @@ public final class LinearProblemIdGenerator {
 
     public static String rangeActionBinaryVariableId(RangeAction<?> rangeAction, State state) {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String rangeActionVariationBinaryVariableId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension variationDirection, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + variationDirection.toString() + VARIABLE_SUFFIX;
     }
 
     public static String pstTapBinaryVariationInDirectionId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
