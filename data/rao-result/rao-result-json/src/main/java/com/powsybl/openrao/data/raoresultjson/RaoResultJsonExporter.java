@@ -55,11 +55,6 @@ public class RaoResultJsonExporter implements Exporter {
     }
 
     @Override
-    public String getPropertiesPrefix() {
-        return JSON_EXPORT_PROPERTIES_PREFIX;
-    }
-
-    @Override
     public Set<String> getRequiredProperties() {
         return Set.of();
     }

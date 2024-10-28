@@ -25,8 +25,6 @@ public interface Exporter {
      */
     String getFormat();
 
-    String getPropertiesPrefix();
-
     Set<String> getRequiredProperties();
 
     Class<? extends CracCreationContext> getCracCreationContextClass();

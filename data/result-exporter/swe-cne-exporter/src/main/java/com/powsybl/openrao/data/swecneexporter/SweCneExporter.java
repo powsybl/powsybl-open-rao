@@ -99,11 +99,6 @@ public class SweCneExporter implements Exporter {
     }
 
     @Override
-    public String getPropertiesPrefix() {
-        return SWE_CNE_EXPORT_PROPERTIES_PREFIX;
-    }
-
-    @Override
     public Set<String> getRequiredProperties() {
         return CNE_REQUIRED_PROPERTIES.stream().map(propertyName -> SWE_CNE_EXPORT_PROPERTIES_PREFIX + propertyName).collect(Collectors.toSet());
     }

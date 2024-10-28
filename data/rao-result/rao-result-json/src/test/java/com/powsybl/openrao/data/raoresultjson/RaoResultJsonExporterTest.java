@@ -30,11 +30,6 @@ class RaoResultJsonExporterTest {
     }
 
     @Test
-    void testPropertiesPrefix() {
-        assertEquals("rao-result.export.json.", exporter.getPropertiesPrefix());
-    }
-
-    @Test
     void testExportWithWrongCracCreationContext() {
         CracCreationContext cracCreationContext = Mockito.mock(CracCreationContext.class);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> exporter.exportData(null, cracCreationContext, null, null));

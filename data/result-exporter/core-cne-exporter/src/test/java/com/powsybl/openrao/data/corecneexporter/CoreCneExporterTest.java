@@ -32,11 +32,6 @@ class CoreCneExporterTest {
     }
 
     @Test
-    void testPropertiesPrefix() {
-        assertEquals("rao-result.export.core-cne.", exporter.getPropertiesPrefix());
-    }
-
-    @Test
     void testExportWithWrongCracCreationContext() {
         CracCreationContext cracCreationContext = Mockito.mock(CracCreationContext.class);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> exporter.exportData(null, cracCreationContext, null, null));
