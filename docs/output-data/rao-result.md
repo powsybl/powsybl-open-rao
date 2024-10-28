@@ -39,11 +39,11 @@ Where:
 - **`raoResult`** is the RaoResult object you obtained from the RaoProvider;
 - **`crac`** is the CRAC object you used in the RAO;
 - **`properties`** is a set of specific parameters for the JSON export, currently two are defined:
-  - `"flows-in-amperes"` (optional, default is `"false"`): whether to export the flow measurements in `AMPERE`
-  - `"flows-in-megawatts"` (optional, default is `"false"`): whether to export the flow measurements in `MEGAWATT`
+  - `"rao-result.export.json.flows-in-amperes"` (optional, default is `"false"`): whether to export the flow measurements in `AMPERE`
+  - `"rao-result.export.json.flows-in-megawatts"` (optional, default is `"false"`): whether to export the flow measurements in `MEGAWATT`
 - **`outputStream`** is the `java.io.OutputStream` you want to write the JSON file into.
 
-> At least one of `"flows-in-amperes"` or `"flows-in-megawatts"` must be true for the export to work properly.
+> At least one of `"rao-result.export.json.flows-in-amperes"` or `"rao-result.export.json.flows-in-megawatts"` must be true for the export to work properly.
 
 ### Import
 

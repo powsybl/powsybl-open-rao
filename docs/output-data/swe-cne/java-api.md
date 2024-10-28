@@ -2,7 +2,7 @@ After completing the RAO, the user can export the [`RaoResult`](/output-data/rao
 
 ~~~java
 // RaoResult interface
-public void write(CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream)
+public void write(String format, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream)
 ~~~
 
 With:
@@ -49,30 +49,17 @@ CracCreationContext cracCreationContext = CracCreators.createCrac(...);
 Crac crac = cracCreationContext.getCrac();
 // Run RAO
 RaoResult raoResult = Rao.find(...).run(...)
-// Set CNE header parameters
+// Set SWE-CNE export properties
 Properties properties = new Properties();
-properties.setProperty("document-id", "DOCUMENT_ID");
-properties.setProperty("revision-number", "1");
-properties.setProperty("domain-id", "DOMAIN_ID");
-properties.setProperty("process-type", "Z01");
-properties.setProperty("sender-id", "SENDER_ID");
-properties.setProperty("sender-role", "A44"); // REGIONAL_SECURITY_COORDINATOR
-properties.setProperty("receiver-id", "RECEIVER_ID");
-properties.setProperty("receiver-role", "A36"); // CAPACITY_COORDINATOR
-properties.setProperty("time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
-// Set RaoParameters in properties
-switch (raoParameters.getObjectiveFunctionParameters().getType()) {
-    case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE -> properties.setProperty("objective-function-type", "max-min-relative-margin-in-ampere");
-    case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT -> properties.setProperty("objective-function-type", "max-min-relative-margin-in-megawatt");
-    case MAX_MIN_MARGIN_IN_AMPERE -> properties.setProperty("objective-function-type", "max-min-margin-in-ampere");
-    case MAX_MIN_MARGIN_IN_MEGAWATT -> properties.setProperty("objective-function-type", "max-min-margin-in-megawatt");
-}
-if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
-    properties.setProperty("with-loop-flows", "true");
-}
-if (raoParameters.hasExtension(MnecParametersExtension.class)) {
-    properties.setProperty("mnec-acceptable-margin-diminution", String.valueOf(raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease()));
-}
+properties.setProperty("rao-result.export.swe-cne.document-id", "DOCUMENT_ID");
+properties.setProperty("rao-result.export.swe-cne.revision-number", "1");
+properties.setProperty("rao-result.export.swe-cne.domain-id", "DOMAIN_ID");
+properties.setProperty("rao-result.export.swe-cne.process-type", "Z01");
+properties.setProperty("rao-result.export.swe-cne.sender-id", "SENDER_ID");
+properties.setProperty("rao-result.export.swe-cne.sender-role", "A44"); // REGIONAL_SECURITY_COORDINATOR
+properties.setProperty("rao-result.export.swe-cne.receiver-id", "RECEIVER_ID");
+properties.setProperty("rao-result.export.swe-cne.receiver-role", "A36"); // CAPACITY_COORDINATOR
+properties.setProperty("rao-result.export.swe-cne.time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
 // Export CNE to output stream
 OutputStream os = ...
 raoResult.write("SWE-CNE", cracCreationContext, properties, os);
