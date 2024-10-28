@@ -31,7 +31,7 @@ With:
     "receiver_MarketParticipant.marketRole.type" field. Same value options as senderRole.
   - **`"rao-result.export.core-cne.time-interval"`**: time interval of document applicability, to be written in "time_Period.timeInterval" field. It should 
     be formatted as follows: "YYYY-MM-DDTHH:MMZ/YYYY-MM-DDTHH:MMZ" (start date / end date).
-  - **`"rao-result.export.core-cne.positive-relative-margins"`** (optional, default is `"false"`, should match the input RaoParameters)
+  - **`"rao-result.export.core-cne.relative-positive-margins"`** (optional, default is `"false"`)
   - **`"rao-result.export.core-cne.with-loop-flows"`** (optional, default is `"false"`, should match the input RaoParameters)
   - **`"rao-result.export.core-cne.mnec-acceptable-margin-diminution"`** (optional, default is `"0"`, should match the input RaoParameters)
 
