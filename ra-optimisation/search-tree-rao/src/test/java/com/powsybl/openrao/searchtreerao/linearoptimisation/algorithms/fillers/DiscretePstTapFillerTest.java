@@ -86,7 +86,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
             rangeActionParameters,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+            false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, true);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(preventiveState, Set.of(pstRangeAction));

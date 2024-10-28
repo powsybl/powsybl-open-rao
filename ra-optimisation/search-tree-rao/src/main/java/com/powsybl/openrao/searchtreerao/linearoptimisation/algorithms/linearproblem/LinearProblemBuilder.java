@@ -124,8 +124,8 @@ public class LinearProblemBuilder {
                 parameters.getRangeActionParameters(),
             parameters.getObjectiveFunctionUnit(),
             parameters.getRaRangeShrinking(),
-            parameters.getRangeActionParameters().getPstModel()
-        );
+            parameters.getRangeActionParameters().getPstModel(),
+            true);
     }
 
     private ProblemFiller buildMaxMinRelativeMarginFiller() {
@@ -194,7 +194,7 @@ public class LinearProblemBuilder {
             inputs.getPrePerimeterSetpoints(),
             parameters.getRaLimitationParameters(),
             parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-            inputs.getNetwork());
+            inputs.getNetwork(), true);
     }
 
     private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {

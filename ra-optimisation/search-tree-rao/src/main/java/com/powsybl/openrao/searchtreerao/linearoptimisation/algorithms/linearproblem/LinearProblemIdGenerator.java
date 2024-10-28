@@ -34,6 +34,9 @@ public final class LinearProblemIdGenerator {
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
     private static final String VIRTUAL_TAP = "virtualtap";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
+    private static final String IS_VARIATION_MAX = "isvariationmax";
+    private static final String IS_VARIATION_MIN = "isvariationmin";
+    private static final String AT_MOST_ONE_VARIATION_DIRECTION = "atmostonevariationdirection";
     private static final String MIN_MARGIN = "minmargin";
     private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
     private static final String MIN_RELATIVE_MARGIN_SIGN_BINARY = "minrelmarginispositive";
@@ -49,6 +52,7 @@ public final class LinearProblemIdGenerator {
     private static final String TSO_RA_USED = "tsoraused";
     private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
+    private static final String COST = "cost";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -66,8 +70,8 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String rangeActionSetPointVariationVariableId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension variationDirection, State state) {
-        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SET_POINT_VARIATION + SEPARATOR + variationDirection.toString() + VARIABLE_SUFFIX;
+    public static String rangeActionSetpointVariationVariableId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension variationDirection, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SET_POINT_VARIATION + SEPARATOR + variationDirection.toString() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
     public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.RaRangeShrinking raRangeShrinking) {
@@ -87,7 +91,7 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String rangeActionVariationBinaryVariableId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension variationDirection, State state) {
-        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + variationDirection.toString() + VARIABLE_SUFFIX;
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + variationDirection.toString() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
     public static String pstTapBinaryVariationInDirectionId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
@@ -224,5 +228,29 @@ public final class LinearProblemIdGenerator {
 
     public static String maxElementaryActionsPerTsoConstraintId(String operator, State state) {
         return MAX_ELEMENTARY_ACTIONS_PER_TSO + SEPARATOR + operator + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String rangeActionSetpointConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String rangeActionIsVariationMaxConstraintId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension variationDirection, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + IS_VARIATION_MAX + SEPARATOR + variationDirection.toString() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String rangeActionIsVariationMinConstraintId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension variationDirection, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + IS_VARIATION_MIN + SEPARATOR + variationDirection.toString() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String rangeActionAtMostOneVariationDirectionConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + AT_MOST_ONE_VARIATION_DIRECTION + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String remedialActionsCostVariableId(State state) {
+        return state.getId() + SEPARATOR + COST + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String remedialActionsCostConstraintId(State state) {
+        return state.getId() + SEPARATOR + COST + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 }

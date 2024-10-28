@@ -155,6 +155,14 @@ public final class LinearProblem {
         return solver.getVariable(rangeActionSetpointVariableId(rangeAction, state));
     }
 
+    public OpenRaoMPVariable addRangeActionSetpointVariationVariable(double ub, RangeAction<?> rangeAction, VariationDirectionExtension variationDirection, State state) {
+        return solver.makeNumVar(0, ub, rangeActionSetpointVariationVariableId(rangeAction, variationDirection, state));
+    }
+
+    public OpenRaoMPVariable getRangeActionSetpointVariationVariable(RangeAction<?> rangeAction, VariationDirectionExtension variationDirection, State state) {
+        return solver.getVariable(rangeActionSetpointVariationVariableId(rangeAction, variationDirection, state));
+    }
+
     public OpenRaoMPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
         return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }
@@ -171,12 +179,20 @@ public final class LinearProblem {
         return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }
 
-    public OpenRaoMPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
+    public OpenRaoMPVariable addRangeActionBinary(RangeAction<?> rangeAction, State state) {
         return solver.makeBoolVar(rangeActionBinaryVariableId(rangeAction, state));
     }
 
-    public OpenRaoMPVariable getRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
+    public OpenRaoMPVariable getRangeActionBinary(RangeAction<?> rangeAction, State state) {
         return solver.getVariable(rangeActionBinaryVariableId(rangeAction, state));
+    }
+
+    public OpenRaoMPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, VariationDirectionExtension variationDirection, State state) {
+        return solver.makeBoolVar(rangeActionVariationBinaryVariableId(rangeAction, variationDirection, state));
+    }
+
+    public OpenRaoMPVariable getRangeActionVariationBinary(RangeAction<?> rangeAction, VariationDirectionExtension variationDirection, State state) {
+        return solver.getVariable(rangeActionVariationBinaryVariableId(rangeAction, variationDirection, state));
     }
 
     public OpenRaoMPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
@@ -450,6 +466,54 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getTsoMaxElementaryActionsConstraint(String operator, State state) {
         return solver.getConstraint(maxElementaryActionsPerTsoConstraintId(operator, state));
+    }
+
+    public OpenRaoMPConstraint addRangeActionSetpointConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(-infinity(), +infinity(), rangeActionSetpointConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionSetpointConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionSetpointConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addRangeActionIsVariationMaxConstraint(RangeAction<?> rangeAction, VariationDirectionExtension variationDirection, State state) {
+        return solver.makeConstraint(-infinity(), 0, rangeActionIsVariationMaxConstraintId(rangeAction, variationDirection, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionIsVariationMaxConstraint(RangeAction<?> rangeAction, VariationDirectionExtension variationDirection, State state) {
+        return solver.getConstraint(rangeActionIsVariationMaxConstraintId(rangeAction, variationDirection, state));
+    }
+
+    public OpenRaoMPConstraint addRangeActionIsVariationMinConstraint(RangeAction<?> rangeAction, VariationDirectionExtension variationDirection, State state) {
+        return solver.makeConstraint(0, infinity(), rangeActionIsVariationMinConstraintId(rangeAction, variationDirection, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionIsVariationMinConstraint(RangeAction<?> rangeAction, VariationDirectionExtension variationDirection, State state) {
+        return solver.getConstraint(rangeActionIsVariationMinConstraintId(rangeAction, variationDirection, state));
+    }
+
+    public OpenRaoMPVariable addRemedialActionsCostVariable(State state) {
+        return solver.makeNumVar(0, infinity(), remedialActionsCostVariableId(state));
+    }
+
+    public OpenRaoMPVariable getRemedialActionsCostVariable(State state) {
+        return solver.getVariable(remedialActionsCostVariableId(state));
+    }
+
+    public OpenRaoMPConstraint addRangeActionAtMostOneVariationDirectionConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(0, 1, rangeActionAtMostOneVariationDirectionConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionAtMostOneVariationDirectionConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionAtMostOneVariationDirectionConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addRemedialActionsCostConstraint(State state) {
+        return solver.makeConstraint(0, 0, remedialActionsCostConstraintId(state));
+    }
+
+    public OpenRaoMPConstraint getRemedialActionsCostConstraint(State state) {
+        return solver.getConstraint(remedialActionsCostConstraintId(state));
     }
 
     public double infinity() {
