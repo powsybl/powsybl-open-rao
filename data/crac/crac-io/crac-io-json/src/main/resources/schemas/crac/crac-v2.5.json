@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
   "$id": "https://www.powsybl.orgopen-rao-crac-schema=crac-v2.5.schema",
   "title": "CRAC",
-  "description": "CRAC data for electric grid operation",
+  "description": "Contingency list, Remedial Actions and additional Constraints",
   "type": "object",
   "properties": {
     "type": {
