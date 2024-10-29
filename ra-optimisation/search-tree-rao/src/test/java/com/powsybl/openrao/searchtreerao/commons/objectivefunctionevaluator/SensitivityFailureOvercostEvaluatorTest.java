@@ -58,14 +58,14 @@ class SensitivityFailureOvercostEvaluatorTest {
     @Test
     void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, null).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetCostlyElements() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult).getRight().size());
-        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, Set.of("")).getRight().size());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, null).getRight().size());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, null, Set.of("")).getRight().size());
     }
 
     @Test
