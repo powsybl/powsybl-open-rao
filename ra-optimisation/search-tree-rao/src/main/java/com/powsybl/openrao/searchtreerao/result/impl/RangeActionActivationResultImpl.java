@@ -115,7 +115,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             .filter(e -> {
                 Optional<State> pState = getPreviousState(state);
                 if (pState.isEmpty()) {
-                    return Math.abs(getOptimizedSetpoint(e.getKey(), state) - e.getValue().refSetpoint) > 1e-6;
+                    return Math.abs(getOptimizedSetpoint(e.getKey(), state) - e.getValue().refSetpoint) > 1e-6; // TODO : use same parameter as min variation of MIP here?
                 } else {
                     return Math.abs(getOptimizedSetpoint(e.getKey(), state) - getOptimizedSetpoint(e.getKey(), pState.get())) > 1e-6;
                 }

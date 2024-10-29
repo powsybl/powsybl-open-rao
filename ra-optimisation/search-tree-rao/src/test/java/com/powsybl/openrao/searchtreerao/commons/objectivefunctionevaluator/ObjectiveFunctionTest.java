@@ -42,18 +42,18 @@ class ObjectiveFunctionTest {
         cnec2 = Mockito.mock(FlowCnec.class);
 
         minMarginEvaluator = Mockito.mock(MinMarginEvaluator.class);
-        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult)).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));
-        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, new HashSet<>())).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));
+        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, null)).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));
+        when(minMarginEvaluator.computeCostAndLimitingElements(flowResult, null, new HashSet<>())).thenReturn(Pair.of(-300., List.of(cnec1, cnec2)));
 
         mnecViolationCostEvaluator = Mockito.mock(MnecViolationCostEvaluator.class);
         when(mnecViolationCostEvaluator.getName()).thenReturn("mnec-cost");
-        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult)).thenReturn(Pair.of(1000., List.of(cnec1)));
-        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, new HashSet<>())).thenReturn(Pair.of(1000., List.of(cnec1)));
+        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, null)).thenReturn(Pair.of(1000., List.of(cnec1)));
+        when(mnecViolationCostEvaluator.computeCostAndLimitingElements(flowResult, null, new HashSet<>())).thenReturn(Pair.of(1000., List.of(cnec1)));
 
         loopFlowViolationCostEvaluator = Mockito.mock(LoopFlowViolationCostEvaluator.class);
         when(loopFlowViolationCostEvaluator.getName()).thenReturn("loop-flow-cost");
-        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult)).thenReturn(Pair.of(100., List.of(cnec2)));
-        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, new HashSet<>())).thenReturn(Pair.of(100., List.of(cnec2)));
+        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, null)).thenReturn(Pair.of(100., List.of(cnec2)));
+        when(loopFlowViolationCostEvaluator.computeCostAndLimitingElements(flowResult, null, new HashSet<>())).thenReturn(Pair.of(100., List.of(cnec2)));
     }
 
     @Test
