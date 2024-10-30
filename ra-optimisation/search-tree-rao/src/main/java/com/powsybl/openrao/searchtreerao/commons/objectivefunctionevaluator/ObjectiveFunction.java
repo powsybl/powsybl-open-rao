@@ -30,8 +30,8 @@ public final class ObjectiveFunction {
         this.virtualCostEvaluators = virtualCostEvaluators;
     }
 
-    public ObjectiveFunctionResult evaluate(FlowResult flowResult) {
-        return new ObjectiveFunctionResultImpl(this, flowResult);
+    public ObjectiveFunctionResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        return new ObjectiveFunctionResultImpl(this, flowResult, remedialActionActivationResult);
     }
 
     public static ObjectiveFunctionBuilder create() {

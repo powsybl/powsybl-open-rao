@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -20,6 +21,7 @@ import java.util.*;
 public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
     private final FlowResult flowResult;
+    private final RemedialActionActivationResult remedialActionActivationResult;
     private boolean areCostsComputed;
     private Double functionalCost;
     private Map<String, Double> virtualCosts;
@@ -29,9 +31,11 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private Set<String> excludedContingencies;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
-                                       FlowResult flowResult) {
+                                       FlowResult flowResult,
+                                       RemedialActionActivationResult remedialActionActivationResult) {
         this.objectiveFunction = objectiveFunction;
         this.flowResult = flowResult;
+        this.remedialActionActivationResult = remedialActionActivationResult;
         this.areCostsComputed = false;
     }
 

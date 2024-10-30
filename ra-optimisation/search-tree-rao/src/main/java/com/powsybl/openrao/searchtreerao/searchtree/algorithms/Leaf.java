@@ -29,7 +29,9 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.Iterating
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -150,9 +152,10 @@ public class Leaf implements OptimizationResult {
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
+        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(raActivationResultFromParentLeaf, new NetworkActionsResultImpl(appliedNetworkActionsInPrimaryState));
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult);
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult);
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
@@ -164,7 +167,7 @@ public class Leaf implements OptimizationResult {
         }
         preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
         preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult);
+        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult);
         status = Status.EVALUATED;
     }
 
@@ -201,6 +204,7 @@ public class Leaf implements OptimizationResult {
                     .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
                     .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
                     .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
+                    .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(appliedNetworkActionsInPrimaryState))
                     .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
                     .withToolProvider(searchTreeInput.getToolProvider())
                     .withOutageInstant(searchTreeInput.getOutageInstant())
