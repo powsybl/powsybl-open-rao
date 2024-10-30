@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TotalCostEvaluator implements CostEvaluator {
+public class RemedialActionCostEvaluator implements CostEvaluator {
     private final State state;
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
@@ -28,7 +28,7 @@ public class TotalCostEvaluator implements CostEvaluator {
     private final RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
     private static final double OVERLOAD_PENALTY = 10000d; // TODO : set this in RAO parameters
 
-    public TotalCostEvaluator(State state, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+    public RemedialActionCostEvaluator(State state, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
         this.state = state;
         this.flowCnecs = flowCnecs;
         this.unit = unit;
@@ -38,7 +38,7 @@ public class TotalCostEvaluator implements CostEvaluator {
 
     @Override
     public String getName() {
-        return "total-cost-evaluator";
+        return "remedial-action-cost-evaluator";
     }
 
     @Override

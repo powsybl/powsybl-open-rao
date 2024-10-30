@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.Map;
@@ -28,10 +27,10 @@ public class RemedialActionActivationResultImpl implements RemedialActionActivat
     private final NetworkActionsResult networkActionsResult;
     private final RangeActionActivationResult rangeActionActivationResult;
 
-    public RemedialActionActivationResultImpl(PrePerimeterResult prePerimeterResult, RangeActionSetpointResult rangeActionSetpointResult, Set<NetworkAction> activatedNetworkActions) {
+    public RemedialActionActivationResultImpl(PrePerimeterResult prePerimeterResult, RangeActionActivationResult rangeActionActivationResult, NetworkActionsResult networkActionsResult) {
         this.prePerimeterResult = prePerimeterResult;
-        this.networkActionsResult = new NetworkActionsResultImpl(activatedNetworkActions);
-        this.rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
+        this.networkActionsResult = networkActionsResult;
+        this.rangeActionActivationResult = rangeActionActivationResult;
     }
 
     @Override
