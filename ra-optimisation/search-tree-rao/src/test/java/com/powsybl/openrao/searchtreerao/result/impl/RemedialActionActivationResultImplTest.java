@@ -15,10 +15,8 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Set;
@@ -99,13 +97,6 @@ class RemedialActionActivationResultImplTest {
             .add()
             .add();
 
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Mockito.when(prePerimeterResult.getTap(pstRangeAction)).thenReturn(0);
-        Mockito.when(prePerimeterResult.getSetpoint(pstRangeAction)).thenReturn(0d);
-        Mockito.when(prePerimeterResult.getSetpoint(injectionRangeAction1)).thenReturn(60d);
-        Mockito.when(prePerimeterResult.getSetpoint(injectionRangeAction2)).thenReturn(25d);
-        Mockito.when(prePerimeterResult.getSetpoint(hvdcRangeAction)).thenReturn(300d);
-
         NetworkActionsResultImpl networkActionsResult = new NetworkActionsResultImpl(Set.of(topologicalAction1));
 
         RangeActionActivationResultImpl rangeActionActivationResult1 = new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(pstRangeAction, 0d, injectionRangeAction1, 60d, injectionRangeAction2, 25d, hvdcRangeAction, 300d)));
@@ -114,7 +105,7 @@ class RemedialActionActivationResultImplTest {
         rangeActionActivationResult1.putResult(injectionRangeAction2, state, 25d);
         rangeActionActivationResult1.putResult(hvdcRangeAction, state, 800d);
 
-        remedialActionActivationResult = new RemedialActionActivationResultImpl(prePerimeterResult, rangeActionActivationResult1, networkActionsResult);
+        remedialActionActivationResult = new RemedialActionActivationResultImpl(rangeActionActivationResult1, networkActionsResult);
     }
 
     @Test

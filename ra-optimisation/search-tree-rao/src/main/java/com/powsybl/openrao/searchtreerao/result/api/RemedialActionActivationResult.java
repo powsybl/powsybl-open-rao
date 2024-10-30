@@ -7,15 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.result.api;
 
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface RemedialActionActivationResult extends RangeActionActivationResult, NetworkActionsResult {
-    double getSetPointVariation(RangeAction<?> rangeAction, State state);
-
-    int getTapVariation(PstRangeAction pstRangeAction, State state);
 }

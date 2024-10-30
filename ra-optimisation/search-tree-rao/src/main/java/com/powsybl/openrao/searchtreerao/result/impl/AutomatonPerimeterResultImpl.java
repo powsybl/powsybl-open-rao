@@ -167,6 +167,11 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        return getOptimizedSetpoint(rangeAction, state) - postAutomatonSensitivityAnalysisOutput.getSetpoint(rangeAction);
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         checkState(state);
         return pstRangeAction.convertAngleToTap(rangeActionsWithSetpoint.get(pstRangeAction));
@@ -179,6 +184,11 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
         activatedRangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
                 .forEach(pstRangeAction -> pstRangeActionOptimizedTaps.put(pstRangeAction, getOptimizedTap(pstRangeAction, state)));
         return pstRangeActionOptimizedTaps;
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        return getOptimizedTap(pstRangeAction, state) - postAutomatonSensitivityAnalysisOutput.getTap(pstRangeAction);
     }
 
     @Override

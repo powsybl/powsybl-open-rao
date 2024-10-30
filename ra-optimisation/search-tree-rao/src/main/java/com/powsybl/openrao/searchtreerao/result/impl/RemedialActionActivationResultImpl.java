@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
@@ -23,12 +22,10 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class RemedialActionActivationResultImpl implements RemedialActionActivationResult {
-    private final PrePerimeterResult prePerimeterResult;
     private final NetworkActionsResult networkActionsResult;
     private final RangeActionActivationResult rangeActionActivationResult;
 
-    public RemedialActionActivationResultImpl(PrePerimeterResult prePerimeterResult, RangeActionActivationResult rangeActionActivationResult, NetworkActionsResult networkActionsResult) {
-        this.prePerimeterResult = prePerimeterResult;
+    public RemedialActionActivationResultImpl(RangeActionActivationResult rangeActionActivationResult, NetworkActionsResult networkActionsResult) {
         this.networkActionsResult = networkActionsResult;
         this.rangeActionActivationResult = rangeActionActivationResult;
     }
@@ -75,11 +72,11 @@ public class RemedialActionActivationResultImpl implements RemedialActionActivat
 
     @Override
     public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
-        return getOptimizedSetpoint(rangeAction, state) - prePerimeterResult.getSetpoint(rangeAction);
+        return rangeActionActivationResult.getSetPointVariation(rangeAction, state);
     }
 
     @Override
     public int getTapVariation(PstRangeAction pstRangeAction, State state) {
-        return getOptimizedTap(pstRangeAction, state) - prePerimeterResult.getTap(pstRangeAction);
+        return rangeActionActivationResult.getTapVariation(pstRangeAction, state);
     }
 }

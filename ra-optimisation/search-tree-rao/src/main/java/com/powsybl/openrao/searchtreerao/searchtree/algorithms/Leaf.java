@@ -552,6 +552,17 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        if (status == Status.EVALUATED) {
+            return raActivationResultFromParentLeaf.getSetPointVariation(rangeAction, state);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getSetPointVariation(rangeAction, state);
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         if (status == Status.EVALUATED) {
             return raActivationResultFromParentLeaf.getOptimizedTap(pstRangeAction, state);
@@ -572,6 +583,17 @@ public class Leaf implements OptimizationResult {
             return raActivationResultFromParentLeaf.getOptimizedTapsOnState(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getOptimizedTapsOnState(state);
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        if (status == Status.EVALUATED) {
+            return raActivationResultFromParentLeaf.getTapVariation(pstRangeAction, state);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getTapVariation(pstRangeAction, state);
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }

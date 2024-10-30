@@ -204,6 +204,16 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        checkState(state);
+        if (isCraIncludedInSecondPreventiveRao(rangeAction)) {
+            return secondPraoResult.getSetPointVariation(rangeAction, state);
+        } else {
+            return firstCraoResult.getSetPointVariation(rangeAction, state);
+        }
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         checkState(state);
         if (isCraIncludedInSecondPreventiveRao(pstRangeAction)) {
@@ -219,6 +229,16 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         return firstCraoResult.getRangeActions().stream()
             .filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
             .collect(Collectors.toMap(pst -> pst, pst -> getOptimizedTap(pst, state)));
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        checkState(state);
+        if (isCraIncludedInSecondPreventiveRao(pstRangeAction)) {
+            return secondPraoResult.getTapVariation(pstRangeAction, state);
+        } else {
+            return firstCraoResult.getTapVariation(pstRangeAction, state);
+        }
     }
 
     @Override
