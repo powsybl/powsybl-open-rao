@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class RemedialActionCostEvaluatorImplTest {
     private RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
+    private OptimizationPerimeter optimizationPerimeter;
     private State state;
     private MarginEvaluator marginEvaluator;
     private RemedialActionActivationResult remedialActionActivationResult;
@@ -83,6 +85,10 @@ class RemedialActionCostEvaluatorImplTest {
         state = Mockito.mock(State.class);
         Mockito.when(state.getContingency()).thenReturn(Optional.empty());
 
+        optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(state);
+        Mockito.when(optimizationPerimeter.getMonitoredStates()).thenReturn(Set.of());
+
         marginEvaluator = new BasicMarginEvaluator();
 
         remedialActionActivationResult = Mockito.mock(RemedialActionActivationResultImpl.class);
@@ -98,14 +104,14 @@ class RemedialActionCostEvaluatorImplTest {
 
     @Test
     void testBasicData() {
-        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(state, Set.of(), Unit.MEGAWATT, marginEvaluator, rangeActionsOptimizationParameters);
+        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(optimizationPerimeter, Set.of(), Unit.MEGAWATT, marginEvaluator, rangeActionsOptimizationParameters);
         assertEquals(Unit.MEGAWATT, evaluator.getUnit());
         assertEquals("remedial-action-cost-evaluator", evaluator.getName());
     }
 
     @Test
     void testTotalRemedialActionCostNoOverload() {
-        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(state, Set.of(), Unit.MEGAWATT, marginEvaluator, rangeActionsOptimizationParameters);
+        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(optimizationPerimeter, Set.of(), Unit.MEGAWATT, marginEvaluator, rangeActionsOptimizationParameters);
 
         FlowResult flowResult = Mockito.mock(FlowResult.class);
 
@@ -122,7 +128,7 @@ class RemedialActionCostEvaluatorImplTest {
         Mockito.when(flowCnec.getState()).thenReturn(state);
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-1d);
 
-        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(state, Set.of(flowCnec), Unit.MEGAWATT, marginEvaluator, rangeActionsOptimizationParameters);
+        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(optimizationPerimeter, Set.of(flowCnec), Unit.MEGAWATT, marginEvaluator, rangeActionsOptimizationParameters);
 
         Pair<Double, List<FlowCnec>> costAndLimitingElements = evaluator.computeCostAndLimitingElements(flowResult, remedialActionActivationResult, Set.of());
         assertEquals(21738.8, costAndLimitingElements.getLeft());

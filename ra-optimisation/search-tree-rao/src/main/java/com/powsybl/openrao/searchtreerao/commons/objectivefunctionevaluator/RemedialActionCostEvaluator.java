@@ -10,26 +10,28 @@ import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class RemedialActionCostEvaluator implements CostEvaluator {
-    private final State state;
+    private final OptimizationPerimeter optimizationPerimeter;
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
     private final RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
     private static final double OVERLOAD_PENALTY = 10000d; // TODO : set this in RAO parameters
 
-    public RemedialActionCostEvaluator(State state, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
-        this.state = state;
+    public RemedialActionCostEvaluator(OptimizationPerimeter optimizationPerimeter, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+        this.optimizationPerimeter = optimizationPerimeter;
         this.flowCnecs = flowCnecs;
         this.unit = unit;
         this.marginEvaluator = marginEvaluator;
@@ -77,23 +79,27 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
         double totalRangeActionsCost = 0d;
-        for (RangeAction<?> rangeAction : remedialActionActivationResult.getActivatedRangeActions(state)) {
-            totalRangeActionsCost += rangeAction.getActivationCost().orElse(0d);
-            if (rangeAction instanceof PstRangeAction) {
-                totalRangeActionsCost += computeVariationCost(rangeAction, rangeActionsOptimizationParameters.getPstPenaltyCost(), remedialActionActivationResult);
-            } else if (rangeAction instanceof InjectionRangeAction) {
-                totalRangeActionsCost += computeVariationCost(rangeAction, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), remedialActionActivationResult);
-            } else if (rangeAction instanceof HvdcRangeAction) {
-                totalRangeActionsCost += computeVariationCost(rangeAction, rangeActionsOptimizationParameters.getHvdcPenaltyCost(), remedialActionActivationResult);
-            } else {
-                // TODO: add penalty for CT
-                totalRangeActionsCost += computeVariationCost(rangeAction, 0d, remedialActionActivationResult);
+        Set<State> states = new HashSet<>(optimizationPerimeter.getMonitoredStates());
+        states.add(optimizationPerimeter.getMainOptimizationState());
+        for (State state : states) {
+            for (RangeAction<?> rangeAction : remedialActionActivationResult.getActivatedRangeActions(state)) {
+                totalRangeActionsCost += rangeAction.getActivationCost().orElse(0d);
+                if (rangeAction instanceof PstRangeAction) {
+                    totalRangeActionsCost += computeVariationCost(rangeAction, rangeActionsOptimizationParameters.getPstPenaltyCost(), state, remedialActionActivationResult);
+                } else if (rangeAction instanceof InjectionRangeAction) {
+                    totalRangeActionsCost += computeVariationCost(rangeAction, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), state, remedialActionActivationResult);
+                } else if (rangeAction instanceof HvdcRangeAction) {
+                    totalRangeActionsCost += computeVariationCost(rangeAction, rangeActionsOptimizationParameters.getHvdcPenaltyCost(), state, remedialActionActivationResult);
+                } else {
+                    // TODO: add penalty for CT
+                    totalRangeActionsCost += computeVariationCost(rangeAction, 0d, state, remedialActionActivationResult);
+                }
             }
         }
         return totalRangeActionsCost;
     }
 
-    private double computeVariationCost(RangeAction<?> rangeAction, double defaultCost, RemedialActionActivationResult remedialActionActivationResult) {
+    private double computeVariationCost(RangeAction<?> rangeAction, double defaultCost, State state, RemedialActionActivationResult remedialActionActivationResult) {
         double variation = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) : remedialActionActivationResult.getSetPointVariation(rangeAction, state);
         RangeAction.VariationDirection variationDirection = variation > 0 ? RangeAction.VariationDirection.UP : RangeAction.VariationDirection.DOWN;
         return Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(defaultCost);

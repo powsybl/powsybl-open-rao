@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,7 @@ class RemedialActionActivationResultImplTest {
     private RangeAction<?> injectionRangeAction2;
     private RangeAction<?> hvdcRangeAction;
     private RemedialActionActivationResultImpl remedialActionActivationResult;
+    private RangeActionSetpointResult rangeActionSetpointResult;
 
     @BeforeEach
     void setUp() {
@@ -99,7 +101,9 @@ class RemedialActionActivationResultImplTest {
 
         NetworkActionsResultImpl networkActionsResult = new NetworkActionsResultImpl(Set.of(topologicalAction1));
 
-        RangeActionActivationResultImpl rangeActionActivationResult1 = new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(pstRangeAction, 0d, injectionRangeAction1, 60d, injectionRangeAction2, 25d, hvdcRangeAction, 300d)));
+        rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, 0d, injectionRangeAction1, 60d, injectionRangeAction2, 25d, hvdcRangeAction, 300d));
+
+        RangeActionActivationResultImpl rangeActionActivationResult1 = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         rangeActionActivationResult1.putResult(pstRangeAction, state, -6.22);
         rangeActionActivationResult1.putResult(injectionRangeAction1, state, 75d);
         rangeActionActivationResult1.putResult(injectionRangeAction2, state, 25d);
@@ -135,5 +139,16 @@ class RemedialActionActivationResultImplTest {
         assertEquals(15d, remedialActionActivationResult.getSetPointVariation(injectionRangeAction1, state));
         assertEquals(0d, remedialActionActivationResult.getSetPointVariation(injectionRangeAction2, state));
         assertEquals(500d, remedialActionActivationResult.getSetPointVariation(hvdcRangeAction, state));
+    }
+
+    @Test
+    void testEmptyResult() {
+        RemedialActionActivationResultImpl emptyRemedialActionActivationResult = RemedialActionActivationResultImpl.empty(rangeActionSetpointResult);
+        assertTrue(emptyRemedialActionActivationResult.getActivatedNetworkActions().isEmpty());
+        assertTrue(emptyRemedialActionActivationResult.getActivatedRangeActions(state).isEmpty());
+        assertEquals(0d, emptyRemedialActionActivationResult.getSetPointVariation(pstRangeAction, state));
+        assertEquals(0d, emptyRemedialActionActivationResult.getSetPointVariation(injectionRangeAction1, state));
+        assertEquals(0d, emptyRemedialActionActivationResult.getSetPointVariation(injectionRangeAction2, state));
+        assertEquals(0d, emptyRemedialActionActivationResult.getSetPointVariation(hvdcRangeAction, state));
     }
 }

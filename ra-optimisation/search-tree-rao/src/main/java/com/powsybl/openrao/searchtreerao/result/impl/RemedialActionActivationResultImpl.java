@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.Map;
@@ -78,5 +79,9 @@ public class RemedialActionActivationResultImpl implements RemedialActionActivat
     @Override
     public int getTapVariation(PstRangeAction pstRangeAction, State state) {
         return rangeActionActivationResult.getTapVariation(pstRangeAction, state);
+    }
+
+    public static RemedialActionActivationResultImpl empty(RangeActionSetpointResult rangeActionSetpointResult) {
+        return new RemedialActionActivationResultImpl(new RangeActionActivationResultImpl(rangeActionSetpointResult), new NetworkActionsResultImpl(Set.of()));
     }
 }
