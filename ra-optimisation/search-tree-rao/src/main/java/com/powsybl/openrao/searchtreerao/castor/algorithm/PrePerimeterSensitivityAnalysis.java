@@ -18,6 +18,7 @@ import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
@@ -117,7 +118,7 @@ public class PrePerimeterSensitivityAnalysis {
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
-        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult);
+        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, rangeActionSetpointResult);
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
@@ -126,7 +127,7 @@ public class PrePerimeterSensitivityAnalysis {
         );
     }
 
-    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult) {
-        return objectiveFunction.evaluate(flowResult);
+    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, RangeActionSetpointResult rangeActionSetpointResult) {
+        return objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(rangeActionSetpointResult));
     }
 }

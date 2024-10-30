@@ -264,6 +264,7 @@ public class CastorSecondPreventive {
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            new RemedialActionActivationResultImpl(new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions())), new NetworkActionsResultImpl(getAllAppliedNetworkAraAndCra(appliedArasAndCras))),
             sensiWithPostContingencyRemedialActions,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -304,6 +305,13 @@ public class CastorSecondPreventive {
                 }
             })
         );
+    }
+
+    private Set<NetworkAction> getAllAppliedNetworkAraAndCra(AppliedRemedialActions appliedArasAndCras) {
+        Set<NetworkAction> appliedNetworkActions = new HashSet<>();
+        crac.getStates().stream().filter(state -> state.getInstant().isAuto() || state.getInstant().isCurative())
+            .forEach(state -> appliedNetworkActions.addAll(appliedArasAndCras.getAppliedNetworkActions(state)));
+        return appliedNetworkActions;
     }
 
     private CompletableFuture<OneStateOnlyRaoResultImpl> optimizeSecondPreventivePerimeter(PrePerimeterResult initialOutput,

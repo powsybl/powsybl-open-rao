@@ -72,7 +72,7 @@ class ObjectiveFunctionTest {
         assertTrue(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, "mnec-cost", new HashSet<>()).getRight().isEmpty());
 
         // ObjectiveFunctionResult
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult);
+        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
         assertEquals(-300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0., result.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(-300., result.getCost(), DOUBLE_TOLERANCE);
@@ -112,7 +112,7 @@ class ObjectiveFunctionTest {
         assertEquals(List.of(cnec2), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, "loop-flow-cost", new HashSet<>()).getRight());
 
         // ObjectiveFunctionResult
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult);
+        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
         assertEquals(-300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1100., result.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(800., result.getCost(), DOUBLE_TOLERANCE);

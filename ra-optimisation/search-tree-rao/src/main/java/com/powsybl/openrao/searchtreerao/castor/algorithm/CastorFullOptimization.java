@@ -87,6 +87,7 @@ public class CastorFullOptimization {
         }
         RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            RemedialActionActivationResultImpl.empty(initialOutput),
             initialOutput,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -130,6 +131,7 @@ public class CastorFullOptimization {
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after preventive remedial actions: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            new RemedialActionActivationResultImpl(preventiveResult, preventiveResult),
             preCurativeSensitivityAnalysisOutput,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
