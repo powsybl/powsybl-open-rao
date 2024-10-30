@@ -189,7 +189,7 @@ public final class CoreCneCnecsCreator {
         }
         // A03
         measurements.add(createFrmMeasurement(cnec));
-        if (cneHelper.isWithLoopflows()) {
+        if (cneHelper.isWithLoopFlows()) {
             // Z16 & Z17
             measurements.addAll(createLoopflowMeasurements(cnec, optimizedInstant, shouldInvertBranchDirection));
         }

@@ -8,67 +8,83 @@
 package com.powsybl.openrao.data.cneexportercommons;
 
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.PATL_MEASUREMENT_TYPE;
-import static com.powsybl.openrao.data.cneexportercommons.CneConstants.TATL_MEASUREMENT_TYPE;
+import java.util.Properties;
+
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class CneHelper {
+    private final Crac crac;
+    private final RaoResult raoResult;
+    private final Properties properties;
+    private final String propertiesPrefix;
 
-    private Crac crac;
-    private boolean relativePositiveMargins;
-    private boolean withLoopflows;
-    private RaoResult raoResult;
-    private CneExporterParameters exporterParameters;
-    private double mnecAcceptableMarginDiminution;
-
-    public CneHelper(Crac crac, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public CneHelper(Crac crac, RaoResult raoResult, Properties properties, String propertiesPrefix) {
         this.crac = crac;
         this.raoResult = raoResult;
-        this.exporterParameters = exporterParameters;
-
-        relativePositiveMargins = raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins();
-        withLoopflows = raoParameters.hasExtension(LoopFlowParametersExtension.class);
-        mnecAcceptableMarginDiminution = raoParameters.hasExtension(MnecParametersExtension.class) ? raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease() : 0;
-    }
-
-    public RaoResult getRaoResult() {
-        return raoResult;
-    }
-
-    public boolean isWithLoopflows() {
-        return withLoopflows;
-    }
-
-    public double getMnecAcceptableMarginDiminution() {
-        return mnecAcceptableMarginDiminution;
+        this.properties = properties;
+        this.propertiesPrefix = propertiesPrefix;
     }
 
     public Crac getCrac() {
         return crac;
     }
 
-    public String instantToCodeConverter(Instant instant) {
-        if (instant.isPreventive()) { // Before contingency
-            return PATL_MEASUREMENT_TYPE;
-        } else { // After contingency, before any post-contingency RA
-            return TATL_MEASUREMENT_TYPE;
-        }
-    }
-
-    public CneExporterParameters getExporterParameters() {
-        return exporterParameters;
+    public RaoResult getRaoResult() {
+        return raoResult;
     }
 
     public boolean isRelativePositiveMargins() {
-        return relativePositiveMargins;
+        return Boolean.parseBoolean(properties.getProperty(propertiesPrefix + RELATIVE_POSITIVE_MARGINS, "false"));
+    }
+
+    public boolean isWithLoopFlows() {
+        return Boolean.parseBoolean(properties.getProperty(propertiesPrefix + WITH_LOOP_FLOWS, "false"));
+    }
+
+    public double getMnecAcceptableMarginDiminution() {
+        return Double.parseDouble(properties.getProperty(propertiesPrefix + MNEC_ACCEPTABLE_MARGIN_DIMINUTION, "0"));
+    }
+
+    public String getDocumentId() {
+        return properties.getProperty(propertiesPrefix + DOCUMENT_ID);
+    }
+
+    public int getRevisionNumber() {
+        return Integer.parseInt(properties.getProperty(propertiesPrefix + REVISION_NUMBER));
+    }
+
+    public String getDomainId() {
+        return properties.getProperty(propertiesPrefix + DOMAIN_ID);
+    }
+
+    public String getProcessType() {
+        return properties.getProperty(propertiesPrefix + PROCESS_TYPE);
+    }
+
+    public String getSenderId() {
+        return properties.getProperty(propertiesPrefix + SENDER_ID);
+    }
+
+    public String getSenderRole() {
+        return properties.getProperty(propertiesPrefix + SENDER_ROLE);
+    }
+
+    public String getReceiverId() {
+        return properties.getProperty(propertiesPrefix + RECEIVER_ID);
+    }
+
+    public String getReceiverRole() {
+        return properties.getProperty(propertiesPrefix + RECEIVER_ROLE);
+    }
+
+    public String getTimeInterval() {
+        return properties.getProperty(propertiesPrefix + TIME_INTERVAL);
     }
 }
