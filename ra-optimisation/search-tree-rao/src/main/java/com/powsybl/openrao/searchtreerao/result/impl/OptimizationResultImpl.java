@@ -143,6 +143,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        return rangeActionActivationResult.getSetPointVariation(rangeAction, state);
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         return rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
     }
@@ -150,6 +155,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         return rangeActionActivationResult.getOptimizedTapsOnState(state);
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        return rangeActionActivationResult.getTapVariation(pstRangeAction, state);
     }
 
     @Override
