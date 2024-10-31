@@ -98,6 +98,31 @@ class FlowCnecImplTest {
     }
 
     @Test
+    void testComputeValueAmpere() {
+        Network network = Mockito.mock(Network.class);
+        Branch branch3 = Mockito.mock(Branch.class);
+        Terminal terminal31 = Mockito.mock(Terminal.class);
+        Terminal terminal32 = Mockito.mock(Terminal.class);
+
+        Mockito.when(network.getBranch("AAE2AA1  AAE3AA1  1")).thenReturn(branch3);
+        Mockito.when(terminal31.getP()).thenReturn(-66.);
+        Mockito.when(terminal31.getI()).thenReturn(55.);
+        Mockito.when(terminal32.getP()).thenReturn(22.);
+        Mockito.when(terminal32.getI()).thenReturn(Double.NaN);
+        Mockito.when(branch3.getTerminal(ONE)).thenReturn(terminal31);
+        Mockito.when(branch3.getTerminal(TWO)).thenReturn(terminal32);
+
+        FlowCnec cnecA = crac.newFlowCnec().withId("cnec-A-id").withNetworkElement("AAE2AA1  AAE3AA1  1").withInstant(PREVENTIVE_INSTANT_ID)
+            .withNominalVoltage(222.)
+            .newThreshold().withUnit(AMPERE).withMin(5.).withMax(10.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(AMPERE).withMin(20.).withMax(300.).withSide(TwoSides.TWO).add()
+            .add();
+
+        assertEquals(-55., ((FlowCnecValue) cnecA.computeValue(network, AMPERE)).side1Value());
+        assertEquals(57.2, ((FlowCnecValue) cnecA.computeValue(network, AMPERE)).side2Value(), 0.1);
+    }
+
+    @Test
     void testComputeWorstMargin() {
         Network network = Mockito.mock(Network.class, Mockito.RETURNS_DEEP_STUBS);
         Branch branch1 = Mockito.mock(Branch.class, Mockito.RETURNS_DEEP_STUBS);
