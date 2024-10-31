@@ -43,3 +43,30 @@ Feature: US 92.1: Costly network actions optimization
     And the remedial action "closeBeFr2" is used in preventive
     And the remedial action "closeBeFr3" is used in preventive
     And the value of the objective function after PRA should be -464.29
+
+  @fast @preventive-only @costly @rao
+  Scenario: US 92.1.3: Selection of the two cheapest network actions
+    Given network file is "epic92/2Nodes4ParallelLines.uct"
+    Given crac file is "epic92/crac-92-3.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    When I launch search_tree_rao
+    Then the worst margin is 66.67 MW
+    And 2 remedial actions are used in preventive
+    And the remedial action "closeBeFr3" is used in preventive
+    And the remedial action "closeBeFr4" is used in preventive
+    And the value of the objective function after PRA should be 720.0
+
+  @fast @preventive-only @costly @rao
+  Scenario: US 92.1.4: Selection of cheapest of 3 equivalent network actions but overload remains at the end of RAO
+    Only one network action can be used (behavior set in the RAO parameters) so the RAO chooses the cheapest
+    remedial action available to reduce the overload and thus the penalty cost. The total cost is:
+    100 (overload in MW) * 10000 (penalty cost in currency/MW) + 220 (cost of the chosen remedial action)
+    Given network file is "epic92/2Nodes4ParallelLines.uct"
+    Given crac file is "epic92/crac-92-3.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective_maxDepth1.json"
+    When I launch search_tree_rao
+    Then the worst margin is -100.0 MW
+    And 1 remedial actions are used in preventive
+    And the remedial action "closeBeFr4" is used in preventive
+    And the value of the objective function initially should be 6000000.0
+    And the value of the objective function after PRA should be 1000220.0
