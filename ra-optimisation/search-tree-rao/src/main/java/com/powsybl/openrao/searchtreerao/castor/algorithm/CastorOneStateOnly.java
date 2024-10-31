@@ -107,13 +107,15 @@ public class CastorOneStateOnly {
                     .withTreeParameters(treeParameters)
                     .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
                     .build();
+            Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
+            statesToOptimize.add(optPerimeter.getMainOptimizationState());
             SearchTreeInput searchTreeInput = SearchTreeInput.create()
                     .withNetwork(raoInput.getNetwork())
                     .withOptimizationPerimeter(optPerimeter)
                     .withInitialFlowResult(initialResults)
                     .withPrePerimeterResult(initialResults)
                     .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-                    .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, operatorsNotToOptimize, raoParameters))
+                    .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, operatorsNotToOptimize, raoParameters, statesToOptimize))
                     .withToolProvider(toolProvider)
                     .withOutageInstant(raoInput.getCrac().getOutageInstant())
                     .build();

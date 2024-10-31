@@ -49,19 +49,19 @@ public final class ObjectiveFunction {
         return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, null);
     }
 
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, null, contingenciesToExclude);
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, remedialActionActivationResult, contingenciesToExclude);
     }
 
     public Set<String> getVirtualCostNames() {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, String virtualCostName, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, String virtualCostName, Set<String> contingenciesToExclude) {
         return virtualCostEvaluators.stream()
             .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
             .findAny()
-            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, null, contingenciesToExclude))
+            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, remedialActionActivationResult, contingenciesToExclude))
             .orElse(Pair.of(Double.NaN, new ArrayList<>()));
     }
 
@@ -81,7 +81,7 @@ public final class ObjectiveFunction {
             }
 
             if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                this.withVirtualCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
+                this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
             } else {
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
             }
@@ -100,7 +100,8 @@ public final class ObjectiveFunction {
                                        FlowResult initialFlowResult,
                                        FlowResult prePerimeterFlowResult,
                                        Set<String> operatorsNotToOptimizeInCurative,
-                                       RaoParameters raoParameters) {
+                                       RaoParameters raoParameters,
+                                       Set<State> optimizedStates) {
 
             // min margin objective function
             MarginEvaluator marginEvaluator;
@@ -113,11 +114,18 @@ public final class ObjectiveFunction {
             // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
             if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
                 && !operatorsNotToOptimizeInCurative.isEmpty()) {
-
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
-                    new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
+                if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
+                    this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
+                } else {
+                    this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
+                        new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
+                }
             } else {
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+                if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
+                    this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
+                } else {
+                    this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+                }
             }
 
             // mnec virtual cost evaluator
