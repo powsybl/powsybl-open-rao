@@ -271,8 +271,8 @@
     } ],
     "networkElementId" : "pst3",
     "groupId" : "group-3-pst",
-    "activation-cost": 0.0,
-    "variation-costs": {
+    "activationCost": 0.0,
+    "variationCosts": {
       "up": 0.0,
       "down": 0.0
     },
@@ -345,8 +345,8 @@
     "id" : "hvdcRange2Id",
     "name" : "hvdcRange2Name",
     "operator" : "RTE",
-    "activation-cost": 100.0,
-    "variation-costs": {
+    "activationCost": 100.0,
+    "variationCosts": {
       "down": 500.0
     },
     "onConstraintUsageRules" : [ {
@@ -367,8 +367,8 @@
     "name" : "injectionRange1Name",
     "operator" : null,
     "speed" : 30,
-    "activation-cost": 800.0,
-    "variation-costs": {
+    "activationCost": 800.0,
+    "variationCosts": {
       "up": 2000.0
     },
     "onContingencyStateUsageRules" : [ {
@@ -394,8 +394,8 @@
     "name" : "counterTradeRange1Name",
     "operator" : null,
     "speed" : 30,
-    "activation-cost": 10000.0,
-    "variation-costs": {
+    "activationCost": 10000.0,
+    "variationCosts": {
       "up": 15000.0,
       "down": 18000.0
     },
@@ -493,7 +493,7 @@
     "id" : "complexNetworkAction2Id",
     "name" : "complexNetworkAction2Name",
     "operator" : "RTE",
-    "activation-cost": 500.0,
+    "activationCost": 500.0,
     "onFlowConstraintInCountryUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency2Id",
