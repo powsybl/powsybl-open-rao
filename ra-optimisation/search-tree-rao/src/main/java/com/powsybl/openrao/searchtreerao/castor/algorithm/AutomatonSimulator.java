@@ -78,8 +78,9 @@ public final class AutomatonSimulator {
     private final PrePerimeterResult prePerimeterSensitivityOutput;
     private final Set<String> operatorsNotSharingCras;
     private final int numberLoggedElementsDuringRao;
+    private final OptimizationResult preventiveResult;
 
-    public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao) {
+    public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao, OptimizationResult preventiveResult) {
         this.crac = crac;
         this.raoParameters = raoParameters;
         this.flowUnit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
@@ -88,11 +89,12 @@ public final class AutomatonSimulator {
         this.prePerimeterSensitivityOutput = prePerimeterSensitivityOutput;
         this.operatorsNotSharingCras = operatorsNotSharingCras;
         this.numberLoggedElementsDuringRao = numberLoggedElementsDuringRao;
+        this.preventiveResult = preventiveResult;
     }
 
     /**
      * This function simulates automatons at AUTO instant. First, it simulates topological automatons,
-     * then range actions by order of speed. TODO Network actions by speed  is not implemented yet
+     * then range actions by order of speed. TODO: Network actions by speed is not implemented yet
      * Returns an AutomatonPerimeterResult
      */
     AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network, StateTree stateTree, TreeParameters automatonTreeParameters) {
@@ -148,7 +150,7 @@ public final class AutomatonSimulator {
             return failedAutomatonPerimeterResultImpl;
         }
         // Build and return optimization result
-        RemedialActionActivationResult remedialActionActivationResult = buildRemedialActionActivationResult(topoSimulationResult, autoSearchTreeResult, rangeAutomatonSimulationResult, automatonState);
+        RemedialActionActivationResult remedialActionActivationResult = buildRemedialActionActivationResult(topoSimulationResult, autoSearchTreeResult, rangeAutomatonSimulationResult, automatonState, preventiveResult);
         PrePerimeterResult prePerimeterResultForOptimizedState = buildPrePerimeterResultForOptimizedState(rangeAutomatonSimulationResult.perimeterResult(), automatonState, remedialActionActivationResult);
         Map<RangeAction<?>, Double> rangeActionsWithSetpoint = rangeAutomatonSimulationResult.rangeActionsWithSetpoint();
         prePerimeterResultForOptimizedState.getRangeActionSetpointResult().getRangeActions().forEach(ra -> rangeActionsWithSetpoint.putIfAbsent(ra, prePerimeterResultForOptimizedState.getSetpoint(ra)));
@@ -783,8 +785,11 @@ public final class AutomatonSimulator {
 
     }
 
-    private static RemedialActionActivationResult buildRemedialActionActivationResult(TopoAutomatonSimulationResult topoSimulationResult, OptimizationResult autoSearchTreeResult, RangeAutomatonSimulationResult rangeAutomatonSimulationResult, State automatonState) {
+    private static RemedialActionActivationResult buildRemedialActionActivationResult(TopoAutomatonSimulationResult topoSimulationResult, OptimizationResult autoSearchTreeResult, RangeAutomatonSimulationResult rangeAutomatonSimulationResult, State automatonState, OptimizationResult preventiveResult) {
         Set<NetworkAction> allAppliedNetworkActions = new HashSet<>(topoSimulationResult.activatedNetworkActions());
+        if (preventiveResult != null) {
+            allAppliedNetworkActions.addAll(preventiveResult.getActivatedNetworkActions());
+        }
         if (autoSearchTreeResult != null) {
             allAppliedNetworkActions.addAll(autoSearchTreeResult.getActivatedNetworkActions());
         }
