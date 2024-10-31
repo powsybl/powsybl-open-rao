@@ -354,13 +354,16 @@ public class CastorSecondPreventive {
             searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(firstPreventiveResult.getActivatedNetworkActions(), true));
         }
 
+        Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
+        statesToOptimize.add(optPerimeter.getMainOptimizationState());
+
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
             .withOptimizationPerimeter(optPerimeter)
             .withInitialFlowResult(initialOutput)
             .withPrePerimeterResult(prePerimeterResult)
             .withPreOptimizationAppliedNetworkActions(appliedCras) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, new HashSet<>(), raoParameters))
+            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, new HashSet<>(), raoParameters, statesToOptimize))
             .withToolProvider(toolProvider)
             .withOutageInstant(crac.getOutageInstant())
             .build();
