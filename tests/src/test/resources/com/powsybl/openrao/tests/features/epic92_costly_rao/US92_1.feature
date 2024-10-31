@@ -87,3 +87,37 @@ Feature: US 92.1: Costly network actions optimization
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr2" is used in preventive
     And the value of the objective function after PRA should be 1000.0
+
+  @fast @costly @rao
+  Scenario: US 92.1.6: Preventive and auto optimization - 1 scenario
+    Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
+    Given crac file is "epic92/crac-92-6.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    When I launch search_tree_rao
+    Then the worst margin is 66.67 MW
+    And the value of the objective function initially should be 6000000.0
+    And 1 remedial actions are used in preventive
+    And the remedial action "closeBeFr3" is used in preventive
+    # Activation of closeBeFr3 (200) + overload penalty (100 * 10000)
+    And the value of the objective function after PRA should be 1000200.0
+    And 1 remedial actions are used after "coBeFr2" at "auto"
+    And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
+    # Activation of closeBeFr3 (200) + activation of closeBeFr4 (850)
+    And the value of the objective function after ARA should be 1050.0
+
+  @fast @costly @rao
+  Scenario: US 92.1.7: Preventive and auto optimization - 2 scenario
+    Given network file is "epic92/2Nodes4ParallelLines3LinesClosed.uct"
+    Given crac file is "epic92/crac-92-6.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    When I launch search_tree_rao
+    Then the worst margin is 66.67 MW
+    And the value of the objective function initially should be 6000000.0
+    And 1 remedial actions are used in preventive
+    And the remedial action "closeBeFr3" is used in preventive
+    # Activation of closeBeFr3 (200) + overload penalty (100 * 10000)
+    And the value of the objective function after PRA should be 1000200.0
+    And 1 remedial actions are used after "coBeFr2" at "auto"
+    And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
+    # Activation of closeBeFr3 (200) + activation of closeBeFr4 (850)
+    And the value of the objective function after ARA should be 1050.0
