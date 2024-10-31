@@ -10,28 +10,26 @@ import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class RemedialActionCostEvaluator implements CostEvaluator {
-    private final OptimizationPerimeter optimizationPerimeter;
+    private final Set<State> optimizedStates;
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
     private final RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
     private static final double OVERLOAD_PENALTY = 10000d; // TODO : set this in RAO parameters
 
-    public RemedialActionCostEvaluator(OptimizationPerimeter optimizationPerimeter, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
-        this.optimizationPerimeter = optimizationPerimeter;
+    public RemedialActionCostEvaluator(Set<State> optimizedStates, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+        this.optimizedStates = optimizedStates;
         this.flowCnecs = flowCnecs;
         this.unit = unit;
         this.marginEvaluator = marginEvaluator;
@@ -79,9 +77,7 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
         double totalRangeActionsCost = 0d;
-        Set<State> states = new HashSet<>(optimizationPerimeter.getMonitoredStates());
-        states.add(optimizationPerimeter.getMainOptimizationState());
-        for (State state : states) {
+        for (State state : optimizedStates) {
             for (RangeAction<?> rangeAction : remedialActionActivationResult.getActivatedRangeActions(state)) {
                 totalRangeActionsCost += rangeAction.getActivationCost().orElse(0d);
                 if (rangeAction instanceof PstRangeAction) {
