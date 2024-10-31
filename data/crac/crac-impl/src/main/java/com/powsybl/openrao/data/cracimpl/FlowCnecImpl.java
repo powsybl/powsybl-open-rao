@@ -176,10 +176,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         double intensity = branch.getTerminal(side).getI();
         if (unit.equals(Unit.AMPERE)) {
             // In case flows are negative, we shall replace this value by its opposite
-            if (activeFlow < 0) {
-                intensity = -intensity;
-            }
-            return Double.isNaN(intensity) ? activeFlow * getFlowUnitMultiplierMegawattToAmpere(side) : intensity;
+            return Double.isNaN(intensity) ? activeFlow * getFlowUnitMultiplierMegawattToAmpere(side) : Math.signum(activeFlow) * intensity;
         } else if (!unit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
