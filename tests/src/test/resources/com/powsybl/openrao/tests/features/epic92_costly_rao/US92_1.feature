@@ -70,3 +70,20 @@ Feature: US 92.1: Costly network actions optimization
     And the remedial action "closeBeFr4" is used in preventive
     And the value of the objective function initially should be 6000000.0
     And the value of the objective function after PRA should be 1000220.0
+
+  @fast @preventive-only @costly @rao
+  Scenario: US 92.1.5: Sub-optimal case
+    Closing line BE-FR-2 costs 1000 but solves the constraint immediately. The optimal case is to
+    close lines BE-FR-3 and BE-FR-4 successively (the order does not matter) for a total expense of 50.
+    Yet, because of the penalty cost for overloads, the RAO still counts an over-cost of 100000 because
+    closing BE-FR-3 or BE-FR-4 alone only reduce the minimum margin to -100 MW. As closing BE-FR-2 looks optimal
+    at depth 1, the greedy search-tree keeps it at depth 2 but there is no need to apply additional remedial
+    actions since the network is already secure.
+    Given network file is "epic92/2Nodes4ParallelLinesDifferentResistances.uct"
+    Given crac file is "epic92/crac-92-5.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    When I launch search_tree_rao
+    Then the worst margin is 66.67 MW
+    And 1 remedial actions are used in preventive
+    And the remedial action "closeBeFr2" is used in preventive
+    And the value of the objective function after PRA should be 1000.0
