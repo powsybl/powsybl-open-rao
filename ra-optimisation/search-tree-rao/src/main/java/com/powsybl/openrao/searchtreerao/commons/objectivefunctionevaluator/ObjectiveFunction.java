@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -69,7 +70,8 @@ public final class ObjectiveFunction {
         private final List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
         public ObjectiveFunction buildForInitialSensitivityComputation(Set<FlowCnec> flowCnecs,
-                                                                       RaoParameters raoParameters) {
+                                                                       RaoParameters raoParameters,
+                                                                       Set<State> optimizedStates) {
             // min margin objective function
             MarginEvaluator marginEvaluator;
             if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
@@ -78,7 +80,11 @@ public final class ObjectiveFunction {
                 marginEvaluator = new BasicMarginEvaluator();
             }
 
-            this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+            if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
+                this.withVirtualCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
+            } else {
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+            }
 
             // sensitivity failure over-cost should be computed on initial sensitivity result too
             // (this allows the RAO to prefer RAs that can remove sensitivity failures)

@@ -34,6 +34,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -93,7 +94,7 @@ class PrePerimeterSensitivityAnalysisTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, false);
 
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac, Set.of());
         assertNotNull(result.getSensitivityResult());
 
         result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, optimizationResult, Collections.emptySet(), new AppliedRemedialActions());
@@ -104,7 +105,7 @@ class PrePerimeterSensitivityAnalysisTest {
     void testRunWithPtdf() {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(true, false);
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac, Set.of());
         assertNotNull(result.getSensitivityResult());
     }
 
@@ -115,7 +116,7 @@ class PrePerimeterSensitivityAnalysisTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, true);
 
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac, Set.of());
         assertNotNull(result.getSensitivityResult());
     }
 
@@ -126,7 +127,7 @@ class PrePerimeterSensitivityAnalysisTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(true, true);
 
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac, Set.of());
         assertNotNull(result.getSensitivityResult());
     }
 

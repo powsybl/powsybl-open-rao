@@ -131,13 +131,13 @@ class ObjectiveFunctionTest {
 
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.);
         ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
-            Set.of(cnec1, cnec2), raoParameters
+            Set.of(cnec1, cnec2), raoParameters, Set.of()
         );
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
 
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(1.);
         objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
-            Set.of(cnec1, cnec2), raoParameters
+            Set.of(cnec1, cnec2), raoParameters, Set.of()
         );
         assertEquals(Set.of("sensitivity-failure-cost"), objectiveFunction.getVirtualCostNames());
     }
