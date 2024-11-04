@@ -106,18 +106,35 @@ Feature: US 92.1: Costly network actions optimization
     And the value of the objective function after ARA should be 1050.0
 
   @fast @costly @rao
-  Scenario: US 92.1.7: Preventive and auto optimization - 2 scenario
+  Scenario: US 92.1.7: Preventive and auto optimization - 2 scenarios
     Given network file is "epic92/2Nodes4ParallelLines3LinesClosed.uct"
-    Given crac file is "epic92/crac-92-6.json"
+    Given crac file is "epic92/crac-92-7.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch search_tree_rao
     Then the worst margin is 66.67 MW
-    And the value of the objective function initially should be 6000000.0
-    And 1 remedial actions are used in preventive
-    And the remedial action "closeBeFr3" is used in preventive
-    # Activation of closeBeFr3 (200) + overload penalty (100 * 10000)
-    And the value of the objective function after PRA should be 1000200.0
+    And the value of the objective function initially should be 1000000.0
     And 1 remedial actions are used after "coBeFr2" at "auto"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
-    # Activation of closeBeFr3 (200) + activation of closeBeFr4 (850)
-    And the value of the objective function after ARA should be 1050.0
+    And 1 remedial actions are used after "coBeFr3" at "auto"
+    And the remedial action "closeBeFr4" is used after "coBeFr3" at "auto"
+    # Activation of closeBeFr4 after coBeFr2 (850) + activation of closeBeFr4 after coBeFr3 (850)
+    And the value of the objective function after ARA should be 1700.0
+
+  @fast @costly @rao
+  Scenario: US 92.1.8: Preventive and auto optimization - 2 scenarios with PRA
+    Given network file is "epic92/2Nodes5ParallelLines3LinesClosed.uct"
+    Given crac file is "epic92/crac-92-8.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    When I launch search_tree_rao
+    Then the worst margin is 10.0 MW
+    And the value of the objective function initially should be 2400000.0
+    And 1 remedial actions are used in preventive
+    And the remedial action "closeBeFr4" is used in preventive
+    # Activation of closeBeFr4 (325) + overload penalty (73.33 * 10000)
+    And the value of the objective function after PRA should be 733658.0
+    And 1 remedial actions are used after "coBeFr2" at "auto"
+    And the remedial action "closeBeFr5" is used after "coBeFr2" at "auto"
+    And 1 remedial actions are used after "coBeFr3" at "auto"
+    And the remedial action "closeBeFr5" is used after "coBeFr3" at "auto"
+    # Preventive cost (325) + activation of closeBeFr4 after coBeFr2 (850) + activation of closeBeFr4 after coBeFr3 (850)
+    And the value of the objective function after ARA should be 2025.0
