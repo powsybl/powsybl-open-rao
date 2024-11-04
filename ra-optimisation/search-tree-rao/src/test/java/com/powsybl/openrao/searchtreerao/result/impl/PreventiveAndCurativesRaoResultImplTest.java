@@ -22,6 +22,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracimpl.CracImpl;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
@@ -76,6 +77,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     private OptimizationResult curativeResult1;
     private OptimizationResult curativeResult2;
     private StateTree stateTree;
+    private final ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
 
     private void initCrac() {
         crac = new CracImpl("crac");
@@ -289,7 +291,7 @@ class PreventiveAndCurativesRaoResultImplTest {
             initialResult,
             postPrevResult,
             preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2), crac);
+            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2), crac, objectiveFunctionParameters);
     }
 
     private void mockCnecResults(FlowResult flowResult, FlowCnec cnec, double marginMw, double marginA, double relMarginMw, double relMarginA) {
@@ -716,7 +718,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testNoPostContingencyResultGetters() {
         // Test if only preventive RAO has been conducted
-        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult, crac);
+        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult, crac, objectiveFunctionParameters);
 
         // Test get functional cost
         assertEquals(1000., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
@@ -909,7 +911,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testNoPostContingencyResultGetPerimeterResult() {
         // Test if only preventive RAO has been conducted
-        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult, crac);
+        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult, crac, objectiveFunctionParameters);
 
         State outageState = mock(State.class);
         when(outageState.getInstant()).thenReturn(outageInstant);
@@ -976,7 +978,7 @@ class PreventiveAndCurativesRaoResultImplTest {
             secondPreventivePerimeterResult,
             remedialActionsExcludedFromSecondPreventive,
             preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2), crac);
+            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2), crac, objectiveFunctionParameters);
 
         when(secondPreventivePerimeterResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
         when(secondPreventivePerimeterResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
@@ -1014,7 +1016,7 @@ class PreventiveAndCurativesRaoResultImplTest {
             remedialActionsExcludedFromSecondPreventive,
             preCurativeResult,
             Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2),
-            postSecondAraoResults, crac);
+            postSecondAraoResults, crac, objectiveFunctionParameters);
 
         when(postSecondAraoResults.getFunctionalCost()).thenReturn(123.);
         mockVirtualCosts(postSecondAraoResults, 456., 400., List.of(cnec2, cnec4), 56., List.of(cnec1, cnec4));

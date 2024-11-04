@@ -213,7 +213,8 @@ public class CastorSecondPreventive {
             secondPreventiveRaoResult.postPraSensitivityAnalysisOutput(),
             newPostContingencyResults,
             postCraSensitivityAnalysisOutput,
-            crac);
+            crac,
+            raoParameters.getObjectiveFunctionParameters());
     }
 
     private record SecondPreventiveRaoResult(OptimizationResult perimeterResult,
