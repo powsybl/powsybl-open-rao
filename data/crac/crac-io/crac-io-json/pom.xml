@@ -20,6 +20,11 @@
             <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${com.networknt.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -75,11 +80,6 @@
             <artifactId>powsybl-iidm-impl</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>  
-            <groupId>com.networknt</groupId>
-            <artifactId>json-schema-validator</artifactId>
-            <version>1.0.42</version>
-        </dependency>  
     </dependencies>
 
 
