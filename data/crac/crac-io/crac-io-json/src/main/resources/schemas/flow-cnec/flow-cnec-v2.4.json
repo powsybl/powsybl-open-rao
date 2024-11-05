@@ -49,19 +49,24 @@
       "type": "array",
       "items": {
         "type": "number"
-      }
+      },
+      "minItems": 1,
+      "maxItems": 2
     },
     "nominalV": {
       "type": "array",
       "items": {
         "type": "number"
-      }
+      },
+      "minItems": 1,
+      "maxItems": 2
     },
     "thresholds": {
       "type": "array",
       "items": {
         "$ref": "resource:/schemas/flow-threshold/flow-threshold-v2.4.json"
-      }
+      },
+      "minItems": 1
     }
   },
   "additionalProperties": false,
