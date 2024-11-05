@@ -52,7 +52,8 @@
       "type": "array",
       "items": {
         "$ref": "resource:/schemas/common/angle-threshold.json"
-      }
+      },
+      "minItems": 1
     }
   },
   "additionalProperties": false,

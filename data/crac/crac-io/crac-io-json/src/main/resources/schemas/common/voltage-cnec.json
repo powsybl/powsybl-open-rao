@@ -49,7 +49,8 @@
       "type": "array",
       "items": {
         "$ref": "resource:/schemas/common/voltage-threshold.json"
-      }
+      },
+      "minItems": 1
     }
   },
   "additionalProperties": false,
