@@ -17,11 +17,12 @@ import com.networknt.schema.ValidationMessage;
 import com.powsybl.openrao.commons.OpenRaoException;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -60,13 +61,13 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        try (Stream<Path> files = Files.walk(new File(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).getFile()).toPath())) {
+        try (Stream<Path> files = Files.walk(Paths.get((Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).toURI())))) {
             return files.filter(path -> !Files.isDirectory(path))
                 .map(Path::getFileName)
                 .map(Path::toString)
                 .sorted(JsonSchemaProvider::reverseCompareStrings)
                 .toList();
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             throw new OpenRaoException("Could not fetch JSON CRAC schema files. Reason: %s".formatted(e.getMessage()));
         }
     }
