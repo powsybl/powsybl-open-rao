@@ -12,7 +12,7 @@
     <parent>
         <artifactId>open-rao-result-exporter</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.1.1</version>
+        <version>6.1.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
