@@ -24,49 +24,49 @@
     "terminalsConnectionActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/terminals-connection-action.json"
+        "$ref": "resource:/schemas/terminals-connection-action/terminals-connection-action-v2.5.json"
       }
     },
     "phaseTapChangerTapPositionActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/phase-tap-changer-position-action.json"
+        "$ref": "resource:/schemas/phase-tap-changer-position-action/phase-tap-changer-position-action-v2.5.json"
       }
     },
     "generatorActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/generator-action.json"
+        "$ref": "resource:/schemas/generator-action/generator-action-v2.5.json"
       }
     },
     "loadActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/load-action.json"
+        "$ref": "resource:/schemas/load-action/load-action-v2.5.json"
       }
     },
     "danglingLineActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/dangling-line-action.json"
+        "$ref": "resource:/schemas/dangling-line-action/dangling-line-action-v2.5.json"
       }
     },
     "shuntCompensatorPositionActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/shunt-compensator-position-action.json"
+        "$ref": "resource:/schemas/shunt-compensator-position-action/shunt-compensator-position-action-v2.5.json"
       }
     },
     "switchActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/switch-action.json"
+        "$ref": "resource:/schemas/switch-action/switch-action-v2.5.json"
       }
     },
     "switchPairs": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/switch-pair.json"
+        "$ref": "resource:/schemas/switch-pair/switch-pair-v1.1.json"
       }
     },
     "onInstantUsageRules": {
@@ -84,7 +84,7 @@
     "onConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/on-constraint-usage-rule.json"
+        "$ref": "resource:/schemas/on-constraint-usage-rule/on-constraint-usage-rule-v2.4.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {

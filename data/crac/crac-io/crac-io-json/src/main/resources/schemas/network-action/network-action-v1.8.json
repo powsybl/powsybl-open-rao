@@ -30,19 +30,19 @@
     "pstSetpoints": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/pst-setpoint.json"
+        "$ref": "resource:/schemas/pst-setpoint/pst-setpoint-v1.0.json"
       }
     },
     "topologicalActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/topological-action.json"
+        "$ref": "resource:/schemas/topological-action/topological-action-v1.0.json"
       }
     },
     "switchPairs": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/switch-pair.json"
+        "$ref": "resource:/schemas/switch-pair/switch-pair-v1.1.json"
       }
     },
     "onInstantUsageRules": {

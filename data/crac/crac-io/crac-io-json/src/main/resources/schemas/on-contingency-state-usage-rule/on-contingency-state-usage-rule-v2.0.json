@@ -10,7 +10,7 @@
       "type": "string"
     },
     "usageMethod": {
-      "$ref": "resource:/schemas/common/usage-method.json"
+      "$ref": "resource:/schemas/usage-method/usage-method-v1.0.json"
     }
   },
   "additionalProperties": false,

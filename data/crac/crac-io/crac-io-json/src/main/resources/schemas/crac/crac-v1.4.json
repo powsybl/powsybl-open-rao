@@ -29,7 +29,7 @@
     "contingencies": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/contingency.json"
+        "$ref": "resource:/schemas/contingency/contingency-v1.0.json"
       }
     },
     "flowCnecs": {
@@ -44,7 +44,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/common/angle-cnec.json"
+          "$ref": "resource:/schemas/angle-cnec/angle-cnec-v1.4.json"
         }
       }
     },

@@ -75,7 +75,7 @@
     "onConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/on-constraint-usage-rule.json"
+        "$ref": "resource:/schemas/on-constraint-usage-rule/on-constraint-usage-rule-v2.4.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {

@@ -1,9 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=action-type.json",
-  "enum": [
-    "close",
-    "open"
-  ],
-  "additionalProperties": false
-}

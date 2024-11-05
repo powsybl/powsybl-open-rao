@@ -28,10 +28,10 @@
       "type": "number"
     },
     "exportingCountry": {
-      "$ref": "resource:/schemas/common/country.json"
+      "$ref": "resource:/schemas/country/country-v1.3.json"
     },
     "importingCountry": {
-      "$ref": "resource:/schemas/common/country.json"
+      "$ref": "resource:/schemas/country/country-v1.3.json"
     },
     "initialSetpoint": {
       "type": "number"

@@ -23,13 +23,13 @@
     "instants": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/instant.json"
+        "$ref": "resource:/schemas/instant/instant-v2.0.json"
       }
     },
     "ra-usage-limits-per-instant": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/ra-usage-limits-per-instant.json"
+        "$ref": "resource:/schemas/ra-usage-limits-per-instant/ra-usage-limits-per-instant-v2.1.json"
       }
     },
     "networkElementsNamePerId": {
@@ -41,7 +41,7 @@
     "contingencies": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/contingency.json"
+        "$ref": "resource:/schemas/contingency/contingency-v1.0.json"
       }
     },
     "flowCnecs": {
@@ -56,7 +56,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/common/angle-cnec.json"
+          "$ref": "resource:/schemas/angle-cnec/angle-cnec-v1.4.json"
         }
       }
     },
@@ -64,7 +64,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/common/voltage-cnec.json"
+          "$ref": "resource:/schemas/voltage-cnec/voltage-cnec-v1.5.json"
         }
       }
     },

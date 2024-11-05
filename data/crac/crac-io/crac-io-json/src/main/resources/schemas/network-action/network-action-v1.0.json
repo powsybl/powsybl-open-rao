@@ -31,25 +31,25 @@
     "pstSetpoints": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/pst-setpoint.json"
+        "$ref": "resource:/schemas/pst-setpoint/pst-setpoint-v1.0.json"
       }
     },
     "topologicalActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/topological-action.json"
+        "$ref": "resource:/schemas/topological-action/topological-action-v1.0.json"
       }
     },
     "freeToUseUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/free-to-use-usage-rule.json"
+        "$ref": "resource:/schemas/free-to-use-usage-rule/free-to-use-usage-rule-v1.0.json"
       }
     },
     "onStateUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/on-state-usage-rule.json"
+        "$ref": "resource:/schemas/on-state-usage-rule/on-state-usage-rule-v1.0.json"
       }
     },
     "onFlowConstraintUsageRules": {

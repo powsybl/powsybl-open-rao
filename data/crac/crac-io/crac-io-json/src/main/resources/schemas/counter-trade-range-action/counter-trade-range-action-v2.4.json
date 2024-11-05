@@ -28,10 +28,10 @@
       "type": "number"
     },
     "exportingCountry": {
-      "$ref": "resource:/schemas/common/country.json"
+      "$ref": "resource:/schemas/country/country-v1.3.json"
     },
     "importingCountry": {
-      "$ref": "resource:/schemas/common/country.json"
+      "$ref": "resource:/schemas/country/country-v1.3.json"
     },
     "initialSetpoint": {
       "type": "number"
@@ -66,7 +66,7 @@
     "onConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/on-constraint-usage-rule.json"
+        "$ref": "resource:/schemas/on-constraint-usage-rule/on-constraint-usage-rule-v2.4.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {

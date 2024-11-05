@@ -29,7 +29,7 @@
     "contingencies": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/common/contingency.json"
+        "$ref": "resource:/schemas/contingency/contingency-v1.0.json"
       }
     },
     "flowCnecs": {

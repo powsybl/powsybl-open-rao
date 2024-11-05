@@ -13,10 +13,10 @@
       ]
     },
     "country": {
-      "$ref": "resource:/schemas/common/country.json"
+      "$ref": "resource:/schemas/country/country-v1.3.json"
     },
     "usageMethod": {
-      "$ref": "resource:/schemas/common/usage-method.json"
+      "$ref": "resource:/schemas/usage-method/usage-method-v1.0.json"
     }
   },
   "additionalProperties": false,
