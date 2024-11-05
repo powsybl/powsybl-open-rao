@@ -52,8 +52,6 @@ public final class JsonSerializationConstants {
     v2.5: elementary actions have new type coming from core remedial actions
      */
 
-    public static final Map<Integer, Integer> MAX_MINOR_VERSION_PER_MAJOR_VERSION = Map.of(1, 9, 2, 5);
-
     // headers
     public static final String TYPE = "type";
     public static final String VERSION = "version";

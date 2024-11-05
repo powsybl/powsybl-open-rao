@@ -529,8 +529,7 @@ class CracImportExportTest {
         assertFalse(new JsonImport().exists("cracWithErrors.json", CracImportExportTest.class.getResourceAsStream("/cracWithErrors.json")));
 
         List<ILoggingEvent> logsList = listAppender.list;
-        assertEquals(1, logsList.size());
-        assertEquals("JSON file is not a valid CRAC v2.5. Reasons: $.instants[3].kind: does not have a value in the enumeration [PREVENTIVE, OUTAGE, AUTO, CURATIVE]; $.contingencies[2].networkElementsIds: is missing but it is required; $.contingencies[1].networkElementsIds[0]: integer found, string expected; $.contingencies[1].networkElementsIds[1]: integer found, string expected", logsList.get(0).getFormattedMessage());
+        assertEquals(16, logsList.size()); // one message per CRAC version
     }
 
     @Test
@@ -540,8 +539,7 @@ class CracImportExportTest {
         assertFalse(new JsonImport().exists("invalidCrac.json", CracImportExportTest.class.getResourceAsStream("/invalidCrac.json")));
 
         List<ILoggingEvent> logsList = listAppender.list;
-        assertEquals(1, logsList.size());
-        assertEquals("JSON file is not a valid CRAC. Reason: version is either missing or not a valid JSON CRAC version.", logsList.get(0).getFormattedMessage());
+        assertEquals(16, logsList.size()); // one message per CRAC version
     }
 
     @Test
@@ -551,8 +549,7 @@ class CracImportExportTest {
         assertFalse(new JsonImport().exists("cracWithInvalidVersion.json", CracImportExportTest.class.getResourceAsStream("/cracWithInvalidVersion.json")));
 
         List<ILoggingEvent> logsList = listAppender.list;
-        assertEquals(1, logsList.size());
-        assertEquals("JSON file is not a valid CRAC. Reason: version is either missing or not a valid JSON CRAC version.", logsList.get(0).getFormattedMessage());
+        assertEquals(16, logsList.size()); // one message per CRAC version
     }
 
     private static ListAppender<ILoggingEvent> initLogger() {

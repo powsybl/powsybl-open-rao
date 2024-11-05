@@ -11,16 +11,22 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
-import com.powsybl.openrao.commons.OpenRaoException;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -29,36 +35,44 @@ public final class JsonSchemaProvider {
     private JsonSchemaProvider() {
     }
 
-    private static final String SCHEMA_FILE_BASE_PATH = "/schemas/crac/crac-v%s.%s.json";
-    private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+    private static final String SCHEMAS_DIRECTORY = "/schemas/crac/";
+    private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+    private static final SchemaValidatorsConfig CONFIG = SchemaValidatorsConfig.builder().locale(Locale.UK).build();
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
 
-    public static Pair<Integer, Integer> getCracVersion(InputStream inputStream) throws IOException {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inputStream.readAllBytes());
-        for (int majorVersion : JsonSerializationConstants.MAX_MINOR_VERSION_PER_MAJOR_VERSION.keySet()) {
-            for (int minorVersion = 0; minorVersion <= JsonSerializationConstants.MAX_MINOR_VERSION_PER_MAJOR_VERSION.get(majorVersion); minorVersion++) {
-                if (validateJsonCrac(byteArrayInputStream, majorVersion, minorVersion)) {
-                    return Pair.of(majorVersion, minorVersion);
-                }
-                byteArrayInputStream.reset();
-            }
+    public static boolean validateJsonCrac(JsonSchema schema, InputStream cracInputStream) throws IOException {
+        return getValidationErrors(schema, cracInputStream).isEmpty();
+    }
+
+    public static List<String> getValidationErrors(JsonSchema schema, InputStream cracInputStream) throws IOException {
+        return schema.validate(MAPPER.readTree(cracInputStream)).stream().map(ValidationMessage::getMessage).toList();
+    }
+
+    public static JsonSchema getSchema(String schemaName) {
+        return SCHEMA_FACTORY.getSchema(JsonSchemaProvider.class.getResourceAsStream(SCHEMAS_DIRECTORY + schemaName), CONFIG);
+    }
+
+    public static Pair<Integer, Integer> getCracVersionFromSchema(String schemaName) {
+        Pattern pattern = Pattern.compile("^crac-v([1-9]\\d*)\\.(\\d+)\\.json$");
+        Matcher matcher = pattern.matcher(schemaName);
+        return matcher.matches() ? Pair.of(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))) : null;
+    }
+
+    public static List<String> getAllSchemaFiles() {
+        Path dirPath;
+        try {
+            dirPath = Paths.get(ClassLoader.getSystemResource("." + SCHEMAS_DIRECTORY).toURI());
+        } catch (URISyntaxException e) {
+            return List.of();
         }
-        return null;
-    }
-
-    public static boolean validateJsonCrac(InputStream cracInputStream, int majorVersion, int minorVersion) throws IOException {
-        return getValidationErrors(cracInputStream, majorVersion, minorVersion).isEmpty();
-    }
-
-    public static Set<String> getValidationErrors(InputStream cracInputStream, int majorVersion, int minorVersion) throws IOException {
-        return getJsonCracSchema(majorVersion, minorVersion).validate(MAPPER.readTree(cracInputStream)).stream().map(ValidationMessage::getMessage).collect(Collectors.toSet());
-    }
-
-    public static JsonSchema getJsonCracSchema(int majorVersion, int minorVersion) {
-        InputStream schemaInputStream = JsonSchemaProvider.class.getResourceAsStream(SCHEMA_FILE_BASE_PATH.formatted(majorVersion, minorVersion));
-        if (schemaInputStream == null) {
-            throw new OpenRaoException("No JSON Schema found for CRAC v%s.%s.".formatted(majorVersion, minorVersion));
+        try (Stream<Path> files = Files.list(dirPath)) {
+            return files.map(Path::getFileName).map(Path::toString).sorted(JsonSchemaProvider::reverseCompareStrings).toList();
+        } catch (IOException e) {
+            return List.of();
         }
-        return SCHEMA_FACTORY.getSchema(schemaInputStream);
+    }
+
+    private static int reverseCompareStrings(String s1, String s2) {
+        return s2.compareTo(s1);
     }
 }
