@@ -17,6 +17,7 @@ import com.networknt.schema.ValidationMessage;
 import com.powsybl.openrao.commons.OpenRaoException;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -59,7 +60,7 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        try (Stream<Path> files = Files.walk(Path.of(Objects.requireNonNull(JsonSchemaProvider.class.getClassLoader().getResource("." + SCHEMAS_DIRECTORY)).getFile()))) {
+        try (Stream<Path> files = Files.walk(new File(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).getFile()).toPath())) {
             return files.filter(path -> !Files.isDirectory(path))
                 .map(Path::getFileName)
                 .map(Path::toString)
