@@ -21,9 +21,9 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -59,15 +59,9 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        Path dirPath;
-        try {
-            dirPath = Paths.get(ClassLoader.getSystemResource("." + SCHEMAS_DIRECTORY).toURI());
-        } catch (URISyntaxException e) {
-            return List.of();
-        }
-        try (Stream<Path> files = Files.list(dirPath)) {
+        try (Stream<Path> files = Files.list(Path.of(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).toURI()))) {
             return files.map(Path::getFileName).map(Path::toString).sorted(JsonSchemaProvider::reverseCompareStrings).toList();
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             return List.of();
         }
     }
