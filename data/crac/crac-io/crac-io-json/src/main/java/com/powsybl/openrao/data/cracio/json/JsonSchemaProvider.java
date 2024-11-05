@@ -16,9 +16,10 @@ import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -57,11 +58,15 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        return Stream.of(Objects.requireNonNull(new File(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).getFile()).listFiles()))
-            .filter(file -> !file.isDirectory())
-            .map(File::getName)
-            .sorted(JsonSchemaProvider::reverseCompareStrings)
-            .toList();
+        try (Stream<Path> files = Files.walk(Path.of(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).getFile()))) {
+            return files.filter(path -> !Files.isDirectory(path))
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .sorted(JsonSchemaProvider::reverseCompareStrings)
+                .toList();
+        } catch (IOException e) {
+            return List.of();
+        }
     }
 
     private static int reverseCompareStrings(String s1, String s2) {
