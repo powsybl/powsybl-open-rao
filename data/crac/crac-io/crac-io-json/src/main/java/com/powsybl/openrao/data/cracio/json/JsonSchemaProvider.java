@@ -37,7 +37,7 @@ public final class JsonSchemaProvider {
     private JsonSchemaProvider() {
     }
 
-    private static final String SCHEMAS_DIRECTORY = "/schemas/crac";
+    private static final String SCHEMAS_DIRECTORY = "schemas/crac";
     private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
     private static final SchemaValidatorsConfig CONFIG = SchemaValidatorsConfig.builder().locale(Locale.UK).build();
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
@@ -51,7 +51,7 @@ public final class JsonSchemaProvider {
     }
 
     public static JsonSchema getSchema(String schemaName) {
-        return SCHEMA_FACTORY.getSchema(JsonSchemaProvider.class.getResourceAsStream(SCHEMAS_DIRECTORY + "/" + schemaName), CONFIG);
+        return SCHEMA_FACTORY.getSchema(JsonSchemaProvider.class.getResourceAsStream("/%s/%s".formatted(SCHEMAS_DIRECTORY, schemaName)), CONFIG);
     }
 
     public static Pair<Integer, Integer> getCracVersionFromSchema(String schemaName) {
@@ -61,7 +61,7 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        try (Stream<Path> files = Files.walk(Paths.get(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).toURI()))) {
+        try (Stream<Path> files = Files.walk(Paths.get(Objects.requireNonNull(JsonSchemaProvider.class.getClassLoader().getResource(SCHEMAS_DIRECTORY)).toURI()))) {
             return files.filter(path -> !Files.isDirectory(path))
                 .map(Path::getFileName)
                 .map(Path::toString)
