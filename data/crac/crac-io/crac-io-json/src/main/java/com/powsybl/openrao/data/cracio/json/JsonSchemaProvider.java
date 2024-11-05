@@ -18,7 +18,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -59,9 +58,9 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        try (Stream<Path> files = Files.list(Path.of(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).toURI()))) {
+        try (Stream<Path> files = Files.list(Path.of(Objects.requireNonNull(Objects.requireNonNull(JsonSchemaProvider.class.getClassLoader().getResource("." + SCHEMAS_DIRECTORY)).getFile())))) {
             return files.map(Path::getFileName).map(Path::toString).sorted(JsonSchemaProvider::reverseCompareStrings).toList();
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException e) {
             return List.of();
         }
     }
