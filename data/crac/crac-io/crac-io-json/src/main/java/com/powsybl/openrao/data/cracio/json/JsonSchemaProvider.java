@@ -14,6 +14,7 @@ import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import com.powsybl.openrao.commons.OpenRaoException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
@@ -65,7 +66,7 @@ public final class JsonSchemaProvider {
                 .sorted(JsonSchemaProvider::reverseCompareStrings)
                 .toList();
         } catch (IOException e) {
-            return List.of();
+            throw new OpenRaoException("Could not fetch JSON CRAC schema files. Reason: %s".formatted(e.getMessage()));
         }
     }
 
