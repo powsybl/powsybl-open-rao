@@ -58,7 +58,7 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        try (Stream<Path> files = Files.list(Path.of(Objects.requireNonNull(Objects.requireNonNull(JsonSchemaProvider.class.getClassLoader().getResource("." + SCHEMAS_DIRECTORY)).getFile())))) {
+        try (Stream<Path> files = Files.list(Path.of(Objects.requireNonNull(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).getFile())))) {
             return files.map(Path::getFileName).map(Path::toString).sorted(JsonSchemaProvider::reverseCompareStrings).toList();
         } catch (IOException e) {
             return List.of();
