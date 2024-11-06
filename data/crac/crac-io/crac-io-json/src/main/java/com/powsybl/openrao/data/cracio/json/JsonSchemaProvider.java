@@ -23,9 +23,12 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -37,7 +40,7 @@ public final class JsonSchemaProvider {
     private JsonSchemaProvider() {
     }
 
-    private static final String SCHEMAS_DIRECTORY = "schemas/crac";
+    private static final String SCHEMAS_DIRECTORY = "schemas/crac/";
     private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
     private static final SchemaValidatorsConfig CONFIG = SchemaValidatorsConfig.builder().locale(Locale.UK).build();
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
@@ -51,7 +54,7 @@ public final class JsonSchemaProvider {
     }
 
     public static JsonSchema getSchema(String schemaName) {
-        return SCHEMA_FACTORY.getSchema(JsonSchemaProvider.class.getResourceAsStream("/%s/%s".formatted(SCHEMAS_DIRECTORY, schemaName)), CONFIG);
+        return SCHEMA_FACTORY.getSchema(JsonSchemaProvider.class.getResourceAsStream("/%s%s".formatted(SCHEMAS_DIRECTORY, schemaName)), CONFIG);
     }
 
     public static Pair<Integer, Integer> getCracVersionFromSchema(String schemaName) {
@@ -61,20 +64,55 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        Path schemasPath;
-        try {
-            schemasPath = Paths.get(Objects.requireNonNull(JsonSchemaProvider.class.getClassLoader().getResource(SCHEMAS_DIRECTORY)).toURI());
-        } catch (URISyntaxException e) {
-            throw new OpenRaoException("Could not fetch JSON CRAC schema files. Reason: %s".formatted(e.getMessage()));
+        InputStream resourceStream = getSchemaDirectoryInputStream();
+        if (resourceStream == null) {
+            throw new OpenRaoException("Resource directory not found: " + SCHEMAS_DIRECTORY);
         }
-        try (Stream<Path> files = Files.walk(schemasPath)) {
-            return files.filter(path -> !Files.isDirectory(path))
+
+        List<String> filesFromJar = getFilesFromJar();
+        if (filesFromJar.isEmpty()) {
+            List<String> filesFromResources = getFilesFromResources();
+            if (filesFromResources.isEmpty()) {
+                throw new OpenRaoException("Could not fetch JSON CRAC schema files.");
+            }
+            return filesFromResources;
+        }
+        return filesFromJar;
+    }
+
+    private static InputStream getSchemaDirectoryInputStream() {
+        try (InputStream resourceStream = JsonSchemaProvider.class.getClassLoader().getResourceAsStream(SCHEMAS_DIRECTORY)) {
+            return resourceStream;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private static List<String> getFilesFromJar() {
+        List<String> fileNames = new ArrayList<>();
+        try (JarInputStream jarStream = new JarInputStream(JsonSchemaProvider.class.getProtectionDomain().getCodeSource().getLocation().openStream())) {
+            JarEntry entry;
+            while ((entry = jarStream.getNextJarEntry()) != null) {
+                String entryName = entry.getName();
+                if (entryName.startsWith(SCHEMAS_DIRECTORY) && !entryName.equals(SCHEMAS_DIRECTORY)) {
+                    fileNames.add(entryName.replace(SCHEMAS_DIRECTORY, ""));
+                }
+            }
+            return fileNames.stream().sorted(JsonSchemaProvider::reverseCompareStrings).toList();
+        } catch (IOException e) {
+            return List.of();
+        }
+    }
+
+    private static List<String> getFilesFromResources() {
+        try (Stream<Path> paths = Files.walk(Paths.get(Objects.requireNonNull(JsonSchemaProvider.class.getClassLoader().getResource(SCHEMAS_DIRECTORY)).toURI()))) {
+            return paths.filter(Files::isRegularFile)
                 .map(Path::getFileName)
                 .map(Path::toString)
                 .sorted(JsonSchemaProvider::reverseCompareStrings)
                 .toList();
-        } catch (IOException e) {
-            throw new OpenRaoException("Could not fetch JSON CRAC schema files. Reason: %s".formatted(e.getMessage()));
+        } catch (IOException | URISyntaxException e) {
+            return List.of();
         }
     }
 
