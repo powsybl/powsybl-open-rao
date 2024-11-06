@@ -41,10 +41,10 @@ public class LoadActionAdderImpl extends AbstractSingleNetworkElementActionAdder
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull(activePowerValue, getActionName(), "activePowerValue", "withActivePowerValue()");
+        assertAttributeNotNull(activePowerValue, getActionTypeName(), "activePowerValue", "withActivePowerValue()");
     }
 
-    protected String getActionName() {
+    protected String getActionTypeName() {
         return "LoadAction";
     }
 }

@@ -44,7 +44,7 @@ public abstract class AbstractSingleNetworkElementActionAdderImpl<I> {
     }
 
     public NetworkActionAdder add() {
-        assertAttributeNotNull(networkElementId, getActionName(), "network element", "withNetworkElement()");
+        assertAttributeNotNull(networkElementId, getActionTypeName(), "network element", "withNetworkElement()");
         assertSpecificAttributes();
         NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
         ownerAdder.addElementaryAction(buildAction(), networkElement);
@@ -55,9 +55,9 @@ public abstract class AbstractSingleNetworkElementActionAdderImpl<I> {
 
     protected abstract void assertSpecificAttributes();
 
-    protected abstract String getActionName();
+    protected abstract String getActionTypeName();
 
     protected String createActionName(Object specificAttribute) {
-        return id == null ? String.format("%s_%s_%s", getActionName(), networkElementId, specificAttribute) : id;
+        return id == null ? String.format("%s_%s_%s", getActionTypeName(), networkElementId, specificAttribute) : id;
     }
 }

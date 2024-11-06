@@ -41,13 +41,13 @@ public class ShuntCompensatorPositionActionAdderImpl extends AbstractSingleNetwo
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull(sectionCount, getActionName(), "sectionCount", "withSectionCount()");
+        assertAttributeNotNull(sectionCount, getActionTypeName(), "sectionCount", "withSectionCount()");
         if (sectionCount < 0) {
             throw new OpenRaoException("Section count should be a positive integer");
         }
     }
 
-    protected String getActionName() {
+    protected String getActionTypeName() {
         return "ShuntCompensatorPositionAction";
     }
 }

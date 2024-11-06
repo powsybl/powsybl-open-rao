@@ -40,10 +40,10 @@ public class TerminalsConnectionActionAdderImpl extends AbstractSingleNetworkEle
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull(actionType, getActionName(), "actionType", "withActionType()");
+        assertAttributeNotNull(actionType, getActionTypeName(), "actionType", "withActionType()");
     }
 
-    protected String getActionName() {
+    protected String getActionTypeName() {
         return "TerminalsConnectionAction";
     }
 }

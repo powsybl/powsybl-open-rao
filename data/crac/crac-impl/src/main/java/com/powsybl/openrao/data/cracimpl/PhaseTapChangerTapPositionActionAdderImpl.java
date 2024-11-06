@@ -41,10 +41,10 @@ public class PhaseTapChangerTapPositionActionAdderImpl extends AbstractSingleNet
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull(tapPosition, getActionName(), "tapPosition", "withTapPosition()");
+        assertAttributeNotNull(tapPosition, getActionTypeName(), "tapPosition", "withTapPosition()");
     }
 
-    protected String getActionName() {
+    protected String getActionTypeName() {
         return "PhaseTapChangerTapPositionAction";
     }
 }
