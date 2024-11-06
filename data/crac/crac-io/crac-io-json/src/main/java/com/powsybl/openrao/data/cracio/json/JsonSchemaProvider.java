@@ -64,11 +64,6 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        InputStream resourceStream = getSchemaDirectoryInputStream();
-        if (resourceStream == null) {
-            throw new OpenRaoException("Resource directory not found: " + SCHEMAS_DIRECTORY);
-        }
-
         List<String> filesFromJar = getFilesFromJar();
         if (filesFromJar.isEmpty()) {
             List<String> filesFromResources = getFilesFromResources();
@@ -78,14 +73,6 @@ public final class JsonSchemaProvider {
             return filesFromResources;
         }
         return filesFromJar;
-    }
-
-    private static InputStream getSchemaDirectoryInputStream() {
-        try (InputStream resourceStream = JsonSchemaProvider.class.getClassLoader().getResourceAsStream(SCHEMAS_DIRECTORY)) {
-            return resourceStream;
-        } catch (IOException e) {
-            return null;
-        }
     }
 
     private static List<String> getFilesFromJar() {
