@@ -33,7 +33,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     private final PrePerimeterResult initialResult;
     private final OptimizationResult postOptimizationResult;
     private final Set<FlowCnec> optimizedFlowCnecs;
-    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
+    private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public OneStateOnlyRaoResultImpl(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
         this.optimizedState = optimizedState;
@@ -269,12 +269,8 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
-            this.optimizationStepsExecuted = optimizationStepsExecuted;
-        } else {
-            throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
-        }
+    public void setExecutionDetails(String executionDetails) {
+        this.executionDetails = executionDetails;
     }
 
     @Override
@@ -283,7 +279,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
+    public String getExecutionDetails() {
+        return executionDetails;
     }
 }

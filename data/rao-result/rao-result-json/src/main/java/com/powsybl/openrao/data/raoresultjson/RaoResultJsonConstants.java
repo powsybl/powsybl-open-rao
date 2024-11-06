@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -120,6 +119,7 @@ public final class RaoResultJsonConstants {
 
     // optimized steps executed by the RAO
     public static final String OPTIMIZATION_STEPS_EXECUTED = "optimizationStepsExecuted";
+    public static final String EXECUTION_DETAILS = "executionDetails";
     public static final String FIRST_PREVENTIVE_ONLY = "The RAO only went through first preventive";
     public static final String FIRST_PREVENTIVE_FELLBACK = "First preventive fellback to initial situation";
     public static final String SECOND_PREVENTIVE_IMPROVED_FIRST = "Second preventive improved first preventive results";
@@ -243,40 +243,6 @@ public final class RaoResultJsonConstants {
             case FAILURE_STATUS -> ComputationStatus.FAILURE;
             default -> throw new OpenRaoException(String.format("Unrecognized computation status %s", stringValue));
         };
-    }
-
-    public static String serializeOptimizedStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        switch (optimizationStepsExecuted) {
-            case FIRST_PREVENTIVE_ONLY:
-                return FIRST_PREVENTIVE_ONLY;
-            case FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
-                return FIRST_PREVENTIVE_FELLBACK;
-            case SECOND_PREVENTIVE_IMPROVED_FIRST:
-                return SECOND_PREVENTIVE_IMPROVED_FIRST;
-            case SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION:
-                return SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION;
-            case SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
-                return SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
-            default:
-                throw new OpenRaoException(String.format("Unsupported optimization steps executed %s", optimizationStepsExecuted));
-        }
-    }
-
-    public static OptimizationStepsExecuted deserializeOptimizedStepsExecuted(String stringValue) {
-        switch (stringValue) {
-            case FIRST_PREVENTIVE_ONLY:
-                return OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
-            case FIRST_PREVENTIVE_FELLBACK:
-                return OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
-            case SECOND_PREVENTIVE_IMPROVED_FIRST:
-                return OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST;
-            case SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION:
-                return OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION;
-            case SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
-                return OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
-            default:
-                throw new OpenRaoException(String.format("Unrecognized optimization steps executed %s", stringValue));
-        }
     }
 
     // state comparator

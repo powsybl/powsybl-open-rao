@@ -40,8 +40,8 @@ public class RaoResultImpl implements RaoResult {
 
     private final Crac crac;
 
-    private ComputationStatus sensitivityStatus;
-    private final Map<State, ComputationStatus> sensitivityStatusPerState = new HashMap<>();
+    private ComputationStatus computationStatus;
+    private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private final Map<AngleCnec, AngleCnecResult> angleCnecResults = new HashMap<>();
     private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
@@ -49,28 +49,28 @@ public class RaoResultImpl implements RaoResult {
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<String, CostResult> costResults = new HashMap<>();
 
-    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
+    private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public RaoResultImpl(Crac crac) {
         this.crac = crac;
     }
 
     public void setComputationStatus(ComputationStatus computationStatus) {
-        this.sensitivityStatus = computationStatus;
+        this.computationStatus = computationStatus;
     }
 
     public void setComputationStatus(State state, ComputationStatus computationStatus) {
-        this.sensitivityStatusPerState.put(state, computationStatus);
+        this.computationStatusPerState.put(state, computationStatus);
     }
 
     @Override
     public ComputationStatus getComputationStatus() {
-        return sensitivityStatus;
+        return computationStatus;
     }
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        return sensitivityStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
+        return computationStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
     }
 
     private Instant checkOptimizedInstant(Instant optimizedInstant, FlowCnec flowCnec) {
@@ -322,12 +322,8 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        if (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY)) {
-            this.optimizationStepsExecuted = optimizationStepsExecuted;
-        } else {
-            throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
-        }
+    public void setExecutionDetails(String executionDetails) {
+        this.executionDetails = executionDetails;
     }
 
     private boolean instantHasNoNegativeMargin(Instant optimizedInstant, PhysicalParameter... u) {
@@ -374,8 +370,8 @@ public class RaoResultImpl implements RaoResult {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
-        if (sensitivityStatusPerState.keySet().stream().filter(state -> optimizedInstant.equals(state.getInstant()))
-                .anyMatch(state -> ComputationStatus.FAILURE.equals(sensitivityStatusPerState.get(state)))) {
+        if (computationStatusPerState.keySet().stream().filter(state -> optimizedInstant.equals(state.getInstant()))
+                .anyMatch(state -> ComputationStatus.FAILURE.equals(computationStatusPerState.get(state)))) {
             return false;
         }
         return instantHasNoNegativeMargin(optimizedInstant, u);
@@ -387,7 +383,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
+    public String getExecutionDetails() {
+        return executionDetails;
     }
 }
