@@ -18,7 +18,6 @@ import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.getAllSche
 import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.getCracVersionFromSchema;
 import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.getSchema;
 import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.getValidationErrors;
-import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.validateJsonCrac;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -65,82 +64,82 @@ class JsonSchemaProviderTest {
 
     @Test
     void validateCrac1Point0() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.0.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.0.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.0.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.0.json")).isEmpty());
     }
 
     @Test
     void validateCrac1Point1() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.1.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.1.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.1.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.1.json")).isEmpty());
     }
 
     @Test
     void validateCrac1Point2() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.2.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.2.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.2.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.2.json")).isEmpty());
     }
 
     @Test
     void validateCrac1Point3() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.3.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.3.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.3.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.3.json")).isEmpty());
     }
 
     @Test
     void validateCrac1Point4() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.4.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.4.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.4.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.4.json")).isEmpty());
     }
 
     @Test
     void validateCrac1Point5() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.5.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.5.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.5.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.5.json")).isEmpty());
     }
 
     @Test
     void validateCrac1Point6() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.6.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.6.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.6.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.6.json")).isEmpty());
     }
 
     @Test
     void validateCrac1Point7() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.7.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.7.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.7.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.7.json")).isEmpty());
     }
 
     @Test
     void validateCrac1Point8() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.8.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.8.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.8.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.8.json")).isEmpty());
     }
 
     @Test
     void validateCrac1Point9() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v1.9.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.9.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v1.9.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v1/crac-v1.9.json")).isEmpty());
     }
 
     @Test
     void validateCrac2Point0() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v2.0.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.0.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v2.0.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.0.json")).isEmpty());
     }
 
     @Test
     void validateCrac2Point1() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v2.1.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.1.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v2.1.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.1.json")).isEmpty());
     }
 
     @Test
     void validateCrac2Point2() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v2.2.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v2.2.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json")).isEmpty());
     }
 
     @Test
     void validateCrac2Point3() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v2.3.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.3.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v2.3.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.3.json")).isEmpty());
     }
 
     @Test
     void validateCrac2Point4() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v2.4.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v2.4.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.4.json")).isEmpty());
     }
 
     @Test
     void validateCrac2Point5() throws IOException {
-        assertTrue(validateJsonCrac(getSchema("crac-v2.5.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json")));
+        assertTrue(getValidationErrors(getSchema("crac-v2.5.json"), JsonSchemaProviderTest.class.getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json")).isEmpty());
     }
 
     @Test

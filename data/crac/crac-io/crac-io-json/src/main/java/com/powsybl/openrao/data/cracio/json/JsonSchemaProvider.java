@@ -44,10 +44,6 @@ public final class JsonSchemaProvider {
     private static final SchemaValidatorsConfig CONFIG = SchemaValidatorsConfig.builder().locale(Locale.UK).build();
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
 
-    public static boolean validateJsonCrac(JsonSchema schema, InputStream cracInputStream) throws IOException {
-        return getValidationErrors(schema, cracInputStream).isEmpty();
-    }
-
     public static List<String> getValidationErrors(JsonSchema schema, InputStream cracInputStream) throws IOException {
         return schema.validate(MAPPER.readTree(cracInputStream)).stream().map(ValidationMessage::getMessage).toList();
     }

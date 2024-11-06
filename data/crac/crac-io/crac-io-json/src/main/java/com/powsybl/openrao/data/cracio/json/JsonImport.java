@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.cracio.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
-import com.networknt.schema.JsonSchema;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
@@ -53,18 +52,16 @@ public class JsonImport implements Importer {
             Map<Pair<Integer, Integer>, List<String>> validationErrorsPerVersion = new HashMap<>();
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inputStream.readAllBytes());
             for (String schemaFile : JsonSchemaProvider.getAllSchemaFiles()) {
-                Pair<Integer, Integer> schemaVersion = JsonSchemaProvider.getCracVersionFromSchema(schemaFile);
-                JsonSchema schema = JsonSchemaProvider.getSchema(schemaFile);
-                List<String> validationErrors = JsonSchemaProvider.getValidationErrors(schema, byteArrayInputStream);
+                List<String> validationErrors = JsonSchemaProvider.getValidationErrors(JsonSchemaProvider.getSchema(schemaFile), byteArrayInputStream);
                 if (validationErrors.isEmpty()) {
                     return true;
                 }
-                validationErrorsPerVersion.put(schemaVersion, new ArrayList<>(validationErrors));
+                validationErrorsPerVersion.put(JsonSchemaProvider.getCracVersionFromSchema(schemaFile), new ArrayList<>(validationErrors));
                 byteArrayInputStream.reset();
             }
             validationErrorsPerVersion.forEach((version, validationErrors) -> TECHNICAL_LOGS.debug("JSON file is not a valid CRAC v{}.{}. Reasons: {}", version.getLeft(), version.getRight(), String.join("; ", validationErrors)));
             return false;
-        } catch (OpenRaoException | IOException e) {
+        } catch (IOException e) {
             TECHNICAL_LOGS.debug("JSON file could not be processed as CRAC. Reason: {}", e.getMessage());
             return false;
         }
