@@ -14,7 +14,6 @@ import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
-import com.powsybl.openrao.commons.OpenRaoException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
@@ -65,14 +64,7 @@ public final class JsonSchemaProvider {
 
     public static List<String> getAllSchemaFiles() {
         List<String> filesFromJar = getFilesFromJar();
-        if (filesFromJar.isEmpty()) {
-            List<String> filesFromResources = getFilesFromResources();
-            if (filesFromResources.isEmpty()) {
-                throw new OpenRaoException("Could not fetch JSON CRAC schema files.");
-            }
-            return filesFromResources;
-        }
-        return filesFromJar;
+        return filesFromJar.isEmpty() ? getFilesFromResources() : filesFromJar;
     }
 
     private static List<String> getFilesFromJar() {

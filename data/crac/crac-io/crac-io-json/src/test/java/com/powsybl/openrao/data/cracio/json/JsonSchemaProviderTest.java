@@ -20,6 +20,7 @@ import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.getSchema;
 import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.getValidationErrors;
 import static com.powsybl.openrao.data.cracio.json.JsonSchemaProvider.validateJsonCrac;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -160,5 +161,6 @@ class JsonSchemaProviderTest {
         assertEquals(Pair.of(2, 3), getCracVersionFromSchema("crac-v2.3.json"));
         assertEquals(Pair.of(2, 4), getCracVersionFromSchema("crac-v2.4.json"));
         assertEquals(Pair.of(2, 5), getCracVersionFromSchema("crac-v2.5.json"));
+        assertNull(getCracVersionFromSchema("crac-v0.0.json"));
     }
 }
