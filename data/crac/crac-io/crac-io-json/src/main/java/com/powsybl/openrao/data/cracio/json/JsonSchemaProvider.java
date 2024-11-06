@@ -60,7 +60,7 @@ public final class JsonSchemaProvider {
     }
 
     public static List<String> getAllSchemaFiles() {
-        try (Stream<Path> files = Files.walk(Path.of(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).toURI()))) {
+        try (Stream<Path> files = Files.list(Path.of(Objects.requireNonNull(JsonSchemaProvider.class.getResource(SCHEMAS_DIRECTORY)).toURI()))) {
             return files.filter(path -> !Files.isDirectory(path))
                 .map(Path::getFileName)
                 .map(Path::toString)
