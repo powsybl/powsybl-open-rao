@@ -19,15 +19,20 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -37,7 +42,7 @@ public final class JsonSchemaProvider {
     private JsonSchemaProvider() {
     }
 
-    private static final String SCHEMAS_DIRECTORY = "schemas/crac";
+    private static final String SCHEMAS_DIRECTORY = "schemas/crac/";
     private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
     private static final SchemaValidatorsConfig CONFIG = SchemaValidatorsConfig.builder().locale(Locale.UK).build();
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
@@ -51,7 +56,7 @@ public final class JsonSchemaProvider {
     }
 
     public static JsonSchema getSchema(String schemaName) {
-        return SCHEMA_FACTORY.getSchema(JsonSchemaProvider.class.getResourceAsStream("/%s/%s".formatted(SCHEMAS_DIRECTORY, schemaName)), CONFIG);
+        return SCHEMA_FACTORY.getSchema(JsonSchemaProvider.class.getResourceAsStream("/" + SCHEMAS_DIRECTORY + schemaName), CONFIG);
     }
 
     public static Pair<Integer, Integer> getCracVersionFromSchema(String schemaName) {
