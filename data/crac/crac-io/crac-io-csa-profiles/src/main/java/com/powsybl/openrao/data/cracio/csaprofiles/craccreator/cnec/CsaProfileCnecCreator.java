@@ -46,7 +46,6 @@ public class CsaProfileCnecCreator {
     private Set<ElementaryCreationContext> csaProfileCnecCreationContexts;
     private final CsaProfileCracCreationContext cracCreationContext;
     private final CracCreationParameters cracCreationParameters;
-    private final String regionEic;
     private final Map<String, String> borderPerTso;
     private final Map<String, String> borderPerEic;
 
@@ -60,7 +59,6 @@ public class CsaProfileCnecCreator {
         this.nativeVoltageAngleLimitPerId = nativeCrac.getVoltageAngleLimits().stream().collect(Collectors.toMap(VoltageAngleLimit::mrid, voltageAngleLimit -> voltageAngleLimit));
         this.cracCreationContext = cracCreationContext;
         this.cracCreationParameters = cracCreationParameters;
-        this.regionEic = cracCreationParameters.getExtension(CsaCracCreationParameters.class).getCapacityCalculationRegionEicCode();
         this.borderPerTso = cracCreationParameters.getExtension(CsaCracCreationParameters.class).getBorders().stream().collect(Collectors.toMap(Border::defaultForTso, Border::name));
         this.borderPerEic = cracCreationParameters.getExtension(CsaCracCreationParameters.class).getBorders().stream().collect(Collectors.toMap(Border::eic, Border::name));
         this.createAndAddCnecs();
