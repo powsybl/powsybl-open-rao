@@ -376,7 +376,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             .map(Map.Entry::getValue)
             .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
             .mapToDouble(OptimizationResult::getFunctionalCost)
-            .map(curativeCost -> curativeCost - preventiveCost)
             .sum();
     }
 
