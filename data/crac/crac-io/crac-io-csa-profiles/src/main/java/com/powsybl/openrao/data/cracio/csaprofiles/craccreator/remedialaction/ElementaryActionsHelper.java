@@ -50,6 +50,7 @@ public class ElementaryActionsHelper {
     private final Map<String, Set<TapPositionAction>> nativeTapPositionActionsPerNativeRemedialActionAuto;
     private final Map<String, Set<StaticPropertyRange>> nativeStaticPropertyRangesPerNativeGridStateAlteration;
     final Map<String, Set<ContingencyWithRemedialAction>> nativeContingencyWithRemedialActionPerNativeRemedialAction;
+    private static final String SIPS = "RemedialActionSchemeKind.sips";
 
     public ElementaryActionsHelper(CsaProfileCrac nativeCrac) {
         this.nativeRemedialActionGroups = nativeCrac.getNativeObjects(RemedialActionGroup.class);
@@ -141,7 +142,7 @@ public class ElementaryActionsHelper {
         }
 
         RemedialActionScheme nativeRemedialActionScheme = linkedRemedialActionSchemePropertyBags.get(0);
-        if (!"RemedialActionSchemeKind.sips".equals(nativeRemedialActionScheme.kind())) {
+        if (!SIPS.equals(nativeRemedialActionScheme.kind())) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)", remedialActionId));
         }
         if (Boolean.FALSE.equals(nativeRemedialActionScheme.normalArmed())) {
