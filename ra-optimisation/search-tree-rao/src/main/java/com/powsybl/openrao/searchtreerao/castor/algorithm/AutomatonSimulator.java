@@ -75,7 +75,7 @@ public final class AutomatonSimulator {
     private final Unit flowUnit;
     private final ToolProvider toolProvider;
     private final FlowResult initialFlowResult;
-    private final PrePerimeterResult prePerimeterSensitivityOutput; // TODO: might be redundant with preventiveResult
+    private final PrePerimeterResult prePerimeterSensitivityOutput;
     private final Set<String> operatorsNotSharingCras;
     private final int numberLoggedElementsDuringRao;
 
