@@ -251,7 +251,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         } else {
             // No second preventive was run => use CRAO1 results
             // OR ARA
-            // TODO: use sum if cost optim
             return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalForInstant(optimizedInstant) : getHighestFunctionalForInstant(optimizedInstant);
         }
     }
