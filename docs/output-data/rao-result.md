@@ -84,7 +84,7 @@ _See also: [RAO steps](/castor/rao-steps.md)_
 
 ### Executed optimisation steps
 
-```{include} rao-result/steps.md
+```{include} rao-result/execution-details.md
 :parser: markdown
 ```
 
