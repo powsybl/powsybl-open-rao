@@ -84,9 +84,6 @@ GRAPH <%s> {
                 ?assessedElement nc:AssessedElement.ScannedForRegion ?scannedForRegion .
             }
     OPTIONAL {
-                ?assessedElement nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
-    }
-    OPTIONAL {
                 ?assessedElement nc:AssessedElement.flowReliabilityMargin ?flowReliabilityMargin .
             }
     OPTIONAL {

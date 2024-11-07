@@ -35,6 +35,9 @@ public final class SweCneUtil {
     private SweCneUtil() {
     }
 
+    public static int DEFAULT_DECIMALS_FOR_ROUNDING = 1;
+    public static final String SWE_CNE_EXPORT_PROPERTIES_PREFIX = "rao-result.export.swe-cne.";
+
     // Creation of time interval
     public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime offsetDateTime) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'");

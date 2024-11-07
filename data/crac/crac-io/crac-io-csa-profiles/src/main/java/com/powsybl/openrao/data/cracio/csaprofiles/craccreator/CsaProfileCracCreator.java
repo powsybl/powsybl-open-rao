@@ -19,6 +19,11 @@ import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationPar
 import com.powsybl.openrao.data.cracio.commons.RaUsageLimitsAdder;
 
 import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants.*;
 import java.util.Arrays;
 
 /**
@@ -37,21 +42,25 @@ class CsaProfileCracCreator {
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;
-        addCsaInstants();
+        addCsaInstants(csaParameters);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 
         this.nativeCrac.setForTimestamp(offsetDateTime);
 
         createContingencies();
         createCnecs(cracCreationParameters);
-        createRemedialActions(csaParameters.getSpsMaxTimeToImplementThresholdInSeconds());
+        createRemedialActions(csaParameters.getAutoInstantApplicationTime());
 
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
 
-    private void addCsaInstants() {
-        Arrays.stream(CsaInstant.values()).forEach(instant -> crac.newInstant(instant.getInstantName(), instant.getInstantKind()));
+    private void addCsaInstants(CsaCracCreationParameters csaCracCreationParameters) {
+        crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT, InstantKind.AUTO);
+        List<String> sortedCurativeInstants = csaCracCreationParameters.getCurativeInstants().entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).toList();
+        sortedCurativeInstants.forEach(instantName -> crac.newInstant(instantName, InstantKind.CURATIVE));
     }
 
     private void createRemedialActions(int spsMaxTimeToImplementThreshold) {
