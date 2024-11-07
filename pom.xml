@@ -339,6 +339,11 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>${com.networknt.version}</version>
+            </dependency>
 
             <!-- Provided dependencies -->
             <dependency>

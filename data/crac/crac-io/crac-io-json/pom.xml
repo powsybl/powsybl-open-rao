@@ -23,7 +23,6 @@
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>${com.networknt.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
