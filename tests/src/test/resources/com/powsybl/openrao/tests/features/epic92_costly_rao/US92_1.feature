@@ -189,9 +189,43 @@ Feature: US 92.1: Costly network actions optimization
     And 1 remedial actions are used after "coBeFr2" at "auto"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
     # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + overload penalty (33.33 * 10000)
-    # Why isn't overload taken in account?
+    # TODO: Why isn't 33.33 overload taken in account?
     And the value of the objective function after ARA should be 1550.0
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "closeBeFr5" is used after "coBeFr2" at "curative"
     # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + activation of closeBeFr5 (850)
     And the value of the objective function after CRA should be 2400.0
+
+  @fast @costly @rao
+  Scenario: US 92.1.11: Preventive, auto and curative optimization - 4 comprehensive scenarios
+    4 scenarios are optimized in parallel:
+    - scenario 1: no ARA and no CRA -> 50 MW overload
+    - scenario 2: forced ARA and no CRA
+    - scenario 3: no ARA and available CRA
+    - scenario 4: available ARA and available CRA
+    Given network file is "epic92/2Nodes8ParallelLines5LinesClosed.uct"
+    Given crac file is "epic92/crac-92-1-11.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    When I launch search_tree_rao
+    Then the worst margin is -50.00 MW
+    And the value of the objective function initially should be 1000000.0
+    And 1 remedial actions are used in preventive
+    And the remedial action "closeBeFr6" is used in preventive
+    # Activation of closeBeFr6 (2500) + overload penalty (50 * 10000)
+    And the value of the objective function after PRA should be 502500.0
+    And 0 remedial actions are used after "coBeFr2" at "auto"
+    And 1 remedial actions are used after "coBeFr3" at "auto"
+    And the remedial action "closeBeFr7" is used after "coBeFr3" at "auto"
+    And 0 remedial actions are used after "coBeFr4" at "auto"
+    And 1 remedial actions are used after "coBeFr5" at "auto"
+    And the remedial action "closeBeFr7" is used after "coBeFr5" at "auto"
+    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + overload penalty (50 * 10000)
+    And the value of the objective function after ARA should be 502620.0
+    And 0 remedial actions are used after "coBeFr2" at "curative"
+    And 0 remedial actions are used after "coBeFr3" at "curative"
+    And 1 remedial actions are used after "coBeFr4" at "curative"
+    And the remedial action "closeBeFr8" is used after "coBeFr4" at "curative"
+    And 1 remedial actions are used after "coBeFr5" at "curative"
+    And the remedial action "closeBeFr8" is used after "coBeFr5" at "curative"
+    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty (50 * 10000)
+    And the value of the objective function after CRA should be 504090.0
