@@ -13,6 +13,7 @@ import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.cracapi.*;
@@ -26,6 +27,7 @@ import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.MultithreadingParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
@@ -54,6 +56,7 @@ class CastorFullOptimizationTest {
     private Network network;
     private Instant preventiveInstant;
     private Instant curativeInstant;
+    private RaoInput raoInput;
 
     @BeforeEach
     public void setup() throws IOException {
@@ -61,10 +64,10 @@ class CastorFullOptimizationTest {
         crac = Crac.read("small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
         preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
-        RaoInput inputs = Mockito.mock(RaoInput.class);
-        when(inputs.getNetwork()).thenReturn(network);
-        when(inputs.getNetworkVariantId()).thenReturn(network.getVariantManager().getWorkingVariantId());
-        when(inputs.getCrac()).thenReturn(crac);
+        raoInput = Mockito.mock(RaoInput.class);
+        when(raoInput.getNetwork()).thenReturn(network);
+        when(raoInput.getNetworkVariantId()).thenReturn(network.getVariantManager().getWorkingVariantId());
+        when(raoInput.getCrac()).thenReturn(crac);
     }
 
     @Test
@@ -559,5 +562,60 @@ class CastorFullOptimizationTest {
         // Run RAO, if not skipping, then tap to -15, since skipping, it stays at preventive optimization value (-12)
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(-12, raoResult.getOptimizedTapOnState(crac.getState("N-1 NL1-NL3", crac.getLastInstant()), crac.getPstRangeAction("CRA_PST_BE")));
+    }
+
+    @Test
+    void catchDuringDataInitialization() {
+        RaoParameters raoParameters = null;
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+        assertEquals("RAO failed during data initialization : Cannot invoke \"com.powsybl.openrao.raoapi.parameters.RaoParameters.getObjectiveFunctionParameters()\" because \"raoParameters\" is null", raoResult.getExecutionDetails());
+    }
+
+    @Test
+    void catchDuringInitialSensitivity() throws IOException {
+        RaoParameters raoParameters = Mockito.spy(new RaoParameters());
+        when(raoParameters.getLoadFlowAndSensitivityParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+        assertEquals("RAO failed during initial sensitivity analysis : Testing exception handling", raoResult.getExecutionDetails());
+    }
+
+    @Test
+    void catchDuringFirstPreventive() throws IOException {
+        network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = Crac.read("small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = Mockito.spy(JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json")));
+        when(raoParameters.getTopoOptimizationParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals("RAO failed during first preventive : Testing exception handling", raoResult.getExecutionDetails());
+    }
+
+    @Test
+    void catchDuringContingencyScenarios() throws IOException {
+        network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = Crac.read("small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        MultithreadingParameters multithreadingParameters = Mockito.spy(raoParameters.getMultithreadingParameters());
+        when(multithreadingParameters.getContingencyScenariosInParallel()).thenThrow(new OpenRaoException("Testing exception handling"));
+        raoParameters.setMultithreadingParameters(multithreadingParameters);
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals("RAO failed during contingency scenarios : Testing exception handling", raoResult.getExecutionDetails());
+    }
+
+    @Test
+    void catchDuringSecondPreventive() throws IOException {
+        network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = Crac.read("small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = Mockito.spy(JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json")));
+        when(raoParameters.getSecondPreventiveRaoParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals("RAO failed during second preventive optimization : Testing exception handling", raoResult.getExecutionDetails());
     }
 }
