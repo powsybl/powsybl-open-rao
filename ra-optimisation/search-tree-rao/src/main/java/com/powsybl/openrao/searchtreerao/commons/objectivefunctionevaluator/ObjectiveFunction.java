@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class ObjectiveFunction {
-    private final CostEvaluator functionalCostEvaluator;
-    private final List<CostEvaluator> virtualCostEvaluators;
+    private final FunctionalCostEvaluator functionalCostEvaluator;
+    private final List<VirtualCostEvaluator> virtualCostEvaluators;
 
-    private ObjectiveFunction(CostEvaluator functionalCostEvaluator, List<CostEvaluator> virtualCostEvaluators) {
+    private ObjectiveFunction(FunctionalCostEvaluator functionalCostEvaluator, List<VirtualCostEvaluator> virtualCostEvaluators) {
         this.functionalCostEvaluator = functionalCostEvaluator;
         this.virtualCostEvaluators = virtualCostEvaluators;
     }
@@ -54,7 +54,7 @@ public final class ObjectiveFunction {
     }
 
     public Set<String> getVirtualCostNames() {
-        return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
+        return virtualCostEvaluators.stream().map(VirtualCostEvaluator::getName).collect(Collectors.toSet());
     }
 
     public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, String virtualCostName, Set<String> contingenciesToExclude) {
@@ -66,8 +66,8 @@ public final class ObjectiveFunction {
     }
 
     public static class ObjectiveFunctionBuilder {
-        private CostEvaluator functionalCostEvaluator;
-        private final List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
+        private FunctionalCostEvaluator functionalCostEvaluator;
+        private final List<VirtualCostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
         public ObjectiveFunction buildForInitialSensitivityComputation(Set<FlowCnec> flowCnecs,
                                                                        RaoParameters raoParameters,
@@ -161,12 +161,12 @@ public final class ObjectiveFunction {
             this.withVirtualCostEvaluator(new OverloadEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
         }
 
-        public ObjectiveFunctionBuilder withFunctionalCostEvaluator(CostEvaluator costEvaluator) {
+        public ObjectiveFunctionBuilder withFunctionalCostEvaluator(FunctionalCostEvaluator costEvaluator) {
             this.functionalCostEvaluator = costEvaluator;
             return this;
         }
 
-        public ObjectiveFunctionBuilder withVirtualCostEvaluator(CostEvaluator costEvaluator) {
+        public ObjectiveFunctionBuilder withVirtualCostEvaluator(VirtualCostEvaluator costEvaluator) {
             virtualCostEvaluators.add(costEvaluator);
             return this;
         }
