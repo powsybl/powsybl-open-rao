@@ -10,12 +10,14 @@ package com.powsybl.openrao.searchtreerao.commons;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.cracapi.Identifiable;
+import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
@@ -321,5 +323,12 @@ public final class RaoLogger {
             .filter(virtualCostName -> objectiveFunctionResult.getVirtualCost(virtualCostName) > 1e-6)
             .collect(Collectors.toMap(Function.identity(),
                 name -> Math.round(objectiveFunctionResult.getVirtualCost(name) * 100.0) / 100.0));
+    }
+
+    public static Map<String, Double> getVirtualCostDetailed(RaoResult raoResult, Instant instant) {
+        return raoResult.getVirtualCostNames().stream()
+            .filter(virtualCostName -> raoResult.getVirtualCost(instant, virtualCostName) > 1e-6)
+            .collect(Collectors.toMap(Function.identity(),
+                name -> Math.round(raoResult.getVirtualCost(instant, name) * 100.0) / 100.0));
     }
 }
