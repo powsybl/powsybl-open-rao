@@ -54,11 +54,13 @@ public final class RaoLogger {
         }
 
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, remedialActionActivationResult);
+        Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(prePerimeterObjectiveFunctionResult);
 
-        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
+        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})",
             formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getCost(), -prePerimeterObjectiveFunctionResult.getCost()),
             formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getFunctionalCost(), -prePerimeterObjectiveFunctionResult.getCost()),
-            formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getVirtualCost(), -prePerimeterObjectiveFunctionResult.getCost()));
+            formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getVirtualCost(), -prePerimeterObjectiveFunctionResult.getCost()),
+            virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
 
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
             sensitivityAnalysisResult,
