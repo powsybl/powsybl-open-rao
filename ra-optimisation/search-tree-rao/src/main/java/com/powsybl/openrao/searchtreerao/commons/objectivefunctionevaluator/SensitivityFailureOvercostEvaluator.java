@@ -25,7 +25,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
+public class SensitivityFailureOvercostEvaluator implements VirtualCostEvaluator {
     private final double sensitivityFailureOvercost;
     private final Set<State> states;
 
