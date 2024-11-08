@@ -1,8 +1,14 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
@@ -14,19 +20,18 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 public class RemedialActionCostEvaluator implements CostEvaluator {
     private final Set<State> optimizedStates;
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
     private final RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
-    private static final double OVERLOAD_PENALTY = 10000d; // TODO : set this in RAO parameters
 
     public RemedialActionCostEvaluator(Set<State> optimizedStates, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
         this.optimizedStates = optimizedStates;
@@ -43,28 +48,7 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
 
     @Override
     public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        double totalRemedialActionsCost = getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult);
-
-        List<FlowCnec> limitingElements = getCostlyElements(flowResult, contingenciesToExclude);
-        FlowCnec limitingElement = limitingElements.isEmpty() ? null : limitingElements.get(0);
-        double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
-
-        double cost = margin >= 0 ? totalRemedialActionsCost : totalRemedialActionsCost - OVERLOAD_PENALTY * margin;
-        return Pair.of(cost, limitingElements);
-    }
-
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        Map<FlowCnec, Double> margins = new HashMap<>();
-
-        flowCnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-            .filter(Cnec::isOptimized)
-            .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, unit)));
-
-        return margins.keySet().stream()
-            .filter(Cnec::isOptimized)
-            .sorted(Comparator.comparing(margins::get))
-            .toList();
+        return Pair.of(getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult), EvaluatorsUtils.getCostlyElements(flowCnecs, marginEvaluator, unit, flowResult, contingenciesToExclude));
     }
 
     private double getTotalNetworkActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
@@ -77,6 +61,7 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
         double totalRangeActionsCost = 0d;
+        // TODO: this should maybe only be used for MILP equations but not in the evaluator
         for (State state : optimizedStates) {
             for (RangeAction<?> rangeAction : remedialActionActivationResult.getActivatedRangeActions(state)) {
                 totalRangeActionsCost += rangeAction.getActivationCost().orElse(0d);

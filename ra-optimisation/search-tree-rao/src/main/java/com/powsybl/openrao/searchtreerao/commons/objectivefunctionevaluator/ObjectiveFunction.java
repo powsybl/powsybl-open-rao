@@ -81,7 +81,7 @@ public final class ObjectiveFunction {
             }
 
             if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
+                addEvaluatorsForCostlyOptimization(flowCnecs, raoParameters, optimizedStates, marginEvaluator);
             } else {
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
             }
@@ -122,7 +122,7 @@ public final class ObjectiveFunction {
                 }
             } else {
                 if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                    this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
+                    addEvaluatorsForCostlyOptimization(flowCnecs, raoParameters, optimizedStates, marginEvaluator);
                 } else {
                     this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
                 }
@@ -154,6 +154,11 @@ public final class ObjectiveFunction {
             }
 
             return this.build();
+        }
+
+        private void addEvaluatorsForCostlyOptimization(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Set<State> optimizedStates, MarginEvaluator marginEvaluator) {
+            this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
+            this.withVirtualCostEvaluator(new OverloadEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
         }
 
         public ObjectiveFunctionBuilder withFunctionalCostEvaluator(CostEvaluator costEvaluator) {

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -41,21 +40,6 @@ public class MinMarginEvaluator implements CostEvaluator {
         return unit;
     }
 
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        Map<FlowCnec, Double> margins = new HashMap<>();
-
-        flowCnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-            .filter(Cnec::isOptimized)
-            .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, unit)));
-
-        return margins.keySet().stream()
-            .filter(Cnec::isOptimized)
-            .sorted(Comparator.comparing(margins::get))
-            .toList();
-
-    }
-
     @Override
     public Set<FlowCnec> getFlowCnecs() {
         return flowCnecs;
@@ -63,7 +47,7 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
+        List<FlowCnec> costlyElements = EvaluatorsUtils.getCostlyElements(flowCnecs, marginEvaluator, unit, flowResult, contingenciesToExclude);
         FlowCnec limitingElement;
         if (costlyElements.isEmpty()) {
             limitingElement = null;
