@@ -52,11 +52,7 @@ public class RemedialActionCostEvaluator implements FunctionalCostEvaluator {
     }
 
     private double getTotalNetworkActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
-        double totalNetworkActionsCost = 0d;
-        for (NetworkAction networkAction : remedialActionActivationResult.getActivatedNetworkActions()) {
-            totalNetworkActionsCost += networkAction.getActivationCost().orElse(0d);
-        }
-        return totalNetworkActionsCost;
+        return remedialActionActivationResult.getActivatedNetworkActions().stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum();
     }
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
