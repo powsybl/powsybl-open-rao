@@ -101,6 +101,7 @@ public class JsonImport implements Importer {
         cracByteArrayInputStream.reset();
         Pattern versionPattern = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
         Matcher versionMatcher = versionPattern.matcher(cracContent);
-        return versionMatcher.find() ? Pair.of(Integer.parseInt(versionMatcher.group(1)), Integer.parseInt(versionMatcher.group(2))) : null;
+        versionMatcher.find();
+        return Pair.of(Integer.parseInt(versionMatcher.group(1)), Integer.parseInt(versionMatcher.group(2)));
     }
 }
