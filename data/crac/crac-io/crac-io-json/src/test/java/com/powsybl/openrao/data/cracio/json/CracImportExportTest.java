@@ -13,6 +13,7 @@ import com.powsybl.action.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.cracapi.*;
@@ -52,9 +53,15 @@ class CracImportExportTest {
     @Test
     void testExists() {
         assertTrue(new JsonImport().exists("crac-v2.5.json", getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json")));
-        assertFalse(new JsonImport().exists("cracHeader.json", getClass().getResourceAsStream("/cracHeader.json")));
+        assertTrue(new JsonImport().exists("cracHeader.json", getClass().getResourceAsStream("/cracHeader.json")));
         assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.json")));
         assertFalse(new JsonImport().exists("invalidCrac.txt", getClass().getResourceAsStream("/invalidCrac.txt")));
+    }
+
+    @Test
+    void testImportCracWithUnknownVersion() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("crac-v100.0.json", getClass().getResourceAsStream("/crac-v100.0.json")));
+        assertEquals("v100.0 is not a valid JSON CRAC version.", exception.getMessage());
     }
 
     @Test
@@ -524,32 +531,8 @@ class CracImportExportTest {
 
     @Test
     void testImportCracWithErrors() {
-        ListAppender<ILoggingEvent> listAppender = initLogger();
-
-        assertFalse(new JsonImport().exists("cracWithErrors.json", CracImportExportTest.class.getResourceAsStream("/cracWithErrors.json")));
-
-        List<ILoggingEvent> logsList = listAppender.list;
-        assertEquals(16, logsList.size()); // one message per CRAC version
-    }
-
-    @Test
-    void tetsImportJsonFileWhichIsNotCrac() {
-        ListAppender<ILoggingEvent> listAppender = initLogger();
-
-        assertFalse(new JsonImport().exists("invalidCrac.json", CracImportExportTest.class.getResourceAsStream("/invalidCrac.json")));
-
-        List<ILoggingEvent> logsList = listAppender.list;
-        assertEquals(16, logsList.size()); // one message per CRAC version
-    }
-
-    @Test
-    void tetsImportJsonFileWithInvalidVersion() {
-        ListAppender<ILoggingEvent> listAppender = initLogger();
-
-        assertFalse(new JsonImport().exists("cracWithInvalidVersion.json", CracImportExportTest.class.getResourceAsStream("/cracWithInvalidVersion.json")));
-
-        List<ILoggingEvent> logsList = listAppender.list;
-        assertEquals(16, logsList.size()); // one message per CRAC version
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("cracWithErrors.json", CracImportExportTest.class.getResourceAsStream("/cracWithErrors.json")));
+        assertEquals("JSON file is not a valid CRAC v2.5. Reasons: /instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]; /contingencies/1/networkElementsIds/0: integer found, string expected; /contingencies/1/networkElementsIds/1: integer found, string expected; /contingencies/2: required property 'networkElementsIds' not found", exception.getMessage());
     }
 
     private static ListAppender<ILoggingEvent> initLogger() {

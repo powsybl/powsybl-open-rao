@@ -14,23 +14,12 @@ import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
-import org.apache.commons.lang3.tuple.Pair;
+import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -39,7 +28,9 @@ public final class JsonSchemaProvider {
     private JsonSchemaProvider() {
     }
 
-    private static final String SCHEMAS_DIRECTORY = "schemas/crac/";
+    private static final String SCHEMAS_DIRECTORY = "/schemas/crac/";
+    private static final String SCHEMAS_NAME_PATTERN = "crac-v%s.%s.json";
+    private static final String MINIMUM_VIABLE_CRAC_SCHEMA = "minimum-viable-crac.json";
     private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
     private static final SchemaValidatorsConfig CONFIG = SchemaValidatorsConfig.builder().locale(Locale.UK).build();
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
@@ -48,50 +39,23 @@ public final class JsonSchemaProvider {
         return schema.validate(MAPPER.readTree(cracInputStream)).stream().map(ValidationMessage::getMessage).toList();
     }
 
-    public static JsonSchema getSchema(String schemaName) {
-        return SCHEMA_FACTORY.getSchema(JsonSchemaProvider.class.getResourceAsStream("/%s%s".formatted(SCHEMAS_DIRECTORY, schemaName)), CONFIG);
+    public static boolean isCracFile(InputStream cracInputStream) throws IOException {
+        return getValidationErrors(getSchema(getSchemaAsStream(MINIMUM_VIABLE_CRAC_SCHEMA)), cracInputStream).isEmpty();
     }
 
-    public static Pair<Integer, Integer> getCracVersionFromSchema(String schemaName) {
-        Pattern pattern = Pattern.compile("^crac-v([1-9]\\d*)\\.(\\d+)\\.json$");
-        Matcher matcher = pattern.matcher(schemaName);
-        return matcher.matches() ? Pair.of(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))) : null;
-    }
-
-    public static List<String> getAllSchemaFiles() {
-        List<String> filesFromJar = getFilesFromJar();
-        return filesFromJar.isEmpty() ? getFilesFromResources() : filesFromJar;
-    }
-
-    private static List<String> getFilesFromJar() {
-        List<String> fileNames = new ArrayList<>();
-        try (JarInputStream jarStream = new JarInputStream(JsonSchemaProvider.class.getProtectionDomain().getCodeSource().getLocation().openStream())) {
-            JarEntry entry;
-            while ((entry = jarStream.getNextJarEntry()) != null) {
-                String entryName = entry.getName();
-                if (entryName.startsWith(SCHEMAS_DIRECTORY) && !entryName.equals(SCHEMAS_DIRECTORY)) {
-                    fileNames.add(entryName.replace(SCHEMAS_DIRECTORY, ""));
-                }
-            }
-            return fileNames.stream().sorted(JsonSchemaProvider::reverseCompareStrings).toList();
-        } catch (IOException e) {
-            return List.of();
+    public static JsonSchema getSchema(int majorVersion, int minorVersion) {
+        InputStream schemaInputStream = getSchemaAsStream(SCHEMAS_NAME_PATTERN.formatted(majorVersion, minorVersion));
+        if (schemaInputStream == null) {
+            throw new OpenRaoException("v%s.%s is not a valid JSON CRAC version.".formatted(majorVersion, minorVersion));
         }
+        return getSchema(schemaInputStream);
     }
 
-    private static List<String> getFilesFromResources() {
-        try (Stream<Path> paths = Files.walk(Paths.get(Objects.requireNonNull(JsonSchemaProvider.class.getClassLoader().getResource(SCHEMAS_DIRECTORY)).toURI()))) {
-            return paths.filter(Files::isRegularFile)
-                .map(Path::getFileName)
-                .map(Path::toString)
-                .sorted(JsonSchemaProvider::reverseCompareStrings)
-                .toList();
-        } catch (IOException | URISyntaxException e) {
-            return List.of();
-        }
+    private static InputStream getSchemaAsStream(String schemaName) {
+        return JsonSchemaProvider.class.getResourceAsStream(SCHEMAS_DIRECTORY + schemaName);
     }
 
-    private static int reverseCompareStrings(String s1, String s2) {
-        return s2.compareTo(s1);
+    private static JsonSchema getSchema(InputStream schemaInputStream) {
+        return SCHEMA_FACTORY.getSchema(schemaInputStream, CONFIG);
     }
 }
