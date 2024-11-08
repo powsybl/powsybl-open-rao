@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LoopFlowViolationCostEvaluator implements CostEvaluator {
+public class LoopFlowViolationCostEvaluator implements VirtualCostEvaluator {
     private final Set<FlowCnec> loopflowCnecs;
     private final FlowResult initialLoopFLowResult;
     private final double loopFlowViolationCost;
