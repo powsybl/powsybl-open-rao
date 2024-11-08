@@ -188,8 +188,8 @@ Feature: US 92.1: Costly network actions optimization
     And the value of the objective function after PRA should be 2000200.0
     And 1 remedial actions are used after "coBeFr2" at "auto"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
-    # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + overload penalty (33.33 * 10000)
-    # TODO: Why isn't 33.33 overload taken in account?
+    # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350)
+    # Overload penalty (33.33 * 10000) not taken in account since the automaton simulator does not "see" curative CNECs
     And the value of the objective function after ARA should be 1550.0
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "closeBeFr5" is used after "coBeFr2" at "curative"
