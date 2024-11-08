@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import org.apache.commons.lang3.tuple.Pair;
@@ -140,5 +141,45 @@ class ObjectiveFunctionTest {
             Set.of(cnec1, cnec2), raoParameters, Set.of()
         );
         assertEquals(Set.of("sensitivity-failure-cost"), objectiveFunction.getVirtualCostNames());
+    }
+
+    @Test
+    void testBuildForInitialSensitivityComputationCostlyOptimizationAmpere() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST_IN_AMPERE);
+        assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
+
+        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
+        assertTrue(objectiveFunction.getVirtualCostNames().contains("overload-evaluator"));
+    }
+
+    @Test
+    void testBuildForInitialSensitivityComputationCostlyOptimizationMegawatt() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST_IN_MEGAWATT);
+        assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
+
+        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
+        assertTrue(objectiveFunction.getVirtualCostNames().contains("overload-evaluator"));
+    }
+
+    @Test
+    void testBuildCostlyOptimizationAmpere() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST_IN_AMPERE);
+        assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
+
+        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
+        assertTrue(objectiveFunction.getVirtualCostNames().contains("overload-evaluator"));
+    }
+
+    @Test
+    void testBuildCostlyOptimizationMegawatt() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST_IN_MEGAWATT);
+        assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
+
+        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
+        assertTrue(objectiveFunction.getVirtualCostNames().contains("overload-evaluator"));
     }
 }
