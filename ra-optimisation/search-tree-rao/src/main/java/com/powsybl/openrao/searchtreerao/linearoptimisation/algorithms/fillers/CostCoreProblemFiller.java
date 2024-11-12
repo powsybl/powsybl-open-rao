@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
@@ -22,6 +23,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -124,18 +126,19 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
     }
 
     private void fillObjectiveWithVariationCosts(LinearProblem linearProblem, RangeAction<?> rangeAction, OpenRaoMPVariable upwardVariationVariable, OpenRaoMPVariable downwardVariationVariable) {
+        double penaltyCost = getDefaultPenaltyCost(rangeAction);
+        Arrays.stream(RangeAction.VariationDirection.values()).forEach(variationDirection -> linearProblem.getObjective().setCoefficient(RangeAction.VariationDirection.UP.equals(variationDirection) ? upwardVariationVariable : downwardVariationVariable, rangeAction.getVariationCost(variationDirection).orElse(penaltyCost)));
+    }
+
+    private double getDefaultPenaltyCost(RangeAction<?> rangeAction) {
         if (rangeAction instanceof PstRangeAction) {
-            linearProblem.getObjective().setCoefficient(upwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getPstPenaltyCost()));
-            linearProblem.getObjective().setCoefficient(downwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getPstPenaltyCost()));
+            return rangeActionParameters.getPstPenaltyCost();
         } else if (rangeAction instanceof HvdcRangeAction) {
-            linearProblem.getObjective().setCoefficient(upwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getHvdcPenaltyCost()));
-            linearProblem.getObjective().setCoefficient(downwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getHvdcPenaltyCost()));
+            return rangeActionParameters.getHvdcPenaltyCost();
         } else if (rangeAction instanceof InjectionRangeAction) {
-            linearProblem.getObjective().setCoefficient(upwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
-            linearProblem.getObjective().setCoefficient(downwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
+            return rangeActionParameters.getInjectionRaPenaltyCost();
         } else {
-            rangeAction.getVariationCost(RangeAction.VariationDirection.UP).ifPresent(variationCost -> linearProblem.getObjective().setCoefficient(upwardVariationVariable, variationCost));
-            rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).ifPresent(variationCost -> linearProblem.getObjective().setCoefficient(downwardVariationVariable, variationCost));
+            throw new OpenRaoException("Range actions of type '%s' are not supported by OpenRAO.".formatted(rangeAction.getClass().getSimpleName()));
         }
     }
 }
