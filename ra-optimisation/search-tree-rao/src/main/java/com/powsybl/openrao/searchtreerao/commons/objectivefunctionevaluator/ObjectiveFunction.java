@@ -115,7 +115,7 @@ public final class ObjectiveFunction {
             if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
                 && !operatorsNotToOptimizeInCurative.isEmpty()) {
                 if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                    this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
+                    addEvaluatorsForCostlyOptimization(flowCnecs, raoParameters, optimizedStates, marginEvaluator);
                 } else {
                     this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
                         new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
