@@ -133,7 +133,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                     linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
                     linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
                 } else {
-                    // TODO: add penalty for HVDC range actions
+                    // TODO: add penalty for CT range actions
                     if (ra.getVariationCost(RangeAction.VariationDirection.UP).isPresent()) {
                         linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).get());
                     }
