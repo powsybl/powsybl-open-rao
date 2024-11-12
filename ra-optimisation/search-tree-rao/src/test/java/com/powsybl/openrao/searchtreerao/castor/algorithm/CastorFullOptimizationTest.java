@@ -50,6 +50,7 @@ import static org.mockito.Mockito.when;
 class CastorFullOptimizationTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String CURATIVE_INSTANT_ID = "curative";
+    private static final double DOUBLE_TOLERANCE = 1e-5;
 
     private Crac crac;
     private Network network;
@@ -566,5 +567,64 @@ class CastorFullOptimizationTest {
         // Run RAO, if not skipping, then tap to -15, since skipping, it stays at preventive optimization value (-12)
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(-12, raoResult.getOptimizedTapOnState(crac.getState("N-1 NL1-NL3", crac.getLastInstant()), crac.getPstRangeAction("CRA_PST_BE")));
+    }
+
+    // Costly optimization tests
+
+    @Test
+    void costlyPreventiveRaoNetworkActionsOnly() throws IOException {
+        network = Network.read("2Nodes4ParallelLines.uct", getClass().getResourceAsStream("/network/2Nodes4ParallelLines.uct"));
+        crac = Crac.read("small-crac-costly-preventive-only.json", getClass().getResourceAsStream("/crac/small-crac-costly-preventive-only.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_dc_minObjective.json"));
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(Set.of("overload-evaluator", "sensitivity-failure-cost"), raoResult.getVirtualCostNames());
+
+        assertEquals(Set.of(crac.getNetworkAction("closeBeFr4")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+
+        assertEquals(10.0, raoResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        assertEquals(10.0, raoResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        assertEquals(0.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void costlyAutoAndCurativeRaoNetworkActionsOnly() throws IOException {
+        network = Network.read("2Nodes8ParallelLines5LinesClosed.uct", getClass().getResourceAsStream("/network/2Nodes8ParallelLines5LinesClosed.uct"));
+        crac = Crac.read("small-crac-costly-auto-and-curative-4-scenarios.json", getClass().getResourceAsStream("/crac/small-crac-costly-auto-and-curative-4-scenarios.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_dc_minObjective.json"));
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(Set.of("overload-evaluator", "sensitivity-failure-cost"), raoResult.getVirtualCostNames());
+
+        assertEquals(Set.of(crac.getNetworkAction("cheapCloseBeFr6")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+
+        assertEquals(500200.0, raoResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        assertEquals(200.0, raoResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("preventive"), "overload-evaluator"), DOUBLE_TOLERANCE);
+
+        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr2", crac.getInstant("auto"))).isEmpty());
+        assertEquals(Set.of(crac.getNetworkAction("closeBeFr7")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr3", crac.getInstant("auto"))));
+        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr4", crac.getInstant("auto"))).isEmpty());
+        assertEquals(Set.of(crac.getNetworkAction("closeBeFr7")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr5", crac.getInstant("auto"))));
+
+        assertEquals(500320.0, raoResult.getCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
+        assertEquals(320.0, raoResult.getFunctionalCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
+        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
+        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("auto"), "overload-evaluator"), DOUBLE_TOLERANCE);
+
+        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr2", crac.getInstant("curative"))).isEmpty());
+        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr3", crac.getInstant("curative"))).isEmpty());
+        assertEquals(Set.of(crac.getNetworkAction("closeBeFr8")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr4", crac.getInstant("curative"))));
+        assertEquals(Set.of(crac.getNetworkAction("closeBeFr8")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr5", crac.getInstant("curative"))));
+
+        assertEquals(501790.0, raoResult.getCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
+        assertEquals(1790.0, raoResult.getFunctionalCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
+        assertEquals(500000.0, raoResult.getVirtualCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
+        assertEquals(500000.0, raoResult.getVirtualCost(crac.getLastInstant(), "overload-evaluator"), DOUBLE_TOLERANCE);
     }
 }
