@@ -61,16 +61,11 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
         OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPVariable activationVariationVariable = linearProblem.getRangeActionVariationBinary(rangeAction, state);
 
         OpenRaoMPConstraint setPointVariationConstraint = linearProblem.addRangeActionSetPointVariationConstraint(rangeAction, state);
         setPointVariationConstraint.setCoefficient(setPointVariable, 1.0);
         setPointVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
         setPointVariationConstraint.setCoefficient(downwardVariationVariable, 1.0);
-
-        OpenRaoMPConstraint activationConstraint = linearProblem.addRangeActionActivationConstraint(rangeAction, state);
-        activationConstraint.setCoefficient(upwardVariationVariable, -1.0);
-        activationConstraint.setCoefficient(downwardVariationVariable, -1.0);
 
         Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction, state);
 
@@ -104,6 +99,12 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
             maxSetPoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
         }
 
+        // TODO: create only if activation cost > 0?
+        OpenRaoMPVariable activationVariationVariable = linearProblem.getRangeActionVariationBinary(rangeAction, state);
+
+        OpenRaoMPConstraint activationConstraint = linearProblem.addRangeActionActivationConstraint(rangeAction, state);
+        activationConstraint.setCoefficient(upwardVariationVariable, -1.0);
+        activationConstraint.setCoefficient(downwardVariationVariable, -1.0);
         activationConstraint.setCoefficient(activationVariationVariable, maxSetPoint - minSetPoint);
     }
 
@@ -115,7 +116,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
                 OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-                OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+                OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
 
                 if (ra.getActivationCost().isPresent()) {
                     linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());

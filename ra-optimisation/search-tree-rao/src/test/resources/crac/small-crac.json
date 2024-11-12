@@ -52,6 +52,11 @@
       "operator": "BE",
       "initialTap": 0,
       "speed": 1,
+      "activationCost": 15.0,
+      "variationCosts": {
+        "up": 10.0,
+        "down": 10.0
+      },
       "tapToAngleConversionMap" : {
         "-1" : -0.3896097993971608,
         "0" : 0.0,
