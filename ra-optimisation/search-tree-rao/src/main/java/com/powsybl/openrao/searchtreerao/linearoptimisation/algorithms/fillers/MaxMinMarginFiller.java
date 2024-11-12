@@ -30,6 +30,7 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
+    private static final double OVERLOAD_PENALTY = 10000.0; // TODO: put this in Rao Parameters and mutualize with evaluator
     protected final Set<FlowCnec> optimizedCnecs;
     private final Unit unit;
 
@@ -116,6 +117,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
         }));
     }
 
+    // TODO: add margin <= 0 constraint if cost optimization
+
     /**
      * Add in the objective function of the linear problem the min Margin.
      * <p>
@@ -124,6 +127,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
         linearProblem.getObjective().setCoefficient(minimumMarginVariable, -1);
+        // TODO: add penalty for cost optimization
     }
 
 }

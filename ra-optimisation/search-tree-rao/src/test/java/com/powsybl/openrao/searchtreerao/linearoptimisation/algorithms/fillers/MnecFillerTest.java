@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
  */
 class MnecFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller marginCoreProblemFiller;
     private FlowCnec mnec1;
     private FlowCnec mnec2;
     private FlowCnec mnec3;
@@ -104,13 +104,12 @@ class MnecFillerTest extends AbstractFillerTest {
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
-        coreProblemFiller = new CoreProblemFiller(
+        marginCoreProblemFiller = new MarginCoreProblemFiller(
                 optimizationPerimeter,
                 initialRangeActionSetpointResult,
                 rangeActionParameters,
                 Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-            false);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
     }
 
     private void fillProblemWithFiller(Unit unit) {
@@ -129,7 +128,7 @@ class MnecFillerTest extends AbstractFillerTest {
                 unit,
                 parameters);
         linearProblem = new LinearProblemBuilder()
-                .withProblemFiller(coreProblemFiller)
+                .withProblemFiller(marginCoreProblemFiller)
                 .withProblemFiller(mnecFiller)
                 .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
                 .build();
@@ -230,7 +229,7 @@ class MnecFillerTest extends AbstractFillerTest {
             Unit.MEGAWATT,
             parameters);
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(mnecFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .build();

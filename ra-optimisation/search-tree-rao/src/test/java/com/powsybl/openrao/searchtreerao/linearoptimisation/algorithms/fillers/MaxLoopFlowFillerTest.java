@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  */
 class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller marginCoreProblemFiller;
     private MaxLoopFlowFiller maxLoopFlowFiller;
     private LoopFlowParametersExtension loopFlowParameters;
     private FlowCnec cnecOn2sides;
@@ -74,13 +74,12 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
-        coreProblemFiller = new CoreProblemFiller(
+        marginCoreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
                 rangeActionParameters,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-            false
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS
         );
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(100.).withUnit(Unit.MEGAWATT).add();
     }
@@ -101,7 +100,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(maxLoopFlowFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())

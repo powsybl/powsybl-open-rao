@@ -44,7 +44,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
 
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller marginCoreProblemFiller;
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
     private FlowCnec cnecNl;
     private FlowCnec cnecFr;
@@ -82,13 +82,12 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
-        coreProblemFiller = new CoreProblemFiller(
+        marginCoreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
                 rangeActionParameters,
             MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-            false);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
     }
 
     private void buildLinearProblemWithMaxMinMargin() {
@@ -111,7 +110,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
                 unoptimizedCnecParameters
         );
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
@@ -144,7 +143,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
                 unoptimizedCnecParameters
         );
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)

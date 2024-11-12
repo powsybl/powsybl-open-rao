@@ -41,9 +41,9 @@ import static org.mockito.Mockito.when;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class CoreProblemFillerTest extends AbstractFillerTest {
+class MarginCoreProblemFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller marginCoreProblemFiller;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
     // some additional data
     private double minAlpha;
@@ -64,7 +64,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
@@ -94,11 +94,11 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(injectionSensitivityThreshold);
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
-        coreProblemFiller = new CoreProblemFiller(
+        marginCoreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            Unit.MEGAWATT, raRangeShrinking, pstModel, raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
+            Unit.MEGAWATT, raRangeShrinking, pstModel);
         buildLinearProblem();
     }
 
@@ -437,7 +437,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals("Constraint Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_constraint has not been created yet", e.getMessage());
 
         // check the number of variables and constraints
-        // No iterative relative variation constraint should be created since CoreProblemFiller.raRangeShrinking = false
+        // No iterative relative variation constraint should be created since MarginCoreProblemFiller.raRangeShrinking = false
         // total number of variables 3 :
         //      - 1 per CNEC (flow)
         //      - 2 per range action (set-point)

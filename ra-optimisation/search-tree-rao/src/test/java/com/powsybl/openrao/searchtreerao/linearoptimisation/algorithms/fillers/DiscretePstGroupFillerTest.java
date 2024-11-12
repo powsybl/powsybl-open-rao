@@ -60,13 +60,12 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
 
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
 
-        CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
+        MarginCoreProblemFiller marginCoreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
                 rangeActionParameters,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-            false);
+            false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(state, Set.of(pstRa1, pstRa2));
@@ -80,7 +79,7 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             pstRangeActions);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(discretePstTapFiller)
             .withProblemFiller(discretePstGroupFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)

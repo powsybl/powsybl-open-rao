@@ -48,7 +48,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private static final double PRECISE_DOUBLE_TOLERANCE = 1e-9;
 
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller marginCoreProblemFiller;
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private RelativeMarginsParametersExtension parameters;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
@@ -77,13 +77,12 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
         parameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
 
-        coreProblemFiller = new CoreProblemFiller(
+        marginCoreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             rangeActionParameters,
             MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-            false);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {
@@ -99,7 +98,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())

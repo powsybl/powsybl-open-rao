@@ -118,15 +118,23 @@ public class LinearProblemBuilder {
     }
 
     private ProblemFiller buildCoreProblemFiller() {
-        return new CoreProblemFiller(
-            inputs.optimizationPerimeter(),
-            inputs.prePerimeterSetpoints(),
+        return parameters.getObjectiveFunction().costOptimization() ?
+            new CostCoreProblemFiller(
+                inputs.optimizationPerimeter(),
+                inputs.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
-            parameters.getObjectiveFunctionUnit(),
-            parameters.getRaRangeShrinking(),
-            parameters.getRangeActionParameters().getPstModel(),
-            parameters.getObjectiveFunction().costOptimization()
-        );
+                parameters.getObjectiveFunctionUnit(),
+                parameters.getRaRangeShrinking(),
+                parameters.getRangeActionParameters().getPstModel()
+            ) :
+            new MarginCoreProblemFiller(
+                inputs.optimizationPerimeter(),
+                inputs.prePerimeterSetpoints(),
+                parameters.getRangeActionParameters(),
+                parameters.getObjectiveFunctionUnit(),
+                parameters.getRaRangeShrinking(),
+                parameters.getRangeActionParameters().getPstModel()
+            );
     }
 
     private ProblemFiller buildMaxMinRelativeMarginFiller() {
@@ -164,9 +172,9 @@ public class LinearProblemBuilder {
 
     private ProblemFiller buildUnoptimizedCnecFiller() {
         return new UnoptimizedCnecFiller(
-                inputs.optimizationPerimeter().getFlowCnecs(),
-                inputs.prePerimeterFlowResult(),
-                parameters.getUnoptimizedCnecParameters()
+            inputs.optimizationPerimeter().getFlowCnecs(),
+            inputs.prePerimeterFlowResult(),
+            parameters.getUnoptimizedCnecParameters()
         );
     }
 
