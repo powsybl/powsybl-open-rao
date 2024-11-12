@@ -117,31 +117,25 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                 OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
                 OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
-
-                if (ra.getActivationCost().isPresent()) {
-                    linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
-                }
-
-                // If the range action has been filtered out, then absoluteVariationVariable is null
-                if (ra instanceof PstRangeAction) {
-                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getPstPenaltyCost()));
-                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getPstPenaltyCost()));
-                } else if (ra instanceof HvdcRangeAction) {
-                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getHvdcPenaltyCost()));
-                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getHvdcPenaltyCost()));
-                } else if (ra instanceof InjectionRangeAction) {
-                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
-                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
-                } else {
-                    // TODO: add penalty for CT range actions
-                    if (ra.getVariationCost(RangeAction.VariationDirection.UP).isPresent()) {
-                        linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).get());
-                    }
-                    if (ra.getVariationCost(RangeAction.VariationDirection.DOWN).isPresent()) {
-                        linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).get());
-                    }
-                }
+                ra.getActivationCost().ifPresent(activationCost -> linearProblem.getObjective().setCoefficient(activationVariable, activationCost));
+                fillObjectiveWithVariationCosts(linearProblem, ra, upwardVariationVariable, downwardVariationVariable);
             }
         ));
+    }
+
+    private void fillObjectiveWithVariationCosts(LinearProblem linearProblem, RangeAction<?> rangeAction, OpenRaoMPVariable upwardVariationVariable, OpenRaoMPVariable downwardVariationVariable) {
+        if (rangeAction instanceof PstRangeAction) {
+            linearProblem.getObjective().setCoefficient(upwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getPstPenaltyCost()));
+            linearProblem.getObjective().setCoefficient(downwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getPstPenaltyCost()));
+        } else if (rangeAction instanceof HvdcRangeAction) {
+            linearProblem.getObjective().setCoefficient(upwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getHvdcPenaltyCost()));
+            linearProblem.getObjective().setCoefficient(downwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getHvdcPenaltyCost()));
+        } else if (rangeAction instanceof InjectionRangeAction) {
+            linearProblem.getObjective().setCoefficient(upwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
+            linearProblem.getObjective().setCoefficient(downwardVariationVariable, rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
+        } else {
+            rangeAction.getVariationCost(RangeAction.VariationDirection.UP).ifPresent(variationCost -> linearProblem.getObjective().setCoefficient(upwardVariationVariable, variationCost));
+            rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).ifPresent(variationCost -> linearProblem.getObjective().setCoefficient(downwardVariationVariable, variationCost));
+        }
     }
 }
