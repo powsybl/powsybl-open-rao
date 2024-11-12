@@ -70,7 +70,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     private void createMaxMinMarginFiller(Unit unit) {
-        maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1), unit);
+        maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1), unit, false);
     }
 
     private void buildLinearProblem() {

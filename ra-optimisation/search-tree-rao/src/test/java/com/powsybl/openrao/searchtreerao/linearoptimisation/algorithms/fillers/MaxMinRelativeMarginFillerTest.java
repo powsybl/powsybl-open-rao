@@ -92,6 +92,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             unit,
+            false,
             parameters
         );
     }
@@ -183,6 +184,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             MEGAWATT,
+            false,
             parameters
         );
         buildLinearProblem();
@@ -237,6 +239,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             MEGAWATT,
+            false,
             parameters
         );
         buildLinearProblem();
