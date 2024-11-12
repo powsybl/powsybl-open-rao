@@ -44,17 +44,20 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final boolean arePstSetpointsApproximated;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-4;
     private final Network network;
+    private final boolean costOptimization;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                RangeActionLimitationParameters rangeActionLimitationParameters,
                                boolean arePstSetpointsApproximated,
-                               Network network) {
+                               Network network,
+                               boolean costOptimization) {
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionLimitationParameters = rangeActionLimitationParameters;
         this.arePstSetpointsApproximated = arePstSetpointsApproximated;
         this.network = network;
+        this.costOptimization = costOptimization;
     }
 
     @Override
@@ -63,7 +66,10 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
                 return;
             }
-            rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
+            // if cost optimization, variation variables are already defined
+            if (!costOptimization) {
+                rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
+            }
             if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
                 addMaxRaConstraint(linearProblem, state);
             }

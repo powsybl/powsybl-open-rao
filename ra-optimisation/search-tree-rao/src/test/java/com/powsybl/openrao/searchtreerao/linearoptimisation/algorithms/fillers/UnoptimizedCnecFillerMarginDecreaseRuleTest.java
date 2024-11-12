@@ -87,7 +87,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
                 rangeActionParameters,
             MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+            false);
     }
 
     private void buildLinearProblemWithMaxMinMargin() {

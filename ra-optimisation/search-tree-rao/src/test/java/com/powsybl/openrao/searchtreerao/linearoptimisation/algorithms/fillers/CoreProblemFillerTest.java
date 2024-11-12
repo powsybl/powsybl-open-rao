@@ -98,7 +98,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            Unit.MEGAWATT, raRangeShrinking, pstModel);
+            Unit.MEGAWATT, raRangeShrinking, pstModel, raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         buildLinearProblem();
     }
 

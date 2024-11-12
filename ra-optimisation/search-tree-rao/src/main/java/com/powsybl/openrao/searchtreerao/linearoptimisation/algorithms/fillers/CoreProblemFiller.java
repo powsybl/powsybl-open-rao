@@ -39,6 +39,7 @@ import java.util.*;
 public class CoreProblemFiller implements ProblemFiller {
 
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
+    private static final double OVERLOAD_PENALTY = 10000.0; // TODO: put this in Rao Parameters and mutualize with evaluator
 
     private final OptimizationPerimeter optimizationContext;
     private final Set<FlowCnec> flowCnecs;
@@ -48,6 +49,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private int iteration = 0;
     private static final double RANGE_SHRINK_RATE = 0.667;
     private final boolean raRangeShrinking;
+    private final boolean costOptimization;
 
     private final RangeActionsOptimizationParameters.PstModel pstModel;
 
@@ -56,7 +58,8 @@ public class CoreProblemFiller implements ProblemFiller {
                              RangeActionsOptimizationParameters rangeActionParameters,
                              Unit unit,
                              boolean raRangeShrinking,
-                             RangeActionsOptimizationParameters.PstModel pstModel) {
+                             RangeActionsOptimizationParameters.PstModel pstModel,
+                             boolean costOptimization) {
         this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
@@ -65,6 +68,7 @@ public class CoreProblemFiller implements ProblemFiller {
         this.unit = unit;
         this.raRangeShrinking = raRangeShrinking;
         this.pstModel = pstModel;
+        this.costOptimization = costOptimization;
     }
 
     @Override
@@ -81,7 +85,7 @@ public class CoreProblemFiller implements ProblemFiller {
         checkAndActivateRangeShrinking(linearProblem, rangeActionActivationResult);
 
         // complete objective
-        fillObjectiveWithRangeActionPenaltyCost(linearProblem);
+        fillObjective(linearProblem);
 
     }
 
@@ -114,10 +118,30 @@ public class CoreProblemFiller implements ProblemFiller {
      * and its initial value. It is given in the same unit as S[r].
      */
     private void buildRangeActionVariables(LinearProblem linearProblem) {
+        if (costOptimization) {
+            buildRangeActionVariablesForCostOptimization(linearProblem);
+        } else {
+            buildRangeActionVariablesForMarginOptimization(linearProblem);
+        }
+    }
+
+    private void buildRangeActionVariablesForMarginOptimization(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
                 linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
                 linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state);
+            })
+        );
+    }
+
+    private void buildRangeActionVariablesForCostOptimization(LinearProblem linearProblem) {
+        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
+            rangeActions.forEach(rangeAction -> {
+                linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
+                // TODO: define only if activation cost is not null
+                linearProblem.addRangeActionVariationBinary(rangeAction, state);
+                linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+                linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
             })
         );
     }
@@ -197,7 +221,13 @@ public class CoreProblemFiller implements ProblemFiller {
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry ->
-                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())));
+                entry.getValue().forEach(rangeAction -> {
+                    if (costOptimization) {
+                        buildConstraintsForRangeActionAndStateCostOptimization(linearProblem, rangeAction, entry.getKey());
+                    } else {
+                        buildConstraintsForRangeActionAndStateMarginOptimization(linearProblem, rangeAction, entry.getKey());
+                    }
+                }));
     }
 
     private void checkAndActivateRangeShrinking(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
@@ -238,7 +268,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= S[r] - initialSetPoint[r]     (NEGATIVE)
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
-    private void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+    private void buildConstraintsForRangeActionAndStateMarginOptimization(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
         OpenRaoMPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
@@ -283,21 +313,7 @@ public class CoreProblemFiller implements ProblemFiller {
             OpenRaoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
 
             List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
-            double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
-            double maxAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
-            double minRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(2);
-            double maxRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(3);
-
-            // relative range
-            if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS) || !(rangeAction instanceof PstRangeAction)) {
-                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
-                relSetpointConstraint.setCoefficient(setPointVariable, 1);
-                relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
-            }
-
-            // absolute range
-            setPointVariable.setLb(minAbsoluteSetpoint - RANGE_ACTION_SETPOINT_EPSILON);
-            setPointVariable.setUb(maxAbsoluteSetpoint + RANGE_ACTION_SETPOINT_EPSILON);
+            setRelativeAndAbsoluteBounds(rangeAction, state, linearProblem, minAndMaxAbsoluteAndRelativeSetpoints, setPointVariable, previousSetpointVariable);
 
             // define absolute range action variation
             varConstraintNegative.setLb(0);
@@ -310,6 +326,79 @@ public class CoreProblemFiller implements ProblemFiller {
             varConstraintPositive.setCoefficient(setPointVariable, 1);
             varConstraintPositive.setCoefficient(previousSetpointVariable, -1);
         }
+    }
+
+    /**
+     * Links the set-point and the activation status of a range action r to its upward and downward variation variables.
+     * S[r] = initialSetPoint[r] + variationUpward[r] - variationDownward[r]
+     * (maxSetPoint[r] - minSetPoint[r]) * isRaActivated[r] >= variationUpward[r] + variationDownward[r]
+     */
+    private void buildConstraintsForRangeActionAndStateCostOptimization(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable activationVariationVariable = linearProblem.getRangeActionVariationBinary(rangeAction, state);
+
+        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.addRangeActionSetPointVariationConstraint(rangeAction, state);
+        setPointVariationConstraint.setCoefficient(setPointVariable, 1.0);
+        setPointVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
+        setPointVariationConstraint.setCoefficient(downwardVariationVariable, 1.0);
+
+        OpenRaoMPConstraint activationConstraint = linearProblem.addRangeActionActivationConstraint(rangeAction, state);
+        activationConstraint.setCoefficient(upwardVariationVariable, -1.0);
+        activationConstraint.setCoefficient(downwardVariationVariable, -1.0);
+
+        Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction, state);
+
+        double minSetPoint;
+        double maxSetPoint;
+
+        if (lastAvailableRangeAction == null) {
+            // if state is equal to masterState,
+            // or if rangeAction is not available for a previous state
+            // then, rangeAction could not have been activated in a previous instant
+
+            double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+            minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoint);
+            maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoint);
+
+            setPointVariable.setLb(minSetPoint - RANGE_ACTION_SETPOINT_EPSILON);
+            setPointVariable.setUb(maxSetPoint + RANGE_ACTION_SETPOINT_EPSILON);
+
+            setPointVariationConstraint.setLb(prePerimeterSetPoint);
+            setPointVariationConstraint.setUb(prePerimeterSetPoint);
+        } else {
+            // range action have been activated in a previous instant
+            // getRangeActionSetpointVariable from previous instant
+            OpenRaoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
+            setPointVariationConstraint.setCoefficient(previousSetpointVariable, -1.0);
+
+            List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
+            setRelativeAndAbsoluteBounds(rangeAction, state, linearProblem, minAndMaxAbsoluteAndRelativeSetpoints, setPointVariable, previousSetpointVariable);
+
+            minSetPoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
+            maxSetPoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
+        }
+
+        activationConstraint.setCoefficient(activationVariationVariable, maxSetPoint - minSetPoint);
+    }
+
+    private void setRelativeAndAbsoluteBounds(RangeAction<?> rangeAction, State state, LinearProblem linearProblem, List<Double> minAndMaxAbsoluteAndRelativeSetpoints, OpenRaoMPVariable setPointVariable, OpenRaoMPVariable previousSetpointVariable) {
+        double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
+        double maxAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
+        double minRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(2);
+        double maxRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(3);
+
+        // relative range
+        if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS) || !(rangeAction instanceof PstRangeAction)) {
+            OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
+            relSetpointConstraint.setCoefficient(setPointVariable, 1);
+            relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
+        }
+
+        // absolute range
+        setPointVariable.setLb(minAbsoluteSetpoint - RANGE_ACTION_SETPOINT_EPSILON);
+        setPointVariable.setUb(maxAbsoluteSetpoint + RANGE_ACTION_SETPOINT_EPSILON);
     }
 
     private static List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction, double infinity) {
@@ -395,6 +484,14 @@ public class CoreProblemFiller implements ProblemFiller {
         return rangeActions;
     }
 
+    private void fillObjective(LinearProblem linearProblem) {
+        if (costOptimization) {
+            fillObjectiveWithRangeActionCosts(linearProblem);
+        } else {
+            fillObjectiveWithRangeActionPenaltyCost(linearProblem);
+        }
+    }
+
     /**
      * Add in the objective function a penalty cost associated to the RangeAction
      * activations. This penalty cost prioritizes the solutions which change as little
@@ -413,6 +510,43 @@ public class CoreProblemFiller implements ProblemFiller {
                     linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getHvdcPenaltyCost());
                 } else if (absoluteVariationVariable != null && ra instanceof InjectionRangeAction) {
                     linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getInjectionRaPenaltyCost());
+                }
+            }
+        ));
+    }
+
+    /**
+     * Adds in the objective function the activation and variation costs associated to the RangeActions.
+     * Also adds a penalty in case of overload of the minimum margin.
+     */
+    private void fillObjectiveWithRangeActionCosts(LinearProblem linearProblem) {
+        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+                OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
+                OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+                OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+
+                if (ra.getActivationCost().isPresent()) {
+                    linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
+                }
+
+                // If the range action has been filtered out, then absoluteVariationVariable is null
+                if (ra instanceof PstRangeAction) {
+                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getPstPenaltyCost()));
+                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getPstPenaltyCost()));
+                } else if (ra instanceof HvdcRangeAction) {
+                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getHvdcPenaltyCost()));
+                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getHvdcPenaltyCost()));
+                } else if (ra instanceof InjectionRangeAction) {
+                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
+                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(rangeActionParameters.getInjectionRaPenaltyCost()));
+                } else {
+                    // TODO: add penalty for HVDC range actions
+                    if (ra.getVariationCost(RangeAction.VariationDirection.UP).isPresent()) {
+                        linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).get());
+                    }
+                    if (ra.getVariationCost(RangeAction.VariationDirection.DOWN).isPresent()) {
+                        linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).get());
+                    }
                 }
             }
         ));
