@@ -289,6 +289,15 @@ class JsonRetrocompatibilityTest {
     }
 
     @Test
+    void importV2Point1Test() {
+        // Add support for CNECs' borders and relative-to-previous-time-step ranges for PSTs
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.1.json");
+
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
+        testContentOfV2Point1Crac(crac);
+    }
+
+    @Test
     void importV2Point2Test() {
         // Add support for CNECs' borders and relative-to-previous-time-step ranges for PSTs
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.2.json");
@@ -728,8 +737,21 @@ class JsonRetrocompatibilityTest {
         assertEquals(4, instants.get(4).getOrder());
     }
 
-    private void testContentOfV2Point2Crac(Crac crac) {
+    private void testContentOfV2Point1Crac(Crac crac) {
         testContentOfV2Point0Crac(crac);
+        Map<Instant, RaUsageLimits> raUsageLimitsMap = crac.getRaUsageLimitsPerInstant();
+        assertEquals(Set.of(crac.getInstant("curative")), raUsageLimitsMap.keySet());
+        RaUsageLimits curativeRaUsageLimits = raUsageLimitsMap.get(crac.getInstant("curative"));
+        assertEquals(4, curativeRaUsageLimits.getMaxRa());
+        assertEquals(2, curativeRaUsageLimits.getMaxTso());
+        assertEquals(Map.of("BE", 6, "FR", 5), curativeRaUsageLimits.getMaxTopoPerTso());
+        assertEquals(Map.of("FR", 7), curativeRaUsageLimits.getMaxPstPerTso());
+        assertEquals(Map.of("FR", 12), curativeRaUsageLimits.getMaxRaPerTso());
+        assertEquals(Map.of("FR", 21), curativeRaUsageLimits.getMaxElementaryActionsPerTso());
+    }
+
+    private void testContentOfV2Point2Crac(Crac crac) {
+        testContentOfV2Point1Crac(crac);
 
         Set<OnFlowConstraintInCountry> urs = crac.getRemedialAction("injectionSetpointRa2Id").getUsageRules()
             .stream().filter(OnFlowConstraintInCountry.class::isInstance)

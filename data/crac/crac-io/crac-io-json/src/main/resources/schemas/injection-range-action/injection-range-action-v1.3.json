@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=injection-range-action-v1.3.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "groupId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "speed": {
+      "type": "number"
+    },
+    "networkElementIdsAndKeys": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "initialSetpoint": {
+      "type": "number"
+    },
+    "ranges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "freeToUseUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/free-to-use-usage-rule/free-to-use-usage-rule-v1.0.json"
+      }
+    },
+    "onStateUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-state-usage-rule/on-state-usage-rule-v1.0.json"
+      }
+    },
+    "onFlowConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
+      }
+    },
+    "onFlowConstraintInCountryUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.3.json"
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "networkElementIdsAndKeys",
+    "initialSetpoint",
+    "ranges"
+  ]
+}
