@@ -157,7 +157,7 @@ public final class ObjectiveFunction {
         }
 
         private void addEvaluatorsForCostlyOptimization(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Set<State> optimizedStates, MarginEvaluator marginEvaluator) {
-            this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator, raoParameters.getRangeActionsOptimizationParameters()));
+            this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates, flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
             this.withVirtualCostEvaluator(new OverloadEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
         }
 

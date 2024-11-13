@@ -21,7 +21,7 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
 
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
-                double totalVariation = costOptimization ? linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue() +  linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue(): linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue();
+                double totalVariation = costOptimization ? linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue() + linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue() : linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue();
                 if (totalVariation > 1e-6) {
                     double setpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state).solutionValue();
                     putResult(rangeAction, state, setpoint);

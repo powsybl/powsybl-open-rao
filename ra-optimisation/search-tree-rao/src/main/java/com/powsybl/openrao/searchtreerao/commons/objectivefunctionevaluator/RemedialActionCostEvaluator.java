@@ -10,11 +10,8 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,14 +27,12 @@ public class RemedialActionCostEvaluator implements FunctionalCostEvaluator {
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
-    private final RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
 
-    public RemedialActionCostEvaluator(Set<State> optimizedStates, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+    public RemedialActionCostEvaluator(Set<State> optimizedStates, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.optimizedStates = optimizedStates;
         this.flowCnecs = flowCnecs;
         this.unit = unit;
         this.marginEvaluator = marginEvaluator;
-        this.rangeActionsOptimizationParameters = rangeActionsOptimizationParameters;
     }
 
     @Override
@@ -55,30 +50,17 @@ public class RemedialActionCostEvaluator implements FunctionalCostEvaluator {
     }
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
-        double totalRangeActionsCost = 0d;
-        // TODO: this should maybe only be used for MILP equations but not in the evaluator
-        for (State state : optimizedStates) {
-            for (RangeAction<?> rangeAction : remedialActionActivationResult.getActivatedRangeActions(state)) {
-                totalRangeActionsCost += rangeAction.getActivationCost().orElse(0d);
-                if (rangeAction instanceof PstRangeAction) {
-                    totalRangeActionsCost += computeVariationCost(rangeAction, rangeActionsOptimizationParameters.getPstPenaltyCost(), state, remedialActionActivationResult);
-                } else if (rangeAction instanceof InjectionRangeAction) {
-                    totalRangeActionsCost += computeVariationCost(rangeAction, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), state, remedialActionActivationResult);
-                } else if (rangeAction instanceof HvdcRangeAction) {
-                    totalRangeActionsCost += computeVariationCost(rangeAction, rangeActionsOptimizationParameters.getHvdcPenaltyCost(), state, remedialActionActivationResult);
-                } else {
-                    // TODO: add penalty for CT
-                    totalRangeActionsCost += computeVariationCost(rangeAction, 0d, state, remedialActionActivationResult);
-                }
-            }
-        }
-        return totalRangeActionsCost;
+        return optimizedStates.stream().mapToDouble(state -> remedialActionActivationResult.getActivatedRangeActions(state).stream().mapToDouble(rangeAction -> computeRangeActionCost(rangeAction, state, remedialActionActivationResult)).sum()).sum();
     }
 
-    private double computeVariationCost(RangeAction<?> rangeAction, double defaultCost, State state, RemedialActionActivationResult remedialActionActivationResult) {
+    private double computeRangeActionCost(RangeAction<?> rangeAction, State state, RemedialActionActivationResult remedialActionActivationResult) {
         double variation = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) : remedialActionActivationResult.getSetPointVariation(rangeAction, state);
+        if (variation == 0.0) {
+            return 0.0;
+        }
+        double activationCost = rangeAction.getActivationCost().orElse(0.0);
         RangeAction.VariationDirection variationDirection = variation > 0 ? RangeAction.VariationDirection.UP : RangeAction.VariationDirection.DOWN;
-        return Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(defaultCost);
+        return activationCost + Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(0.0);
     }
 
     @Override
