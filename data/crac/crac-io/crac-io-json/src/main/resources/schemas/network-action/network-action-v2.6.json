@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v2.5.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v2.6.json",
   "type": "object",
   "properties": {
     "id": {
@@ -17,6 +17,10 @@
         "string",
         "null"
       ]
+    },
+    "activationCost": "number",
+    "variationCosts": {
+      "$ref": "resource:/schemas/variation-costs/variation-costs-v2.6.json"
     },
     "speed": {
       "type": "number"
