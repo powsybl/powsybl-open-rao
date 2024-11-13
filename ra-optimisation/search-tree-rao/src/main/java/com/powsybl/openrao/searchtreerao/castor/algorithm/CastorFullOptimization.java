@@ -27,6 +27,7 @@ import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -185,6 +186,7 @@ public class CastorFullOptimization {
 
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
         } catch (RuntimeException e) {
+            BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed during %s : %s", currentStep, e.getMessage())));
         }
     }
