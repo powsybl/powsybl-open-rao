@@ -107,7 +107,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
         OpenRaoMPConstraint activationConstraint = linearProblem.addRangeActionActivationConstraint(rangeAction, state);
         activationConstraint.setCoefficient(upwardVariationVariable, -1.0);
         activationConstraint.setCoefficient(downwardVariationVariable, -1.0);
-        activationConstraint.setCoefficient(activationVariationVariable, maxSetPoint - minSetPoint);
+        activationConstraint.setCoefficient(activationVariationVariable, maxSetPoint - minSetPoint + RANGE_ACTION_SETPOINT_EPSILON);
     }
 
     /**

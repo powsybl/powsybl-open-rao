@@ -16,12 +16,13 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
  */
 public class LinearProblemResult extends RangeActionActivationResultImpl {
 
-    public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetpoints, OptimizationPerimeter optimizationContext) {
+    public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetpoints, OptimizationPerimeter optimizationContext, boolean costOptimization) {
         super(prePerimeterSetpoints);
 
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
-                if (linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue() > 1e-6) {
+                double totalVariation = costOptimization ? linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue() +  linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue(): linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue();
+                if (totalVariation > 1e-6) {
                     double setpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state).solutionValue();
                     putResult(rangeAction, state, setpoint);
                 }
