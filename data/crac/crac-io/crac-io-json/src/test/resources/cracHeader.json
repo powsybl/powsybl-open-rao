@@ -1,4 +1,6 @@
 {
   "type": "CRAC",
-  "version": "2.5"
+  "version": "2.5",
+  "id": "CRAC Header",
+  "name": "CRAC Header"
 }

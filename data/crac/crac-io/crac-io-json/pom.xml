@@ -20,6 +20,10 @@
             <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

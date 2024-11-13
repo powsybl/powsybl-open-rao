@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=range-type-v1.0.json",
+  "enum": [
+    "absolute",
+    "relativeToPreviousInstant",
+    "relativeToInitialNetwork"
+  ],
+  "additionalProperties": false
+}

@@ -1,6 +1,6 @@
 {
   "type" : "CRAC",
-  "version" : "1.0",
+  "version" : "1.3",
   "id" : "LS_parade_pst_direct",
   "name" : "LS_parade_pst_direct",
   "networkElementsNamePerId": { },
@@ -283,5 +283,7 @@
     } ],
     "extensions" : {
     }
-  } ]
+  } ],
+  "hvdcRangeActions": [],
+  "networkActions": []
 }

@@ -537,7 +537,7 @@
       "id": "ARA_OPEN_BE1_BE3",
       "name": "ARA_OPEN_BE1_BE3",
       "operator": "BE",
-      "onContingencyStateUsageRules": [
+      "onStateUsageRules": [
         {
           "instant": "auto",
           "contingencyId": "Contingency NL2 BE3 9",
@@ -590,7 +590,7 @@
       "id": "CRA_OPEN_DE1_DE2",
       "name": "CRA_OPEN_DE1_DE2",
       "operator": "DE",
-      "onContingencyStateUsageRules": [
+      "onStateUsageRules": [
         {
           "instant": "curative",
           "contingencyId": "Contingency NL2 BE3 3",
