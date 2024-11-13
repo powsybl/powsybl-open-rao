@@ -183,7 +183,7 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus();
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus(optimizedState);
     }
 
     @Override

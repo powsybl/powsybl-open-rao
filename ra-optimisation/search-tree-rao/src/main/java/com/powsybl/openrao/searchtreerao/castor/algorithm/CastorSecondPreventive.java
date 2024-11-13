@@ -455,7 +455,7 @@ public class CastorSecondPreventive {
         correspondanceMap.forEach((pra, associatedCras) -> {
             setPointResults.get(preventiveState).put(pra, firstPreventiveResult.getOptimizedSetpoint(pra, preventiveState));
             associatedCras.forEach(cra -> contingencyResults.forEach((state, result) -> {
-                if (crac.isRangeActionAvailableInState(cra, state)) {
+                if (crac.isRangeActionAvailableInState(cra, state) && result.getComputationStatus() != FAILURE) {
                     setPointResults.putIfAbsent(state, new HashMap<>());
                     setPointResults.get(state).put(pra, result.getOptimizedSetpoint(cra, state));
                 }
@@ -464,7 +464,7 @@ public class CastorSecondPreventive {
         multipleInstantRangeActions.forEach(ra -> {
             setPointResults.get(preventiveState).put(ra, firstPreventiveResult.getOptimizedSetpoint(ra, preventiveState));
             contingencyResults.forEach((state, result) -> {
-                if (crac.isRangeActionAvailableInState(ra, state)) {
+                if (crac.isRangeActionAvailableInState(ra, state) && result.getComputationStatus() != FAILURE) {
                     setPointResults.putIfAbsent(state, new HashMap<>());
                     setPointResults.get(state).put(ra, result.getOptimizedSetpoint(ra, state));
                 }

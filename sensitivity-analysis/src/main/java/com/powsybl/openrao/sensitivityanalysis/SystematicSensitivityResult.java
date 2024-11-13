@@ -217,6 +217,9 @@ public class SystematicSensitivityResult {
     }
 
     public SensitivityComputationStatus getStatus(State state) {
+        if (status == SensitivityComputationStatus.FAILURE) {
+            return status;
+        }
         Optional<Contingency> optionalContingency = state.getContingency();
         if (optionalContingency.isPresent()) {
             List<Integer> possibleInstants = postContingencyResults.keySet().stream()
