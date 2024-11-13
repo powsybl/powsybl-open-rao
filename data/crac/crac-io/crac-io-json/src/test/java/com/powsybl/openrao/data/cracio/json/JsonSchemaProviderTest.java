@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class JsonSchemaProviderTest {
     @Test
     void testJsonValidationErrorMessages() throws IOException {
-        JsonSchema jsonSchema = getSchema(2, 5);
+        JsonSchema jsonSchema = getSchema(new Version(2, 5));
         List<String> validationErrors = getValidationErrors(jsonSchema, JsonSchemaProviderTest.class.getResourceAsStream("/cracWithErrors.json"));
         assertEquals(List.of(
             "/instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]",
@@ -54,6 +54,6 @@ class JsonSchemaProviderTest {
         String minorVersion = version.substring(3);
         String cracFile = "/retrocompatibility/v%s/crac-v%s.%s.json".formatted(majorVersion, majorVersion, minorVersion);
         assertTrue(isCracFile(JsonSchemaProviderTest.class.getResourceAsStream(cracFile)));
-        assertTrue(getValidationErrors(getSchema(Integer.parseInt(majorVersion), Integer.parseInt(minorVersion)), JsonSchemaProviderTest.class.getResourceAsStream(cracFile)).isEmpty());
+        assertTrue(getValidationErrors(getSchema(new Version(Integer.parseInt(majorVersion), Integer.parseInt(minorVersion))), JsonSchemaProviderTest.class.getResourceAsStream(cracFile)).isEmpty());
     }
 }

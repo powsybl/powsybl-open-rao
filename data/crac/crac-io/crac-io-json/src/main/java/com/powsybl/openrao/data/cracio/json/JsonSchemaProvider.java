@@ -43,10 +43,10 @@ public final class JsonSchemaProvider {
         return getValidationErrors(getSchema(getSchemaAsStream(MINIMUM_VIABLE_CRAC_SCHEMA)), cracInputStream).isEmpty();
     }
 
-    public static JsonSchema getSchema(int majorVersion, int minorVersion) {
-        InputStream schemaInputStream = getSchemaAsStream(SCHEMAS_NAME_PATTERN.formatted(majorVersion, minorVersion));
+    public static JsonSchema getSchema(Version version) {
+        InputStream schemaInputStream = getSchemaAsStream(SCHEMAS_NAME_PATTERN.formatted(version.majorVersion(), version.minorVersion()));
         if (schemaInputStream == null) {
-            throw new OpenRaoException("v%s.%s is not a valid JSON CRAC version.".formatted(majorVersion, minorVersion));
+            throw new OpenRaoException("v%s.%s is not a valid JSON CRAC version.".formatted(version.majorVersion(), version.minorVersion()));
         }
         return getSchema(schemaInputStream);
     }

@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracapi.io.Importer;
 import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.json.deserializers.CracDeserializer;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -56,13 +55,13 @@ public class JsonImport implements Importer {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inputStream.readAllBytes());
             if (isCracFile(byteArrayInputStream)) {
                 byteArrayInputStream.reset();
-                Pair<Integer, Integer> cracVersion = readVersion(byteArrayInputStream);
-                JsonSchema jsonSchema = getSchema(cracVersion.getLeft(), cracVersion.getRight());
+                Version cracVersion = readVersion(byteArrayInputStream);
+                JsonSchema jsonSchema = getSchema(cracVersion);
                 List<String> validationError = getValidationErrors(jsonSchema, byteArrayInputStream);
                 if (validationError.isEmpty()) {
                     return true;
                 }
-                throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.getLeft(), cracVersion.getRight(), String.join("; ", validationError)));
+                throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.majorVersion(), cracVersion.minorVersion(), String.join("; ", validationError)));
             }
             return false;
         } catch (IOException e) {
@@ -96,12 +95,12 @@ public class JsonImport implements Importer {
         }
     }
 
-    private static Pair<Integer, Integer> readVersion(ByteArrayInputStream cracByteArrayInputStream) {
+    private static Version readVersion(ByteArrayInputStream cracByteArrayInputStream) {
         String cracContent = new String(cracByteArrayInputStream.readAllBytes(), StandardCharsets.UTF_8);
         cracByteArrayInputStream.reset();
         Pattern versionPattern = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
         Matcher versionMatcher = versionPattern.matcher(cracContent);
         versionMatcher.find();
-        return Pair.of(Integer.parseInt(versionMatcher.group(1)), Integer.parseInt(versionMatcher.group(2)));
+        return new Version(Integer.parseInt(versionMatcher.group(1)), Integer.parseInt(versionMatcher.group(2)));
     }
 }
