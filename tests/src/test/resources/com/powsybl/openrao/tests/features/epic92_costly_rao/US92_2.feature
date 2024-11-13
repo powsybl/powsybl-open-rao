@@ -53,7 +53,7 @@ Feature: US 92.1: Costly range actions optimization
     And the value of the objective function after PRA should be 2827226.08
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the tap of PstRangeAction "pstBeFr3" should be -9 after "coBeFr2" at "curative"
-    # Activation of pstBeFr3 twice (2 * 20) + 9 taps moved in total(3 * 7.5 + 6 * 7.5)
+    # Activation of pstBeFr3 twice (2 * 20) + 9 taps moved in total (3 * 7.5 + 6 * 7.5)
     And the value of the objective function after CRA should be 107.5
 
   @fast @preventive-only @costly @rao
@@ -72,3 +72,20 @@ Feature: US 92.1: Costly range actions optimization
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the tap of PstRangeAction "pstBeFr3" should be -9 after "coBeFr2" at "curative"
     And the value of the objective function after CRA should be 0
+
+  @fast @preventive-only @costly @rao @second-preventive
+  Scenario: US 92.2.5: PST in 2nd preventive optimization
+    PST is moved to tap -9 straight from preventive optimization to cut curative activation costs.
+    Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
+    Given crac file is "epic92/crac-92-2-3.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
+    When I launch search_tree_rao
+    Then the worst margin is 11.73 MW
+    And the value of the objective function initially should be 4300000.0
+    And 1 remedial actions are used in preventive
+    And the remedial action "pstBeFr3" is used in preventive
+    And the tap of PstRangeAction "pstBeFr3" should be -9 in preventive
+    # Activation of pstBeFr3 twice (20) + 9 taps moved (9 * 7.5)
+    And the value of the objective function after PRA should be 87.5
+    And 0 remedial actions are used after "coBeFr2" at "curative"
+    And the value of the objective function after CRA should be 87.5

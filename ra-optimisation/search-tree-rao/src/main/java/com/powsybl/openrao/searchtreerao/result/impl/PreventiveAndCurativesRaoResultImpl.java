@@ -368,8 +368,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     private double getTotalFunctionalCostForInstant(Instant instant) {
-        double preventiveCost = secondPreventivePerimeterResult.getFunctionalCost();
-        return preventiveCost
+        return secondPreventivePerimeterResult.getFunctionalCost()
             + postContingencyResults.entrySet().stream()
             .filter(entry -> entry.getKey().getInstant().equals(instant) || entry.getKey().getInstant().comesBefore(instant))
             .map(Map.Entry::getValue)
