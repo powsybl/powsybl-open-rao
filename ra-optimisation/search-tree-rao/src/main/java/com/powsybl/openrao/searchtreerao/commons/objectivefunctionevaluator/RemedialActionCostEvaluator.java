@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class RemedialActionCostEvaluator implements FunctionalCostEvaluator {
+public class RemedialActionCostEvaluator implements CostEvaluator {
     private final Set<State> optimizedStates;
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
