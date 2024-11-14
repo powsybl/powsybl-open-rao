@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class OverloadEvaluator implements VirtualCostEvaluator {
+public class OverloadEvaluator implements CostEvaluator {
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;

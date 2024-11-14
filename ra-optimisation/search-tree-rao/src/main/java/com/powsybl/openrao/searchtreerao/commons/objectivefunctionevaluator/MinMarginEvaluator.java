@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class MinMarginEvaluator implements FunctionalCostEvaluator {
+public class MinMarginEvaluator implements CostEvaluator {
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
