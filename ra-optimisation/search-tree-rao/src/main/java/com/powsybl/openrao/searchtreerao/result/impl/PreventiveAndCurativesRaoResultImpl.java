@@ -23,6 +23,8 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.MaximumFunctionalCostComputer;
+import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.TotalFunctionalCostComputer;
 
 import java.util.*;
 
@@ -240,7 +242,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
         if (objectiveFunctionParameters.getType().costOptimization()) {
-            return optimizedInstant == null ? 0.0 : getTotalFunctionalCostForInstant(optimizedInstant);
+            return new TotalFunctionalCostComputer(secondPreventivePerimeterResult, postContingencyResults).computeFunctionalCost(optimizedInstant);
         }
         if (optimizedInstant == null) {
             return initialResult.getFunctionalCost();
@@ -254,7 +256,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         } else {
             // No second preventive was run => use CRAO1 results
             // OR ARA
-            return getHighestFunctionalForInstant(optimizedInstant);
+            return new MaximumFunctionalCostComputer(secondPreventivePerimeterResult, postContingencyResults).computeFunctionalCost(optimizedInstant);
         }
     }
 
@@ -353,39 +355,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             optimizedStateForState.put(cnecState, optimizedState);
             return optimizedState;
         }
-    }
-
-    private double getHighestFunctionalForInstant(Instant instant) {
-        double highestFunctionalCost = secondPreventivePerimeterResult.getFunctionalCost();
-        highestFunctionalCost = Math.max(
-            highestFunctionalCost,
-            postContingencyResults.entrySet().stream()
-                .filter(entry -> !entry.getKey().getInstant().comesAfter(instant))
-                .map(Map.Entry::getValue)
-                .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
-                .map(OptimizationResult::getFunctionalCost)
-                .max(Double::compareTo)
-                .orElse(-Double.MAX_VALUE)
-        );
-        return highestFunctionalCost;
-    }
-
-    private double getTotalFunctionalCostForInstant(Instant instant) {
-        return secondPreventivePerimeterResult.getFunctionalCost()
-            + postContingencyResults.entrySet().stream()
-            .filter(entry -> !entry.getKey().getInstant().comesAfter(instant))
-            .map(Map.Entry::getValue)
-            .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
-            .mapToDouble(OptimizationResult::getFunctionalCost)
-            .sum();
-    }
-
-    /**
-     * Returns true if the perimeter has an actual functional cost, ie has CNECs
-     * (as opposed to a perimeter with pure MNECs only)
-     */
-    private static boolean hasActualFunctionalCost(OptimizationResult perimeterResult) {
-        return !perimeterResult.getMostLimitingElements(1).isEmpty();
     }
 
     public List<FlowCnec> getMostLimitingElements() {
