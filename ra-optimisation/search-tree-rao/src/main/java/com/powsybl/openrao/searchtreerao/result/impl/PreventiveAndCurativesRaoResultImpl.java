@@ -239,19 +239,22 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
+        if (objectiveFunctionParameters.getType().costOptimization()) {
+            return optimizedInstant == null ? 0.0 : getTotalFunctionalCostForInstant(optimizedInstant);
+        }
         if (optimizedInstant == null) {
             return initialResult.getFunctionalCost();
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
             optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto())) {
             // using postPreventiveResult would exclude curative CNECs
-            return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : resultsWithPrasForAllCnecs.getFunctionalCost();
+            return resultsWithPrasForAllCnecs.getFunctionalCost();
         } else if (optimizedInstant.isCurative() && finalCostEvaluator != null) {
             // When a second preventive optimization has been run, use its updated cost evaluation
-            return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : finalCostEvaluator.getFunctionalCost();
+            return finalCostEvaluator.getFunctionalCost();
         } else {
             // No second preventive was run => use CRAO1 results
             // OR ARA
-            return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : getHighestFunctionalForInstant(optimizedInstant);
+            return getHighestFunctionalForInstant(optimizedInstant);
         }
     }
 
@@ -357,7 +360,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         highestFunctionalCost = Math.max(
             highestFunctionalCost,
             postContingencyResults.entrySet().stream()
-                .filter(entry -> entry.getKey().getInstant().equals(instant) || entry.getKey().getInstant().comesBefore(instant))
+                .filter(entry -> !entry.getKey().getInstant().comesAfter(instant))
                 .map(Map.Entry::getValue)
                 .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
                 .map(OptimizationResult::getFunctionalCost)
@@ -370,7 +373,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     private double getTotalFunctionalCostForInstant(Instant instant) {
         return secondPreventivePerimeterResult.getFunctionalCost()
             + postContingencyResults.entrySet().stream()
-            .filter(entry -> entry.getKey().getInstant().equals(instant) || entry.getKey().getInstant().comesBefore(instant))
+            .filter(entry -> !entry.getKey().getInstant().comesAfter(instant))
             .map(Map.Entry::getValue)
             .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
             .mapToDouble(OptimizationResult::getFunctionalCost)
