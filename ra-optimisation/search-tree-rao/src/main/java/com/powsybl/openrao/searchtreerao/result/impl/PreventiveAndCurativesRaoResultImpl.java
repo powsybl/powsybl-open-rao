@@ -247,7 +247,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : resultsWithPrasForAllCnecs.getFunctionalCost();
         } else if (optimizedInstant.isCurative() && finalCostEvaluator != null) {
             // When a second preventive optimization has been run, use its updated cost evaluation
-            return finalCostEvaluator.getFunctionalCost();
+            return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : finalCostEvaluator.getFunctionalCost();
         } else {
             // No second preventive was run => use CRAO1 results
             // OR ARA
