@@ -3,16 +3,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 92.4: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
+Feature: US 92.5: Exhaustive costly optimization - CONTINUOUS PSTs
 
   @fast @preventive-only @costly @rao
-  Scenario: US 92.4.1: Activate one topological action and one PST in preventive
+  Scenario: US 92.5.1: Activate one topological action and one PST in preventive
   Two ways to secure the network:
   1. move PST to tap -5 => cost of 25
   2. (optimal) close line BE-FR 2 and move PST to tap -2 => cost of 20
     Given network file is "epic92/2Nodes3ParallelLinesPST2LinesClosed.uct"
     Given crac file is "epic92/crac-92-4-1.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch search_tree_rao
     Then the worst margin is 32.13 MW
     And the value of the objective function initially should be 2000000.0
@@ -23,14 +23,14 @@ Feature: US 92.4: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     And the value of the objective function after PRA should be 20.0
 
   @fast @costly @rao
-  Scenario: US 92.4.2: Preventive and curative PST + curative topological action
+  Scenario: US 92.5.2: Preventive and curative PST + curative topological action
   The PST is moved to tap -5 to secure the preventive perimeter for a total cost of 95
   (20 for activation + 5 * 15 for variation). Then, there are two ways to secure the curative perimeter:
   1. move PST to tap -7 => cost of 20 + 2 * 15 = 50
   2. (optimal) close line BE-FR 3 and move PST to tap -6 => cost of 10 + 20 + 1 * 15 = 45
     Given network file is "epic92/2Nodes4ParallelLinesPST3LinesClosed.uct"
     Given crac file is "epic92/crac-92-4-2.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch search_tree_rao
     # Worst margin on preventive CNEC
     Then the worst margin is 5.3 MW
@@ -48,11 +48,11 @@ Feature: US 92.4: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     And the value of the objective function after CRA should be 140.0
 
   @fast @costly @rao @second-preventive
-  Scenario: US 92.4.3: Preventive and curative PST + curative topological action with 2nd preventive optimization
+  Scenario: US 92.5.3: Preventive and curative PST + curative topological action with 2nd preventive optimization
   The PST is moved to tap -6 straight from preventive to only activate the remedial action once.
     Given network file is "epic92/2Nodes4ParallelLinesPST3LinesClosed.uct"
     Given crac file is "epic92/crac-92-4-2.json"
-    Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective_2P.json"
     When I launch search_tree_rao
     # Worst margin on curative CNEC
     Then the worst margin is 13.02 MW

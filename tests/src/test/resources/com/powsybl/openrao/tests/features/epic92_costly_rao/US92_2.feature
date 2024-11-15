@@ -19,7 +19,6 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     And the remedial action "pstBeFr2" is used in preventive
     And the tap of PstRangeAction "pstBeFr2" should be -5 in preventive
     And the value of the objective function after PRA should be 55.0
-    # TODO: duplicate test with CONTINUOUS PSTs (does not work so far because of rounding)
 
   @fast @preventive-only @costly @rao
   Scenario: US 92.2.2: Two PSTs
@@ -38,7 +37,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     And the tap of PstRangeAction "pstBeFr3" should be -9 in preventive
     And the value of the objective function after PRA should be 140.0
 
-  @fast @preventive-only @costly @rao
+  @fast @costly @rao
   Scenario: US 92.2.3: Costly PST in preventive and curative
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-3.json"
@@ -56,7 +55,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     # Activation of pstBeFr3 twice (2 * 20) + 9 taps moved in total (3 * 7.5 + 6 * 7.5)
     And the value of the objective function after CRA should be 107.5
 
-  @fast @preventive-only @costly @rao
+  @fast @costly @rao
   Scenario: US 92.2.4: Free PST in preventive and curative
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-4.json"
@@ -73,7 +72,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     And the tap of PstRangeAction "pstBeFr3" should be -9 after "coBeFr2" at "curative"
     And the value of the objective function after CRA should be 0
 
-  @fast @preventive-only @costly @rao @second-preventive
+  @fast @costly @rao @second-preventive
   Scenario: US 92.2.5: PST in 2nd preventive optimization
     PST is moved to tap -9 straight from preventive optimization to cut curative activation costs.
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
