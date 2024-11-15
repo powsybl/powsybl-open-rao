@@ -7,6 +7,7 @@
 package com.powsybl.openrao.raoapi.json;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -52,7 +53,8 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         // Objective Function parameters
-        parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+        parameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
         parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);

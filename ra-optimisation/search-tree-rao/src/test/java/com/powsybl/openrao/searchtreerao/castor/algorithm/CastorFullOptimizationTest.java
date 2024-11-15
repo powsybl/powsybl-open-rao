@@ -193,7 +193,8 @@ class CastorFullOptimizationTest {
 
         raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
 
@@ -287,7 +288,8 @@ class CastorFullOptimizationTest {
 
         raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
 

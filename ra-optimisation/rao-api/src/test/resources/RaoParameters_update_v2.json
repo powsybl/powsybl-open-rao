@@ -1,7 +1,8 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
+    "type" : "MAX_MIN_MARGIN",
+    "unit" : "MW",
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
     "enforce-curative-security" : false
   },
