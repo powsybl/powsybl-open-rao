@@ -11,6 +11,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.cracio.json.JsonCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.io.Exporter;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.raoresultjson.serializers.RaoResultJsonSerializerModule;
@@ -22,27 +24,65 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 /**
+ * Rao Result exporter in JSON format.
+ * <p/>
+ * Optional properties:
+ * <ul>
+ *     <li>
+ *         <i>flows-in-amperes</i>: boolean (default is "false").
+ *     </li>
+ *     <li>
+ *         <i>flows-in-megawatts</i>: boolean (default is "false").
+ *     </li>
+ * </ul>
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(Exporter.class)
 public class RaoResultJsonExporter implements Exporter {
+    private static final String JSON_EXPORT_PROPERTIES_PREFIX = "rao-result.export.json.";
+    private static final String FLOWS_IN_AMPERES = "flows-in-amperes";
+    private static final String FLOWS_IN_MEGAWATTS = "flows-in-megawatts";
+
     @Override
     public String getFormat() {
         return "JSON";
     }
 
     @Override
-    public void exportData(RaoResult raoResult, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
-        if (flowUnits.isEmpty()) {
-            throw new OpenRaoException("At least one flow unit should be defined");
+    public Set<String> getRequiredProperties() {
+        return Set.of();
+    }
+
+    @Override
+    public Class<? extends CracCreationContext> getCracCreationContextClass() {
+        return JsonCracCreationContext.class;
+    }
+
+    @Override
+    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+        validateDataToExport(cracCreationContext, properties);
+        exportData(raoResult, cracCreationContext.getCrac(), properties, outputStream);
+    }
+
+    @Override
+    public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
+        boolean flowsInAmperes = Boolean.parseBoolean(properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, "false"));
+        boolean flowsInMegawatts = Boolean.parseBoolean(properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS, "false"));
+        if (!flowsInAmperes && !flowsInMegawatts) {
+            throw new OpenRaoException("At least one flow unit should be used. Please provide %s and/or %s in the properties.".formatted(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS));
         }
-        if (flowUnits.stream().anyMatch(unit -> !unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT))) {
-            // TODO : we can actually handle all units with PhysicalParameter.FLOW
-            // but we'll have to add export feature for %Imax
-            throw new OpenRaoException("Flow unit should be AMPERE and/or MEGAWATT");
+        Set<Unit> flowUnits = new HashSet<>();
+        if (flowsInAmperes) {
+            flowUnits.add(Unit.AMPERE);
+        }
+        if (flowsInMegawatts) {
+            flowUnits.add(Unit.MEGAWATT);
         }
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();

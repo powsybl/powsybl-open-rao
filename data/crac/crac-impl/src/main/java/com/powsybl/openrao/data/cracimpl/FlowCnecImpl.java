@@ -159,11 +159,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
         Branch branch = network.getBranch(getNetworkElement().getId());
         if (getMonitoredSides().size() == 2) {
-            double power1;
-            double power2;
-            power1 = getFlow(branch, TwoSides.ONE, unit);
-            power2 = getFlow(branch, TwoSides.TWO, unit);
-            return new FlowCnecValue(power1, power2);
+            return new FlowCnecValue(getFlow(branch, TwoSides.ONE, unit), getFlow(branch, TwoSides.TWO, unit));
         } else {
             TwoSides monitoredSide = getMonitoredSides().iterator().next();
             double power = getFlow(branch, monitoredSide, unit);
@@ -176,14 +172,15 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     private double getFlow(Branch branch, TwoSides side, Unit unit) {
-        double power = branch.getTerminal(side).getP();
+        double activeFlow = branch.getTerminal(side).getP();
+        double intensity = branch.getTerminal(side).getI();
         if (unit.equals(Unit.AMPERE)) {
-            power = branch.getTerminal(side).getI();
-            return Double.isNaN(power) ? branch.getTerminal(side).getP() * getFlowUnitMultiplierMegawattToAmpere(side) : power;
+            // In case flows are negative, we shall replace this value by its opposite
+            return Double.isNaN(intensity) ? activeFlow * getFlowUnitMultiplierMegawattToAmpere(side) : Math.signum(activeFlow) * intensity;
         } else if (!unit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec can only be requested in AMPERE or MEGAWATT");
         }
-        return Double.isNaN(power) ? branch.getTerminal(side).getP() * getFlowUnitMultiplierMegawattToAmpere(side) : power;
+        return activeFlow;
     }
 
     @Override
@@ -223,7 +220,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
             if (getMonitoredSides().contains(TwoSides.ONE)) {
                 double marginLowerBoundSideOne = flowCnecValue.side1Value() - getLowerBound(TwoSides.ONE, unit).orElse(Double.NEGATIVE_INFINITY);
-                double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
+                double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side1Value();
 
                 if (marginUpperBoundSideOne < 0) {
                     highVoltageConstraints = true;

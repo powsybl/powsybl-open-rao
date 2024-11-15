@@ -233,7 +233,7 @@ public class Monitoring {
         if (state.getInstant().isCurative()) {
             Optional<Contingency> contingency = state.getContingency();
             crac.getStates(contingency.orElseThrow()).forEach(contingencyState ->
-                applyOptimalRemedialActions(state, network, raoResult));
+                applyOptimalRemedialActions(contingencyState, network, raoResult));
         } else {
             applyOptimalRemedialActions(state, network, raoResult);
         }

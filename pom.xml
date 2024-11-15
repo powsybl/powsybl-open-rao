@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>13</version>
+        <version>19</version>
         <relativePath/>
     </parent>
 
@@ -121,6 +121,7 @@
         <powsybl.openloadflow.version>1.13.1</powsybl.openloadflow.version>
         <slf4j.version>2.0.13</slf4j.version>
         <xmlunit.core.version>2.10.0</xmlunit.core.version>
+        <com.networknt.version>1.5.3</com.networknt.version>
     </properties>
 
     <build>
@@ -337,6 +338,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>${com.networknt.version}</version>
             </dependency>
 
             <!-- Provided dependencies -->

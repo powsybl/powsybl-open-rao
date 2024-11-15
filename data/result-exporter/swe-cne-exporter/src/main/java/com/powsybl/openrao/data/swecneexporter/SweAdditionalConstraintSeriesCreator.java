@@ -19,13 +19,14 @@ import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.AdditionalConstraintSeries;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING;
 
 /**
  * Generates AdditionalConstraintSeries for SWE CNE format
@@ -75,9 +76,23 @@ public class SweAdditionalConstraintSeriesCreator {
             additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedObjectId());
             additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
             additionalConstraintSeries.setName(angleCnec.getName());
-            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
+            additionalConstraintSeries.setQuantityQuantity(roundAngleValue(angleCnec, crac, raoResult));
             return additionalConstraintSeries;
         }
         return null;
+    }
+
+    /**
+     * Round the angle value of an AngleCNEC with a relevant number decimals.
+     * Generally, only one decimal suffices but in case of very small violations,
+     * the number of decimals must be increased so the violation can be
+     * read directly in the results.
+     */
+    static BigDecimal roundAngleValue(AngleCnec angleCnec, Crac crac, RaoResult raoResult) {
+        double angle = raoResult.getAngle(crac.getInstant(InstantKind.CURATIVE), angleCnec, Unit.DEGREE);
+        double marginOnLowerBound = angle - angleCnec.getLowerBound(Unit.DEGREE).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = angleCnec.getUpperBound(Unit.DEGREE).orElse(Double.POSITIVE_INFINITY) - angle;
+        double margin = Math.min(marginOnLowerBound, marginOnUpperBound);
+        return roundValueBasedOnMargin(angle, margin, DEFAULT_DECIMALS_FOR_ROUNDING);
     }
 }

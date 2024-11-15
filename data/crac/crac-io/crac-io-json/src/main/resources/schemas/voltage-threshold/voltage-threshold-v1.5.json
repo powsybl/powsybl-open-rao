@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=voltage-threshold-v1.5.json",
+  "type": "object",
+  "properties": {
+    "unit": {
+      "const": "kilovolt"
+    },
+    "max": {
+      "type": "number"
+    },
+    "min": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "unit"
+  ]
+}
