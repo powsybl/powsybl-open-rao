@@ -97,7 +97,7 @@
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
+        <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
         <jimfs.version>1.3.0</jimfs.version>
         <junit.bom.version>5.11.3</junit.bom.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
