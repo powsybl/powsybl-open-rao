@@ -26,7 +26,7 @@ public final class EvaluatorsUtils {
     private EvaluatorsUtils() {
     }
 
-    public static List<FlowCnec> getCostlyElements(Set<FlowCnec> flowCnecs, MarginEvaluator marginEvaluator, Unit unit, FlowResult flowResult, Set<String> contingenciesToExclude) {
+    public static List<FlowCnec> getMostConstrainedElements(Set<FlowCnec> flowCnecs, MarginEvaluator marginEvaluator, Unit unit, FlowResult flowResult, Set<String> contingenciesToExclude) {
         Map<FlowCnec, Double> margins = new HashMap<>();
 
         flowCnecs.stream()

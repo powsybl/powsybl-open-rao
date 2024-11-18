@@ -104,19 +104,19 @@ class RemedialActionCostEvaluatorImplTest {
 
     @Test
     void testBasicData() {
-        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state), Set.of(), Unit.MEGAWATT, marginEvaluator, rangeActionsOptimizationParameters);
+        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state), Set.of(), Unit.MEGAWATT, marginEvaluator);
         assertEquals(Unit.MEGAWATT, evaluator.getUnit());
         assertEquals("remedial-action-cost-evaluator", evaluator.getName());
     }
 
     @Test
     void testTotalRemedialActionCost() {
-        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state), Set.of(), Unit.MEGAWATT, marginEvaluator, rangeActionsOptimizationParameters);
+        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state), Set.of(), Unit.MEGAWATT, marginEvaluator);
 
         FlowResult flowResult = Mockito.mock(FlowResult.class);
 
         Pair<Double, List<FlowCnec>> costAndLimitingElements = evaluator.computeCostAndLimitingElements(flowResult, remedialActionActivationResult, Set.of());
-        assertEquals(11738.8, costAndLimitingElements.getLeft());
+        assertEquals(11587.25, costAndLimitingElements.getLeft());
         assertTrue(costAndLimitingElements.getRight().isEmpty());
     }
 }
