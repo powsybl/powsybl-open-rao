@@ -114,18 +114,13 @@ public final class ObjectiveFunction {
             // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
             if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
                 && !operatorsNotToOptimizeInCurative.isEmpty()) {
-                if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                    addEvaluatorsForCostlyOptimization(flowCnecs, raoParameters, optimizedStates, marginEvaluator);
-                } else {
-                    this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
-                        new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
-                }
+                marginEvaluator = new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult);
+            }
+
+            if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
+                addEvaluatorsForCostlyOptimization(flowCnecs, raoParameters, optimizedStates, marginEvaluator);
             } else {
-                if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                    addEvaluatorsForCostlyOptimization(flowCnecs, raoParameters, optimizedStates, marginEvaluator);
-                } else {
-                    this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
-                }
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
             }
 
             // mnec virtual cost evaluator
