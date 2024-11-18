@@ -54,6 +54,10 @@ public class PrePerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
     }
 
+    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
+        return runInitialSensitivityAnalysis(network, crac, Set.of());
+    }
+
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac, Set<State> optimizedStates) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
             .withOutageInstant(crac.getOutageInstant());

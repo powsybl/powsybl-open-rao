@@ -81,7 +81,7 @@ public class CastorFullOptimization {
             toolProvider);
 
         PrePerimeterResult initialOutput;
-        initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac, Set.of());
+        initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
         if (initialOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Initial sensitivity analysis failed");
             return CompletableFuture.completedFuture(new FailedRaoResultImpl("Initial sensitivity analysis failed"));
