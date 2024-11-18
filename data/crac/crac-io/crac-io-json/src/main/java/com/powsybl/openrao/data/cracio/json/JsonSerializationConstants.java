@@ -525,7 +525,7 @@ public final class JsonSerializationConstants {
         } else if (DOWN.equals(variationDirection)) {
             return RangeAction.VariationDirection.DOWN;
         } else {
-            throw new OpenRaoException("Unexpected variatoin direction '%s'.".formatted(variationDirection));
+            throw new OpenRaoException("Unexpected variation direction '%s'.".formatted(variationDirection));
         }
     }
 }
