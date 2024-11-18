@@ -137,6 +137,7 @@ public final class AutomatonSimulator {
         // Sensitivity analysis failed :
         if (rangeAutomatonSimulationResult.perimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
             AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
+                postAutoSearchTreeResult,
                 rangeAutomatonSimulationResult.perimeterResult(),
                 topoSimulationResult.activatedNetworkActions(),
                 autoSearchTreeResult == null ? new HashSet<>() : new HashSet<>(autoSearchTreeResult.getActivatedNetworkActions()),
@@ -153,6 +154,7 @@ public final class AutomatonSimulator {
         Map<RangeAction<?>, Double> rangeActionsWithSetpoint = rangeAutomatonSimulationResult.rangeActionsWithSetpoint();
         prePerimeterResultForOptimizedState.getRangeActionSetpointResult().getRangeActions().forEach(ra -> rangeActionsWithSetpoint.putIfAbsent(ra, prePerimeterResultForOptimizedState.getSetpoint(ra)));
         AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
+            postAutoSearchTreeResult,
             prePerimeterResultForOptimizedState,
             topoSimulationResult.activatedNetworkActions(),
             autoSearchTreeResult == null ? new HashSet<>() : new HashSet<>(autoSearchTreeResult.getActivatedNetworkActions()),
@@ -208,6 +210,7 @@ public final class AutomatonSimulator {
 
     AutomatonPerimeterResultImpl createFailedAutomatonPerimeterResult(State autoState, PrePerimeterResult result, Set<NetworkAction> activatedNetworkActions, String defineMoment) {
         AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
+            result,
             result,
             activatedNetworkActions,
             new HashSet<>(),
