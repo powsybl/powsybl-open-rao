@@ -40,8 +40,9 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     public MaxMinRelativeMarginFiller(Set<FlowCnec> optimizedCnecs,
                                       FlowResult preOptimFlowResult,
                                       Unit unit,
+                                      boolean costOptimization,
                                       RelativeMarginsParametersExtension maxMinRelativeMarginParameters) {
-        super(optimizedCnecs, unit);
+        super(optimizedCnecs, unit, costOptimization);
         this.preOptimFlowResult = preOptimFlowResult;
         this.ptdfApproximationLevel = maxMinRelativeMarginParameters.getPtdfApproximation();
         this.unit = unit;

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class MnecViolationCostEvaluator implements CostEvaluator {
+public class MnecViolationCostEvaluator implements VirtualCostEvaluator {
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final FlowResult initialFlowResult;

@@ -41,8 +41,9 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     private final FlowResult postCraSensitivityFlowResult; // contains final flows
     private final ObjectiveFunctionResult postCraSensitivityObjectiveResult; // contains final flows
     private final SensitivityResult postCraSensitivitySensitivityResult; // contains final flows
+    private final boolean costOptimization;
 
-    private CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, FlowResult postCraSensitivityFlowResult, ObjectiveFunctionResult postCraSensitivityObjectiveResult, SensitivityResult postCraSensitivitySensitivityResult) {
+    private CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, FlowResult postCraSensitivityFlowResult, ObjectiveFunctionResult postCraSensitivityObjectiveResult, SensitivityResult postCraSensitivitySensitivityResult, boolean costOptimization) {
         this.state = state;
         this.firstCraoResult = firstCraoResult;
         this.secondPraoResult = secondPraoResult;
@@ -50,10 +51,11 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         this.postCraSensitivityFlowResult = postCraSensitivityFlowResult;
         this.postCraSensitivityObjectiveResult = postCraSensitivityObjectiveResult;
         this.postCraSensitivitySensitivityResult = postCraSensitivitySensitivityResult;
+        this.costOptimization = costOptimization;
     }
 
-    public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, PrePerimeterResult postCraPrePerimeterResult) {
-        this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, postCraPrePerimeterResult, postCraPrePerimeterResult, postCraPrePerimeterResult);
+    public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, PrePerimeterResult postCraPrePerimeterResult, boolean costOptimization) {
+        this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, postCraPrePerimeterResult, postCraPrePerimeterResult, postCraPrePerimeterResult, costOptimization);
     }
 
     private void checkState(State stateToCheck) {
@@ -124,9 +126,13 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
 
     @Override
     public double getFunctionalCost() {
-        // Careful : this returns functional cost over all curative perimeters, but it should be enough for normal use
-        // since we never really need functional cost per perimeter at the end of the RAO
-        return postCraSensitivityObjectiveResult.getFunctionalCost();
+        if (costOptimization) {
+            return getActivatedNetworkActions().stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum();
+        } else {
+            // Careful : this returns functional cost over all curative perimeters, but it should be enough for normal use
+            // since we never really need functional cost per perimeter at the end of the RAO
+            return postCraSensitivityObjectiveResult.getFunctionalCost();
+        }
     }
 
     @Override

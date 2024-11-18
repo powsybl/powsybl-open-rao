@@ -81,7 +81,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
 
-        CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
+        MarginCoreProblemFiller marginCoreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             rangeActionParameters,
@@ -97,7 +97,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult);
 
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(discretePstTapFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())

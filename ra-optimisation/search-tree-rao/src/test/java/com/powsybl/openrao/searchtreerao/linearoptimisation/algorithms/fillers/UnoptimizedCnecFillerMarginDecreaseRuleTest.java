@@ -44,7 +44,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
 
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller marginCoreProblemFiller;
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
     private FlowCnec cnecNl;
     private FlowCnec cnecFr;
@@ -82,7 +82,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
-        coreProblemFiller = new CoreProblemFiller(
+        marginCoreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
                 rangeActionParameters,
@@ -96,7 +96,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinMargin(boolean initialFlowsAreNan) {
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"));
-        MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnecNl, cnecFr), Unit.MEGAWATT);
+        MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnecNl, cnecFr), Unit.MEGAWATT, false);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(cnecNl, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(400.);
         when(initialFlowResult.getMargin(cnecFr, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(600.);
@@ -110,7 +110,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
                 unoptimizedCnecParameters
         );
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
@@ -131,6 +131,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
                 Set.of(cnecNl, cnecFr),
                 initialFlowResult,
                 Unit.MEGAWATT,
+                false,
                 maxMinRelativeMarginParameters
         );
         double relMarginCoef = Math.max(initialFlowResult.getPtdfZonalSum(cnecFr, TwoSides.ONE), maxMinRelativeMarginParameters.getPtdfSumLowerBound());
@@ -143,7 +144,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
                 unoptimizedCnecParameters
         );
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)

@@ -89,7 +89,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
         OpenRaoMPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
         OpenRaoMPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
 
-        // build integer constraint as it wasn't built in CoreProblemFiller
+        // build integer constraint as it wasn't built in MarginCoreProblemFiller
         if (lastAvailableRangeAction != null) {
             RangeAction<?> preventiveRangeAction = lastAvailableRangeAction.getKey();
             Pair<Double, Double> pstLimits = getMinAndMaxRelativeTaps(pstRangeAction, linearProblem.infinity());

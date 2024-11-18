@@ -48,6 +48,9 @@ public final class LinearProblemIdGenerator {
     private static final String TSO_RA_USED = "tsoraused";
     private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
+    private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
+    private static final String RANGE_ACTION_ACTIVATION = "rangeactionactivation";
+    private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -216,4 +219,17 @@ public final class LinearProblemIdGenerator {
     public static String maxElementaryActionsPerTsoConstraintId(String operator, State state) {
         return MAX_ELEMENTARY_ACTIONS_PER_TSO + SEPARATOR + operator + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
+
+    public static String rangeActionVariationVariableId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return RANGE_ACTION_VARIATION + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + VARIABLE_SUFFIX + SEPARATOR + variationDirection;
+    }
+
+    public static String rangeActionActivationConstraintId(RangeAction<?> rangeAction, State state) {
+        return RANGE_ACTION_ACTIVATION + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String rangeActionSetPointVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return RANGE_ACTION_SET_POINT_VARIATION + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
 }

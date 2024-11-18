@@ -23,6 +23,8 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.MaximumFunctionalCostComputer;
+import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.TotalFunctionalCostComputer;
 
 import java.util.*;
 
@@ -239,19 +241,22 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
+        if (objectiveFunctionParameters.getType().costOptimization()) {
+            return new TotalFunctionalCostComputer(secondPreventivePerimeterResult, postContingencyResults).computeFunctionalCost(optimizedInstant);
+        }
         if (optimizedInstant == null) {
             return initialResult.getFunctionalCost();
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
             optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto())) {
             // using postPreventiveResult would exclude curative CNECs
-            return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : resultsWithPrasForAllCnecs.getFunctionalCost();
+            return resultsWithPrasForAllCnecs.getFunctionalCost();
         } else if (optimizedInstant.isCurative() && finalCostEvaluator != null) {
             // When a second preventive optimization has been run, use its updated cost evaluation
             return finalCostEvaluator.getFunctionalCost();
         } else {
             // No second preventive was run => use CRAO1 results
             // OR ARA
-            return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : getHighestFunctionalForInstant(optimizedInstant);
+            return new MaximumFunctionalCostComputer(secondPreventivePerimeterResult, postContingencyResults).computeFunctionalCost(optimizedInstant);
         }
     }
 
@@ -350,40 +355,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             optimizedStateForState.put(cnecState, optimizedState);
             return optimizedState;
         }
-    }
-
-    private double getHighestFunctionalForInstant(Instant instant) {
-        double highestFunctionalCost = secondPreventivePerimeterResult.getFunctionalCost();
-        highestFunctionalCost = Math.max(
-            highestFunctionalCost,
-            postContingencyResults.entrySet().stream()
-                .filter(entry -> entry.getKey().getInstant().equals(instant) || entry.getKey().getInstant().comesBefore(instant))
-                .map(Map.Entry::getValue)
-                .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
-                .map(OptimizationResult::getFunctionalCost)
-                .max(Double::compareTo)
-                .orElse(-Double.MAX_VALUE)
-        );
-        return highestFunctionalCost;
-    }
-
-    private double getTotalFunctionalCostForInstant(Instant instant) {
-        double preventiveCost = secondPreventivePerimeterResult.getFunctionalCost();
-        return preventiveCost
-            + postContingencyResults.entrySet().stream()
-            .filter(entry -> entry.getKey().getInstant().equals(instant) || entry.getKey().getInstant().comesBefore(instant))
-            .map(Map.Entry::getValue)
-            .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
-            .mapToDouble(OptimizationResult::getFunctionalCost)
-            .sum();
-    }
-
-    /**
-     * Returns true if the perimeter has an actual functional cost, ie has CNECs
-     * (as opposed to a perimeter with pure MNECs only)
-     */
-    private static boolean hasActualFunctionalCost(OptimizationResult perimeterResult) {
-        return !perimeterResult.getMostLimitingElements(1).isEmpty();
     }
 
     public List<FlowCnec> getMostLimitingElements() {

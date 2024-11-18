@@ -118,14 +118,23 @@ public class LinearProblemBuilder {
     }
 
     private ProblemFiller buildCoreProblemFiller() {
-        return new CoreProblemFiller(
-            inputs.optimizationPerimeter(),
-            inputs.prePerimeterSetpoints(),
+        return parameters.getObjectiveFunction().costOptimization() ?
+            new CostCoreProblemFiller(
+                inputs.optimizationPerimeter(),
+                inputs.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
-            parameters.getObjectiveFunctionUnit(),
-            parameters.getRaRangeShrinking(),
-            parameters.getRangeActionParameters().getPstModel()
-        );
+                parameters.getObjectiveFunctionUnit(),
+                parameters.getRaRangeShrinking(),
+                parameters.getRangeActionParameters().getPstModel()
+            ) :
+            new MarginCoreProblemFiller(
+                inputs.optimizationPerimeter(),
+                inputs.prePerimeterSetpoints(),
+                parameters.getRangeActionParameters(),
+                parameters.getObjectiveFunctionUnit(),
+                parameters.getRaRangeShrinking(),
+                parameters.getRangeActionParameters().getPstModel()
+            );
     }
 
     private ProblemFiller buildMaxMinRelativeMarginFiller() {
@@ -133,6 +142,7 @@ public class LinearProblemBuilder {
             inputs.optimizationPerimeter().getOptimizedFlowCnecs(),
             inputs.preOptimizationFlowResult(),
             parameters.getObjectiveFunction().getUnit(),
+            parameters.getObjectiveFunction().costOptimization(),
             parameters.getMaxMinRelativeMarginParameters()
         );
     }
@@ -140,7 +150,8 @@ public class LinearProblemBuilder {
     private ProblemFiller buildMaxMinMarginFiller() {
         return new MaxMinMarginFiller(
             inputs.optimizationPerimeter().getOptimizedFlowCnecs(),
-            parameters.getObjectiveFunctionUnit()
+            parameters.getObjectiveFunctionUnit(),
+            parameters.getObjectiveFunction().costOptimization()
         );
     }
 
@@ -163,9 +174,9 @@ public class LinearProblemBuilder {
 
     private ProblemFiller buildUnoptimizedCnecFiller() {
         return new UnoptimizedCnecFiller(
-                inputs.optimizationPerimeter().getFlowCnecs(),
-                inputs.prePerimeterFlowResult(),
-                parameters.getUnoptimizedCnecParameters()
+            inputs.optimizationPerimeter().getFlowCnecs(),
+            inputs.prePerimeterFlowResult(),
+            parameters.getUnoptimizedCnecParameters()
         );
     }
 
@@ -194,7 +205,8 @@ public class LinearProblemBuilder {
             inputs.prePerimeterSetpoints(),
             parameters.getRaLimitationParameters(),
             parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-            inputs.network());
+            inputs.network(),
+            parameters.getObjectiveFunction().costOptimization());
     }
 
     private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {

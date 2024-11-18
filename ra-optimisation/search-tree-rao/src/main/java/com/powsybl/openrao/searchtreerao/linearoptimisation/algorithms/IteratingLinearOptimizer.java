@@ -74,7 +74,7 @@ public final class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            RangeActionActivationResult linearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter());
+            RangeActionActivationResult linearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter(), parameters.getObjectiveFunction().costOptimization());
             RangeActionActivationResult currentRangeActionActivationResult = roundResult(linearProblemResult, bestResult, input, parameters);
             currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters);
 
@@ -140,7 +140,7 @@ public final class IteratingLinearOptimizer {
 
             solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
-                RangeActionActivationResult updatedLinearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter());
+                RangeActionActivationResult updatedLinearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter(), parameters.getObjectiveFunction().costOptimization());
                 rangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult, input, parameters);
             }
         }

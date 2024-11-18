@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class MaxMinMarginFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller marginCoreProblemFiller;
     private MaxMinMarginFiller maxMinMarginFiller;
 
     @BeforeEach
@@ -61,7 +61,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
-        coreProblemFiller = new CoreProblemFiller(
+        marginCoreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
                 rangeActionParameters,
@@ -70,12 +70,12 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     private void createMaxMinMarginFiller(Unit unit) {
-        maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1), unit);
+        maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1), unit, false);
     }
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(marginCoreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
             .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
@@ -186,7 +186,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
                 .build();
 
             // FlowVariables present , but not the absoluteRangeActionVariables present,
-            // This should work since range actions can be filtered out by the CoreProblemFiller if their number
+            // This should work since range actions can be filtered out by the MarginCoreProblemFiller if their number
             // exceeds the max-pst-per-tso parameter
             linearProblem.addFlowVariable(0.0, 0.0, cnec1, TwoSides.ONE);
             linearProblem.addFlowVariable(0.0, 0.0, cnec2, TwoSides.TWO);

@@ -452,6 +452,30 @@ public final class LinearProblem {
         return solver.getConstraint(maxElementaryActionsPerTsoConstraintId(operator, state));
     }
 
+    public OpenRaoMPVariable addRangeActionVariationVariable(double ub, RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection) {
+        return solver.makeNumVar(0.0, ub, rangeActionVariationVariableId(rangeAction, state, variationDirection));
+    }
+
+    public OpenRaoMPVariable getRangeActionVariationVariable(RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection) {
+        return solver.getVariable(rangeActionVariationVariableId(rangeAction, state, variationDirection));
+    }
+
+    public OpenRaoMPConstraint addRangeActionActivationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(0.0, infinity(), rangeActionActivationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionActivationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionActivationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addRangeActionSetPointVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(0.0, 0.0, rangeActionSetPointVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionSetPointVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionSetPointVariationConstraintId(rangeAction, state));
+    }
+
     public double infinity() {
         return solver.infinity();
     }
