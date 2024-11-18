@@ -31,6 +31,7 @@ import java.util.*;
  */
 public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
+    private final PrePerimeterResult preAutomatonSensitivityAnalysisOutput;
     private final PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
     private final Set<NetworkAction> forcedNetworkActions;
     private final Set<NetworkAction> selectedNetworkActions;
@@ -38,7 +39,8 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private final State optimizedState;
 
-    public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> forcedNetworkActions, Set<NetworkAction> selectedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
+    public AutomatonPerimeterResultImpl(PrePerimeterResult preAutomatonSensitivityAnalysisOutput, PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> forcedNetworkActions, Set<NetworkAction> selectedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
+        this.preAutomatonSensitivityAnalysisOutput = preAutomatonSensitivityAnalysisOutput;
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
         this.forcedNetworkActions = forcedNetworkActions;
         this.selectedNetworkActions = selectedNetworkActions;
@@ -168,7 +170,7 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
     @Override
     public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
-        return getOptimizedSetpoint(rangeAction, state) - postAutomatonSensitivityAnalysisOutput.getSetpoint(rangeAction);
+        return preAutomatonSensitivityAnalysisOutput == null ? 0.0 : getOptimizedSetpoint(rangeAction, state) - preAutomatonSensitivityAnalysisOutput.getSetpoint(rangeAction);
     }
 
     @Override
@@ -188,7 +190,7 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
     @Override
     public int getTapVariation(PstRangeAction pstRangeAction, State state) {
-        return getOptimizedTap(pstRangeAction, state) - postAutomatonSensitivityAnalysisOutput.getTap(pstRangeAction);
+        return preAutomatonSensitivityAnalysisOutput == null ? 0 : getOptimizedTap(pstRangeAction, state) - preAutomatonSensitivityAnalysisOutput.getTap(pstRangeAction);
     }
 
     @Override
