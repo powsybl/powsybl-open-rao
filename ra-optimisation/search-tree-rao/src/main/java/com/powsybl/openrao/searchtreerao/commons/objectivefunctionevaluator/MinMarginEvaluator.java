@@ -47,7 +47,7 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = EvaluatorsUtils.getCostlyElements(flowCnecs, marginEvaluator, unit, flowResult, contingenciesToExclude);
+        List<FlowCnec> costlyElements = EvaluatorsUtils.getMostConstrainedElements(flowCnecs, marginEvaluator, unit, flowResult, contingenciesToExclude);
         FlowCnec limitingElement;
         if (costlyElements.isEmpty()) {
             limitingElement = null;

@@ -38,7 +38,7 @@ public class OverloadEvaluator implements CostEvaluator {
 
     @Override
     public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> limitingElements = EvaluatorsUtils.getCostlyElements(flowCnecs, marginEvaluator, unit, flowResult, contingenciesToExclude);
+        List<FlowCnec> limitingElements = EvaluatorsUtils.getMostConstrainedElements(flowCnecs, marginEvaluator, unit, flowResult, contingenciesToExclude);
         FlowCnec limitingElement = limitingElements.isEmpty() ? null : limitingElements.get(0);
         double cost = Math.max(0.0, -marginEvaluator.getMargin(flowResult, limitingElement, unit)) * OVERLOAD_PENALTY;
         return Pair.of(cost, limitingElements);
