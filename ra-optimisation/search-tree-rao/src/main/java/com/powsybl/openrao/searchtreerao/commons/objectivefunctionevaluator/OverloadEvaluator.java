@@ -19,16 +19,11 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class OverloadEvaluator implements CostEvaluator {
-    private final Set<FlowCnec> flowCnecs;
-    private final Unit unit;
-    private final MarginEvaluator marginEvaluator;
+public class OverloadEvaluator extends MinMarginEvaluator {
     private static final double OVERLOAD_PENALTY = 10000d; // TODO : set this in RAO parameters
 
     public OverloadEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
-        this.flowCnecs = flowCnecs;
-        this.unit = unit;
-        this.marginEvaluator = marginEvaluator;
+        super(flowCnecs, unit, marginEvaluator);
     }
 
     @Override
@@ -38,19 +33,7 @@ public class OverloadEvaluator implements CostEvaluator {
 
     @Override
     public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> limitingElements = EvaluatorsUtils.getMostConstrainedElements(flowCnecs, marginEvaluator, unit, flowResult, contingenciesToExclude);
-        FlowCnec limitingElement = limitingElements.isEmpty() ? null : limitingElements.get(0);
-        double cost = Math.max(0.0, -marginEvaluator.getMargin(flowResult, limitingElement, unit)) * OVERLOAD_PENALTY;
-        return Pair.of(cost, limitingElements);
-    }
-
-    @Override
-    public Unit getUnit() {
-        return unit;
-    }
-
-    @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
+        Pair<Double, List<FlowCnec>> costAndLimitingElements = super.computeCostAndLimitingElements(flowResult, remedialActionActivationResult, contingenciesToExclude);
+        return Pair.of(Math.max(0.0, costAndLimitingElements.getLeft()) * OVERLOAD_PENALTY, costAndLimitingElements.getRight());
     }
 }
