@@ -1196,7 +1196,7 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
 ⚪ **activationCost**: cost to spend to activate the remedial action  
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each tap moved in the upward direction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each tap moved in the downward direction
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each tap moved in the downward direction  
 🔴 **network element**: id is mandatory, name is optional  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all. You can use any group ID you like, as long as you use the same for all the range actions you want to align.  
 🔵 **speed**: mandatory if it is an automaton  
@@ -1266,7 +1266,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
 ⚪ **activationCost**: cost to spend to activate the remedial action  
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
 🔴 **network element**: id is mandatory, name is optional  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
@@ -1339,7 +1339,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 ⚪ **activationCost**: cost to spend to activate the remedial action  
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
 🔴 **network element and key** (list of 1 to N): id and key are mandatory, name is optional  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
@@ -1415,7 +1415,7 @@ exported from France to Spain.
 ⚪ **activationCost**: cost to spend to activate the remedial action  
 ⚪ **variationCosts**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
 🔴 **exporting country**  
 🔴 **importing country**  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
