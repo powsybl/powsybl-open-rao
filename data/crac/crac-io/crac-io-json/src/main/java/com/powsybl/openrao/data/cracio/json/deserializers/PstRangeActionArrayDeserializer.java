@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeActionAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -168,15 +167,8 @@ public final class PstRangeActionArrayDeserializer {
 
     private static void deserializeVariationCosts(PstRangeActionAdder pstRangeActionAdder, JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            if (UP.equals(jsonParser.getCurrentName())) {
-                jsonParser.nextToken();
-                pstRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), RangeAction.VariationDirection.UP);
-            } else if (DOWN.equals(jsonParser.getCurrentName())) {
-                jsonParser.nextToken();
-                pstRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), RangeAction.VariationDirection.DOWN);
-            } else {
-                throw new OpenRaoException("Unexpected variation direction encountered. Expected %s or %s but got %s.".formatted(UP, DOWN, jsonParser.getCurrentName()));
-            }
+            jsonParser.nextToken();
+            pstRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.getCurrentName()));
         }
     }
 }

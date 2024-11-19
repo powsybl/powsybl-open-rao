@@ -8,7 +8,6 @@ package com.powsybl.openrao.data.cracio.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.StandardRangeActionAdder;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -125,15 +124,8 @@ public final class StandardRangeActionDeserializer {
 
     private static void deserializeVariationCosts(StandardRangeActionAdder<?> standardRangeActionAdder, JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            if (UP.equals(jsonParser.getCurrentName())) {
-                jsonParser.nextToken();
-                standardRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), RangeAction.VariationDirection.UP);
-            } else if (DOWN.equals(jsonParser.getCurrentName())) {
-                jsonParser.nextToken();
-                standardRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), RangeAction.VariationDirection.DOWN);
-            } else {
-                throw new OpenRaoException("Unexpected variation direction encountered. Expected %s or %s but got %s.".formatted(UP, DOWN, jsonParser.getCurrentName()));
-            }
+            jsonParser.nextToken();
+            standardRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.getCurrentName()));
         }
     }
 

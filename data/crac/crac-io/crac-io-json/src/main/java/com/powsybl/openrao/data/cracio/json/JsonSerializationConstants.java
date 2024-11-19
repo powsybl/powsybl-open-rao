@@ -519,4 +519,13 @@ public final class JsonSerializationConstants {
         gen.writeEndObject();
     }
 
+    public static RangeAction.VariationDirection deserializeVariationDirection(String variationDirection) {
+        if (UP.equals(variationDirection)) {
+            return RangeAction.VariationDirection.UP;
+        } else if (DOWN.equals(variationDirection)) {
+            return RangeAction.VariationDirection.DOWN;
+        } else {
+            throw new OpenRaoException("Unexpected variation direction '%s'.".formatted(variationDirection));
+        }
+    }
 }
