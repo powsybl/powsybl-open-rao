@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
 import java.util.Comparator;
@@ -21,12 +22,9 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public final class EvaluatorsUtils {
+public record CnecMarginManager(Set<FlowCnec> flowCnecs, MarginEvaluator marginEvaluator, Unit unit) {
 
-    private EvaluatorsUtils() {
-    }
-
-    public static List<FlowCnec> getMostConstrainedElements(Set<FlowCnec> flowCnecs, MarginEvaluator marginEvaluator, Unit unit, FlowResult flowResult, Set<String> contingenciesToExclude) {
+    public List<FlowCnec> sortFlowCnecsByMargin(FlowResult flowResult, Set<String> contingenciesToExclude) {
         Map<FlowCnec, Double> margins = new HashMap<>();
 
         flowCnecs.stream()

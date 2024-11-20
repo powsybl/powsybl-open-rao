@@ -191,7 +191,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(150, evaluator.computeCostAndLimitingElements(currentLoopFlows, null).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(150, evaluator.evaluate(currentLoopFlows, null), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -211,11 +211,11 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(300, evaluator.computeCostAndLimitingElements(currentLoopFlows, null).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(300, evaluator.evaluate(currentLoopFlows, null), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void testCostlyElements() {
+    void testElementsInViolation() {
         setViolationCost(1);
         setAcceptableAugmentationInMW(0);
 
@@ -231,7 +231,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, null).getRight();
+        List<FlowCnec> costlyElements = evaluator.getElementsInViolation(currentLoopFlows, null);
         assertEquals(2, costlyElements.size());
         assertSame(cnec1, costlyElements.get(0));
         assertSame(cnec2, costlyElements.get(1));
@@ -254,7 +254,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, null).getRight();
+        List<FlowCnec> costlyElements = evaluator.getElementsInViolation(currentLoopFlows, null);
         assertEquals(1, costlyElements.size());
         assertSame(cnec2, costlyElements.get(0));
     }

@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Function;
@@ -22,8 +21,9 @@ import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class LoopFlowViolationCostEvaluator implements CostEvaluator {
+public class LoopFlowViolationCostEvaluator implements CnecViolationCostEvaluator {
     private final Set<FlowCnec> loopflowCnecs;
     private final FlowResult initialLoopFLowResult;
     private final double loopFlowViolationCost;
@@ -44,8 +44,8 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
+    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
+        List<FlowCnec> costlyElements = getElementsInViolation(flowResult, contingenciesToExclude);
         double cost = costlyElements
             .stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
@@ -56,15 +56,11 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
         }
 
-        return Pair.of(cost, costlyElements);
+        return cost;
     }
 
     @Override
-    public Unit getUnit() {
-        return Unit.MEGAWATT;
-    }
-
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+    public List<FlowCnec> getElementsInViolation(FlowResult flowResult, Set<String> contingenciesToExclude) {
         List<FlowCnec> costlyElements = loopflowCnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
             .collect(Collectors.toMap(
@@ -78,12 +74,12 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
             .collect(Collectors.toList());
 
         Collections.reverse(costlyElements);
-        return costlyElements;
+        return new ArrayList<>(costlyElements);
     }
 
     @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return loopflowCnecs;
+    public Unit getUnit() {
+        return Unit.MEGAWATT;
     }
 
     double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {

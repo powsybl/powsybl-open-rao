@@ -7,16 +7,12 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,15 +20,9 @@ import java.util.Set;
  */
 public class RemedialActionCostEvaluator implements CostEvaluator {
     private final Set<State> optimizedStates;
-    private final Set<FlowCnec> flowCnecs;
-    private final Unit unit;
-    private final MarginEvaluator marginEvaluator;
 
-    public RemedialActionCostEvaluator(Set<State> optimizedStates, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
+    public RemedialActionCostEvaluator(Set<State> optimizedStates) {
         this.optimizedStates = optimizedStates;
-        this.flowCnecs = flowCnecs;
-        this.unit = unit;
-        this.marginEvaluator = marginEvaluator;
     }
 
     @Override
@@ -41,8 +31,8 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Pair.of(getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult), EvaluatorsUtils.getMostConstrainedElements(flowCnecs, marginEvaluator, unit, flowResult, contingenciesToExclude));
+    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
+        return getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult);
     }
 
     private double getTotalNetworkActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
@@ -50,6 +40,7 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     }
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
+        // TODO: shall we filter out states with contingencies in 'contingenciesToExclude' from evaluate?
         return optimizedStates.stream().mapToDouble(state -> remedialActionActivationResult.getActivatedRangeActions(state).stream().mapToDouble(rangeAction -> computeRangeActionCost(rangeAction, state, remedialActionActivationResult)).sum()).sum();
     }
 
@@ -61,15 +52,5 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
         double activationCost = rangeAction.getActivationCost().orElse(0.0);
         RangeAction.VariationDirection variationDirection = variation > 0 ? RangeAction.VariationDirection.UP : RangeAction.VariationDirection.DOWN;
         return activationCost + Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(0.0);
-    }
-
-    @Override
-    public Unit getUnit() {
-        return unit;
-    }
-
-    @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
     }
 }

@@ -7,9 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.InjectionRangeAction;
@@ -17,34 +15,27 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class RemedialActionCostEvaluatorImplTest {
-    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
-    private OptimizationPerimeter optimizationPerimeter;
     private State state;
-    private MarginEvaluator marginEvaluator;
     private RemedialActionActivationResult remedialActionActivationResult;
 
     @BeforeEach
     void setUp() {
-        rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
+        RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
         rangeActionsOptimizationParameters.setPstPenaltyCost(0.01);
         rangeActionsOptimizationParameters.setInjectionRaPenaltyCost(0.02);
         rangeActionsOptimizationParameters.setHvdcPenaltyCost(0.5);
@@ -85,11 +76,9 @@ class RemedialActionCostEvaluatorImplTest {
         state = Mockito.mock(State.class);
         Mockito.when(state.getContingency()).thenReturn(Optional.empty());
 
-        optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(state);
         Mockito.when(optimizationPerimeter.getMonitoredStates()).thenReturn(Set.of());
-
-        marginEvaluator = new BasicMarginEvaluator();
 
         remedialActionActivationResult = Mockito.mock(RemedialActionActivationResultImpl.class);
         Mockito.when(remedialActionActivationResult.getActivatedNetworkActions()).thenReturn(Set.of(topologyAction));
@@ -103,20 +92,9 @@ class RemedialActionCostEvaluatorImplTest {
     }
 
     @Test
-    void testBasicData() {
-        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state), Set.of(), Unit.MEGAWATT, marginEvaluator);
-        assertEquals(Unit.MEGAWATT, evaluator.getUnit());
-        assertEquals("remedial-action-cost-evaluator", evaluator.getName());
-    }
-
-    @Test
     void testTotalRemedialActionCost() {
-        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state), Set.of(), Unit.MEGAWATT, marginEvaluator);
-
-        FlowResult flowResult = Mockito.mock(FlowResult.class);
-
-        Pair<Double, List<FlowCnec>> costAndLimitingElements = evaluator.computeCostAndLimitingElements(flowResult, remedialActionActivationResult, Set.of());
-        assertEquals(11587.25, costAndLimitingElements.getLeft());
-        assertTrue(costAndLimitingElements.getRight().isEmpty());
+        RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state));
+        assertEquals("remedial-action-cost-evaluator", evaluator.getName());
+        assertEquals(11587.25, evaluator.evaluate(null, remedialActionActivationResult, Set.of()));
     }
 }
