@@ -10,7 +10,6 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -22,8 +21,4 @@ public interface CostEvaluator {
     String getName();
 
     double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude);
-
-    default double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        return evaluate(flowResult, remedialActionActivationResult, new HashSet<>());
-    }
 }

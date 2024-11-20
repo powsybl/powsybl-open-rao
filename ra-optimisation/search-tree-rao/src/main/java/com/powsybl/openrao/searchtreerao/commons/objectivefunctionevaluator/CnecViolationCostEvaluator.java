@@ -19,6 +19,4 @@ import java.util.Set;
  */
 public interface CnecViolationCostEvaluator extends CostEvaluator {
     List<FlowCnec> getElementsInViolation(FlowResult flowResult, Set<String> contingenciesToExclude);
-
-    Unit getUnit();
 }

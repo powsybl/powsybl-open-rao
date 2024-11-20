@@ -91,12 +91,6 @@ class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    void testGetUnit() {
-        buildLoopFlowViolationCostEvaluator();
-        assertEquals(Unit.MEGAWATT, evaluator.getUnit());
-    }
-
-    @Test
     void testLoopFlowExcessWithInitialAndCurrentLoopFlowBelowInputThreshold() {
         // When initial loop-flow + acceptable augmentation is below input threshold, it is the limiting element
         setAcceptableAugmentationInMW(0);
@@ -191,7 +185,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(150, evaluator.evaluate(currentLoopFlows, null), DOUBLE_TOLERANCE);
+        assertEquals(150, evaluator.evaluate(currentLoopFlows, null, Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -211,7 +205,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(300, evaluator.evaluate(currentLoopFlows, null), DOUBLE_TOLERANCE);
+        assertEquals(300, evaluator.evaluate(currentLoopFlows, null, Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test

@@ -85,12 +85,12 @@ public final class ObjectiveFunction {
     }
 
     public static ObjectiveFunction build(Set<FlowCnec> flowCnecs,
-                                   Set<FlowCnec> loopFlowCnecs,
-                                   FlowResult initialFlowResult,
-                                   FlowResult prePerimeterFlowResult,
-                                   Set<String> operatorsNotToOptimizeInCurative,
-                                   RaoParameters raoParameters,
-                                   Set<State> optimizedStates) {
+                                          Set<FlowCnec> loopFlowCnecs,
+                                          FlowResult initialFlowResult,
+                                          FlowResult prePerimeterFlowResult,
+                                          Set<String> operatorsNotToOptimizeInCurative,
+                                          RaoParameters raoParameters,
+                                          Set<State> optimizedStates) {
         Unit unit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
         MarginEvaluator marginEvaluator = raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins() ? new BasicRelativeMarginEvaluator() : new BasicMarginEvaluator();
 

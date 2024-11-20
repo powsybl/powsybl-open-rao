@@ -38,11 +38,6 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
     }
 
     @Override
-    public Unit getUnit() {
-        return unit;
-    }
-
-    @Override
     public List<FlowCnec> getElementsInViolation(FlowResult flowResult, Set<String> contingenciesToExclude) {
         List<FlowCnec> flowCnecsByMargin = FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude);
         return flowCnecsByMargin.isEmpty() ? List.of() : List.of(flowCnecsByMargin.get(0));

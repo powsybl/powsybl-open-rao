@@ -67,11 +67,6 @@ public class MnecViolationCostEvaluator implements CnecViolationCostEvaluator {
         return new ArrayList<>(sortedElements);
     }
 
-    @Override
-    public Unit getUnit() {
-        return unit;
-    }
-
     private double computeMnecCost(FlowResult flowResult, FlowCnec mnec) {
         double initialMargin = initialFlowResult.getMargin(mnec, unit);
         double currentMargin = flowResult.getMargin(mnec, unit);
