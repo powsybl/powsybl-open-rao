@@ -77,11 +77,6 @@ public class LoopFlowViolationCostEvaluator implements CnecViolationCostEvaluato
         return new ArrayList<>(costlyElements);
     }
 
-    @Override
-    public Unit getUnit() {
-        return Unit.MEGAWATT;
-    }
-
     double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {
         return cnec.getMonitoredSides()
             .stream().map(side -> Math.max(0, Math.abs(flowResult.getLoopFlow(cnec, side, Unit.MEGAWATT)) - getLoopFlowUpperBound(cnec, side)))
