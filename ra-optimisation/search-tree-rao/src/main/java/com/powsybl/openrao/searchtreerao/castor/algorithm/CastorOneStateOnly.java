@@ -115,7 +115,7 @@ public class CastorOneStateOnly {
                     .withInitialFlowResult(initialResults)
                     .withPrePerimeterResult(initialResults)
                     .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-                    .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, operatorsNotToOptimize, raoParameters, statesToOptimize))
+                    .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, operatorsNotToOptimize, raoParameters, statesToOptimize))
                     .withToolProvider(toolProvider)
                     .withOutageInstant(raoInput.getCrac().getOutageInstant())
                     .build();

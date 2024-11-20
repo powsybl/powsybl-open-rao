@@ -65,8 +65,7 @@ class MinMarginEvaluatorTest {
         when(marginEvaluator.getMargin(flowResult, cnec3, MEGAWATT)).thenReturn(-250.);
         when(marginEvaluator.getMargin(flowResult, pureMnec, MEGAWATT)).thenReturn(50.);
 
-        CnecMarginManager cnecMarginManager = new CnecMarginManager(Set.of(cnec1, cnec2, cnec3, pureMnec), marginEvaluator, MEGAWATT);
-        minMarginEvaluator = new MinMarginEvaluator(cnecMarginManager);
+        minMarginEvaluator = new MinMarginEvaluator(Set.of(cnec1, cnec2, cnec3, pureMnec), MEGAWATT, marginEvaluator);
     }
 
     @Test
@@ -99,8 +98,7 @@ class MinMarginEvaluatorTest {
         when(marginEvaluator.getMargin(flowResult, mnec1, MEGAWATT)).thenReturn(-150.);
         when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
 
-        CnecMarginManager cnecMarginManager = new CnecMarginManager(Set.of(mnec1, mnec2), marginEvaluator, MEGAWATT);
-        minMarginEvaluator = new MinMarginEvaluator(cnecMarginManager);
+        minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
         assertEquals(-2000, minMarginEvaluator.evaluate(flowResult, null), DOUBLE_TOLERANCE);
     }
 

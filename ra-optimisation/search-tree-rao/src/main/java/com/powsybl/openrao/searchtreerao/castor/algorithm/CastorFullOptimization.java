@@ -275,7 +275,7 @@ public class CastorFullOptimization {
             .withInitialFlowResult(initialResult)
             .withPrePerimeterResult(initialResult)
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, Collections.emptySet(), raoParameters, statesToOptimize))
+            .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, Collections.emptySet(), raoParameters, statesToOptimize))
             .withToolProvider(toolProvider)
             .withOutageInstant(crac.getOutageInstant())
             .build();

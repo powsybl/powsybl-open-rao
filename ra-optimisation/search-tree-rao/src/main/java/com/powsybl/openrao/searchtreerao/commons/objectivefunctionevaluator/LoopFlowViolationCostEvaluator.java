@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public class LoopFlowViolationCostEvaluator implements CnecViolationCostEvaluator {
     private final Set<FlowCnec> loopflowCnecs;
-    private final FlowResult initialLoopFLowResult;
+    private final FlowResult initialLoopFlowResult;
     private final double loopFlowViolationCost;
     private final double loopFlowAcceptableAugmentation;
 
@@ -33,7 +33,7 @@ public class LoopFlowViolationCostEvaluator implements CnecViolationCostEvaluato
                                           FlowResult initialLoopFlowResult,
                                           LoopFlowParametersExtension loopFlowParameters) {
         this.loopflowCnecs = loopflowCnecs;
-        this.initialLoopFLowResult = initialLoopFlowResult;
+        this.initialLoopFlowResult = initialLoopFlowResult;
         this.loopFlowViolationCost = loopFlowParameters.getViolationCost();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
     }
@@ -90,7 +90,7 @@ public class LoopFlowViolationCostEvaluator implements CnecViolationCostEvaluato
 
     private double getLoopFlowUpperBound(FlowCnec cnec, TwoSides side) {
         double loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        double initialLoopFlow = initialLoopFLowResult.getLoopFlow(cnec, side, Unit.MEGAWATT);
+        double initialLoopFlow = initialLoopFlowResult.getLoopFlow(cnec, side, Unit.MEGAWATT);
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }
 }

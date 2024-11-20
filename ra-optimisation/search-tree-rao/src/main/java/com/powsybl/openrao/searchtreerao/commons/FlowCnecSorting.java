@@ -5,8 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
+package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -17,24 +18,30 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record CnecMarginManager(Set<FlowCnec> flowCnecs, MarginEvaluator marginEvaluator, Unit unit) {
+public final class FlowCnecSorting {
 
-    public List<FlowCnec> sortFlowCnecsByMargin(FlowResult flowResult, Set<String> contingenciesToExclude) {
+    private FlowCnecSorting() {
+    }
+
+    public static List<FlowCnec> sortByMargin(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, FlowResult flowResult, Set<String> contingenciesToExclude) {
         Map<FlowCnec, Double> margins = new HashMap<>();
 
         flowCnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
+            .filter(flowCnec -> mustFilterCnecBasedOnContingency(flowCnec, contingenciesToExclude))
             .filter(Cnec::isOptimized)
             .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, unit)));
 
-        return margins.keySet().stream()
-            .filter(Cnec::isOptimized)
-            .sorted(Comparator.comparing(margins::get))
-            .toList();
+        return margins.keySet().stream().sorted(Comparator.comparing(margins::get)).toList();
+    }
+
+    public static boolean mustFilterCnecBasedOnContingency(FlowCnec flowCnec, Set<String> contingenciesToExclude) {
+        Optional<Contingency> contingency = flowCnec.getState().getContingency();
+        return contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId());
     }
 }
