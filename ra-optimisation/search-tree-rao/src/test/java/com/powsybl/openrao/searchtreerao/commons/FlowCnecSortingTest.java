@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
+package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -29,14 +29,13 @@ import static org.mockito.Mockito.when;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class CnecMarginManagerTest {
+class FlowCnecSortingTest {
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private FlowCnec cnec3;
     private FlowCnec pureMnec;
     private FlowResult flowResult;
     private MarginEvaluator marginEvaluator;
-    private CnecMarginManager cnecMarginManager;
 
     @BeforeEach
     public void setUp() {
@@ -65,28 +64,11 @@ class CnecMarginManagerTest {
         when(marginEvaluator.getMargin(flowResult, cnec2, MEGAWATT)).thenReturn(200.);
         when(marginEvaluator.getMargin(flowResult, cnec3, MEGAWATT)).thenReturn(-250.);
         when(marginEvaluator.getMargin(flowResult, pureMnec, MEGAWATT)).thenReturn(50.);
-
-        cnecMarginManager = new CnecMarginManager(Set.of(cnec1, cnec2, cnec3, pureMnec), marginEvaluator, MEGAWATT);
-    }
-
-    @Test
-    void getUnit() {
-        assertEquals(MEGAWATT, cnecMarginManager.unit());
-    }
-
-    @Test
-    void getMarginEvaluator() {
-        assertEquals(marginEvaluator, cnecMarginManager.marginEvaluator());
-    }
-
-    @Test
-    void getFlowCnecs() {
-        assertEquals(Set.of(cnec1, cnec2, cnec3, pureMnec), cnecMarginManager.flowCnecs());
     }
 
     @Test
     void getMostLimitingElements() {
-        List<FlowCnec> costlyElements = cnecMarginManager.sortFlowCnecsByMargin(flowResult, Set.of());
+        List<FlowCnec> costlyElements = FlowCnecSorting.sortByMargin(Set.of(cnec1, cnec2, cnec3, pureMnec), MEGAWATT, marginEvaluator, flowResult, Set.of());
         assertEquals(3, costlyElements.size());
         assertSame(cnec3, costlyElements.get(0));
         assertSame(cnec1, costlyElements.get(1));
@@ -113,9 +95,7 @@ class CnecMarginManagerTest {
         when(marginEvaluator.getMargin(flowResult, mnec1, MEGAWATT)).thenReturn(-150.);
         when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
 
-        cnecMarginManager = new CnecMarginManager(Set.of(mnec1, mnec2), marginEvaluator, MEGAWATT);
-
-        assertTrue(cnecMarginManager.sortFlowCnecsByMargin(flowResult, Set.of()).isEmpty());
+        assertTrue(FlowCnecSorting.sortByMargin(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator, flowResult, Set.of()).isEmpty());
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {

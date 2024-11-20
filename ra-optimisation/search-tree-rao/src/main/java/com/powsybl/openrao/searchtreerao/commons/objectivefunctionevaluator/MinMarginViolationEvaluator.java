@@ -9,6 +9,8 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
+import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
@@ -18,14 +20,11 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class MinMarginViolationEvaluator implements CnecViolationCostEvaluator {
-    private final MinMarginEvaluator minMarginEvaluator;
-    private final CnecMarginManager cnecMarginManager;
+public class MinMarginViolationEvaluator extends MinMarginEvaluator implements CnecViolationCostEvaluator {
     private static final double OVERLOAD_PENALTY = 10000d; // TODO : set this in RAO parameters
 
-    public MinMarginViolationEvaluator(CnecMarginManager cnecMarginManager) {
-        this.minMarginEvaluator = new MinMarginEvaluator(cnecMarginManager);
-        this.cnecMarginManager = cnecMarginManager;
+    public MinMarginViolationEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
+        super(flowCnecs, unit, marginEvaluator);
     }
 
     @Override
@@ -35,17 +34,17 @@ public class MinMarginViolationEvaluator implements CnecViolationCostEvaluator {
 
     @Override
     public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Math.max(0.0, minMarginEvaluator.evaluate(flowResult, remedialActionActivationResult, contingenciesToExclude)) * OVERLOAD_PENALTY;
+        return Math.max(0.0, super.evaluate(flowResult, remedialActionActivationResult, contingenciesToExclude)) * OVERLOAD_PENALTY;
     }
 
     @Override
     public Unit getUnit() {
-        return cnecMarginManager.unit();
+        return unit;
     }
 
     @Override
     public List<FlowCnec> getElementsInViolation(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> flowCnecsByMargin = cnecMarginManager.sortFlowCnecsByMargin(flowResult, contingenciesToExclude);
+        List<FlowCnec> flowCnecsByMargin = FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude);
         return flowCnecsByMargin.isEmpty() ? List.of() : List.of(flowCnecsByMargin.get(0));
     }
 }

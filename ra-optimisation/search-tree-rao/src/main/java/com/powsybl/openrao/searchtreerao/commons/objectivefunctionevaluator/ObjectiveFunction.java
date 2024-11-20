@@ -7,12 +7,14 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.BasicMarginEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.BasicRelativeMarginEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
@@ -29,32 +31,33 @@ import java.util.stream.Collectors;
 public final class ObjectiveFunction {
     private final CostEvaluator functionalCostEvaluator;
     private final List<CostEvaluator> virtualCostEvaluators;
-    private final CnecMarginManager cnecMarginManager;
+    private final Set<FlowCnec> flowCnecs;
+    private final Unit unit;
+    private final MarginEvaluator marginEvaluator;
 
-    private ObjectiveFunction(CostEvaluator functionalCostEvaluator, List<CostEvaluator> virtualCostEvaluators, CnecMarginManager cnecMarginManager) {
+    private ObjectiveFunction(CostEvaluator functionalCostEvaluator, List<CostEvaluator> virtualCostEvaluators, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
+        Objects.requireNonNull(functionalCostEvaluator);
         this.functionalCostEvaluator = functionalCostEvaluator;
         this.virtualCostEvaluators = virtualCostEvaluators;
-        this.cnecMarginManager = cnecMarginManager;
+        this.flowCnecs = new HashSet<>(flowCnecs);
+        this.unit = unit;
+        this.marginEvaluator = marginEvaluator;
     }
 
     public ObjectiveFunctionResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         return new ObjectiveFunctionResultImpl(this, flowResult, remedialActionActivationResult);
     }
 
-    public static ObjectiveFunctionBuilder create() {
-        return new ObjectiveFunctionBuilder();
-    }
-
     public Set<FlowCnec> getFlowCnecs() {
-        return new HashSet<>(cnecMarginManager.flowCnecs());
+        return flowCnecs;
     }
 
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult) {
-        return getFunctionalCostAndLimitingElements(flowResult, null, Set.of());
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        return getFunctionalCostAndLimitingElements(flowResult, remedialActionActivationResult, Set.of());
     }
 
     public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Pair.of(functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult, contingenciesToExclude), cnecMarginManager.sortFlowCnecsByMargin(flowResult, contingenciesToExclude));
+        return Pair.of(functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult, contingenciesToExclude), FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude));
     }
 
     public Set<String> getVirtualCostNames() {
@@ -73,123 +76,84 @@ public final class ObjectiveFunction {
         return virtualCostEvaluator instanceof CnecViolationCostEvaluator violationCostEvaluator ? violationCostEvaluator.getElementsInViolation(flowResult, contingenciesToExclude) : new ArrayList<>();
     }
 
-    public static class ObjectiveFunctionBuilder {
-        private CostEvaluator functionalCostEvaluator;
-        private final List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
-        private CnecMarginManager cnecMarginManager;
+    public static ObjectiveFunction buildForInitialSensitivityComputation(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Set<State> optimizedStates) {
+        Unit unit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
+        MarginEvaluator marginEvaluator = raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins() ? new BasicRelativeMarginEvaluator() : new BasicMarginEvaluator();
+        CostEvaluator functionalCostEvaluator = raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ? new RemedialActionCostEvaluator(optimizedStates) : new MinMarginEvaluator(flowCnecs, unit, marginEvaluator);
+        List<CostEvaluator> virtualCostEvaluators = getVirtualCostEvaluatorsForInitialSensitivityComputation(raoParameters, flowCnecs, unit, marginEvaluator);
+        return new ObjectiveFunction(functionalCostEvaluator, virtualCostEvaluators, flowCnecs, unit, marginEvaluator);
+    }
 
-        public ObjectiveFunction buildForInitialSensitivityComputation(Set<FlowCnec> flowCnecs,
-                                                                       RaoParameters raoParameters,
-                                                                       Set<State> optimizedStates) {
-            // min margin objective function
-            MarginEvaluator marginEvaluator;
-            if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-                marginEvaluator = new BasicRelativeMarginEvaluator();
-            } else {
-                marginEvaluator = new BasicMarginEvaluator();
-            }
+    public static ObjectiveFunction build(Set<FlowCnec> flowCnecs,
+                                   Set<FlowCnec> loopFlowCnecs,
+                                   FlowResult initialFlowResult,
+                                   FlowResult prePerimeterFlowResult,
+                                   Set<String> operatorsNotToOptimizeInCurative,
+                                   RaoParameters raoParameters,
+                                   Set<State> optimizedStates) {
+        Unit unit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
+        MarginEvaluator marginEvaluator = raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins() ? new BasicRelativeMarginEvaluator() : new BasicMarginEvaluator();
 
-            CnecMarginManager cmm = new CnecMarginManager(flowCnecs, marginEvaluator, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-
-            if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                addEvaluatorsForCostlyOptimization(optimizedStates, cmm);
-            } else {
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(cmm));
-            }
-
-            // sensitivity failure over-cost should be computed on initial sensitivity result too
-            // (this allows the RAO to prefer RAs that can remove sensitivity failures)
-            if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
-                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
-            }
-
-            this.withCnecMarginManager(cmm);
-            return this.build();
+        // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
+        if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
+            && !operatorsNotToOptimizeInCurative.isEmpty()) {
+            marginEvaluator = new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult);
         }
 
-        public ObjectiveFunction build(Set<FlowCnec> flowCnecs,
-                                       Set<FlowCnec> loopFlowCnecs,
-                                       FlowResult initialFlowResult,
-                                       FlowResult prePerimeterFlowResult,
-                                       Set<String> operatorsNotToOptimizeInCurative,
-                                       RaoParameters raoParameters,
-                                       Set<State> optimizedStates) {
+        CostEvaluator functionalCostEvaluator = raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ? new RemedialActionCostEvaluator(optimizedStates) : new MinMarginEvaluator(flowCnecs, unit, marginEvaluator);
+        List<CostEvaluator> virtualCostEvaluators = getVirtualCostEvaluators(raoParameters, flowCnecs, unit, marginEvaluator, initialFlowResult, loopFlowCnecs);
 
-            // min margin objective function
-            MarginEvaluator marginEvaluator;
-            if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-                marginEvaluator = new BasicRelativeMarginEvaluator();
-            } else {
-                marginEvaluator = new BasicMarginEvaluator();
-            }
+        return new ObjectiveFunction(functionalCostEvaluator, virtualCostEvaluators, flowCnecs, unit, marginEvaluator);
+    }
 
-            // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
-            if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
-                && !operatorsNotToOptimizeInCurative.isEmpty()) {
-                marginEvaluator = new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult);
-            }
+    private static List<CostEvaluator> getVirtualCostEvaluatorsForInitialSensitivityComputation(RaoParameters raoParameters, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
+        List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
-            CnecMarginManager cmm = new CnecMarginManager(flowCnecs, marginEvaluator, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-
-            if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-                addEvaluatorsForCostlyOptimization(optimizedStates, cmm);
-            } else {
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(cmm));
-            }
-
-            // mnec virtual cost evaluator
-            if (raoParameters.hasExtension(MnecParametersExtension.class)) {
-                this.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
-                    flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                    raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
-                    initialFlowResult,
-                    raoParameters.getExtension(MnecParametersExtension.class)
-                ));
-            }
-
-            // loop-flow virtual cost evaluator
-            if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
-                this.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
-                    loopFlowCnecs,
-                    initialFlowResult,
-                    raoParameters.getExtension(LoopFlowParametersExtension.class)
-                ));
-            }
-
-            // If sensi failed, create a high virtual cost via SensitivityFailureOvercostEvaluator
-            // to ensure that corresponding leaf is not selected
-            if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
-                this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
-            }
-
-            this.withCnecMarginManager(cmm);
-            return this.build();
+        if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
+            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator));
         }
 
-        private void addEvaluatorsForCostlyOptimization(Set<State> optimizedStates, CnecMarginManager cnecMarginManager) {
-            this.withFunctionalCostEvaluator(new RemedialActionCostEvaluator(optimizedStates));
-            this.withVirtualCostEvaluator(new MinMarginViolationEvaluator(cnecMarginManager));
+        // sensitivity failure over-cost should be computed on initial sensitivity result too
+        // (this allows the RAO to prefer RAs that can remove sensitivity failures)
+        if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
+            virtualCostEvaluators.add(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
         }
 
-        public ObjectiveFunctionBuilder withFunctionalCostEvaluator(CostEvaluator costEvaluator) {
-            this.functionalCostEvaluator = costEvaluator;
-            return this;
+        return virtualCostEvaluators;
+    }
+
+    private static List<CostEvaluator> getVirtualCostEvaluators(RaoParameters raoParameters, Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, FlowResult initialFlowResult, Set<FlowCnec> loopFlowCnecs) {
+        List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
+
+        if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
+            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator));
         }
 
-        public ObjectiveFunctionBuilder withVirtualCostEvaluator(CostEvaluator costEvaluator) {
-            virtualCostEvaluators.add(costEvaluator);
-            return this;
+        // mnec virtual cost evaluator
+        if (raoParameters.hasExtension(MnecParametersExtension.class)) {
+            virtualCostEvaluators.add(new MnecViolationCostEvaluator(
+                flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
+                raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
+                initialFlowResult,
+                raoParameters.getExtension(MnecParametersExtension.class)
+            ));
         }
 
-        public ObjectiveFunctionBuilder withCnecMarginManager(CnecMarginManager cnecMarginManager) {
-            this.cnecMarginManager = cnecMarginManager;
-            return this;
+        // loop-flow virtual cost evaluator
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
+            virtualCostEvaluators.add(new LoopFlowViolationCostEvaluator(
+                loopFlowCnecs,
+                initialFlowResult,
+                raoParameters.getExtension(LoopFlowParametersExtension.class)
+            ));
         }
 
-        public ObjectiveFunction build() {
-            Objects.requireNonNull(functionalCostEvaluator);
-            Objects.requireNonNull(cnecMarginManager);
-            return new ObjectiveFunction(functionalCostEvaluator, virtualCostEvaluators, cnecMarginManager);
+        // If sensi failed, create a high virtual cost via SensitivityFailureOvercostEvaluator
+        // to ensure that corresponding leaf is not selected
+        if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
+            virtualCostEvaluators.add(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
         }
+
+        return virtualCostEvaluators;
     }
 }

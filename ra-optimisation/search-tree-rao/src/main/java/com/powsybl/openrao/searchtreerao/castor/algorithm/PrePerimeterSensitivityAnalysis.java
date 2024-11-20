@@ -69,7 +69,7 @@ public class PrePerimeterSensitivityAnalysis {
         }
 
         sensitivityComputer = sensitivityComputerBuilder.build();
-        objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters, optimizedStates);
+        objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(flowCnecs, raoParameters, optimizedStates);
 
         return runAndGetResult(network, objectiveFunction);
     }
@@ -102,7 +102,7 @@ public class PrePerimeterSensitivityAnalysis {
         }
         sensitivityComputer = sensitivityComputerBuilder.build();
 
-        objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters, Set.of(crac.getPreventiveState()));
+        objectiveFunction = ObjectiveFunction.build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters, Set.of(crac.getPreventiveState()));
 
         return runAndGetResult(network, objectiveFunction);
     }

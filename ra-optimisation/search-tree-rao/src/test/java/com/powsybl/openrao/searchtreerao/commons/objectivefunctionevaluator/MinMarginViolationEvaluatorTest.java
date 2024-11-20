@@ -36,9 +36,7 @@ class MinMarginViolationEvaluatorTest {
         Mockito.when(flowCnec.isOptimized()).thenReturn(true);
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-1d);
 
-        CnecMarginManager cnecMarginManager = new CnecMarginManager(Set.of(flowCnec), new BasicMarginEvaluator(), Unit.MEGAWATT);
-
-        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(cnecMarginManager);
+        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
         assertEquals(10000.0, evaluator.evaluate(flowResult, null));
         assertEquals(List.of(flowCnec), evaluator.getElementsInViolation(flowResult, Set.of()));
     }
@@ -53,9 +51,7 @@ class MinMarginViolationEvaluatorTest {
         Mockito.when(flowCnec.isOptimized()).thenReturn(true);
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(500d);
 
-        CnecMarginManager cnecMarginManager = new CnecMarginManager(Set.of(flowCnec), new BasicMarginEvaluator(), Unit.MEGAWATT);
-
-        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(cnecMarginManager);
+        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
         assertEquals(0.0, evaluator.evaluate(flowResult, null));
         assertEquals(List.of(flowCnec), evaluator.getElementsInViolation(flowResult, Set.of()));
     }

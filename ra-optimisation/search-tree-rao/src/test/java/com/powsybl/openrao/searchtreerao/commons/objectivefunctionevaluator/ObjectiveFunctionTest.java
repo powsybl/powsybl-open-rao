@@ -7,9 +7,15 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +23,7 @@ import org.mockito.Mockito;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,10 +35,6 @@ import static org.mockito.Mockito.when;
 class ObjectiveFunctionTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
-    private CnecMarginManager cnecMarginManager;
-    private MinMarginEvaluator minMarginEvaluator;
-    private MnecViolationCostEvaluator mnecViolationCostEvaluator;
-    private LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
     private FlowResult flowResult;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
@@ -42,36 +45,29 @@ class ObjectiveFunctionTest {
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
 
-        cnecMarginManager = Mockito.mock(CnecMarginManager.class);
-        when(cnecMarginManager.sortFlowCnecsByMargin(flowResult, new HashSet<>())).thenReturn(List.of(cnec1, cnec2));
+        State state = Mockito.mock(State.class);
+        when(state.getContingency()).thenReturn(Optional.empty());
+        when(cnec1.isOptimized()).thenReturn(true);
+        when(cnec1.isMonitored()).thenReturn(true);
+        when(cnec2.isOptimized()).thenReturn(true);
+        when(cnec2.isMonitored()).thenReturn(false);
+        when(cnec1.getState()).thenReturn(state);
+        when(cnec2.getState()).thenReturn(state);
+        when(cnec2.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE, TwoSides.TWO));
 
-        minMarginEvaluator = Mockito.mock(MinMarginEvaluator.class);
-        when(minMarginEvaluator.evaluate(flowResult, null)).thenReturn(-300.);
-        when(minMarginEvaluator.evaluate(flowResult, null, new HashSet<>())).thenReturn(-300.);
-
-        mnecViolationCostEvaluator = Mockito.mock(MnecViolationCostEvaluator.class);
-        when(mnecViolationCostEvaluator.getName()).thenReturn("mnec-cost");
-        when(mnecViolationCostEvaluator.getElementsInViolation(flowResult, new HashSet<>())).thenReturn(List.of(cnec1));
-        when(mnecViolationCostEvaluator.evaluate(flowResult, null)).thenReturn(1000.);
-        when(mnecViolationCostEvaluator.evaluate(flowResult, null, new HashSet<>())).thenReturn(1000.);
-
-        loopFlowViolationCostEvaluator = Mockito.mock(LoopFlowViolationCostEvaluator.class);
-        when(loopFlowViolationCostEvaluator.getName()).thenReturn("loop-flow-cost");
-        when(loopFlowViolationCostEvaluator.getElementsInViolation(flowResult, new HashSet<>())).thenReturn(List.of(cnec2));
-        when(loopFlowViolationCostEvaluator.evaluate(flowResult, null)).thenReturn(100.);
-        when(loopFlowViolationCostEvaluator.evaluate(flowResult, null, new HashSet<>())).thenReturn(100.);
+        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-300.);
+        when(flowResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(400.);
     }
 
     @Test
     void testWithFunctionalCostOnly() {
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.create()
-            .withFunctionalCostEvaluator(minMarginEvaluator)
-            .withCnecMarginManager(cnecMarginManager)
-            .build();
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(), null, null, Set.of(), raoParameters, Set.of());
 
         // functional cost
-        assertEquals(-300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult).getRight());
+        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getRight());
 
         // virtual cost
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
@@ -80,39 +76,49 @@ class ObjectiveFunctionTest {
 
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
-        assertEquals(-300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0., result.getVirtualCost(), DOUBLE_TOLERANCE);
-        assertEquals(-300., result.getCost(), DOUBLE_TOLERANCE);
+        assertEquals(300., result.getCost(), DOUBLE_TOLERANCE);
         assertEquals(List.of(cnec1, cnec2), result.getMostLimitingElements(10));
         assertTrue(result.getVirtualCostNames().isEmpty());
     }
 
     @Test
-    void testWithVirtualCostOnly() {
-        ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder = ObjectiveFunction.create()
-            .withVirtualCostEvaluator(mnecViolationCostEvaluator);
-        assertThrows(NullPointerException.class, objectiveFunctionBuilder::build);
-    }
-
-    @Test
     void testWithFunctionalAndVirtualCost() {
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.create()
-            .withFunctionalCostEvaluator(minMarginEvaluator)
-            .withVirtualCostEvaluator(mnecViolationCostEvaluator)
-            .withVirtualCostEvaluator(loopFlowViolationCostEvaluator)
-            .withCnecMarginManager(cnecMarginManager)
-            .build();
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
+        raoParameters.addExtension(MnecParametersExtension.class, new MnecParametersExtension());
+        raoParameters.getExtension(MnecParametersExtension.class).setAcceptableMarginDecrease(200.0);
+        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
+        raoParameters.getExtension(LoopFlowParametersExtension.class).setViolationCost(10.0);
+
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+
+        when(initialFlowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(200.);
+        when(flowResult.getLoopFlow(cnec2, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(10.);
+        when(flowResult.getLoopFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(10.);
+
+        LoopFlowThreshold loopFlowThreshold = Mockito.mock(LoopFlowThreshold.class);
+        when(loopFlowThreshold.getThreshold(Unit.MEGAWATT)).thenReturn(0.0);
+        when(cnec2.getExtension(LoopFlowThreshold.class)).thenReturn(loopFlowThreshold);
+
+        when(initialFlowResult.getLoopFlow(cnec2, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(0.0);
+        when(initialFlowResult.getLoopFlow(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(0.0);
+
+        FlowResult prePerimeterFlowResult = Mockito.mock(FlowResult.class);
+
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(cnec2), initialFlowResult, prePerimeterFlowResult, Set.of(), raoParameters, Set.of());
 
         // functional cost
-        assertEquals(-300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult).getRight());
+        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getRight());
 
         // virtual cost sum
         assertEquals(2, objectiveFunction.getVirtualCostNames().size());
         assertTrue(objectiveFunction.getVirtualCostNames().containsAll(Set.of("mnec-cost", "loop-flow-cost")));
 
         // mnec virtual cost
-        assertEquals(1000., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(3000., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getLeft(), DOUBLE_TOLERANCE);
         assertEquals(List.of(cnec1), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getRight());
 
         // loopflow virtual cost
@@ -121,13 +127,13 @@ class ObjectiveFunctionTest {
 
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
-        assertEquals(-300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(1100., result.getVirtualCost(), DOUBLE_TOLERANCE);
-        assertEquals(800., result.getCost(), DOUBLE_TOLERANCE);
+        assertEquals(300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(3100., result.getVirtualCost(), DOUBLE_TOLERANCE);
+        assertEquals(3400., result.getCost(), DOUBLE_TOLERANCE);
         assertEquals(List.of(cnec1, cnec2), result.getMostLimitingElements(10));
         assertEquals(2, result.getVirtualCostNames().size());
         assertTrue(result.getVirtualCostNames().containsAll(Set.of("mnec-cost", "loop-flow-cost")));
-        assertEquals(1000., result.getVirtualCost("mnec-cost"), DOUBLE_TOLERANCE);
+        assertEquals(3000., result.getVirtualCost("mnec-cost"), DOUBLE_TOLERANCE);
         assertEquals(List.of(cnec1), result.getCostlyElements("mnec-cost", 10));
         assertEquals(100., result.getVirtualCost("loop-flow-cost"), DOUBLE_TOLERANCE);
         assertEquals(List.of(cnec2), result.getCostlyElements("loop-flow-cost", 10));
@@ -138,13 +144,13 @@ class ObjectiveFunctionTest {
         RaoParameters raoParameters = new RaoParameters();
 
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.);
-        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(
             Set.of(cnec1, cnec2), raoParameters, Set.of()
         );
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
 
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(1.);
-        objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
+        objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(
             Set.of(cnec1, cnec2), raoParameters, Set.of()
         );
         assertEquals(Set.of("sensitivity-failure-cost"), objectiveFunction.getVirtualCostNames());
@@ -156,7 +162,7 @@ class ObjectiveFunctionTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST_IN_AMPERE);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
 
-        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
         assertTrue(objectiveFunction.getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
@@ -166,7 +172,7 @@ class ObjectiveFunctionTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST_IN_MEGAWATT);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
 
-        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
         assertTrue(objectiveFunction.getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
@@ -176,7 +182,7 @@ class ObjectiveFunctionTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST_IN_AMPERE);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
 
-        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
         assertTrue(objectiveFunction.getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
@@ -186,7 +192,7 @@ class ObjectiveFunctionTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST_IN_MEGAWATT);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
 
-        ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
         assertTrue(objectiveFunction.getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 }

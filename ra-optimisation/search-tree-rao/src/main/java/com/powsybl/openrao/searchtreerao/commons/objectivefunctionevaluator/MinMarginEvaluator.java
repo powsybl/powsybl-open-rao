@@ -7,8 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
+import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
@@ -19,10 +22,14 @@ import java.util.*;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class MinMarginEvaluator implements CostEvaluator {
-    private final CnecMarginManager cnecMarginManager;
+    protected final Set<FlowCnec> flowCnecs;
+    protected final Unit unit;
+    protected final MarginEvaluator marginEvaluator;
 
-    public MinMarginEvaluator(CnecMarginManager cnecMarginManager) {
-        this.cnecMarginManager = cnecMarginManager;
+    public MinMarginEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
+        this.flowCnecs = flowCnecs;
+        this.unit = unit;
+        this.marginEvaluator = marginEvaluator;
     }
 
     @Override
@@ -32,7 +39,7 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = cnecMarginManager.sortFlowCnecsByMargin(flowResult, contingenciesToExclude);
+        List<FlowCnec> costlyElements = FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude);
         FlowCnec limitingElement;
         if (costlyElements.isEmpty()) {
             limitingElement = null;
@@ -45,7 +52,7 @@ public class MinMarginEvaluator implements CostEvaluator {
             // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
             return -getHighestThresholdAmongFlowCnecs();
         }
-        double margin = cnecMarginManager.marginEvaluator().getMargin(flowResult, limitingElement, cnecMarginManager.unit());
+        double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
         if (margin >= Double.MAX_VALUE / 2) {
             // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
             // return a finite value, like MNEC case above
@@ -55,16 +62,16 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getHighestThresholdAmongFlowCnecs() {
-        return cnecMarginManager.flowCnecs().stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
+        return flowCnecs.stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
     }
 
     private double getHighestThreshold(FlowCnec flowCnec) {
         return Math.max(
             Math.max(
-                flowCnec.getUpperBound(TwoSides.ONE, cnecMarginManager.unit()).orElse(0.0),
-                flowCnec.getUpperBound(TwoSides.TWO, cnecMarginManager.unit()).orElse(0.0)),
+                flowCnec.getUpperBound(TwoSides.ONE, unit).orElse(0.0),
+                flowCnec.getUpperBound(TwoSides.TWO, unit).orElse(0.0)),
             Math.max(
-                -flowCnec.getLowerBound(TwoSides.ONE, cnecMarginManager.unit()).orElse(0.0),
-                -flowCnec.getLowerBound(TwoSides.TWO, cnecMarginManager.unit()).orElse(0.0)));
+                -flowCnec.getLowerBound(TwoSides.ONE, unit).orElse(0.0),
+                -flowCnec.getLowerBound(TwoSides.TWO, unit).orElse(0.0)));
     }
 }
