@@ -7,13 +7,11 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Function;
@@ -24,8 +22,9 @@ import java.util.stream.Collectors;
  * the MNEC minimum margin soft constraint
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class MnecViolationCostEvaluator implements CostEvaluator {
+public class MnecViolationCostEvaluator implements CnecViolationCostEvaluator {
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final FlowResult initialFlowResult;
@@ -36,8 +35,8 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         this.flowCnecs = flowCnecs;
         this.unit = unit;
         this.initialFlowResult = initialFlowResult;
-        mnecAcceptableMarginDecrease = mnecParametersExtension.getAcceptableMarginDecrease();
-        mnecViolationCost = mnecParametersExtension.getViolationCost();
+        this.mnecAcceptableMarginDecrease = mnecParametersExtension.getAcceptableMarginDecrease();
+        this.mnecViolationCost = mnecParametersExtension.getViolationCost();
     }
 
     @Override
@@ -45,40 +44,19 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         return "mnec-cost";
     }
 
-    private double computeCost(FlowResult flowResult, FlowCnec mnec) {
-        double initialMargin = initialFlowResult.getMargin(mnec, unit);
-        double currentMargin = flowResult.getMargin(mnec, unit);
-        return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDecrease) - currentMargin);
+    @Override
+    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
+        return Math.abs(mnecViolationCost) < 1e-10 ? 0.0 : mnecViolationCost * getElementsInViolation(flowResult, contingenciesToExclude).stream().mapToDouble(mnec -> computeMnecCost(flowResult, mnec)).sum();
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        if (Math.abs(mnecViolationCost) < 1e-10) {
-            return Pair.of(0., new ArrayList<>());
-        }
-        double totalMnecMarginViolation = 0;
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
-        for (FlowCnec mnec : costlyElements) {
-            Optional<Contingency> contingency = mnec.getState().getContingency();
-            if (mnec.isMonitored() && (mnec.getState().getContingency().isEmpty() || contingency.isPresent() && !contingenciesToExclude.contains(contingency.get().getId()))) {
-                totalMnecMarginViolation += computeCost(flowResult, mnec);
-            }
-        }
-        return Pair.of(mnecViolationCost * totalMnecMarginViolation, costlyElements);
-    }
-
-    @Override
-    public Unit getUnit() {
-        return unit;
-    }
-
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+    public List<FlowCnec> getElementsInViolation(FlowResult flowResult, Set<String> contingenciesToExclude) {
         List<FlowCnec> sortedElements = flowCnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
             .filter(Cnec::isMonitored)
             .collect(Collectors.toMap(
                 Function.identity(),
-                cnec -> computeCost(flowResult, cnec)
+                cnec -> computeMnecCost(flowResult, cnec)
             ))
             .entrySet().stream()
             .filter(entry -> entry.getValue() != 0)
@@ -86,12 +64,17 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
         Collections.reverse(sortedElements);
-
-        return sortedElements;
+        return new ArrayList<>(sortedElements);
     }
 
     @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
+    public Unit getUnit() {
+        return unit;
+    }
+
+    private double computeMnecCost(FlowResult flowResult, FlowCnec mnec) {
+        double initialMargin = initialFlowResult.getMargin(mnec, unit);
+        double currentMargin = flowResult.getMargin(mnec, unit);
+        return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDecrease) - currentMargin);
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -50,27 +49,8 @@ class SensitivityFailureOvercostEvaluatorTest {
     }
 
     @Test
-    void testGetUnit() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1), 10000);
-        assertEquals(Unit.MEGAWATT, evaluator.getUnit());
-    }
-
-    @Test
     void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, null).getLeft(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testGetCostlyElements() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, null).getRight().size());
-        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, null, Set.of("")).getRight().size());
-    }
-
-    @Test
-    void testGetFlowCnecs() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(0, evaluator.getFlowCnecs().size());
+        assertEquals(10000, evaluator.evaluate(flowResult, null), DOUBLE_TOLERANCE);
     }
 }

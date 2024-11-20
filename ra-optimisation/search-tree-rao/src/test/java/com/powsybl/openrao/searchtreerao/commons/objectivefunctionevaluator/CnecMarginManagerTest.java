@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -15,27 +15,28 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.ejml.UtilEjml.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class MinMarginEvaluatorTest {
-    private static final double DOUBLE_TOLERANCE = 0.01;
-
+class CnecMarginManagerTest {
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private FlowCnec cnec3;
     private FlowCnec pureMnec;
     private FlowResult flowResult;
     private MarginEvaluator marginEvaluator;
-    private MinMarginEvaluator minMarginEvaluator;
+    private CnecMarginManager cnecMarginManager;
 
     @BeforeEach
     public void setUp() {
@@ -65,18 +66,31 @@ class MinMarginEvaluatorTest {
         when(marginEvaluator.getMargin(flowResult, cnec3, MEGAWATT)).thenReturn(-250.);
         when(marginEvaluator.getMargin(flowResult, pureMnec, MEGAWATT)).thenReturn(50.);
 
-        CnecMarginManager cnecMarginManager = new CnecMarginManager(Set.of(cnec1, cnec2, cnec3, pureMnec), marginEvaluator, MEGAWATT);
-        minMarginEvaluator = new MinMarginEvaluator(cnecMarginManager);
+        cnecMarginManager = new CnecMarginManager(Set.of(cnec1, cnec2, cnec3, pureMnec), marginEvaluator, MEGAWATT);
     }
 
     @Test
-    void getName() {
-        assertEquals("min-margin-evaluator", minMarginEvaluator.getName());
+    void getUnit() {
+        assertEquals(MEGAWATT, cnecMarginManager.unit());
     }
 
     @Test
-    void computeCost() {
-        assertEquals(250., minMarginEvaluator.evaluate(flowResult, null), DOUBLE_TOLERANCE);
+    void getMarginEvaluator() {
+        assertEquals(marginEvaluator, cnecMarginManager.marginEvaluator());
+    }
+
+    @Test
+    void getFlowCnecs() {
+        assertEquals(Set.of(cnec1, cnec2, cnec3, pureMnec), cnecMarginManager.flowCnecs());
+    }
+
+    @Test
+    void getMostLimitingElements() {
+        List<FlowCnec> costlyElements = cnecMarginManager.sortFlowCnecsByMargin(flowResult, Set.of());
+        assertEquals(3, costlyElements.size());
+        assertSame(cnec3, costlyElements.get(0));
+        assertSame(cnec1, costlyElements.get(1));
+        assertSame(cnec2, costlyElements.get(2));
     }
 
     @Test
@@ -99,23 +113,13 @@ class MinMarginEvaluatorTest {
         when(marginEvaluator.getMargin(flowResult, mnec1, MEGAWATT)).thenReturn(-150.);
         when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
 
-        CnecMarginManager cnecMarginManager = new CnecMarginManager(Set.of(mnec1, mnec2), marginEvaluator, MEGAWATT);
-        minMarginEvaluator = new MinMarginEvaluator(cnecMarginManager);
-        assertEquals(-2000, minMarginEvaluator.evaluate(flowResult, null), DOUBLE_TOLERANCE);
+        cnecMarginManager = new CnecMarginManager(Set.of(mnec1, mnec2), marginEvaluator, MEGAWATT);
+
+        assertTrue(cnecMarginManager.sortFlowCnecsByMargin(flowResult, Set.of()).isEmpty());
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
         when(cnec.getUpperBound(any(), any())).thenReturn(Optional.of(threshold));
         when(cnec.getLowerBound(any(), any())).thenReturn(Optional.of(-threshold));
-    }
-
-    @Test
-    void testAllCnecsUnoptimized() {
-        when(marginEvaluator.getMargin(eq(flowResult), any(), eq(MEGAWATT))).thenReturn(Double.MAX_VALUE);
-        mockCnecThresholds(cnec1, 1000);
-        mockCnecThresholds(cnec2, 2000);
-        mockCnecThresholds(cnec3, 3000);
-        mockCnecThresholds(pureMnec, 4000);
-        assertEquals(-4000., minMarginEvaluator.evaluate(flowResult, null), DOUBLE_TOLERANCE);
     }
 }

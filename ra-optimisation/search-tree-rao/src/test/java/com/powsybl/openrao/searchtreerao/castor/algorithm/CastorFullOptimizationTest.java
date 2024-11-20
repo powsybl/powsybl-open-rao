@@ -580,7 +580,7 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-        assertEquals(Set.of("overload-evaluator", "sensitivity-failure-cost"), raoResult.getVirtualCostNames());
+        assertEquals(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"), raoResult.getVirtualCostNames());
 
         assertEquals(Set.of(crac.getNetworkAction("closeBeFr4")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
 
@@ -598,14 +598,14 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-        assertEquals(Set.of("overload-evaluator", "sensitivity-failure-cost"), raoResult.getVirtualCostNames());
+        assertEquals(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"), raoResult.getVirtualCostNames());
 
         assertEquals(Set.of(crac.getNetworkAction("cheapCloseBeFr6")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
 
         assertEquals(500200.0, raoResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
         assertEquals(200.0, raoResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
         assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
-        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("preventive"), "overload-evaluator"), DOUBLE_TOLERANCE);
+        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("preventive"), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
 
         assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr2", crac.getInstant("auto"))).isEmpty());
         assertEquals(Set.of(crac.getNetworkAction("closeBeFr7")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr3", crac.getInstant("auto"))));
@@ -615,7 +615,7 @@ class CastorFullOptimizationTest {
         assertEquals(500320.0, raoResult.getCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
         assertEquals(320.0, raoResult.getFunctionalCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
         assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
-        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("auto"), "overload-evaluator"), DOUBLE_TOLERANCE);
+        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("auto"), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
 
         assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr2", crac.getInstant("curative"))).isEmpty());
         assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr3", crac.getInstant("curative"))).isEmpty());
@@ -625,6 +625,6 @@ class CastorFullOptimizationTest {
         assertEquals(501790.0, raoResult.getCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
         assertEquals(1790.0, raoResult.getFunctionalCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
         assertEquals(500000.0, raoResult.getVirtualCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
-        assertEquals(500000.0, raoResult.getVirtualCost(crac.getLastInstant(), "overload-evaluator"), DOUBLE_TOLERANCE);
+        assertEquals(500000.0, raoResult.getVirtualCost(crac.getLastInstant(), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
     }
 }

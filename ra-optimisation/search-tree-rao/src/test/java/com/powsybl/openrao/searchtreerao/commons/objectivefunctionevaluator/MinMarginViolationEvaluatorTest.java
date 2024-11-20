@@ -11,8 +11,8 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.searchtreerao.commons.marginevaluator.BasicMarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class OverloadEvaluatorTest {
+class MinMarginViolationEvaluatorTest {
     @Test
     void testWithOverload() {
         FlowResult flowResult = Mockito.mock(FlowResult.class);
@@ -36,8 +36,11 @@ class OverloadEvaluatorTest {
         Mockito.when(flowCnec.isOptimized()).thenReturn(true);
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-1d);
 
-        OverloadEvaluator evaluator = new OverloadEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
-        assertEquals(Pair.of(10000.0, List.of(flowCnec)), evaluator.computeCostAndLimitingElements(flowResult, null));
+        CnecMarginManager cnecMarginManager = new CnecMarginManager(Set.of(flowCnec), new BasicMarginEvaluator(), Unit.MEGAWATT);
+
+        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(cnecMarginManager);
+        assertEquals(10000.0, evaluator.evaluate(flowResult, null));
+        assertEquals(List.of(flowCnec), evaluator.getElementsInViolation(flowResult, Set.of()));
     }
 
     @Test
@@ -50,7 +53,10 @@ class OverloadEvaluatorTest {
         Mockito.when(flowCnec.isOptimized()).thenReturn(true);
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(500d);
 
-        OverloadEvaluator evaluator = new OverloadEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
-        assertEquals(Pair.of(0.0, List.of(flowCnec)), evaluator.computeCostAndLimitingElements(flowResult, null));
+        CnecMarginManager cnecMarginManager = new CnecMarginManager(Set.of(flowCnec), new BasicMarginEvaluator(), Unit.MEGAWATT);
+
+        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(cnecMarginManager);
+        assertEquals(0.0, evaluator.evaluate(flowResult, null));
+        assertEquals(List.of(flowCnec), evaluator.getElementsInViolation(flowResult, Set.of()));
     }
 }
