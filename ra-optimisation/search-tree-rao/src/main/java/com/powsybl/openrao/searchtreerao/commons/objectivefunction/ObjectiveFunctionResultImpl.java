@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
+package com.powsybl.openrao.searchtreerao.commons.objectivefunction;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
