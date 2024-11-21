@@ -28,14 +28,12 @@ public abstract class AbstractObjectiveFunctionCreator {
     protected final Set<FlowCnec> flowCnecs;
     protected final Set<State> optimizedStates;
     protected final RaoParameters raoParameters;
-    protected final MarginEvaluator marginEvaluator;
     protected final Unit unit;
 
     protected AbstractObjectiveFunctionCreator(Set<FlowCnec> flowCnecs, Set<State> optimizedStates, RaoParameters raoParameters) {
         this.flowCnecs = flowCnecs;
         this.optimizedStates = optimizedStates;
         this.raoParameters = raoParameters;
-        this.marginEvaluator = getMarginEvaluator();
         this.unit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
     }
 
@@ -43,15 +41,16 @@ public abstract class AbstractObjectiveFunctionCreator {
         return raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins() ? new BasicRelativeMarginEvaluator() : new BasicMarginEvaluator();
     }
 
-    protected CostEvaluator getFunctionalCostEvaluator() {
+    protected CostEvaluator getFunctionalCostEvaluator(MarginEvaluator marginEvaluator) {
         return raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ? new RemedialActionCostEvaluator(optimizedStates) : new MinMarginEvaluator(flowCnecs, unit, marginEvaluator);
     }
 
-    protected abstract List<CostEvaluator> getVirtualCostEvaluators();
+    protected abstract List<CostEvaluator> getVirtualCostEvaluators(MarginEvaluator marginEvaluator);
 
     public ObjectiveFunction create() {
-        CostEvaluator functionalCostEvaluator = getFunctionalCostEvaluator();
-        List<CostEvaluator> virtualCostEvaluators = getVirtualCostEvaluators();
+        MarginEvaluator marginEvaluator = getMarginEvaluator();
+        CostEvaluator functionalCostEvaluator = getFunctionalCostEvaluator(marginEvaluator);
+        List<CostEvaluator> virtualCostEvaluators = getVirtualCostEvaluators(marginEvaluator);
         return new ObjectiveFunction(functionalCostEvaluator, virtualCostEvaluators, flowCnecs, unit, marginEvaluator);
     }
 }
