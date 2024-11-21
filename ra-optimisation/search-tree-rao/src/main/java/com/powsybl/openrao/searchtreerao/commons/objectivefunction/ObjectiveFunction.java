@@ -45,10 +45,6 @@ public final class ObjectiveFunction {
         return new ObjectiveFunctionResultImpl(this, flowResult, remedialActionActivationResult);
     }
 
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
-    }
-
     public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         return getFunctionalCostAndLimitingElements(flowResult, remedialActionActivationResult, Set.of());
     }
@@ -61,12 +57,8 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, String virtualCostName, Set<String> contingenciesToExclude) {
-        return virtualCostEvaluators.stream()
-            .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
-            .findAny()
-            .map(costEvaluator -> Pair.of(costEvaluator.evaluate(flowResult, remedialActionActivationResult, contingenciesToExclude), getVirtualCostCostlyElements(costEvaluator, flowResult, contingenciesToExclude)))
-            .orElse(Pair.of(Double.NaN, new ArrayList<>()));
+    Map<String, VirtualCostEvaluation> getVirtualCostsAndElementsInViolation(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
+        return virtualCostEvaluators.stream().collect(Collectors.toMap(CostEvaluator::getName, virtualCostEvaluator -> new VirtualCostEvaluation(virtualCostEvaluator.evaluate(flowResult, remedialActionActivationResult, contingenciesToExclude), getVirtualCostCostlyElements(virtualCostEvaluator, flowResult, contingenciesToExclude))));
     }
 
     private static List<FlowCnec> getVirtualCostCostlyElements(CostEvaluator virtualCostEvaluator, FlowResult flowResult, Set<String> contingenciesToExclude) {
@@ -85,5 +77,8 @@ public final class ObjectiveFunction {
                                           RaoParameters raoParameters,
                                           Set<State> optimizedStates) {
         return new ObjectiveFunctionCreator(flowCnecs, optimizedStates, raoParameters, loopFlowCnecs, initialFlowResult, prePerimeterFlowResult, operatorsNotToOptimizeInCurative).create();
+    }
+
+    record VirtualCostEvaluation(double virtualCost, List<FlowCnec> elementsInViolation) {
     }
 }

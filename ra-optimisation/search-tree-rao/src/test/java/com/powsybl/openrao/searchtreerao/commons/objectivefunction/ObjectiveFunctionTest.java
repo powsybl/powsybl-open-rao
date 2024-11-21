@@ -21,8 +21,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -71,8 +71,7 @@ class ObjectiveFunctionTest {
 
         // virtual cost
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
-        assertTrue(Double.isNaN(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getLeft()));
-        assertTrue(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getRight().isEmpty());
+        assertTrue(objectiveFunction.getVirtualCostsAndElementsInViolation(flowResult, null, Set.of()).isEmpty());
 
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
@@ -117,13 +116,11 @@ class ObjectiveFunctionTest {
         assertEquals(2, objectiveFunction.getVirtualCostNames().size());
         assertTrue(objectiveFunction.getVirtualCostNames().containsAll(Set.of("mnec-cost", "loop-flow-cost")));
 
-        // mnec virtual cost
-        assertEquals(3000., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getRight());
-
-        // loopflow virtual cost
-        assertEquals(100., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "loop-flow-cost", new HashSet<>()).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec2), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "loop-flow-cost", new HashSet<>()).getRight());
+        assertEquals(
+            Map.of(
+                "mnec-cost", new ObjectiveFunction.VirtualCostEvaluation(3000., List.of(cnec1)),
+                "loop-flow-cost", new ObjectiveFunction.VirtualCostEvaluation(100., List.of(cnec2))),
+            objectiveFunction.getVirtualCostsAndElementsInViolation(flowResult, null, Set.of()));
 
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);

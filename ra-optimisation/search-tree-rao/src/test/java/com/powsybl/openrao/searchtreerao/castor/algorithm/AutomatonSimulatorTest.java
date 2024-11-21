@@ -644,7 +644,6 @@ class AutomatonSimulatorTest {
 
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(mockedPrePerimeterResult.getObjectiveFunction()).thenReturn(objectiveFunction);
-        when(objectiveFunction.getFlowCnecs()).thenReturn(Set.of(cnec1, cnec2));
         RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
         when(mockedPrePerimeterResult.getRangeActionSetpointResult()).thenReturn(rangeActionSetpointResult);
         when(rangeActionSetpointResult.getRangeActions()).thenReturn(Collections.emptySet());

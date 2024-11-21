@@ -105,10 +105,9 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
         orderedLimitingElements = functionalCostAndLimitingElements.getRight();
         virtualCosts = new HashMap<>();
         orderedCostlyElements = new HashMap<>();
-        getVirtualCostNames().forEach(vcn -> {
-            Pair<Double, List<FlowCnec>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, remedialActionActivationResult, vcn, contingenciesToExclude);
-            virtualCosts.put(vcn, virtualCostAndCostlyElements.getLeft());
-            orderedCostlyElements.put(vcn, virtualCostAndCostlyElements.getRight());
+        objectiveFunction.getVirtualCostsAndElementsInViolation(flowResult, remedialActionActivationResult, contingenciesToExclude).forEach((name, virtualCostEvaluation) -> {
+            virtualCosts.put(name, virtualCostEvaluation.virtualCost());
+            orderedCostlyElements.put(name, virtualCostEvaluation.elementsInViolation());
         });
         areCostsComputed = true;
         excludedContingencies = contingenciesToExclude;
