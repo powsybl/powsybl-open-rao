@@ -17,7 +17,7 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters;
@@ -113,13 +113,7 @@ class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     void testRunWithLf() {
-        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
-        LoopFlowParameters loopFlowParameters = new LoopFlowParameters();
-        searchTreeParameters.setLoopFlowParameters(loopFlowParameters);
-        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
+        raoParameters.setLoopFlowParameters(new LoopFlowParameters());
         mockSystematicSensitivityInterface(false, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
@@ -128,13 +122,8 @@ class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     void testRunWithPtdfAndLf() {
-        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
-        LoopFlowParameters loopFlowParameters = new LoopFlowParameters();
-        searchTreeParameters.setLoopFlowParameters(loopFlowParameters);
-        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        raoParameters.setLoopFlowParameters(new LoopFlowParameters());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         mockSystematicSensitivityInterface(true, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
@@ -145,7 +134,7 @@ class PrePerimeterSensitivityAnalysisTest {
     void testRunWithFixedPtdfAndLf() {
         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
-        LoopFlowParameters loopFlowParameters = new LoopFlowParameters();
+        com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParameters = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
         searchTreeParameters.setLoopFlowParameters(loopFlowParameters);
         loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
@@ -165,7 +154,7 @@ class PrePerimeterSensitivityAnalysisTest {
     void testRunAndRecomputePtdf() {
         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
-        LoopFlowParameters loopFlowParameters = new LoopFlowParameters();
+        com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParameters = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
         searchTreeParameters.setLoopFlowParameters(loopFlowParameters);
         loopFlowParameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();

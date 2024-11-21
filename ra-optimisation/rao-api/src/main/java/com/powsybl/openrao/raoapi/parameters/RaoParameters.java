@@ -121,6 +121,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         RaoParameters parameters = new RaoParameters();
         load(parameters, platformConfig);
         parameters.loadExtensions(platformConfig);
+        addOptionalExtensionsDefaultValuesIfExist(parameters);
         return parameters;
     }
 
@@ -145,7 +146,46 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         }
     }
 
-    public boolean hasLoopFlowParameters() {
-        return this.getLoopFlowParameters().isPresent() || this.hasExtension(OpenRaoSearchTreeParameters.class) && this.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().isPresent();
+    public static void addOptionalExtensionsDefaultValuesIfExist(RaoParameters parameters) {
+        OpenRaoSearchTreeParameters extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+        if (parameters.getMnecParameters().isPresent()) {
+            if (Objects.isNull(extension)) {
+                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+            }
+            extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+            if (extension.getMnecParameters().isEmpty()) {
+                extension.setMnecParameters(new com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters());
+            }
+        } else {
+            if (!Objects.isNull(extension) && extension.getMnecParameters().isPresent()) {
+                parameters.setMnecParameters(new com.powsybl.openrao.raoapi.parameters.MnecParameters());
+            }
+        }
+        if (parameters.getRelativeMarginsParameters().isPresent()) {
+            if (Objects.isNull(extension)) {
+                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+            }
+            extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+            if (extension.getRelativeMarginsParameters().isEmpty()) {
+                extension.setRelativeMarginsParameters(new com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters());
+            }
+        } else {
+            if (!Objects.isNull(extension) && extension.getRelativeMarginsParameters().isPresent()) {
+                parameters.setRelativeMarginsParameters(new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters());
+            }
+        }
+        if (parameters.getLoopFlowParameters().isPresent()) {
+            if (Objects.isNull(extension)) {
+                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+            }
+            extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+            if (extension.getLoopFlowParameters().isEmpty()) {
+                extension.setLoopFlowParameters(new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters());
+            }
+        } else {
+            if (!Objects.isNull(extension) && extension.getLoopFlowParameters().isPresent()) {
+                parameters.setLoopFlowParameters(new com.powsybl.openrao.raoapi.parameters.LoopFlowParameters());
+            }
+        }
     }
 }

@@ -222,10 +222,14 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertTrue(parameters.getMnecParameters().isEmpty());
         assertTrue(searchTreeParameters.getMnecParameters().isEmpty());
 
-        assertTrue(parameters.getRelativeMarginsParameters().isEmpty());
         assertTrue(searchTreeParameters.getRelativeMarginsParameters().isPresent());
         assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfApproximation());
         assertEquals(0.02, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
+
+        // If RelativeMarginsParameters is present on extension it should be created on rao-parameters,
+        // if it exists on rao-parameters it should be created on extension.
+        // The same rule exist for MnecParameters and LoopFlowParameters
+        assertTrue(parameters.getRelativeMarginsParameters().isPresent());
 
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withPartialExtensions.json");

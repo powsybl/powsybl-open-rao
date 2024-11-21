@@ -63,7 +63,7 @@ public final class RaoUtils {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
-        if (raoParameters.hasLoopFlowParameters() && glsks != null) {
+        if (raoParameters.getLoopFlowParameters().isPresent() && glsks != null) {
             double effectiveLfPercentage = loopflowAsPmaxPercentage == null ? 0.0 : loopflowAsPmaxPercentage;
             buildLoopFlowExtensions(CommonTestData.getCrac(), CommonTestData.getNetwork(), effectiveLfPercentage);
         }

@@ -58,7 +58,7 @@ public class PrePerimeterSensitivityAnalysis {
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
             .withOutageInstant(crac.getOutageInstant());
-        if (raoParameters.hasLoopFlowParameters()) {
+        if (raoParameters.getLoopFlowParameters().isPresent()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {

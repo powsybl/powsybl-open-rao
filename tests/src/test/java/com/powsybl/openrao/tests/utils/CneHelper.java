@@ -77,7 +77,7 @@ public final class CneHelper {
             case MAX_MIN_RELATIVE_MARGIN -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
             case MAX_MIN_MARGIN -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "false");
         }
-        if (raoParameters.hasLoopFlowParameters()) {
+        if (raoParameters.getLoopFlowParameters().isPresent()) {
             properties.setProperty("rao-result.export.core-cne.with-loop-flows", "true");
         }
         if (raoParameters.getMnecParameters().isPresent()) {

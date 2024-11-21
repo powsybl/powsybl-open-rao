@@ -17,6 +17,9 @@
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
+  "relative-margins-parameters" : {
+    "ptdf-boundaries" : [ ]
+  },
   "loop-flow-parameters" : {
     "acceptable-increase" : 0.0,
     "countries" : [ "ES", "FR", "PT" ]
