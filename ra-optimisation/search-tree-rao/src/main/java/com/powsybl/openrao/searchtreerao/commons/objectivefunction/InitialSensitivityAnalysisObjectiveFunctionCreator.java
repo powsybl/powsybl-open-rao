@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunction;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.MinMarginViolationEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.SensitivityFailureOvercostEvaluator;
@@ -28,7 +29,7 @@ public class InitialSensitivityAnalysisObjectiveFunctionCreator extends Abstract
     }
 
     @Override
-    protected List<CostEvaluator> getVirtualCostEvaluators() {
+    protected List<CostEvaluator> getVirtualCostEvaluators(MarginEvaluator marginEvaluator) {
         List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
         if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {

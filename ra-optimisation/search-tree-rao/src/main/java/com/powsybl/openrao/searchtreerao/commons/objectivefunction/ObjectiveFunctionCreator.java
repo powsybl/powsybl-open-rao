@@ -51,7 +51,7 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
     }
 
     @Override
-    protected List<CostEvaluator> getVirtualCostEvaluators() {
+    protected List<CostEvaluator> getVirtualCostEvaluators(MarginEvaluator marginEvaluator) {
         List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
         if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
