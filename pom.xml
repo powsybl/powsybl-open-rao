@@ -96,8 +96,7 @@
         <jackson.version>2.17.1</jackson.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
-        <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
+        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jimfs.version>1.3.0</jimfs.version>
         <junit.bom.version>5.11.3</junit.bom.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
@@ -111,8 +110,7 @@
         <maven.jacoco.version>0.8.12</maven.jacoco.version>
         <maven.jar.version>3.3.0</maven.jar.version>
         <maven.javadoc.version>3.10.1</maven.javadoc.version>
-        <maven.jaxb2.version>0.15.3</maven.jaxb2.version>
-        <maven.jvnet.jaxb2-basics.version>1.11.1</maven.jvnet.jaxb2-basics.version>
+        <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
         <maven.source.version>3.3.1</maven.source.version>
         <maven.templating.version>3.0.0</maven.templating.version>
         <mockito.core.version>5.12.0</mockito.core.version>
@@ -128,15 +126,9 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.jvnet.jaxb2_commons</groupId>
-                    <artifactId>jaxb2-basics</artifactId>
-                    <version>${maven.jvnet.jaxb2-basics.version}</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.jvnet.jaxb2.maven2</groupId>
-                    <artifactId>maven-jaxb2-plugin</artifactId>
-                    <version>${maven.jaxb2.version}</version>
+                    <groupId>org.jvnet.jaxb</groupId>
+                    <artifactId>jaxb-maven-plugin</artifactId>
+                    <version>${maven.jvnet.jaxb.version}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -323,16 +315,6 @@
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>${javax.validation.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${jaxb-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jvnet.jaxb2_commons</groupId>
-                <artifactId>jaxb2-basics</artifactId>
-                <version>${maven.jvnet.jaxb2-basics.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
