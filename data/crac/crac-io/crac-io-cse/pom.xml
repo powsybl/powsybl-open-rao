@@ -52,10 +52,10 @@
             <artifactId>open-rao-crac-io-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
-            <dependency>
-                <groupId>jakarta.xml.bind</groupId>
-                <artifactId>jakarta.xml.bind-api</artifactId>
-            </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
 
         <!-- Runtime dependencies -->
         <dependency>
