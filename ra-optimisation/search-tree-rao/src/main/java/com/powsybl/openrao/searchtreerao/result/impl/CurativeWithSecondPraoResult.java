@@ -223,7 +223,7 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        return postCraSensitivitySensitivityResult.getSensitivityStatus();
+        return postCraSensitivitySensitivityResult.getSensitivityStatus(state);
     }
 
     @Override
