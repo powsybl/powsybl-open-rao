@@ -728,26 +728,6 @@ class LeafTest {
     }
 
     @Test
-    void getObjectiveFunctionBeforeEvaluation() {
-        Leaf leaf = buildNotEvaluatedRootLeaf();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, leaf::getObjectiveFunction);
-        assertEquals("No results available.", exception.getMessage());
-    }
-
-    @Test
-    void getObjectiveFunctionAfterOptimization() {
-        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        IteratingLinearOptimizationResultImpl linearOptimizationResult = Mockito.mock(IteratingLinearOptimizationResultImpl.class);
-        prepareLinearProblemBuilder(linearOptimizationResult);
-        leaf.optimize(searchTreeInput, searchTreeParameters);
-
-        ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        doReturn(objectiveFunction).when(linearOptimizationResult).getObjectiveFunction();
-
-        assertEquals(objectiveFunction, leaf.getObjectiveFunction());
-    }
-
-    @Test
     void testFinalize() {
         ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);

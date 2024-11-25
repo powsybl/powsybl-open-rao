@@ -643,7 +643,6 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
 
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        when(mockedPrePerimeterResult.getObjectiveFunction()).thenReturn(objectiveFunction);
         RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
         when(mockedPrePerimeterResult.getRangeActionSetpointResult()).thenReturn(rangeActionSetpointResult);
         when(rangeActionSetpointResult.getRangeActions()).thenReturn(Collections.emptySet());

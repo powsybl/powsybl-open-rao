@@ -491,17 +491,6 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        if (status == Status.EVALUATED) {
-            return preOptimObjectiveFunctionResult.getObjectiveFunction();
-        } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getObjectiveFunction();
-        } else {
-            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
-        }
-    }
-
-    @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         if (status == Status.EVALUATED) {
             preOptimObjectiveFunctionResult.excludeContingencies(contingenciesToExclude);

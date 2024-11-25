@@ -68,9 +68,4 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         this.excludedContingencies = new HashSet<>(contingenciesToExclude);
     }
-
-    @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        return null;
-    }
 }
