@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,8 +36,16 @@ class SensitivityFailureOvercostEvaluatorTest {
         flowResult = Mockito.mock(FlowResult.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
+        Contingency contingency1 = Mockito.mock(Contingency.class);
+        Mockito.when(contingency1.getId()).thenReturn("contingency-1");
+        Contingency contingency2 = Mockito.mock(Contingency.class);
+        Mockito.when(contingency2.getId()).thenReturn("contingency-2");
         State state1 = Mockito.mock(State.class);
+        Mockito.when(state1.getId()).thenReturn("state-1");
+        Mockito.when(state1.getContingency()).thenReturn(Optional.of(contingency1));
         State state2 = Mockito.mock(State.class);
+        Mockito.when(state2.getId()).thenReturn("state-2");
+        Mockito.when(state2.getContingency()).thenReturn(Optional.of(contingency2));
         Mockito.when(cnec1.getState()).thenReturn(state1);
         Mockito.when(cnec2.getState()).thenReturn(state2);
         Mockito.when(flowResult.getComputationStatus(state1)).thenReturn(ComputationStatus.DEFAULT);
@@ -52,5 +62,6 @@ class SensitivityFailureOvercostEvaluatorTest {
     void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(10000, evaluator.evaluate(flowResult, null, Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(10000, evaluator.eval(flowResult, null).getCost(Set.of()), DOUBLE_TOLERANCE);
     }
 }

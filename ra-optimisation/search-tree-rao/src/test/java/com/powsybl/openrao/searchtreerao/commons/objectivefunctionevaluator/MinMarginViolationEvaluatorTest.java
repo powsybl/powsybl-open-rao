@@ -38,6 +38,7 @@ class MinMarginViolationEvaluatorTest {
 
         MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
         assertEquals(10000.0, evaluator.evaluate(flowResult, null, Set.of()));
+        assertEquals(10000.0, evaluator.eval(flowResult, null).getCost(Set.of()));
         assertEquals(List.of(flowCnec), evaluator.getElementsInViolation(flowResult, Set.of()));
     }
 
@@ -53,6 +54,7 @@ class MinMarginViolationEvaluatorTest {
 
         MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
         assertEquals(0.0, evaluator.evaluate(flowResult, null, Set.of()));
+        assertEquals(0.0, evaluator.eval(flowResult, null).getCost(Set.of()));
         assertEquals(List.of(flowCnec), evaluator.getElementsInViolation(flowResult, Set.of()));
     }
 }

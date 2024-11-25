@@ -34,12 +34,17 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
 
     @Override
     public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Math.max(0.0, super.evaluate(flowResult, remedialActionActivationResult, contingenciesToExclude)) * OVERLOAD_PENALTY;
+        return Math.max(0.0, super.eval(flowResult, remedialActionActivationResult).getCost(contingenciesToExclude)) * OVERLOAD_PENALTY;
     }
 
     @Override
     public List<FlowCnec> getElementsInViolation(FlowResult flowResult, Set<String> contingenciesToExclude) {
         List<FlowCnec> flowCnecsByMargin = FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude);
         return flowCnecsByMargin.isEmpty() ? List.of() : List.of(flowCnecsByMargin.get(0));
+    }
+
+    @Override
+    protected double computeCostForState(FlowResult flowResult, Set<FlowCnec> flowCnecsOfState) {
+        return Math.max(0, super.computeCostForState(flowResult, flowCnecsOfState)) * OVERLOAD_PENALTY;
     }
 }

@@ -78,6 +78,6 @@ public interface ObjectiveFunctionResult {
 
     void excludeContingencies(Set<String> contingenciesToExclude);
 
-    ObjectiveFunction getObjectiveFunction();
+    ObjectiveFunction getObjectiveFunction(); // TODO: remove?
 
 }

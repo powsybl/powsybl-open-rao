@@ -20,4 +20,6 @@ public interface CostEvaluator {
     String getName();
 
     double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude);
+
+    CostEvaluatorResult eval(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult);
 }

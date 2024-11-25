@@ -54,4 +54,19 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
         }
         return 0.0;
     }
+
+    @Override
+    public CostEvaluatorResult eval(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        if (flowResult.getComputationStatus() == ComputationStatus.FAILURE) {
+            TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
+            return new ConstantCostEvaluatorResult(sensitivityFailureOvercost);
+        }
+        for (State state : states) {
+            if (flowResult.getComputationStatus(state) == ComputationStatus.FAILURE) {
+                TECHNICAL_LOGS.info(String.format("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost));
+                return new ConstantCostEvaluatorResult(sensitivityFailureOvercost);
+            }
+        }
+        return new ConstantCostEvaluatorResult(0.0);
+    }
 }

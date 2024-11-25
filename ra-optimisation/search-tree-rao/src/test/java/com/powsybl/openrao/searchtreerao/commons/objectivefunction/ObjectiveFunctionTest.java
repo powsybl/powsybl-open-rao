@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -66,12 +65,11 @@ class ObjectiveFunctionTest {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(), null, null, Set.of(), raoParameters, Set.of());
 
         // functional cost
-        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getRight());
+        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null, Set.of()).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null, Set.of()).getRight());
 
         // virtual cost
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
-        assertTrue(objectiveFunction.getVirtualCostsAndElementsInViolation(flowResult, null, Set.of()).isEmpty());
 
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
@@ -109,18 +107,18 @@ class ObjectiveFunctionTest {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(cnec2), initialFlowResult, prePerimeterFlowResult, Set.of(), raoParameters, Set.of());
 
         // functional cost
-        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getRight());
+        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null, Set.of()).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null, Set.of()).getRight());
 
         // virtual cost sum
         assertEquals(2, objectiveFunction.getVirtualCostNames().size());
         assertTrue(objectiveFunction.getVirtualCostNames().containsAll(Set.of("mnec-cost", "loop-flow-cost")));
 
-        assertEquals(
-            Map.of(
-                "mnec-cost", new ObjectiveFunction.VirtualCostEvaluation(3000., List.of(cnec1)),
-                "loop-flow-cost", new ObjectiveFunction.VirtualCostEvaluation(100., List.of(cnec2))),
-            objectiveFunction.getVirtualCostsAndElementsInViolation(flowResult, null, Set.of()));
+        assertEquals(3000.0, objectiveFunction.evaluate(flowResult, null).getVirtualCost("mnec-cost"));
+        assertEquals(List.of(cnec1), objectiveFunction.evaluate(flowResult, null).getCostlyElements("mnec-cost", 1));
+
+        assertEquals(100., objectiveFunction.evaluate(flowResult, null).getVirtualCost("loop-flow-cost"));
+        assertEquals(List.of(cnec2), objectiveFunction.evaluate(flowResult, null).getCostlyElements("loop-flow-cost", 1));
 
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);

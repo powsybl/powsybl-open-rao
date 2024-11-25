@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
@@ -71,5 +72,21 @@ public class MnecViolationCostEvaluator implements CnecViolationCostEvaluator {
         double initialMargin = initialFlowResult.getMargin(mnec, unit);
         double currentMargin = flowResult.getMargin(mnec, unit);
         return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDecrease) - currentMargin);
+    }
+
+    @Override
+    public CostEvaluatorResult eval(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        Map<FlowCnec, Double> mnecsAndCost = flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toMap(Function.identity(), mnec -> computeMnecCost(flowResult, mnec)));
+        Set<State> states = mnecsAndCost.keySet().stream().map(FlowCnec::getState).collect(Collectors.toSet());
+        // TODO: optimize
+        Map<State, Double> costPerState = states.stream().collect(Collectors.toMap(Function.identity(), state -> computeCostForState(flowResult, state)));
+
+        List<FlowCnec> sortedMnecs = mnecsAndCost.entrySet().stream().filter(entry -> entry.getValue() != 0).sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).collect(Collectors.toList());
+        Collections.reverse(sortedMnecs);
+        return new SumCostEvaluatorResult(costPerState, new ArrayList<>(sortedMnecs));
+    }
+
+    protected double computeCostForState(FlowResult flowResult, State state) {
+        return Math.abs(mnecViolationCost) < 1e-10 ? 0.0 : mnecViolationCost * flowCnecs.stream().filter(FlowCnec::isMonitored).filter(flowCnec -> state.equals(flowCnec.getState())).mapToDouble(mnec -> computeMnecCost(flowResult, mnec)).filter(mnecCost -> mnecCost != 0).sum();
     }
 }

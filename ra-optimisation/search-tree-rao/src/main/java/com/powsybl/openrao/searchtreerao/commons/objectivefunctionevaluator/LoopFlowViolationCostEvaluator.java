@@ -8,6 +8,8 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
@@ -87,5 +89,24 @@ public class LoopFlowViolationCostEvaluator implements CnecViolationCostEvaluato
         double loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
         double initialLoopFlow = initialLoopFlowResult.getLoopFlow(cnec, side, Unit.MEGAWATT);
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
+    }
+
+    @Override
+    public CostEvaluatorResult eval(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        Map<FlowCnec, Double> loopFlowCnecsAndCost = loopflowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toMap(Function.identity(), loopFlowCnec -> getLoopFlowExcess(flowResult, loopFlowCnec)));
+        Set<State> states = loopflowCnecs.stream().map(FlowCnec::getState).collect(Collectors.toSet());
+        Map<State, Double> costPerState = states.stream().collect(Collectors.toMap(Function.identity(), state -> computeCostForState(flowResult, state)));
+        if (costPerState.values().stream().anyMatch(loopFlowCost -> loopFlowCost > 0)) {
+            // TODO: will be logged even if the contingency is filtered out at some point
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
+        }
+
+        List<FlowCnec> sortedLoopFlowCnecs = loopFlowCnecsAndCost.entrySet().stream().filter(entry -> entry.getValue() != 0).sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).collect(Collectors.toList());
+        Collections.reverse(sortedLoopFlowCnecs);
+        return new SumCostEvaluatorResult(costPerState, new ArrayList<>(sortedLoopFlowCnecs));
+    }
+
+    protected double computeCostForState(FlowResult flowResult, State state) {
+        return loopFlowViolationCost * loopflowCnecs.stream().filter(loopFlowCnec -> state.equals(loopFlowCnec.getState())).mapToDouble(loopFlowCnec -> getLoopFlowExcess(flowResult, loopFlowCnec)).filter(loopFlowExcess -> loopFlowExcess != 0).sum();
     }
 }

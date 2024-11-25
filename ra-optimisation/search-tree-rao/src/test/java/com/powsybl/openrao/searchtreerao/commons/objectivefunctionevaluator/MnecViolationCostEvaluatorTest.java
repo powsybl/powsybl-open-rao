@@ -120,6 +120,7 @@ class MnecViolationCostEvaluatorTest {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10, Unit.MEGAWATT);
 
         assertEquals(0, evaluator.evaluate(currentFlowResult, null, Set.of()), 1e-12);
+        assertEquals(0, evaluator.eval(currentFlowResult, null).getCost(Set.of()), 1e-12);
     }
 
     @Test

@@ -76,6 +76,7 @@ class MinMarginEvaluatorTest {
     @Test
     void computeCost() {
         assertEquals(250., minMarginEvaluator.evaluate(flowResult, null, Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(250., minMarginEvaluator.eval(flowResult, null).getCost(Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -100,6 +101,7 @@ class MinMarginEvaluatorTest {
 
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
         assertEquals(-2000, minMarginEvaluator.evaluate(flowResult, null, Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(-2000, minMarginEvaluator.eval(flowResult, null).getCost(Set.of()), DOUBLE_TOLERANCE);
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
@@ -115,5 +117,6 @@ class MinMarginEvaluatorTest {
         mockCnecThresholds(cnec3, 3000);
         mockCnecThresholds(pureMnec, 4000);
         assertEquals(-4000., minMarginEvaluator.evaluate(flowResult, null, Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(-4000., minMarginEvaluator.eval(flowResult, null).getCost(Set.of()), DOUBLE_TOLERANCE);
     }
 }
