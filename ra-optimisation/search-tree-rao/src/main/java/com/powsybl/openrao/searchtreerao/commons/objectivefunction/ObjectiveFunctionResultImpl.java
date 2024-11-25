@@ -8,7 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunction;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
 import java.util.HashSet;
@@ -19,13 +19,13 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class ObjectiveFunctionEvaluation implements ObjectiveFunctionResult {
+public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final CostEvaluatorResult functionalCostResult;
     private final Map<String, CostEvaluatorResult> virtualCostResults;
     private final List<FlowCnec> flowCnecsByMargin;
     private Set<String> excludedContingencies;
 
-    public ObjectiveFunctionEvaluation(CostEvaluatorResult functionalCostResult, Map<String, CostEvaluatorResult> virtualCostResults, List<FlowCnec> flowCnecsByMargin) {
+    public ObjectiveFunctionResultImpl(CostEvaluatorResult functionalCostResult, Map<String, CostEvaluatorResult> virtualCostResults, List<FlowCnec> flowCnecsByMargin) {
         this.functionalCostResult = functionalCostResult;
         this.virtualCostResults = virtualCostResults;
         this.flowCnecsByMargin = flowCnecsByMargin;

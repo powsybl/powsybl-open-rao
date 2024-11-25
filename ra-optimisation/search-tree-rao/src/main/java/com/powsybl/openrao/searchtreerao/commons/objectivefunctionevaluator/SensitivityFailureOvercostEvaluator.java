@@ -7,11 +7,12 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.ConstantCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
@@ -39,24 +40,7 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        if (flowResult.getComputationStatus() == ComputationStatus.FAILURE) {
-            TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
-            return sensitivityFailureOvercost;
-        }
-        for (State state : states) {
-            Optional<Contingency> contingency = state.getContingency();
-            if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
-                flowResult.getComputationStatus(state) == ComputationStatus.FAILURE) {
-                TECHNICAL_LOGS.info(String.format("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost));
-                return sensitivityFailureOvercost;
-            }
-        }
-        return 0.0;
-    }
-
-    @Override
-    public CostEvaluatorResult eval(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         if (flowResult.getComputationStatus() == ComputationStatus.FAILURE) {
             TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
             return new ConstantCostEvaluatorResult(sensitivityFailureOvercost);

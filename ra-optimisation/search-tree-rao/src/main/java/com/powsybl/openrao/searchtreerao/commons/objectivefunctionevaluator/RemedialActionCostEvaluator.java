@@ -10,14 +10,12 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.ConstantCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -32,11 +30,6 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     @Override
     public String getName() {
         return "remedial-action-cost-evaluator";
-    }
-
-    @Override
-    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult);
     }
 
     private double getTotalNetworkActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
@@ -59,10 +52,7 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public CostEvaluatorResult eval(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        // Network actions must be considered as preventive as there is currently no way to know at which state they were activated
-        Map<State, Double> costPerState = optimizedStates.stream().collect(Collectors.toMap(Function.identity(), state -> remedialActionActivationResult.getActivatedRangeActions(state).stream().mapToDouble(rangeAction -> computeRangeActionCost(rangeAction, state, remedialActionActivationResult)).sum()));
-        // TODO: add network actions
-        return new SumCostEvaluatorResult(costPerState, List.of());
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        return new ConstantCostEvaluatorResult(getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult));
     }
 }

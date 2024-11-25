@@ -185,8 +185,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(150, evaluator.evaluate(currentLoopFlows, null, Set.of()), DOUBLE_TOLERANCE);
-        assertEquals(150, evaluator.eval(currentLoopFlows, null).getCost(Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(150, evaluator.evaluate(currentLoopFlows, null).getCost(Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -206,8 +205,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(300, evaluator.evaluate(currentLoopFlows, null, Set.of()), DOUBLE_TOLERANCE);
-        assertEquals(300, evaluator.eval(currentLoopFlows, null).getCost(Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(300, evaluator.evaluate(currentLoopFlows, null).getCost(Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test

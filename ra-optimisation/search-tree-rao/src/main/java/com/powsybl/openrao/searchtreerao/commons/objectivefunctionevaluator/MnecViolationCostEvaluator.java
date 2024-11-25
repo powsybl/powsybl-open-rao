@@ -11,6 +11,8 @@ import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
@@ -46,11 +48,6 @@ public class MnecViolationCostEvaluator implements CnecViolationCostEvaluator {
     }
 
     @Override
-    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Math.abs(mnecViolationCost) < 1e-10 ? 0.0 : mnecViolationCost * getElementsInViolation(flowResult, contingenciesToExclude).stream().mapToDouble(mnec -> computeMnecCost(flowResult, mnec)).sum();
-    }
-
-    @Override
     public List<FlowCnec> getElementsInViolation(FlowResult flowResult, Set<String> contingenciesToExclude) {
         List<FlowCnec> sortedElements = flowCnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
@@ -75,7 +72,7 @@ public class MnecViolationCostEvaluator implements CnecViolationCostEvaluator {
     }
 
     @Override
-    public CostEvaluatorResult eval(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         Map<FlowCnec, Double> mnecsAndCost = flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toMap(Function.identity(), mnec -> computeMnecCost(flowResult, mnec)));
         Set<State> states = mnecsAndCost.keySet().stream().map(FlowCnec::getState).collect(Collectors.toSet());
         // TODO: optimize

@@ -11,7 +11,8 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.MaxCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
@@ -40,30 +41,6 @@ public class MinMarginEvaluator implements CostEvaluator {
         return "min-margin-evaluator";
     }
 
-    @Override
-    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude);
-        FlowCnec limitingElement;
-        if (costlyElements.isEmpty()) {
-            limitingElement = null;
-        } else {
-            limitingElement = costlyElements.get(0);
-        }
-        if (limitingElement == null) {
-            // In case there is no limiting element (may happen in perimeters where only MNECs exist),
-            // return a finite value, so that the virtual cost is not hidden by the functional cost
-            // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
-            return -getHighestThresholdAmongFlowCnecs();
-        }
-        double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
-        if (margin >= Double.MAX_VALUE / 2) {
-            // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
-            // return a finite value, like MNEC case above
-            return -getHighestThresholdAmongFlowCnecs();
-        }
-        return -margin;
-    }
-
     private double getHighestThresholdAmongFlowCnecs() {
         return flowCnecs.stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
     }
@@ -79,7 +56,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     @Override
-    public CostEvaluatorResult eval(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         Set<State> states = flowCnecs.stream().map(FlowCnec::getState).collect(Collectors.toSet());
         Map<State, Double> costPerState = states.stream().collect(Collectors.toMap(Function.identity(), state -> computeCostForState(flowResult, getFlowCnecsOfState(state))));
         return new MaxCostEvaluatorResult(costPerState, List.of());

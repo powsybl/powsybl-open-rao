@@ -41,14 +41,14 @@ public final class ObjectiveFunction {
     }
 
     public ObjectiveFunctionResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        return new ObjectiveFunctionEvaluation(
-            functionalCostEvaluator.eval(flowResult, remedialActionActivationResult),
-            virtualCostEvaluators.stream().collect(Collectors.toMap(CostEvaluator::getName, virtualCost -> virtualCost.eval(flowResult, remedialActionActivationResult))),
+        return new ObjectiveFunctionResultImpl(
+            functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult),
+            virtualCostEvaluators.stream().collect(Collectors.toMap(CostEvaluator::getName, virtualCost -> virtualCost.evaluate(flowResult, remedialActionActivationResult))),
             FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, Set.of()));
     }
 
     public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Pair.of(functionalCostEvaluator.eval(flowResult, remedialActionActivationResult).getCost(contingenciesToExclude), FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude));
+        return Pair.of(functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult).getCost(contingenciesToExclude), FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude));
     }
 
     public Set<String> getVirtualCostNames() {

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
+package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -17,13 +17,13 @@ import java.util.stream.DoubleStream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class MaxCostEvaluatorResult extends AbstractCostEvaluatorResult {
-    public MaxCostEvaluatorResult(Map<State, Double> costPerState, List<FlowCnec> costlyElements) {
-        super(costPerState, costlyElements, -Double.MAX_VALUE);
+public class SumCostEvaluatorResult extends AbstractCostEvaluatorResult {
+    public SumCostEvaluatorResult(Map<State, Double> costPerState, List<FlowCnec> costlyElements) {
+        super(costPerState, costlyElements, 0);
     }
 
     @Override
     protected double evaluateResultsWithSpecificStrategy(double preventiveCost, DoubleStream postContingencyCosts) {
-        return Math.max(preventiveCost, postContingencyCosts.max().orElse(defaultCost));
+        return preventiveCost + postContingencyCosts.sum();
     }
 }

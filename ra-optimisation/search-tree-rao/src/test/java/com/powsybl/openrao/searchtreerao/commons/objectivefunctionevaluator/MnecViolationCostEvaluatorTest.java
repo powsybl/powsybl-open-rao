@@ -119,8 +119,7 @@ class MnecViolationCostEvaluatorTest {
     void computeCostWithTooLowCost() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10, Unit.MEGAWATT);
 
-        assertEquals(0, evaluator.evaluate(currentFlowResult, null, Set.of()), 1e-12);
-        assertEquals(0, evaluator.eval(currentFlowResult, null).getCost(Set.of()), 1e-12);
+        assertEquals(0, evaluator.evaluate(currentFlowResult, null).getCost(Set.of()), 1e-12);
     }
 
     @Test
@@ -145,13 +144,13 @@ class MnecViolationCostEvaluatorTest {
 
         assertEquals(
             expectedCostWithEval1,
-            evaluator1.evaluate(currentFlowResult, null, Set.of()),
+            evaluator1.evaluate(currentFlowResult, null).getCost(Set.of()),
             DOUBLE_TOLERANCE
         );
 
         assertEquals(
             expectedCostWithEval2,
-            evaluator2.evaluate(currentFlowResult, null, Set.of()),
+            evaluator2.evaluate(currentFlowResult, null).getCost(Set.of()),
             DOUBLE_TOLERANCE
         );
     }

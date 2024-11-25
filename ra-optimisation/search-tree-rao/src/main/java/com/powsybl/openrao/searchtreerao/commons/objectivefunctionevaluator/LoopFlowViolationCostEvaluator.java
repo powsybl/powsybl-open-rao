@@ -14,6 +14,8 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
@@ -43,22 +45,6 @@ public class LoopFlowViolationCostEvaluator implements CnecViolationCostEvaluato
     @Override
     public String getName() {
         return "loop-flow-cost";
-    }
-
-    @Override
-    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = getElementsInViolation(flowResult, contingenciesToExclude);
-        double cost = costlyElements
-            .stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-            .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)
-            .sum();
-
-        if (cost > 0) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
-        }
-
-        return cost;
     }
 
     @Override
@@ -92,7 +78,7 @@ public class LoopFlowViolationCostEvaluator implements CnecViolationCostEvaluato
     }
 
     @Override
-    public CostEvaluatorResult eval(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         Map<FlowCnec, Double> loopFlowCnecsAndCost = loopflowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toMap(Function.identity(), loopFlowCnec -> getLoopFlowExcess(flowResult, loopFlowCnec)));
         Set<State> states = loopflowCnecs.stream().map(FlowCnec::getState).collect(Collectors.toSet());
         Map<State, Double> costPerState = states.stream().collect(Collectors.toMap(Function.identity(), state -> computeCostForState(flowResult, state)));

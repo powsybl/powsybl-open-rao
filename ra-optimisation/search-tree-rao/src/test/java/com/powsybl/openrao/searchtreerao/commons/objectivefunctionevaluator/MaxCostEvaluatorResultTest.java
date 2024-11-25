@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.MaxCostEvaluatorResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

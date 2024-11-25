@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
@@ -34,6 +35,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -62,6 +64,10 @@ class PrePerimeterSensitivityAnalysisTest {
         crac = CommonCracCreation.create();
         raoParameters = new RaoParameters();
         cnec = Mockito.mock(FlowCnec.class);
+
+        State state = Mockito.mock(State.class);
+        when(state.getContingency()).thenReturn(Optional.empty());
+        when(cnec.getState()).thenReturn(state);
 
         optimizationResult = Mockito.mock(OptimizationResult.class);
         when(optimizationResult.getPtdfZonalSums()).thenReturn(Map.of(cnec, Map.of(TwoSides.ONE, 0.1)));

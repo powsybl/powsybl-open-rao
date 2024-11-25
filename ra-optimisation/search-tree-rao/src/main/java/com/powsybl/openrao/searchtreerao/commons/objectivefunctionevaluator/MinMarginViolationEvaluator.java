@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.List;
 import java.util.Set;
@@ -30,11 +29,6 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
     @Override
     public String getName() {
         return "min-margin-violation-evaluator";
-    }
-
-    @Override
-    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Math.max(0.0, super.eval(flowResult, remedialActionActivationResult).getCost(contingenciesToExclude)) * OVERLOAD_PENALTY;
     }
 
     @Override
