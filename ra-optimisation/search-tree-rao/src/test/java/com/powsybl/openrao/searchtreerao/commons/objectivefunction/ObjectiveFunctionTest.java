@@ -17,11 +17,14 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -64,9 +67,6 @@ class ObjectiveFunctionTest {
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(), null, null, Set.of(), raoParameters, Set.of());
 
-        // virtual cost
-        assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
-
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
         assertEquals(300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
@@ -102,10 +102,6 @@ class ObjectiveFunctionTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(cnec2), initialFlowResult, prePerimeterFlowResult, Set.of(), raoParameters, Set.of());
 
-        // virtual cost sum
-        assertEquals(2, objectiveFunction.getVirtualCostNames().size());
-        assertTrue(objectiveFunction.getVirtualCostNames().containsAll(Set.of("mnec-cost", "loop-flow-cost")));
-
         assertEquals(3000.0, objectiveFunction.evaluate(flowResult, null).getVirtualCost("mnec-cost"));
         assertEquals(List.of(cnec1), objectiveFunction.evaluate(flowResult, null).getCostlyElements("mnec-cost", 1));
 
@@ -134,13 +130,13 @@ class ObjectiveFunctionTest {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(
             Set.of(cnec1, cnec2), raoParameters, Set.of()
         );
-        assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
 
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(1.);
         objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(
             Set.of(cnec1, cnec2), raoParameters, Set.of()
         );
-        assertEquals(Set.of("sensitivity-failure-cost"), objectiveFunction.getVirtualCostNames());
+        assertNotNull(objectiveFunction);
+        assertEquals(Set.of("sensitivity-failure-cost"), objectiveFunction.evaluate(flowResult, null).getVirtualCostNames());
     }
 
     @Test
@@ -150,7 +146,8 @@ class ObjectiveFunctionTest {
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
-        assertTrue(objectiveFunction.getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertNotNull(objectiveFunction);
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of()))).getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
     @Test
@@ -160,7 +157,8 @@ class ObjectiveFunctionTest {
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
-        assertTrue(objectiveFunction.getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertNotNull(objectiveFunction);
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of()))).getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
     @Test
@@ -170,7 +168,8 @@ class ObjectiveFunctionTest {
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
-        assertTrue(objectiveFunction.getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertNotNull(objectiveFunction);
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of()))).getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
     @Test
@@ -180,6 +179,7 @@ class ObjectiveFunctionTest {
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
-        assertTrue(objectiveFunction.getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertNotNull(objectiveFunction);
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of()))).getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 }

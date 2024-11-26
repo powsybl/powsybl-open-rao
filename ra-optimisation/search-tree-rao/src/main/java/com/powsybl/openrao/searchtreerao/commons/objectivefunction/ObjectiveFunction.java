@@ -46,10 +46,6 @@ public final class ObjectiveFunction {
             FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult));
     }
 
-    public Set<String> getVirtualCostNames() {
-        return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
-    }
-
     public static ObjectiveFunction buildForInitialSensitivityComputation(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Set<State> optimizedStates) {
         return new InitialSensitivityAnalysisObjectiveFunctionCreator(flowCnecs, optimizedStates, raoParameters).create();
     }
