@@ -12,38 +12,31 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.DoubleStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public abstract class AbstractCostEvaluatorResult implements CostEvaluatorResult {
+public abstract class AbstractStateWiseCostEvaluatorResult implements CostEvaluatorResult {
     private final Map<State, Double> costPerState;
     private final List<FlowCnec> costlyElements;
-    protected final double defaultCost;
 
-    protected AbstractCostEvaluatorResult(Map<State, Double> costPerState, List<FlowCnec> costlyElements, double defaultCost) {
+    protected AbstractStateWiseCostEvaluatorResult(Map<State, Double> costPerState, List<FlowCnec> costlyElements) {
         this.costPerState = costPerState;
         this.costlyElements = costlyElements;
-        this.defaultCost = defaultCost;
     }
 
-    private Optional<Double> getPreventiveCost() {
-        return costPerState.entrySet().stream().filter(entry -> entry.getKey().getContingency().isEmpty()).map(Map.Entry::getValue).findFirst();
-    }
-
-    private DoubleStream getPostContingencyCosts(Set<String> contingenciesToExclude) {
-        return costPerState.entrySet().stream().filter(entry -> entry.getKey().getContingency().isPresent() && !contingenciesToExclude.contains(entry.getKey().getContingency().get().getId())).mapToDouble(Map.Entry::getValue);
+    private DoubleStream filterCostsOnContingency(Set<String> contingenciesToExclude) {
+        return costPerState.entrySet().stream().filter(entry -> entry.getKey().getContingency().isEmpty() || entry.getKey().getContingency().isPresent() && !contingenciesToExclude.contains(entry.getKey().getContingency().get().getId())).mapToDouble(Map.Entry::getValue);
     }
 
     @Override
     public double getCost(Set<String> contingenciesToExclude) {
-        return evaluateResultsWithSpecificStrategy(getPreventiveCost().orElse(defaultCost), getPostContingencyCosts(contingenciesToExclude));
+        return evaluateResultsWithSpecificStrategy(filterCostsOnContingency(contingenciesToExclude));
     }
 
-    protected abstract double evaluateResultsWithSpecificStrategy(double preventiveCost, DoubleStream postContingencyCosts);
+    protected abstract double evaluateResultsWithSpecificStrategy(DoubleStream filteredCostsStream);
 
     @Override
     public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude) {

@@ -17,13 +17,13 @@ import java.util.stream.DoubleStream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class SumCostEvaluatorResult extends AbstractCostEvaluatorResult {
+public class SumCostEvaluatorResult extends AbstractStateWiseCostEvaluatorResult {
     public SumCostEvaluatorResult(Map<State, Double> costPerState, List<FlowCnec> costlyElements) {
-        super(costPerState, costlyElements, 0);
+        super(costPerState, costlyElements);
     }
 
     @Override
-    protected double evaluateResultsWithSpecificStrategy(double preventiveCost, DoubleStream postContingencyCosts) {
-        return preventiveCost + postContingencyCosts.sum();
+    protected double evaluateResultsWithSpecificStrategy(DoubleStream filteredCostsStream) {
+        return filteredCostsStream.sum();
     }
 }

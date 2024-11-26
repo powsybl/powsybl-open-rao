@@ -5,9 +5,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
+package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
-import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.ConstantCostEvaluatorResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -18,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class ConstantCostEvaluatorResultTest {
+class AbsoluteCostEvaluatorResultTest {
     @Test
     void testEvaluator() {
-        ConstantCostEvaluatorResult evaluatorResult = new ConstantCostEvaluatorResult(100.0);
+        AbsoluteCostEvaluatorResult evaluatorResult = new AbsoluteCostEvaluatorResult(100.0);
         assertEquals(100.0, evaluatorResult.getCost(Set.of()));
         assertTrue(evaluatorResult.getCostlyElements(Set.of()).isEmpty());
     }

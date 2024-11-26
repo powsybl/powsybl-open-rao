@@ -16,10 +16,10 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class ConstantCostEvaluatorResult implements CostEvaluatorResult {
+public class AbsoluteCostEvaluatorResult implements CostEvaluatorResult {
     private final double cost;
 
-    public ConstantCostEvaluatorResult(double cost) {
+    public AbsoluteCostEvaluatorResult(double cost) {
         this.cost = cost;
     }
 
