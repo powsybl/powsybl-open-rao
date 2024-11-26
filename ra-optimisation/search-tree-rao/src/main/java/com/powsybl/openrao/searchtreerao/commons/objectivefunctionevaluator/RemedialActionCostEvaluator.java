@@ -32,6 +32,11 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
         return "remedial-action-cost-evaluator";
     }
 
+    @Override
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        return new AbsoluteCostEvaluatorResult(getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult));
+    }
+
     private double getTotalNetworkActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
         return remedialActionActivationResult.getActivatedNetworkActions().stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum();
     }
@@ -49,10 +54,5 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
         double activationCost = rangeAction.getActivationCost().orElse(0.0);
         RangeAction.VariationDirection variationDirection = variation > 0 ? RangeAction.VariationDirection.UP : RangeAction.VariationDirection.DOWN;
         return activationCost + Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(0.0);
-    }
-
-    @Override
-    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        return new AbsoluteCostEvaluatorResult(getTotalNetworkActionsCost(remedialActionActivationResult) + getTotalRangeActionsCost(remedialActionActivationResult));
     }
 }

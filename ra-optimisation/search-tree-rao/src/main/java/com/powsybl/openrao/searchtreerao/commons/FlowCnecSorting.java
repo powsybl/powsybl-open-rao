@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -18,7 +17,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -29,19 +27,13 @@ public final class FlowCnecSorting {
     private FlowCnecSorting() {
     }
 
-    public static List<FlowCnec> sortByMargin(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, FlowResult flowResult, Set<String> contingenciesToExclude) {
+    public static List<FlowCnec> sortByMargin(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, FlowResult flowResult) {
         Map<FlowCnec, Double> margins = new HashMap<>();
 
         flowCnecs.stream()
-            .filter(flowCnec -> mustFilterCnecBasedOnContingency(flowCnec, contingenciesToExclude))
             .filter(Cnec::isOptimized)
             .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, unit)));
 
         return margins.keySet().stream().sorted(Comparator.comparing(margins::get)).toList();
-    }
-
-    public static boolean mustFilterCnecBasedOnContingency(FlowCnec flowCnec, Set<String> contingenciesToExclude) {
-        Optional<Contingency> contingency = flowCnec.getState().getContingency();
-        return contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId());
     }
 }

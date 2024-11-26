@@ -109,7 +109,7 @@ class MnecViolationCostEvaluatorTest {
     void getElementsInViolation() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.MEGAWATT);
 
-        List<FlowCnec> costlyElements = evaluator.getElementsInViolation(currentFlowResult, null);
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));
@@ -159,7 +159,7 @@ class MnecViolationCostEvaluatorTest {
     void testAmperes() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.AMPERE);
 
-        List<FlowCnec> costlyElements = evaluator.getElementsInViolation(currentFlowResult, Set.of());
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));

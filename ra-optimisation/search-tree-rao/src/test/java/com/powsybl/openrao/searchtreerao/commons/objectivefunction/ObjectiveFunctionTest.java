@@ -64,10 +64,6 @@ class ObjectiveFunctionTest {
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(), null, null, Set.of(), raoParameters, Set.of());
 
-        // functional cost
-        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null, Set.of()).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null, Set.of()).getRight());
-
         // virtual cost
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
 
@@ -105,10 +101,6 @@ class ObjectiveFunctionTest {
         FlowResult prePerimeterFlowResult = Mockito.mock(FlowResult.class);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(cnec2), initialFlowResult, prePerimeterFlowResult, Set.of(), raoParameters, Set.of());
-
-        // functional cost
-        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null, Set.of()).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null, Set.of()).getRight());
 
         // virtual cost sum
         assertEquals(2, objectiveFunction.getVirtualCostNames().size());

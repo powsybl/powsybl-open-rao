@@ -11,6 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.MaxCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
@@ -41,6 +42,13 @@ public class MinMarginEvaluator implements CostEvaluator {
         return "min-margin-evaluator";
     }
 
+    @Override
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        Set<State> states = flowCnecs.stream().map(FlowCnec::getState).collect(Collectors.toSet());
+        Map<State, Double> costPerState = states.stream().collect(Collectors.toMap(Function.identity(), state -> computeCostForState(flowResult, getFlowCnecsOfState(state))));
+        return new MaxCostEvaluatorResult(costPerState, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult));
+    }
+
     private double getHighestThresholdAmongFlowCnecs() {
         return flowCnecs.stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
     }
@@ -53,13 +61,6 @@ public class MinMarginEvaluator implements CostEvaluator {
             Math.max(
                 -flowCnec.getLowerBound(TwoSides.ONE, unit).orElse(0.0),
                 -flowCnec.getLowerBound(TwoSides.TWO, unit).orElse(0.0)));
-    }
-
-    @Override
-    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Set<State> states = flowCnecs.stream().map(FlowCnec::getState).collect(Collectors.toSet());
-        Map<State, Double> costPerState = states.stream().collect(Collectors.toMap(Function.identity(), state -> computeCostForState(flowResult, getFlowCnecsOfState(state))));
-        return new MaxCostEvaluatorResult(costPerState, List.of());
     }
 
     private Set<FlowCnec> getFlowCnecsOfState(State state) {

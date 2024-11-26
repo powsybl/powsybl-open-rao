@@ -7,11 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.DoubleStream;
 
@@ -28,7 +30,7 @@ public abstract class AbstractStateWiseCostEvaluatorResult implements CostEvalua
     }
 
     private DoubleStream filterCostsOnContingency(Set<String> contingenciesToExclude) {
-        return costPerState.entrySet().stream().filter(entry -> entry.getKey().getContingency().isEmpty() || entry.getKey().getContingency().isPresent() && !contingenciesToExclude.contains(entry.getKey().getContingency().get().getId())).mapToDouble(Map.Entry::getValue);
+        return costPerState.entrySet().stream().filter(entry -> filterStateOnContingency(entry.getKey(), contingenciesToExclude)).mapToDouble(Map.Entry::getValue);
     }
 
     @Override
@@ -40,6 +42,15 @@ public abstract class AbstractStateWiseCostEvaluatorResult implements CostEvalua
 
     @Override
     public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude) {
-        return costlyElements.stream().filter(flowCnec -> flowCnec.getState().getContingency().isEmpty() || flowCnec.getState().getContingency().isPresent() && !contingenciesToExclude.contains(flowCnec.getState().getContingency().get().getId())).toList();
+        return costlyElements.stream().filter(flowCnec -> filterFlowCnecOnContingency(flowCnec, contingenciesToExclude)).toList();
+    }
+
+    private static boolean filterStateOnContingency(State state, Set<String> contingenciesToExclude) {
+        Optional<Contingency> contingency = state.getContingency();
+        return contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId());
+    }
+
+    private static boolean filterFlowCnecOnContingency(FlowCnec flowCnec, Set<String> contingenciesToExclude) {
+        return filterStateOnContingency(flowCnec.getState(), contingenciesToExclude);
     }
 }

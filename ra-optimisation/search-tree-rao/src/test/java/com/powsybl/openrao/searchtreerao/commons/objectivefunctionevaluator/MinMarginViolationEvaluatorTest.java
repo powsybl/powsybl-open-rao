@@ -11,6 +11,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.BasicMarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.Test;
@@ -37,8 +38,9 @@ class MinMarginViolationEvaluatorTest {
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-1d);
 
         MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
-        assertEquals(10000.0, evaluator.evaluate(flowResult, null).getCost(Set.of()));
-        assertEquals(List.of(flowCnec), evaluator.getElementsInViolation(flowResult, Set.of()));
+        CostEvaluatorResult result = evaluator.evaluate(flowResult, null);
+        assertEquals(10000.0, result.getCost(Set.of()));
+        assertEquals(List.of(flowCnec), result.getCostlyElements(Set.of()));
     }
 
     @Test
@@ -52,7 +54,8 @@ class MinMarginViolationEvaluatorTest {
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(500d);
 
         MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
-        assertEquals(0.0, evaluator.evaluate(flowResult, null).getCost(Set.of()));
-        assertEquals(List.of(flowCnec), evaluator.getElementsInViolation(flowResult, Set.of()));
+        CostEvaluatorResult result = evaluator.evaluate(flowResult, null);
+        assertEquals(0.0, result.getCost(Set.of()));
+        assertEquals(List.of(flowCnec), result.getCostlyElements(Set.of()));
     }
 }

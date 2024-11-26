@@ -15,7 +15,6 @@ import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,11 +43,7 @@ public final class ObjectiveFunction {
         return new ObjectiveFunctionResultImpl(
             functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult),
             virtualCostEvaluators.stream().collect(Collectors.toMap(CostEvaluator::getName, virtualCost -> virtualCost.evaluate(flowResult, remedialActionActivationResult))),
-            FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, Set.of()));
-    }
-
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Pair.of(functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult).getCost(contingenciesToExclude), FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude));
+            FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult));
     }
 
     public Set<String> getVirtualCostNames() {

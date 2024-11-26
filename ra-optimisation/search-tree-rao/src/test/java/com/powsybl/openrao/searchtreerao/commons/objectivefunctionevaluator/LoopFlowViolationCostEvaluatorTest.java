@@ -225,7 +225,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.getElementsInViolation(currentLoopFlows, null);
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentLoopFlows, null).getCostlyElements(Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(cnec1, costlyElements.get(0));
         assertSame(cnec2, costlyElements.get(1));
@@ -248,7 +248,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.getElementsInViolation(currentLoopFlows, null);
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentLoopFlows, null).getCostlyElements(Set.of());
         assertEquals(1, costlyElements.size());
         assertSame(cnec2, costlyElements.get(0));
     }
