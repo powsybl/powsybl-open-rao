@@ -13,11 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,7 +52,6 @@ class CostEvaluatorUtilsTest {
         Mockito.when(flowCnec4.getState()).thenReturn(state2);
         Mockito.when(flowCnec5.getState()).thenReturn(state3);
     }
-
 
     @Test
     void testGroupFlowCnecsPerState() {
