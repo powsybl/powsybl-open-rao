@@ -27,7 +27,6 @@ import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunctionResultImpl;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.AutoOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
@@ -150,7 +149,7 @@ public final class AutomatonSimulator {
         }
         // Build and return optimization result
         RemedialActionActivationResult remedialActionActivationResult = buildRemedialActionActivationResult(topoSimulationResult, autoSearchTreeResult, rangeAutomatonSimulationResult, automatonState);
-        PrePerimeterResult prePerimeterResultForOptimizedState = buildPrePerimeterResultForOptimizedState(rangeAutomatonSimulationResult.perimeterResult(), automatonState, remedialActionActivationResult);
+        PrePerimeterResult prePerimeterResultForOptimizedState = buildPrePerimeterResultForOptimizedState(rangeAutomatonSimulationResult, automatonState, remedialActionActivationResult);
         Map<RangeAction<?>, Double> rangeActionsWithSetpoint = rangeAutomatonSimulationResult.rangeActionsWithSetpoint();
         prePerimeterResultForOptimizedState.getRangeActionSetpointResult().getRangeActions().forEach(ra -> rangeActionsWithSetpoint.putIfAbsent(ra, prePerimeterResultForOptimizedState.getSetpoint(ra)));
         AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
@@ -281,7 +280,8 @@ public final class AutomatonSimulator {
      */
     record RangeAutomatonSimulationResult(PrePerimeterResult perimeterResult, Set<RangeAction<?>> activatedRangeActions,
                                           Map<RangeAction<?>, Double> rangeActionsWithInitialSetpoint,
-                                          Map<RangeAction<?>, Double> rangeActionsWithSetpoint) {
+                                          Map<RangeAction<?>, Double> rangeActionsWithSetpoint
+    ) {
     }
 
     RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, Set<State> curativeStates, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postAutoTopoResult) {
@@ -771,17 +771,17 @@ public final class AutomatonSimulator {
         return rangeAction.getTapToAngleConversionMap().get(rangeAction.convertAngleToTap(angleToBeRounded));
     }
 
-    private PrePerimeterResult buildPrePerimeterResultForOptimizedState(PrePerimeterResult postAutoResult, State optimizedState, RemedialActionActivationResult remedialActionActivationResult) {
+    private PrePerimeterResult buildPrePerimeterResultForOptimizedState(RangeAutomatonSimulationResult rangeAutomatonSimulationResult, State optimizedState, RemedialActionActivationResult remedialActionActivationResult) {
         // Gather variables necessary for PrePerimeterResult construction
+        PrePerimeterResult postAutoResult = rangeAutomatonSimulationResult.perimeterResult();
         FlowResult flowResult = postAutoResult.getFlowResult();
         SensitivityResult sensitivityResult = postAutoResult.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = postAutoResult.getRangeActionSetpointResult();
         // Gather flowCnecs defined on optimizedState
-        Set<FlowCnec> cnecsForOptimizedState = postAutoResult.getObjectiveFunction().getFlowCnecs().stream()
-            .filter(flowCnec -> flowCnec.getState().equals(optimizedState)).collect(Collectors.toSet());
+        Set<FlowCnec> cnecsForOptimizedState = crac.getFlowCnecs(optimizedState);
         // Build ObjectiveFunctionResult based on cnecsForOptimizedState
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(cnecsForOptimizedState, toolProvider.getLoopFlowCnecs(cnecsForOptimizedState), initialFlowResult, prePerimeterSensitivityOutput, operatorsNotSharingCras, raoParameters, Set.of(optimizedState));
-        ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult, remedialActionActivationResult);
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(flowResult, remedialActionActivationResult);
         return new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionSetpointResult, objectiveFunctionResult);
 
     }

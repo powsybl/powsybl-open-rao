@@ -69,7 +69,6 @@ class OptimizationResultImplTest {
         when(objectiveFunctionResult.getVirtualCostNames()).thenReturn(virtualCostNames);
         when(objectiveFunctionResult.getVirtualCost("vc1")).thenReturn(vc1Cost);
         when(objectiveFunctionResult.getCostlyElements("vc1", 2)).thenReturn(vc1CostlyElements);
-        when(objectiveFunctionResult.getObjectiveFunction()).thenReturn(objectiveFunction);
 
         assertEquals(functionalCost, optimizationResult.getFunctionalCost());
         assertEquals(limitingCnecs, optimizationResult.getMostLimitingElements(1));
@@ -77,7 +76,6 @@ class OptimizationResultImplTest {
         assertEquals(virtualCostNames, optimizationResult.getVirtualCostNames());
         assertEquals(vc1Cost, optimizationResult.getVirtualCost("vc1"));
         assertEquals(vc1CostlyElements, optimizationResult.getCostlyElements("vc1", 2));
-        assertEquals(objectiveFunction, optimizationResult.getObjectiveFunction());
     }
 
     @Test

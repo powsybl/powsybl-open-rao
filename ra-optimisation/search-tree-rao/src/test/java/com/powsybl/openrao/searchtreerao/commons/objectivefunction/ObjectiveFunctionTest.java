@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -65,14 +64,8 @@ class ObjectiveFunctionTest {
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(), null, null, Set.of(), raoParameters, Set.of());
 
-        // functional cost
-        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getRight());
-
         // virtual cost
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
-        assertTrue(Double.isNaN(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getLeft()));
-        assertTrue(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getRight().isEmpty());
 
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
@@ -109,21 +102,15 @@ class ObjectiveFunctionTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(cnec2), initialFlowResult, prePerimeterFlowResult, Set.of(), raoParameters, Set.of());
 
-        // functional cost
-        assertEquals(300., objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1, cnec2), objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, null).getRight());
-
         // virtual cost sum
         assertEquals(2, objectiveFunction.getVirtualCostNames().size());
         assertTrue(objectiveFunction.getVirtualCostNames().containsAll(Set.of("mnec-cost", "loop-flow-cost")));
 
-        // mnec virtual cost
-        assertEquals(3000., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec1), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "mnec-cost", new HashSet<>()).getRight());
+        assertEquals(3000.0, objectiveFunction.evaluate(flowResult, null).getVirtualCost("mnec-cost"));
+        assertEquals(List.of(cnec1), objectiveFunction.evaluate(flowResult, null).getCostlyElements("mnec-cost", 1));
 
-        // loopflow virtual cost
-        assertEquals(100., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "loop-flow-cost", new HashSet<>()).getLeft(), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec2), objectiveFunction.getVirtualCostAndCostlyElements(flowResult, null, "loop-flow-cost", new HashSet<>()).getRight());
+        assertEquals(100., objectiveFunction.evaluate(flowResult, null).getVirtualCost("loop-flow-cost"));
+        assertEquals(List.of(cnec2), objectiveFunction.evaluate(flowResult, null).getCostlyElements("loop-flow-cost", 1));
 
         // ObjectiveFunctionResult
         ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);

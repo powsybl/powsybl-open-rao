@@ -95,6 +95,6 @@ class RemedialActionCostEvaluatorImplTest {
     void testTotalRemedialActionCost() {
         RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state));
         assertEquals("remedial-action-cost-evaluator", evaluator.getName());
-        assertEquals(11587.25, evaluator.evaluate(null, remedialActionActivationResult, Set.of()));
+        assertEquals(11587.25, evaluator.evaluate(null, remedialActionActivationResult).getCost(Set.of()));
     }
 }

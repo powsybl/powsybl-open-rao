@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -148,11 +147,6 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         //do not do anything
-    }
-
-    @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override

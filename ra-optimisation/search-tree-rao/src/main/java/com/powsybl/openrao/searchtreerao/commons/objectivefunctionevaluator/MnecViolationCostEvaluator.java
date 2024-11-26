@@ -7,15 +7,21 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.groupFlowCnecsPerState;
+import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.sortFlowCnecsByDecreasingCost;
 
 /**
  * An evaluator that computes the virtual cost resulting from the violation of
@@ -24,7 +30,7 @@ import java.util.stream.Collectors;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class MnecViolationCostEvaluator implements CnecViolationCostEvaluator {
+public class MnecViolationCostEvaluator implements CostEvaluator {
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final FlowResult initialFlowResult;
@@ -45,26 +51,12 @@ public class MnecViolationCostEvaluator implements CnecViolationCostEvaluator {
     }
 
     @Override
-    public double evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Math.abs(mnecViolationCost) < 1e-10 ? 0.0 : mnecViolationCost * getElementsInViolation(flowResult, contingenciesToExclude).stream().mapToDouble(mnec -> computeMnecCost(flowResult, mnec)).sum();
-    }
-
-    @Override
-    public List<FlowCnec> getElementsInViolation(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> sortedElements = flowCnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-            .filter(Cnec::isMonitored)
-            .collect(Collectors.toMap(
-                Function.identity(),
-                cnec -> computeMnecCost(flowResult, cnec)
-            ))
-            .entrySet().stream()
-            .filter(entry -> entry.getValue() != 0)
-            .sorted(Comparator.comparingDouble(Map.Entry::getValue))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
-        Collections.reverse(sortedElements);
-        return new ArrayList<>(sortedElements);
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        Map<FlowCnec, Double> costPerMnec = flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toMap(Function.identity(), mnec -> computeMnecCost(flowResult, mnec)));
+        Map<State, Set<FlowCnec>> mnecsPerState = groupFlowCnecsPerState(costPerMnec.keySet());
+        Map<State, Double> costPerState = mnecsPerState.keySet().stream().collect(Collectors.toMap(Function.identity(), state -> Math.abs(mnecViolationCost) < 1e-10 ? 0.0 : mnecViolationCost * mnecsPerState.get(state).stream().mapToDouble(costPerMnec::get).sum()));
+        List<FlowCnec> sortedMnecs = sortFlowCnecsByDecreasingCost(costPerMnec);
+        return new SumCostEvaluatorResult(costPerState, sortedMnecs);
     }
 
     private double computeMnecCost(FlowResult flowResult, FlowCnec mnec) {

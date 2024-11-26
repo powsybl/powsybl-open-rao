@@ -5,10 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
+package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
 import java.util.List;
 import java.util.Set;
@@ -16,6 +15,8 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public interface CnecViolationCostEvaluator extends CostEvaluator {
-    List<FlowCnec> getElementsInViolation(FlowResult flowResult, Set<String> contingenciesToExclude);
+public interface CostEvaluatorResult {
+    double getCost(Set<String> contingenciesToExclude);
+
+    List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude);
 }

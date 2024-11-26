@@ -109,7 +109,7 @@ class MnecViolationCostEvaluatorTest {
     void getElementsInViolation() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.MEGAWATT);
 
-        List<FlowCnec> costlyElements = evaluator.getElementsInViolation(currentFlowResult, null);
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));
@@ -119,7 +119,7 @@ class MnecViolationCostEvaluatorTest {
     void computeCostWithTooLowCost() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10, Unit.MEGAWATT);
 
-        assertEquals(0, evaluator.evaluate(currentFlowResult, null, Set.of()), 1e-12);
+        assertEquals(0, evaluator.evaluate(currentFlowResult, null).getCost(Set.of()), 1e-12);
     }
 
     @Test
@@ -144,13 +144,13 @@ class MnecViolationCostEvaluatorTest {
 
         assertEquals(
             expectedCostWithEval1,
-            evaluator1.evaluate(currentFlowResult, null, Set.of()),
+            evaluator1.evaluate(currentFlowResult, null).getCost(Set.of()),
             DOUBLE_TOLERANCE
         );
 
         assertEquals(
             expectedCostWithEval2,
-            evaluator2.evaluate(currentFlowResult, null, Set.of()),
+            evaluator2.evaluate(currentFlowResult, null).getCost(Set.of()),
             DOUBLE_TOLERANCE
         );
     }
@@ -159,7 +159,7 @@ class MnecViolationCostEvaluatorTest {
     void testAmperes() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.AMPERE);
 
-        List<FlowCnec> costlyElements = evaluator.getElementsInViolation(currentFlowResult, Set.of());
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));

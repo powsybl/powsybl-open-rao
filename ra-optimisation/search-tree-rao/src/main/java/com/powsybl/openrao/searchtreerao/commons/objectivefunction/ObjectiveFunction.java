@@ -13,10 +13,8 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CnecViolationCostEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,35 +40,14 @@ public final class ObjectiveFunction {
     }
 
     public ObjectiveFunctionResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        return new ObjectiveFunctionResultImpl(this, flowResult, remedialActionActivationResult);
-    }
-
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
-    }
-
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        return getFunctionalCostAndLimitingElements(flowResult, remedialActionActivationResult, Set.of());
-    }
-
-    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, Set<String> contingenciesToExclude) {
-        return Pair.of(functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult, contingenciesToExclude), FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult, contingenciesToExclude));
+        return new ObjectiveFunctionResultImpl(
+            functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult),
+            virtualCostEvaluators.stream().collect(Collectors.toMap(CostEvaluator::getName, virtualCost -> virtualCost.evaluate(flowResult, remedialActionActivationResult))),
+            FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult));
     }
 
     public Set<String> getVirtualCostNames() {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
-    }
-
-    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult, String virtualCostName, Set<String> contingenciesToExclude) {
-        return virtualCostEvaluators.stream()
-            .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
-            .findAny()
-            .map(costEvaluator -> Pair.of(costEvaluator.evaluate(flowResult, remedialActionActivationResult, contingenciesToExclude), getVirtualCostCostlyElements(costEvaluator, flowResult, contingenciesToExclude)))
-            .orElse(Pair.of(Double.NaN, new ArrayList<>()));
-    }
-
-    private static List<FlowCnec> getVirtualCostCostlyElements(CostEvaluator virtualCostEvaluator, FlowResult flowResult, Set<String> contingenciesToExclude) {
-        return virtualCostEvaluator instanceof CnecViolationCostEvaluator violationCostEvaluator ? violationCostEvaluator.getElementsInViolation(flowResult, contingenciesToExclude) : new ArrayList<>();
     }
 
     public static ObjectiveFunction buildForInitialSensitivityComputation(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Set<State> optimizedStates) {

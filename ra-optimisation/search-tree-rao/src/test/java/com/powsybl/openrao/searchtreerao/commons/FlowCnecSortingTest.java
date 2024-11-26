@@ -68,7 +68,7 @@ class FlowCnecSortingTest {
 
     @Test
     void getMostLimitingElements() {
-        List<FlowCnec> costlyElements = FlowCnecSorting.sortByMargin(Set.of(cnec1, cnec2, cnec3, pureMnec), MEGAWATT, marginEvaluator, flowResult, Set.of());
+        List<FlowCnec> costlyElements = FlowCnecSorting.sortByMargin(Set.of(cnec1, cnec2, cnec3, pureMnec), MEGAWATT, marginEvaluator, flowResult);
         assertEquals(3, costlyElements.size());
         assertSame(cnec3, costlyElements.get(0));
         assertSame(cnec1, costlyElements.get(1));
@@ -95,7 +95,7 @@ class FlowCnecSortingTest {
         when(marginEvaluator.getMargin(flowResult, mnec1, MEGAWATT)).thenReturn(-150.);
         when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
 
-        assertTrue(FlowCnecSorting.sortByMargin(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator, flowResult, Set.of()).isEmpty());
+        assertTrue(FlowCnecSorting.sortByMargin(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator, flowResult).isEmpty());
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
