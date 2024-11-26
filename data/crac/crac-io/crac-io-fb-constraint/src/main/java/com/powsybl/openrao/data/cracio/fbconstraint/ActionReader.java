@@ -21,7 +21,7 @@ import com.powsybl.openrao.data.cracio.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.cracio.commons.ucte.UctePstHelper;
 import com.powsybl.openrao.data.cracio.commons.ucte.UcteTopologicalElementHelper;
 
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
