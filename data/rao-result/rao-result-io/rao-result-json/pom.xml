@@ -1,72 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright (c) 2021, RTE (http://www.rte-france.com)
-  ~ This Source Code Form is subject to the terms of the Mozilla Public
-  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
-  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>open-rao-result-exporter</artifactId>
+        <artifactId>open-rao-rao-result-io</artifactId>
         <groupId>com.powsybl</groupId>
         <version>6.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>open-rao-swe-cne-exporter</artifactId>
+    <artifactId>open-rao-rao-result-json</artifactId>
     <packaging>jar</packaging>
-    <name>SWE CNE exporter</name>
-    <description>Export the results of a RAO in a CNE file for the SWE region</description>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jvnet.jaxb</groupId>
-                <artifactId>jaxb-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <excludePackageNames>org.w3._2001.xmlschema:generated:eu.entsoe.*:com.powsybl.openrao.data.swecneexporter.xsd</excludePackageNames>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <name>RAO result JSON</name>
+    <description>RAO result importer and exporter in JSON format</description>
 
     <dependencies>
-        <!-- Compile dependencies -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>monitoring</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-io-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-rao-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-io-cim</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-cne-exporter-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -75,26 +26,45 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-api</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-rao-result-impl</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-search-tree-rao</artifactId>
+            <version>${project.version}</version>
         </dependency>
-
-        <!-- Runtime dependencies -->
         <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <scope>runtime</scope>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-crac-io-json</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-crac-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-crac-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-rao-result-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -105,6 +75,11 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-serde</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -122,16 +97,6 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-rao-result-json</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.xmlunit</groupId>
-            <artifactId>xmlunit-core</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
+
 </project>
