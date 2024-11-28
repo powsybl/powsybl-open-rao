@@ -61,6 +61,6 @@ class CostEvaluatorUtilsTest {
     @Test
     void testSortFlowCnecsByDecreasingCost() {
         Map<FlowCnec, Double> costPerCnec = Map.of(flowCnec1, 100.0, flowCnec2, 0.0, flowCnec3, 10.0, flowCnec4, 200.5, flowCnec5, 50.0);
-        assertEquals(List.of(flowCnec4, flowCnec1, flowCnec5, flowCnec3), sortFlowCnecsByDecreasingCost(costPerCnec));
+        assertEquals(List.of(flowCnec4, flowCnec1, flowCnec5, flowCnec3, flowCnec2), sortFlowCnecsByDecreasingCost(costPerCnec));
     }
 }
