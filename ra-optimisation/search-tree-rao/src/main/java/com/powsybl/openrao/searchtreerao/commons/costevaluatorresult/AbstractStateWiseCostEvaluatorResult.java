@@ -32,7 +32,7 @@ public abstract class AbstractStateWiseCostEvaluatorResult implements CostEvalua
     @Override
     public double getCost(Set<String> contingenciesToExclude) {
         DoubleStream filteredCosts = costPerState.entrySet().stream()
-            .filter(entry -> stateHasContingencyToExclude(entry.getKey(), contingenciesToExclude))
+            .filter(entry -> statesContingencyMustBeKept(entry.getKey(), contingenciesToExclude))
             .mapToDouble(Map.Entry::getValue);
         return evaluateResultsWithSpecificStrategy(filteredCosts);
     }
@@ -41,10 +41,10 @@ public abstract class AbstractStateWiseCostEvaluatorResult implements CostEvalua
 
     @Override
     public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude) {
-        return costlyElements.stream().filter(flowCnec -> stateHasContingencyToExclude(flowCnec.getState(), contingenciesToExclude)).toList();
+        return costlyElements.stream().filter(flowCnec -> statesContingencyMustBeKept(flowCnec.getState(), contingenciesToExclude)).toList();
     }
 
-    private static boolean stateHasContingencyToExclude(State state, Set<String> contingenciesToExclude) {
+    private static boolean statesContingencyMustBeKept(State state, Set<String> contingenciesToExclude) {
         Optional<Contingency> contingency = state.getContingency();
         return contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId());
     }
