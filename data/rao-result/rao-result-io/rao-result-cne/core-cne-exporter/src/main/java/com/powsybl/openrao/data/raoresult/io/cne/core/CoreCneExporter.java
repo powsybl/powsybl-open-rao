@@ -14,8 +14,8 @@ import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.CriticalNetworkElement
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
-import com.powsybl.openrao.data.raoresultapi.io.Exporter;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import org.apache.commons.lang3.NotImplementedException;
 import org.xml.sax.SAXException;
 

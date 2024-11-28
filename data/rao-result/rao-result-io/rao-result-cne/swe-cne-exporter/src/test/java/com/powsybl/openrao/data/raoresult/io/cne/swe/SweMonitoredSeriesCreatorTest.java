@@ -17,7 +17,7 @@ import com.powsybl.openrao.data.cracio.cim.craccreator.CnecCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.MeasurementCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.MonitoredSeriesCreationContext;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredSeries;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.junit.jupiter.api.BeforeEach;

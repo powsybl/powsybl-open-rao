@@ -13,9 +13,9 @@ import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.raoresultimpl.ElementaryFlowCnecResult;
-import com.powsybl.openrao.data.raoresultimpl.FlowCnecResult;
-import com.powsybl.openrao.data.raoresultimpl.RaoResultImpl;
+import com.powsybl.openrao.data.raoresult.impl.ElementaryFlowCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.FlowCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 

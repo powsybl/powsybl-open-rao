@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.raoresult.io.json;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -17,8 +17,8 @@ import java.util.Optional;
 
 import static com.powsybl.openrao.commons.Unit.TAP;
 import static com.powsybl.openrao.commons.Unit.*;
-import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.DEFAULT;
-import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

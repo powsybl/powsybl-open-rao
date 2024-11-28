@@ -16,8 +16,8 @@ import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.CriticalNetworkElementM
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Point;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Reason;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.SeriesPeriod;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.OffsetDateTime;

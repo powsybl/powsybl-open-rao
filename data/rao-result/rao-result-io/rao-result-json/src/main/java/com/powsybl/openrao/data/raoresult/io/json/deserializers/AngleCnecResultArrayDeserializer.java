@@ -12,9 +12,9 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.raoresultimpl.ElementaryAngleCnecResult;
-import com.powsybl.openrao.data.raoresultimpl.AngleCnecResult;
-import com.powsybl.openrao.data.raoresultimpl.RaoResultImpl;
+import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.AngleCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 

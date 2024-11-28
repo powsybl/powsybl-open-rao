@@ -8,8 +8,8 @@ package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.raoresultimpl.CostResult;
-import com.powsybl.openrao.data.raoresultimpl.RaoResultImpl;
+import com.powsybl.openrao.data.raoresult.impl.CostResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;

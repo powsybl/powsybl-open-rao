@@ -17,8 +17,8 @@ import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.PstRangeActionSeriesCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.RemedialActionSeriesCreationContext;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.RemedialActionRegisteredResource;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.RemedialActionSeries;
 import org.apache.commons.lang3.NotImplementedException;
 

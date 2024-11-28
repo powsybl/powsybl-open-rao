@@ -23,7 +23,7 @@ import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredRegisteredResource;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredSeries;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.PartyMarketParticipant;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.BeforeEach;

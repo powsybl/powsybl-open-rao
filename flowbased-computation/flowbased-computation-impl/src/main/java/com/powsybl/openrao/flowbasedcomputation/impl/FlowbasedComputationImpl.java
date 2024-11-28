@@ -18,7 +18,7 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
 import com.powsybl.openrao.data.flowbaseddomain.*;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.flowbasedcomputation.FlowbasedComputationParameters;
 import com.powsybl.openrao.flowbasedcomputation.FlowbasedComputationProvider;
 import com.powsybl.openrao.flowbasedcomputation.FlowbasedComputationResult;
