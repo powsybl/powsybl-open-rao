@@ -19,8 +19,9 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.groupFlowCnecsPerState;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -44,8 +45,8 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Set<State> states = flowCnecs.stream().map(FlowCnec::getState).collect(Collectors.toSet());
-        Map<State, Double> costPerState = states.stream().collect(Collectors.toMap(Function.identity(), state -> computeCostForState(flowResult, getFlowCnecsOfState(state))));
+        Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(flowCnecs);
+        Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(flowResult, entry.getValue())));
         return new MaxCostEvaluatorResult(costPerState, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult));
     }
 
@@ -63,12 +64,8 @@ public class MinMarginEvaluator implements CostEvaluator {
                 -flowCnec.getLowerBound(TwoSides.TWO, unit).orElse(0.0)));
     }
 
-    private Set<FlowCnec> getFlowCnecsOfState(State state) {
-        return flowCnecs.stream().filter(flowCnec -> state.equals(flowCnec.getState())).filter(FlowCnec::isOptimized).collect(Collectors.toSet());
-    }
-
     protected double computeCostForState(FlowResult flowResult, Set<FlowCnec> flowCnecsOfState) {
-        List<FlowCnec> flowCnecsByMargin = flowCnecsOfState.stream().collect(Collectors.toMap(Function.identity(), flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit))).entrySet().stream().sorted(Map.Entry.comparingByValue()).map(Map.Entry::getKey).toList();
+        List<FlowCnec> flowCnecsByMargin = FlowCnecSorting.sortByMargin(flowCnecsOfState, unit, marginEvaluator, flowResult);
         FlowCnec limitingElement;
         if (flowCnecsByMargin.isEmpty()) {
             limitingElement = null;

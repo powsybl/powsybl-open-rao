@@ -14,9 +14,7 @@ import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -28,12 +26,9 @@ public final class FlowCnecSorting {
     }
 
     public static List<FlowCnec> sortByMargin(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, FlowResult flowResult) {
-        Map<FlowCnec, Double> margins = new HashMap<>();
-
-        flowCnecs.stream()
+        return flowCnecs.stream()
             .filter(Cnec::isOptimized)
-            .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, unit)));
-
-        return margins.keySet().stream().sorted(Comparator.comparing(margins::get)).toList();
+            .sorted(Comparator.comparingDouble(flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit)))
+            .toList();
     }
 }

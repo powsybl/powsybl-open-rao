@@ -52,14 +52,19 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Map<FlowCnec, Double> costPerMnec = flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toMap(Function.identity(), mnec -> computeMnecCost(flowResult, mnec)));
-        Map<State, Set<FlowCnec>> mnecsPerState = groupFlowCnecsPerState(costPerMnec.keySet());
-        Map<State, Double> costPerState = mnecsPerState.keySet().stream().collect(Collectors.toMap(Function.identity(), state -> Math.abs(mnecViolationCost) < 1e-10 ? 0.0 : mnecViolationCost * mnecsPerState.get(state).stream().mapToDouble(costPerMnec::get).sum()));
-        List<FlowCnec> sortedMnecs = sortFlowCnecsByDecreasingCost(costPerMnec);
+        Map<FlowCnec, Double> violationPerMnec = flowCnecs.stream().filter(Cnec::isMonitored)
+            .collect(Collectors.toMap(Function.identity(), mnec -> computeMnecViolation(flowResult, mnec)))
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue() > 0)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<State, Set<FlowCnec>> mnecsPerState = groupFlowCnecsPerState(violationPerMnec.keySet());
+        Map<State, Double> costPerState = mnecsPerState.keySet().stream().collect(Collectors.toMap(Function.identity(), state -> Math.abs(mnecViolationCost) < 1e-10 ? 0.0 : mnecViolationCost * mnecsPerState.get(state).stream().mapToDouble(violationPerMnec::get).sum()));
+        List<FlowCnec> sortedMnecs = sortFlowCnecsByDecreasingCost(violationPerMnec);
         return new SumCostEvaluatorResult(costPerState, sortedMnecs);
     }
 
-    private double computeMnecCost(FlowResult flowResult, FlowCnec mnec) {
+    private double computeMnecViolation(FlowResult flowResult, FlowCnec mnec) {
         double initialMargin = initialFlowResult.getMargin(mnec, unit);
         double currentMargin = flowResult.getMargin(mnec, unit);
         return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDecrease) - currentMargin);

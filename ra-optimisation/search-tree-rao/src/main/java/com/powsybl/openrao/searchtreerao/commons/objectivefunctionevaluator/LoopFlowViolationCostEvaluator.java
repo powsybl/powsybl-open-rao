@@ -51,16 +51,25 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Map<FlowCnec, Double> costPerLoopFlowCnec = loopflowCnecs.stream().collect(Collectors.toMap(Function.identity(), loopFlowCnec -> getLoopFlowExcess(flowResult, loopFlowCnec)));
-        Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(costPerLoopFlowCnec.keySet());
-        Map<State, Double> costPerState = flowCnecsPerState.keySet().stream().collect(Collectors.toMap(Function.identity(), state -> loopFlowViolationCost * flowCnecsPerState.get(state).stream().mapToDouble(loopFlowCnec -> getLoopFlowExcess(flowResult, loopFlowCnec)).sum()));
+        Map<FlowCnec, Double> excessPerLoopFlowCnec = loopflowCnecs.stream()
+            .collect(Collectors.toMap(Function.identity(), loopFlowCnec -> getLoopFlowExcess(flowResult, loopFlowCnec)))
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue() > 0)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(excessPerLoopFlowCnec.keySet());
+        Map<State, Double> costPerState = flowCnecsPerState.keySet().stream().collect(Collectors.toMap(
+            Function.identity(),
+            state -> loopFlowViolationCost * flowCnecsPerState.get(state).stream()
+                .mapToDouble(excessPerLoopFlowCnec::get)
+                .sum()));
 
         if (costPerState.values().stream().anyMatch(loopFlowCost -> loopFlowCost > 0)) {
             // will be logged even if the contingency is filtered out at some point
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
         }
 
-        List<FlowCnec> sortedLoopFlowCnecs = sortFlowCnecsByDecreasingCost(costPerLoopFlowCnec);
+        List<FlowCnec> sortedLoopFlowCnecs = sortFlowCnecsByDecreasingCost(excessPerLoopFlowCnec);
         return new SumCostEvaluatorResult(costPerState, sortedLoopFlowCnecs);
     }
 

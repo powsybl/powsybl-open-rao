@@ -34,7 +34,7 @@ public final class CostEvaluatorUtils {
     }
 
     public static List<FlowCnec> sortFlowCnecsByDecreasingCost(Map<FlowCnec, Double> costPerFlowCnec) {
-        List<FlowCnec> sortedFlowCnecs = new ArrayList<>(costPerFlowCnec.entrySet().stream().filter(entry -> entry.getValue() != 0).sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).toList());
+        List<FlowCnec> sortedFlowCnecs = new ArrayList<>(costPerFlowCnec.entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).toList());
         Collections.reverse(sortedFlowCnecs);
         return sortedFlowCnecs;
     }
