@@ -288,5 +288,6 @@
       }
     }
   } ],
+  "hvdcRangeActions": [ ],
   "networkActions" : [ ]
 }
