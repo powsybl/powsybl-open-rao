@@ -227,10 +227,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 twoSides -> operatorDoesNotUsePatlInFinalState
                     && (networkElement.getCurrentLimits(twoSides).isEmpty() || networkElement.getCurrentLimits(twoSides).isPresent() && networkElement.getCurrentLimits(twoSides).get().getTemporaryLimits().isEmpty())));
 
-            for (Contingency contingency : linkedContingencies) {
-                thresholds.forEach((acceptableDuration, limitThresholds) ->
-                    limitThresholds.forEach((twoSides, threshold) -> addCurativeFlowCnec(networkElement, useMaxAndMinThresholds, instantToDurationMaps, forceUseOfPatl, contingency, acceptableDuration, twoSides, threshold)));
-            }
+            linkedContingencies.forEach(
+                contingency -> thresholds.forEach(
+                    (acceptableDuration, limitThresholds) -> limitThresholds.forEach(
+                        (twoSides, threshold) -> addCurativeFlowCnec(networkElement, useMaxAndMinThresholds, instantToDurationMaps, forceUseOfPatl, contingency, acceptableDuration, twoSides, threshold))));
         }
     }
 

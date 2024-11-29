@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=instant-kind-v2.0.json",
+  "enum": [
+    "PREVENTIVE",
+    "OUTAGE",
+    "AUTO",
+    "CURATIVE"
+  ],
+  "additionalProperties": false
+}

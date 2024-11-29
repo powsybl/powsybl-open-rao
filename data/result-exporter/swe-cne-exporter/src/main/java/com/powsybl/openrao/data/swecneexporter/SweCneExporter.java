@@ -7,21 +7,23 @@
 
 package com.powsybl.openrao.data.swecneexporter;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.cneexportercommons.CneExporterParameters;
+import com.powsybl.openrao.data.cracapi.CracCreationContext;
 import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresultapi.io.Exporter;
 import com.powsybl.openrao.data.swecneexporter.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import org.apache.commons.lang3.NotImplementedException;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -33,22 +35,83 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
+import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.SWE_CNE_EXPORT_PROPERTIES_PREFIX;
 
 /**
- * Xml export of the CNE file
+ * SWE-CNE Rao Result exporter in XML format.
+ * <p/>
+ * Optional properties:
+ * <ul>
+ *     <li>
+ *         <i>relative-positive-margins</i>: boolean (default is "false").
+ *     </li>
+ *     <li>
+ *         <i>with-loop-flows</i>: boolean (default is "false").
+ *     </li>
+ *     <li>
+ *         <i>mnec-acceptable-margin-diminution</i>: double (default is "0").
+ *     </li>
+ * </ul>
  *
+ * Required properties:
+ * <ul>
+ *     <li>
+ *         <i>document-id</i>: string
+ *     </li>
+ *     <li>
+ *         <i>revision-number</i>: integer
+ *     </li>
+ *     <li>
+ *         <i>domain-id</i>: string
+ *     </li>
+ *     <li>
+ *         <i>process-type</i>: string
+ *     </li>
+ *     <li>
+ *         <i>sender-id</i>: string
+ *     </li>
+ *     <li>
+ *         <i>sender-role</i>: string
+ *     </li>
+ *     <li>
+ *         <i>receiver-id</i>: string
+ *     </li>
+ *     <li>
+ *         <i>receiver-role</i>: string
+ *     </li>
+ *     <li>
+ *         <i>time-interval</i>: string
+ *     </li>
+ * </ul>
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SweCneExporter {
+@AutoService(Exporter.class)
+public class SweCneExporter implements Exporter {
+    @Override
+    public String getFormat() {
+        return "SWE-CNE";
+    }
 
-    public void exportCne(Crac crac,
-                          CimCracCreationContext cracCreationContext,
-                          RaoResult raoResult, RaoParameters raoParameters,
-                          CneExporterParameters exporterParameters, OutputStream outputStream) {
-        SweCne cne = new SweCne(crac, cracCreationContext, raoResult, raoParameters, exporterParameters);
+    @Override
+    public Set<String> getRequiredProperties() {
+        return CNE_REQUIRED_PROPERTIES.stream().map(propertyName -> SWE_CNE_EXPORT_PROPERTIES_PREFIX + propertyName).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Class<? extends CracCreationContext> getCracCreationContextClass() {
+        return CimCracCreationContext.class;
+    }
+
+    @Override
+    public void exportData(RaoResult raoResult, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
+        validateDataToExport(cracCreationContext, properties);
+        SweCne cne = new SweCne((CimCracCreationContext) cracCreationContext, raoResult, properties);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();
@@ -77,6 +140,11 @@ public class SweCneExporter {
         } catch (JAXBException | IOException e) {
             throw new OpenRaoException("Could not write SWE CNE file.");
         }
+    }
+
+    @Override
+    public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
+        throw new NotImplementedException("CracCreationContext is required for CNE export.");
     }
 
     private static String getSchemaFile(String schemaName) {
