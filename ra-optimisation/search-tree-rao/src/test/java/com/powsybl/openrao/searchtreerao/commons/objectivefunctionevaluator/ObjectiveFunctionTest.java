@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
@@ -128,14 +129,16 @@ class ObjectiveFunctionTest {
     @Test
     void testBuildForInitialSensitivityComputation() {
         RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
 
-        raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.);
         ObjectiveFunction objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
             Set.of(cnec1, cnec2), raoParameters
         );
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
 
-        raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(1.);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(1.);
         objectiveFunction = new ObjectiveFunction.ObjectiveFunctionBuilder().buildForInitialSensitivityComputation(
             Set.of(cnec1, cnec2), raoParameters
         );

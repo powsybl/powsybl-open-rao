@@ -15,6 +15,8 @@ import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.LinearOptimizationSolver;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
@@ -27,6 +29,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.getLinearOptimizationSolver;
+import static com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.getMaxMipIterations;
 
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
@@ -43,11 +48,13 @@ public class SearchTreeParameters {
 
     // required for sub-module iterating linear optimizer
     private final RangeActionsOptimizationParameters rangeActionParameters;
+    private final com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
+
     private final MnecParametersExtension mnecParameters;
     private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
     private final LoopFlowParametersExtension loopFlowParameters;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
-    private final RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
+    private final LinearOptimizationSolver solverParameters;
     private final int maxNumberOfIterations;
 
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
@@ -55,11 +62,12 @@ public class SearchTreeParameters {
                                 NetworkActionParameters networkActionParameters,
                                 Map<Instant, RaUsageLimits> raLimitationParameters,
                                 RangeActionsOptimizationParameters rangeActionParameters,
+                                com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension,
                                 MnecParametersExtension mnecParameters,
                                 RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
                                 LoopFlowParametersExtension loopFlowParameters,
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
-                                RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
+                                LinearOptimizationSolver solverParameters,
                                 int maxNumberOfIterations) {
         this.objectiveFunction = objectiveFunction;
         this.objectiveFunctionUnit = objectiveFunctionUnit;
@@ -67,6 +75,7 @@ public class SearchTreeParameters {
         this.networkActionParameters = networkActionParameters;
         this.raLimitationParameters = raLimitationParameters;
         this.rangeActionParameters = rangeActionParameters;
+        this.rangeActionParametersExtension = rangeActionParametersExtension;
         this.mnecParameters = mnecParameters;
         this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
         this.loopFlowParameters = loopFlowParameters;
@@ -99,6 +108,10 @@ public class SearchTreeParameters {
         return rangeActionParameters;
     }
 
+    public com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters getRangeActionParametersExtension() {
+        return rangeActionParametersExtension;
+    }
+
     public MnecParametersExtension getMnecParameters() {
         return mnecParameters;
     }
@@ -115,7 +128,7 @@ public class SearchTreeParameters {
         return unoptimizedCnecParameters;
     }
 
-    public RangeActionsOptimizationParameters.LinearOptimizationSolver getSolverParameters() {
+    public LinearOptimizationSolver getSolverParameters() {
         return solverParameters;
     }
 
@@ -248,24 +261,28 @@ public class SearchTreeParameters {
         private NetworkActionParameters networkActionParameters;
         private Map<Instant, RaUsageLimits> raLimitationParameters;
         private RangeActionsOptimizationParameters rangeActionParameters;
+        private com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
         private LoopFlowParametersExtension loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
-        private RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
+        private LinearOptimizationSolver solverParameters;
         private int maxNumberOfIterations;
 
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
             this.objectiveFunctionUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
-            this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
+            this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
             this.raLimitationParameters = new HashMap<>(crac.getRaUsageLimitsPerInstant());
-            this.rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
+            this.rangeActionParameters = raoParameters.getRangeActionsOptimizationParameters();
+            if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+                this.rangeActionParametersExtension = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+            }
             this.mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
             this.maxMinRelativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
             this.loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
-            this.solverParameters = raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver();
-            this.maxNumberOfIterations = raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations();
+            this.solverParameters = getLinearOptimizationSolver(raoParameters);
+            this.maxNumberOfIterations = getMaxMipIterations(raoParameters);
             return this;
         }
 
@@ -299,6 +316,11 @@ public class SearchTreeParameters {
             return this;
         }
 
+        public SearchTreeParametersBuilder withRangeActionParametersExtension(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension) {
+            this.rangeActionParametersExtension = rangeActionParametersExtension;
+            return this;
+        }
+
         public SearchTreeParametersBuilder withMnecParameters(MnecParametersExtension mnecParameters) {
             this.mnecParameters = mnecParameters;
             return this;
@@ -319,7 +341,7 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters) {
+        public SearchTreeParametersBuilder withSolverParameters(LinearOptimizationSolver solverParameters) {
             this.solverParameters = solverParameters;
             return this;
         }
@@ -337,6 +359,7 @@ public class SearchTreeParameters {
                 networkActionParameters,
                 raLimitationParameters,
                 rangeActionParameters,
+                rangeActionParametersExtension,
                 mnecParameters,
                 maxMinRelativeMarginParameters,
                 loopFlowParameters,

@@ -16,7 +16,8 @@ import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.Solver;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -99,17 +100,17 @@ class MnecFillerTest extends AbstractFillerTest {
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
 
         coreProblemFiller = new CoreProblemFiller(
                 optimizationPerimeter,
                 initialRangeActionSetpointResult,
-                rangeActionParameters,
+                raoParameters.getRangeActionsOptimizationParameters(),
+                null,
                 Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+            false, PstModel.CONTINUOUS);
     }
 
     private void fillProblemWithFiller(Unit unit) {
@@ -130,7 +131,7 @@ class MnecFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
                 .withProblemFiller(coreProblemFiller)
                 .withProblemFiller(mnecFiller)
-                .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+                .withSolver(Solver.SCIP)
                 .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
@@ -231,7 +232,7 @@ class MnecFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(mnecFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 

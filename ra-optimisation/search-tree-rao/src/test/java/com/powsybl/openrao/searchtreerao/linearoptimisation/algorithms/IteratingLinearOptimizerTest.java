@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.adapter.BranchResultAdapter;
 import com.powsybl.openrao.searchtreerao.commons.adapter.SensitivityResultAdapter;
@@ -102,7 +102,7 @@ class IteratingLinearOptimizerTest {
         when(parameters.getMaxNumberOfIterations()).thenReturn(5);
         RangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
         when(rangeActionParameters.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
-        when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
+        when(parameters.getRangeActionParametersExtension()).thenReturn(rangeActionParameters);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
         when(parameters.getRaRangeShrinking()).thenReturn(false);
