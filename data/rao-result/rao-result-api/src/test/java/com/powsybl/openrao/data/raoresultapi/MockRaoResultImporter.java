@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.raoresultapi;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresultapi.io.Importer;
 
 import java.io.InputStream;

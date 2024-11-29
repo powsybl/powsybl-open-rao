@@ -7,7 +7,7 @@
 package com.powsybl.openrao.monitoring;
 
 import com.powsybl.iidm.network.Country;
-import com.powsybl.openrao.data.cracapi.RemedialAction;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
 
 import java.util.*;
 
