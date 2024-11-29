@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,27 +56,17 @@ class MnecViolationCostEvaluatorTest {
         initialFlowResult = Mockito.mock(FlowResult.class);
         currentFlowResult = Mockito.mock(FlowResult.class);
 
-        MnecParametersExtension mnecExtension1 = new MnecParametersExtension();
-        mnecExtension1.setAcceptableMarginDecrease(50);
-        mnecExtension1.setViolationCost(10);
-        mnecExtension1.setConstraintAdjustmentCoefficient(1);
-
-        MnecParametersExtension mnecExtension2 = new MnecParametersExtension();
-        mnecExtension2.setAcceptableMarginDecrease(20);
-        mnecExtension2.setViolationCost(2);
-        mnecExtension2.setConstraintAdjustmentCoefficient(1);
-
         evaluator1 = new MnecViolationCostEvaluator(
                 Set.of(mnec1, pureCnec),
                 Unit.MEGAWATT,
                 initialFlowResult,
-                mnecExtension1
+                50, 10
         );
         evaluator2 = new MnecViolationCostEvaluator(
                 Set.of(mnec1, pureCnec),
                 Unit.MEGAWATT,
                 initialFlowResult,
-                mnecExtension2
+                20, 2
         );
     }
 
@@ -87,16 +76,11 @@ class MnecViolationCostEvaluatorTest {
         when(initialFlowResult.getMargin(mnec2, unit)).thenReturn(-200.);
         when(currentFlowResult.getMargin(mnec2, unit)).thenReturn(-400.);
 
-        MnecParametersExtension mnec = new MnecParametersExtension();
-        mnec.setAcceptableMarginDecrease(50);
-        mnec.setViolationCost(violationCost);
-        mnec.setConstraintAdjustmentCoefficient(1);
-
         return new MnecViolationCostEvaluator(
                 Set.of(mnec1, mnec2, pureCnec),
                 unit,
                 initialFlowResult,
-                mnec
+                50, violationCost
         );
     }
 

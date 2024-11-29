@@ -124,6 +124,68 @@ optimisation of specific CNECs in specific conditions.
   This parameter has no effect on the preventive RAO.  
   This parameter should be set to true for CORE CC.
 
+### Loop-flow optional parameter
+Adding a LoopFlowParameters to RaoParameters will activate [loop-flow constraints](/castor/special-features/loop-flows.md).  
+(The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
+The following parameters tune some of these constraints, the one which are not implementation specific. 
+See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/max-loop-flow-filler.md)
+
+#### acceptable-increase
+- **Expected value**: numeric values, in MEGAWATT unit
+- **Default value**: 0.0 MW
+- **Usage**: the increase of the initial loop-flow that is allowed by the optimisation. That is to say, the optimisation
+  bounds the loop-flow on CNECs by:  
+  *LFcnec ≤ max(MaxLFcnec , InitLFcnec + acceptableAugmentation)*  
+  With *LFcnec* the loop-flow on the CNEC after optimisation, *MaxLFcnec* is the CNEC loop-flow threshold, *InitLFcnec*
+  the initial loop-flow on the cnec, and *acceptableAugmentation* the so-called "loop-flow-acceptable-augmentation"
+  coefficient.  
+  If this constraint cannot be respected and the loop-flow exceeds the aforementioned threshold, the objective function
+  associated to this situation will be penalized (see also [violation-cost](#violation-cost))
+
+#### countries
+- **Expected value**: array of country codes "XX"
+- **Default value**: all countries encountered
+- **Usage**: list of countries for which loop-flows should be limited accordingly to the specified constraints. If not
+  present, all countries encountered in the input files will be considered. Note that a cross-border line will have its
+  loop-flows monitored if at least one of its two sides is in a country from this list.  
+  Example of this parameter : [ "BE", "NL" ] if you want to monitor loop-flows in and out of Belgium and the
+  Netherlands.
+
+### MNEC optional parameter
+Adding a MnecParameters to RaoParameters will activate [MNEC constraints](/castor/linear-problem/mnec-filler.md).  
+(The RAO will only monitor CNECs that are only ["monitored"](/input-data/crac/json.md#cnecs)).
+The following parameters tune some of these constraints, the one which are not implementation specific.
+See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-filler.md)
+
+#### acceptable-margin-decrease
+- **Expected value**: numeric values, in MEGAWATT unit
+- **Default value**: 50 MW (required by CORE CC methodology)
+- **Usage**: the decrease of the initial margin that is allowed by the optimisation on MNECs.  
+  In other words, it defines the bounds for the margins on the MNECs by  
+  *Mcnec ≥ max(0, m0cnec − acceptableDiminution)*  
+  With *Mcnec* the margin on the cnec after optimisation, *m0cnec* the initial margin on the cnec, and
+  *acceptableDiminution* the so-called "acceptable-margin-decrease" coefficient.  
+  For the CORE CC calculation, the ACER methodology fixes this coefficient at 50 MW.  
+  For CSE CC calculation, setting this parameter to -99999 allows the MNEC constraints to consider
+  the thresholds in the CRAC only.
+
+### Relative margins optioanl parameter
+Adding a RelativeMarginsParameters is mandatory when [objective function is relative](#type).  
+The following parameters tune some constraints, the one which are not implementation specific.
+See also: [Modelling the maximum minimum relative margin objective function](/castor/linear-problem/max-min-relative-margin-filler.md)
+
+#### ptdf-boundaries
+- **Expected value**: array of zone-to-zone PTDF computation definition, expressed as an equation.  
+  Zones are defined by their 2-character code or their 16-character EICode, inside **{ }** characters.  
+  Zones are seperated by + or -.  
+  All combinations are allowed: country codes, EIC, a mix.
+- **Default value**: empty array
+- **Usage**: contains the boundaries on which the PTDF absolute sums should be computed (and added to the denominator of
+  the relative RAM).  
+  For example, in the SWE case, it should be equal to [ "{FR}-{ES}", "{ES}-{PT}" ].  
+  For CORE, we should use all the CORE region boundaries (all countries seperated by a - sign) plus Alegro's special
+  equation: "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"
+
 ## Extensions
 The following extensions can be added to RaoParameters:
 - to configure implementation specific parameters
@@ -405,25 +467,13 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
   *Note that the more available cpus is configured, the more RAM is required by the RAO, and that the performance
   of the RAO might significantly decrease on a machine with limited memory resources.*
 
-### Loop-flow extension
-Adding a LoopFlowParameters extension to RaoParameters will activate [loop-flow constraints](/castor/special-features/loop-flows.md).  
+#### Loop-flow optional parameter
+Adding a LoopFlowParameters to OpenRaoSearchTreeParameters will activate [loop-flow constraints](/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
-The following parameters tune these constraints.  
+The following parameters tune some of these constraints, the one which are implementation specific.
 See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/max-loop-flow-filler.md)  
 
-#### acceptable-increase
-- **Expected value**: numeric values, in MEGAWATT unit
-- **Default value**: 0.0 MW
-- **Usage**: the increase of the initial loop-flow that is allowed by the optimisation. That is to say, the optimisation
-  bounds the loop-flow on CNECs by:  
-  *LFcnec ≤ max(MaxLFcnec , InitLFcnec + acceptableAugmentation)*  
-  With *LFcnec* the loop-flow on the CNEC after optimisation, *MaxLFcnec* is the CNEC loop-flow threshold, *InitLFcnec*
-  the initial loop-flow on the cnec, and *acceptableAugmentation* the so-called "loop-flow-acceptable-augmentation"
-  coefficient.  
-  If this constraint cannot be respected and the loop-flow exceeds the aforementioned threshold, the objective function
-  associated to this situation will be penalized (see also [violation-cost](#violation-cost))
-
-#### ptdf-approximation
+##### ptdf-approximation
 - **Expected value**: one of the following:
   - "FIXED_PTDF"
   - "UPDATE_PTDF_WITH_TOPO"
@@ -439,7 +489,7 @@ See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/m
     each new combination of PST taps (i.e. for each iteration of the linear optimisation).  
     *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
-#### constraint-adjustment-coefficient
+##### constraint-adjustment-coefficient
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 0.0 MW
 - **Usage**: this parameter acts as a margin which tightens, in the linear optimisation problem of RAO, the bounds of the
@@ -450,41 +500,20 @@ See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/m
   therefore increase the probability that the loop-flow constraints which are respected in the linear optimisation
   problem, remain respected once the loop-flows are re-computed without the linear approximations.
 
-#### violation-cost
+##### violation-cost
 - **Expected value**: numeric values, unit = unit of the objective function per MEGAWATT
 - **Default value**: 10.0
 - **Usage**: this parameter is the cost of each excess of loop-flow. That is to say, if the loop-flows on one or several
   CNECs exceed the loop-flow threshold, a penalty will be added in the objective function of the RAO equal to:  
   *violation-cost x sum{cnec} excess-loop-flow(cnec)*
 
-#### countries
-- **Expected value**: array of country codes "XX"
-- **Default value**: all countries encountered
-- **Usage**: list of countries for which loop-flows should be limited accordingly to the specified constraints. If not
-  present, all countries encountered in the input files will be considered. Note that a cross-border line will have its
-  loop-flows monitored if at least one of its two sides is in a country from this list.  
-  Example of this parameter : [ "BE", "NL" ] if you want to monitor loop-flows in and out of Belgium and the
-  Netherlands.
-
-### MNEC extension
-Adding a MnecParameters extension to RaoParameters will activate [MNEC constraints](/castor/linear-problem/mnec-filler.md).  
+#### MNEC optional parameter
+Adding a MnecParameters to OpenRaoSearchTreeParameters will activate [MNEC constraints](/castor/linear-problem/mnec-filler.md).  
 (The RAO will only monitor CNECs that are only ["monitored"](/input-data/crac/json.md#cnecs)).
-The following parameters tune these constraints.  
+The following parameters tune some of these constraints, the one which are implementation specific.
 See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-filler.md)  
 
-#### acceptable-margin-decrease
-- **Expected value**: numeric values, in MEGAWATT unit
-- **Default value**: 50 MW (required by CORE CC methodology)
-- **Usage**: the decrease of the initial margin that is allowed by the optimisation on MNECs.  
-  In other words, it defines the bounds for the margins on the MNECs by  
-  *Mcnec ≥ max(0, m0cnec − acceptableDiminution)*  
-  With *Mcnec* the margin on the cnec after optimisation, *m0cnec* the initial margin on the cnec, and 
-  *acceptableDiminution* the so-called "acceptable-margin-decrease" coefficient.  
-  For the CORE CC calculation, the ACER methodology fixes this coefficient at 50 MW.  
-  For CSE CC calculation, setting this parameter to -99999 allows the MNEC constraints to consider 
-  the thresholds in the CRAC only.
-
-#### violation-cost
+##### violation-cost
 - **Expected value**: numeric values, no unit (it applies as a multiplier for the constraint violation inside the
   objective function)
 - **Default value**: 10.0 (same as [loop-flow violation cost](#violation-cost))
@@ -494,7 +523,7 @@ See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-f
   MNECs' constraints are respected. The penalty injected in the objective function is equal to the violation (difference
   between actual margin and least acceptable margin) multiplied by this parameter.
 
-#### constraint-adjustment-coefficient
+##### constraint-adjustment-coefficient
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 0.0
 - **Usage**: this coefficient is here to mitigate the approximation made by the linear optimisation (approximation = use
@@ -504,23 +533,12 @@ See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-f
   It tightens the MNEC constraint, in order to take some margin for that constraint to stay respected once the
   approximations are removed (i.e. taps have been rounded and real flow calculated)
 
-### Relative margins extension
-Adding a RelativeMarginsParameters extension is mandatory when [objective function is relative](#type).  
+#### Relative margins optional parameter
+Adding a RelativeMarginsParameters is mandatory when [objective function is relative](#type).  
+The following parameters tune the constraints which are implementation specific.
 See also: [Modelling the maximum minimum relative margin objective function](/castor/linear-problem/max-min-relative-margin-filler.md)
 
-#### ptdf-boundaries
-- **Expected value**: array of zone-to-zone PTDF computation definition, expressed as an equation.  
-Zones are defined by their 2-character code or their 16-character EICode, inside **{ }** characters.  
-Zones are seperated by + or -.  
-  All combinations are allowed: country codes, EIC, a mix.
-- **Default value**: empty array
-- **Usage**: contains the boundaries on which the PTDF absolute sums should be computed (and added to the denominator of
-  the relative RAM).  
-  For example, in the SWE case, it should be equal to [ "{FR}-{ES}", "{ES}-{PT}" ].  
-  For CORE, we should use all the CORE region boundaries (all countries seperated by a - sign) plus Alegro's special
-  equation: "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"
-
-#### ptdf-approximation
+##### ptdf-approximation
 - **Expected value**: one of the following:
   - "FIXED_PTDF"
   - "UPDATE_PTDF_WITH_TOPO"
@@ -536,7 +554,7 @@ Zones are seperated by + or -.
     each new combination of PST taps (i.e. for each iteration of the linear optimisation).  
     *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
-#### ptdf-sum-lower-bound
+##### ptdf-sum-lower-bound
 - **Expected value**: numeric value, no unit (homogeneous to PTDFs)
 - **Default value**: 0.01
 - **Usage**: PTDF absolute sums are used as a denominator in the objective function. In order to prevent the objective

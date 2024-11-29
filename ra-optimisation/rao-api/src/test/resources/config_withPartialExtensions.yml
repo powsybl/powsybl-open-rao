@@ -11,12 +11,14 @@ rao-topological-actions-optimization:
     absolute-minimum-impact-threshold: 2.0
 
 rao-loop-flow-parameters:
+    countries: [ "FR", "ES", "PT" ]
+
+search-tree-loop-flow-parameters:
     ptdf-approximation: UPDATE_PTDF_WITH_TOPO
     constraint-adjustment-coefficient: 12.0
     violation-cost: 13.0
-    countries: [ "FR", "ES", "PT" ]
 
-rao-relative-margins-parameters:
+search-tree-relative-margins-parameters:
     ptdf-approximation: UPDATE_PTDF_WITH_TOPO_AND_PST
     ptdf-sum-lower-bound: 0.02
 

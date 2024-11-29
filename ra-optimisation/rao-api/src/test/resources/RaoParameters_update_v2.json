@@ -14,14 +14,13 @@
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
   },
+  "mnec-parameters" : {
+    "acceptable-margin-decrease" : 888.0
+  },
+  "relative-margins-parameters" : {
+    "ptdf-boundaries" : [ "{FR}-{ES}" ]
+  },
   "extensions" : {
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 888.0
-    },
-    "relative-margins-parameters" : {
-      "ptdf-boundaries" : [ "{FR}-{ES}" ],
-      "ptdf-sum-lower-bound" : 0.06
-    },
     "open-rao-search-tree-parameters" : {
       "range-actions-optimization" : {
         "max-mip-iterations" : 5,
@@ -33,6 +32,9 @@
       "second-preventive-rao" : {
         "execution-condition" : "COST_INCREASE",
         "hint-from-first-preventive-rao" : true
+      },
+      "relative-margins-parameters" : {
+        "ptdf-sum-lower-bound" : 0.06
       }
     }
   }

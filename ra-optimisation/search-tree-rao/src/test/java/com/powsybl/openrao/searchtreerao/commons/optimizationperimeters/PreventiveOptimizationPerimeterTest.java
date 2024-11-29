@@ -7,7 +7,7 @@
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +56,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
 
     @Test
     void fullPreventivePerimeter2Test() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
+        raoParameters.setLoopFlowParameters(new LoopFlowParameters());
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(10000.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
@@ -69,8 +69,9 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
 
     @Test
     void fullPreventivePerimeter3Test() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setCountries(Set.of(Country.BE));
+        LoopFlowParameters loopFlowParameters = new LoopFlowParameters();
+        loopFlowParameters.setCountries(Set.of(Country.BE));
+        raoParameters.setLoopFlowParameters(loopFlowParameters);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Perimeter preventivePerimeter = new Perimeter(pState, Set.of(oState1, oState2, cState2));
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);

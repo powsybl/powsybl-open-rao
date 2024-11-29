@@ -10,7 +10,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -31,12 +30,12 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     private final double mnecAcceptableMarginDecrease;
     private final double mnecViolationCost;
 
-    public MnecViolationCostEvaluator(Set<FlowCnec> flowCnecs, Unit unit, FlowResult initialFlowResult, MnecParametersExtension mnecParametersExtension) {
+    public MnecViolationCostEvaluator(Set<FlowCnec> flowCnecs, Unit unit, FlowResult initialFlowResult, double mnecAcceptableMarginDecrease, double mnecViolationCost) {
         this.flowCnecs = flowCnecs;
         this.unit = unit;
         this.initialFlowResult = initialFlowResult;
-        mnecAcceptableMarginDecrease = mnecParametersExtension.getAcceptableMarginDecrease();
-        mnecViolationCost = mnecParametersExtension.getViolationCost();
+        this.mnecAcceptableMarginDecrease = mnecAcceptableMarginDecrease;
+        this.mnecViolationCost = mnecViolationCost;
     }
 
     @Override

@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -36,14 +35,14 @@ public class MnecFiller implements ProblemFiller {
     private final double mnecAcceptableMarginDecrease;
     private final double mnecConstraintAdjustmentCoefficient;
 
-    public MnecFiller(FlowResult initialFlowResult, Set<FlowCnec> monitoredCnecs, Unit unit, MnecParametersExtension mnecParameters) {
+    public MnecFiller(FlowResult initialFlowResult, Set<FlowCnec> monitoredCnecs, Unit unit, double mnecViolationCost, double mnecAcceptableMarginDecrease, double mnecConstraintAdjustmentCoefficient) {
         this.initialFlowResult = initialFlowResult;
         this.monitoredCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.monitoredCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(monitoredCnecs, initialFlowResult));
         this.unit = unit;
-        this.mnecViolationCost = mnecParameters.getViolationCost();
-        this.mnecAcceptableMarginDecrease = mnecParameters.getAcceptableMarginDecrease();
-        this.mnecConstraintAdjustmentCoefficient = mnecParameters.getConstraintAdjustmentCoefficient();
+        this.mnecViolationCost = mnecViolationCost;
+        this.mnecAcceptableMarginDecrease = mnecAcceptableMarginDecrease;
+        this.mnecConstraintAdjustmentCoefficient = mnecConstraintAdjustmentCoefficient;
     }
 
     @Override

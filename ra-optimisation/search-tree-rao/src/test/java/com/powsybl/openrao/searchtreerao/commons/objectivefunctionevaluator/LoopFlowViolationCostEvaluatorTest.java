@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,9 @@ class LoopFlowViolationCostEvaluatorTest {
     private FlowCnec cnec2;
     private FlowResult initialLoopFlows;
     private FlowResult currentLoopFlows;
-    private LoopFlowParametersExtension parameters;
+    private LoopFlowParameters parameters;
+    private com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters parametersExtension;
+
     private LoopFlowViolationCostEvaluator evaluator;
 
     @BeforeEach
@@ -56,7 +58,8 @@ class LoopFlowViolationCostEvaluatorTest {
 
         initialLoopFlows = Mockito.mock(FlowResult.class);
         currentLoopFlows = Mockito.mock(FlowResult.class);
-        parameters = Mockito.mock(LoopFlowParametersExtension.class);
+        parameters = Mockito.mock(LoopFlowParameters.class);
+        parametersExtension = Mockito.mock(com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters.class);
     }
 
     private void setInputThresholdWithReliabilityMargin(FlowCnec branchCnec, double inputThresholdWIthReliabilityMargin) {
@@ -77,11 +80,11 @@ class LoopFlowViolationCostEvaluatorTest {
     }
 
     private void setViolationCost(double violationCost) {
-        when(parameters.getViolationCost()).thenReturn(violationCost);
+        when(parametersExtension.getViolationCost()).thenReturn(violationCost);
     }
 
     private void buildLoopFlowViolationCostEvaluator() {
-        evaluator = new LoopFlowViolationCostEvaluator(Set.of(cnec1, cnec2), initialLoopFlows, parameters);
+        evaluator = new LoopFlowViolationCostEvaluator(Set.of(cnec1, cnec2), initialLoopFlows, parametersExtension.getViolationCost(), parameters.getAcceptableIncrease());
     }
 
     @Test

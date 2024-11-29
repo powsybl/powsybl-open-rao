@@ -10,8 +10,8 @@ package com.powsybl.openrao.searchtreerao.commons;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
@@ -88,8 +88,9 @@ class ToolProviderTest {
 
     @Test
     void testGetEicForObjectiveFunction() {
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(
+        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        relativeMarginsParameters.setPtdfBoundariesFromString(
                 List.of("{FR}-{BE}", "{ES}-{FR}")
         );
         ToolProvider toolProvider = ToolProvider.create()
@@ -152,8 +153,9 @@ class ToolProviderTest {
         assertEquals(Set.of(cnec1), toolProvider.getLoopFlowCnecs(Set.of(cnec1)));
         assertEquals(Set.of(cnec2), toolProvider.getLoopFlowCnecs(Set.of(cnec2)));
 
-        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setCountries(List.of("FR"));
+        LoopFlowParameters loopFlowParameters = new LoopFlowParameters();
+        raoParameters.setLoopFlowParameters(loopFlowParameters);
+        loopFlowParameters.setCountries(List.of("FR"));
         assertEquals(Set.of(cnec1), toolProvider.getLoopFlowCnecs(Set.of(cnec1, cnec2)));
     }
 

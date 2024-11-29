@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
 import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Network;
 
@@ -120,21 +119,21 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     }
 
     public static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
-        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)
-                && !raoParameters.getExtension(LoopFlowParametersExtension.class).getCountries().isEmpty()) {
-            // loopFlow limited, and set of country for which loop-flow are monitored is defined
-            return flowCnecs.stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)) &&
-                    cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && raoParameters.getExtension(LoopFlowParametersExtension.class).getCountries().contains(country.get())))
-                .collect(Collectors.toSet());
-        } else if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
-
-            // loopFlow limited, but no set of country defined
-            return flowCnecs.stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)))
-                .collect(Collectors.toSet());
+        Optional<com.powsybl.openrao.raoapi.parameters.LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
+        if (loopFlowParametersOptional.isPresent()) {
+            if (!loopFlowParametersOptional.get().getCountries().isEmpty()) {
+                // loopFlow limited, and set of country for which loop-flow are monitored is defined
+                return flowCnecs.stream()
+                    .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)) &&
+                        cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && loopFlowParametersOptional.get().getCountries().contains(country.get())))
+                    .collect(Collectors.toSet());
+            } else {
+                // loopFlow limited, but no set of country defined
+                return flowCnecs.stream()
+                    .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)))
+                    .collect(Collectors.toSet());
+            }
         } else {
-
             //no loopFLow limitation
             return Collections.emptySet();
         }

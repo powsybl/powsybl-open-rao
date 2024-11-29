@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.Solver;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.*;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -114,10 +114,11 @@ class MnecFillerTest extends AbstractFillerTest {
     }
 
     private void fillProblemWithFiller(Unit unit) {
-        MnecParametersExtension parameters = new MnecParametersExtension();
+        MnecParameters parameters = new MnecParameters();
+        com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters parametersExtension = new com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters();
         parameters.setAcceptableMarginDecrease(50);
-        parameters.setViolationCost(10);
-        parameters.setConstraintAdjustmentCoefficient(3.5);
+        parametersExtension.setViolationCost(10);
+        parametersExtension.setConstraintAdjustmentCoefficient(3.5);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(flowResult.getFlow(mnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(900.);
         when(flowResult.getFlow(mnec2, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-200.);
@@ -127,7 +128,9 @@ class MnecFillerTest extends AbstractFillerTest {
                 flowResult,
                 Set.of(mnec1, mnec2, mnec3),
                 unit,
-                parameters);
+                parametersExtension.getViolationCost(),
+                parameters.getAcceptableMarginDecrease(),
+                parametersExtension.getConstraintAdjustmentCoefficient());
         linearProblem = new LinearProblemBuilder()
                 .withProblemFiller(coreProblemFiller)
                 .withProblemFiller(mnecFiller)
@@ -214,10 +217,11 @@ class MnecFillerTest extends AbstractFillerTest {
 
     @Test
     void testFilterCnecWithNoInitialFlow() {
-        MnecParametersExtension parameters = new MnecParametersExtension();
+        MnecParameters parameters = new MnecParameters();
+        com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters parametersExtension = new com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters();
         parameters.setAcceptableMarginDecrease(50);
-        parameters.setViolationCost(10);
-        parameters.setConstraintAdjustmentCoefficient(3.5);
+        parametersExtension.setViolationCost(10);
+        parametersExtension.setConstraintAdjustmentCoefficient(3.5);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(flowResult.getFlow(mnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(900.);
         when(flowResult.getFlow(mnec2, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-200.);
@@ -228,7 +232,9 @@ class MnecFillerTest extends AbstractFillerTest {
             flowResult,
             Set.of(mnec1, mnec2, mnec3),
             Unit.MEGAWATT,
-            parameters);
+            parametersExtension.getViolationCost(),
+            parameters.getAcceptableMarginDecrease(),
+            parametersExtension.getConstraintAdjustmentCoefficient());
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(mnecFiller)

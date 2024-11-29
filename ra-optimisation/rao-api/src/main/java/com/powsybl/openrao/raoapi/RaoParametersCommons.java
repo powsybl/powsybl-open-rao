@@ -97,6 +97,7 @@ public final class RaoParametersCommons {
     // -- LoopFlow parameters
     public static final String LOOP_FLOW_PARAMETERS = "loop-flow-parameters";
     public static final String LOOP_FLOW_PARAMETERS_SECTION = "rao-loop-flow-parameters";
+    public static final String ST_LOOP_FLOW_PARAMETERS_SECTION = "search-tree-loop-flow-parameters";
 
     public static final String ACCEPTABLE_INCREASE = "acceptable-increase";
     public static final String COUNTRIES = "countries";
@@ -104,12 +105,15 @@ public final class RaoParametersCommons {
     // -- Mnec parameters
     public static final String MNEC_PARAMETERS = "mnec-parameters";
     public static final String MNEC_PARAMETERS_SECTION = "rao-mnec-parameters";
+    public static final String ST_MNEC_PARAMETERS_SECTION = "search-tree-mnec-parameters";
 
     public static final String ACCEPTABLE_MARGIN_DECREASE = "acceptable-margin-decrease";
 
     // -- Relative margins parameters
     public static final String RELATIVE_MARGINS = "relative-margins-parameters";
     public static final String RELATIVE_MARGINS_SECTION = "rao-relative-margins-parameters";
+    public static final String ST_RELATIVE_MARGINS_SECTION = "search-tree-relative-margins-parameters";
+
     public static final String PTDF_BOUNDARIES = "ptdf-boundaries";
     public static final String PTDF_SUM_LOWER_BOUND = "ptdf-sum-lower-bound";
     public static final String SEARCH_TREE_PARAMETERS = "open-rao-search-tree-parameters";

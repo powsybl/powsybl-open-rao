@@ -6,12 +6,10 @@
  */
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
-import com.powsybl.openrao.raoapi.parameters.ParametersUtil;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.commons.config.PlatformConfig;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
@@ -20,27 +18,16 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters> {
-    static final double DEFAULT_ACCEPTABLE_INCREASE = 0.0;
+public class LoopFlowParameters {
     static final PtdfApproximation DEFAULT_PTDF_APPROXIMATION = PtdfApproximation.FIXED_PTDF;
     static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     static final double DEFAULT_VIOLATION_COST = 0.0;
-    static final Set<Country> DEFAULT_COUNTRIES = new HashSet<>(); //Empty by default
-    private double acceptableIncrease = DEFAULT_ACCEPTABLE_INCREASE;
     private PtdfApproximation ptdfApproximation = DEFAULT_PTDF_APPROXIMATION;
 
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
     private double violationCost = DEFAULT_VIOLATION_COST;
-    private Set<Country> countries = DEFAULT_COUNTRIES;
 
     // Getters and setters
-    public double getAcceptableIncrease() {
-        return acceptableIncrease;
-    }
-
-    public void setAcceptableIncrease(double acceptableIncrease) {
-        this.acceptableIncrease = acceptableIncrease;
-    }
 
     public PtdfApproximation getPtdfApproximation() {
         return ptdfApproximation;
@@ -66,21 +53,16 @@ public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters
         this.violationCost = violationCost;
     }
 
-    public Set<Country> getCountries() {
-        return countries;
-    }
-
-    public void setCountries(Set<Country> countries) {
-        this.countries = countries;
-    }
-
-    public void setCountries(List<String> countryStrings) {
-        this.countries = ParametersUtil.convertToCountrySet(countryStrings);
-    }
-
-    @Override
-    public String getName() {
-        return LOOP_FLOW_PARAMETERS;
+    public static Optional<LoopFlowParameters> load(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
+        return platformConfig.getOptionalModuleConfig(ST_LOOP_FLOW_PARAMETERS_SECTION)
+            .map(config -> {
+                LoopFlowParameters parameters = new LoopFlowParameters();
+                parameters.setPtdfApproximation(config.getEnumProperty(PTDF_APPROXIMATION, PtdfApproximation.class, LoopFlowParameters.DEFAULT_PTDF_APPROXIMATION));
+                parameters.setConstraintAdjustmentCoefficient(config.getDoubleProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT, LoopFlowParameters.DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
+                parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, LoopFlowParameters.DEFAULT_VIOLATION_COST));
+                return parameters;
+            });
     }
 }
 

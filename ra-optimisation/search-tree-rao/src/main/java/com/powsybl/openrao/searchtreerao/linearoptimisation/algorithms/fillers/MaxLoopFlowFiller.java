@@ -11,7 +11,7 @@ import com.powsybl.openrao.data.cracapi.Identifiable;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThreshold;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -36,14 +36,14 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private final double loopFlowConstraintAdjustmentCoefficient;
     private FlowResult preOptimFlowResult; // = flow result used in the first "fill" iteration
 
-    public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, LoopFlowParametersExtension loopFlowParameters) {
+    public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, LoopFlowParameters loopFlowParameters, com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParametersExtension) {
         this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.loopFlowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(loopFlowCnecs, initialFlowResult));
         this.initialFlowResult = initialFlowResult;
-        this.loopFlowPtdfApproximationLevel = loopFlowParameters.getPtdfApproximation();
+        this.loopFlowPtdfApproximationLevel = loopFlowParametersExtension.getPtdfApproximation();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
-        this.loopFlowViolationCost = loopFlowParameters.getViolationCost();
-        this.loopFlowConstraintAdjustmentCoefficient = loopFlowParameters.getConstraintAdjustmentCoefficient();
+        this.loopFlowViolationCost = loopFlowParametersExtension.getViolationCost();
+        this.loopFlowConstraintAdjustmentCoefficient = loopFlowParametersExtension.getConstraintAdjustmentCoefficient();
     }
 
     private Set<FlowCnec> getValidLoopFlowCnecs(SensitivityResult sensitivityResult) {

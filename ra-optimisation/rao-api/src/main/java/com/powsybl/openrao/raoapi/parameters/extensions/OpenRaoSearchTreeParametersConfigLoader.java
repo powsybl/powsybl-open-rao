@@ -28,7 +28,7 @@ public class OpenRaoSearchTreeParametersConfigLoader implements RaoParameters.Co
     @Override
     public OpenRaoSearchTreeParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        List<String> searchTreeParams = Arrays.asList(ST_OBJECTIVE_FUNCTION_SECTION, ST_RANGE_ACTIONS_OPTIMIZATION_SECTION, ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION, MULTI_THREADING_SECTION, SECOND_PREVENTIVE_RAO_SECTION, LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION);
+        List<String> searchTreeParams = Arrays.asList(ST_OBJECTIVE_FUNCTION_SECTION, ST_RANGE_ACTIONS_OPTIMIZATION_SECTION, ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION, MULTI_THREADING_SECTION, SECOND_PREVENTIVE_RAO_SECTION, LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION, ST_MNEC_PARAMETERS_SECTION, ST_RELATIVE_MARGINS_SECTION, ST_LOOP_FLOW_PARAMETERS_SECTION);
         boolean anySearchTreeParams = searchTreeParams.stream().map(platformConfig::getOptionalModuleConfig).anyMatch(Optional::isPresent);
         if (!anySearchTreeParams) {
             return null;
@@ -40,6 +40,9 @@ public class OpenRaoSearchTreeParametersConfigLoader implements RaoParameters.Co
         parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
         parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
         parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));
+        MnecParameters.load(platformConfig).ifPresent(parameters::setMnecParameters);
+        RelativeMarginsParameters.load(platformConfig).ifPresent(parameters::setRelativeMarginsParameters);
+        LoopFlowParameters.load(platformConfig).ifPresent(parameters::setLoopFlowParameters);
         return parameters;
     }
 
