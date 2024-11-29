@@ -11,10 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.cracapi.*;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
@@ -451,6 +448,15 @@ public class SearchTreeRaoSteps {
         assertNotNull(worstCnec.getKey());
         assertEquals(expectedMargin, worstCnec.getValue(), flowMegawattTolerance(expectedMargin));
         assertEquals(expectedCnecName, worstCnec.getKey().getId());
+    }
+    /*
+    RangeAction cost
+     */
+
+    @Then("the cost of remedial action {string} should be {double}")
+    public void costPra(String rangeActionId, Double expectedCost) {
+        RangeAction<?> rangeAction = crac.getRangeAction(rangeActionId);
+        assertEquals(expectedCost, rangeAction.getActivationCost() * (raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction) - raoResult.getPreOptimizationSetPointOnState(preventiveState, rangeAction)), TOLERANCE_RANGEACTION_SETPOINT);
     }
 
     /*

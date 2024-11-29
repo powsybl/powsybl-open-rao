@@ -264,6 +264,7 @@ public class CastorSecondPreventive {
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions())),
             sensiWithPostContingencyRemedialActions,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);

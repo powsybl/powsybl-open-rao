@@ -27,6 +27,8 @@ These parameters (objective-function) configure the remedial action optimisation
   - "MAX_MIN_MARGIN_IN_AMPERE"
   - "MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT"
   - "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE"
+  - "MIN_COST_MEGAWATT"
+  - "MIN_COST_AMPERE"
 - **Default value**: "MAX_MIN_MARGIN_IN_MEGAWATT"
 - **Usage**: this parameter sets the objective function of the RAO. For now, the existing objective function are:
   - **MAX_MIN_MARGIN_IN_MEGAWATT**: maximization of the min(margin), where min(margin) is the smallest margin of all
@@ -39,6 +41,8 @@ These parameters (objective-function) configure the remedial action optimisation
     (divided by the absolute sum of PTDFs) when they are positive.
   - **MAX_MIN_RELATIVE_MARGIN_IN_AMPERE**: same as MAX_MIN_MARGIN_IN_AMPERE, but the margins will be relative (divided
     by the absolute sum of PTDFs) when they are positive.
+  - **MIN_COST_MEGAWATT**: minimization of the cost of all active RangeActions. CNECs being secure is made through a constraint.
+  - **MIN_COST_AMPERE**: same as MIN_COST_MEGAWATT, but the worst margin logger will show flow values in ampere
 
 #### forbid-cost-increase
 - **Expected value**: true/false
