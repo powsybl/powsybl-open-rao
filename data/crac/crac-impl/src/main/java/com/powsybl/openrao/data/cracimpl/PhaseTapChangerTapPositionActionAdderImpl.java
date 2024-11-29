@@ -33,7 +33,7 @@ public class PhaseTapChangerTapPositionActionAdderImpl extends AbstractSingleNet
 
     protected Action buildAction() {
         return new PhaseTapChangerTapPositionActionBuilder()
-            .withId(String.format("%s_%s_%s", getActionName(), networkElementId, tapPosition))
+            .withId(createActionName(tapPosition))
             .withNetworkElementId(networkElementId)
             .withTapPosition(tapPosition)
             .withRelativeValue(false)
@@ -41,10 +41,10 @@ public class PhaseTapChangerTapPositionActionAdderImpl extends AbstractSingleNet
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull(tapPosition, getActionName(), "tapPosition", "withTapPosition()");
+        assertAttributeNotNull(tapPosition, getActionTypeName(), "tapPosition", "withTapPosition()");
     }
 
-    protected String getActionName() {
+    protected String getActionTypeName() {
         return "PhaseTapChangerTapPositionAction";
     }
 }

@@ -44,6 +44,27 @@ class PhaseTapChangerTapPositionActionAdderImplTest {
             .add();
 
         PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction = (PhaseTapChangerTapPositionAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("PhaseTapChangerTapPositionAction_pstNetworkElementId_0", phaseTapChangerTapPositionAction.getId());
+        assertEquals("pstNetworkElementId", phaseTapChangerTapPositionAction.getTransformerId());
+        assertEquals(0, phaseTapChangerTapPositionAction.getTapPosition(), 1e-3);
+
+        // check that network element has been created in CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("pstNetworkElementId"));
+    }
+
+    @Test
+    void testOkWithId() {
+
+        NetworkAction networkAction = networkActionAdder.newPhaseTapChangerTapPositionAction()
+            .withId("phaseTapChangerTapPositionAction")
+            .withNetworkElement("pstNetworkElementId")
+            .withTapPosition(0)
+            .add()
+            .add();
+
+        PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction = (PhaseTapChangerTapPositionAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("phaseTapChangerTapPositionAction", phaseTapChangerTapPositionAction.getId());
         assertEquals("pstNetworkElementId", phaseTapChangerTapPositionAction.getTransformerId());
         assertEquals(0, phaseTapChangerTapPositionAction.getTapPosition(), 1e-3);
 

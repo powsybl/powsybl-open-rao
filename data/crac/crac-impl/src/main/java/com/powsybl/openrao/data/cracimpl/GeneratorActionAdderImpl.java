@@ -32,7 +32,7 @@ public class GeneratorActionAdderImpl extends AbstractSingleNetworkElementAction
 
     protected Action buildAction() {
         return new GeneratorActionBuilder()
-            .withId(String.format("%s_%s_%s", getActionName(), networkElementId, activePowerValue))
+            .withId(createActionName(activePowerValue))
             .withNetworkElementId(networkElementId)
             .withActivePowerRelativeValue(false)
             .withActivePowerValue(activePowerValue)
@@ -40,10 +40,10 @@ public class GeneratorActionAdderImpl extends AbstractSingleNetworkElementAction
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull(activePowerValue, getActionName(), "activePowerValue", "withActivePowerValue()");
+        assertAttributeNotNull(activePowerValue, getActionTypeName(), "activePowerValue", "withActivePowerValue()");
     }
 
-    protected String getActionName() {
+    protected String getActionTypeName() {
         return "GeneratorAction";
     }
 }

@@ -19,11 +19,17 @@ import static com.powsybl.openrao.data.cracimpl.AdderUtils.assertAttributeNotNul
  */
 public abstract class AbstractSingleNetworkElementActionAdderImpl<I> {
     protected NetworkActionAdderImpl ownerAdder;
+    protected String id;
     protected String networkElementId;
     private String networkElementName;
 
     AbstractSingleNetworkElementActionAdderImpl(NetworkActionAdderImpl ownerAdder) {
         this.ownerAdder = ownerAdder;
+    }
+
+    public I withId(String id) {
+        this.id = id;
+        return (I) this;
     }
 
     public I withNetworkElement(String networkElementId) {
@@ -38,7 +44,7 @@ public abstract class AbstractSingleNetworkElementActionAdderImpl<I> {
     }
 
     public NetworkActionAdder add() {
-        assertAttributeNotNull(networkElementId, getActionName(), "network element", "withNetworkElement()");
+        assertAttributeNotNull(networkElementId, getActionTypeName(), "network element", "withNetworkElement()");
         assertSpecificAttributes();
         NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
         ownerAdder.addElementaryAction(buildAction(), networkElement);
@@ -49,5 +55,9 @@ public abstract class AbstractSingleNetworkElementActionAdderImpl<I> {
 
     protected abstract void assertSpecificAttributes();
 
-    protected abstract String getActionName();
+    protected abstract String getActionTypeName();
+
+    protected String createActionName(Object specificAttribute) {
+        return id == null ? String.format("%s_%s_%s", getActionTypeName(), networkElementId, specificAttribute) : id;
+    }
 }

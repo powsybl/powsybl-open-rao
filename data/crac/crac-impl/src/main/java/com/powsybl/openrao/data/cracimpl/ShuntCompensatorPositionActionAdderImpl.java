@@ -34,20 +34,20 @@ public class ShuntCompensatorPositionActionAdderImpl extends AbstractSingleNetwo
 
     protected Action buildAction() {
         return new ShuntCompensatorPositionActionBuilder()
-            .withId(String.format("%s_%s_%s", getActionName(), networkElementId, sectionCount))
+            .withId(createActionName(sectionCount))
             .withNetworkElementId(networkElementId)
             .withSectionCount(sectionCount)
             .build();
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull(sectionCount, getActionName(), "sectionCount", "withSectionCount()");
+        assertAttributeNotNull(sectionCount, getActionTypeName(), "sectionCount", "withSectionCount()");
         if (sectionCount < 0) {
             throw new OpenRaoException("Section count should be a positive integer");
         }
     }
 
-    protected String getActionName() {
+    protected String getActionTypeName() {
         return "ShuntCompensatorPositionAction";
     }
 }

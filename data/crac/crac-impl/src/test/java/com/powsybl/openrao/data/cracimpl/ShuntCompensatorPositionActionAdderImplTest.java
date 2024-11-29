@@ -43,6 +43,26 @@ class ShuntCompensatorPositionActionAdderImplTest {
             .add();
 
         ShuntCompensatorPositionAction shuntCompensatorPositionAction = (ShuntCompensatorPositionAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("ShuntCompensatorPositionAction_groupNetworkElementId_3", shuntCompensatorPositionAction.getId());
+        assertEquals("groupNetworkElementId", shuntCompensatorPositionAction.getShuntCompensatorId());
+        assertEquals(3, shuntCompensatorPositionAction.getSectionCount());
+
+        // check that network element have been added to CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("groupNetworkElementId"));
+    }
+
+    @Test
+    void testOkWithId() {
+        NetworkAction networkAction = networkActionAdder.newShuntCompensatorPositionAction()
+            .withId("shuntCompensatorPositionAction")
+            .withNetworkElement("groupNetworkElementId")
+            .withSectionCount(3)
+            .add()
+            .add();
+
+        ShuntCompensatorPositionAction shuntCompensatorPositionAction = (ShuntCompensatorPositionAction) networkAction.getElementaryActions().iterator().next();
+        assertEquals("shuntCompensatorPositionAction", shuntCompensatorPositionAction.getId());
         assertEquals("groupNetworkElementId", shuntCompensatorPositionAction.getShuntCompensatorId());
         assertEquals(3, shuntCompensatorPositionAction.getSectionCount());
 
