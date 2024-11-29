@@ -1,7 +1,7 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "preventive-stop-criterion" : "MIN_OBJECTIVE",
+    "type" : "MAX_MIN_MARGIN",
     "curative-min-obj-improvement" : 10000.0
   }
 }

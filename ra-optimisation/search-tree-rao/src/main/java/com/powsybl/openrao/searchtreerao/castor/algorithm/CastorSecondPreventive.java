@@ -95,8 +95,8 @@ public class CastorSecondPreventive {
             // only compare initial cost with the curative costs
             return false;
         }
-        ObjectiveFunctionParameters.PreventiveStopCriterion preventiveStopCriterion = raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion();
-        if (preventiveStopCriterion.equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)) {
+        ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType = raoParameters.getObjectiveFunctionParameters().getType();
+        if (objectiveFunctionType.equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)) {
             if (firstPreventiveResult.getCost() > 0) {
                 // in case of curative optimization even if preventive unsecure (see parameter enforce-curative-security)
                 // we do not want to run a second preventive that would not be able to fix the situation, to save time
@@ -105,7 +105,7 @@ public class CastorSecondPreventive {
             }
             // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
             return isAnyResultUnsecure(curativeRaoResults);
-        } else {  // MIN_OBJECTIVE
+        } else {  // MIN OBJECTIVE
             // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
             return isFinalCostWorseThanPreventive(raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult, lastCurativeInstant);
         }

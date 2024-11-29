@@ -1,10 +1,8 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN",
-    "unit" : "A",
-    "curative-min-obj-improvement" : 10000.0,
-    "enforce-curative-security" : false
+    "type" : "WRONG",
+    "curative-min-obj-improvement" : 0.0
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,
@@ -27,14 +25,9 @@
     "max-curative-search-tree-depth" : 2147483647,
     "predefined-combinations" : [ ],
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 1.0,
-    "skip-actions-far-from-most-limiting-element" : true,
-    "max-number-of-boundaries-for-skipping-actions" : 0
-  },
-  "multi-threading" : {
-    "contingency-scenarios-in-parallel" : 1,
-    "preventive-leaves-in-parallel" : 1,
-    "curative-leaves-in-parallel" : 1
+    "absolute-minimum-impact-threshold" : 0.0,
+    "skip-actions-far-from-most-limiting-element" : false,
+    "max-number-of-boundaries-for-skipping-actions" : 2
   },
   "second-preventive-rao" : {
     "execution-condition" : "DISABLED",
@@ -51,7 +44,7 @@
     "sensitivity-parameters" : {
       "version" : "1.0",
       "load-flow-parameters" : {
-        "version" : "1.9",
+        "version" : "1.8",
         "voltageInitMode" : "UNIFORM_VALUES",
         "transformerVoltageControlOn" : false,
         "phaseShifterRegulationOn" : false,
@@ -62,7 +55,7 @@
         "writeSlackBus" : true,
         "dc" : false,
         "distributedSlack" : true,
-        "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
+        "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
         "dcUseTransformerRatio" : true,
         "countriesToBalance" : [ ],
         "connectedComponentMode" : "MAIN",
@@ -70,11 +63,19 @@
       }
     }
   },
+  "multi-threading" : {
+    "contingency-scenarios-in-parallel" : 1,
+    "preventive-leaves-in-parallel" : 1,
+    "auto-leaves-in-parallel" : 1,
+    "curative-leaves-in-parallel" : 1
+  },
   "extensions" : {
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 50.0,
-      "violation-cost" : 10.0,
-      "constraint-adjustment-coefficient" : 0.0
+    "loop-flow-parameters" : {
+      "acceptable-increase" : 0.0,
+      "ptdf-approximation" : "FIXED_PTDF",
+      "constraint-adjustment-coefficient" : 0.0,
+      "violation-cost" : 0.0,
+      "countries" : [ ]
     }
   }
 }
