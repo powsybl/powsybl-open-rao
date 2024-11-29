@@ -42,6 +42,15 @@ public enum Unit {
         return symbol;
     }
 
+    public static Unit getEnum(String value) {
+        for (Unit v : values()) {
+            if (v.toString().equals(value)) {
+                return v;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
     public void checkPhysicalParameter(PhysicalParameter requestedPhysicalParameter) {
         if (!requestedPhysicalParameter.equals(physicalParameter)) {
             throw new OpenRaoException(String.format("%s Unit is not suited to measure a %s value.", this.toString(), requestedPhysicalParameter));

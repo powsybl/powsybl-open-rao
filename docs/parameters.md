@@ -21,24 +21,26 @@ These parameters should be always set in the RAO parameters file or object.
 These parameters (objective-function) configure the remedial action optimisation's objective function.  
 
 #### type
-
 - **Expected value**: one of the following:
-  - "MAX_MIN_MARGIN_IN_MEGAWATT"
-  - "MAX_MIN_MARGIN_IN_AMPERE"
-  - "MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT"
-  - "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE"
-- **Default value**: "MAX_MIN_MARGIN_IN_MEGAWATT"
+  - "MAX_MIN_MARGIN"
+  - "MAX_MIN_RELATIVE_MARGIN"
+- **Default value**: "MAX_MIN_MARGIN"
 - **Usage**: this parameter sets the objective function of the RAO. For now, the existing objective function are:
-  - **MAX_MIN_MARGIN_IN_MEGAWATT**: maximization of the min(margin), where min(margin) is the smallest margin of all
-    CNECs and the margins are considered in MW.
-  - **MAX_MIN_MARGIN_IN_AMPERE**: maximization of the min(margin), where min(margin) is the smallest margin of all CNECs
-    and the margins are considered in A. Note that this objective function is not just a homothety of the previous one,
-    as CNECs from different voltage levels will not have the same weight in the objective function depending on the unit
-    considered (MW or A). This objective function only works in AC-load-flow mode (see [sensitivity-parameters](#sensitivity-parameters)).
-  - **MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT**: same as MAX_MIN_MARGIN_IN_MEGAWATT, but the margins will be relative
+  - **MAX_MIN_MARGIN**: maximization of the min(margin), where min(margin) is the smallest margin of all
+    CNECs.
+  - **MAX_MIN_RELATIVE_MARGIN**: same as MAX_MIN_MARGIN, but the margins will be relative
     (divided by the absolute sum of PTDFs) when they are positive.
-  - **MAX_MIN_RELATIVE_MARGIN_IN_AMPERE**: same as MAX_MIN_MARGIN_IN_AMPERE, but the margins will be relative (divided
-    by the absolute sum of PTDFs) when they are positive.
+
+#### unit
+- **Expected value**: one of the following:
+  - "MEGAWATT"
+  - "AMPERE"
+- **Default value**: "MEGAWATT"
+- **Usage**: this parameter sets the objective function unit of the RAO. For now, the existing objective function units are:
+  - **MEGAWATT**: the margins to maximize are considered in MW.
+  - **AMPERE**: the margins to maximize are considered in A.
+    Note that CNECs from different voltage levels will not have the same weight in the objective function depending on the unit
+    considered (MW or A). Ampere unit only works in AC-load-flow mode (see [sensitivity-parameters](#sensitivity-parameters)).
 
 #### preventive-stop-criterion
 - **Expected value**: one of the following:
@@ -551,7 +553,8 @@ Zones are seperated by + or -.
 {
   "version" : "2.4",
   "objective-function" : {
-    "type" : "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE",
+    "type" : "MAX_MIN_RELATIVE_MARGIN",
+    "unit" : "A",
     "curative-min-obj-improvement" : 0.0,
     "preventive-stop-criterion" : "SECURE",
     "enforce-curative-security" : true
@@ -669,7 +672,8 @@ Zones are seperated by + or -.
 Based on PowSyBl's [configuration mechanism](inv:powsyblcore:std:doc#user/configuration/index).
 ~~~yaml
 rao-objective-function:
-  type: MAX_MIN_MARGIN_IN_AMPERE
+  type: MAX_MIN_MARGIN
+  unit: AMPERE
   preventive-stop-criterion: SECURE
 
 rao-range-actions-optimization:

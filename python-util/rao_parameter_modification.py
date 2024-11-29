@@ -15,6 +15,7 @@ current_directory = os.getcwd()
 tag_by_file_type = {"json": "objective-function", "yaml": "rao-objective-function"}
 
 def rao_parameters_file(file_path):
+    # do not work with yaml yet
     correct_version = False
     score = 0
     if "target" not in file_path and (file_path.endswith(".json") or file_path.endswith(".yml")):
@@ -25,7 +26,7 @@ def rao_parameters_file(file_path):
                     correct_version = True
                 if tag_by_file_type[ftype] in line:
                     score += 1
-                if "MAX_MIN_MARGIN_IN" in line or "MAX_MIN_RELATIVE_MARGIN_IN" in line:
+                if "MAX_MIN_MARGIN" in line or "MAX_MIN_RELATIVE_MARGIN" in line:
                     score += 1
                 if correct_version and score >= 2:
                     return True
@@ -82,24 +83,21 @@ def obj_function_as_str_lines(new_data, file_type):
 
 def new_rao_param(data: dict, file_path: str, file_type: str) -> dict:
     try:
-        old_obj_fun = data[tag_by_file_type[file_type]]
+        obj_fun = data[tag_by_file_type[file_type]]
+        # new_obj_fun to have type and unit on top of obj fun
         new_obj_fun = {}
-        for key in old_obj_fun:
-            if key not in ("curative-stop-criterion", "optimize-curative-if-preventive-unsecure"):
-                new_obj_fun[key] = old_obj_fun[key]
-        prev_secure = "preventive-stop-criterion" not in old_obj_fun or old_obj_fun["preventive-stop-criterion"] == "SECURE"
-        if prev_secure:
-            if "optimize-curative-if-preventive-unsecure" in old_obj_fun:
-                new_obj_fun["enforce-curative-security"] = old_obj_fun["optimize-curative-if-preventive-unsecure"]
-        else:
-            cur_secure = "curative-stop-criterion" in old_obj_fun and old_obj_fun["curative-stop-criterion"] in ("SECURE", "PREVENTIVE_OBJECTIVE_AND_SECURE")
-            if cur_secure:
-                new_obj_fun["enforce-curative-security"] = True
-            else:
-                new_obj_fun["enforce-curative-security"] = False
-                cur_min = "curative-stop-criterion" in old_obj_fun and old_obj_fun["curative-stop-criterion"] == "MIN_OBJECTIVE"
-                if cur_min:
-                    new_obj_fun["curative-min-obj-improvement"] = 10000.0 + (old_obj_fun["curative-min-obj-improvement"] if "curative-min-obj-improvement" in old_obj_fun else 0.0)
+        if "type" in obj_fun:
+            if "MAX_MIN_MARGIN" in obj_fun["type"]:
+                new_obj_fun["type"] = "MAX_MIN_MARGIN"
+            elif "MAX_MIN_RELATIVE_MARGIN" in obj_fun["type"]:
+                new_obj_fun["type"] = "MAX_MIN_RELATIVE_MARGIN"
+            if "MEGAWATT" in obj_fun["type"]:
+                new_obj_fun["unit"] = "MW"
+            elif "AMPERE" in obj_fun["type"]:
+                new_obj_fun["unit"] = "A"
+        for key in obj_fun:
+            if key not in new_obj_fun:
+                new_obj_fun[key] = obj_fun[key]
     except KeyError as ke:
         raise KeyError("in file " + file_path) from ke
     data[tag_by_file_type[file_type]] = new_obj_fun

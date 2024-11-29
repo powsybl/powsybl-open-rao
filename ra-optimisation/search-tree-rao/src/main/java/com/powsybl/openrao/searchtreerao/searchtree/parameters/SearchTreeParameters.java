@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
@@ -33,6 +34,7 @@ import java.util.Set;
 public class SearchTreeParameters {
 
     private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
+    private final Unit objectiveFunctionUnit;
 
     // required for the search tree algorithm
     private final TreeParameters treeParameters;
@@ -49,7 +51,7 @@ public class SearchTreeParameters {
     private final int maxNumberOfIterations;
 
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
-                                TreeParameters treeParameters,
+                                Unit objectiveFunctionUnit, TreeParameters treeParameters,
                                 NetworkActionParameters networkActionParameters,
                                 Map<Instant, RaUsageLimits> raLimitationParameters,
                                 RangeActionsOptimizationParameters rangeActionParameters,
@@ -60,6 +62,7 @@ public class SearchTreeParameters {
                                 RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
                                 int maxNumberOfIterations) {
         this.objectiveFunction = objectiveFunction;
+        this.objectiveFunctionUnit = objectiveFunctionUnit;
         this.treeParameters = treeParameters;
         this.networkActionParameters = networkActionParameters;
         this.raLimitationParameters = raLimitationParameters;
@@ -74,6 +77,10 @@ public class SearchTreeParameters {
 
     public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunction() {
         return objectiveFunction;
+    }
+
+    public Unit getObjectiveFunctionUnit() {
+        return objectiveFunctionUnit;
     }
 
     public TreeParameters getTreeParameters() {
@@ -236,6 +243,7 @@ public class SearchTreeParameters {
 
     public static class SearchTreeParametersBuilder {
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
+        private Unit objectiveFunctionUnit;
         private TreeParameters treeParameters;
         private NetworkActionParameters networkActionParameters;
         private Map<Instant, RaUsageLimits> raLimitationParameters;
@@ -249,6 +257,7 @@ public class SearchTreeParameters {
 
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
+            this.objectiveFunctionUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
             this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
             this.raLimitationParameters = new HashMap<>(crac.getRaUsageLimitsPerInstant());
             this.rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
@@ -262,6 +271,11 @@ public class SearchTreeParameters {
 
         public SearchTreeParametersBuilder with0bjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
+            return this;
+        }
+
+        public SearchTreeParametersBuilder with0bjectiveFunctionUnit(Unit objectiveFunctionUnit) {
+            this.objectiveFunctionUnit = objectiveFunctionUnit;
             return this;
         }
 
@@ -316,7 +330,9 @@ public class SearchTreeParameters {
         }
 
         public SearchTreeParameters build() {
-            return new SearchTreeParameters(objectiveFunction,
+            return new SearchTreeParameters(
+                objectiveFunction,
+                objectiveFunctionUnit,
                 treeParameters,
                 networkActionParameters,
                 raLimitationParameters,

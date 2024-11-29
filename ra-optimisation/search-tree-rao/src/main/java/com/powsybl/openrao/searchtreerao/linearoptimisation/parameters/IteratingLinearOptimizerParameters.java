@@ -22,6 +22,7 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 public final class IteratingLinearOptimizerParameters {
 
     private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
+    private final Unit objectiveFunctionUnit;
 
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final MnecParametersExtension mnecParameters;
@@ -35,6 +36,7 @@ public final class IteratingLinearOptimizerParameters {
     private final boolean raRangeShrinking;
 
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+                                               Unit objectiveFunctionUnit,
                                                RangeActionsOptimizationParameters rangeActionParameters,
                                                MnecParametersExtension mnecParameters,
                                                RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
@@ -45,6 +47,7 @@ public final class IteratingLinearOptimizerParameters {
                                                int maxNumberOfIterations,
                                                boolean raRangeShrinking) {
         this.objectiveFunction = objectiveFunction;
+        this.objectiveFunctionUnit = objectiveFunctionUnit;
         this.rangeActionParameters = rangeActionParameters;
         this.mnecParameters = mnecParameters;
         this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
@@ -61,7 +64,7 @@ public final class IteratingLinearOptimizerParameters {
     }
 
     public Unit getObjectiveFunctionUnit() {
-        return getObjectiveFunction().getUnit();
+        return objectiveFunctionUnit;
     }
 
     public boolean hasRelativeMargins() {
@@ -124,6 +127,7 @@ public final class IteratingLinearOptimizerParameters {
     public static class LinearOptimizerParametersBuilder {
 
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
+        private Unit objectiveFunctionUnit;
         private RangeActionsOptimizationParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
@@ -136,6 +140,11 @@ public final class IteratingLinearOptimizerParameters {
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withObjectiveFunctionUnit(Unit objectiveFunctionUnit) {
+            this.objectiveFunctionUnit = objectiveFunctionUnit;
             return this;
         }
 
@@ -191,6 +200,7 @@ public final class IteratingLinearOptimizerParameters {
 
             return new IteratingLinearOptimizerParameters(
                 objectiveFunction,
+                objectiveFunctionUnit,
                 rangeActionParameters,
                 mnecParameters,
                 maxMinRelativeMarginParameters,

@@ -78,7 +78,7 @@ public final class ObjectiveFunction {
                 marginEvaluator = new BasicMarginEvaluator();
             }
 
-            this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+            this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getUnit(), marginEvaluator));
 
             // sensitivity failure over-cost should be computed on initial sensitivity result too
             // (this allows the RAO to prefer RAs that can remove sensitivity failures)
@@ -108,17 +108,17 @@ public final class ObjectiveFunction {
             if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
                 && !operatorsNotToOptimizeInCurative.isEmpty()) {
 
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getUnit(),
                     new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
             } else {
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getUnit(), marginEvaluator));
             }
 
             // mnec virtual cost evaluator
             if (raoParameters.hasExtension(MnecParametersExtension.class)) {
                 this.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
                     flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                    raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
+                    raoParameters.getObjectiveFunctionParameters().getUnit(),
                     initialFlowResult,
                     raoParameters.getExtension(MnecParametersExtension.class)
                 ));

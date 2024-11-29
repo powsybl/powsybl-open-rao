@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.cracapi.Crac;
 import com.powsybl.openrao.data.cracapi.Instant;
 import com.powsybl.openrao.data.cracapi.RaUsageLimits;
@@ -68,6 +69,7 @@ class SearchTreeParametersTest {
     @Test
     void testIndividualSetters() {
         ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction = Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class);
+        Unit objectiveFunctionUnit = Mockito.mock(Unit.class);
         TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         Map<Instant, RaUsageLimits> raLimitationParameters = new HashMap<>();
@@ -81,6 +83,7 @@ class SearchTreeParametersTest {
 
         SearchTreeParameters searchTreeParameters = builder
             .with0bjectiveFunction(objectiveFunction)
+            .with0bjectiveFunctionUnit(objectiveFunctionUnit)
             .withTreeParameters(treeParameters)
             .withNetworkActionParameters(networkActionParameters)
             .withGlobalRemedialActionLimitationParameters(raLimitationParameters)
