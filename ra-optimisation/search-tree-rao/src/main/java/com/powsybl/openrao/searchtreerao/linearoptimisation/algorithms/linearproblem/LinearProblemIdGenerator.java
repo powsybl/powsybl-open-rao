@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -131,8 +132,8 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String rangeActionInjectionVariationVariableId(RangeAction<?> rangeAction, State state) {
-        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SIGNED_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
+    public static String rangeActionInjectionVariationVariableId(InjectionRangeAction injectionRangeAction, State state) {
+        return injectionRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SIGNED_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
     }
 
     public static String signedRangeActionVariationConstraintId(RangeAction<?> rangeAction, State state) {

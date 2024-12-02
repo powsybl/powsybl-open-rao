@@ -126,9 +126,9 @@ public class CoreProblemFiller implements ProblemFiller {
             rangeActions.forEach(rangeAction -> {
                 linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
                 linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state);
-                if (rangeAction instanceof InjectionRangeAction) {
+                if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
                     //injection variation variable needed for balance contraint
-                    linearProblem.addInjectionVariationVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
+                    linearProblem.addInjectionVariationVariable(-linearProblem.infinity(), linearProblem.infinity(), injectionRangeAction, state);
                 }
             })
         );
@@ -207,7 +207,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().entrySet().stream()
-            .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
+            .sorted(Comparator.comparing(e -> e.getKey().getInstant()))
             .forEach(entry -> {
                 Set<InjectionRangeAction> injectionRangeActions = new HashSet<>();
                 for (RangeAction<?> rangeAction : entry.getValue()) {
@@ -343,16 +343,18 @@ public class CoreProblemFiller implements ProblemFiller {
      * Constraint for defining Injection Variation:
      * IV[r] = (setpoint[r] - prePerimeterSetPoint[r]) * sum(distributionKeys[r])
      */
-    private void buildInjectionBalanceConstraint(LinearProblem linearProblem, InjectionRangeAction rangeAction, State state, OpenRaoMPConstraint injectionBalanceConstraint) {
-        OpenRaoMPVariable signedInjectionVariationVariable = linearProblem.getInjectionVariationVariable(rangeAction, state);
+    private void buildInjectionBalanceConstraint(LinearProblem linearProblem, InjectionRangeAction injectionRangeAction, State state, OpenRaoMPConstraint injectionBalanceConstraint) {
+        OpenRaoMPVariable signedInjectionVariationVariable = linearProblem.getInjectionVariationVariable(injectionRangeAction, state);
         injectionBalanceConstraint.setCoefficient(signedInjectionVariationVariable, 1);
 
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(injectionRangeAction, state);
 
-        double sumDistributionKeys = rangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(d -> d).sum();
+        double sumDistributionKeys = injectionRangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(d -> d).sum();
+
+        // TODO: use variable for 2P in case the setpoint was changed in a previous state
         if (sumDistributionKeys != 0) {
-            double bound = -prePerimeterRangeActionSetpoints.getSetpoint(rangeAction) * sumDistributionKeys;
-            OpenRaoMPConstraint injectionRelativeVariationConstraint = linearProblem.addInjectionVariationConstraint(bound, bound, rangeAction, state);
+            double bound = -prePerimeterRangeActionSetpoints.getSetpoint(injectionRangeAction) * sumDistributionKeys;
+            OpenRaoMPConstraint injectionRelativeVariationConstraint = linearProblem.addInjectionVariationConstraint(bound, bound, injectionRangeAction, state);
             injectionRelativeVariationConstraint.setCoefficient(signedInjectionVariationVariable, 1);
             injectionRelativeVariationConstraint.setCoefficient(setPointVariable, -sumDistributionKeys);
         }
