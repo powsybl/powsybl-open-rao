@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.raoapi;
 
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.commons.Versionable;
 

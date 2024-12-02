@@ -265,11 +265,6 @@
             <version>${org.everit.json.version}</version>
         </dependency>-->
         <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
             <scope>test</scope>

@@ -9,16 +9,17 @@ package com.powsybl.openrao.sensitivityanalysis;
 import com.powsybl.contingency.*;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.CracFactory;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
-import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
+import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -291,6 +292,84 @@ class SystematicSensitivityResultTest {
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(crac.getPreventiveState()));
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(contingencyState));
+    }
+
+    //This test simulates what happens after a second preventive, where some curative results are stored in outage results.
+    //We do this to avoid recomputing multiple times the same contingency while no remedial action was applied in later instants.
+    @Test
+    void testCurativeResultAtOutageInstant() {
+        setUpWith12Nodes();
+
+        FlowCnecAdder cnecAdder = crac.newFlowCnec()
+            .withId("cnec2stateOutageContingency2")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withInstant(OUTAGE_INSTANT_ID)
+            .withContingency("Contingency FR1 FR2")
+            .withOptimized(true)
+            .withOperator("operator2")
+            .withReliabilityMargin(95.)
+            .withNominalVoltage(380.)
+            .withIMax(5000.);
+        Set.of(TwoSides.ONE, TwoSides.TWO).forEach(side ->
+            cnecAdder.newThreshold()
+                .withUnit(Unit.MEGAWATT)
+                .withSide(TwoSides.ONE)
+                .withMin(-1800.)
+                .withMax(1800.)
+                .add());
+        cnecAdder.add();
+
+        outageInstantOrder = crac.getInstant(OUTAGE_INSTANT_ID).getOrder();
+        int curativeInstantOrder = crac.getInstant(CURATIVE_INSTANT_ID).getOrder();
+
+        //run sensi on outage instant for outageCnec
+        FlowCnec outageCnec = crac.getFlowCnec("cnec2stateOutageContingency2");
+        Contingency outageContingency = outageCnec.getState().getContingency().orElseThrow();
+        SensitivityFactor outageSensitivityFactor = new SensitivityFactor(
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
+            outageCnec.getNetworkElement().getId(),
+            SensitivityVariableType.TRANSFORMER_PHASE,
+            "BBE2AA1  BBE3AA1  1",
+            false,
+            new ContingencyContext(outageContingency.getId(), ContingencyContextType.SPECIFIC)
+        );
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
+            List.of(outageSensitivityFactor),
+            List.of(outageContingency),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load());
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
+
+        //run sensi on curative instant for curativeCnec
+        FlowCnec curativeCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
+        Contingency curativeContingency = curativeCnec.getState().getContingency().orElseThrow();
+        SensitivityFactor curativeSensitivityFactor = new SensitivityFactor(
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
+            curativeCnec.getNetworkElement().getId(),
+            SensitivityVariableType.TRANSFORMER_PHASE,
+            "BBE2AA1  BBE3AA1  1",
+            false,
+            new ContingencyContext(curativeContingency.getId(), ContingencyContextType.SPECIFIC)
+        );
+        sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
+            List.of(curativeSensitivityFactor),
+            List.of(curativeContingency),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load());
+        result.completeData(sensitivityAnalysisResult, curativeInstantOrder);
+
+        //correct flows are available for both factors for all instants
+        //0 represents a missing value (this is due to the way load flow engines represent an open line, we need 0 as a default value)
+        assertEquals(-20, result.getReferenceFlow(outageCnec, TwoSides.ONE));
+        assertEquals(-20, result.getReferenceFlow(outageCnec, TwoSides.ONE, crac.getInstant(OUTAGE_INSTANT_ID)));
+        assertEquals(-20, result.getReferenceFlow(outageCnec, TwoSides.ONE, crac.getInstant(AUTO_INSTANT_ID)));
+        assertEquals(-20, result.getReferenceFlow(outageCnec, TwoSides.ONE, crac.getInstant(CURATIVE_INSTANT_ID)));
+
+        assertEquals(-20, result.getReferenceFlow(curativeCnec, TwoSides.ONE));
+        assertEquals(0, result.getReferenceFlow(curativeCnec, TwoSides.ONE, crac.getInstant(OUTAGE_INSTANT_ID)));
+        assertEquals(0, result.getReferenceFlow(curativeCnec, TwoSides.ONE, crac.getInstant(AUTO_INSTANT_ID)));
+        assertEquals(-20, result.getReferenceFlow(curativeCnec, TwoSides.ONE, crac.getInstant(CURATIVE_INSTANT_ID)));
+
     }
 
 }

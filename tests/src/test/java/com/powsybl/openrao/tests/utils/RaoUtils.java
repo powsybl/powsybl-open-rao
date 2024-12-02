@@ -9,11 +9,11 @@ package com.powsybl.openrao.tests.utils;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracloopflowextension.LoopFlowThresholdAdder;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -27,7 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.Properties;
 
 import static java.lang.String.format;
 
@@ -116,7 +116,10 @@ public final class RaoUtils {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        raoResult.write("JSON", crac, Set.of(Unit.AMPERE, Unit.MEGAWATT), outputStream);
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        raoResult.write("JSON", crac, properties, outputStream);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
