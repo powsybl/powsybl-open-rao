@@ -8,9 +8,9 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;

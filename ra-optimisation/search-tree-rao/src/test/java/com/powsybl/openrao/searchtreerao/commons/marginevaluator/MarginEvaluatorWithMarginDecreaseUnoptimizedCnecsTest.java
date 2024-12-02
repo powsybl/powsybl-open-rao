@@ -8,7 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.marginevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;

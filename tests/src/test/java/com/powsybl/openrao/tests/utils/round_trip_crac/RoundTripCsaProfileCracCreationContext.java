@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.tests.utils.round_trip_crac;
 
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.io.csaprofiles.craccreator.CsaProfileCracCreationContext;
 
 public class RoundTripCsaProfileCracCreationContext extends CsaProfileCracCreationContext {
     private Crac overridingCrac;

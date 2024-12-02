@@ -8,8 +8,8 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;

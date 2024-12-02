@@ -6,10 +6,9 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;

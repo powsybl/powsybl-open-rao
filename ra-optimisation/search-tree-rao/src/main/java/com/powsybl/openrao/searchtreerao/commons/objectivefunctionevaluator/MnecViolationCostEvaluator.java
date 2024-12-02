@@ -7,10 +7,9 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCostEvaluatorResult;

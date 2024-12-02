@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.linearoptimisation.inputs;
 
-import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;

@@ -8,8 +8,8 @@
 package com.powsybl.openrao.data.raoresultapi.io;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.io.OutputStream;

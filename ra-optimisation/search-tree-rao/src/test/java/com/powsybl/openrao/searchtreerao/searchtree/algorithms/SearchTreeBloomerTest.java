@@ -6,11 +6,11 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.RaUsageLimits;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.RaUsageLimits;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;

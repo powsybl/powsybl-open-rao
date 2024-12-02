@@ -8,8 +8,8 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
