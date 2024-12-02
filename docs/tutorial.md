@@ -451,7 +451,7 @@ import networkaction.com.powsybl.openrao.data.crac.api.ActionType;
 import range.com.powsybl.openrao.data.crac.api.RangeType;
 import usagerule.com.powsybl.openrao.data.crac.api.UsageMethod;
 import com.powsybl.openrao.data.craccreation.util.iidm.IidmPstHelper;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.LoadFlowAndSensitivityParameters;

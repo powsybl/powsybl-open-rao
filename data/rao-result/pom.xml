@@ -19,6 +19,6 @@
     <modules>
         <module>rao-result-api</module>
         <module>rao-result-impl</module>
-        <module>rao-result-json</module>
+        <module>rao-result-io</module>
     </modules>
 </project>
