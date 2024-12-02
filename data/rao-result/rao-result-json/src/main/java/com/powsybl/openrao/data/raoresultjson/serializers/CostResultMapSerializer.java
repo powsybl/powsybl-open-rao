@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.data.raoresultjson.serializers;
 
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;

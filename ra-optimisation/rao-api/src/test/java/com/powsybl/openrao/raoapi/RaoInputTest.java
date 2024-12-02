@@ -8,7 +8,7 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.EICode;
-import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceExchangeData;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.iidm.network.Country;

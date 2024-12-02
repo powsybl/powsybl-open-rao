@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.result.api;
 
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 
 import java.util.Set;
 

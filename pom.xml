@@ -88,38 +88,36 @@
 
         <!-- Dependencies versions -->
         <apache.commons.lang3>3.13.0</apache.commons.lang3>
-        <cucumber.bom.version>7.15.0</cucumber.bom.version>
+        <cucumber.bom.version>7.20.1</cucumber.bom.version>
         <commonsio.version>2.16.1</commonsio.version>
         <google.autoservice.version>1.1.1</google.autoservice.version>
-        <google.guava.version>32.0.0-jre</google.guava.version>
+        <google.guava.version>33.2.1-jre</google.guava.version>
         <google.ortools.version>9.11.4210</google.ortools.version>
-        <jackson.version>2.15.2</jackson.version>
+        <jackson.version>2.17.1</jackson.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
-        <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
-        <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
-        <jimfs.version>1.1</jimfs.version>
-        <junit.bom.version>5.10.0</junit.bom.version>
-        <junit-jupiter.version>5.10.0</junit-jupiter.version>
-        <logback.version>1.2.13</logback.version>
+        <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
+        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
+        <jimfs.version>1.3.0</jimfs.version>
+        <junit.bom.version>5.11.3</junit.bom.version>
+        <junit-jupiter.version>5.10.2</junit-jupiter.version>
+        <logback.version>1.5.6</logback.version>
         <lombok.version>1.18.28</lombok.version>
-        <maven.buildnumber.version>1.4</maven.buildnumber.version>
-        <maven.compiler.version>3.8.1</maven.compiler.version>
-        <maven.dependency.version>3.2.0</maven.dependency.version>
-        <maven.deploy.version>2.8.2</maven.deploy.version>
-        <maven.gpg.version>3.0.1</maven.gpg.version>
-        <maven.jacoco.version>0.8.8</maven.jacoco.version>
-        <maven.jar.version>3.2.0</maven.jar.version>
-        <maven.javadoc.version>3.2.0</maven.javadoc.version>
-        <maven.jaxb2.version>0.15.3</maven.jaxb2.version>
-        <maven.jvnet.jaxb2-basics.version>1.11.1</maven.jvnet.jaxb2-basics.version>
-        <maven.source.version>3.2.1</maven.source.version>
-        <maven.templating.version>1.0.0</maven.templating.version>
-        <mockito.inline.version>5.2.0</mockito.inline.version>
+        <maven.buildnumber.version>3.2.1</maven.buildnumber.version>
+        <maven.compiler.version>3.11.0</maven.compiler.version>
+        <maven.dependency.version>3.6.0</maven.dependency.version>
+        <maven.deploy.version>3.1.1</maven.deploy.version>
+        <maven.gpg.version>3.1.0</maven.gpg.version>
+        <maven.jacoco.version>0.8.12</maven.jacoco.version>
+        <maven.jar.version>3.3.0</maven.jar.version>
+        <maven.javadoc.version>3.10.1</maven.javadoc.version>
+        <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
+        <maven.source.version>3.3.1</maven.source.version>
+        <maven.templating.version>3.0.0</maven.templating.version>
+        <mockito.core.version>5.12.0</mockito.core.version>
         <powsybl.core.version>6.5.0</powsybl.core.version>
         <powsybl.entsoe.version>2.11.0</powsybl.entsoe.version>
         <powsybl.openloadflow.version>1.13.1</powsybl.openloadflow.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <xmlunit.core.version>2.10.0</xmlunit.core.version>
         <com.networknt.version>1.5.3</com.networknt.version>
     </properties>
@@ -128,15 +126,9 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.jvnet.jaxb2_commons</groupId>
-                    <artifactId>jaxb2-basics</artifactId>
-                    <version>${maven.jvnet.jaxb2-basics.version}</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.jvnet.jaxb2.maven2</groupId>
-                    <artifactId>maven-jaxb2-plugin</artifactId>
-                    <version>${maven.jaxb2.version}</version>
+                    <groupId>org.jvnet.jaxb</groupId>
+                    <artifactId>jaxb-maven-plugin</artifactId>
+                    <version>${maven.jvnet.jaxb.version}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -325,16 +317,6 @@
                 <version>${javax.validation.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${jaxb-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jvnet.jaxb2_commons</groupId>
-                <artifactId>jaxb2-basics</artifactId>
-                <version>${maven.jvnet.jaxb2-basics.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
@@ -438,8 +420,8 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-inline</artifactId>
-                <version>${mockito.inline.version}</version>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
