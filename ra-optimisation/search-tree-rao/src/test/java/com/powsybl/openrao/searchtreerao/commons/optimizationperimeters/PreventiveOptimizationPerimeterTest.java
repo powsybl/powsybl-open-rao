@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.iidm.network.Country;

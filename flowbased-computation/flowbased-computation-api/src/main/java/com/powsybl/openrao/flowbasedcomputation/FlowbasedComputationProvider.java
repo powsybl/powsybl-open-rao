@@ -8,7 +8,7 @@ package com.powsybl.openrao.flowbasedcomputation;
 
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.iidm.network.Network;

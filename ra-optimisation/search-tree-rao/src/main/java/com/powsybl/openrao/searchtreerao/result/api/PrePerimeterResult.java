@@ -8,7 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.api;
 
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

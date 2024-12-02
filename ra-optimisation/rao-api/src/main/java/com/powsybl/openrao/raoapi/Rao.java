@@ -7,7 +7,7 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
