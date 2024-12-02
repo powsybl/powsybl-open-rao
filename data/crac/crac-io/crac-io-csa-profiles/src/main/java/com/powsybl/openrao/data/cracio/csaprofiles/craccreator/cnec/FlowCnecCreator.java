@@ -19,8 +19,8 @@ import com.powsybl.openrao.data.cracapi.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
 import com.powsybl.iidm.network.*;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.LimitTypeKind;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.OperationalLimitDirectionKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.LimitTypeKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.CurrentLimit;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
@@ -28,10 +28,6 @@ import com.powsybl.openrao.data.cracio.csaprofiles.parameters.CsaCracCreationPar
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT;
-import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT;
-import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -41,6 +37,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private final Set<TwoSides> defaultMonitoredSides;
     private final FlowCnecInstantHelper instantHelper;
     private final CurrentLimit nativeCurrentLimit;
+
+    private static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary_1");
+    private static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT = List.of("CGMES.Terminal2", "CGMES.Terminal_Boundary_2");
+    private static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary");
 
     public FlowCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, CurrentLimit nativeCurrentLimit, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
         super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
@@ -207,7 +207,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, Map<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
         // Preventive CNEC
-        if (nativeAssessedElement.inBaseCase()) {
+        if (Boolean.TRUE.equals(nativeAssessedElement.inBaseCase())) {
             thresholds.getOrDefault(Integer.MAX_VALUE, Map.of()).forEach((twoSides, threshold) -> {
                 String cnecName = getCnecName(crac.getPreventiveInstant().getId(), null, twoSides, Integer.MAX_VALUE);
                 addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), twoSides, threshold, Integer.MAX_VALUE, useMaxAndMinThresholds);
@@ -217,11 +217,11 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         // Curative CNECs
         if (!linkedContingencies.isEmpty()) {
-            String operatorName = CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator());
+            String operatorName = CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.assessedSystemOperator());
             Map<TwoSides, Map<String, Integer>> instantToDurationMaps = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(twoSides -> twoSides, twoSides -> instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, twoSides, operatorName)));
             boolean operatorDoesNotUsePatlInFinalState = csaCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().contains(operatorName);
 
-            // If an operator does not use the PATL for the final state but has no TATL defined, the use of PATL if forced
+            // If a remedialActionSystemOperator does not use the PATL for the final state but has no TATL defined, the use of PATL if forced
             Map<TwoSides, Boolean> forceUseOfPatl = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(
                 twoSides -> twoSides,
                 twoSides -> operatorDoesNotUsePatlInFinalState
@@ -240,7 +240,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 String cnecName = getCnecName(instant, contingency, twoSides, acceptableDuration);
                 addFlowCnec(networkElement, contingency, instant, twoSides, threshold, acceptableDuration, useMaxAndMinThresholds);
                 if (acceptableDuration == Integer.MAX_VALUE && Boolean.TRUE.equals(forceUseOfPatl.get(twoSides))) {
-                    csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId(), twoSides)));
+                    csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(CsaProfileCracUtils.getTsoNameFromUrl(nativeAssessedElement.assessedSystemOperator()), networkElement.getId(), twoSides)));
                 } else {
                     csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
                 }

@@ -23,8 +23,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants.*;
-
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
@@ -34,6 +32,10 @@ class CsaProfileCracCreator {
     private Network network;
     CsaProfileCracCreationContext creationContext;
     private CsaProfileCrac nativeCrac;
+
+    public static final String PREVENTIVE_INSTANT_NAME = "preventive";
+    public static final String OUTAGE_INSTANT_NAME = "outage";
+    public static final String AUTO_INSTANT_NAME = "auto";
 
     CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
@@ -55,9 +57,9 @@ class CsaProfileCracCreator {
     }
 
     private void addCsaInstants(CsaCracCreationParameters csaCracCreationParameters) {
-        crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT, InstantKind.AUTO);
+        crac.newInstant(PREVENTIVE_INSTANT_NAME, InstantKind.PREVENTIVE)
+            .newInstant(OUTAGE_INSTANT_NAME, InstantKind.OUTAGE)
+            .newInstant(AUTO_INSTANT_NAME, InstantKind.AUTO);
         List<String> sortedCurativeInstants = csaCracCreationParameters.getCurativeInstants().entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).map(Map.Entry::getKey).toList();
         sortedCurativeInstants.forEach(instantName -> crac.newInstant(instantName, InstantKind.CURATIVE));
     }

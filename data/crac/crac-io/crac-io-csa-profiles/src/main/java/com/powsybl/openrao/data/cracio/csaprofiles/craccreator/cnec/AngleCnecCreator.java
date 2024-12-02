@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.OperationalLimitDirectionKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.VoltageAngleLimit;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
@@ -37,7 +37,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
     }
 
     public void addAngleCnecs() {
-        if (nativeAssessedElement.inBaseCase()) {
+        if (Boolean.TRUE.equals(nativeAssessedElement.inBaseCase())) {
             addAngleCnec(crac.getPreventiveInstant().getId(), null);
         }
         for (Contingency contingency : linkedContingencies) {

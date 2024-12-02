@@ -23,12 +23,12 @@ import com.powsybl.openrao.data.cracio.commons.api.StandardElementaryCreationCon
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.RemedialActionKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.ElementCombinationConstraintKind;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionKind;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElement;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.cracio.csaprofiles.nc.GridStateAlterationRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialAction;
 import com.powsybl.openrao.data.cracio.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.RemedialActionDependency;
@@ -54,14 +54,14 @@ public class CsaProfileRemedialActionsCreator {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
-        Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
+        Map<String, String> pstPerTapChanger = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(TapChanger.class), TapChanger::powerTransformer).entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network, pstPerTapChanger);
-        Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction).aggregate(nativeCrac.getAssessedElementWithRemedialActions());
-        Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeCrac.getContingencyWithRemedialActions());
+        Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(AssessedElementWithRemedialAction.class), AssessedElementWithRemedialAction::remedialAction);
+        Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(ContingencyWithRemedialAction.class), ContingencyWithRemedialAction::remedialAction);
         this.nativeRemedialActions = new HashSet<>();
-        this.nativeRemedialActions.addAll(nativeCrac.getGridStateAlterationRemedialActions());
-        this.nativeRemedialActions.addAll(nativeCrac.getSchemeRemedialActions());
-        createRemedialActions(nativeCrac.getAssessedElements(), linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts);
+        this.nativeRemedialActions.addAll(nativeCrac.getNativeObjects(GridStateAlterationRemedialAction.class));
+        this.nativeRemedialActions.addAll(nativeCrac.getNativeObjects(SchemeRemedialAction.class));
+        createRemedialActions(nativeCrac.getNativeObjects(AssessedElement.class), linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts);
         // standaloneRaIdsImplicatedIntoAGroup contain ids of Ra's depending on a group whether the group is imported or not
         Set<String> standaloneRaIdsImplicatedIntoAGroup = createRemedialActionGroups();
         standaloneRaIdsImplicatedIntoAGroup.forEach(crac::removeRemedialAction);
@@ -75,14 +75,14 @@ public class CsaProfileRemedialActionsCreator {
             boolean isSchemeRemedialAction = nativeRemedialAction instanceof SchemeRemedialAction;
             try {
                 checkKind(nativeRemedialAction, isSchemeRemedialAction);
-                if (!nativeRemedialAction.normalAvailable()) {
+                if (Boolean.FALSE.equals(nativeRemedialAction.normalAvailable())) {
                     throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because normalAvailable is set to false", nativeRemedialAction.mrid()));
                 }
                 String elementaryActionsAggregatorId = isSchemeRemedialAction ? elementaryActionsHelper.getGridStateAlterationCollection(nativeRemedialAction.mrid()) : nativeRemedialAction.mrid(); // collectionIdIfAutoOrElseRemedialActionId
                 RemedialActionType remedialActionType = getRemedialActionType(nativeRemedialAction.mrid(), elementaryActionsAggregatorId, isSchemeRemedialAction);
                 RemedialActionAdder<?> remedialActionAdder;
                 if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid(), elementaryActionsAggregatorId, alterations);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(elementaryActionsHelper.getTopologyActions(isSchemeRemedialAction).getOrDefault(elementaryActionsAggregatorId, Set.of()), elementaryActionsHelper.getRotatingMachineActions(isSchemeRemedialAction).getOrDefault(elementaryActionsAggregatorId, Set.of()), elementaryActionsHelper.getShuntCompensatorModifications(isSchemeRemedialAction).getOrDefault(elementaryActionsAggregatorId, Set.of()), elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeRemedialAction.mrid(), alterations);
                     fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, nativeRemedialAction.getUniqueName());
                 } else {
                     if (elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId).size() > 1) {
@@ -90,7 +90,7 @@ public class CsaProfileRemedialActionsCreator {
                         for (TapPositionAction nativeTapPositionAction : elementaryActionsHelper.getTapPositionActions(isSchemeRemedialAction).get(elementaryActionsAggregatorId)) {
                             try {
                                 remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(true, elementaryActionsAggregatorId, nativeTapPositionAction, elementaryActionsHelper.getNativeStaticPropertyRangesPerNativeGridStateAlteration(), nativeTapPositionAction.mrid());
-                                fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, createNameFromTapPositionAction(nativeTapPositionAction.mrid(), nativeRemedialAction.operator()));
+                                fillAndSaveRemedialActionAdderAndContext(nativeAssessedElements, linkedAeWithRa, linkedCoWithRa, spsMaxTimeToImplementThreshold, cnecCreationContexts, nativeRemedialAction, alterations, isSchemeRemedialAction, remedialActionType, remedialActionAdder, createNameFromTapPositionAction(nativeTapPositionAction.mrid(), nativeRemedialAction.remedialActionSystemOperator()));
                             } catch (OpenRaoImportException e) {
                                 if (e.getImportStatus().equals(ImportStatus.NOT_FOR_RAO)) {
                                     contextByRaId.put(nativeTapPositionAction.mrid(), StandardElementaryCreationContext.notImported(nativeTapPositionAction.mrid(), null, e.getImportStatus(), e.getMessage()));
@@ -124,8 +124,8 @@ public class CsaProfileRemedialActionsCreator {
                                                           boolean isSchemeRemedialAction, RemedialActionType remedialActionType, RemedialActionAdder<?> remedialActionAdder, String remedialActionName) {
 
         remedialActionAdder.withName(remedialActionName);
-        if (nativeRemedialAction.operator() != null) {
-            remedialActionAdder.withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
+        if (nativeRemedialAction.remedialActionSystemOperator() != null) {
+            remedialActionAdder.withOperator(CsaProfileCracUtils.getTsoNameFromUrl(nativeRemedialAction.remedialActionSystemOperator()));
         }
         if (nativeRemedialAction.getTimeToImplementInSeconds() != null) {
             remedialActionAdder.withSpeed(nativeRemedialAction.getTimeToImplementInSeconds());
@@ -273,7 +273,7 @@ public class CsaProfileRemedialActionsCreator {
     private Set<String> createRemedialActionGroups() {
         Set<String> standaloneRasImplicatedIntoAGroup = new HashSet<>();
         Map<String, Set<RemedialActionDependency>> remedialActionDependenciesByGroup = elementaryActionsHelper.getNativeRemedialActionDependencyPerNativeRemedialActionGroup();
-        elementaryActionsHelper.getRemedialActionGroupsPropertyBags().forEach(remedialActionGroup -> {
+        elementaryActionsHelper.getRemedialActionGroups().forEach(remedialActionGroup -> {
 
             String groupName = remedialActionGroup.name() == null ? remedialActionGroup.mrid() : remedialActionGroup.name();
             try {

@@ -8,8 +8,7 @@ package com.powsybl.openrao.data.cracio.csaprofiles.craccreator.remedialaction;
 
 import com.powsybl.openrao.data.cracio.commons.api.ImportStatus;
 import com.powsybl.openrao.data.cracio.csaprofiles.CsaProfileCrac;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.constants.CsaProfileConstants;
-import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.NcAggregator;
+import com.powsybl.openrao.data.cracio.csaprofiles.craccreator.CsaProfileCracUtils;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.GridStateAlterationCollection;
 import com.powsybl.openrao.data.cracio.csaprofiles.nc.GridStateAlterationRemedialAction;
@@ -51,29 +50,30 @@ public class ElementaryActionsHelper {
     private final Map<String, Set<TapPositionAction>> nativeTapPositionActionsPerNativeRemedialActionAuto;
     private final Map<String, Set<StaticPropertyRange>> nativeStaticPropertyRangesPerNativeGridStateAlteration;
     final Map<String, Set<ContingencyWithRemedialAction>> nativeContingencyWithRemedialActionPerNativeRemedialAction;
+    private static final String SIPS = "RemedialActionSchemeKind.sips";
 
     public ElementaryActionsHelper(CsaProfileCrac nativeCrac) {
-        this.nativeRemedialActionGroups = nativeCrac.getRemedialActionGroups();
-        this.nativeGridStateAlterationRemedialActions = nativeCrac.getGridStateAlterationRemedialActions();
-        this.nativeSchemeRemedialActions = nativeCrac.getSchemeRemedialActions();
-        this.nativeRemedialActionSchemes = nativeCrac.getRemedialActionSchemes();
-        this.nativeStages = nativeCrac.getStages();
-        this.nativeGridStateAlterationCollections = nativeCrac.getGridStateAlterationCollections();
+        this.nativeRemedialActionGroups = nativeCrac.getNativeObjects(RemedialActionGroup.class);
+        this.nativeGridStateAlterationRemedialActions = nativeCrac.getNativeObjects(GridStateAlterationRemedialAction.class);
+        this.nativeSchemeRemedialActions = nativeCrac.getNativeObjects(SchemeRemedialAction.class);
+        this.nativeRemedialActionSchemes = nativeCrac.getNativeObjects(RemedialActionScheme.class);
+        this.nativeStages = nativeCrac.getNativeObjects(Stage.class);
+        this.nativeGridStateAlterationCollections = nativeCrac.getNativeObjects(GridStateAlterationCollection.class);
 
-        this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = new NcAggregator<>(RemedialActionDependency::dependingRemedialActionGroup).aggregate(nativeCrac.getRemedialActionDependencies());
+        this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(RemedialActionDependency.class), RemedialActionDependency::dependingRemedialActionGroup);
 
-        this.nativeContingencyWithRemedialActionPerNativeRemedialAction = new NcAggregator<>(ContingencyWithRemedialAction::remedialAction).aggregate(nativeCrac.getContingencyWithRemedialActions());
-        this.nativeStaticPropertyRangesPerNativeGridStateAlteration = new NcAggregator<>(StaticPropertyRange::gridStateAlteration).aggregate(nativeCrac.getStaticPropertyRanges()); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
+        this.nativeContingencyWithRemedialActionPerNativeRemedialAction = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(ContingencyWithRemedialAction.class), ContingencyWithRemedialAction::remedialAction);
+        this.nativeStaticPropertyRangesPerNativeGridStateAlteration = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(StaticPropertyRange.class), StaticPropertyRange::gridStateAlteration); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
-        this.nativeTopologyActionsPerNativeRemedialAction = new NcAggregator<>(TopologyAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getTopologyActions());
-        this.nativeRotatingMachineActionsPerNativeRemedialAction = new NcAggregator<>(RotatingMachineAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getRotatingMachineActions());
-        this.nativeShuntCompensatorModificationsPerNativeRemedialAction = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationRemedialAction).aggregate(nativeCrac.getShuntCompensatorModifications());
-        this.nativeTapPositionActionsPerNativeRemedialAction = new NcAggregator<>(TapPositionAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getTapPositionActions());
+        this.nativeTopologyActionsPerNativeRemedialAction = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(TopologyAction.class), TopologyAction::gridStateAlterationRemedialAction);
+        this.nativeRotatingMachineActionsPerNativeRemedialAction = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(RotatingMachineAction.class), RotatingMachineAction::gridStateAlterationRemedialAction);
+        this.nativeShuntCompensatorModificationsPerNativeRemedialAction = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(ShuntCompensatorModification.class), ShuntCompensatorModification::gridStateAlterationRemedialAction);
+        this.nativeTapPositionActionsPerNativeRemedialAction = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(TapPositionAction.class), TapPositionAction::gridStateAlterationRemedialAction);
 
-        this.nativeTopologyActionsPerNativeRemedialActionAuto = new NcAggregator<>(TopologyAction::gridStateAlterationCollection).aggregate(nativeCrac.getTopologyActions());
-        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = new NcAggregator<>(RotatingMachineAction::gridStateAlterationCollection).aggregate(nativeCrac.getRotatingMachineActions());
-        this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationCollection).aggregate(nativeCrac.getShuntCompensatorModifications());
-        this.nativeTapPositionActionsPerNativeRemedialActionAuto = new NcAggregator<>(TapPositionAction::gridStateAlterationCollection).aggregate(nativeCrac.getTapPositionActions());
+        this.nativeTopologyActionsPerNativeRemedialActionAuto = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(TopologyAction.class), TopologyAction::gridStateAlterationCollection);
+        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(RotatingMachineAction.class), RotatingMachineAction::gridStateAlterationCollection);
+        this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(ShuntCompensatorModification.class), ShuntCompensatorModification::gridStateAlterationCollection);
+        this.nativeTapPositionActionsPerNativeRemedialActionAuto = CsaProfileCracUtils.aggregateBy(nativeCrac.getNativeObjects(TapPositionAction.class), TapPositionAction::gridStateAlterationCollection);
 
     }
 
@@ -81,7 +81,7 @@ public class ElementaryActionsHelper {
         return nativeRemedialActionDependencyPerNativeRemedialActionGroup;
     }
 
-    public Set<RemedialActionGroup> getRemedialActionGroupsPropertyBags() {
+    public Set<RemedialActionGroup> getRemedialActionGroups() {
         return nativeRemedialActionGroups;
     }
 
@@ -142,10 +142,10 @@ public class ElementaryActionsHelper {
         }
 
         RemedialActionScheme nativeRemedialActionScheme = linkedRemedialActionSchemePropertyBags.get(0);
-        if (!CsaProfileConstants.SIPS.equals(nativeRemedialActionScheme.kind())) {
+        if (!SIPS.equals(nativeRemedialActionScheme.kind())) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because of an unsupported kind for remedial action schedule (only SIPS allowed)", remedialActionId));
         }
-        if (!nativeRemedialActionScheme.normalArmed()) {
+        if (Boolean.FALSE.equals(nativeRemedialActionScheme.normalArmed())) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because RemedialActionScheme %s is not armed", remedialActionId, nativeRemedialActionScheme.mrid()));
         }
         return nativeRemedialActionScheme.mrid();
