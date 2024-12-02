@@ -14,6 +14,8 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
+
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
@@ -99,11 +101,11 @@ public final class StandardRangeActionDeserializer {
                 jsonParser.nextToken();
                 standardRangeActionAdder.withSpeed(jsonParser.getIntValue());
                 break;
-            case ACTIVATION_COST:
+            case JsonSerializationConstants.ACTIVATION_COST:
                 jsonParser.nextToken();
                 standardRangeActionAdder.withActivationCost(jsonParser.getDoubleValue());
                 break;
-            case VARIATION_COSTS:
+            case JsonSerializationConstants.VARIATION_COSTS:
                 jsonParser.nextToken();
                 deserializeVariationCosts(standardRangeActionAdder, jsonParser);
                 break;

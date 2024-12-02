@@ -14,6 +14,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.util.Optional;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeActivationCost;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeVariationCosts;
+
 /**
  * Serializes common elements in StandardRaneAction implementations
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}

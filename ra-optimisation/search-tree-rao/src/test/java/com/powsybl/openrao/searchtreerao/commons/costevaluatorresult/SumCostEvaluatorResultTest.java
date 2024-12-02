@@ -8,7 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.crac.api.State;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

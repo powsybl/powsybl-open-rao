@@ -138,7 +138,7 @@ public final class NetworkActionArrayDeserializer {
                         jsonParser.nextToken();
                         networkActionAdder.withSpeed(jsonParser.getIntValue());
                         break;
-                    case ACTIVATION_COST:
+                    case JsonSerializationConstants.ACTIVATION_COST:
                         jsonParser.nextToken();
                         networkActionAdder.withActivationCost(jsonParser.getDoubleValue());
                         break;

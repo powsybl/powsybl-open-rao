@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 
 import java.util.List;
 import java.util.Map;

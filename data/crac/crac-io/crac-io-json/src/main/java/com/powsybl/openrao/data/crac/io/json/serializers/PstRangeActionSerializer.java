@@ -16,6 +16,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Optional;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeActivationCost;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeVariationCosts;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */

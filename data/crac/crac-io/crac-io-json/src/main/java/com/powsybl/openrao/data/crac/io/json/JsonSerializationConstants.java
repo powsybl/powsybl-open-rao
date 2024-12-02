@@ -12,9 +12,11 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
@@ -502,7 +504,7 @@ public final class JsonSerializationConstants {
     public static void serializeActivationCost(RemedialAction<?> remedialAction, JsonGenerator gen) throws IOException {
         Optional<Double> activationCost = remedialAction.getActivationCost();
         if (activationCost.isPresent()) {
-            gen.writeNumberField(ACTIVATION_COST, activationCost.get());
+            gen.writeNumberField(JsonSerializationConstants.ACTIVATION_COST, activationCost.get());
         }
     }
 
@@ -512,20 +514,20 @@ public final class JsonSerializationConstants {
         if (variationCostUp.isEmpty() && variationCostDown.isEmpty()) {
             return;
         }
-        gen.writeObjectFieldStart(VARIATION_COSTS);
+        gen.writeObjectFieldStart(JsonSerializationConstants.VARIATION_COSTS);
         if (variationCostUp.isPresent()) {
-            gen.writeNumberField(UP, variationCostUp.get());
+            gen.writeNumberField(JsonSerializationConstants.UP, variationCostUp.get());
         }
         if (variationCostDown.isPresent()) {
-            gen.writeNumberField(DOWN, variationCostDown.get());
+            gen.writeNumberField(JsonSerializationConstants.DOWN, variationCostDown.get());
         }
         gen.writeEndObject();
     }
 
     public static RangeAction.VariationDirection deserializeVariationDirection(String variationDirection) {
-        if (UP.equals(variationDirection)) {
+        if (JsonSerializationConstants.UP.equals(variationDirection)) {
             return RangeAction.VariationDirection.UP;
-        } else if (DOWN.equals(variationDirection)) {
+        } else if (JsonSerializationConstants.DOWN.equals(variationDirection)) {
             return RangeAction.VariationDirection.DOWN;
         } else {
             throw new OpenRaoException("Unexpected variation direction '%s'.".formatted(variationDirection));

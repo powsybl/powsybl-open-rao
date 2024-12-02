@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -101,11 +103,11 @@ public final class PstRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         pstRangeActionAdder.withSpeed(jsonParser.getIntValue());
                         break;
-                    case ACTIVATION_COST:
+                    case JsonSerializationConstants.ACTIVATION_COST:
                         jsonParser.nextToken();
                         pstRangeActionAdder.withActivationCost(jsonParser.getDoubleValue());
                         break;
-                    case VARIATION_COSTS:
+                    case JsonSerializationConstants.VARIATION_COSTS:
                         jsonParser.nextToken();
                         deserializeVariationCosts(pstRangeActionAdder, jsonParser);
                         break;
