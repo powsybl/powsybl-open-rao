@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.commons;
 
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.util.Properties;
 

@@ -16,14 +16,14 @@ import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ContingencySeries;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.RemedialActionRegisteredResource;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.RemedialActionSeries;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.cracio.commons.api.ElementaryCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.PstRangeActionCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
+import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.PstRangeActionCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
 
 import java.util.*;
 

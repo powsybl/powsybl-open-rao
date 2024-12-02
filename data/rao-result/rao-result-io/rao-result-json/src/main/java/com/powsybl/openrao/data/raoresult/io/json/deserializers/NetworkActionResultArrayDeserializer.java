@@ -8,11 +8,10 @@
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
-import com.powsybl.openrao.data.raoresult.impl.NetworkActionResult;
-import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.raoresultimpl.NetworkActionResult;
+import com.powsybl.openrao.data.raoresultimpl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 

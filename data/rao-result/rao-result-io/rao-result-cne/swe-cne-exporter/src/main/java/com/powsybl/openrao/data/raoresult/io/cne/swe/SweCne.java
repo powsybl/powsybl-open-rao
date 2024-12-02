@@ -9,15 +9,11 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
-import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.ConstraintSeries;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.CriticalNetworkElementMarketDocument;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Point;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Reason;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.SeriesPeriod;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.cneexportercommons.CneUtil;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.swecneexporter.xsd.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.OffsetDateTime;

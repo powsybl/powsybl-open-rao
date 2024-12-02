@@ -11,16 +11,16 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.cracio.cim.craccreator.CnecCreationContext;
-import com.powsybl.openrao.data.cracio.cim.craccreator.MeasurementCreationContext;
-import com.powsybl.openrao.data.cracio.cim.craccreator.MonitoredSeriesCreationContext;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Analog;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredRegisteredResource;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredSeries;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.CnecCreationContext;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.MeasurementCreationContext;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.MonitoredSeriesCreationContext;
+import com.powsybl.openrao.data.swecneexporter.xsd.Analog;
+import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredRegisteredResource;
+import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredSeries;
 
 import java.util.*;
 

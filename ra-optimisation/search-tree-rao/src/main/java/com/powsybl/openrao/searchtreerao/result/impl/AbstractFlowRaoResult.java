@@ -9,9 +9,9 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.util.Arrays;
 

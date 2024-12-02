@@ -8,7 +8,7 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

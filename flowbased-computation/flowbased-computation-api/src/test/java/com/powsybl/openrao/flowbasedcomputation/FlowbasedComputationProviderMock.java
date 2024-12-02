@@ -7,7 +7,7 @@
 package com.powsybl.openrao.flowbasedcomputation;
 
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.flowbaseddomain.DataDomain;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.google.auto.service.AutoService;

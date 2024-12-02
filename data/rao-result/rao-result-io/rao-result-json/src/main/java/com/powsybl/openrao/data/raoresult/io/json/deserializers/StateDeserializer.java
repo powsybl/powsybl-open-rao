@@ -7,9 +7,9 @@
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

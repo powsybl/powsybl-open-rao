@@ -7,10 +7,10 @@
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;

@@ -8,12 +8,11 @@ package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;

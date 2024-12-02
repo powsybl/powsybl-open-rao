@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.raoresult.impl;
 
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.crac.api.State;
 
 import java.util.HashSet;
 import java.util.Set;

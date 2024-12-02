@@ -8,12 +8,12 @@ package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresultjson.RaoResultJsonConstants;
 import com.fasterxml.jackson.core.JsonGenerator;
 import org.jgrapht.alg.util.Pair;
 

@@ -7,12 +7,12 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.core;
 
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.CriticalNetworkElementMarketDocument;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.CracFactory;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.cneexportercommons.CneUtil;
+import com.powsybl.openrao.data.corecneexporter.xsd.CriticalNetworkElementMarketDocument;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

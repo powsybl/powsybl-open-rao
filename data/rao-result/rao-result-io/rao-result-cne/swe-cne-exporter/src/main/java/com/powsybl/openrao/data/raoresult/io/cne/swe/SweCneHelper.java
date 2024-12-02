@@ -9,9 +9,9 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.util.HashMap;
 import java.util.Map;

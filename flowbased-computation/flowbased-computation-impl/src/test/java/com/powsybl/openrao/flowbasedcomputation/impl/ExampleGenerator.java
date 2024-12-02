@@ -8,7 +8,7 @@ package com.powsybl.openrao.flowbasedcomputation.impl;
 
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
-import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.sensitivity.SensitivityVariableSet;

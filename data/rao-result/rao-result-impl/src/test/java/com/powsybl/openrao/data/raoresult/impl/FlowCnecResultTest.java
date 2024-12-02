@@ -7,7 +7,7 @@
 package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Instant;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 

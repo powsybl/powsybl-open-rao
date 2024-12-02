@@ -10,12 +10,12 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
-import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.io.Exporter;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.CriticalNetworkElementMarketDocument;
-import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresultapi.io.Exporter;
+import com.powsybl.openrao.data.swecneexporter.xsd.CriticalNetworkElementMarketDocument;
+import com.powsybl.openrao.data.crac.api.Crac;
 import org.apache.commons.lang3.NotImplementedException;
 import org.xml.sax.SAXException;
 
@@ -39,8 +39,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
-import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.SWE_CNE_EXPORT_PROPERTIES_PREFIX;
+import static com.powsybl.openrao.data.cneexportercommons.CneConstants.*;
+import static com.powsybl.openrao.data.swecneexporter.SweCneUtil.SWE_CNE_EXPORT_PROPERTIES_PREFIX;
 
 /**
  * SWE-CNE Rao Result exporter in XML format.
