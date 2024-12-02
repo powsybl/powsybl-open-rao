@@ -16,6 +16,7 @@
   "additionalProperties": false,
   "required": [
     "instant",
-    "usageMethod"
+    "usageMethod",
+    "contingencyId"
   ]
 }

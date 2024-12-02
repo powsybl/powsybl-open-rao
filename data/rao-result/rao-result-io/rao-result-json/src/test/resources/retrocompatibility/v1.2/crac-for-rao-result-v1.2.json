@@ -351,8 +351,7 @@
     "freeToUseUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
-    } ],
-    "onStateUsageRules" : [ {
+    }, {
       "instant" : "preventive",
       "usageMethod" : "forced"
     } ],
