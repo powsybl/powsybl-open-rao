@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;

@@ -7,9 +7,9 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
-import com.powsybl.openrao.data.cracimpl.utils.NetworkImportsUtil;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
+import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;

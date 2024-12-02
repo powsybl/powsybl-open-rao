@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.swecneexporter;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredRegisteredResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;

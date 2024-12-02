@@ -11,7 +11,7 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import java.util.Objects;

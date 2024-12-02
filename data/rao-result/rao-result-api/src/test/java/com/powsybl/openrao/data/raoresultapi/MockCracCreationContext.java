@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.raoresultapi;
 
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
-import com.powsybl.openrao.data.cracapi.CracCreationReport;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.CracCreationReport;
 
 import java.time.OffsetDateTime;
 

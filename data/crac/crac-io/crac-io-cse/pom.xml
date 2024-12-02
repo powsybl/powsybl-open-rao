@@ -27,8 +27,8 @@
                 <groupId>org.jvnet.jaxb</groupId>
                 <artifactId>jaxb-maven-plugin</artifactId>
                 <configuration>
-                    <generatePackage>com.powsybl.openrao.data.cracio.cse.xsd</generatePackage>
-                    <schemaDirectory>src/main/resources/com/powsybl/openrao/data/cracio/cse/xsd</schemaDirectory>
+                    <generatePackage>com.powsybl.openrao.data.crac.io.cse.xsd</generatePackage>
+                    <schemaDirectory>src/main/resources/com/powsybl/openrao/data/crac/io/cse/xsd</schemaDirectory>
                 </configuration>
             </plugin>
             <plugin>

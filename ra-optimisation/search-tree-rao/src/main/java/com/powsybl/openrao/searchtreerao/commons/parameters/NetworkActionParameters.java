@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.raoapi.parameters.TopoOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 

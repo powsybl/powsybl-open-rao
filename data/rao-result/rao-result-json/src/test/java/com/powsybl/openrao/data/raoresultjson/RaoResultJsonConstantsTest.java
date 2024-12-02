@@ -8,7 +8,9 @@
 package com.powsybl.openrao.data.raoresultjson;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

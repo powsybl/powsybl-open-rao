@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.corecneexporter.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.corecneexporter.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.openrao.data.corecneexporter.xsd.Point;
 import com.powsybl.openrao.data.corecneexporter.xsd.SeriesPeriod;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 
 import javax.xml.datatype.DatatypeConfigurationException;

@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.openrao.data.cracapi.RemedialAction;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 

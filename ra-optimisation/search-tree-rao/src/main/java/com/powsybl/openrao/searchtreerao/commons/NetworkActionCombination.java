@@ -6,8 +6,8 @@
  */
 package com.powsybl.openrao.searchtreerao.commons;
 
-import com.powsybl.openrao.data.cracapi.Identifiable;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.Identifiable;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 
 import java.util.Collections;
 import java.util.Objects;

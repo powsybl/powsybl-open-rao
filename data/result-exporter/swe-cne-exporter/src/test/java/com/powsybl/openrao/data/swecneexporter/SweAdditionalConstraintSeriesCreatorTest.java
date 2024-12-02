@@ -9,10 +9,13 @@ package com.powsybl.openrao.data.swecneexporter;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.cracio.cim.craccreator.AngleCnecCreationContext;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.AngleCnecCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.AdditionalConstraintSeries;

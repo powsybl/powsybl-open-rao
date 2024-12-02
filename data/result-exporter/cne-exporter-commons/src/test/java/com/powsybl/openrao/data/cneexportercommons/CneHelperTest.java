@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.cneexportercommons;
 
-import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

@@ -19,15 +19,15 @@ import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.RemedialAction;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.cnec.CnecValue;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.usagerule.OnConstraint;
-import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
-import com.powsybl.openrao.data.cracimpl.VoltageCnecValue;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
+import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
 import com.powsybl.openrao.monitoring.results.*;
@@ -322,7 +322,7 @@ public class Monitoring {
             appliedNetworkActionsResult = new AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions)
                 .withNetworkElementsToBeExcluded(networkElementsToBeExcluded).withPowerToBeRedispatched(powerToBeRedispatched).build();
         }
-        BUSINESS_LOGS.info("Applied the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", cnecId, appliedNetworkActions.stream().map(com.powsybl.openrao.data.cracapi.Identifiable::getId).collect(Collectors.joining(", ")));
+        BUSINESS_LOGS.info("Applied the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", cnecId, appliedNetworkActions.stream().map(com.powsybl.openrao.data.crac.api.Identifiable::getId).collect(Collectors.joining(", ")));
         return appliedNetworkActionsResult;
     }
 

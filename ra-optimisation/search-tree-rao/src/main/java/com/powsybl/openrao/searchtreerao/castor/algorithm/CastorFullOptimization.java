@@ -6,7 +6,9 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
-import com.powsybl.openrao.data.cracapi.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;

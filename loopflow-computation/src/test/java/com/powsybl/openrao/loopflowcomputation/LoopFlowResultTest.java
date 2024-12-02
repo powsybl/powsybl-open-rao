@@ -7,8 +7,8 @@
 package com.powsybl.openrao.loopflowcomputation;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.cnec.BranchCnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

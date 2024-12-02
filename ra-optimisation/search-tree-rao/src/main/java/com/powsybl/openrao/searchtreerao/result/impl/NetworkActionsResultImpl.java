@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 
 import java.util.Set;

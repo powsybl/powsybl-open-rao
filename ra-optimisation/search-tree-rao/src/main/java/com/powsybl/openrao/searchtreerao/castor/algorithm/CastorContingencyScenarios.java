@@ -9,9 +9,10 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
-import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -73,8 +74,8 @@ public class CastorContingencyScenarios {
     }
 
     public Map<State, OptimizationResult> optimizeContingencyScenarios(Network network,
-                                                                        PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                        boolean automatonsOnly) {
+                                                                       PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                       boolean automatonsOnly) {
         Map<State, OptimizationResult> contingencyScenarioResults = new ConcurrentHashMap<>();
         // Create a new variant
         String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);

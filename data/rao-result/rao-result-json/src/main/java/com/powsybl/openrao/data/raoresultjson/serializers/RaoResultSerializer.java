@@ -7,7 +7,7 @@
 package com.powsybl.openrao.data.raoresultjson.serializers;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;

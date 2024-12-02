@@ -9,8 +9,8 @@
 package com.powsybl.openrao.data.corecneexporter;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.CracCreationContext;
-import com.powsybl.openrao.data.cracio.commons.api.stdcreationcontext.UcteCracCreationContext;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

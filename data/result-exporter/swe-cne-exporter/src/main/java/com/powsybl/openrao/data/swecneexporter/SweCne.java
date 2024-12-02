@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.swecneexporter;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.cneexportercommons.CneUtil;
-import com.powsybl.openrao.data.cracio.cim.craccreator.CimCracCreationContext;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.powsybl.openrao.data.swecneexporter.xsd.*;

@@ -7,8 +7,8 @@
 package com.powsybl.openrao.data.raoresultjson.serializers;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
 import com.powsybl.openrao.data.raoresultapi.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
