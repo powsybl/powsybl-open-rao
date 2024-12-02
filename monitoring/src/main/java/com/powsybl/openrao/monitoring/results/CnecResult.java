@@ -11,13 +11,13 @@ package com.powsybl.openrao.monitoring.results;
  */
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.cnec.CnecValue;
-import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracimpl.AngleCnecValue;
-import com.powsybl.openrao.data.cracimpl.VoltageCnecValue;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
+import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 
 public class CnecResult<T extends CnecValue> {
 

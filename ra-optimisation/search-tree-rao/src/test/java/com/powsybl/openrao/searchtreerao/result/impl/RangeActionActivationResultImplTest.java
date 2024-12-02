@@ -8,13 +8,13 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.usagerule.UsageMethod;
-import com.powsybl.openrao.data.cracimpl.utils.CommonCracCreation;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

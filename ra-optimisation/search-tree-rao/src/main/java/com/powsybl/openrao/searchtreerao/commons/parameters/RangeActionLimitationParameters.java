@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.crac.api.State;
 
 import java.util.HashMap;
 import java.util.HashSet;

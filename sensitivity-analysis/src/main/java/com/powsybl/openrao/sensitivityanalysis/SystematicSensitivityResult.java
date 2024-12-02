@@ -7,13 +7,13 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.sensitivityanalysis.rasensihandler.RangeActionSensiHandler;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -217,6 +217,9 @@ public class SystematicSensitivityResult {
     }
 
     public SensitivityComputationStatus getStatus(State state) {
+        if (status == SensitivityComputationStatus.FAILURE) {
+            return status;
+        }
         Optional<Contingency> optionalContingency = state.getContingency();
         if (optionalContingency.isPresent()) {
             List<Integer> possibleInstants = postContingencyResults.keySet().stream()
