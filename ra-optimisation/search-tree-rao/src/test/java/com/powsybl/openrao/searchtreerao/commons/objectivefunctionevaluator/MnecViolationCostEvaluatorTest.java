@@ -116,13 +116,6 @@ class MnecViolationCostEvaluatorTest {
     }
 
     @Test
-    void computeCostWithTooLowCost() {
-        MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10, Unit.MEGAWATT);
-
-        assertEquals(0, evaluator.evaluate(currentFlowResult, null).getCost(Set.of()), 1e-12);
-    }
-
-    @Test
     void testVirtualCostComputationInMW() {
         testCost(-100, 0, 0, 0);
         testCost(-100, -50, 0, 0);

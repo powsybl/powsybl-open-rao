@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.cracapi.State;
 import com.powsybl.openrao.data.cracapi.cnec.Cnec;
 import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
@@ -59,7 +60,13 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             .filter(entry -> entry.getValue() > 0)
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         Map<State, Set<FlowCnec>> mnecsPerState = groupFlowCnecsPerState(violationPerMnec.keySet());
-        Map<State, Double> costPerState = mnecsPerState.keySet().stream().collect(Collectors.toMap(Function.identity(), state -> Math.abs(mnecViolationCost) < 1e-10 ? 0.0 : mnecViolationCost * mnecsPerState.get(state).stream().mapToDouble(violationPerMnec::get).sum()));
+        Map<State, Double> costPerState = mnecsPerState.keySet().stream().collect(Collectors.toMap(Function.identity(), state -> mnecViolationCost * mnecsPerState.get(state).stream().mapToDouble(violationPerMnec::get).sum()));
+
+        if (costPerState.values().stream().anyMatch(mnecViolationCost -> mnecViolationCost > 0)) {
+            // will be logged even if the contingency is filtered out at some point
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some MNEC constraints are not respected.");
+        }
+
         List<FlowCnec> sortedMnecs = sortFlowCnecsByDecreasingCost(violationPerMnec);
         return new SumCostEvaluatorResult(costPerState, sortedMnecs);
     }
