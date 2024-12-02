@@ -15,6 +15,7 @@
   },
   "additionalProperties": false,
   "required": [
-    "instant"
+    "instant",
+    "contingencyId"
   ]
 }

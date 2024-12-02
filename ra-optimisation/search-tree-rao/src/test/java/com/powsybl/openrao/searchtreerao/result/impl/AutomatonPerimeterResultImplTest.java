@@ -191,7 +191,7 @@ class AutomatonPerimeterResultImplTest {
 
     @Test
     void testGetSensitivityStatus() {
-        when(postAutoSensitivity.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(postAutoSensitivity.getSensitivityStatus(state1)).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, result.getSensitivityStatus());
     }
 
