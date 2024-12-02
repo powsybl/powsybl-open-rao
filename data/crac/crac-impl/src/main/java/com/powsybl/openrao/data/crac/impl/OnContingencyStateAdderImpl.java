@@ -60,10 +60,7 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
         State state;
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isPreventive()) {
-            if (usageMethod != UsageMethod.FORCED) {
-                throw new OpenRaoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.");
-            }
-            state = owner.getCrac().addPreventiveState();
+            throw new OpenRaoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant. Please use newOnInstantUsageRule() instead.");
         } else if (instant.isOutage()) {
             throw new OpenRaoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         } else {
