@@ -18,7 +18,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
-import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;

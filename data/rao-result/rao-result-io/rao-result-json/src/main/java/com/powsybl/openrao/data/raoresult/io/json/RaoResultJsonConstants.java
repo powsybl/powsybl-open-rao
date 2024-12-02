@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;

@@ -11,7 +11,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
