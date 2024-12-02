@@ -12,9 +12,9 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.raoresultimpl.VoltageCnecResult;
-import com.powsybl.openrao.data.raoresultimpl.ElementaryVoltageCnecResult;
-import com.powsybl.openrao.data.raoresultimpl.RaoResultImpl;
+import com.powsybl.openrao.data.raoresult.impl.VoltageCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.ElementaryVoltageCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 

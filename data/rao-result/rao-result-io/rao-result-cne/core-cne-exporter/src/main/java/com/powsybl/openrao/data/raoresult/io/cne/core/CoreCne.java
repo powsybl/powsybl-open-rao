@@ -8,14 +8,14 @@
 package com.powsybl.openrao.data.raoresult.io.cne.core;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cneexportercommons.CneHelper;
-import com.powsybl.openrao.data.cneexportercommons.CneUtil;
-import com.powsybl.openrao.data.corecneexporter.xsd.ConstraintSeries;
-import com.powsybl.openrao.data.corecneexporter.xsd.CriticalNetworkElementMarketDocument;
-import com.powsybl.openrao.data.corecneexporter.xsd.Point;
-import com.powsybl.openrao.data.corecneexporter.xsd.SeriesPeriod;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.CriticalNetworkElementMarketDocument;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Point;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.SeriesPeriod;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.OffsetDateTime;

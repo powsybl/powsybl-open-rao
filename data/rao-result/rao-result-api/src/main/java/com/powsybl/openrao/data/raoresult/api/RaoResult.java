@@ -24,8 +24,8 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.io.Exporter;
-import com.powsybl.openrao.data.raoresultapi.io.Importer;
+import com.powsybl.openrao.data.raoresult.api.io.Exporter;
+import com.powsybl.openrao.data.raoresult.api.io.Importer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

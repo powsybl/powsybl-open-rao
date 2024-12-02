@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredRegisteredResource;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredRegisteredResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

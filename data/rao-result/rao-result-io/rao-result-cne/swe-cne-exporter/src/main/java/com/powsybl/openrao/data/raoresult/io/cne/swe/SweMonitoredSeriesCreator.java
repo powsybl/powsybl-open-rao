@@ -18,9 +18,9 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CnecCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.MeasurementCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.MonitoredSeriesCreationContext;
-import com.powsybl.openrao.data.swecneexporter.xsd.Analog;
-import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredRegisteredResource;
-import com.powsybl.openrao.data.swecneexporter.xsd.MonitoredSeries;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Analog;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredRegisteredResource;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredSeries;
 
 import java.util.*;
 

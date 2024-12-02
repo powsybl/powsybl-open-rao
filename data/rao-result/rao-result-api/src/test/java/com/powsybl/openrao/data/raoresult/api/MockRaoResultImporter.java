@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.raoresult.api;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresultapi.io.Importer;
+import com.powsybl.openrao.data.raoresult.api.io.Importer;
 
 import java.io.InputStream;
 
