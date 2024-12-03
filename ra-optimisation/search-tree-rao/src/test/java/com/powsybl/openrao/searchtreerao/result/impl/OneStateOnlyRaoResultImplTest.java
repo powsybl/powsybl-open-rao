@@ -425,7 +425,6 @@ class OneStateOnlyRaoResultImplTest {
 
     @Test
     void testOptimizedStepsExecuted() {
-        setUp();
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, output.getExecutionDetails());
         output.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, output.getExecutionDetails());

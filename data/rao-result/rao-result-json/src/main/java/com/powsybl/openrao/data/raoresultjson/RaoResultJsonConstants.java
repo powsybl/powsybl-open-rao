@@ -27,8 +27,9 @@ public final class RaoResultJsonConstants {
     private RaoResultJsonConstants() {
     }
 
-    public static final String RAO_RESULT_IO_VERSION = "1.6";
+    public static final String RAO_RESULT_IO_VERSION = "1.7";
     // v1.6 : voltage cnecs' voltage values are divided into minVoltage and maxVoltage
+    // v1.7 : replaced "optimizationStepsExecuted" with "executionDetails"
 
     // header
     public static final String TYPE = "type";

@@ -65,7 +65,12 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
                     break;
 
-                case OPTIMIZATION_STEPS_EXECUTED, EXECUTION_DETAILS:
+                case OPTIMIZATION_STEPS_EXECUTED:
+                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.6");
+                    raoResult.setExecutionDetails(jsonParser.nextTextValue());
+                    break;
+
+                case EXECUTION_DETAILS:
                     raoResult.setExecutionDetails(jsonParser.nextTextValue());
                     break;
 
