@@ -4,8 +4,8 @@ on: [push]
 
 jobs:
   build:
-    name: Build OS ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build OS ${{ matrix.config.os }}
+    runs-on: ${{ matrix.config.os }}
     strategy:
       matrix:
         config:
