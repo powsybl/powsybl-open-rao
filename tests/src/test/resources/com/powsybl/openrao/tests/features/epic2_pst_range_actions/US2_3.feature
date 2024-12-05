@@ -52,3 +52,4 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch search_tree_rao
     Then the calculation fails
+    And the execution details should be "Initial sensitivity analysis failed"
