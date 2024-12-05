@@ -26,6 +26,7 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
 
     protected String operator;
     protected Integer speed;
+    protected Double activationCost;
     protected Set<UsageRule> usageRules = new HashSet<>();
     private final CracImpl crac;
 
@@ -43,6 +44,12 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     @Override
     public T withSpeed(Integer speed) {
         this.speed = speed;
+        return (T) this;
+    }
+
+    @Override
+    public T withActivationCost(Double activationCost) {
+        this.activationCost = activationCost;
         return (T) this;
     }
 

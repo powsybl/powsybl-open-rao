@@ -18,7 +18,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.*;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
@@ -36,6 +36,7 @@ import java.util.concurrent.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.formatDoubleBasedOnMargin;
+import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 
 /**
@@ -89,6 +90,7 @@ public class CastorFullOptimization {
         }
         RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            RemedialActionActivationResultImpl.empty(initialOutput),
             initialOutput,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -132,6 +134,7 @@ public class CastorFullOptimization {
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after preventive remedial actions: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            new RemedialActionActivationResultImpl(preventiveResult, preventiveResult),
             preCurativeSensitivityAnalysisOutput,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -145,7 +148,7 @@ public class CastorFullOptimization {
         // (however RAO could continue depending on parameter optimize-curative-if-basecase-unsecure)
         if (shouldStopOptimisationIfPreventiveUnsecure(preventiveOptimalCost)) {
             BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
-            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(crac.getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, crac);
+            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(crac.getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, crac, raoParameters.getObjectiveFunctionParameters());
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
@@ -158,7 +161,7 @@ public class CastorFullOptimization {
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [end]");
 
         // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
-        mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults, crac);
+        mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults, crac, raoParameters.getObjectiveFunctionParameters());
         boolean logFinalResultsOutsideOfSecondPreventive = true;
         // Run second preventive when necessary
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, raoParameters, network, stateTree, toolProvider, targetEndInstant);
@@ -242,10 +245,15 @@ public class CastorFullOptimization {
             }
         }
 
+        Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(initialResult);
+        Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalRaoResult, crac.getLastInstant());
+
         // Log costs before and after RAO
-        BUSINESS_LOGS.info("Cost before RAO = {} (functional: {}, virtual: {}), cost after RAO = {} (functional: {}, virtual: {})",
+        BUSINESS_LOGS.info("Cost before RAO = {} (functional: {}, virtual: {}{}), cost after RAO = {} (functional: {}, virtual: {}{})",
             formatDoubleBasedOnMargin(initialCost, -initialCost), formatDoubleBasedOnMargin(initialFunctionalCost, -initialCost), formatDoubleBasedOnMargin(initialVirtualCost, -initialCost),
-            formatDoubleBasedOnMargin(finalCost, -finalCost), formatDoubleBasedOnMargin(finalFunctionalCost, -finalCost), formatDoubleBasedOnMargin(finalVirtualCost, -finalCost));
+            initialVirtualCostDetailed.isEmpty() ? "" : " " + initialVirtualCostDetailed,
+            formatDoubleBasedOnMargin(finalCost, -finalCost), formatDoubleBasedOnMargin(finalFunctionalCost, -finalCost), formatDoubleBasedOnMargin(finalVirtualCost, -finalCost),
+            finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
 
         return CompletableFuture.completedFuture(finalRaoResult);
     }
@@ -260,13 +268,16 @@ public class CastorFullOptimization {
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
             .build();
 
+        Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
+        statesToOptimize.add(optPerimeter.getMainOptimizationState());
+
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
             .withOptimizationPerimeter(optPerimeter)
             .withInitialFlowResult(initialResult)
             .withPrePerimeterResult(initialResult)
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, Collections.emptySet(), raoParameters))
+            .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, Collections.emptySet(), raoParameters, statesToOptimize))
             .withToolProvider(toolProvider)
             .withOutageInstant(crac.getOutageInstant())
             .build();

@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -101,6 +103,14 @@ public final class PstRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         pstRangeActionAdder.withSpeed(jsonParser.getIntValue());
                         break;
+                    case JsonSerializationConstants.ACTIVATION_COST:
+                        jsonParser.nextToken();
+                        pstRangeActionAdder.withActivationCost(jsonParser.getDoubleValue());
+                        break;
+                    case JsonSerializationConstants.VARIATION_COSTS:
+                        jsonParser.nextToken();
+                        deserializeVariationCosts(pstRangeActionAdder, jsonParser);
+                        break;
                     default:
                         throw new OpenRaoException("Unexpected field in PstRangeAction: " + jsonParser.getCurrentName());
                 }
@@ -153,6 +163,13 @@ public final class PstRangeActionArrayDeserializer {
             OnConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
         } else {
             throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));
+        }
+    }
+
+    private static void deserializeVariationCosts(PstRangeActionAdder pstRangeActionAdder, JsonParser jsonParser) throws IOException {
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            jsonParser.nextToken();
+            pstRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.getCurrentName()));
         }
     }
 }

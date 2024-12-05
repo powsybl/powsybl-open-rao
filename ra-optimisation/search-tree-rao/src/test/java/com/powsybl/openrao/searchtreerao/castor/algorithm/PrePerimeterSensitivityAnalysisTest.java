@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,6 +56,7 @@ class PrePerimeterSensitivityAnalysisTest {
     private RaoParameters raoParameters;
     private PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis;
     private OptimizationResult optimizationResult;
+    private Map<FlowCnec, Map<TwoSides, Double>> ptdfPerCnec;
 
     @BeforeEach
     public void setUp() {
@@ -73,7 +75,10 @@ class PrePerimeterSensitivityAnalysisTest {
         LoopFlowResult loopFlowResult = Mockito.mock(LoopFlowResult.class);
         when(loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(any(), any(), any())).thenReturn(loopFlowResult);
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = Mockito.mock(AbsolutePtdfSumsComputation.class);
-        when(absolutePtdfSumsComputation.computeAbsolutePtdfSums(any(), any())).thenReturn(Map.of(cnec, Map.of(TwoSides.ONE, 0.987)));
+        ptdfPerCnec = new HashMap<>();
+        crac.getFlowCnecs().forEach(flowCnec -> ptdfPerCnec.put(flowCnec, Map.of(TwoSides.ONE, 0.0, TwoSides.TWO, 0.0)));
+        ptdfPerCnec.put(cnec, Map.of(TwoSides.ONE, 0.987));
+        when(absolutePtdfSumsComputation.computeAbsolutePtdfSums(any(), any())).thenReturn(ptdfPerCnec);
         when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(absolutePtdfSumsComputation);
 
         prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider);
@@ -84,6 +89,7 @@ class PrePerimeterSensitivityAnalysisTest {
         SystematicSensitivityInterface sensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         when(sensitivityInterface.run(network)).thenReturn(sensitivityResult);
         when(sensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
+        when(sensitivityResult.getStatus(any())).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
         when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any(), any())).thenReturn(sensitivityInterface);
     }
 
@@ -156,6 +162,6 @@ class PrePerimeterSensitivityAnalysisTest {
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, optimizationResult, Collections.emptySet(), new AppliedRemedialActions());
         assertNotNull(result.getSensitivityResult());
-        assertEquals(Map.of(cnec, Map.of(TwoSides.ONE, 0.987)), result.getFlowResult().getPtdfZonalSums());
+        assertEquals(ptdfPerCnec, result.getFlowResult().getPtdfZonalSums());
     }
 }

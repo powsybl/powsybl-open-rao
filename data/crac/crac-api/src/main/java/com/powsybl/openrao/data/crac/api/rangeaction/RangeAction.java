@@ -15,10 +15,10 @@ import java.util.Optional;
 
 /**
  * Remedial action interface specifying an action of type range.
- *
+ * <p>
  * When applying a Range Action, a setpoint (double value) must be set. This setpoint
  * must be included within a range, delimited by minimum and maximum values.
- *
+ * <p>
  * The apply method therefore involves a {@link Network} and a setpoint (double value).
  * The presence of this double in the apply() method explains why this interface
  * has been designed besides the {@link NetworkAction} interface
@@ -53,5 +53,11 @@ public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T>
      * same groupId should have the same setpoint.
      */
     Optional<String> getGroupId();
+
+    Optional<Double> getVariationCost(VariationDirection variationDirection);
+
+    enum VariationDirection {
+        UP, DOWN
+    }
 
 }

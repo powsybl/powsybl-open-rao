@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeActivationCost;
+
 public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkAction> {
     @Override
     public void serialize(NetworkAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
@@ -26,6 +28,7 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
         gen.writeStringField(JsonSerializationConstants.ID, value.getId());
         gen.writeStringField(JsonSerializationConstants.NAME, value.getName());
         gen.writeStringField(JsonSerializationConstants.OPERATOR, value.getOperator());
+        serializeActivationCost(value, gen);
         UsageRulesSerializer.serializeUsageRules(value, gen);
         serializeElementaryActions(value, TerminalsConnectionAction.class, JsonSerializationConstants.TERMINALS_CONNECTION_ACTIONS, gen);
         serializeElementaryActions(value, SwitchAction.class, JsonSerializationConstants.SWITCH_ACTIONS, gen);
