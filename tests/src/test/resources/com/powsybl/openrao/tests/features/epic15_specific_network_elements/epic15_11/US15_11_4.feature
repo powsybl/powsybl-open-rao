@@ -23,7 +23,7 @@ Feature: US 15.11.4: ARAO with 2P
     And the value of the objective function after CRA should be 140
     And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -140 MW
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be 0 MW
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive @mnec
   Scenario: US 15.11.4.2: ARAO2
@@ -41,4 +41,4 @@ Feature: US 15.11.4: ARAO with 2P
     And the worst margin is -141 MW
     And the value of the objective function after CRA should be 141
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be 224 MW
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"

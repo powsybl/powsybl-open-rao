@@ -34,7 +34,7 @@ import java.util.Set;
  */
 public class UnoptimizedRaoResultImpl implements RaoResult {
     private final PrePerimeterResult initialResult;
-    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
+    private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult) {
         this.initialResult = initialResult;
@@ -171,12 +171,8 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
-            this.optimizationStepsExecuted = optimizationStepsExecuted;
-        } else {
-            throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
-        }
+    public void setExecutionDetails(String executionDetails) {
+        this.executionDetails = executionDetails;
     }
 
     @Override
@@ -190,7 +186,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
+    public String getExecutionDetails() {
+        return executionDetails;
     }
 }

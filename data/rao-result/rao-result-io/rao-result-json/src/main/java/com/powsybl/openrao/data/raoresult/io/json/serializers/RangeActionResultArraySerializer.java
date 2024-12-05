@@ -33,8 +33,8 @@ final class RangeActionResultArraySerializer {
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         List<RangeAction<?>> sortedListOfRangeActions = crac.getRangeActions().stream()
-                .sorted(Comparator.comparing(RangeAction::getId))
-                .toList();
+            .sorted(Comparator.comparing(RangeAction::getId))
+            .toList();
 
         jsonGenerator.writeArrayFieldStart(RaoResultJsonConstants.RANGEACTION_RESULTS);
         for (RangeAction<?> rangeAction : sortedListOfRangeActions) {
@@ -58,9 +58,12 @@ final class RangeActionResultArraySerializer {
                 .sorted(RaoResultJsonConstants.STATE_COMPARATOR)
                 .toList();
 
-        Map<State, Pair<Integer, Double>> activatedSetpoints = statesWhenRangeActionIsActivated.stream().collect(Collectors.toMap(
-                Function.identity(), state -> Pair.of(safeGetOptimizedTap(raoResult, state, rangeAction), safeGetOptimizedSetpoint(raoResult, state, rangeAction))
-        ));
+        Map<State, Pair<Integer, Double>> activatedSetpoints = statesWhenRangeActionIsActivated.stream()
+            .collect(Collectors.toMap(
+                Function.identity(), state -> Pair.of(safeGetOptimizedTap(raoResult, state, rangeAction),
+                safeGetOptimizedSetpoint(raoResult, state, rangeAction)),
+                (x, y) -> x,
+                LinkedHashMap::new));
         writeStateToTapAndSetpointArray(jsonGenerator, activatedSetpoints, RaoResultJsonConstants.STATES_ACTIVATED);
 
         jsonGenerator.writeEndObject();

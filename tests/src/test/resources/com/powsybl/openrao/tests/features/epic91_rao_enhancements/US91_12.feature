@@ -554,7 +554,7 @@ Feature: US 91.12: Multi-curative
     Given crac file is "epic91/crac_91_12_16.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_ONLY"
+    Then the execution details should be "The RAO only went through first preventive"
     And 3 remedial actions are used in preventive
     And the remedial action "PRA_PST_BE" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
@@ -573,7 +573,7 @@ Feature: US 91.12: Multi-curative
     Given crac file is "epic91/crac_91_12_17.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
     And 3 remedial actions are used in preventive
     And the remedial action "PRA_PST_BE" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
@@ -593,7 +593,7 @@ Feature: US 91.12: Multi-curative
     Given crac file is "epic91/crac_91_12_18.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
     # Initial
     And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" should be 500.0 MW
     And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - outage" should be 583.33 MW
@@ -633,7 +633,7 @@ Feature: US 91.12: Multi-curative
     Given crac file is "epic91/crac_91_12_19.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
     # Preventive
     And 1 remedial actions are used in preventive
     And the remedial action "PRA_CLOSE_NL2_BE3_2" is used in preventive
@@ -667,7 +667,7 @@ Feature: US 91.12: Multi-curative
     Given crac file is "epic91/crac_91_12_20.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
     # Preventive
     And 1 remedial actions are used in preventive
     And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive

@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.util.Map;
@@ -29,16 +28,12 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class FailedRaoResultImpl implements RaoResult {
-    private final String failureReason;
+    private String failureReason;
     private final String exceptionMessage;
 
     public FailedRaoResultImpl(String failureReason) {
         this.failureReason = failureReason;
         this.exceptionMessage = "This method should not be used, because the RAO failed: " + failureReason;
-    }
-
-    public String getFailureReason() {
-        return failureReason;
     }
 
     @Override
@@ -162,13 +157,13 @@ public class FailedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        throw new OpenRaoException(exceptionMessage);
+    public void setExecutionDetails(String executionDetails) {
+        this.failureReason = executionDetails;
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        throw new OpenRaoException(exceptionMessage);
+    public String getExecutionDetails() {
+        return this.failureReason;
     }
 
     @Override

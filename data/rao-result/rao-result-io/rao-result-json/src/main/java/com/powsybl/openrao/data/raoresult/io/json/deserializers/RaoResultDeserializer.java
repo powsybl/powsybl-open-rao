@@ -55,7 +55,6 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
-
                 case INFO:
                     //no need to import this
                     jsonParser.nextToken();
@@ -66,7 +65,12 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
 
                 case OPTIMIZATION_STEPS_EXECUTED:
-                    raoResult.setOptimizationStepsExecuted(deserializeOptimizedStepsExecuted(jsonParser.nextTextValue()));
+                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.6");
+                    raoResult.setExecutionDetails(jsonParser.nextTextValue());
+                    break;
+
+                case EXECUTION_DETAILS:
+                    raoResult.setExecutionDetails(jsonParser.nextTextValue());
                     break;
 
                 case COMPUTATION_STATUS_MAP:

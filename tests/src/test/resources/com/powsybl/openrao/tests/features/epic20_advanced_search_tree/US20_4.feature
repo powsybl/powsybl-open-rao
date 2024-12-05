@@ -19,7 +19,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     And the value of the objective function after CRA should be 168
     And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -168 MW
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 MW
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive @mnec
   Scenario: US 20.4.2: MNEC constraint in curative is solved by CRA + 2P
@@ -36,7 +36,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     And the value of the objective function after CRA should be 161
     And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -161 MW
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 MW
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive @mnec
   Scenario: US 20.4.3: MNEC constraint avoided on preventive MNEC in 2P
@@ -51,4 +51,4 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     And the margin on cnec "NL1-NL3-D - curative" after CRA should be -182 MW
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be -145 MW
     And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -96 MW
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"

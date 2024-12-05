@@ -19,7 +19,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     And the loopflow threshold on cnec "003_FR-DE - curative" should be 250 MW
     And the initial loopflow on cnec "003_FR-DE - curative" should be -342 MW
     And the loopflow on cnec "003_FR-DE - curative" after CRA should be -341 MW
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @dc @second-preventive @loopflow
   Scenario: US 20.2.2: LF constraint in curative is solved by CRA + 2P
@@ -37,7 +37,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     And the loopflow threshold on cnec "003_FR-DE - curative" should be 250 MW
     And the initial loopflow on cnec "003_FR-DE - curative" should be -342 MW
     And the loopflow on cnec "003_FR-DE - curative" after CRA should be -323 MW
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @dc @second-preventive @loopflow
   Scenario: US 20.2.3: LF constraint avoided on preventive CNEC in 2P
@@ -56,4 +56,4 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     And the initial loopflow on cnec "001_FR-DE - preventive" should be -124 MW
     And the loopflow on cnec "001_FR-DE - preventive" after PRA should be -297 MW
     # Doesn't run 2P because LF constraint is already seen in 1P as the CNEC is preventive
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_ONLY"
+    Then the execution details should be "The RAO only went through first preventive"
