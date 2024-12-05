@@ -430,9 +430,9 @@ public interface RaoResult {
     /**
      * Know which RAO steps were executed by the RAO
      */
-    OptimizationStepsExecuted getOptimizationStepsExecuted();
+    String getExecutionDetails();
 
-    void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted);
+    void setExecutionDetails(String executionDetails);
 
     /**
      * Indicates whether the all the CNECs of a given type at a given instant are secure.

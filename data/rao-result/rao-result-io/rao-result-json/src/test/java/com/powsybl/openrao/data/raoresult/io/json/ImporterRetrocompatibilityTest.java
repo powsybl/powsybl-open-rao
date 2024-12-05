@@ -199,6 +199,17 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
+    void importV1Point7Test() throws IOException {
+        InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.7/rao-result-v1.7.json");
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.7/crac-for-rao-result-v1.7.json");
+
+        Crac crac = Crac.read("crac-for-rao-result-v1.7.json", cracFile, getMockedNetwork());
+        RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
+
+        testBaseContentOfV1Point7RaoResult(raoResult, crac);
+    }
+
+    @Test
     void importV1Point3TestFieldDeprecationTest() throws IOException {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
         Crac crac = Crac.read("crac-for-rao-result-v1.3.json", cracFile, getMockedNetwork());
@@ -834,5 +845,12 @@ class ImporterRetrocompatibilityTest {
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getPreventiveState()));
         assertEquals(ComputationStatus.FAILURE, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
+    }
+
+    private void testBaseContentOfV1Point7RaoResult(RaoResult importedRaoResult, Crac crac) {
+
+        testBaseContentOfV1Point6RaoResult(importedRaoResult, crac);
+        // check execution details
+        assertEquals("Custom execution details", importedRaoResult.getExecutionDetails());
     }
 }

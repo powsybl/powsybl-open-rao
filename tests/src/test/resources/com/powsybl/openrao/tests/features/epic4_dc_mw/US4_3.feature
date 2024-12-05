@@ -23,6 +23,7 @@ Feature: US 4.3: manage AC/DC modes from configuration
     Given configuration file is "epic4/RaoParameters_posMargin_ampere_ac_divergence.json"
     When I launch search_tree_rao
     Then the calculation fails
+    And the execution details should be "Initial sensitivity analysis failed"
 
   @fast @rao @mock @dc @preventive-only
   Scenario: US 4.3.3: no failure with DC config

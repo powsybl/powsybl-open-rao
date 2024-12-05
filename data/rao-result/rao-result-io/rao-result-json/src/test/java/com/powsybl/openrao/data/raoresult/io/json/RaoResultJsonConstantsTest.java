@@ -11,7 +11,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -140,23 +139,5 @@ class RaoResultJsonConstantsTest {
         when(state2.getContingency()).thenReturn(Optional.of(co2));
         assertEquals(1, STATE_COMPARATOR.compare(state1, state2));
         assertEquals(-1, STATE_COMPARATOR.compare(state2, state1));
-    }
-
-    @Test
-    void testSerializeOptimizedStepsExecuted() {
-        assertEquals("The RAO only went through first preventive", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertEquals("First preventive fellback to initial situation", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertEquals("Second preventive improved first preventive results", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
-        assertEquals("Second preventive fellback to initial situation", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertEquals("Second preventive fellback to first preventive results", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-    }
-
-    @Test
-    void testDeserializeOptimizedStepsExecuted() {
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, deserializeOptimizedStepsExecuted("The RAO only went through first preventive"));
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, deserializeOptimizedStepsExecuted("First preventive fellback to initial situation"));
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, deserializeOptimizedStepsExecuted("Second preventive improved first preventive results"));
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, deserializeOptimizedStepsExecuted("Second preventive fellback to initial situation"));
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, deserializeOptimizedStepsExecuted("Second preventive fellback to first preventive results"));
     }
 }

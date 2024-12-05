@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
@@ -63,12 +62,10 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getActivatedRangeActionsDuringState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
-        assertThrows(OpenRaoException.class, failedRaoResultImpl::getOptimizationStepsExecuted);
-        assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
         assertThrows(OpenRaoException.class, failedRaoResultImpl::isSecure);
         Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isSecure(optInstant, PhysicalParameter.FLOW));
         assertEquals("This method should not be used, because the RAO failed: mocked error message 1", e.getMessage());
-        assertEquals("mocked error message 1", failedRaoResultImpl.getFailureReason());
+        assertEquals("mocked error message 1", failedRaoResultImpl.getExecutionDetails());
     }
 
     @Test
@@ -82,7 +79,7 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getVoltage(optInstant, voltageCnec, MinOrMax.MAX, MEGAWATT));
         Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getAngle(optInstant, angleCnec, MEGAWATT));
         assertEquals("Angle cnecs are not computed in the rao", e.getMessage());
-        assertEquals("mocked error message 2", failedRaoResultImpl.getFailureReason());
+        assertEquals("mocked error message 2", failedRaoResultImpl.getExecutionDetails());
     }
 
     @Test
@@ -98,6 +95,6 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getMargin(optInstant, flowCnec, MEGAWATT));
         Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getRelativeMargin(optInstant, flowCnec, MEGAWATT));
         assertEquals("This method should not be used, because the RAO failed: mocked error message 3", e.getMessage());
-        assertEquals("mocked error message 3", failedRaoResultImpl.getFailureReason());
+        assertEquals("mocked error message 3", failedRaoResultImpl.getExecutionDetails());
     }
 }

@@ -701,8 +701,8 @@ public class SearchTreeRaoSteps {
     RaoResult infos
      */
 
-    @Then("the optimization steps executed by the RAO should be {string}")
+    @Then("the execution details should be {string}")
     public void getOptimizationSteps(String string) {
-        assertEquals(string, raoResult.getOptimizationStepsExecuted().toString());
+        assertEquals(string, raoResult.getExecutionDetails());
     }
 }

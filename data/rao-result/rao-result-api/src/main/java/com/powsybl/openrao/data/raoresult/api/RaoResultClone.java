@@ -162,8 +162,8 @@ public class RaoResultClone implements RaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        raoResult.setOptimizationStepsExecuted(optimizationStepsExecuted);
+    public void setExecutionDetails(String executionDetails) {
+        raoResult.setExecutionDetails(executionDetails);
     }
 
     @Override
@@ -182,7 +182,7 @@ public class RaoResultClone implements RaoResult {
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return raoResult.getOptimizationStepsExecuted();
+    public String getExecutionDetails() {
+        return raoResult.getExecutionDetails();
     }
 }
