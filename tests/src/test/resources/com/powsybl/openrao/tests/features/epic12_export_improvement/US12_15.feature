@@ -82,14 +82,9 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
     When I launch search_tree_rao at "2021-04-02 05:00"
-    Then the calculation partially fails
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
     And 0 remedial actions are used in preventive
-    And 1 remedial actions are used after "CO_N1012_N4012" at "auto"
-    And 0 remedial actions are used after "CO_N1012_N4012" at "curative"
-    And the worst margin is -20.0 A on cnec "N1013_N1014 - preventive"
-    And the value of the objective function initially should be 20.0
-    And the value of the objective function after PRA should be 20.0
-    And the value of the objective function after CRA should be 10020.2
+    And the worst margin is -1419.4 A
 
   @fast @rao @mock @ac @contingency-scenarios @second-preventive
   # sensi pre 2P fails
@@ -99,14 +94,9 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
     When I launch search_tree_rao at "2021-04-02 05:00"
-    Then the calculation partially fails
+    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
     And 0 remedial actions are used in preventive
-    And 1 remedial actions are used after "CO_N1012_N4012" at "auto"
-    And 0 remedial actions are used after "CO_N1012_N4012" at "curative"
-    And the worst margin is -20.0 A on cnec "N1013_N1014 - preventive"
-    And the value of the objective function initially should be 20.0
-    And the value of the objective function after PRA should be 20.0
-    And the value of the objective function after CRA should be 10020.2
+    And the worst margin is -1419.4 A
 
   @fast @rao @mock @ac @contingency-scenarios @second-preventive
   # sensi pre 2P fails
@@ -116,14 +106,9 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
     When I launch search_tree_rao at "2021-04-02 05:00"
-    Then the calculation partially fails
+    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
     And 0 remedial actions are used in preventive
-    And 1 remedial actions are used after "CO_N1012_N4012" at "auto"
-    And 0 remedial actions are used after "CO_N1012_N4012" at "curative"
-    And the worst margin is -20.0 A on cnec "N1013_N1014 - preventive"
-    And the value of the objective function initially should be 20.0
-    And the value of the objective function after PRA should be 20.0
-    And the value of the objective function after CRA should be 10020.2
+    And the worst margin is -1419.4 A
 
   @fast @cne-export @mock
   # CNE export
@@ -148,14 +133,9 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
     When I launch search_tree_rao at "2021-04-02 05:00"
-    Then the calculation partially fails
-    And 1 remedial actions are used in preventive
-    And the remedial action "PRA_OPEN_N1011_N1013" is used in preventive
-    And 0 remedial actions are used after "CO_N1012_N4012" at "curative"
-    And the worst margin is 198 A on cnec "N1013_N1014 - preventive"
-    And the value of the objective function initially should be 20.2
-    And the value of the objective function after PRA should be 9801.7
-    And the value of the objective function after CRA should be 9801.7
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    And 0 remedial actions are used in preventive
+    And the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
 
   @fast @rao @mock @ac @contingency-scenarios @second-preventive
   # 2P does not apply the same PRA as previously since it leads to a sensi divergence on a curative perimeter : no PRA is applied

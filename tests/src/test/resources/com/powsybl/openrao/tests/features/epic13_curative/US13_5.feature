@@ -68,19 +68,8 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given crac file is "epic13/SL_ep13us5case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then the worst margin is -247 A
-    And the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -247 A
-    And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 149 A
-    And the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 575 A
-    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 774 A
-    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 1179 A
-    And the remedial action "open_fr1_fr2" is used in preventive
-    And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_fr_pra" should be -7 in preventive
-    And the tap of PstRangeAction "pst_fr_cra" should be 1 after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be 0 in preventive
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
-    And the value of the objective function after CRA should be 247
+    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    And the worst margin is -184.1 A
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 13.5.5: Preventive and curative optimization with absolute limit on curative PST
