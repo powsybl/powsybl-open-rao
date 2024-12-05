@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jxb:bindings version="3.0"
+              xmlns:jxb="https://jakarta.ee/xml/ns/jaxb"
+              xmlns:inheritance="http://jaxb2-commons.dev.java.net/basic/inheritance"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <jxb:bindings schemaLocation="../xsd/iec62325-451-n-cne_v2_4_FlowBased_v04.xsd">
+        <jxb:schemaBindings>
+            <jxb:package name="com.powsybl.openrao.data.raoresult.io.cne.core.xsd" />
+        </jxb:schemaBindings>
+    </jxb:bindings>
+    <jxb:globalBindings>
+        <jxb:javaType name="java.lang.Float"
+                      xmlType="xs:float"
+                      parseMethod="jakarta.xml.bind.DatatypeConverter.parseFloat"
+                      printMethod="com.powsybl.openrao.data.raoresult.io.cne.commons.xmlformatter.NumberFormatter.printFloat" />
+    </jxb:globalBindings>
+</jxb:bindings>

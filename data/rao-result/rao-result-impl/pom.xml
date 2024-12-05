@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.openrao.data.raoresultimpl</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.openrao.data.raoresult.impl</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
