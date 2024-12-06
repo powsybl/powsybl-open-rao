@@ -52,6 +52,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SearchTreeRaoSteps {
 
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
+    private static final String FAST_RAO = "FastRao";
     private static final double TOLERANCE_FLOW_IN_AMPERE = 5.0;
     private static final double TOLERANCE_FLOW_IN_MEGAWATT = 5.0;
     private static final double TOLERANCE_FLOW_RELATIVE = 1.5 / 100;
@@ -84,7 +85,7 @@ public class SearchTreeRaoSteps {
 
     @When("I launch search_tree_rao at {string}")
     public void iLaunchSearchTreeRao(String timestamp) {
-        launchRao(null, null, timestamp, SEARCH_TREE_RAO);
+        launchRao(null, null, timestamp, FAST_RAO);
     }
 
     @When("I launch search_tree_rao at {string} on {string}")
@@ -114,12 +115,12 @@ public class SearchTreeRaoSteps {
 
     @When("I launch loopflow search_tree_rao with default loopflow limit as {double} percent of pmax")
     public void iLaunchSearchTreeRaoWithDefaultLoopflowLimit(double percentage) {
-        launchRao(null, null, null, percentage, SEARCH_TREE_RAO, null);
+        launchRao(null, null, null, percentage, FAST_RAO, null);
     }
 
     @When("I launch loopflow search_tree_rao at {string} with default loopflow limit as {double} percent of pmax")
     public void iLaunchSearchTreeRaoWithDefaultLoopflowLimit(String timestamp, double percentage) {
-        launchRao(null, null, timestamp, percentage, SEARCH_TREE_RAO, null);
+        launchRao(null, null, timestamp, percentage, FAST_RAO, null);
     }
 
     @When("I launch loopflow_computation with OpenLoadFlow")
@@ -619,7 +620,7 @@ public class SearchTreeRaoSteps {
     }
 
     private void launchRao(int timeLimit) {
-        launchRao(null, null, null, null, SEARCH_TREE_RAO, timeLimit);
+        launchRao(null, null, null, null, FAST_RAO, timeLimit);
     }
 
     private void launchRao(String contingencyId, InstantKind instantKind, String timestamp, String raoType) {

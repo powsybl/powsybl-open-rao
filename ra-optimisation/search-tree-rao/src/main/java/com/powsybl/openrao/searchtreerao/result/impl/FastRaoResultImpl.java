@@ -12,14 +12,14 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.Side;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.result.api.*;
+
+import com.powsybl.iidm.network.TwoSides;
 
 import java.util.*;
 
@@ -33,7 +33,7 @@ public class FastRaoResultImpl implements RaoResult {
     private final PrePerimeterResult finalResult;
     private final RaoResult filteredRaoResult;
     private final Crac crac;
-    private OptimizationStepsExecuted optimizationStepsExecuted;
+    private String executionDetails;
 
     public FastRaoResultImpl(PrePerimeterResult initialResult,
                              PrePerimeterResult afterPraResult,
@@ -47,7 +47,7 @@ public class FastRaoResultImpl implements RaoResult {
         this.finalResult = finalResult;
         this.filteredRaoResult = filteredRaoResult;
         this.crac = crac;
-        optimizationStepsExecuted = filteredRaoResult.getOptimizationStepsExecuted();
+        executionDetails = filteredRaoResult.getExecutionDetails();
     }
 
     @Override
@@ -102,22 +102,22 @@ public class FastRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return getAppropriateResult(optimizedInstant, flowCnec).getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
         return getAppropriateResult(optimizedInstant, flowCnec).getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
         return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
@@ -224,12 +224,13 @@ public class FastRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
-            this.optimizationStepsExecuted = optimizationStepsExecuted;
-        } else {
-            throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
-        }
+    public String getExecutionDetails() {
+        return executionDetails;
+    }
+
+    @Override
+    public void setExecutionDetails(String executionDetails) {
+        this.executionDetails = executionDetails;
     }
 
     @Override
@@ -245,8 +246,4 @@ public class FastRaoResultImpl implements RaoResult {
         return isSecure(crac.getLastInstant(), u);
     }
 
-    @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
-    }
 }
