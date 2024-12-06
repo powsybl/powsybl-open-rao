@@ -16,11 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.CracFactory;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
@@ -40,7 +36,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -121,6 +119,46 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        /*ArrayList<Instant> instants = new ArrayList<>();
+        instants.add(null);
+        instants.addAll(crac.getSortedInstants());
+        for (Instant instant : instants) {
+            for (FlowCnec cnec : crac.getFlowCnecs()) {
+                if (instant == null || !cnec.getState().getInstant().comesBefore(instant)) {
+                    double flow = raoResult.getFlow(instant, cnec, TwoSides.TWO, Unit.AMPERE);
+                    String instantId = (instant == null) ? "null" : String.format("crac.getInstant(\"%s\")", instant.getId());
+                    System.out.println(String.format(Locale.ENGLISH, "() -> assertEquals(%.2f, raoResult.getFlow(%s, crac.getFlowCnec(\"%s\"), TwoSides.TWO, Unit.AMPERE), 1.),", flow, instantId, cnec.getId()));
+                }
+            }
+        }*/
+        assertAll(
+                () -> assertEquals(451.09, raoResult.getFlow(null, crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-1886.06, raoResult.getFlow(null, crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(451.09, raoResult.getFlow(null, crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-294.36, raoResult.getFlow(null, crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-294.36, raoResult.getFlow(null, crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(474.54, raoResult.getFlow(null, crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - preventive"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(2371.88, raoResult.getFlow(null, crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-1897.99, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(485.38, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - preventive"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(2674.61, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(2674.61, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(2674.61, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(221.10, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-134.98, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(1444.08, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.)
+        );
+
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
@@ -189,39 +227,39 @@ class CastorFullOptimizationTest {
         crac = CracFactory.findDefault().create("crac");
 
         crac.newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative1", InstantKind.CURATIVE)
-            .newInstant("curative2", InstantKind.CURATIVE)
-            .newInstant("curative3", InstantKind.CURATIVE);
+                .newInstant("outage", InstantKind.OUTAGE)
+                .newInstant("auto", InstantKind.AUTO)
+                .newInstant("curative1", InstantKind.CURATIVE)
+                .newInstant("curative2", InstantKind.CURATIVE)
+                .newInstant("curative3", InstantKind.CURATIVE);
 
         Contingency co = crac.newContingency().withId("co1").withContingencyElement("FFR2AA1  FFR3AA1  1", ContingencyElementType.LINE).add();
 
         crac.newFlowCnec().withId("c1-prev").withInstant("preventive").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(TwoSides.ONE).withMax(2000.).withUnit(Unit.AMPERE).add()
-            .withOptimized().add();
+                .newThreshold().withSide(TwoSides.ONE).withMax(2000.).withUnit(Unit.AMPERE).add()
+                .withOptimized().add();
         crac.newFlowCnec().withId("c1-out").withInstant("auto").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(TwoSides.ONE).withMax(2500.).withUnit(Unit.AMPERE).add()
-            .withOptimized().add();
+                .newThreshold().withSide(TwoSides.ONE).withMax(2500.).withUnit(Unit.AMPERE).add()
+                .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur1").withInstant("curative1").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(TwoSides.ONE).withMax(2400.).withUnit(Unit.AMPERE).add()
-            .withOptimized().add();
+                .newThreshold().withSide(TwoSides.ONE).withMax(2400.).withUnit(Unit.AMPERE).add()
+                .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur3").withInstant("curative3").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(TwoSides.ONE).withMax(1700.).withUnit(Unit.AMPERE).add()
-            .withOptimized().add();
+                .newThreshold().withSide(TwoSides.ONE).withMax(1700.).withUnit(Unit.AMPERE).add()
+                .withOptimized().add();
 
         NetworkAction pstPrev = crac.newNetworkAction().withId("pst_fr@10-prev")
-            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(10).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(10).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
         NetworkAction naCur1 = crac.newNetworkAction().withId("open_fr1_fr3-cur1")
-            .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withInstant("curative1").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
+                .newOnInstantUsageRule().withInstant("curative1").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
         NetworkAction pstCur = crac.newNetworkAction().withId("pst_fr@-16-cur3")
-            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-16).add()
-            .newOnInstantUsageRule().withInstant("curative3").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-16).add()
+                .newOnInstantUsageRule().withInstant("curative3").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
@@ -276,46 +314,46 @@ class CastorFullOptimizationTest {
         crac = CracFactory.findDefault().create("crac");
 
         crac.newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative1", InstantKind.CURATIVE)
-            .newInstant("curative2", InstantKind.CURATIVE)
-            .newInstant("curative3", InstantKind.CURATIVE);
+                .newInstant("outage", InstantKind.OUTAGE)
+                .newInstant("auto", InstantKind.AUTO)
+                .newInstant("curative1", InstantKind.CURATIVE)
+                .newInstant("curative2", InstantKind.CURATIVE)
+                .newInstant("curative3", InstantKind.CURATIVE);
 
         Contingency co = crac.newContingency().withId("co1").withContingencyElement("FFR2AA1  FFR3AA1  1", ContingencyElementType.LINE).add();
 
         crac.newFlowCnec().withId("c1-prev").withInstant("preventive").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(TwoSides.ONE).withMax(2000.).withUnit(Unit.AMPERE).add()
-            .withOptimized().add();
+                .newThreshold().withSide(TwoSides.ONE).withMax(2000.).withUnit(Unit.AMPERE).add()
+                .withOptimized().add();
         crac.newFlowCnec().withId("c1-out").withInstant("auto").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(TwoSides.ONE).withMax(2500.).withUnit(Unit.AMPERE).add()
-            .withOptimized().add();
+                .newThreshold().withSide(TwoSides.ONE).withMax(2500.).withUnit(Unit.AMPERE).add()
+                .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur1").withInstant("curative1").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(TwoSides.ONE).withMax(2400.).withUnit(Unit.AMPERE).add()
-            .withOptimized().add();
+                .newThreshold().withSide(TwoSides.ONE).withMax(2400.).withUnit(Unit.AMPERE).add()
+                .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur2").withInstant("curative2").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(TwoSides.ONE).withMax(2300.).withUnit(Unit.AMPERE).add()
-            .withOptimized().add();
+                .newThreshold().withSide(TwoSides.ONE).withMax(2300.).withUnit(Unit.AMPERE).add()
+                .withOptimized().add();
         crac.newFlowCnec().withId("c1-cur3").withInstant("curative3").withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-            .newThreshold().withSide(TwoSides.ONE).withMax(1700.).withUnit(Unit.AMPERE).add()
-            .withOptimized().add();
+                .newThreshold().withSide(TwoSides.ONE).withMax(1700.).withUnit(Unit.AMPERE).add()
+                .withOptimized().add();
 
         NetworkAction pstPrev = crac.newNetworkAction().withId("pst_fr@10-prev")
-            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(10).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(10).add()
+                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
         NetworkAction naCur1 = crac.newNetworkAction().withId("open_fr1_fr3-cur1")
-            .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withInstant("curative1").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
+                .newOnInstantUsageRule().withInstant("curative1").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
         NetworkAction pstCur2 = crac.newNetworkAction().withId("pst_fr@-3-cur2")
-            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-3).add()
-            .newOnInstantUsageRule().withInstant("curative2").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-3).add()
+                .newOnInstantUsageRule().withInstant("curative2").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
         NetworkAction pstCur = crac.newNetworkAction().withId("pst_fr@-16-cur3")
-            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-16).add()
-            .newOnInstantUsageRule().withInstant("curative3").withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
+                .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-16).add()
+                .newOnInstantUsageRule().withInstant("curative3").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
@@ -435,8 +473,8 @@ class CastorFullOptimizationTest {
     void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() throws IOException {
         network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
         crac = Crac.read(
-            "small-crac-ra-limits-per-instant.json", CastorFullOptimizationTest.class.getResourceAsStream("/crac/small-crac-ra-limits-per-instant.json"),
-            network
+                "small-crac-ra-limits-per-instant.json", CastorFullOptimizationTest.class.getResourceAsStream("/crac/small-crac-ra-limits-per-instant.json"),
+                network
         );
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
@@ -454,8 +492,8 @@ class CastorFullOptimizationTest {
     void threeCurativeInstantsWithCumulativeMaximumNumberOfTsos() throws IOException {
         network = Network.read("12Nodes_4ParallelLines.uct", getClass().getResourceAsStream("/network/12Nodes_4ParallelLines.uct"));
         crac = Crac.read(
-            "small-crac-ra-limits-per-instant-3-tsos.json", CastorFullOptimizationTest.class.getResourceAsStream("/crac/small-crac-ra-limits-per-instant-3-tsos.json"),
-            network
+                "small-crac-ra-limits-per-instant-3-tsos.json", CastorFullOptimizationTest.class.getResourceAsStream("/crac/small-crac-ra-limits-per-instant-3-tsos.json"),
+                network
         );
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
