@@ -3,7 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+    */
 
 package com.powsybl.openrao.searchtreerao.faorao;
 
@@ -13,14 +13,12 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
-import com.powsybl.openrao.data.cracapi.Crac;
-import com.powsybl.openrao.data.cracapi.Identifiable;
-import com.powsybl.openrao.data.cracapi.InstantKind;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.craciojson.JsonExport;
-import com.powsybl.openrao.data.craciojson.JsonImport;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.io.json.JsonExport;
+import com.powsybl.openrao.data.crac.io.json.JsonImport;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -39,10 +37,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -87,7 +82,7 @@ public class FastRao implements RaoProvider {
     }
 
     public static RaoResult launchFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> consideredCnecs) {
-        int numberOfCnecsToAdd = 20;
+        int numberOfCnecsToAdd = 20; //to add in param
 
         try {
             // 1. Retrieve input data
@@ -106,14 +101,15 @@ public class FastRao implements RaoProvider {
 
             // 3. Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
             PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
-            PrePerimeterResult ofResult = initialResult;
+            PrePerimeterResult ofResult = initialResult; //meaning of of ?
             RaoLogger.logMostLimitingElementsResults(logger, initialResult, parameters.getObjectiveFunctionParameters().getType(), 5);
             //computeAvailableRangeActions(initialResult, crac, network, parameters);
 
             FlowCnec worstCnec;
             FastRaoResultImpl raoResult;
 
-            com.powsybl.openrao.data.cracapi.Instant lastInstant = raoInput.getCrac().getLastInstant();
+            // standard de faire import comme ça ?
+            com.powsybl.openrao.data.crac.api.Instant lastInstant = raoInput.getCrac().getLastInstant();
             AbstractNetworkPool networkPool = AbstractNetworkPool.create(raoInput.getNetwork(), raoInput.getNetworkVariantId(), 3, true);
             do {
                 addWorstCnecs(consideredCnecs, numberOfCnecsToAdd, ofResult);
@@ -209,7 +205,7 @@ public class FastRao implements RaoProvider {
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;
         try {
-            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant).run(initialResult).get();
+            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant).run().get();
             List<String> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
                     .map(Identifiable::getId)
                     .toList();
@@ -223,6 +219,7 @@ public class FastRao implements RaoProvider {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
+
         String finalVariantId = raoInput.getNetwork().getVariantManager().getWorkingVariantId();
         raoInput.getNetwork().getVariantManager().setWorkingVariant(raoInput.getNetworkVariantId());
         // 6. Apply / Force optimal RAs found on filter RAO
@@ -319,9 +316,10 @@ public class FastRao implements RaoProvider {
 
     public static Crac copyCrac(Crac crac, Network network) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new JsonExport().exportCrac(crac, outputStream);
+        new JsonExport().exportData(crac, outputStream);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        return new JsonImport().importCrac(inputStream, network);
+        //how to get the cracCreationParameters from crac ?
+        return new JsonImport().importData(inputStream, new CracCreationParameters(), network, null).getCrac();
     }
 
     public static void removeFlowCnecsFromCrac(Crac crac, Collection<FlowCnec> flowCnecsToKeep) {
@@ -378,6 +376,7 @@ public class FastRao implements RaoProvider {
                 .withCnecs(flowCnecs)
                 .withRangeActions(crac.getRangeActions())
                 .withOutageInstant(raoInput.getCrac().getOutageInstant());
+
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             if (raoParameters.getExtension(LoopFlowParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
@@ -400,14 +399,21 @@ public class FastRao implements RaoProvider {
         sensitivityComputer.compute(network);
 
         semaphore.acquire();
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, prePerimeterResult.get(), initialFlowResult, crac, new StateTree(crac).getOperatorsNotSharingCras(), raoParameters);
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs,
+                toolProvider.getLoopFlowCnecs(flowCnecs),
+                initialFlowResult,
+                prePerimeterResult.get().getFlowResult(),
+                new StateTree(crac).getOperatorsNotSharingCras(),
+                raoParameters);
+
         semaphore.release();
 
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions());
         RangeActionActivationResult rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus());
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(flowResult);
+        //(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus());
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
