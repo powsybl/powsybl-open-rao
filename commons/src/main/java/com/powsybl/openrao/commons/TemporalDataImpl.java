@@ -10,7 +10,6 @@ package com.powsybl.openrao.commons;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
