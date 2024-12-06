@@ -48,6 +48,10 @@ public final class LinearProblemIdGenerator {
     private static final String TSO_RA_USED = "tsoraused";
     private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
+    private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
+    private static final String RANGE_ACTION_ACTIVATION = "rangeactionactivation";
+    private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
+    private static final String RANGE_ACTION_ABSOLUTE_VARIATION = "rangeactionabsolutevariation";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -123,10 +127,6 @@ public final class LinearProblemIdGenerator {
 
     public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
-    }
-
-    public static String absoluteRangeActionVariationConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.AbsExtension positiveOrNegative) {
-        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold) {
@@ -215,5 +215,17 @@ public final class LinearProblemIdGenerator {
 
     public static String maxElementaryActionsPerTsoConstraintId(String operator, State state) {
         return MAX_ELEMENTARY_ACTIONS_PER_TSO + SEPARATOR + operator + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String rangeActionVariationVariableId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return RANGE_ACTION_VARIATION + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + VARIABLE_SUFFIX + SEPARATOR + variationDirection;
+    }
+
+    public static String rangeActionSetPointVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return RANGE_ACTION_SET_POINT_VARIATION + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String rangeActionAbsoluteVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return RANGE_ACTION_ABSOLUTE_VARIATION + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 }

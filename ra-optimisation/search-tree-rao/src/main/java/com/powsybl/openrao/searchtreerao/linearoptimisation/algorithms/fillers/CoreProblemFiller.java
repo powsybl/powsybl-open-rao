@@ -122,6 +122,8 @@ public class CoreProblemFiller implements ProblemFiller {
             rangeActions.forEach(rangeAction -> {
                 linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
                 linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state);
+                linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+                linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
             })
         );
     }
@@ -236,28 +238,26 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     /**
-     * Build two range action constraints for each RangeAction r.
-     * These constraints link the set point variable of the RangeAction with its absolute
-     * variation variable.
-     * AV[r] >= S[r] - initialSetPoint[r]     (NEGATIVE)
-     * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
+     * Build range action constraints for each RangeAction r.
+     * These constraints link the set-point variable of the RangeAction with its
+     * variation variables, and bounds the set-point in an admissible range.
+     * S[r] = initialSetPoint[r] + upwardVariation[r] - downwardVariation[r]
      */
     private void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
-        OpenRaoMPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
-            -linearProblem.infinity(),
-            linearProblem.infinity(),
-            rangeAction,
-            state,
-            LinearProblem.AbsExtension.NEGATIVE
-        );
-        OpenRaoMPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
-            -linearProblem.infinity(),
-            linearProblem.infinity(),
-            rangeAction,
-            state,
-            LinearProblem.AbsExtension.POSITIVE);
+        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+
+        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.addRangeActionAbsoluteVariationConstraint(rangeAction, state);
+        absoluteVariationConstraint.setCoefficient(absoluteVariationVariable, 1.0);
+        absoluteVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
+        absoluteVariationConstraint.setCoefficient(downwardVariationVariable, -1.0);
+
+        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.addRangeActionSetPointVariationConstraint(rangeAction, state);
+        setPointVariationConstraint.setCoefficient(setPointVariable, 1.0);
+        setPointVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
+        setPointVariationConstraint.setCoefficient(downwardVariationVariable, 1.0);
 
         Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction, state);
 
@@ -273,13 +273,8 @@ public class CoreProblemFiller implements ProblemFiller {
             setPointVariable.setLb(minSetPoint - RANGE_ACTION_SETPOINT_EPSILON);
             setPointVariable.setUb(maxSetPoint + RANGE_ACTION_SETPOINT_EPSILON);
 
-            varConstraintNegative.setLb(-prePerimeterSetPoint);
-            varConstraintNegative.setCoefficient(absoluteVariationVariable, 1);
-            varConstraintNegative.setCoefficient(setPointVariable, -1);
-
-            varConstraintPositive.setLb(prePerimeterSetPoint);
-            varConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
-            varConstraintPositive.setCoefficient(setPointVariable, 1);
+            setPointVariationConstraint.setLb(prePerimeterSetPoint);
+            setPointVariationConstraint.setUb(prePerimeterSetPoint);
         } else {
 
             // range action have been activated in a previous instant
@@ -303,16 +298,7 @@ public class CoreProblemFiller implements ProblemFiller {
             setPointVariable.setLb(minAbsoluteSetpoint - RANGE_ACTION_SETPOINT_EPSILON);
             setPointVariable.setUb(maxAbsoluteSetpoint + RANGE_ACTION_SETPOINT_EPSILON);
 
-            // define absolute range action variation
-            varConstraintNegative.setLb(0);
-            varConstraintNegative.setCoefficient(absoluteVariationVariable, 1);
-            varConstraintNegative.setCoefficient(setPointVariable, -1);
-            varConstraintNegative.setCoefficient(previousSetpointVariable, 1);
-
-            varConstraintPositive.setLb(0);
-            varConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
-            varConstraintPositive.setCoefficient(setPointVariable, 1);
-            varConstraintPositive.setCoefficient(previousSetpointVariable, -1);
+            setPointVariationConstraint.setCoefficient(previousSetpointVariable, -1.0);
         }
     }
 

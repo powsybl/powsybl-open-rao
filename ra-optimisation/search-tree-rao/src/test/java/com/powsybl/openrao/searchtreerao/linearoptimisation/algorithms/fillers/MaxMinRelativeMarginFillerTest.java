@@ -156,7 +156,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.minimization());
 
         // check the number of variables and constraints
-        assertEquals(6, linearProblem.numVariables());
+        assertEquals(8, linearProblem.numVariables());
         assertEquals(9, linearProblem.numConstraints());
     }
 
@@ -223,7 +223,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.minimization());
 
         // check the number of variables and constraints
-        assertEquals(6, linearProblem.numVariables());
+        assertEquals(8, linearProblem.numVariables());
         assertEquals(9, linearProblem.numConstraints());
     }
 
