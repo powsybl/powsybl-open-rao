@@ -160,6 +160,31 @@ class CastorFullOptimizationTest {
     }
 
     @Test
+    void smallRaoWithGlobal2P() throws IOException {
+        // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
+
+        network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = Crac.read("small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
+        // Activate global 2P
+        raoParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        raoParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
+        assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
+        assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
+        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
+        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
+    }
+
+    @Test
     void spotGraalVmProblem() {
         Network n = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
 
@@ -218,46 +243,39 @@ class CastorFullOptimizationTest {
                         sensitivityAnalysisParameters);
         assertNotNull(result);
         assertAll(
-            () -> assertEquals(-328.75, getFunctionReferenceValue(result, null, factor1), 0.01d),
-            () -> assertEquals(1305.61, getFunctionReferenceValue(result, null, factor2), 0.01d),
-            () -> assertEquals(474.54, getFunctionReferenceValue(result, null, factor3), 0.01d),
-            () -> assertEquals(1886.06, getFunctionReferenceValue(result, null, factor4), 0.01d),
-            () -> assertEquals(203.93, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-            () -> assertEquals(-312.50, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-            () -> assertEquals(-1641.12, getFunctionReferenceValue(result, contingency.getContingencyId(), factor7), 0.01d),
-            () -> assertEquals(294.36, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-            () -> assertEquals(451.08, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-            () -> assertEquals(2371.88, getFunctionReferenceValue(result, contingency.getContingencyId(), factor10), 0.01d)
+                () -> assertEquals(-328.75, getFunctionReferenceValue(result, null, factor1), 0.01d),
+                () -> assertEquals(1305.61, getFunctionReferenceValue(result, null, factor2), 0.01d),
+                () -> assertEquals(474.54, getFunctionReferenceValue(result, null, factor3), 0.01d),
+                () -> assertEquals(1886.06, getFunctionReferenceValue(result, null, factor4), 0.01d),
+                () -> assertEquals(203.93, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
+                () -> assertEquals(-312.50, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
+                () -> assertEquals(-1641.12, getFunctionReferenceValue(result, contingency.getContingencyId(), factor7), 0.01d),
+                () -> assertEquals(294.36, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
+                () -> assertEquals(451.08, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
+                () -> assertEquals(2371.88, getFunctionReferenceValue(result, contingency.getContingencyId(), factor10), 0.01d)
+        );
+
+        Network n2 = Network.read("newVariant.xiidm", getClass().getResourceAsStream("/network/newVariant.xiidm"));
+        List<SensitivityFactor> sensitivityFactors2 = List.of(factor1, factor2, factor3, factor4,
+                factor5, factor6, factor8, factor9);
+        SensitivityAnalysisResult result2 = SensitivityAnalysis.find("OpenLoadFlow")
+                .run(n2, "InitialState",
+                        sensitivityFactors2, contingencyList, List.of(), sensitivityAnalysisParameters);
+
+        assertAll(
+                () -> assertEquals(-357.26, getFunctionReferenceValue(result2, null, factor1), 0.01d),
+                () -> assertEquals(1236.45, getFunctionReferenceValue(result2, null, factor2), 0.01d),
+                () -> assertEquals(515.69, getFunctionReferenceValue(result2, null, factor3), 0.01d),
+                () -> assertEquals(1786.00, getFunctionReferenceValue(result2, null, factor4), 0.01d),
+                () -> assertEquals(-149.70, getFunctionReferenceValue(result2, contingency.getContingencyId(), factor5), 0.01d),
+                () -> assertEquals(-353.06, getFunctionReferenceValue(result2, contingency.getContingencyId(), factor6), 0.01d),
+                () -> assertEquals(216.08, getFunctionReferenceValue(result2, contingency.getContingencyId(), factor8), 0.01d),
+                () -> assertEquals(509.63, getFunctionReferenceValue(result2, contingency.getContingencyId(), factor9), 0.01d)
         );
     }
 
     private static double getFunctionReferenceValue(SensitivityAnalysisResult result, String contingencyId, SensitivityFactor factor) {
         return result.getFunctionReferenceValue(contingencyId, factor.getFunctionId(), factor.getFunctionType());
-    }
-
-    @Test
-    void smallRaoWithGlobal2P() throws IOException {
-        // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
-
-        network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = Crac.read("small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
-        RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
-
-        // Activate global 2P
-        raoParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-        raoParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
-
-        // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-        assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
-        assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
-        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
-        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), curativeInstant)));
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
     }
 
     @Test
