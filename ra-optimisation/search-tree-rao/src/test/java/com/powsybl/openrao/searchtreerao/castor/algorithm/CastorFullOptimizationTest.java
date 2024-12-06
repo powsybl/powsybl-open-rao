@@ -11,8 +11,10 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
@@ -31,6 +33,7 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
+import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -154,6 +157,82 @@ class CastorFullOptimizationTest {
 
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(FIRST_PREVENTIVE_ONLY));
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
+    }
+
+    @Test
+    void spotGraalVmProblem() {
+        Network n = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+
+        ContingencyContext none = ContingencyContext.none();
+        ContingencyContext contingency = ContingencyContext.specificContingency("co1_fr2_fr3_1");
+        String variableId = "BBE2AA1  BBE3AA1  1";
+
+        SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "FFR4AA1  DDE1AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, none);
+        SensitivityFactor factor2 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "NNL2AA1  BBE3AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, none);
+        SensitivityFactor factor3 = new SensitivityFactor(SensitivityFunctionType.BRANCH_CURRENT_2, "FFR4AA1  DDE1AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, none);
+        SensitivityFactor factor4 = new SensitivityFactor(SensitivityFunctionType.BRANCH_CURRENT_2, "NNL2AA1  BBE3AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, none);
+        SensitivityFactor factor5 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "FFR3AA1  FFR5AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, contingency);
+        SensitivityFactor factor6 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "FFR4AA1  DDE1AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, contingency);
+        SensitivityFactor factor7 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "FFR1AA1  FFR4AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, contingency);
+        SensitivityFactor factor8 = new SensitivityFactor(SensitivityFunctionType.BRANCH_CURRENT_2, "FFR3AA1  FFR5AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, contingency);
+        SensitivityFactor factor9 = new SensitivityFactor(SensitivityFunctionType.BRANCH_CURRENT_2, "FFR4AA1  DDE1AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, contingency);
+        SensitivityFactor factor10 = new SensitivityFactor(SensitivityFunctionType.BRANCH_CURRENT_2, "FFR1AA1  FFR4AA1  1",
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId, false, contingency);
+        List<SensitivityFactor> sensitivityFactors = List.of(factor1, factor2, factor3, factor4,
+                factor5, factor6, factor7, factor8, factor9, factor10);
+
+        List<Contingency> contingencyList = List.of(Contingency.builder("co1_fr2_fr3_1").addLine("FFR2AA1  FFR3AA1  1").build());
+
+        SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters()
+                .setLoadFlowParameters(new LoadFlowParameters().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES)
+                        .setTransformerVoltageControlOn(false)
+                        .setUseReactiveLimits(true)
+                        .setPhaseShifterRegulationOn(false)
+                        .setTwtSplitShuntAdmittance(true)
+                        .setShuntCompensatorVoltageControlOn(false)
+                        .setReadSlackBus(false)
+                        .setWriteSlackBus(false)
+                        .setDc(false)
+                        .setDistributedSlack(true)
+                        .setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P)
+                        .setDcUseTransformerRatio(false)
+                        .setCountriesToBalance(Set.of(Country.RO, Country.AT, Country.CZ, Country.BA, Country.BE,
+                                Country.UA, Country.BG, Country.RS, Country.PT, Country.SK, Country.PL, Country.TR,
+                                Country.IT, Country.GR, Country.CH, Country.AL, Country.NL, Country.MK, Country.HR,
+                                Country.FR, Country.ES, Country.ME, Country.DE, Country.SI, Country.HU))
+                        .setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.MAIN)
+                        .setHvdcAcEmulation(true)
+                        .setDcPowerFactor(1.0));
+
+        SensitivityAnalysisResult result = SensitivityAnalysis.find("OpenLoadFlow")
+                .run(n, "InitialState", sensitivityFactors, contingencyList, List.of(),
+                        sensitivityAnalysisParameters);
+        assertNotNull(result);
+        assertAll(
+            () -> assertEquals(-328.75, getFunctionReferenceValue(result, null, factor1), 0.01d),
+            () -> assertEquals(1305.61, getFunctionReferenceValue(result, null, factor2), 0.01d),
+            () -> assertEquals(474.54, getFunctionReferenceValue(result, null, factor3), 0.01d),
+            () -> assertEquals(1886.06, getFunctionReferenceValue(result, null, factor4), 0.01d),
+            () -> assertEquals(203.93, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
+            () -> assertEquals(-312.50, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
+            () -> assertEquals(-1641.12, getFunctionReferenceValue(result, contingency.getContingencyId(), factor7), 0.01d),
+            () -> assertEquals(294.36, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
+            () -> assertEquals(451.08, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
+            () -> assertEquals(2371.88, getFunctionReferenceValue(result, contingency.getContingencyId(), factor10), 0.01d)
+        );
+    }
+
+    private static double getFunctionReferenceValue(SensitivityAnalysisResult result, String contingencyId, SensitivityFactor factor) {
+        return result.getFunctionReferenceValue(contingencyId, factor.getFunctionId(), factor.getFunctionType());
     }
 
     @Test
