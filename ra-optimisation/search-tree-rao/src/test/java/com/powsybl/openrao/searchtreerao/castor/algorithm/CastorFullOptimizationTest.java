@@ -106,11 +106,9 @@ class CastorFullOptimizationTest {
     @Test
     void smallRaoWith2POptimalPRAsAlreadyApplied() throws IOException {
         // Same RAO as before but activating 2P => results should be better
-
         network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = Crac.read("small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"), network);
         Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")).forEach(na -> na.apply(network));
-        network.write("XIIDM", new Properties(), "/home/mitripet", "test_net.xiidm");
 
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
