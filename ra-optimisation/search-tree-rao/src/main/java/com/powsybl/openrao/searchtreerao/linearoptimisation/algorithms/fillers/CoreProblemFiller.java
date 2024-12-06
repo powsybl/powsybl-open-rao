@@ -237,6 +237,12 @@ public class CoreProblemFiller implements ProblemFiller {
         }
     }
 
+    /**
+     * Build range action constraints for each RangeAction r.
+     * These constraints link the set-point variable of the RangeAction with its
+     * variation variables, and bounds the set-point in an admissible range.
+     * S[r] = initialSetPoint[r] + upwardVariation[r] - downwardVariation[r]
+     */
     private void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
