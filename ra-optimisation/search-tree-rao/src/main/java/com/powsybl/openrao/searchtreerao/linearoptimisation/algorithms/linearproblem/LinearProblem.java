@@ -7,9 +7,10 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -273,6 +274,31 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
         return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
+    }
+
+    public OpenRaoMPVariable addInjectionVariationVariable(double lb, double ub, InjectionRangeAction injectionRangeAction, State state) {
+        return solver.makeNumVar(lb, ub, rangeActionInjectionVariationVariableId(injectionRangeAction, state));
+    }
+
+    public OpenRaoMPVariable getInjectionVariationVariable(InjectionRangeAction injectionRangeAction, State state) {
+        return solver.getVariable(rangeActionInjectionVariationVariableId(injectionRangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addInjectionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, signedRangeActionVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getInjectionVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(signedRangeActionVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addInjectionBalanceVariationConstraint(double lb, double ub, State state) {
+        String constraintName = injectionBalanceVariationConstraintId(state);
+        return solver.makeConstraint(lb, ub, constraintName);
+    }
+
+    public OpenRaoMPConstraint getInjectionBalanceVariationConstraint(State state) {
+        return solver.getConstraint(injectionBalanceVariationConstraintId(state));
     }
 
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
