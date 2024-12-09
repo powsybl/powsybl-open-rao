@@ -17,6 +17,7 @@ Feature: US 15.7: Injection setpoint with absolute and relative target
   Scenario: US 15.7.2: Curative search tree RAO with absolute injectionSetpoint curative ra
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic15/cse_crac_1_curative_ra.xml"
+    Given configuration file is "epic15/RaoParameters_ep15us7-2.json"
     When I launch search_tree_rao at "2021-04-30 22:30"
     Then 0 remedial actions are used in preventive
     And the remedial action "cra_1" is used after "outage_1" at "curative"
