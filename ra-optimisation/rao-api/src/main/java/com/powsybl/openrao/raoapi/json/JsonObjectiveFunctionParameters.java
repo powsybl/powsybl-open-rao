@@ -29,7 +29,6 @@ final class JsonObjectiveFunctionParameters {
         jsonGenerator.writeObjectFieldStart(OBJECTIVE_FUNCTION);
         jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getType());
         jsonGenerator.writeObjectField(UNIT, parameters.getObjectiveFunctionParameters().getUnit());
-        jsonGenerator.writeNumberField(CURATIVE_MIN_OBJ_IMPROVEMENT, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement());
         jsonGenerator.writeBooleanField(ENFORCE_CURATIVE_SECURITY, parameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity());
         jsonGenerator.writeEndObject();
     }
@@ -42,10 +41,6 @@ final class JsonObjectiveFunctionParameters {
                     break;
                 case UNIT:
                     raoParameters.getObjectiveFunctionParameters().setUnit(stringToObjectiveFunctionUnit(jsonParser.nextTextValue()));
-                    break;
-                case CURATIVE_MIN_OBJ_IMPROVEMENT:
-                    jsonParser.nextToken();
-                    raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble());
                     break;
                 case ENFORCE_CURATIVE_SECURITY:
                     jsonParser.nextToken();

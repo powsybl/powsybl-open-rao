@@ -70,7 +70,7 @@ public final class ParametersUtil {
         return list;
     }
 
-    protected static List<List<String>> convertListToListOfList(List<String> stringList) {
+    public static List<List<String>> convertListToListOfList(List<String> stringList) {
         List<List<String>> listOfList = new ArrayList<>();
         stringList.forEach(listEntry -> {
             String[] splitListEntry = listEntry.split("\\+");
@@ -83,7 +83,7 @@ public final class ParametersUtil {
         return listOfList;
     }
 
-    protected static List<String> convertListOfListToList(List<List<String>> listOfList) {
+    public static List<String> convertListOfListToList(List<List<String>> listOfList) {
         List<String> finalList = new ArrayList<>();
         listOfList.forEach(subList -> {
             if (!subList.isEmpty()) {
