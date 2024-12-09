@@ -1,9 +1,8 @@
 {
   "version" : "2.5",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
-    "preventive-stop-criterion" : "SECURE"
+    "type" : "SECURE_FLOW",
+    "unit" : "MW"
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 5,

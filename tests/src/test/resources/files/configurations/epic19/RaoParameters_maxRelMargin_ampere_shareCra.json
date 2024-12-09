@@ -4,7 +4,6 @@
     "type" : "MAX_MIN_RELATIVE_MARGIN",
     "unit" : "A",
     "curative-min-obj-improvement" : 10000.0,
-    "preventive-stop-criterion" : "MIN_OBJECTIVE",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
