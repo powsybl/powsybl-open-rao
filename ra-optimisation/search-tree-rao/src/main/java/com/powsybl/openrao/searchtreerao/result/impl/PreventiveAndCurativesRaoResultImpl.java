@@ -44,8 +44,8 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     private final Map<State, OptimizationResult> postContingencyResults;
     private final ObjectiveFunctionResult finalCostEvaluator;
     private final Crac crac;
+    private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
     private final ObjectiveFunctionParameters objectiveFunctionParameters;
-    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     private final Map<Instant, Map<State, State>> optimizedStateForInstantAndState = new HashMap<>();
 
@@ -620,12 +620,8 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
-            this.optimizationStepsExecuted = optimizationStepsExecuted;
-        } else {
-            throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
-        }
+    public void setExecutionDetails(String executionDetails) {
+        this.executionDetails = executionDetails;
     }
 
     @Override
@@ -634,7 +630,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
+    public String getExecutionDetails() {
+        return executionDetails;
     }
 }

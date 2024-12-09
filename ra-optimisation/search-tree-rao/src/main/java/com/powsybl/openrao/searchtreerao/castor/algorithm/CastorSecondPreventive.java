@@ -155,7 +155,7 @@ public class CastorSecondPreventive {
             }
         } catch (OpenRaoException e) {
             BUSINESS_LOGS.error(e.getMessage());
-            return new FailedRaoResultImpl(e.getMessage());
+            return new FailedRaoResultImpl(String.format("RAO failed during second preventive : %s", e.getMessage()));
         }
 
         // Run 2nd automaton simulation and update results

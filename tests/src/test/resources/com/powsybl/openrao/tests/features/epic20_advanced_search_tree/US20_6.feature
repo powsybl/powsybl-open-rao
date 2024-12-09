@@ -13,7 +13,7 @@ Feature: US 20.6: Second Preventive improvements
     When I launch search_tree_rao
     Then the worst margin is -40.5 MW
     And the tap of PstRangeAction "CRA_PST_DE" should be 0 after "Contingency NL3 BE1 2" at "curative"
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @dc @second-preventive
   Scenario: US 20.6.2: Fallback to first preventive after 2nd preventive
@@ -22,4 +22,4 @@ Feature: US 20.6: Second Preventive improvements
     Given configuration file is "epic20/RaoParameters_20_6_2.json"
     When I launch search_tree_rao
     Then the worst margin is 100.0 MW
-    And the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION"
+    And the execution details should be "Second preventive fell back to first preventive results"
