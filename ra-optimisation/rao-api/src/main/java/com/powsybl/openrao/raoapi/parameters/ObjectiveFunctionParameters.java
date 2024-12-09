@@ -22,14 +22,12 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 public class ObjectiveFunctionParameters {
     // Default values
     private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT;
-    private static final boolean DEFAULT_FORBID_COST_INCREASE = false;
     private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
     private static final PreventiveStopCriterion DEFAULT_PREVENTIVE_STOP_CRITERION = PreventiveStopCriterion.SECURE;
     private static final CurativeStopCriterion DEFAULT_CURATIVE_STOP_CRITERION = CurativeStopCriterion.MIN_OBJECTIVE;
     private static final boolean DEFAULT_OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE = false;
     // Attributes
     private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
-    private boolean forbidCostIncrease = DEFAULT_FORBID_COST_INCREASE;
     private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
     private PreventiveStopCriterion preventiveStopCriterion = DEFAULT_PREVENTIVE_STOP_CRITERION;
     private CurativeStopCriterion curativeStopCriterion = DEFAULT_CURATIVE_STOP_CRITERION;
@@ -78,14 +76,6 @@ public class ObjectiveFunctionParameters {
         this.type = type;
     }
 
-    public boolean getForbidCostIncrease() {
-        return forbidCostIncrease;
-    }
-
-    public void setForbidCostIncrease(boolean forbidCostIncrease) {
-        this.forbidCostIncrease = forbidCostIncrease;
-    }
-
     public void setPreventiveStopCriterion(PreventiveStopCriterion preventiveStopCriterion) {
         this.preventiveStopCriterion = preventiveStopCriterion;
     }
@@ -121,7 +111,6 @@ public class ObjectiveFunctionParameters {
                 .ifPresent(config -> {
                     parameters.setType(config.getEnumProperty(TYPE, ObjectiveFunctionType.class,
                             DEFAULT_OBJECTIVE_FUNCTION));
-                    parameters.setForbidCostIncrease(config.getBooleanProperty(FORBID_COST_INCREASE, DEFAULT_FORBID_COST_INCREASE));
                     parameters.setCurativeMinObjImprovement(config.getDoubleProperty(CURATIVE_MIN_OBJ_IMPROVEMENT, DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT));
                     parameters.setPreventiveStopCriterion(config.getEnumProperty(PREVENTIVE_STOP_CRITERION, PreventiveStopCriterion.class,
                             DEFAULT_PREVENTIVE_STOP_CRITERION));
