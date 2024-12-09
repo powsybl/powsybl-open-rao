@@ -10,8 +10,11 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
@@ -217,5 +220,66 @@ class RangeActionActivationResultImplTest {
         assertEquals(Map.of(pstRangeAction1, 2.1, pstRangeAction2, 2.1, pstRangeAction3, -3.1), raar.getOptimizedSetpointsOnState(cState1));
         assertEquals(Map.of(pstRangeAction1, 3, pstRangeAction2, 3, pstRangeAction3, 0), raar.getOptimizedTapsOnState(pState));
         assertEquals(Map.of(pstRangeAction1, 2, pstRangeAction2, 2, pstRangeAction3, -3), raar.getOptimizedTapsOnState(cState1));
+    }
+
+    @Test
+    void testRangeActionsVariation() {
+        Crac crac = CommonCracCreation.create();
+        State state = crac.getState(crac.getContingency("Contingency FR1 FR3"), crac.getInstant(InstantKind.CURATIVE));
+
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+            .withId("pst-range-action")
+            .withNetworkElement("pst")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-1, -6.22, 0, 0d, 1, 6.22))
+            .add();
+
+        InjectionRangeAction injectionRangeAction1 = crac.newInjectionRangeAction()
+            .withId("injection-range-action-1")
+            .withInitialSetpoint(50d)
+            .withNetworkElementAndKey(1d, "generator")
+            .newRange()
+            .withMin(0d)
+            .withMax(100d)
+            .add()
+            .add();
+
+        InjectionRangeAction injectionRangeAction2 = crac.newInjectionRangeAction()
+            .withId("injection-range-action-2")
+            .withInitialSetpoint(25d)
+            .withNetworkElementAndKey(1d, "load")
+            .newRange()
+            .withMin(10d)
+            .withMax(75d)
+            .add()
+            .add();
+
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
+            .withId("hvdc-range-action")
+            .withInitialSetpoint(0d)
+            .withNetworkElement("hvdc")
+            .newRange()
+            .withMin(-1000d)
+            .withMax(1000d)
+            .add()
+            .add();
+
+        RangeActionSetpointResult setPointResult = new RangeActionSetpointResultImpl(Map.of(
+            pstRangeAction, 0d,
+            injectionRangeAction1, 60d,
+            injectionRangeAction2, 25d,
+            hvdcRangeAction, 300d));
+
+        RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(setPointResult);
+        rangeActionActivationResult.putResult(pstRangeAction, state, -6.22);
+        rangeActionActivationResult.putResult(injectionRangeAction1, state, 75d);
+        rangeActionActivationResult.putResult(injectionRangeAction2, state, 25d);
+        rangeActionActivationResult.putResult(hvdcRangeAction, state, 800d);
+
+        assertEquals(-1, rangeActionActivationResult.getTapVariation(pstRangeAction, state));
+        assertEquals(-6.22, rangeActionActivationResult.getSetPointVariation(pstRangeAction, state));
+        assertEquals(15d, rangeActionActivationResult.getSetPointVariation(injectionRangeAction1, state));
+        assertEquals(0d, rangeActionActivationResult.getSetPointVariation(injectionRangeAction2, state));
+        assertEquals(500d, rangeActionActivationResult.getSetPointVariation(hvdcRangeAction, state));
     }
 }

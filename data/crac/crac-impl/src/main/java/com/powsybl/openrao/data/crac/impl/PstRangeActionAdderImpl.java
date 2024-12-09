@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.range.TapRangeAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.*;
@@ -33,6 +34,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     private String groupId = null;
     private Integer initialTap = null;
     private Map<Integer, Double> tapToAngleConversionMap;
+    private Map<RangeAction.VariationDirection, Double> variationCosts;
 
     @Override
     protected String getTypeDescription() {
@@ -42,6 +44,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     PstRangeActionAdderImpl(CracImpl owner) {
         super(owner);
         this.ranges = new ArrayList<>();
+        this.variationCosts = new HashMap<>();
     }
 
     @Override
@@ -75,6 +78,12 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     }
 
     @Override
+    public PstRangeActionAdder withVariationCost(Double variationCost, RangeAction.VariationDirection variationDirection) {
+        this.variationCosts.put(variationDirection, variationCost);
+        return this;
+    }
+
+    @Override
     public TapRangeAdder newTapRange() {
         return new TapRangeAdderImpl(this);
     }
@@ -99,7 +108,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId, initialTap, tapToAngleConversionMap, speed);
+        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId, initialTap, tapToAngleConversionMap, speed, activationCost, variationCosts);
         this.getCrac().addPstRangeAction(pstWithRange);
         return pstWithRange;
     }

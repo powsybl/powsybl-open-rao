@@ -29,7 +29,7 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
@@ -228,7 +228,7 @@ class SearchTreeTest {
         when(sensitivityComputer.getBranchResult(network)).thenReturn(null);
         Mockito.doNothing().when(sensitivityComputer).compute(network);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        when(objectiveFunction.evaluate(any())).thenReturn(null);
+        when(objectiveFunction.evaluate(any(), any())).thenReturn(null);
         leaf.evaluate(objectiveFunction, sensitivityComputer);
     }
 

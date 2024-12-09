@@ -8,23 +8,30 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import org.apache.commons.lang3.tuple.Pair;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.groupFlowCnecsPerState;
+import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.sortFlowCnecsByDecreasingCost;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     private final Set<FlowCnec> loopflowCnecs;
-    private final FlowResult initialLoopFLowResult;
+    private final FlowResult initialLoopFlowResult;
     private final double loopFlowViolationCost;
     private final double loopFlowAcceptableAugmentation;
 
@@ -32,7 +39,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
                                           FlowResult initialLoopFlowResult,
                                           LoopFlowParametersExtension loopFlowParameters) {
         this.loopflowCnecs = loopflowCnecs;
-        this.initialLoopFLowResult = initialLoopFlowResult;
+        this.initialLoopFlowResult = initialLoopFlowResult;
         this.loopFlowViolationCost = loopFlowParameters.getViolationCost();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
     }
@@ -43,46 +50,27 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
-        double cost = costlyElements
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        Map<FlowCnec, Double> excessPerLoopFlowCnec = loopflowCnecs.stream()
+            .collect(Collectors.toMap(Function.identity(), loopFlowCnec -> getLoopFlowExcess(flowResult, loopFlowCnec)))
+            .entrySet()
             .stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-            .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)
-            .sum();
+            .filter(entry -> entry.getValue() > 0)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(excessPerLoopFlowCnec.keySet());
+        Map<State, Double> costPerState = flowCnecsPerState.keySet().stream().collect(Collectors.toMap(
+            Function.identity(),
+            state -> loopFlowViolationCost * flowCnecsPerState.get(state).stream()
+                .mapToDouble(excessPerLoopFlowCnec::get)
+                .sum()));
 
-        if (cost > 0) {
+        if (costPerState.values().stream().anyMatch(loopFlowCost -> loopFlowCost > 0)) {
+            // will be logged even if the contingency is filtered out at some point
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
         }
 
-        return Pair.of(cost, costlyElements);
-    }
-
-    @Override
-    public Unit getUnit() {
-        return Unit.MEGAWATT;
-    }
-
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = loopflowCnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-            .collect(Collectors.toMap(
-                Function.identity(),
-                cnec -> getLoopFlowExcess(flowResult, cnec)
-            ))
-            .entrySet().stream()
-            .filter(entry -> entry.getValue() != 0)
-            .sorted(Comparator.comparingDouble(Map.Entry::getValue))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
-
-        Collections.reverse(costlyElements);
-        return costlyElements;
-    }
-
-    @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return loopflowCnecs;
+        List<FlowCnec> sortedLoopFlowCnecs = sortFlowCnecsByDecreasingCost(excessPerLoopFlowCnec);
+        return new SumCostEvaluatorResult(costPerState, sortedLoopFlowCnecs);
     }
 
     double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {
@@ -93,7 +81,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     private double getLoopFlowUpperBound(FlowCnec cnec, TwoSides side) {
         double loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        double initialLoopFlow = initialLoopFLowResult.getLoopFlow(cnec, side, Unit.MEGAWATT);
+        double initialLoopFlow = initialLoopFlowResult.getLoopFlow(cnec, side, Unit.MEGAWATT);
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }
 }

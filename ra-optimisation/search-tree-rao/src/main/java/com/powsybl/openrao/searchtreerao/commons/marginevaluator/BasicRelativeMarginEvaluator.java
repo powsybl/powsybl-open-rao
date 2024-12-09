@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
+package com.powsybl.openrao.searchtreerao.commons.marginevaluator;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -13,23 +13,23 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
 /**
- * It enables to evaluate the absolute margin of a FlowCnec
+ * It enables to evaluate the relative margin of a FlowCnec
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class BasicMarginEvaluator implements MarginEvaluator {
+public class BasicRelativeMarginEvaluator implements MarginEvaluator {
 
-    public BasicMarginEvaluator() {
+    public BasicRelativeMarginEvaluator() {
         // do nothing : only getMargin is useful in this class
     }
 
     @Override
     public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Unit unit) {
-        return flowResult.getMargin(flowCnec, unit);
+        return flowResult.getRelativeMargin(flowCnec, unit);
     }
 
     @Override
     public double getMargin(FlowResult flowResult, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowResult.getMargin(flowCnec, side, unit);
+        return flowResult.getRelativeMargin(flowCnec, side, unit);
     }
 }

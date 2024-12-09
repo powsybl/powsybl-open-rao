@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=variation-costs-v2.6.json",
+  "type": "object",
+  "properties": {
+    "up": {
+      "type": "number"
+    },
+    "down": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false
+}
