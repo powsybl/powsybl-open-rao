@@ -68,7 +68,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given crac file is "epic13/SL_ep13us5case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the worst margin is -184.1 A
 
   @fast @rao @mock @ac @contingency-scenarios
@@ -168,7 +168,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     And the remedial action "cra_pst_fr" is not used after "CO1_fr2_fr3_1" at "curative"
     And the remedial action "cra_pst_be" is used after "CO1_fr2_fr3_1" at "curative"
     And the worst margin is 996 A
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive
   Scenario: US 13.5.11.bis: CBCORA, CRA and PRA on same PSTs, with global 2P optimisation
@@ -191,4 +191,4 @@ Feature: US 13.5: dynamic of range actions available in several instants
     # And the tap of PstRangeAction "pra_pst_be" should be 15 after "CO1_fr2_fr3_1" at "curative"
     # does not work currently: expected behaviour not clear yet in that case
     And the worst margin is 995 A
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"

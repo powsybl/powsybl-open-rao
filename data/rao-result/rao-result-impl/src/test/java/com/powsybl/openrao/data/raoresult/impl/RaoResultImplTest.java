@@ -230,17 +230,11 @@ class RaoResultImplTest {
     }
 
     @Test
-    void testOptimizedStepsExecuted() {
+    void testExecutionDetails() {
         setUp();
-        assertFalse(raoResult.getOptimizationStepsExecuted().hasRunSecondPreventive());
-        raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
+        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, raoResult.getExecutionDetails());
+        raoResult.setExecutionDetails(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
+        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getExecutionDetails());
     }
 
     @Test

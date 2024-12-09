@@ -109,4 +109,4 @@ Feature: US 19.5: max number of CRAs
     Given crac file is "epic19/SL_ep19us5case10.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"

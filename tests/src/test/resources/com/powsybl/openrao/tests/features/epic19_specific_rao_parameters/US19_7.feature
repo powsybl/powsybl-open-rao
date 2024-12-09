@@ -29,7 +29,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case2.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: 19.7.3.A: Most limiting CNEC belongs to operator not sharing CRAs - AMP
@@ -56,7 +56,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case4.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: 19.7.5.A: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and is improved in CRAO - AMP
@@ -87,7 +87,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case6.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: 19.7.7.A: Only PSTs - All CNECs belong to one operator sharing a CRA - AMP
@@ -156,7 +156,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case2.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: 19.7.3.MW: Most limiting CNEC belongs to operator not sharing CRAs - MW
@@ -183,7 +183,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case4.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: 19.7.5.MW: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and is improved in CRAO - MW
@@ -214,7 +214,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case6.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: 19.7.7.MW: Only PSTs - All CNECs belong to one operator sharing a CRA - MW
@@ -286,7 +286,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the worst relative margin is 112.23 MW
 
   @fast @rao @mock @ac @contingency-scenarios @relative
@@ -317,7 +317,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the worst relative margin is 112.23 MW
 
 
@@ -353,7 +353,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the worst relative margin is 289.88 MW
 
 
@@ -430,7 +430,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the worst relative margin is 112.23 MW
 
   @fast @rao @mock @ac @contingency-scenarios @relative
@@ -461,7 +461,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the worst relative margin is 112.23 MW
 
   @fast @rao @mock @ac @contingency-scenarios @relative
@@ -493,7 +493,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the worst relative margin is 289.88 MW
 
   @fast @rao @mock @ac @contingency-scenarios @relative

@@ -50,7 +50,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/MergedCB_ep13us6case3.xml"
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the value of the objective function after CRA should be 286
 
   @fast @rao @mock @ac @contingency-scenarios @mnec
@@ -96,7 +96,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/SL_ep13us2case6_with_mnec_curative.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the value of the objective function after CRA should be -679.48
 
   @fast @rao @mock @ac @contingency-scenarios @mnec

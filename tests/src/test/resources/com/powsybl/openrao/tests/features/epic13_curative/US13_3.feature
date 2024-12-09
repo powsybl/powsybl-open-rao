@@ -11,7 +11,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And 0 remedial actions are used in preventive
     And the worst margin is 114 A
 
@@ -199,5 +199,5 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/CBCORA_ep13us3case10.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the worst margin is 114 A

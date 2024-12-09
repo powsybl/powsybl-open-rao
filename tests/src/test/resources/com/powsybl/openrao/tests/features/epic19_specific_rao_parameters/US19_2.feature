@@ -11,7 +11,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given crac file is "epic19/SL_ep19us2case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And the worst margin is -686.35 A on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"
 
   @fast @rao @mock @ac @contingency-scenarios
@@ -63,7 +63,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given crac file is "epic19/SL_ep19us2case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 19.2.6: Check country filtering is well done in curative
