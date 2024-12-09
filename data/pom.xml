@@ -21,6 +21,7 @@
         <module>glsk</module>
         <module>rao-result</module>
         <module>refprog</module>
+        <module>inter-temporal-constraint</module>
         <module>virtual-hubs</module>
     </modules>
 </project>
