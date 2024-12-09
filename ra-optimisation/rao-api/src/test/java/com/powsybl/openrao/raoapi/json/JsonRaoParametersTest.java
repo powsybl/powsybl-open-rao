@@ -92,25 +92,34 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenSensitivityAnalysis");
         // Extensions
         // -- LoopFlow parameters
-        parameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        parameters.getExtension(LoopFlowParametersExtension.class).setAcceptableIncrease(20.);
-        parameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
-        parameters.getExtension(LoopFlowParametersExtension.class).setConstraintAdjustmentCoefficient(0.5);
+        com.powsybl.openrao.raoapi.parameters.LoopFlowParameters loopFlowParameters = new com.powsybl.openrao.raoapi.parameters.LoopFlowParameters();
+        LoopFlowParameters loopFlowParametersExtension = new LoopFlowParameters();
+        loopFlowParameters.setAcceptableIncrease(20.);
+        loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
+        loopFlowParametersExtension.setConstraintAdjustmentCoefficient(0.5);
         List<String> countries = new ArrayList<>();
         countries.add("BE");
         countries.add("FR");
-        parameters.getExtension(LoopFlowParametersExtension.class).setCountries(countries);
+        loopFlowParameters.setCountries(countries);
+        parameters.setLoopFlowParameters(loopFlowParameters);
+        searchTreeParameters.setLoopFlowParameters(loopFlowParametersExtension);
         // -- Mnec parameters
-        parameters.addExtension(MnecParametersExtension.class, new MnecParametersExtension());
-        parameters.getExtension(MnecParametersExtension.class).setViolationCost(20);
-        parameters.getExtension(MnecParametersExtension.class).setAcceptableMarginDecrease(30);
-        parameters.getExtension(MnecParametersExtension.class).setConstraintAdjustmentCoefficient(3);
+        com.powsybl.openrao.raoapi.parameters.MnecParameters mnecParameters = new com.powsybl.openrao.raoapi.parameters.MnecParameters();
+        MnecParameters mnecParametersExtension = new MnecParameters();
+        mnecParametersExtension.setViolationCost(20);
+        mnecParameters.setAcceptableMarginDecrease(30);
+        mnecParametersExtension.setConstraintAdjustmentCoefficient(3);
+        parameters.setMnecParameters(mnecParameters);
+        searchTreeParameters.setMnecParameters(mnecParametersExtension);
         // -- Relative Margins parameters
-        parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
+        com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters relativeMarginsParameters = new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters();
+        RelativeMarginsParameters relativeMarginsParametersExtension = new RelativeMarginsParameters();
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}", "{BE}-{22Y201903144---9}-{DE}-{22Y201903145---4}"));
-        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
-        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
-        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.05);
+        relativeMarginsParameters.setPtdfBoundariesFromString(stringBoundaries);
+        relativeMarginsParametersExtension.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
+        relativeMarginsParametersExtension.setPtdfSumLowerBound(0.05);
+        parameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParametersExtension);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }
@@ -118,9 +127,9 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     @Test
     void update() {
         RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"));
-        assertEquals(2, parameters.getExtensions().size());
+        assertEquals(1, parameters.getExtensions().size());
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
-        assertEquals(3, parameters.getExtensions().size());
+        assertEquals(1, parameters.getExtensions().size());
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
@@ -137,13 +146,11 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE, searchTreeParameters.getSecondPreventiveRaoParameters().getExecutionCondition());
         assertTrue(searchTreeParameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao());
         // Extensions
-        MnecParametersExtension mnecParameters = parameters.getExtension(MnecParametersExtension.class);
-        assertEquals(888, mnecParameters.getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
-        assertEquals(23, mnecParameters.getViolationCost(), DOUBLE_TOLERANCE);
-        assertEquals(4, mnecParameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
-        RelativeMarginsParametersExtension relativeMarginsParameters = parameters.getExtension(RelativeMarginsParametersExtension.class);
-        assertEquals(0.06, relativeMarginsParameters.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
-        assertEquals(List.of("{FR}-{ES}"), relativeMarginsParameters.getPtdfBoundariesAsString());
+        assertEquals(888, parameters.getMnecParameters().get().getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
+        assertEquals(23, searchTreeParameters.getMnecParameters().get().getViolationCost(), DOUBLE_TOLERANCE);
+        assertEquals(4, searchTreeParameters.getMnecParameters().get().getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        assertEquals(0.06, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
+        assertEquals(List.of("{FR}-{ES}"), parameters.getRelativeMarginsParameters().get().getPtdfBoundariesAsString());
     }
 
     @Test

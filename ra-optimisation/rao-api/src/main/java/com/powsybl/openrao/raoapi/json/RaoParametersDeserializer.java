@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.parameters.RaoParameters.addOptionalExtensionsDefaultValuesIfExist;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -63,6 +64,18 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     JsonNotOptimizedCnecsParameters.deserialize(parser, parameters);
                     break;
+                case MNEC_PARAMETERS:
+                    parser.nextToken();
+                    JsonMnecParameters.deserialize(parser, parameters);
+                    break;
+                case RELATIVE_MARGINS:
+                    parser.nextToken();
+                    JsonRelativeMarginsParameters.deserialize(parser, parameters);
+                    break;
+                case LOOP_FLOW_PARAMETERS:
+                    parser.nextToken();
+                    JsonLoopFlowParameters.deserialize(parser, parameters);
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters);
@@ -72,6 +85,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
+        addOptionalExtensionsDefaultValuesIfExist(parameters);
         return parameters;
     }
 }

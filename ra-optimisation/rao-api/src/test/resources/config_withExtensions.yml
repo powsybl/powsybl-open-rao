@@ -17,18 +17,24 @@ rao-not-optimized-cnecs:
 
 rao-loop-flow-parameters:
   acceptable-increase: 11.0
+  countries: [ "FR", "ES", "PT" ]
+
+search-tree-loop-flow-parameters:
   ptdf-approximation: UPDATE_PTDF_WITH_TOPO
   constraint-adjustment-coefficient: 12.0
   violation-cost: 13.0
-  countries: [ "FR", "ES", "PT" ]
 
 rao-mnec-parameters:
   acceptable-margin-decrease: 55.0
+
+search-tree-mnec-parameters:
   violation-cost: 11.0
   constraint-adjustment-coefficient: 12.0
 
 rao-relative-margins-parameters:
   ptdf-boundaries: [ "{FR}-{BE}", "{FR}-{DE}" ]
+
+search-tree-relative-margins-parameters:
   ptdf-approximation: UPDATE_PTDF_WITH_TOPO_AND_PST
   ptdf-sum-lower-bound: 0.02
 

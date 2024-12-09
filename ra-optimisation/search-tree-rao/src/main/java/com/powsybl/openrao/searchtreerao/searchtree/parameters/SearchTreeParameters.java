@@ -18,9 +18,9 @@ import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.LinearOptimizationSolver;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.MnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -50,9 +50,13 @@ public class SearchTreeParameters {
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
 
-    private final MnecParametersExtension mnecParameters;
-    private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
-    private final LoopFlowParametersExtension loopFlowParameters;
+    private final MnecParameters mnecParameters;
+    private final com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters mnecParametersExtension;
+
+    private final RelativeMarginsParameters maxMinRelativeMarginParameters;
+    private final LoopFlowParameters loopFlowParameters;
+    private final com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParametersExtension;
+
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final LinearOptimizationSolver solverParameters;
     private final int maxNumberOfIterations;
@@ -63,9 +67,11 @@ public class SearchTreeParameters {
                                 Map<Instant, RaUsageLimits> raLimitationParameters,
                                 RangeActionsOptimizationParameters rangeActionParameters,
                                 com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension,
-                                MnecParametersExtension mnecParameters,
-                                RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
-                                LoopFlowParametersExtension loopFlowParameters,
+                                MnecParameters mnecParameters,
+                                com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters mnecParametersExtension,
+                                RelativeMarginsParameters maxMinRelativeMarginParameters,
+                                LoopFlowParameters loopFlowParameters,
+                                com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParametersExtension,
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
                                 LinearOptimizationSolver solverParameters,
                                 int maxNumberOfIterations) {
@@ -77,8 +83,10 @@ public class SearchTreeParameters {
         this.rangeActionParameters = rangeActionParameters;
         this.rangeActionParametersExtension = rangeActionParametersExtension;
         this.mnecParameters = mnecParameters;
+        this.mnecParametersExtension = mnecParametersExtension;
         this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
         this.loopFlowParameters = loopFlowParameters;
+        this.loopFlowParametersExtension = loopFlowParametersExtension;
         this.unoptimizedCnecParameters = unoptimizedCnecParameters;
         this.solverParameters = solverParameters;
         this.maxNumberOfIterations = maxNumberOfIterations;
@@ -112,16 +120,24 @@ public class SearchTreeParameters {
         return rangeActionParametersExtension;
     }
 
-    public MnecParametersExtension getMnecParameters() {
+    public MnecParameters getMnecParameters() {
         return mnecParameters;
     }
 
-    public RelativeMarginsParametersExtension getMaxMinRelativeMarginParameters() {
+    public com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters getMnecParametersExtension() {
+        return mnecParametersExtension;
+    }
+
+    public RelativeMarginsParameters getMaxMinRelativeMarginParameters() {
         return maxMinRelativeMarginParameters;
     }
 
-    public LoopFlowParametersExtension getLoopFlowParameters() {
+    public LoopFlowParameters getLoopFlowParameters() {
         return loopFlowParameters;
+    }
+
+    public com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters getLoopFlowParametersExtension() {
+        return loopFlowParametersExtension;
     }
 
     public UnoptimizedCnecParameters getUnoptimizedCnecParameters() {
@@ -262,9 +278,12 @@ public class SearchTreeParameters {
         private Map<Instant, RaUsageLimits> raLimitationParameters;
         private RangeActionsOptimizationParameters rangeActionParameters;
         private com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
-        private MnecParametersExtension mnecParameters;
-        private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
-        private LoopFlowParametersExtension loopFlowParameters;
+        private MnecParameters mnecParameters;
+        private com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters mnecParametersExtension;
+
+        private RelativeMarginsParameters maxMinRelativeMarginParameters;
+        private LoopFlowParameters loopFlowParameters;
+        private com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParametersExtension;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private LinearOptimizationSolver solverParameters;
         private int maxNumberOfIterations;
@@ -278,9 +297,17 @@ public class SearchTreeParameters {
             if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
                 this.rangeActionParametersExtension = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
             }
-            this.mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
-            this.maxMinRelativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
-            this.loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
+            this.mnecParameters = raoParameters.getMnecParameters().orElse(null);
+            if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+                this.mnecParametersExtension = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMnecParameters().orElse(null);
+            }
+            if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+                this.maxMinRelativeMarginParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters().orElse(null);
+            }
+            this.loopFlowParameters = raoParameters.getLoopFlowParameters().orElse(null);
+            if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+                this.loopFlowParametersExtension = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().orElse(null);
+            }
             this.solverParameters = getLinearOptimizationSolver(raoParameters);
             this.maxNumberOfIterations = getMaxMipIterations(raoParameters);
             return this;
@@ -321,17 +348,17 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withMnecParameters(MnecParametersExtension mnecParameters) {
+        public SearchTreeParametersBuilder withMnecParameters(MnecParameters mnecParameters) {
             this.mnecParameters = mnecParameters;
             return this;
         }
 
-        public SearchTreeParametersBuilder withMaxMinRelativeMarginParameters(RelativeMarginsParametersExtension maxMinRelativeMarginParameters) {
+        public SearchTreeParametersBuilder withMaxMinRelativeMarginParameters(RelativeMarginsParameters maxMinRelativeMarginParameters) {
             this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
             return this;
         }
 
-        public SearchTreeParametersBuilder withLoopFlowParameters(LoopFlowParametersExtension loopFlowParameters) {
+        public SearchTreeParametersBuilder withLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
             this.loopFlowParameters = loopFlowParameters;
             return this;
         }
@@ -361,8 +388,10 @@ public class SearchTreeParameters {
                 rangeActionParameters,
                 rangeActionParametersExtension,
                 mnecParameters,
+                mnecParametersExtension,
                 maxMinRelativeMarginParameters,
                 loopFlowParameters,
+                loopFlowParametersExtension,
                 unoptimizedCnecParameters,
                 solverParameters,
                 maxNumberOfIterations);

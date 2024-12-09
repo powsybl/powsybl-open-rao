@@ -17,12 +17,10 @@
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
   },
+  "mnec-parameters" : {
+    "acceptable-margin-decrease" : 50.0
+  },
   "extensions" : {
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 50.0,
-      "violation-cost" : 10.0,
-      "constraint-adjustment-coefficient" : 0.0
-    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 10000.0
@@ -80,6 +78,10 @@
       },
       "multi-threading" : {
         "available-cpus" : 1
+      },
+      "mnec-parameters" : {
+        "violation-cost" : 10.0,
+        "constraint-adjustment-coefficient" : 0.0
       }
     }
   }

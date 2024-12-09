@@ -17,24 +17,17 @@
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
+  "mnec-parameters" : {
+    "acceptable-margin-decrease" : 55.0
+  },
+  "relative-margins-parameters" : {
+    "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}" ]
+  },
+  "loop-flow-parameters" : {
+    "acceptable-increase" : 11.0,
+    "countries" : [ "ES", "FR", "PT" ]
+  },
   "extensions" : {
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 55.0,
-      "violation-cost" : 11.0,
-      "constraint-adjustment-coefficient" : 12.0
-    },
-    "relative-margins-parameters" : {
-      "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}" ],
-      "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
-      "ptdf-sum-lower-bound" : 0.02
-    },
-    "loop-flow-parameters" : {
-      "acceptable-increase" : 11.0,
-      "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
-      "constraint-adjustment-coefficient" : 12.0,
-      "violation-cost" : 13.0,
-      "countries" : [ "ES", "FR", "PT" ]
-    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 3.0
@@ -178,6 +171,19 @@
       },
       "multi-threading" : {
         "available-cpus" : 5
+      },
+      "mnec-parameters" : {
+        "violation-cost" : 11.0,
+        "constraint-adjustment-coefficient" : 12.0
+      },
+      "relative-margins-parameters" : {
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
+        "ptdf-sum-lower-bound" : 0.02
+      },
+      "loop-flow-parameters" : {
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
+        "constraint-adjustment-coefficient" : 12.0,
+        "violation-cost" : 13.0
       }
     }
   }

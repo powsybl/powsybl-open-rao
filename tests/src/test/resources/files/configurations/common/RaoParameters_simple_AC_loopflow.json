@@ -16,19 +16,14 @@
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
+  "mnec-parameters" : {
+    "acceptable-margin-decrease" : 50.0
+  },
+  "loop-flow-parameters" : {
+    "acceptable-increase" : 0.0,
+    "countries" : [ ]
+  },
   "extensions" : {
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 50.0,
-      "violation-cost" : 10.0,
-      "constraint-adjustment-coefficient" : 0.0
-    },
-    "loop-flow-parameters" : {
-      "acceptable-increase" : 0.0,
-      "ptdf-approximation" : "FIXED_PTDF",
-      "constraint-adjustment-coefficient" : 0.0,
-      "violation-cost" : 0.0,
-      "countries" : [ ]
-    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 0.0
@@ -86,6 +81,15 @@
       },
       "multi-threading" : {
         "available-cpus" : 1
+      },
+      "mnec-parameters" : {
+        "violation-cost" : 10.0,
+        "constraint-adjustment-coefficient" : 0.0
+      },
+      "loop-flow-parameters" : {
+        "ptdf-approximation" : "FIXED_PTDF",
+        "constraint-adjustment-coefficient" : 0.0,
+        "violation-cost" : 0.0
       }
     }
   }
