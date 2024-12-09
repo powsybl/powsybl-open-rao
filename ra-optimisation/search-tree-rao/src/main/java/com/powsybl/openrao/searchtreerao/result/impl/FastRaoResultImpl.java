@@ -23,6 +23,8 @@ import com.powsybl.iidm.network.TwoSides;
 
 import java.util.*;
 
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -52,13 +54,19 @@ public class FastRaoResultImpl implements RaoResult {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE
-                || afterPraResult.getSensitivityStatus() == ComputationStatus.FAILURE
-                || afterAraResult.getSensitivityStatus() == ComputationStatus.FAILURE
-                || finalResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
-            return ComputationStatus.FAILURE;
+        //TODO: PreventivAndCurativesRaoResult has a postContingencyResults object that we go through to evaluate the PARTIAL_FAILURE status. Understand why this object is not defined here.
+        if (initialResult.getSensitivityStatus() == FAILURE) {
+            return FAILURE;
         }
-        return ComputationStatus.DEFAULT;
+        if (initialResult.getSensitivityStatus() == PARTIAL_FAILURE ||
+                finalResult == null || finalResult.getSensitivityStatus() != DEFAULT ||
+                afterPraResult == null || afterPraResult.getSensitivityStatus() != DEFAULT ||
+                afterAraResult == null || afterAraResult.getSensitivityStatus() != DEFAULT
+        ) {
+            return PARTIAL_FAILURE;
+        }
+        return DEFAULT;
+
     }
 
     @Override

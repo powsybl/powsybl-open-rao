@@ -10,12 +10,14 @@ package com.powsybl.openrao.searchtreerao.faorao;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.json.JsonExport;
 import com.powsybl.openrao.data.crac.io.json.JsonImport;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -36,6 +38,7 @@ import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.*;
 import java.time.Instant;
@@ -45,6 +48,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -224,6 +229,7 @@ public class FastRao implements RaoProvider {
         raoInput.getNetwork().getVariantManager().setWorkingVariant(raoInput.getNetworkVariantId());
         // 6. Apply / Force optimal RAs found on filter RAO
         // 7. Run RAO with applied/forced RAs
+        // slide 13 found a new solution (apply RA found that will secure the first few CNEC then see if new usecure CNEC appear by doing a sensi computation on all the CNECs)
         System.out.println("**************************FULL SENSI WITH RAS*******************************");
         //TODO: Semaphores won't quite work with the current implementation to parallelize the loadflows:
         // eg if we applied PRAs, we need to give the post PRA result to the autoSensi etc, so the sensitivities are not parallelized
@@ -231,9 +237,12 @@ public class FastRao implements RaoProvider {
         // - have a runBasedOnInitialAndPrePerimResults that takes a semaphore to be able to run a sensi, and then wait for the semaphore to build the result
         // - ideally use the security analysis for faster runs anyways => rewrite the method completely
         // (for now option 1)
+
+        // Initialize Preventive perimeter result as atomic reference why ?
         AtomicReference<PrePerimeterResult> postPraSensi = new AtomicReference<>();
         AtomicReference<PrePerimeterResult> postAraSensi = new AtomicReference<>();
         AtomicReference<PrePerimeterResult> postCraSensi = new AtomicReference<>();
+
         Semaphore preventiveSemaphore = new Semaphore(1);
         Semaphore autoSemaphore = new Semaphore(1);
         Semaphore curativeSemaphore = new Semaphore(1);
@@ -257,25 +266,31 @@ public class FastRao implements RaoProvider {
         }
 
         autoSemaphore.acquire();
-        networkPool.submit(() -> {
-            try {
-                if (anyActionActivatedDuringInstantKind(raoResult, InstantKind.AUTO, crac)) {
+        if (anyActionActivatedDuringInstantKind(raoResult, InstantKind.AUTO, crac)) {
+            // TODO: Use list of tasks like everywhere else in the codebase
+            networkPool.submit(() -> {
+                try {
                     Network networkCopy = networkPool.getAvailableNetwork();
                     applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
                     AppliedRemedialActions appliedAutoRemedialActions = createAutoAppliedRemedialActionsFromRaoResult(filteredCrac, raoResult);
                     postAraSensi.set(runBasedOnInitialAndPrePerimResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), appliedAutoRemedialActions, initialResult, postPraSensi, preventiveSemaphore));
                     networkPool.releaseUsedNetwork(networkCopy);
                     autoSemaphore.release();
-                } else {
-                    preventiveSemaphore.acquire();
-                    postAraSensi.set(postPraSensi.get());
-                    preventiveSemaphore.release();
-                    autoSemaphore.release();
+                } catch (OpenRaoException e) {
+                    throw new RuntimeException(e);
+                    //BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
+                    //return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed : %s ", e.getMessage())));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
+
+            });
+        } else {
+            preventiveSemaphore.acquire();
+            postAraSensi.set(postPraSensi.get());
+            preventiveSemaphore.release();
+            autoSemaphore.release();
+        }
 
         curativeSemaphore.acquire();
         if (anyActionActivatedDuringInstantKind(raoResult, InstantKind.CURATIVE, crac)) {
@@ -354,8 +369,10 @@ public class FastRao implements RaoProvider {
             return new AppliedRemedialActions();
         }
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+
         crac.getStates().stream().filter(state -> state.getInstant().getKind().equals(InstantKind.AUTO)).forEach(state -> {
             appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
+            //Map<RangeAction<?>, Double> debug = raoResult.getOptimizedSetPointsOnState(state);
             appliedRemedialActions.addAppliedRangeActions(state, raoResult.getOptimizedSetPointsOnState(state));
         });
         return appliedRemedialActions;
