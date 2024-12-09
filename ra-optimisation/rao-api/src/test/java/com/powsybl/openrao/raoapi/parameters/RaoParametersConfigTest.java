@@ -7,6 +7,7 @@
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -41,7 +42,8 @@ class RaoParametersConfigTest {
     @Test
     void checkObjectiveFunctionConfig() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
-        objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE");
+        objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");
+        objectiveFunctionModuleConfig.setStringProperty("unit", "AMPERE");
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         objectiveFunctionModuleConfig.setStringProperty("preventive-stop-criterion", "MIN_OBJECTIVE");
         objectiveFunctionModuleConfig.setStringProperty("enforce-curative-security", "false");
@@ -49,7 +51,8 @@ class RaoParametersConfigTest {
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, objectiveFunctionParameters.getType());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, objectiveFunctionParameters.getType());
+        assertEquals(Unit.AMPERE, objectiveFunctionParameters.getUnit());
         assertEquals(123, objectiveFunctionParameters.getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, objectiveFunctionParameters.getPreventiveStopCriterion());
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
@@ -214,13 +217,15 @@ class RaoParametersConfigTest {
     @Test
     void checkMultipleConfigs() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
-        objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE");
+        objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");
+        objectiveFunctionModuleConfig.setStringProperty("unit", "AMPERE");
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         MapModuleConfig rangeActionsOptimizationModuleConfig = platformCfg.createModuleConfig("rao-range-actions-optimization");
         rangeActionsOptimizationModuleConfig.setStringProperty("max-mip-iterations", Objects.toString(32));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
-        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, parameters.getObjectiveFunctionParameters().getType());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, parameters.getObjectiveFunctionParameters().getType());
+        assertEquals(Unit.AMPERE, parameters.getObjectiveFunctionParameters().getUnit());
         assertEquals(123, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
         assertEquals(32, parameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), 1e-6);
         assertTrue(Objects.isNull(parameters.getExtension(LoopFlowParametersExtension.class)));

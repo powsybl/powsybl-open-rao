@@ -7,6 +7,7 @@
 package com.powsybl.openrao.raoapi.json;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -27,6 +28,7 @@ final class JsonObjectiveFunctionParameters {
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(OBJECTIVE_FUNCTION);
         jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getType());
+        jsonGenerator.writeObjectField(UNIT, parameters.getObjectiveFunctionParameters().getUnit());
         jsonGenerator.writeObjectField(PREVENTIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         jsonGenerator.writeNumberField(CURATIVE_MIN_OBJ_IMPROVEMENT, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement());
         jsonGenerator.writeBooleanField(ENFORCE_CURATIVE_SECURITY, parameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity());
@@ -38,6 +40,9 @@ final class JsonObjectiveFunctionParameters {
             switch (jsonParser.getCurrentName()) {
                 case TYPE:
                     raoParameters.getObjectiveFunctionParameters().setType(stringToObjectiveFunction(jsonParser.nextTextValue()));
+                    break;
+                case UNIT:
+                    raoParameters.getObjectiveFunctionParameters().setUnit(stringToObjectiveFunctionUnit(jsonParser.nextTextValue()));
                     break;
                 case PREVENTIVE_STOP_CRITERION:
                     raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(stringToPreventiveStopCriterion(jsonParser.nextTextValue()));
@@ -62,6 +67,19 @@ final class JsonObjectiveFunctionParameters {
         } catch (IllegalArgumentException e) {
             throw new OpenRaoException(String.format("Unknown objective function type value: %s", string));
         }
+    }
+
+    private static Unit stringToObjectiveFunctionUnit(String string) {
+        Unit unit;
+        try {
+            unit = Unit.getEnum(string);
+        } catch (IllegalArgumentException e) {
+            throw new OpenRaoException(String.format("Unknown objective function unit value: %s", string));
+        }
+        if (unit != Unit.MEGAWATT && unit != Unit.AMPERE) {
+            throw new OpenRaoException(String.format("Unknown objective function unit value: %s", string));
+        }
+        return unit;
     }
 
     private static ObjectiveFunctionParameters.PreventiveStopCriterion stringToPreventiveStopCriterion(String string) {
