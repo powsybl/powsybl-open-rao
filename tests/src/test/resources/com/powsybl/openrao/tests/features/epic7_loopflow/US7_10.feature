@@ -113,7 +113,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
   @fast @rao @mock @ac @preventive-only @loopflow
   Scenario: US 7.10.6: Complex search tree RAO with LF limitation
     Given network file is "common/TestCase12Nodes2PSTs.uct"
-    Given crac file is "epic7/crac_lf_rao_4.json"
+    Given crac file is "epic7/crac_lf_rao_5.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
     When I launch loopflow search_tree_rao with default loopflow limit as 35.0 percent of pmax
