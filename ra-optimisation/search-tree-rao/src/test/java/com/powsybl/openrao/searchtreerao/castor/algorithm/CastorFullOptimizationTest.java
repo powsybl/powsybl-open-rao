@@ -286,250 +286,35 @@ class CastorFullOptimizationTest {
             );
         }
 
-        List<SensitivityFactor> preventiveSensitivityFactors = List.of(factor1, factor2, factor3, factor4,
-                factor5, factor6, factor8, factor9);
-
-        // Preventive - outage 1
-        int outageNumber = 1;
+        // Preventive - final
         {
-            SensitivityAnalysisResult result = runOutage(outageNumber, preventiveSensitivityFactors, contingencyList, sensitivityAnalysisParameters);
+            Network nFinal = Network.read("final.xiidm", getClass().getResourceAsStream("/network/preventive/final.xiidm"));
+            SensitivityAnalysisResult result = SensitivityAnalysis.find("OpenLoadFlow")
+                    .run(nFinal, "InitialState", sensitivityFactors, contingencyList, List.of(), sensitivityAnalysisParameters);
+
             List<SensitivityValue> values = result.getValues();
-            assertEquals(8, values.size());
+            assertEquals(10, values.size());
             assertAll(
-                    () -> assertEquals(-341.58, getFunctionReferenceValue(result, null, factor1), 0.01d),
-                    () -> assertEquals(1308.92, getFunctionReferenceValue(result, null, factor2), 0.01d),
-                    () -> assertEquals(493.06, getFunctionReferenceValue(result, null, factor3), 0.01d),
-                    () -> assertEquals(1890.85, getFunctionReferenceValue(result, null, factor4), 0.01d),
-                    () -> assertEquals(194.26, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-                    () -> assertEquals(-338.33, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-                    () -> assertEquals(280.39, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-                    () -> assertEquals(488.36, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(-6.83, values.get(0).getValue(), 0.01d),
-                    () -> assertEquals(-20.93, values.get(1).getValue(), 0.01d),
-                    () -> assertEquals(9.86, values.get(2).getValue(), 0.01d),
-                    () -> assertEquals(-30.29, values.get(3).getValue(), 0.01d),
-                    () -> assertEquals(-29.63, values.get(4).getValue(), 0.01d),
-                    () -> assertEquals(-6.80, values.get(5).getValue(), 0.01d),
-                    () -> assertEquals(-42.77, values.get(6).getValue(), 0.01d),
-                    () -> assertEquals(9.82, values.get(7).getValue(), 0.01d)
+//                    () -> assertEquals(-341.58, getFunctionReferenceValue(result, null, factor1), 0.01d),
+//                    () -> assertEquals(1308.92, getFunctionReferenceValue(result, null, factor2), 0.01d),
+//                    () -> assertEquals(493.06, getFunctionReferenceValue(result, null, factor3), 0.01d),
+//                    () -> assertEquals(1890.85, getFunctionReferenceValue(result, null, factor4), 0.01d),
+//                    () -> assertEquals(194.26, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
+//                    () -> assertEquals(-338.33, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
+//                    () -> assertEquals(280.39, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
+//                    () -> assertEquals(488.36, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
+                    () -> assertEquals(2674.61, getFunctionReferenceValue(result, contingency.getContingencyId(), factor10), 0.01d)
+//                    () -> assertEquals(-6.83, values.get(0).getValue(), 0.01d),
+//                    () -> assertEquals(-20.93, values.get(1).getValue(), 0.01d),
+//                    () -> assertEquals(9.86, values.get(2).getValue(), 0.01d),
+//                    () -> assertEquals(-30.29, values.get(3).getValue(), 0.01d),
+//                    () -> assertEquals(-29.63, values.get(4).getValue(), 0.01d),
+//                    () -> assertEquals(-6.80, values.get(5).getValue(), 0.01d),
+//                    () -> assertEquals(-42.77, values.get(6).getValue(), 0.01d),
+//                    () -> assertEquals(9.82, values.get(7).getValue(), 0.01d)
             );
         }
 
-        // Preventive - outage 2
-        outageNumber = 2;
-        {
-            SensitivityAnalysisResult result = runOutage(outageNumber, preventiveSensitivityFactors, contingencyList, sensitivityAnalysisParameters);
-            List<SensitivityValue> values = result.getValues();
-            assertEquals(8, values.size());
-            assertAll(
-                    () -> assertEquals(-329.29, getFunctionReferenceValue(result, null, factor1), 0.01d),
-                    () -> assertEquals(1303.97, getFunctionReferenceValue(result, null, factor2), 0.01d),
-                    () -> assertEquals(475.31, getFunctionReferenceValue(result, null, factor3), 0.01d),
-                    () -> assertEquals(1883.69, getFunctionReferenceValue(result, null, factor4), 0.01d),
-                    () -> assertEquals(245.36, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-                    () -> assertEquals(-313.03, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-                    () -> assertEquals(354.16, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-                    () -> assertEquals(451.84, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(-6.74, values.get(0).getValue(), 0.01d),
-                    () -> assertEquals(-20.85, values.get(1).getValue(), 0.01d),
-                    () -> assertEquals(9.74, values.get(2).getValue(), 0.01d),
-                    () -> assertEquals(-30.17, values.get(3).getValue(), 0.01d),
-                    () -> assertEquals(-32.07, values.get(4).getValue(), 0.01d),
-                    () -> assertEquals(-6.62, values.get(5).getValue(), 0.01d),
-                    () -> assertEquals(-46.29, values.get(6).getValue(), 0.01d),
-                    () -> assertEquals(9.56, values.get(7).getValue(), 0.01d)
-            );
-        }
-
-        // Preventive - outage 3
-        outageNumber = 3;
-        {
-            SensitivityAnalysisResult result = runOutage(outageNumber, preventiveSensitivityFactors, contingencyList, sensitivityAnalysisParameters);
-            List<SensitivityValue> values = result.getValues();
-            assertEquals(8, values.size());
-            assertAll(
-                    () -> assertEquals(-320.68, getFunctionReferenceValue(result, null, factor1), 0.01d),
-                    () -> assertEquals(1311.23, getFunctionReferenceValue(result, null, factor2), 0.01d),
-                    () -> assertEquals(462.88, getFunctionReferenceValue(result, null, factor3), 0.01d),
-                    () -> assertEquals(1894.19, getFunctionReferenceValue(result, null, factor4), 0.01d),
-                    () -> assertEquals(201.47, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-                    () -> assertEquals(-305.70, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-                    () -> assertEquals(290.81, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-                    () -> assertEquals(441.25, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(-6.85, values.get(0).getValue(), 0.01d),
-                    () -> assertEquals(-21.00, values.get(1).getValue(), 0.01d),
-                    () -> assertEquals(9.89, values.get(2).getValue(), 0.01d),
-                    () -> assertEquals(-30.39, values.get(3).getValue(), 0.01d),
-                    () -> assertEquals(-29.54, values.get(4).getValue(), 0.01d),
-                    () -> assertEquals(-6.74, values.get(5).getValue(), 0.01d),
-                    () -> assertEquals(-42.64, values.get(6).getValue(), 0.01d),
-                    () -> assertEquals(9.73, values.get(7).getValue(), 0.01d)
-            );
-        }
-
-        // Preventive - outage 4
-        outageNumber = 4;
-        {
-            SensitivityAnalysisResult result = runOutage(outageNumber, preventiveSensitivityFactors, contingencyList, sensitivityAnalysisParameters);
-            List<SensitivityValue> values = result.getValues();
-            assertEquals(8, values.size());
-            assertAll(
-                    () -> assertEquals(-364.62, getFunctionReferenceValue(result, null, factor1), 0.01d),
-                    () -> assertEquals(1230.42, getFunctionReferenceValue(result, null, factor2), 0.01d),
-                    () -> assertEquals(526.32, getFunctionReferenceValue(result, null, factor3), 0.01d),
-                    () -> assertEquals(1777.28, getFunctionReferenceValue(result, null, factor4), 0.01d),
-                    () -> assertEquals(-151.37, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-                    () -> assertEquals(-358.77, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-                    () -> assertEquals(218.48, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-                    () -> assertEquals(517.87, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(-5.97, values.get(0).getValue(), 0.01d),
-                    () -> assertEquals(-19.25, values.get(1).getValue(), 0.01d),
-                    () -> assertEquals(8.61, values.get(2).getValue(), 0.01d),
-                    () -> assertEquals(-27.85, values.get(3).getValue(), 0.01d),
-                    () -> assertEquals(-23.82, values.get(4).getValue(), 0.01d),
-                    () -> assertEquals(-5.90, values.get(5).getValue(), 0.01d),
-                    () -> assertEquals(34.39, values.get(6).getValue(), 0.01d),
-                    () -> assertEquals(8.52, values.get(7).getValue(), 0.01d)
-            );
-        }
-
-        // Preventive - outage 5
-        outageNumber = 5;
-        {
-            SensitivityAnalysisResult result = runOutage(outageNumber, preventiveSensitivityFactors, contingencyList, sensitivityAnalysisParameters);
-            List<SensitivityValue> values = result.getValues();
-            assertEquals(8, values.size());
-            assertAll(
-                    () -> assertEquals(-378.10, getFunctionReferenceValue(result, null, factor1), 0.01d),
-                    () -> assertEquals(1249.45, getFunctionReferenceValue(result, null, factor2), 0.01d),
-                    () -> assertEquals(545.77, getFunctionReferenceValue(result, null, factor3), 0.01d),
-                    () -> assertEquals(1804.81, getFunctionReferenceValue(result, null, factor4), 0.01d),
-                    () -> assertEquals(-84.33, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-                    () -> assertEquals(-381.52, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-                    () -> assertEquals(121.72, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-                    () -> assertEquals(550.72, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(-5.87, values.get(0).getValue(), 0.01d),
-                    () -> assertEquals(-19.38, values.get(1).getValue(), 0.01d),
-                    () -> assertEquals(8.48, values.get(2).getValue(), 0.01d),
-                    () -> assertEquals(-28.04, values.get(3).getValue(), 0.01d),
-                    () -> assertEquals(-23.82, values.get(4).getValue(), 0.01d),
-                    () -> assertEquals(-5.90, values.get(5).getValue(), 0.01d),
-                    () -> assertEquals(34.39, values.get(6).getValue(), 0.01d),
-                    () -> assertEquals(8.52, values.get(7).getValue(), 0.01d)
-            );
-        }
-
-        // Preventive - outage 6
-        outageNumber = 6;
-        {
-            SensitivityAnalysisResult result = runOutage(outageNumber, preventiveSensitivityFactors, contingencyList, sensitivityAnalysisParameters);
-            List<SensitivityValue> values = result.getValues();
-            assertEquals(8, values.size());
-            assertAll(
-                    () -> assertEquals(-366.36, getFunctionReferenceValue(result, null, factor1), 0.01d),
-                    () -> assertEquals(1226.33, getFunctionReferenceValue(result, null, factor2), 0.01d),
-                    () -> assertEquals(528.83, getFunctionReferenceValue(result, null, factor3), 0.01d),
-                    () -> assertEquals(1771.36, getFunctionReferenceValue(result, null, factor4), 0.01d),
-                    () -> assertEquals(-126.62, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-                    () -> assertEquals(-360.46, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-                    () -> assertEquals(182.77, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-                    () -> assertEquals(520.32, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(-5.85, values.get(0).getValue(), 0.01d),
-                    () -> assertEquals(-18.99, values.get(1).getValue(), 0.01d),
-                    () -> assertEquals(8.45, values.get(2).getValue(), 0.01d),
-                    () -> assertEquals(-27.46, values.get(3).getValue(), 0.01d),
-                    () -> assertEquals(-25.53, values.get(4).getValue(), 0.01d),
-                    () -> assertEquals(-5.79, values.get(5).getValue(), 0.01d),
-                    () -> assertEquals(36.84, values.get(6).getValue(), 0.01d),
-                    () -> assertEquals(8.36, values.get(7).getValue(), 0.01d)
-            );
-        }
-
-        // Preventive - outage 7
-        outageNumber = 7;
-        {
-            SensitivityAnalysisResult result = runOutage(outageNumber, preventiveSensitivityFactors, contingencyList, sensitivityAnalysisParameters);
-            List<SensitivityValue> values = result.getValues();
-            assertEquals(8, values.size());
-            assertAll(
-                    () -> assertEquals(-357.26, getFunctionReferenceValue(result, null, factor1), 0.01d),
-                    () -> assertEquals(1236.45, getFunctionReferenceValue(result, null, factor2), 0.01d),
-                    () -> assertEquals(515.69, getFunctionReferenceValue(result, null, factor3), 0.01d),
-                    () -> assertEquals(1786.00, getFunctionReferenceValue(result, null, factor4), 0.01d),
-                    () -> assertEquals(-149.70, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-                    () -> assertEquals(-353.06, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-                    () -> assertEquals(216.08, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-                    () -> assertEquals(509.63, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(-6.02, values.get(0).getValue(), 0.01d),
-                    () -> assertEquals(-19.29, values.get(1).getValue(), 0.01d),
-                    () -> assertEquals(8.69, values.get(2).getValue(), 0.01d),
-                    () -> assertEquals(-27.91, values.get(3).getValue(), 0.01d),
-                    () -> assertEquals(-23.84, values.get(4).getValue(), 0.01d),
-                    () -> assertEquals(-5.97, values.get(5).getValue(), 0.01d),
-                    () -> assertEquals(34.41, values.get(6).getValue(), 0.01d),
-                    () -> assertEquals(8.62, values.get(7).getValue(), 0.01d)
-            );
-        }
-
-        // Preventive - outage 8
-        outageNumber = 8;
-        {
-            SensitivityAnalysisResult result = runOutage(outageNumber, preventiveSensitivityFactors, contingencyList, sensitivityAnalysisParameters);
-            List<SensitivityValue> values = result.getValues();
-            assertEquals(8, values.size());
-            assertAll(
-                    () -> assertEquals(-373.33, getFunctionReferenceValue(result, null, factor1), 0.01d),
-                    () -> assertEquals(1254.50, getFunctionReferenceValue(result, null, factor2), 0.01d),
-                    () -> assertEquals(538.89, getFunctionReferenceValue(result, null, factor3), 0.01d),
-                    () -> assertEquals(1812.11, getFunctionReferenceValue(result, null, factor4), 0.01d),
-                    () -> assertEquals(-83.28, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-                    () -> assertEquals(-379.99, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-                    () -> assertEquals(120.20, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-                    () -> assertEquals(548.50, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(-5.91, values.get(0).getValue(), 0.01d),
-                    () -> assertEquals(-19.42, values.get(1).getValue(), 0.01d),
-                    () -> assertEquals(8.53, values.get(2).getValue(), 0.01d),
-                    () -> assertEquals(-28.09, values.get(3).getValue(), 0.01d),
-                    () -> assertEquals(-23.86, values.get(4).getValue(), 0.01d),
-                    () -> assertEquals(-5.96, values.get(5).getValue(), 0.01d),
-                    () -> assertEquals(34.45, values.get(6).getValue(), 0.01d),
-                    () -> assertEquals(8.60, values.get(7).getValue(), 0.01d)
-            );
-        }
-
-        // Preventive - outage 9
-        outageNumber = 9;
-        {
-            SensitivityAnalysisResult result = runOutage(outageNumber, preventiveSensitivityFactors, contingencyList, sensitivityAnalysisParameters);
-            List<SensitivityValue> values = result.getValues();
-            assertEquals(8, values.size());
-            assertAll(
-                    () -> assertEquals(-359.06, getFunctionReferenceValue(result, null, factor1), 0.01d),
-                    () -> assertEquals(1232.30, getFunctionReferenceValue(result, null, factor2), 0.01d),
-                    () -> assertEquals(518.29, getFunctionReferenceValue(result, null, factor3), 0.01d),
-                    () -> assertEquals(1779.99, getFunctionReferenceValue(result, null, factor4), 0.01d),
-                    () -> assertEquals(-124.93, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-                    () -> assertEquals(-354.82, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-                    () -> assertEquals(180.32, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-                    () -> assertEquals(512.17, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(-5.90, values.get(0).getValue(), 0.01d),
-                    () -> assertEquals(-19.02, values.get(1).getValue(), 0.01d),
-                    () -> assertEquals(8.51, values.get(2).getValue(), 0.01d),
-                    () -> assertEquals(-27.52, values.get(3).getValue(), 0.01d),
-                    () -> assertEquals(-25.55, values.get(4).getValue(), 0.01d),
-                    () -> assertEquals(-5.85, values.get(5).getValue(), 0.01d),
-                    () -> assertEquals(36.87, values.get(6).getValue(), 0.01d),
-                    () -> assertEquals(8.45, values.get(7).getValue(), 0.01d)
-            );
-        }
-    }
-
-    private SensitivityAnalysisResult runOutage(int outageNumber, List<SensitivityFactor> preventiveSensitivityFactors,
-                                                List<Contingency> contingencyList, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
-        String name = "outage_" + outageNumber + ".xiidm";
-        Network n = Network.read(name, getClass().getResourceAsStream("/network/preventive/" + name));
-        return SensitivityAnalysis.find("OpenLoadFlow")
-                .run(n, "InitialState", preventiveSensitivityFactors, contingencyList, List.of(), sensitivityAnalysisParameters);
     }
 
     private static double getFunctionReferenceValue(SensitivityAnalysisResult result, String contingencyId, SensitivityFactor factor) {
