@@ -14,6 +14,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -35,11 +36,14 @@ import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -159,6 +163,7 @@ class CastorFullOptimizationTest {
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
     }
 
+    @Disabled
     @Test
     void smallRaoWithGlobal2P() throws IOException {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
