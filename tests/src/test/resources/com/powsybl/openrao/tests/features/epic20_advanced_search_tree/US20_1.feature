@@ -18,7 +18,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     And the tap of PstRangeAction "pst_be" should be -16 in preventive
     And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 321 A
     And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 501 A
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive
   Scenario: US 20.1.1.2: Same case as US 20.1.1 with a limitation of 2 RAs in preventive
@@ -139,7 +139,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     And the worst margin is 718 A
     And the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 718 A
     And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 752 A
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive
   Scenario: US 20.1.3: Preventive and curative network actions 2/3
@@ -155,7 +155,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     And the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -462 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -87 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 236 A
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive
   Scenario: US 20.1.4: Preventive and curative network actions 3/3
@@ -171,7 +171,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     And the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -462 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -87 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 236 A
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive
   Scenario: US 20.1.5: Duplicated RA on the same PST, one being a PRA and the other one being a CRA
@@ -193,7 +193,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     And the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be 535 A
     And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 963 A
     And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 1148 A
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive
   Scenario: US 20.1.6: Same test as 20.1.5 but the CRA has a relative to previous instant range
@@ -211,7 +211,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
     # The margin is way worse as we cannot re-optimize the preventive PST
     Then the worst margin is -184 A
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"
 
 
   @fast @rao @mock @ac @second-preventive
@@ -230,4 +230,4 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     And the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 806 A
     And the margin on cnec "fr3_fr5_CO1 - OPP - outage" after CRA should be 874 A
     And the margin on cnec "fr4_de1_CO1 - curative" after CRA should be 1002 A
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_IMPROVED_FIRST"
+    Then the execution details should be "Second preventive improved first preventive results"

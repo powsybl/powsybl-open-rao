@@ -82,7 +82,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
     When I launch search_tree_rao at "2021-04-02 05:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And 0 remedial actions are used in preventive
     And the worst margin is -1419.4 A
 
@@ -94,7 +94,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
     When I launch search_tree_rao at "2021-04-02 05:00"
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "Second preventive fell back to initial situation"
     And 0 remedial actions are used in preventive
     And the worst margin is -1419.4 A
 
@@ -106,7 +106,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
     When I launch search_tree_rao at "2021-04-02 05:00"
-    Then the optimization steps executed by the RAO should be "SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "Second preventive fell back to initial situation"
     And 0 remedial actions are used in preventive
     And the worst margin is -1419.4 A
 
@@ -133,7 +133,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
     When I launch search_tree_rao at "2021-04-02 05:00"
-    Then the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION"
+    Then the execution details should be "First preventive fell back to initial situation"
     And 0 remedial actions are used in preventive
     And the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
 
