@@ -68,23 +68,24 @@
       <direction>DIRECT</direction>
       <tsoOrigin>FR</tsoOrigin>
       <outage id="CO1_fr2_fr3_1" location="FR-FR" name="co1_fr2_fr3_1">
-        <branch eic="1234567890123450" from="FFR2AA1 " to="FFR3AA1 " order="1"/>
+          <branch eic="1234567890123450" from="FFR2AA1 " to="FFR3AA1 " order="1"/>
       </outage>
     </criticalBranch>
     <criticalBranch id="fr3_fr5_CO1 - DIR">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch eic="1234567890123450" from="FFR3AA1 " name="FFR3AA1  FFR5AA1  1" order="1" to="FFR5AA1 "/>
+      <imaxFactor>0.5</imaxFactor>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>0.1</permanentImaxFactor>
+      <permanentImaxFactor>0.5</permanentImaxFactor>
       <temporaryImaxFactor>0.6</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>75</minRAMfactor>
       <CNEC>true</CNEC>
       <MNEC>false</MNEC>
       <direction>DIRECT</direction>
-      <tsoOrigin>SK</tsoOrigin>
+      <tsoOrigin>FR</tsoOrigin>
       <outage id="CO1_fr2_fr3_1" location="FR-FR" name="co1_fr2_fr3_1">
-        <branch eic="1234567890123450" from="FFR2AA1 " to="FFR3AA1 " order="1"/>
+          <branch eic="1234567890123450" from="FFR2AA1 " to="FFR3AA1 " order="1"/>
       </outage>
     </criticalBranch>
     <criticalBranch id="fr3_fr5_CO1 - OPP">
@@ -99,7 +100,7 @@
       <CNEC>true</CNEC>
       <MNEC>false</MNEC>
       <direction>OPPOSITE</direction>
-      <tsoOrigin>SK</tsoOrigin>
+      <tsoOrigin>FR</tsoOrigin>
       <outage id="CO1_fr2_fr3_1" location="FR-FR" name="co1_fr2_fr3_1">
         <branch eic="1234567890123450" from="FFR2AA1 " to="FFR3AA1 " order="1"/>
       </outage>
@@ -107,8 +108,9 @@
     <criticalBranch id="fr1_fr4_CO1">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch eic="1234567890123450" from="FFR1AA1 " name="FFR1AA1  FFR4AA1  1" order="1" to="FFR4AA1 "/>
+      <imaxFactor>1</imaxFactor>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.1</permanentImaxFactor>
+      <permanentImaxFactor>1</permanentImaxFactor>
       <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>75</minRAMfactor>
@@ -117,20 +119,20 @@
       <direction>DIRECT</direction>
       <tsoOrigin>FR</tsoOrigin>
       <outage id="CO1_fr2_fr3_1" location="FR-FR" name="co1_fr2_fr3_1">
-        <branch eic="1234567890123450" from="FFR2AA1 " to="FFR3AA1 " order="1"/>
+          <branch eic="1234567890123450" from="FFR2AA1 " to="FFR3AA1 " order="1"/>
       </outage>
     </criticalBranch>
   </criticalBranches>
   <complexVariants>
     <complexVariant id="pst_be" name="pst_be">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
-      <tsoOrigin>FR</tsoOrigin>
+      <tsoOrigin>BE</tsoOrigin>
       <actionsSet name="pst_be">
         <preventive>false</preventive>
         <curative>true</curative>
         <enforced>false</enforced>
         <afterCOList>
-          <afterCOId>CO1_fr2_fr3_1</afterCOId>
+            <afterCOId>CO1_fr2_fr3_1</afterCOId>
         </afterCOList>
         <action type="PSTTAP">
           <branch order="1" from="BBE2AA1 " to="BBE3AA1 "/>
@@ -143,7 +145,7 @@
     </complexVariant>
     <complexVariant id="pst_fr" name="pst_fr">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
-      <tsoOrigin>SK</tsoOrigin>
+      <tsoOrigin>FR</tsoOrigin>
       <actionsSet name="pst_fr">
         <preventive>true</preventive>
         <curative>false</curative>
@@ -157,28 +159,9 @@
         </action>
       </actionsSet>
     </complexVariant>
-    <complexVariant id="pst_fr_cur" name="pst_fr_cur">
-      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
-      <tsoOrigin>FR</tsoOrigin>
-      <actionsSet name="pst_fr">
-        <preventive>false</preventive>
-        <curative>true</curative>
-        <enforced>false</enforced>
-        <afterCOList>
-          <afterCOId>CO1_fr2_fr3_1</afterCOId>
-        </afterCOList>
-        <action type="PSTTAP">
-          <branch order="1" from="FFR2AA1 " to="FFR4AA1 "/>
-          <range>
-            <min>-15</min>
-            <max>15</max>
-          </range>
-        </action>
-      </actionsSet>
-    </complexVariant>
     <complexVariant id="close_fr1_fr5" name="close_fr1_fr5">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
-      <tsoOrigin>HU</tsoOrigin>
+      <tsoOrigin>FR</tsoOrigin>
       <actionsSet name="close_fr1_fr5">
         <preventive>true</preventive>
         <curative>false</curative>
@@ -191,7 +174,7 @@
     </complexVariant>
     <complexVariant id="open_fr1_fr2" name="open_fr1_fr2">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
-      <tsoOrigin>HU</tsoOrigin>
+      <tsoOrigin>FR</tsoOrigin>
       <actionsSet name="open_fr1_fr2">
         <preventive>true</preventive>
         <curative>false</curative>
@@ -210,7 +193,7 @@
         <curative>true</curative>
         <enforced>false</enforced>
         <afterCOList>
-          <afterCOId>CO1_fr2_fr3_1</afterCOId>
+            <afterCOId>CO1_fr2_fr3_1</afterCOId>
         </afterCOList>
         <action type="STATUS">
           <branch from="FFR1AA1 " order="1" to="FFR3AA1 "/>
