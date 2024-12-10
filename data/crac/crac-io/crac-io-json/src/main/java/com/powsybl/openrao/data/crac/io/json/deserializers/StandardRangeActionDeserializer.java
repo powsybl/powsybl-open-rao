@@ -6,12 +6,15 @@
  */
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeActionAdder;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
+
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -98,6 +101,14 @@ public final class StandardRangeActionDeserializer {
                 jsonParser.nextToken();
                 standardRangeActionAdder.withSpeed(jsonParser.getIntValue());
                 break;
+            case JsonSerializationConstants.ACTIVATION_COST:
+                jsonParser.nextToken();
+                standardRangeActionAdder.withActivationCost(jsonParser.getDoubleValue());
+                break;
+            case JsonSerializationConstants.VARIATION_COSTS:
+                jsonParser.nextToken();
+                deserializeVariationCosts(standardRangeActionAdder, jsonParser);
+                break;
             default:
                 return false;
         }
@@ -109,6 +120,13 @@ public final class StandardRangeActionDeserializer {
             OnConstraintArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
         } else {
             throw new OpenRaoException("Unsupported field %s in CRAC version >= 2.4".formatted(keyword));
+        }
+    }
+
+    private static void deserializeVariationCosts(StandardRangeActionAdder<?> standardRangeActionAdder, JsonParser jsonParser) throws IOException {
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            jsonParser.nextToken();
+            standardRangeActionAdder.withVariationCost(jsonParser.getDoubleValue(), deserializeVariationDirection(jsonParser.getCurrentName()));
         }
     }
 

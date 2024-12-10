@@ -8,21 +8,29 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.MaxCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import org.apache.commons.lang3.tuple.Pair;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.groupFlowCnecsPerState;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class MinMarginEvaluator implements CostEvaluator {
-    private final Set<FlowCnec> flowCnecs;
-    private final Unit unit;
-    private final MarginEvaluator marginEvaluator;
+    protected Set<FlowCnec> flowCnecs;
+    protected Unit unit;
+    protected MarginEvaluator marginEvaluator;
 
     public MinMarginEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.flowCnecs = flowCnecs;
@@ -36,52 +44,10 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Unit getUnit() {
-        return unit;
-    }
-
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        Map<FlowCnec, Double> margins = new HashMap<>();
-
-        flowCnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-            .filter(Cnec::isOptimized)
-            .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, unit)));
-
-        return margins.keySet().stream()
-            .filter(Cnec::isOptimized)
-            .sorted(Comparator.comparing(margins::get))
-            .toList();
-
-    }
-
-    @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
-    }
-
-    @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
-        FlowCnec limitingElement;
-        if (costlyElements.isEmpty()) {
-            limitingElement = null;
-        } else {
-            limitingElement = costlyElements.get(0);
-        }
-        if (limitingElement == null) {
-            // In case there is no limiting element (may happen in perimeters where only MNECs exist),
-            // return a finite value, so that the virtual cost is not hidden by the functional cost
-            // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
-            return Pair.of(-getHighestThresholdAmongFlowCnecs(), costlyElements);
-        }
-        double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
-        if (margin >= Double.MAX_VALUE / 2) {
-            // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
-            // return a finite value, like MNEC case above
-            return Pair.of(-getHighestThresholdAmongFlowCnecs(), costlyElements);
-        }
-        return Pair.of(-margin, costlyElements);
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(flowCnecs);
+        Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(flowResult, entry.getValue())));
+        return new MaxCostEvaluatorResult(costPerState, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult));
     }
 
     private double getHighestThresholdAmongFlowCnecs() {
@@ -96,5 +62,28 @@ public class MinMarginEvaluator implements CostEvaluator {
             Math.max(
                 -flowCnec.getLowerBound(TwoSides.ONE, unit).orElse(0.0),
                 -flowCnec.getLowerBound(TwoSides.TWO, unit).orElse(0.0)));
+    }
+
+    protected double computeCostForState(FlowResult flowResult, Set<FlowCnec> flowCnecsOfState) {
+        List<FlowCnec> flowCnecsByMargin = FlowCnecSorting.sortByMargin(flowCnecsOfState, unit, marginEvaluator, flowResult);
+        FlowCnec limitingElement;
+        if (flowCnecsByMargin.isEmpty()) {
+            limitingElement = null;
+        } else {
+            limitingElement = flowCnecsByMargin.get(0);
+        }
+        if (limitingElement == null) {
+            // In case there is no limiting element (may happen in perimeters where only MNECs exist),
+            // return a finite value, so that the virtual cost is not hidden by the functional cost
+            // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
+            return -getHighestThresholdAmongFlowCnecs();
+        }
+        double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
+        if (margin >= Double.MAX_VALUE / 2) {
+            // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
+            // return a finite value, like MNEC case above
+            return -getHighestThresholdAmongFlowCnecs();
+        }
+        return -margin;
     }
 }

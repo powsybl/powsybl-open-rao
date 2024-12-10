@@ -27,7 +27,11 @@ public interface RangeActionActivationResult {
 
     Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state);
 
+    double getSetPointVariation(RangeAction<?> rangeAction, State state);
+
     int getOptimizedTap(PstRangeAction pstRangeAction, State state);
 
     Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state);
+
+    int getTapVariation(PstRangeAction pstRangeAction, State state);
 }

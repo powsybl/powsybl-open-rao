@@ -67,7 +67,6 @@ class SkippedOptimizationResultImplTest {
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
-        assertThrows(OpenRaoException.class, skippedOptimizationResult::getObjectiveFunction);
     }
 
     @Test

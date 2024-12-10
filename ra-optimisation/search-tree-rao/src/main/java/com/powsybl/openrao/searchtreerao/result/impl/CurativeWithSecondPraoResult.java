@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -159,11 +158,6 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        return postCraSensitivityObjectiveResult.getObjectiveFunction();
-    }
-
-    @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         firstCraoResult.excludeContingencies(contingenciesToExclude);
         secondPraoResult.excludeContingencies(contingenciesToExclude);
@@ -204,6 +198,16 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        checkState(state);
+        if (isCraIncludedInSecondPreventiveRao(rangeAction)) {
+            return secondPraoResult.getSetPointVariation(rangeAction, state);
+        } else {
+            return firstCraoResult.getSetPointVariation(rangeAction, state);
+        }
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         checkState(state);
         if (isCraIncludedInSecondPreventiveRao(pstRangeAction)) {
@@ -219,6 +223,16 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         return firstCraoResult.getRangeActions().stream()
             .filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
             .collect(Collectors.toMap(pst -> pst, pst -> getOptimizedTap(pst, state)));
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        checkState(state);
+        if (isCraIncludedInSecondPreventiveRao(pstRangeAction)) {
+            return secondPraoResult.getTapVariation(pstRangeAction, state);
+        } else {
+            return firstCraoResult.getTapVariation(pstRangeAction, state);
+        }
     }
 
     @Override

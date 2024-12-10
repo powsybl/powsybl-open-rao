@@ -62,7 +62,7 @@ class LinearProblemBuilderTest {
         when(parameters.getLoopFlowParameters()).thenReturn(loopFlowParameters);
 
         optimizationPerimeter = Mockito.mock(CurativeOptimizationPerimeter.class);
-        when(inputs.getOptimizationPerimeter()).thenReturn(optimizationPerimeter);
+        when(inputs.optimizationPerimeter()).thenReturn(optimizationPerimeter);
 
     }
 

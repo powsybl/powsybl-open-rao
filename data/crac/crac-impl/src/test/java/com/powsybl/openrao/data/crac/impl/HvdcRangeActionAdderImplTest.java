@@ -12,9 +12,12 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,6 +48,9 @@ class HvdcRangeActionAdderImplTest {
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
                 .withGroupId("groupId1")
+                .withActivationCost(100d)
+                .withVariationCost(500d, RangeAction.VariationDirection.UP)
+                .withVariationCost(800d, RangeAction.VariationDirection.DOWN)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
@@ -54,6 +60,9 @@ class HvdcRangeActionAdderImplTest {
 
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(networkElementId, hvdcRangeAction.getNetworkElement().getId());
+        assertEquals(Optional.of(100d), hvdcRangeAction.getActivationCost());
+        assertEquals(Optional.of(500d), hvdcRangeAction.getVariationCost(RangeAction.VariationDirection.UP));
+        assertEquals(Optional.of(800d), hvdcRangeAction.getVariationCost(RangeAction.VariationDirection.DOWN));
         assertEquals("BE", hvdcRangeAction.getOperator());
         assertEquals(1, hvdcRangeAction.getRanges().size());
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
@@ -80,6 +89,9 @@ class HvdcRangeActionAdderImplTest {
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(networkElementId, hvdcRangeAction.getNetworkElement().getId());
         assertEquals("BE", hvdcRangeAction.getOperator());
+        assertTrue(hvdcRangeAction.getActivationCost().isEmpty());
+        assertTrue(hvdcRangeAction.getVariationCost(RangeAction.VariationDirection.UP).isEmpty());
+        assertTrue(hvdcRangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).isEmpty());
         assertEquals(1, hvdcRangeAction.getRanges().size());
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkElements().size());

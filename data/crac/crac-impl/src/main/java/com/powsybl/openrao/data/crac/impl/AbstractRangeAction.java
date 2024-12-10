@@ -9,6 +9,8 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,15 +20,22 @@ import java.util.Set;
 public abstract class AbstractRangeAction<T extends RangeAction<T>> extends AbstractRemedialAction<T> implements RangeAction<T> {
 
     protected String groupId = null;
+    protected Map<VariationDirection, Double> variationCosts;
 
-    AbstractRangeAction(String id, String name, String operator, Set<UsageRule> usageRules, String groupId, Integer speed) {
-        super(id, name, operator, usageRules, speed);
+    AbstractRangeAction(String id, String name, String operator, Set<UsageRule> usageRules, String groupId, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
+        super(id, name, operator, usageRules, speed, activationCost);
         this.groupId = groupId;
+        this.variationCosts = variationCosts == null ? new HashMap<>() : new HashMap<>(variationCosts);
     }
 
     @Override
     public Optional<String> getGroupId() {
         return Optional.ofNullable(groupId);
+    }
+
+    @Override
+    public Optional<Double> getVariationCost(VariationDirection variationDirection) {
+        return Optional.ofNullable(variationCosts.get(variationDirection));
     }
 
     @Override

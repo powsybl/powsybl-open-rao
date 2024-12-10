@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -29,8 +30,8 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     private final double initialSetpoint;
 
     CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                             List<StandardRange> ranges, double initialSetpoint, Integer speed, Country exportingCountry, Country importingCountry) {
-        super(id, name, operator, usageRules, groupId, speed);
+                                List<StandardRange> ranges, double initialSetpoint, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts, Country exportingCountry, Country importingCountry) {
+        super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
         this.exportingCountry = exportingCountry;

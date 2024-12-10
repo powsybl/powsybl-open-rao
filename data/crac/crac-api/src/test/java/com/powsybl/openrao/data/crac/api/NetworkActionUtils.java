@@ -123,6 +123,11 @@ public final class NetworkActionUtils {
         }
 
         @Override
+        public Optional<Double> getActivationCost() {
+            return Optional.empty();
+        }
+
+        @Override
         public boolean hasImpactOnNetwork(Network network) {
             return false;
         }

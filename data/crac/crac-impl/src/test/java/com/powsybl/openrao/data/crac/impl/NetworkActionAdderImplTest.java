@@ -52,6 +52,7 @@ class NetworkActionAdderImplTest {
             .withId("networkActionId")
             .withName("networkActionName")
             .withOperator("operator")
+            .withActivationCost(50d)
             .newPhaseTapChangerTapPositionAction()
                 .withNetworkElement("pstNetworkElementId")
                 .withTapPosition(6)
@@ -65,6 +66,7 @@ class NetworkActionAdderImplTest {
         assertEquals("networkActionId", networkAction.getId());
         assertEquals("networkActionName", networkAction.getName());
         assertEquals("operator", networkAction.getOperator());
+        assertEquals(Optional.of(50d), networkAction.getActivationCost());
         assertEquals(1, networkAction.getElementaryActions().size());
         assertEquals(1, networkAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkActions().size());
@@ -89,6 +91,7 @@ class NetworkActionAdderImplTest {
         assertEquals("networkActionId", networkAction.getId());
         assertEquals("networkActionName", networkAction.getName());
         assertEquals("operator", networkAction.getOperator());
+        assertTrue(networkAction.getActivationCost().isEmpty());
         assertEquals(2, networkAction.getElementaryActions().size());
         assertEquals(0, networkAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkActions().size());

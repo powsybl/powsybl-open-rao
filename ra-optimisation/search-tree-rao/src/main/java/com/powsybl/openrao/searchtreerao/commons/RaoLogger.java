@@ -10,15 +10,17 @@ package com.powsybl.openrao.searchtreerao.commons;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.crac.api.Identifiable;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
@@ -44,6 +46,7 @@ public final class RaoLogger {
 
     public static void logSensitivityAnalysisResults(String prefix,
                                                      ObjectiveFunction objectiveFunction,
+                                                     RemedialActionActivationResult remedialActionActivationResult,
                                                      PrePerimeterResult sensitivityAnalysisResult,
                                                      RaoParameters raoParameters,
                                                      int numberOfLoggedLimitingElements) {
@@ -52,12 +55,14 @@ public final class RaoLogger {
             return;
         }
 
-        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult);
+        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, remedialActionActivationResult);
+        Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(prePerimeterObjectiveFunctionResult);
 
-        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
+        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})",
             formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getCost(), -prePerimeterObjectiveFunctionResult.getCost()),
             formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getFunctionalCost(), -prePerimeterObjectiveFunctionResult.getCost()),
-            formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getVirtualCost(), -prePerimeterObjectiveFunctionResult.getCost()));
+            formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getVirtualCost(), -prePerimeterObjectiveFunctionResult.getCost()),
+            virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
 
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
             sensitivityAnalysisResult,
@@ -318,5 +323,12 @@ public final class RaoLogger {
             .filter(virtualCostName -> objectiveFunctionResult.getVirtualCost(virtualCostName) > 1e-6)
             .collect(Collectors.toMap(Function.identity(),
                 name -> Math.round(objectiveFunctionResult.getVirtualCost(name) * 100.0) / 100.0));
+    }
+
+    public static Map<String, Double> getVirtualCostDetailed(RaoResult raoResult, Instant instant) {
+        return raoResult.getVirtualCostNames().stream()
+            .filter(virtualCostName -> raoResult.getVirtualCost(instant, virtualCostName) > 1e-6)
+            .collect(Collectors.toMap(Function.identity(),
+                name -> Math.round(raoResult.getVirtualCost(instant, name) * 100.0) / 100.0));
     }
 }

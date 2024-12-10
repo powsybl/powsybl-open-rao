@@ -19,6 +19,7 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -47,6 +48,7 @@ class AutomatonPerimeterResultImplTest {
     private RangeAction<?> unshiftedRangeAction;
     private Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private AutomatonPerimeterResultImpl result;
+    private PrePerimeterResult preAutoSensitivity;
     private PrePerimeterResult postAutoSensitivity;
 
     @BeforeEach
@@ -59,13 +61,14 @@ class AutomatonPerimeterResultImplTest {
         pstRangeActionShifted = mock(PstRangeAction.class);
         hvdcRangeActionShifted = mock(HvdcRangeAction.class);
         unshiftedRangeAction = mock(RangeAction.class);
+        preAutoSensitivity = mock(PrePerimeterResult.class);
         postAutoSensitivity = mock(PrePerimeterResult.class);
         // Define rangeActionsWithSetpoint
         rangeActionsWithSetpoint = new HashMap<>();
         rangeActionsWithSetpoint.put(pstRangeActionShifted, 1.0);
         rangeActionsWithSetpoint.put(hvdcRangeActionShifted, 2.0);
         rangeActionsWithSetpoint.put(unshiftedRangeAction, 3.0);
-        result = new AutomatonPerimeterResultImpl(postAutoSensitivity, Set.of(networkAction1), Set.of(), Set.of(pstRangeActionShifted, hvdcRangeActionShifted), rangeActionsWithSetpoint, state1);
+        result = new AutomatonPerimeterResultImpl(preAutoSensitivity, postAutoSensitivity, Set.of(networkAction1), Set.of(), Set.of(pstRangeActionShifted, hvdcRangeActionShifted), rangeActionsWithSetpoint, state1);
     }
 
     @Test
@@ -216,5 +219,18 @@ class AutomatonPerimeterResultImplTest {
         assertEquals(1000., result.getSensitivityValue(cnec1, TWO, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(200., result.getSensitivityValue(cnec2, ONE, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(2000., result.getSensitivityValue(cnec2, ONE, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testGetRangeActionsVariations() {
+        Mockito.when(pstRangeActionShifted.convertAngleToTap(0.0)).thenReturn(0);
+        Mockito.when(pstRangeActionShifted.convertAngleToTap(1.0)).thenReturn(12);
+        Mockito.when(preAutoSensitivity.getSetpoint(pstRangeActionShifted)).thenReturn(0.0);
+        Mockito.when(preAutoSensitivity.getSetpoint(hvdcRangeActionShifted)).thenReturn(-5.0);
+        Mockito.when(preAutoSensitivity.getSetpoint(unshiftedRangeAction)).thenReturn(3.0);
+        assertEquals(12, result.getTapVariation(pstRangeActionShifted, state1));
+        assertEquals(1.0, result.getSetPointVariation(pstRangeActionShifted, state1));
+        assertEquals(7.0, result.getSetPointVariation(hvdcRangeActionShifted, state1));
+        assertEquals(0.0, result.getSetPointVariation(unshiftedRangeAction, state1));
     }
 }

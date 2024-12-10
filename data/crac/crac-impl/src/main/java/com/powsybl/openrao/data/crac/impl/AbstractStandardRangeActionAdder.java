@@ -9,10 +9,13 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.StandardRangeAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeActionAdder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -23,10 +26,12 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     protected String groupId;
     protected double initialSetpoint;
     protected List<StandardRange> ranges;
+    protected Map<RangeAction.VariationDirection, Double> variationCosts;
 
     AbstractStandardRangeActionAdder(CracImpl crac) {
         super(crac);
         this.ranges = new ArrayList<>();
+        this.variationCosts = new HashMap<>();
     }
 
     @Override
@@ -38,6 +43,12 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     @Override
     public T withInitialSetpoint(double initialSetpoint) {
         this.initialSetpoint = initialSetpoint;
+        return (T) this;
+    }
+
+    @Override
+    public T withVariationCost(Double variationCost, RangeAction.VariationDirection variationDirection) {
+        this.variationCosts.put(variationDirection, variationCost);
         return (T) this;
     }
 

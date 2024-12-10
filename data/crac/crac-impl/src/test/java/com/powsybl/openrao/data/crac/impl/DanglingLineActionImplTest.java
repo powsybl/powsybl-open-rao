@@ -172,7 +172,7 @@ class DanglingLineActionImplTest {
         DanglingLineAction sameDanglingLineAction = new DanglingLineActionBuilder().withId("id").withDanglingLineId("DL1").withActivePowerValue(10).withRelativeValue(false).build();
         assertEquals(danglingLineAction, sameDanglingLineAction);
         NetworkAction dummy5 = new NetworkActionImpl("id", "name", "operator", null,
-            new HashSet<>(List.of(danglingLineAction, sameDanglingLineAction)), 0, Set.of());
+            new HashSet<>(List.of(danglingLineAction, sameDanglingLineAction)), 0, null, Set.of());
         assertEquals(1, dummy5.getElementaryActions().size());
     }
 }
