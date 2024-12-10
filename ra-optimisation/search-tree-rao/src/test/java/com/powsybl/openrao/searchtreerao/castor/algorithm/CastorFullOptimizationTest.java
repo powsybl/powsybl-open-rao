@@ -174,6 +174,35 @@ class CastorFullOptimizationTest {
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+
+        assertAll(
+                () -> assertEquals(451.09, raoResult.getFlow(null, crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-1886.06, raoResult.getFlow(null, crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(451.09, raoResult.getFlow(null, crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-294.36, raoResult.getFlow(null, crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-294.36, raoResult.getFlow(null, crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(474.54, raoResult.getFlow(null, crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - preventive"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(2371.88, raoResult.getFlow(null, crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-1897.99, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(485.38, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - preventive"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(2674.61, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(2674.61, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(484.19, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-278.10, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(2674.61, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(221.10, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(-134.98, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.),
+                () -> assertEquals(1444.08, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative"), TwoSides.TWO, Unit.AMPERE), 1.)
+        );
+
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
         assertEquals(674.6, raoResult.getFunctionalCost(preventiveInstant), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(curativeInstant), 1.);
