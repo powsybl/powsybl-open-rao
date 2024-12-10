@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
  */
 class PowerGradientConstraintTest {
     @Test
-    void testPowerGraidentConstraints() {
+    void testPowerGradientConstraints() {
         PowerGradientConstraint pgc1 = new PowerGradientConstraint("generator", 200.0, VariationDirection.UP);
         assertEquals("generator", pgc1.networkElementId());
         assertEquals(200.0, pgc1.powerGradient());
