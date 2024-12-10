@@ -35,15 +35,17 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     protected String operator;
     protected Set<UsageRule> usageRules;
     protected Integer speed;
+    protected Double activationCost;
     private boolean computedUsageMethods = false;
     private Map<State, UsageMethod> usageMethodPerState;
     private Map<Instant, UsageMethod> usageMethodPerInstant;
 
-    protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed) {
+    protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed, Double activationCost) {
         super(id, name);
         this.operator = operator;
         this.usageRules = usageRules;
         this.speed = speed;
+        this.activationCost = activationCost;
     }
 
     void addUsageRule(UsageRule usageRule) {
@@ -69,6 +71,11 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     @Override
     public Optional<Integer> getSpeed() {
         return Optional.ofNullable(speed);
+    }
+
+    @Override
+    public Optional<Double> getActivationCost() {
+        return Optional.ofNullable(activationCost);
     }
 
     @Override

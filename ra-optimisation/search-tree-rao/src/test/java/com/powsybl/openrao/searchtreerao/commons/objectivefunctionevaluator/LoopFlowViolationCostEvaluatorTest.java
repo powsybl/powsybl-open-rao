@@ -64,11 +64,11 @@ class LoopFlowViolationCostEvaluatorTest {
         when(cnecLoopFlowExtension.getThresholdWithReliabilityMargin(Unit.MEGAWATT)).thenReturn(inputThresholdWIthReliabilityMargin);
     }
 
-    private void setInitialLoopFLow(FlowCnec branchCnec, double initialLoopFLow) {
+    private void setInitialLoopFlow(FlowCnec branchCnec, double initialLoopFLow) {
         when(initialLoopFlows.getLoopFlow(branchCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(initialLoopFLow);
     }
 
-    private void setCurrentLoopFLow(FlowCnec branchCnec, double currentLoopFlow) {
+    private void setCurrentLoopFlow(FlowCnec branchCnec, double currentLoopFlow) {
         when(currentLoopFlows.getLoopFlow(branchCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(currentLoopFlow);
     }
 
@@ -91,18 +91,12 @@ class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    void testGetUnit() {
-        buildLoopFlowViolationCostEvaluator();
-        assertEquals(Unit.MEGAWATT, evaluator.getUnit());
-    }
-
-    @Test
     void testLoopFlowExcessWithInitialAndCurrentLoopFlowBelowInputThreshold() {
         // When initial loop-flow + acceptable augmentation is below input threshold, it is the limiting element
         setAcceptableAugmentationInMW(0);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 0);
-        setCurrentLoopFLow(cnec1, 10);
+        setInitialLoopFlow(cnec1, 0);
+        setCurrentLoopFlow(cnec1, 10);
 
         buildLoopFlowViolationCostEvaluator();
 
@@ -114,8 +108,8 @@ class LoopFlowViolationCostEvaluatorTest {
         // When initial loop-flow + acceptable augmentation is below input threshold, it is the limiting element
         setAcceptableAugmentationInMW(0);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 0);
-        setCurrentLoopFLow(cnec1, 190);
+        setInitialLoopFlow(cnec1, 0);
+        setCurrentLoopFlow(cnec1, 190);
 
         buildLoopFlowViolationCostEvaluator();
 
@@ -127,8 +121,8 @@ class LoopFlowViolationCostEvaluatorTest {
         // Acceptable augmentation should have no effect when the loop-flow is limited by input threshold
         setAcceptableAugmentationInMW(20);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 0);
-        setCurrentLoopFLow(cnec1, 190);
+        setInitialLoopFlow(cnec1, 0);
+        setCurrentLoopFlow(cnec1, 190);
 
         buildLoopFlowViolationCostEvaluator();
 
@@ -140,8 +134,8 @@ class LoopFlowViolationCostEvaluatorTest {
         // Loop-flow excess must be computed toward absolute value of loop-flow
         setAcceptableAugmentationInMW(0);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 0);
-        setCurrentLoopFLow(cnec1, -190);
+        setInitialLoopFlow(cnec1, 0);
+        setCurrentLoopFlow(cnec1, -190);
 
         buildLoopFlowViolationCostEvaluator();
 
@@ -153,8 +147,8 @@ class LoopFlowViolationCostEvaluatorTest {
         // When initial loop-flow + acceptable augmentation is above input threshold, they are the limiting elements
         setAcceptableAugmentationInMW(0);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 150);
-        setCurrentLoopFLow(cnec1, 200);
+        setInitialLoopFlow(cnec1, 150);
+        setCurrentLoopFlow(cnec1, 200);
 
         buildLoopFlowViolationCostEvaluator();
 
@@ -166,8 +160,8 @@ class LoopFlowViolationCostEvaluatorTest {
         // When initial loop-flow + acceptable augmentation is above input threshold, they are the limiting elements
         setAcceptableAugmentationInMW(20);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 150);
-        setCurrentLoopFLow(cnec1, 200);
+        setInitialLoopFlow(cnec1, 150);
+        setCurrentLoopFlow(cnec1, 200);
 
         buildLoopFlowViolationCostEvaluator();
 
@@ -181,17 +175,17 @@ class LoopFlowViolationCostEvaluatorTest {
 
         // Loop-flow excess is 100MW
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 0);
-        setCurrentLoopFLow(cnec1, 200);
+        setInitialLoopFlow(cnec1, 0);
+        setCurrentLoopFlow(cnec1, 200);
 
         // Loop-flow excess is 50MW
         setInputThresholdWithReliabilityMargin(cnec2, 100);
-        setInitialLoopFLow(cnec2, 150);
-        setCurrentLoopFLow(cnec2, 200);
+        setInitialLoopFlow(cnec2, 150);
+        setCurrentLoopFlow(cnec2, 200);
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(150, evaluator.computeCostAndLimitingElements(currentLoopFlows).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(150, evaluator.evaluate(currentLoopFlows, null).getCost(Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -201,37 +195,37 @@ class LoopFlowViolationCostEvaluatorTest {
 
         // Loop-flow excess is 100MW
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 0);
-        setCurrentLoopFLow(cnec1, 200);
+        setInitialLoopFlow(cnec1, 0);
+        setCurrentLoopFlow(cnec1, 200);
 
         // Loop-flow excess is 50MW
         setInputThresholdWithReliabilityMargin(cnec2, 100);
-        setInitialLoopFLow(cnec2, 150);
-        setCurrentLoopFLow(cnec2, 200);
+        setInitialLoopFlow(cnec2, 150);
+        setCurrentLoopFlow(cnec2, 200);
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(300, evaluator.computeCostAndLimitingElements(currentLoopFlows).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(300, evaluator.evaluate(currentLoopFlows, null).getCost(Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void testCostlyElements() {
+    void testElementsInViolation() {
         setViolationCost(1);
         setAcceptableAugmentationInMW(0);
 
         // Loop-flow excess is 100MW
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 0);
-        setCurrentLoopFLow(cnec1, 200);
+        setInitialLoopFlow(cnec1, 0);
+        setCurrentLoopFlow(cnec1, 200);
 
         // Loop-flow excess is 50MW
         setInputThresholdWithReliabilityMargin(cnec2, 100);
-        setInitialLoopFLow(cnec2, 150);
-        setCurrentLoopFLow(cnec2, 200);
+        setInitialLoopFlow(cnec2, 150);
+        setCurrentLoopFlow(cnec2, 200);
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows).getRight();
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentLoopFlows, null).getCostlyElements(Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(cnec1, costlyElements.get(0));
         assertSame(cnec2, costlyElements.get(1));
@@ -244,17 +238,17 @@ class LoopFlowViolationCostEvaluatorTest {
 
         // Loop-flow excess is null
         setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 0);
-        setCurrentLoopFLow(cnec1, 70);
+        setInitialLoopFlow(cnec1, 0);
+        setCurrentLoopFlow(cnec1, 70);
 
         // Loop-flow excess is 50MW
         setInputThresholdWithReliabilityMargin(cnec2, 100);
-        setInitialLoopFLow(cnec2, 150);
-        setCurrentLoopFLow(cnec2, 200);
+        setInitialLoopFlow(cnec2, 150);
+        setCurrentLoopFlow(cnec2, 200);
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows).getRight();
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentLoopFlows, null).getCostlyElements(Set.of());
         assertEquals(1, costlyElements.size());
         assertSame(cnec2, costlyElements.get(0));
     }

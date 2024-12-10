@@ -1,8 +1,8 @@
 ---
-title: Internal json CRAC format
+title: Internal JSON CRAC format
 ---
 
-# Internal json CRAC format
+# Internal JSON CRAC format
 
 ## Introduction
 
@@ -902,6 +902,7 @@ crac.newNetworkAction()
 crac.newNetworkAction()
 	.withId("load-action-na-id")
 	.withOperator("operator")
+    .withActivationCost(200d)
 	.newLoadAction()
 		.withActivePowerValue(260.0)
 		.withNetworkElement("load-id")
@@ -1005,6 +1006,7 @@ crac.newNetworkAction()
     "id" : "load-action-na-id",
     "name" : "load-action-na-id",
     "operator" : "operator",
+    "activation-cost": 200.0,
     "freeToUseUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
@@ -1056,6 +1058,7 @@ crac.newNetworkAction()
 🔴⭐ **identifier**  
 ⚪ **name**  
 ⚪ **operator**  
+⚪ **activationCost**  
 ⚪ **freeToUse usage rules**: list of 0 to N FreeToUse usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onState usage rules**: list of 0 to N OnState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
@@ -1190,9 +1193,12 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
 🔴⭐ **identifier**  
 ⚪ **name**  
 ⚪ **operator**  
+⚪ **activationCost**: cost to spend to activate the remedial action  
+⚪ **variationCosts**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each tap moved in the upward direction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each tap moved in the downward direction  
 🔴 **network element**: id is mandatory, name is optional  
-⚪ **groupId**: if you want to align this range action with others, set the same groupId for all. You can use any
-group ID you like, as long as you use the same for all the range actions you want to align.  
+⚪ **groupId**: if you want to align this range action with others, set the same groupId for all. You can use any group ID you like, as long as you use the same for all the range actions you want to align.  
 🔵 **speed**: mandatory if it is an automaton  
 🔴 **initial tap**  
 🔴 **tap to angle conversion map**  
@@ -1257,6 +1263,10 @@ In that case, the validity domain of the HVDC is [-5; 10].
 🔴⭐ **identifier**  
 ⚪ **name**  
 ⚪ **operator**  
+⚪ **activationCost**: cost to spend to activate the remedial action  
+⚪ **variationCosts**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
 🔴 **network element**: id is mandatory, name is optional  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
@@ -1326,11 +1336,15 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 🔴⭐ **identifier**  
 ⚪ **name**  
 ⚪ **operator**  
+⚪ **activationCost**: cost to spend to activate the remedial action  
+⚪ **variationCosts**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
 🔴 **network element and key** (list of 1 to N): id and key are mandatory, name is optional  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  
 🔵 **speed**: mandatory if it is an automaton  
 🔴 **ranges**: list of 1 to N Range  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **min**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🔴 **min**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **max**  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on usage rules)  
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on usage rules)  
@@ -1352,8 +1366,12 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withId("counter-trade-range-action-id")
         .withGroupId("group-id")
    		.withOperator("operator")
+        .withActivationCost(100d)
+        .withVariationCost(1000d, RangeAction.VariationDirection.UP)
+        .withVariationCost(2000d, RangeAction.VariationDirection.DOWN)
         .withExportingCountry(Country.FR)
         .withImportingCountry(Country.ES)
+        .withInitialSetpoint(50)
         .newRange().withMin(0).withMax(1000).add()
         .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
         .add();     
@@ -1366,7 +1384,12 @@ exported from France to Spain.
 "counterTradeRangeActions" : [ {
     "id" : "counter-trade-range-action-id",
     "name" : "counterTradeRange1Name",
-    "operator" : null,
+    "operator" : "operator",
+    "activation-cost" : 100.0,
+    "variation-costs" : {
+        "up": 1000.0,
+        "down": 2000.0
+    }
     "speed" : 30,
     "onInstantUsageRules" : [ {
         "instant" : "preventive",
@@ -1389,6 +1412,10 @@ exported from France to Spain.
 🔴⭐ **identifier**  
 ⚪ **name**  
 ⚪ **operator**  
+⚪ **activationCost**: cost to spend to activate the remedial action  
+⚪ **variationCosts**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **up**: cost to spend for each MW moved in the upward direction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚪ **down**: cost to spend for each MW moved in the downward direction  
 🔴 **exporting country**  
 🔴 **importing country**  
 ⚪ **groupId**: if you want to align this range action with others, set the same groupId for all  

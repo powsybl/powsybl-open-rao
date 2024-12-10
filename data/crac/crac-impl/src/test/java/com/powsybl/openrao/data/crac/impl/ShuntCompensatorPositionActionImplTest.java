@@ -204,7 +204,7 @@ class ShuntCompensatorPositionActionImplTest {
         ShuntCompensatorPositionAction sameShuntCompensatorPositionAction = new ShuntCompensatorPositionActionBuilder().withId("id").withShuntCompensatorId("SC1").withSectionCount(10).build();
         assertEquals(shuntCompensatorPositionAction, sameShuntCompensatorPositionAction);
         NetworkAction dummy5 = new NetworkActionImpl("id", "name", "operator", null,
-            new HashSet<>(List.of(shuntCompensatorPositionAction, sameShuntCompensatorPositionAction)), 0, Set.of());
+            new HashSet<>(List.of(shuntCompensatorPositionAction, sameShuntCompensatorPositionAction)), 0, null, Set.of());
         assertEquals(1, dummy5.getElementaryActions().size());
     }
 }

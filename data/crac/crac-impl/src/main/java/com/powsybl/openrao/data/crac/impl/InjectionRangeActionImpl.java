@@ -34,8 +34,8 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     private final double initialSetpoint;
 
     InjectionRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                             List<StandardRange> ranges, double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys, Integer speed) {
-        super(id, name, operator, usageRules, groupId, speed);
+                             List<StandardRange> ranges, double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
+        super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
         this.injectionDistributionKeys = injectionDistributionKeys;
