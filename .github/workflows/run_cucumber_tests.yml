@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   cucumber_tests:
-    name: Run Cucumber tests on ${{ matrix.os }} with jvm ${{ matrix.jvm }}
+    name: Run Cucumber tests on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

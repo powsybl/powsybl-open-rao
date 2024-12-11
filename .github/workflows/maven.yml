@@ -4,7 +4,7 @@ on: [ push ]
 
 jobs:
   build:
-    name: Build OS ${{ matrix.os }} with jvm ${{ matrix.jvm }}
+    name: Build on ${{ matrix.os }} jvm ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
