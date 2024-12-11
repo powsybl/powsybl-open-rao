@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -16,8 +17,9 @@ import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
@@ -53,6 +55,10 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
+        return runInitialSensitivityAnalysis(network, crac, Set.of());
+    }
+
+    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac, Set<State> optimizedStates) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
             .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
@@ -63,7 +69,7 @@ public class PrePerimeterSensitivityAnalysis {
         }
 
         sensitivityComputer = sensitivityComputerBuilder.build();
-        objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters);
+        objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(flowCnecs, raoParameters, optimizedStates);
 
         return runAndGetResult(network, objectiveFunction);
     }
@@ -96,7 +102,7 @@ public class PrePerimeterSensitivityAnalysis {
         }
         sensitivityComputer = sensitivityComputerBuilder.build();
 
-        objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters);
+        objectiveFunction = ObjectiveFunction.build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters, Set.of(crac.getPreventiveState()));
 
         return runAndGetResult(network, objectiveFunction);
     }
@@ -117,16 +123,12 @@ public class PrePerimeterSensitivityAnalysis {
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
-        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult);
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(rangeActionSetpointResult));
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
                 rangeActionSetpointResult,
                 objectiveFunctionResult
         );
-    }
-
-    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult) {
-        return objectiveFunction.evaluate(flowResult);
     }
 }

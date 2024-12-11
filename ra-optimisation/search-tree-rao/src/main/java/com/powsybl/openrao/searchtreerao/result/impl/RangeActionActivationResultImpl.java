@@ -115,7 +115,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             .filter(e -> {
                 Optional<State> pState = getPreviousState(state);
                 if (pState.isEmpty()) {
-                    return Math.abs(getOptimizedSetpoint(e.getKey(), state) - e.getValue().refSetpoint) > 1e-6;
+                    return Math.abs(getOptimizedSetpoint(e.getKey(), state) - e.getValue().refSetpoint) > 1e-6; // TODO : use same parameter as min variation of MIP here?
                 } else {
                     return Math.abs(getOptimizedSetpoint(e.getKey(), state) - getOptimizedSetpoint(e.getKey(), pState.get())) > 1e-6;
                 }
@@ -164,6 +164,17 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        computeSetpointsPerStatePerPst();
+        Optional<State> previousState = getPreviousState(state);
+        if (previousState.isEmpty()) {
+            return getOptimizedSetpoint(rangeAction, state) - elementaryResultMap.get(rangeAction).refSetpoint;
+        } else {
+            return getOptimizedSetpoint(rangeAction, state) - getOptimizedSetpoint(rangeAction, previousState.get());
+        }
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         computeSetpointsPerStatePerPst();
         return pstRangeAction.convertAngleToTap(getOptimizedSetpoint(pstRangeAction, state));
@@ -177,6 +188,17 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             .filter(e -> e.getKey() instanceof PstRangeAction)
             .forEach(e -> optimizedTaps.put((PstRangeAction) e.getKey(), getOptimizedTap((PstRangeAction) e.getKey(), state)));
         return optimizedTaps;
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        computeSetpointsPerStatePerPst();
+        Optional<State> previousState = getPreviousState(state);
+        if (previousState.isEmpty()) {
+            return getOptimizedTap(pstRangeAction, state) - pstRangeAction.convertAngleToTap(elementaryResultMap.get(pstRangeAction).refSetpoint);
+        } else {
+            return getOptimizedTap(pstRangeAction, state) - getOptimizedTap(pstRangeAction, previousState.get());
+        }
     }
 
     private Optional<State> getPreviousState(State state) {
