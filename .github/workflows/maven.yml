@@ -4,7 +4,7 @@ on: [ push ]
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }} jvm ${{ matrix.jvm }}
+    name: Build and test on ${{ matrix.os }} jvm ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -47,3 +47,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run cucumber tests
+        run: mvn test -pl tests
