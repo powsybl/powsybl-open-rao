@@ -7,9 +7,11 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,7 @@ public class InterTemporalRaoInput {
     public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = timestampsToRun;
+        checkTimestampsToRun();
     }
 
     public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs) {
@@ -38,4 +41,10 @@ public class InterTemporalRaoInput {
         return timestampsToRun;
     }
 
+    private void checkTimestampsToRun() {
+        List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
+        timestampsToRun.forEach(timestamp -> {if (!timestamps.contains(timestamp)) {
+            throw new OpenRaoException("Timestamp '" + timestamp + "' does not exist in the inputs.");}
+        });
+    }
 }

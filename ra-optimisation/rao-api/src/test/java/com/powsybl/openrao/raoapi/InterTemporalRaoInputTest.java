@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -54,5 +56,11 @@ class InterTemporalRaoInputTest {
         InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp2, timestamp3), input.getTimestampsToRun());
+    }
+
+    @Test
+    void testInstantiateWithMissingTimestamps() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InterTemporalRaoInput(temporalData, Set.of( OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC))));
+        assertEquals("Timestamp '2024-12-11T14:29Z' does not exist in the inputs.", exception.getMessage());
     }
 }
