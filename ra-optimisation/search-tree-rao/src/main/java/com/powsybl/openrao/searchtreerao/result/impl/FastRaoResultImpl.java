@@ -50,6 +50,23 @@ public class FastRaoResultImpl implements RaoResult {
         this.filteredRaoResult = filteredRaoResult;
         this.crac = crac;
         executionDetails = filteredRaoResult.getExecutionDetails();
+        removeFailingContingencies(initialResult, afterPraResult, afterAraResult, finalResult, crac);
+    }
+
+    private static void removeFailingContingencies(PrePerimeterResult initialResult, PrePerimeterResult afterPraResult, PrePerimeterResult afterAraResult, PrePerimeterResult finalResult, Crac crac) {
+        Set<String> failingContingencies = new HashSet<>();
+        crac.getStates().stream().filter(state -> initialResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
+                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+        crac.getStates().stream().filter(state -> afterPraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
+                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+        crac.getStates().stream().filter(state -> afterAraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
+                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+        crac.getStates().stream().filter(state -> finalResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
+                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+        initialResult.excludeContingencies(failingContingencies);
+        afterPraResult.excludeContingencies(failingContingencies);
+        afterAraResult.excludeContingencies(failingContingencies);
+        finalResult.excludeContingencies(failingContingencies);
     }
 
     @Override
@@ -71,7 +88,7 @@ public class FastRaoResultImpl implements RaoResult {
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        return finalResult.getSensitivityStatus(state);
+        return getAppropriateResult(state.getInstant()).getComputationStatus(state);
     }
 
     public PrePerimeterResult getAppropriateResult(Instant optimizedInstant) {
