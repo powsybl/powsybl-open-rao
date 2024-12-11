@@ -77,7 +77,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after PRA should be -302.38 MW
     And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - auto" after ARA should be -223.44 MW
     And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 414.58 MW
-    And the optimization steps executed by the RAO should be "FIRST_PREVENTIVE_ONLY"
+    And the execution details should be "The RAO only went through first preventive"
 
   @fast @rao @mock @dc @second-preventive
   Scenario: US 15.11.5.6: Considering ARA in 2P improves 2P optimization
