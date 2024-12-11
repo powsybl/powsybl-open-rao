@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class InterTemporalRaoInputTest {
 
-    private RaoParameters params;
     private OffsetDateTime timestamp1;
     private OffsetDateTime timestamp2;
     private OffsetDateTime timestamp3;
@@ -35,7 +33,6 @@ class InterTemporalRaoInputTest {
 
     @BeforeEach
     void setUp() {
-        params = new RaoParameters();
         RaoInput raoInput1 = Mockito.mock(RaoInput.class);
         RaoInput raoInput2 = Mockito.mock(RaoInput.class);
         RaoInput raoInput3 = Mockito.mock(RaoInput.class);
@@ -47,16 +44,14 @@ class InterTemporalRaoInputTest {
 
     @Test
     void testInstantiateInterTemporalRaoInput() {
-        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, params, Set.of(timestamp1, timestamp3));
-        assertEquals(params, input.getParameters());
+        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, Set.of(timestamp1, timestamp3));
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp3), input.getTimestampsToRun());
     }
 
     @Test
     void testInstantiateInterTemporalRaoInputAllTimestamps() {
-        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, params);
-        assertEquals(params, input.getParameters());
+        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp2, timestamp3), input.getTimestampsToRun());
     }

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.time.OffsetDateTime;
 import java.util.Set;
@@ -20,25 +19,19 @@ import java.util.stream.Collectors;
  */
 public class InterTemporalRaoInput {
     private final TemporalData<RaoInput> raoInputs;
-    private final RaoParameters parameters;
     private final Set<OffsetDateTime> timestampsToRun;
 
-    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, RaoParameters parameters, Set<OffsetDateTime> timestampsToRun) {
+    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun) {
         this.raoInputs = raoInputs;
-        this.parameters = parameters;
         this.timestampsToRun = timestampsToRun;
     }
 
-    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, RaoParameters parameters) {
-        this(raoInputs, parameters, raoInputs.getTimestamps().stream().collect(Collectors.toSet()));
+    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs) {
+        this(raoInputs, raoInputs.getTimestamps().stream().collect(Collectors.toSet()));
     }
 
     public TemporalData<RaoInput> getRaoInputs() {
         return raoInputs;
-    }
-
-    public RaoParameters getParameters() {
-        return parameters;
     }
 
     public Set<OffsetDateTime> getTimestampsToRun() {
