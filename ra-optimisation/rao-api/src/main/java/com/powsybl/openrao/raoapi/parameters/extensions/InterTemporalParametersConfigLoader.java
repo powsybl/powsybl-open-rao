@@ -25,16 +25,14 @@ public class InterTemporalParametersConfigLoader implements RaoParameters.Config
     public InterTemporalParametersExtension load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         InterTemporalParametersExtension parameters = new InterTemporalParametersExtension();
-        platformConfig.getOptionalModuleConfig(INTER_TEMPORAL_PARAMETERS)
-                .ifPresent(config -> {
-                    parameters.setSensitivityComputationInParallel(config.getIntProperty(SENSITIVITY_COMPUTATIONS_IN_PARALLEL, InterTemporalParametersExtension.DEFAULT_SENSITIVITY_COMPUTATION_IN_PARALLEL));
-                });
+        platformConfig.getOptionalModuleConfig(INTER_TEMPORAL_PARAMETERS_SECTION)
+                .ifPresent(config -> parameters.setSensitivityComputationsInParallel(config.getIntProperty(SENSITIVITY_COMPUTATIONS_IN_PARALLEL, InterTemporalParametersExtension.DEFAULT_SENSITIVITY_COMPUTATIONS_IN_PARALLEL)));
         return parameters;
     }
 
     @Override
     public String getExtensionName() {
-        return INTER_TEMPORAL_PARAMETERS;
+        return INTER_TEMPORAL_PARAMETERS_SECTION;
     }
 
     @Override

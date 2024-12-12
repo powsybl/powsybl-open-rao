@@ -110,6 +110,9 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.05);
+        // -- Inter-temporal parameters
+        parameters.addExtension(InterTemporalParametersExtension.class, new InterTemporalParametersExtension());
+        parameters.getExtension(InterTemporalParametersExtension.class).setSensitivityComputationsInParallel(4);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }
@@ -178,14 +181,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
         assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));
-    }
-
-    @Test
-    void testInterTemporalExtension() throws IOException {
-        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_with_InterTemporalExtension.json"));
-        assertTrue(parameters.hasExtension(InterTemporalParametersExtension.class));
-        assertEquals(4, parameters.getExtension(InterTemporalParametersExtension.class).getSensitivityComputationInParallel());
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_with_InterTemporalExtension.json");
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {
