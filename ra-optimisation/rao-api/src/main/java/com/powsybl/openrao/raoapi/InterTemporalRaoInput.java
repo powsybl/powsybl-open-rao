@@ -43,8 +43,10 @@ public class InterTemporalRaoInput {
 
     private void checkTimestampsToRun() {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
-        timestampsToRun.forEach(timestamp -> {if (!timestamps.contains(timestamp)) {
-            throw new OpenRaoException("Timestamp '" + timestamp + "' does not exist in the inputs.");}
+        timestampsToRun.forEach(timestamp -> {
+            if (!timestamps.contains(timestamp)) {
+                throw new OpenRaoException("Timestamp '" + timestamp + "' does not exist in the inputs.");
+            }
         });
     }
 }

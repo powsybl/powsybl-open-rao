@@ -19,16 +19,17 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
-import org.apache.commons.lang3.tuple.Pair;
+import com.powsybl.openrao.searchtreerao.result.api.LoadFlowAndSensitivityResult;
 
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
+ */
 public class InterTemporalSensitivityAnalysis {
     private final InterTemporalRaoInput input;
     private final RaoParameters parameters;
@@ -42,7 +43,7 @@ public class InterTemporalSensitivityAnalysis {
         this.flowCnecsPerTimestamp = getFlowCnecsPerTimestamp();
     }
 
-    public TemporalData<Pair<FlowResult, SensitivityResult>> runInitialSensitivityAnalysis() {
+    public TemporalData<LoadFlowAndSensitivityResult> runInitialSensitivityAnalysis() throws InterruptedException {
         return new TemporalDataImpl<>(input.getTimestampsToRun().stream().collect(Collectors.toMap(Function.identity(), this::runForTimestamp)));
     }
 
@@ -53,7 +54,7 @@ public class InterTemporalSensitivityAnalysis {
 
         // TODO: see what to do if RAs have same id across timestamps (same object from RemedialAction::equals)
         timestampsToRun.forEach(timestamp -> {
-            Crac crac = input.getRaoInputs().getData(timestamp).get().getCrac();
+            Crac crac = input.getRaoInputs().getData(timestamp).orElseThrow().getCrac();
             allRangeActions.addAll(crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE, UsageMethod.FORCED));
             rangeActions.put(timestamp, new HashSet<>(allRangeActions));
         });
@@ -65,7 +66,7 @@ public class InterTemporalSensitivityAnalysis {
         Map<OffsetDateTime, Set<FlowCnec>> flowCnecsMap = new HashMap<>();
 
         input.getTimestampsToRun().forEach(timestamp -> {
-            Crac crac = input.getRaoInputs().getData(timestamp).get().getCrac();
+            Crac crac = input.getRaoInputs().getData(timestamp).orElseThrow().getCrac();
             Set<FlowCnec> flowCnecs = crac.getFlowCnecs(crac.getPreventiveState());
             crac.getStates().stream()
                     .filter(state -> state.getInstant().isOutage())
@@ -78,12 +79,11 @@ public class InterTemporalSensitivityAnalysis {
     }
 
     private ToolProvider buildToolProvider(OffsetDateTime timestamp) {
-        return ToolProvider.buildFromRaoInputAndParameters(input.getRaoInputs().getData(timestamp).get(), parameters);
+        return ToolProvider.buildFromRaoInputAndParameters(input.getRaoInputs().getData(timestamp).orElseThrow(), parameters);
     }
 
     private SensitivityComputer buildSensitivityComputer(OffsetDateTime timestamp, ToolProvider toolProvider) {
-
-        Crac crac = input.getRaoInputs().getData(timestamp).get().getCrac();
+        Crac crac = input.getRaoInputs().getData(timestamp).orElseThrow().getCrac();
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
                 .withToolProvider(toolProvider)
                 .withCnecs(flowCnecsPerTimestamp.get(timestamp))
@@ -100,11 +100,11 @@ public class InterTemporalSensitivityAnalysis {
         return sensitivityComputerBuilder.build();
     }
 
-    private Pair<FlowResult, SensitivityResult> runForTimestamp(OffsetDateTime timestamp) {
-        Network network = input.getRaoInputs().getData(timestamp).get().getNetwork();
+    private LoadFlowAndSensitivityResult runForTimestamp(OffsetDateTime timestamp) {
+        Network network = input.getRaoInputs().getData(timestamp).orElseThrow().getNetwork();
         ToolProvider toolProvider = buildToolProvider(timestamp);
         SensitivityComputer sensitivityComputer = buildSensitivityComputer(timestamp, toolProvider);
         sensitivityComputer.compute(network);
-        return Pair.of(sensitivityComputer.getBranchResult(network), sensitivityComputer.getSensitivityResult());
+        return new LoadFlowAndSensitivityResult(sensitivityComputer.getBranchResult(network), sensitivityComputer.getSensitivityResult());
     }
 }

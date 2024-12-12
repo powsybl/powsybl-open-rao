@@ -60,7 +60,7 @@ class InterTemporalRaoInputTest {
 
     @Test
     void testInstantiateWithMissingTimestamps() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InterTemporalRaoInput(temporalData, Set.of( OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC))));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InterTemporalRaoInput(temporalData, Set.of(OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC))));
         assertEquals("Timestamp '2024-12-11T14:29Z' does not exist in the inputs.", exception.getMessage());
     }
 }
