@@ -199,7 +199,7 @@ public class CastorFullOptimization {
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
         return raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
             && preventiveOptimalCost > 0
-            && !raoParameters.getObjectiveFunctionParameters().getOptimizeCurativeIfPreventiveUnsecure();
+            && !raoParameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity();
     }
 
     /**
