@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -20,11 +21,13 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtens
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.LoadFlowAndSensitivityResult;
+import org.jgrapht.alg.util.Pair;
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -44,7 +47,20 @@ public class InterTemporalSensitivityAnalysis {
     }
 
     public TemporalData<LoadFlowAndSensitivityResult> runInitialSensitivityAnalysis() throws InterruptedException {
-        return new TemporalDataImpl<>(input.getTimestampsToRun().stream().collect(Collectors.toMap(Function.identity(), this::runForTimestamp)));
+        ForkJoinPool timestampPool = new ForkJoinPool(input.getTimestampsToRun().size());
+        List<ForkJoinTask<Pair<OffsetDateTime, LoadFlowAndSensitivityResult>>> tasks = input.getTimestampsToRun().stream().map(timestamp ->
+                timestampPool.submit(() -> Pair.of(timestamp, runForTimestamp(timestamp)))
+        ).toList();
+        Map<OffsetDateTime, LoadFlowAndSensitivityResult> loadFlowAndSensitivityResultPerTimestamp = new HashMap<>();
+        for (ForkJoinTask<Pair<OffsetDateTime, LoadFlowAndSensitivityResult>> task : tasks) {
+            try {
+                Pair<OffsetDateTime, LoadFlowAndSensitivityResult> taskResult = task.get();
+                loadFlowAndSensitivityResultPerTimestamp.put(taskResult.getFirst(), taskResult.getSecond());
+            } catch (ExecutionException e) {
+                throw new OpenRaoException(e);
+            }
+        }
+        return new TemporalDataImpl<>(loadFlowAndSensitivityResultPerTimestamp);
     }
 
     Map<OffsetDateTime, Set<RangeAction<?>>> getRangeActionsPerTimestamp() {

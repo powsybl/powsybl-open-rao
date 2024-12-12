@@ -52,15 +52,17 @@ class InterTemporalSensitivityAnalysisTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        Network network = Network.read("12Nodes_2_pst.uct", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/network/12Nodes_2_pst.uct"));
+        Network network1 = Network.read("12Nodes_2_pst.uct", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/network/12Nodes_2_pst.uct"));
+        Network network2 = Network.read("12Nodes_2_pst.uct", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/network/12Nodes_2_pst.uct"));
+        Network network3 = Network.read("12Nodes_2_pst.uct", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/network/12Nodes_2_pst.uct"));
 
-        crac1 = Crac.read("small-crac-2pst-1600.json", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/crac/small-crac-2pst-1600.json"), network);
-        crac2 = Crac.read("small-crac-2pst-1700.json", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/crac/small-crac-2pst-1700.json"), network);
-        crac3 = Crac.read("small-crac-2pst-1800.json", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/crac/small-crac-2pst-1800.json"), network);
+        crac1 = Crac.read("small-crac-2pst-1600.json", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/crac/small-crac-2pst-1600.json"), network1);
+        crac2 = Crac.read("small-crac-2pst-1700.json", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/crac/small-crac-2pst-1700.json"), network2);
+        crac3 = Crac.read("small-crac-2pst-1800.json", InterTemporalSensitivityAnalysisTest.class.getResourceAsStream("/crac/small-crac-2pst-1800.json"), network3);
 
-        RaoInput raoInput1 = RaoInput.build(network, crac1).build();
-        RaoInput raoInput2 = RaoInput.build(network, crac2).build();
-        RaoInput raoInput3 = RaoInput.build(network, crac3).build();
+        RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
+        RaoInput raoInput2 = RaoInput.build(network2, crac2).build();
+        RaoInput raoInput3 = RaoInput.build(network3, crac3).build();
 
         InterTemporalRaoInput input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)));
         RaoParameters parameters = new RaoParameters();
@@ -72,20 +74,20 @@ class InterTemporalSensitivityAnalysisTest {
     @Test
     void getRangeActionsPerTimestamp() {
         assertEquals(
-            Map.of(timestamp1, Set.of(crac1.getRangeAction("pstBe - 1600")),
-                timestamp2, Set.of(crac1.getRangeAction("pstBe - 1600"), crac2.getRangeAction("pstBe - 1700")),
-                timestamp3, Set.of(crac1.getRangeAction("pstBe - 1600"), crac2.getRangeAction("pstBe - 1700"), crac3.getRangeAction("pstBe - 1800"), crac3.getRangeAction("pstDe - 1800"))),
-            sensitivityAnalysis.getRangeActionsPerTimestamp());
+                Map.of(timestamp1, Set.of(crac1.getRangeAction("pstBe - 1600")),
+                        timestamp2, Set.of(crac1.getRangeAction("pstBe - 1600"), crac2.getRangeAction("pstBe - 1700")),
+                        timestamp3, Set.of(crac1.getRangeAction("pstBe - 1600"), crac2.getRangeAction("pstBe - 1700"), crac3.getRangeAction("pstBe - 1800"), crac3.getRangeAction("pstDe - 1800"))),
+                sensitivityAnalysis.getRangeActionsPerTimestamp());
 
     }
 
     @Test
     void getFlowCnecsPerTimestamp() {
         assertEquals(
-            Map.of(timestamp1, Set.of(crac1.getFlowCnec("cnecDeNlPrev - 1600"), crac1.getFlowCnec("cnecDeNlOut - 1600")),
-                timestamp2, Set.of(crac2.getFlowCnec("cnecDeNlPrev - 1700"), crac2.getFlowCnec("cnecDeNlOut - 1700")),
-                timestamp3, Set.of(crac3.getFlowCnec("cnecDeNlPrev - 1800"), crac3.getFlowCnec("cnecDeNlOut - 1800"))),
-            sensitivityAnalysis.getFlowCnecsPerTimestamp());
+                Map.of(timestamp1, Set.of(crac1.getFlowCnec("cnecDeNlPrev - 1600"), crac1.getFlowCnec("cnecDeNlOut - 1600")),
+                        timestamp2, Set.of(crac2.getFlowCnec("cnecDeNlPrev - 1700"), crac2.getFlowCnec("cnecDeNlOut - 1700")),
+                        timestamp3, Set.of(crac3.getFlowCnec("cnecDeNlPrev - 1800"), crac3.getFlowCnec("cnecDeNlOut - 1800"))),
+                sensitivityAnalysis.getFlowCnecsPerTimestamp());
 
     }
 
