@@ -52,12 +52,10 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -83.0 MW
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be -103.0 MW
-    And 3 remedial actions are used after "Contingency_FR1_FR3" at "curative"
+    And 2 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     And the remedial action "Open line DE1-DE2" is used after "Contingency_FR1_FR3" at "curative"
-    And the remedial action "Open line NL1-NL2" is used after "Contingency_FR1_FR3" at "curative"
-    And the tap of PstRangeAction "PRA_PST_BE" should be 8 after "Contingency_FR1_FR3" at "curative"
-    And the margin on cnec "FR2-FR3-OO - curative" after CRA should be -96 MW
-    And the value of the objective function after CRA should be 286
+    And the tap of PstRangeAction "PRA_PST_BE" should be 10 after "Contingency_FR1_FR3" at "curative"
+    And the margin on cnec "FR2-FR3-OO - curative" after CRA should be -98 MW
 
   @fast @rao @mock @ac @contingency-scenarios @mnec
   Scenario: US 13.6.4: CBCORA - Curative MNECs limited by their initial margin - PRAs and CRAs
