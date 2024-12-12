@@ -96,6 +96,9 @@
       "constraint-adjustment-coefficient" : 0.5,
       "violation-cost" : 0.0,
       "countries" : [ "BE", "FR" ]
+    },
+    "inter-temporal-parameters" : {
+      "sensitivity-computations-in-parallel" : 4
     }
   }
 }

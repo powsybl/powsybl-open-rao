@@ -66,7 +66,7 @@ public class InterTemporalSensitivityAnalysis {
 
     int getNumberOfThreads() {
         if (parameters.hasExtension(InterTemporalParametersExtension.class)) {
-            return Math.min(input.getTimestampsToRun().size(), parameters.getExtension(InterTemporalParametersExtension.class).getSensitivityComputationInParallel());
+            return Math.min(input.getTimestampsToRun().size(), parameters.getExtension(InterTemporalParametersExtension.class).getSensitivityComputationsInParallel());
         }
         return input.getTimestampsToRun().size();
     }

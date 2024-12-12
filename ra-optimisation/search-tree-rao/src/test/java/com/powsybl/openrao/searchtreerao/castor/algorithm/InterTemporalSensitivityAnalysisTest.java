@@ -169,7 +169,7 @@ class InterTemporalSensitivityAnalysisTest {
         parameters.addExtension(InterTemporalParametersExtension.class, extension);
         assertEquals(1, sensitivityAnalysis.getNumberOfThreads());
 
-        parameters.getExtension(InterTemporalParametersExtension.class).setSensitivityComputationInParallel(4);
+        parameters.getExtension(InterTemporalParametersExtension.class).setSensitivityComputationsInParallel(4);
         assertEquals(3, sensitivityAnalysis.getNumberOfThreads());
     }
 }
