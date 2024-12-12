@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.InterTemporalParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -47,7 +48,7 @@ public class InterTemporalSensitivityAnalysis {
     }
 
     public TemporalData<LoadFlowAndSensitivityResult> runInitialSensitivityAnalysis() throws InterruptedException {
-        ForkJoinPool timestampPool = new ForkJoinPool(input.getTimestampsToRun().size());
+        ForkJoinPool timestampPool = new ForkJoinPool(getNumberOfThreads());
         List<ForkJoinTask<Pair<OffsetDateTime, LoadFlowAndSensitivityResult>>> tasks = input.getTimestampsToRun().stream().map(timestamp ->
                 timestampPool.submit(() -> Pair.of(timestamp, runForTimestamp(timestamp)))
         ).toList();
@@ -61,6 +62,13 @@ public class InterTemporalSensitivityAnalysis {
             }
         }
         return new TemporalDataImpl<>(loadFlowAndSensitivityResultPerTimestamp);
+    }
+
+    int getNumberOfThreads() {
+        if (parameters.hasExtension(InterTemporalParametersExtension.class)) {
+            return Math.min(input.getTimestampsToRun().size(), parameters.getExtension(InterTemporalParametersExtension.class).getSensitivityComputationInParallel());
+        }
+        return input.getTimestampsToRun().size();
     }
 
     Map<OffsetDateTime, Set<RangeAction<?>>> getRangeActionsPerTimestamp() {

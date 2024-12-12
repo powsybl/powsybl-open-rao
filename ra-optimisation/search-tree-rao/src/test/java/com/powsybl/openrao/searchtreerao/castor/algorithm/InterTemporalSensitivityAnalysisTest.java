@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.InterTemporalParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LoadFlowAndSensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -46,6 +47,7 @@ class InterTemporalSensitivityAnalysisTest {
     private final OffsetDateTime timestamp2 = OffsetDateTime.of(2024, 12, 10, 17, 21, 0, 0, ZoneOffset.UTC);
     private final OffsetDateTime timestamp3 = OffsetDateTime.of(2024, 12, 10, 18, 21, 0, 0, ZoneOffset.UTC);
     private InterTemporalSensitivityAnalysis sensitivityAnalysis;
+    private RaoParameters parameters;
 
     private static final double DOUBLE_TOLERANCE = 1e-4;
     private static final double AMPERE_MEGAWATT_TOLERANCE = 1.0;
@@ -65,7 +67,7 @@ class InterTemporalSensitivityAnalysisTest {
         RaoInput raoInput3 = RaoInput.build(network3, crac3).build();
 
         InterTemporalRaoInput input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)));
-        RaoParameters parameters = new RaoParameters();
+        parameters = new RaoParameters();
         parameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
 
         sensitivityAnalysis = new InterTemporalSensitivityAnalysis(input, parameters);
@@ -157,5 +159,17 @@ class InterTemporalSensitivityAnalysisTest {
 
     private static void assertSensitivityValue(SensitivityResult sensitivityResult, FlowCnec flowCnec, RangeAction<?> rangeAction, double expectedSensitivityValue) {
         assertEquals(expectedSensitivityValue, sensitivityResult.getSensitivityValue(flowCnec, TwoSides.ONE, rangeAction, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testNumberOfThreadsForComputation() {
+        assertEquals(3, sensitivityAnalysis.getNumberOfThreads());
+
+        InterTemporalParametersExtension extension = new InterTemporalParametersExtension();
+        parameters.addExtension(InterTemporalParametersExtension.class, extension);
+        assertEquals(1, sensitivityAnalysis.getNumberOfThreads());
+
+        parameters.getExtension(InterTemporalParametersExtension.class).setSensitivityComputationInParallel(4);
+        assertEquals(3, sensitivityAnalysis.getNumberOfThreads());
     }
 }
