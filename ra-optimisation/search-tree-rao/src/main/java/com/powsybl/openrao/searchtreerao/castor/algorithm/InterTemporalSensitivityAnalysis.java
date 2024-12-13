@@ -22,7 +22,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtens
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.LoadFlowAndSensitivityResult;
-import org.jgrapht.alg.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -56,7 +56,7 @@ public class InterTemporalSensitivityAnalysis {
         for (ForkJoinTask<Pair<OffsetDateTime, LoadFlowAndSensitivityResult>> task : tasks) {
             try {
                 Pair<OffsetDateTime, LoadFlowAndSensitivityResult> taskResult = task.get();
-                loadFlowAndSensitivityResultPerTimestamp.put(taskResult.getFirst(), taskResult.getSecond());
+                loadFlowAndSensitivityResultPerTimestamp.put(taskResult.getLeft(), taskResult.getRight());
             } catch (ExecutionException e) {
                 throw new OpenRaoException(e);
             }
