@@ -170,6 +170,9 @@
       "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
       "ptdf-sum-lower-bound" : 0.02
     },
+    "inter-temporal-parameters" : {
+      "sensitivity-computations-in-parallel" : 4
+    },
     "loop-flow-parameters" : {
       "acceptable-increase" : 11.0,
       "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",

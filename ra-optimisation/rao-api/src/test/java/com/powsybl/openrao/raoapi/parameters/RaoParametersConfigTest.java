@@ -215,6 +215,16 @@ class RaoParametersConfigTest {
     }
 
     @Test
+    void checkInterTemporalConfig() {
+        ModuleConfig interTemporalModuleConfig = Mockito.mock(ModuleConfig.class);
+        Mockito.when(interTemporalModuleConfig.getIntProperty(eq("sensitivity-computations-in-parallel"), anyInt())).thenReturn(4);
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-inter-temporal-parameters")).thenReturn(Optional.of(interTemporalModuleConfig));
+        InterTemporalParametersConfigLoader configLoader = new InterTemporalParametersConfigLoader();
+        InterTemporalParametersExtension parameters = configLoader.load(mockedPlatformConfig);
+        assertEquals(4, parameters.getSensitivityComputationsInParallel());
+    }
+
+    @Test
     void checkMultipleConfigs() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE");
@@ -229,6 +239,7 @@ class RaoParametersConfigTest {
         assertTrue(Objects.isNull(parameters.getExtension(LoopFlowParametersExtension.class)));
         assertTrue(Objects.isNull(parameters.getExtension(MnecParametersExtension.class)));
         assertTrue(Objects.isNull(parameters.getExtension(RelativeMarginsParametersExtension.class)));
+        assertTrue(Objects.isNull(parameters.getExtension(InterTemporalParametersExtension.class)));
     }
 
     @Test
