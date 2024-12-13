@@ -14,12 +14,10 @@ import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.InterTemporalParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 
 import java.io.IOException;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -41,7 +39,7 @@ public class JsonInterTemporalParametersExtension implements JsonRaoParameters.E
     }
 
     @Override
-    public InterTemporalParametersExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, InterTemporalParametersExtension parameters) throws IOException  {
+    public InterTemporalParametersExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, InterTemporalParametersExtension parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case SENSITIVITY_COMPUTATIONS_IN_PARALLEL:
