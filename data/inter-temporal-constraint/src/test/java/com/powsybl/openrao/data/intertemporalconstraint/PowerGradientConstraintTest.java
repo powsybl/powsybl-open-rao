@@ -21,14 +21,14 @@ class PowerGradientConstraintTest {
     @Test
     void testPowerGradientConstraints() {
         PowerGradientConstraint pgc1 = new PowerGradientConstraint("generator", 200.0, VariationDirection.UP);
-        assertEquals("generator", pgc1.getNetworkElementId());
-        assertEquals(200.0, pgc1.getPowerGradient());
-        assertEquals(VariationDirection.UP, pgc1.getVariationDirection());
+        assertEquals("generator", pgc1.networkElementId());
+        assertEquals(200.0, pgc1.powerGradient());
+        assertEquals(VariationDirection.UP, pgc1.variationDirection());
 
         PowerGradientConstraint pgc2 = new PowerGradientConstraint("load", 50.0, VariationDirection.DOWN);
-        assertEquals("load", pgc2.getNetworkElementId());
-        assertEquals(50.0, pgc2.getPowerGradient());
-        assertEquals(VariationDirection.DOWN, pgc2.getVariationDirection());
+        assertEquals("load", pgc2.networkElementId());
+        assertEquals(50.0, pgc2.powerGradient());
+        assertEquals(VariationDirection.DOWN, pgc2.variationDirection());
     }
 
     @Test
