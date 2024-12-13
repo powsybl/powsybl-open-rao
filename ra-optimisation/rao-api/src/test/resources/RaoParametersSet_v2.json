@@ -90,15 +90,15 @@
       "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
       "ptdf-sum-lower-bound" : 0.05
     },
+    "inter-temporal-parameters" : {
+      "sensitivity-computations-in-parallel" : 4
+    },
     "loop-flow-parameters" : {
       "acceptable-increase" : 20.0,
       "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
       "constraint-adjustment-coefficient" : 0.5,
       "violation-cost" : 0.0,
       "countries" : [ "BE", "FR" ]
-    },
-    "inter-temporal-parameters" : {
-      "sensitivity-computations-in-parallel" : 4
     }
   }
 }

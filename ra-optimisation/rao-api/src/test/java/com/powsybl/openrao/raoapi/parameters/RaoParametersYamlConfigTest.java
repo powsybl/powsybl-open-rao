@@ -192,6 +192,9 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         RelativeMarginsParametersExtension relativeMarginsParametersExtension = parameters.getExtension(RelativeMarginsParametersExtension.class);
         assertNull(relativeMarginsParametersExtension);
 
+        InterTemporalParametersExtension interTemporalParametersExtension = parameters.getExtension(InterTemporalParametersExtension.class);
+        assertNull(interTemporalParametersExtension);
+
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withoutExtensions.json");
     }
