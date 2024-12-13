@@ -17,11 +17,29 @@ import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record PowerGradientConstraint(String networkElementId, double powerGradient,
-                                      VariationDirection variationDirection) {
-    public PowerGradientConstraint {
+public class PowerGradientConstraint {
+    private final String networkElementId;
+    private final double powerGradient;
+    private final VariationDirection variationDirection;
+
+    public PowerGradientConstraint(String networkElementId, double powerGradient, VariationDirection variationDirection) {
         if (powerGradient < 0) {
             throw new OpenRaoException("powerGradient must be a positive value. For a decreasing variation, use VariationDirection.DOWN as the third parameter of the constructor.");
         }
+        this.networkElementId = networkElementId;
+        this.powerGradient = powerGradient;
+        this.variationDirection = variationDirection;
+    }
+
+    public String getNetworkElementId() {
+        return networkElementId;
+    }
+
+    public double getPowerGradient() {
+        return powerGradient;
+    }
+
+    public VariationDirection getVariationDirection() {
+        return variationDirection;
     }
 }
