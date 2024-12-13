@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.raoapi.parameters;
+package com.powsybl.openrao.raoapi;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -15,9 +15,7 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
-import com.powsybl.openrao.raoapi.InterTemporalRaoProvider;
-import com.powsybl.openrao.raoapi.Rao;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.tools.Version;
 
 import java.util.List;
