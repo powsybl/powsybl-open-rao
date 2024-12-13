@@ -8,9 +8,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -22,13 +20,10 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtens
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.LoadFlowAndSensitivityResult;
-import org.apache.commons.lang3.tuple.Pair;
+import com.powsybl.openrao.util.InterTemporalPool;
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -48,20 +43,7 @@ public class InterTemporalSensitivityAnalysis {
     }
 
     public TemporalData<LoadFlowAndSensitivityResult> runInitialSensitivityAnalysis() throws InterruptedException {
-        ForkJoinPool timestampPool = new ForkJoinPool(getNumberOfThreads());
-        List<ForkJoinTask<Pair<OffsetDateTime, LoadFlowAndSensitivityResult>>> tasks = input.getTimestampsToRun().stream().map(timestamp ->
-                timestampPool.submit(() -> Pair.of(timestamp, runForTimestamp(timestamp)))
-        ).toList();
-        Map<OffsetDateTime, LoadFlowAndSensitivityResult> loadFlowAndSensitivityResultPerTimestamp = new HashMap<>();
-        for (ForkJoinTask<Pair<OffsetDateTime, LoadFlowAndSensitivityResult>> task : tasks) {
-            try {
-                Pair<OffsetDateTime, LoadFlowAndSensitivityResult> taskResult = task.get();
-                loadFlowAndSensitivityResultPerTimestamp.put(taskResult.getLeft(), taskResult.getRight());
-            } catch (ExecutionException e) {
-                throw new OpenRaoException(e);
-            }
-        }
-        return new TemporalDataImpl<>(loadFlowAndSensitivityResultPerTimestamp);
+        return new InterTemporalPool(input.getTimestampsToRun(), getNumberOfThreads()).runTasks(this::runForTimestamp);
     }
 
     int getNumberOfThreads() {

@@ -22,13 +22,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class InterTemporalPoolTest {
+    private final OffsetDateTime timestamp1 = OffsetDateTime.of(2024, 12, 13, 15, 17, 0, 0, ZoneOffset.UTC);
+    private final OffsetDateTime timestamp2 = OffsetDateTime.of(2024, 12, 14, 15, 17, 0, 0, ZoneOffset.UTC);
+    private final OffsetDateTime timestamp3 = OffsetDateTime.of(2024, 12, 15, 15, 17, 0, 0, ZoneOffset.UTC);
+
+    @Test
+    void initWithNoSpecifiedThreads() {
+        assertEquals(3, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3)).getParallelism());
+    }
+
+    @Test
+    void initWithLimitedThreads() {
+        assertEquals(2, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2).getParallelism());
+    }
+
     @Test
     void testRunTemporalTasks() throws InterruptedException {
-        OffsetDateTime timestamp1 = OffsetDateTime.of(2024, 12, 13, 15, 17, 0, 0, ZoneOffset.UTC);
-        OffsetDateTime timestamp2 = OffsetDateTime.of(2024, 12, 14, 15, 17, 0, 0, ZoneOffset.UTC);
-        OffsetDateTime timestamp3 = OffsetDateTime.of(2024, 12, 15, 15, 17, 0, 0, ZoneOffset.UTC);
-
         InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3));
+        assertEquals(3, pool.getParallelism());
+
         TemporalData<String> resultPerTimestamp = pool.runTasks(OffsetDateTime::toString);
 
         assertEquals(List.of(timestamp1, timestamp2, timestamp3), resultPerTimestamp.getTimestamps());
