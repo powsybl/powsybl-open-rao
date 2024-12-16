@@ -1,16 +1,17 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -34,16 +35,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class CoreProblemFillerTest extends AbstractFillerTest {
+class CostCoreProblemFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private CostCoreProblemFiller coreProblemFiller;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
     // some additional data
     private double minAlpha;
@@ -94,7 +96,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(injectionSensitivityThreshold);
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
-        coreProblemFiller = new CoreProblemFiller(
+        coreProblemFiller = new CostCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             rangeActionParameters,
@@ -113,22 +115,23 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
 
-        // check range action variation variables
+        // check upward variation variable
         OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
         assertNotNull(upwardVariationVariable);
         assertEquals(0, upwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), upwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
+        // check downward variation variable
         OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
         assertNotNull(downwardVariationVariable);
         assertEquals(0, downwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), downwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
-        // check range action absolute variation variable
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state);
-        assertNotNull(absoluteVariationVariable);
-        assertEquals(0, absoluteVariationVariable.lb(), 0.01);
-        assertEquals(linearProblem.infinity(), absoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
+        // check binary activation variable
+        OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(pstRangeAction, state);
+        assertNotNull(activationVariable);
+        assertEquals(0, activationVariable.lb(), 0.01);
+        assertEquals(1, activationVariable.ub(), 0.01);
 
         // check flow variable for cnec1
         OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
@@ -155,30 +158,35 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         // check set-point variation constraint
         OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, state);
         assertNotNull(setPointVariationConstraint);
-        assertEquals(initialAlpha, setPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(initialAlpha, setPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, setPointVariationConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, setPointVariationConstraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(1.0, setPointVariationConstraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(1.9479, setPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(1.9479, setPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(1, setPointVariationConstraint.getCoefficient(setPointVariable));
+        assertEquals(-1, setPointVariationConstraint.getCoefficient(upwardVariationVariable));
+        assertEquals(1, setPointVariationConstraint.getCoefficient(downwardVariationVariable));
 
-        // check absolute variation constraints
-        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, state);
-        assertNotNull(absoluteVariationConstraint);
-        assertEquals(0.0, absoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(0.0, absoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, absoluteVariationConstraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, absoluteVariationConstraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, absoluteVariationConstraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
+        // check activation constraint
+        OpenRaoMPConstraint activationConstraint = linearProblem.getIsVariationConstraint(pstRangeAction, state);
+        assertNotNull(activationConstraint);
+        assertEquals(0, activationConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(linearProblem.infinity(), activationConstraint.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(-1, activationConstraint.getCoefficient(upwardVariationVariable));
+        assertEquals(-1, activationConstraint.getCoefficient(downwardVariationVariable));
+        assertEquals(11.6782, activationConstraint.getCoefficient(activationVariable), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
-        // total number of variables 5 :
+        // total number of variables 4 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point 3 variations [up, down, absolute])
-        // total number of constraints 3 :
+        //      - 4 per range action (set-point, activation and variation up/down)
+        // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (set-point and absolute variation constraints)
+        //      - 2 per range action (activation and set-point variation)
         assertEquals(5, linearProblem.numVariables());
         assertEquals(3, linearProblem.numConstraints());
+
+        // check objective
+        assertEquals(15.0, linearProblem.getObjective().getCoefficient(activationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(upwardVariationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(downwardVariationVariable));
     }
 
     @Test
@@ -192,22 +200,23 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
 
-        // check range action variation variables
+        // check upward variation variable
         OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
         assertNotNull(upwardVariationVariable);
         assertEquals(0, upwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), upwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
+        // check downward variation variable
         OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
         assertNotNull(downwardVariationVariable);
         assertEquals(0, downwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), downwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
-        // check range action absolute variation variable
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state);
-        assertNotNull(absoluteVariationVariable);
-        assertEquals(0, absoluteVariationVariable.lb(), 0.01);
-        assertEquals(linearProblem.infinity(), absoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
+        // check binary activation variable
+        OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(pstRangeAction, state);
+        assertNotNull(activationVariable);
+        assertEquals(0, activationVariable.lb(), 0.01);
+        assertEquals(1, activationVariable.ub(), 0.01);
 
         // check flow variable for cnec1
         OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
@@ -234,30 +243,35 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         // check set-point variation constraint
         OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, state);
         assertNotNull(setPointVariationConstraint);
-        assertEquals(initialAlpha, setPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(initialAlpha, setPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, setPointVariationConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, setPointVariationConstraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(1.0, setPointVariationConstraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(1.9479, setPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(1.9479, setPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(1, setPointVariationConstraint.getCoefficient(setPointVariable));
+        assertEquals(-1, setPointVariationConstraint.getCoefficient(upwardVariationVariable));
+        assertEquals(1, setPointVariationConstraint.getCoefficient(downwardVariationVariable));
 
-        // check absolute variation constraints
-        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, state);
-        assertNotNull(absoluteVariationConstraint);
-        assertEquals(0.0, absoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(0.0, absoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, absoluteVariationConstraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, absoluteVariationConstraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, absoluteVariationConstraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
+        // check activation constraint
+        OpenRaoMPConstraint activationConstraint = linearProblem.getIsVariationConstraint(pstRangeAction, state);
+        assertNotNull(activationConstraint);
+        assertEquals(0, activationConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(linearProblem.infinity(), activationConstraint.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(-1, activationConstraint.getCoefficient(upwardVariationVariable));
+        assertEquals(-1, activationConstraint.getCoefficient(downwardVariationVariable));
+        assertEquals(11.6782, activationConstraint.getCoefficient(activationVariable), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
-        // total number of variables 5 :
+        // total number of variables 4 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point 3 variations [up, down, absolute])
-        // total number of constraints 3 :
+        //      - 4 per range action (set-point, activation and variation up/down)
+        // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (set-point and absolute variation constraints)
+        //      - 2 per range action (activation and set-point variation)
         assertEquals(5, linearProblem.numVariables());
         assertEquals(3, linearProblem.numConstraints());
+
+        // check objective
+        assertEquals(15.0, linearProblem.getObjective().getCoefficient(activationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(upwardVariationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(downwardVariationVariable));
     }
 
     @Test
@@ -271,22 +285,23 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
 
-        // check range action variation variables
+        // check upward variation variable
         OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
         assertNotNull(upwardVariationVariable);
         assertEquals(0, upwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), upwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
+        // check downward variation variable
         OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
         assertNotNull(downwardVariationVariable);
         assertEquals(0, downwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), downwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
-        // check range action absolute variation variable
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state);
-        assertNotNull(absoluteVariationVariable);
-        assertEquals(0, absoluteVariationVariable.lb(), 0.01);
-        assertEquals(linearProblem.infinity(), absoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
+        // check binary activation variable
+        OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(pstRangeAction, state);
+        assertNotNull(activationVariable);
+        assertEquals(0, activationVariable.lb(), 0.01);
+        assertEquals(1, activationVariable.ub(), 0.01);
 
         // check flow variable for cnec1 does not exist
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec1, TwoSides.ONE));
@@ -313,30 +328,35 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         // check set-point variation constraint
         OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, state);
         assertNotNull(setPointVariationConstraint);
-        assertEquals(initialAlpha, setPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(initialAlpha, setPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, setPointVariationConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, setPointVariationConstraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(1.0, setPointVariationConstraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(1.9479, setPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(1.9479, setPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(1, setPointVariationConstraint.getCoefficient(setPointVariable));
+        assertEquals(-1, setPointVariationConstraint.getCoefficient(upwardVariationVariable));
+        assertEquals(1, setPointVariationConstraint.getCoefficient(downwardVariationVariable));
 
-        // check absolute variation constraints
-        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, state);
-        assertNotNull(absoluteVariationConstraint);
-        assertEquals(0.0, absoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(0.0, absoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, absoluteVariationConstraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, absoluteVariationConstraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, absoluteVariationConstraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
+        // check activation constraint
+        OpenRaoMPConstraint activationConstraint = linearProblem.getIsVariationConstraint(pstRangeAction, state);
+        assertNotNull(activationConstraint);
+        assertEquals(0, activationConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(linearProblem.infinity(), activationConstraint.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(-1, activationConstraint.getCoefficient(upwardVariationVariable));
+        assertEquals(-1, activationConstraint.getCoefficient(downwardVariationVariable));
+        assertEquals(11.6782, activationConstraint.getCoefficient(activationVariable), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
-        // total number of variables 5 :
+        // total number of variables 4 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point 3 variations [up, down, absolute])
-        // total number of constraints 3 :
+        //      - 4 per range action (set-point, activation and variation up/down)
+        // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (set-point and absolute variation constraints)
+        //      - 2 per range action (activation and set-point variation)
         assertEquals(5, linearProblem.numVariables());
         assertEquals(3, linearProblem.numConstraints());
+
+        // check objective
+        assertEquals(15.0, linearProblem.getObjective().getCoefficient(activationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(upwardVariationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(downwardVariationVariable));
     }
 
     @ParameterizedTest
@@ -358,45 +378,47 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(minAlpha, prevSetPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, prevSetPointVariable.ub(), DOUBLE_TOLERANCE);
 
+        // check upward variation variable for preventive state
+        OpenRaoMPVariable prevUpwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.UPWARD);
+        assertNotNull(prevUpwardVariationVariable);
+        assertEquals(0, prevUpwardVariationVariable.lb(), 0.01);
+        assertEquals(linearProblem.infinity(), prevUpwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
+
+        // check downward variation variable for preventive state
+        OpenRaoMPVariable prevDownwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        assertNotNull(prevDownwardVariationVariable);
+        assertEquals(0, prevDownwardVariationVariable.lb(), 0.01);
+        assertEquals(linearProblem.infinity(), prevDownwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
+
+        // check binary activation variable for preventive state
+        OpenRaoMPVariable prevActivationVariable = linearProblem.getRangeActionVariationBinary(pstRangeAction, prevState);
+        assertNotNull(prevActivationVariable);
+        assertEquals(0, prevActivationVariable.lb(), 0.01);
+        assertEquals(1, prevActivationVariable.ub(), 0.01);
+
         // check range action setpoint variable for curative state
         OpenRaoMPVariable curSetPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, curState);
         assertNotNull(curSetPointVariable);
         assertEquals(minAlpha, curSetPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, curSetPointVariable.ub(), DOUBLE_TOLERANCE);
 
-        // check range action variation variables for preventive state
-        OpenRaoMPVariable prevUpwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.UPWARD);
-        assertNotNull(prevUpwardVariationVariable);
-        assertEquals(0, prevUpwardVariationVariable.lb(), 0.01);
-        assertEquals(linearProblem.infinity(), prevUpwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
-
-        OpenRaoMPVariable prevDownwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        assertNotNull(prevDownwardVariationVariable);
-        assertEquals(0, prevDownwardVariationVariable.lb(), 0.01);
-        assertEquals(linearProblem.infinity(), prevDownwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
-
-        // check range action variation variables for curative state
+        // check upward variation variable for curative state
         OpenRaoMPVariable curUpwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, curState, LinearProblem.VariationDirectionExtension.UPWARD);
         assertNotNull(curUpwardVariationVariable);
         assertEquals(0, curUpwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), curUpwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
+        // check downward variation variable for curative state
         OpenRaoMPVariable curDownwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, curState, LinearProblem.VariationDirectionExtension.DOWNWARD);
         assertNotNull(curDownwardVariationVariable);
         assertEquals(0, curDownwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), curDownwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
-        // check range action absolute variation variable for preventive state
-        OpenRaoMPVariable prevAbsoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, prevState);
-        assertNotNull(prevAbsoluteVariationVariable);
-        assertEquals(0, prevAbsoluteVariationVariable.lb(), 0.01);
-        assertEquals(linearProblem.infinity(), prevAbsoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
-
-        // check range action absolute variation variable for curative state
-        OpenRaoMPVariable curAbsoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, curState);
-        assertNotNull(curAbsoluteVariationVariable);
-        assertEquals(0, curAbsoluteVariationVariable.lb(), 0.01);
-        assertEquals(linearProblem.infinity(), curAbsoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
+        // check binary activation variable for curative state
+        OpenRaoMPVariable curActivationVariable = linearProblem.getRangeActionVariationBinary(pstRangeAction, curState);
+        assertNotNull(curActivationVariable);
+        assertEquals(0, curActivationVariable.lb(), 0.01);
+        assertEquals(1, curActivationVariable.ub(), 0.01);
 
         // check flow variable for cnec1
         OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
@@ -429,47 +451,47 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         // check set-point variation constraint for preventive state
         OpenRaoMPConstraint prevSetPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, prevState);
         assertNotNull(prevSetPointVariationConstraint);
-        assertEquals(initialAlpha, prevSetPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(initialAlpha, prevSetPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, prevSetPointVariationConstraint.getCoefficient(prevSetPointVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, prevSetPointVariationConstraint.getCoefficient(prevUpwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(1.0, prevSetPointVariationConstraint.getCoefficient(prevDownwardVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(1.9479, prevSetPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(1.9479, prevSetPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(1, prevSetPointVariationConstraint.getCoefficient(prevSetPointVariable));
+        assertEquals(-1, prevSetPointVariationConstraint.getCoefficient(prevUpwardVariationVariable));
+        assertEquals(1, prevSetPointVariationConstraint.getCoefficient(prevDownwardVariationVariable));
+
+        // check activation constraint for preventive state
+        OpenRaoMPConstraint prevActivationConstraint = linearProblem.getIsVariationConstraint(pstRangeAction, prevState);
+        assertNotNull(prevActivationConstraint);
+        assertEquals(0, prevActivationConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(linearProblem.infinity(), prevActivationConstraint.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(-1, prevActivationConstraint.getCoefficient(prevUpwardVariationVariable));
+        assertEquals(-1, prevActivationConstraint.getCoefficient(prevDownwardVariationVariable));
+        assertEquals(11.6782, prevActivationConstraint.getCoefficient(prevActivationVariable), DOUBLE_TOLERANCE);
 
         // check set-point variation constraint for curative state
         OpenRaoMPConstraint curSetPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, curState);
         assertNotNull(curSetPointVariationConstraint);
         assertEquals(0.0, curSetPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(0.0, curSetPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, curSetPointVariationConstraint.getCoefficient(curSetPointVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, curSetPointVariationConstraint.getCoefficient(curUpwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(1.0, curSetPointVariationConstraint.getCoefficient(curDownwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, curSetPointVariationConstraint.getCoefficient(prevSetPointVariable), DOUBLE_TOLERANCE);
+        assertEquals(1, curSetPointVariationConstraint.getCoefficient(curSetPointVariable));
+        assertEquals(-1, curSetPointVariationConstraint.getCoefficient(curUpwardVariationVariable));
+        assertEquals(1, curSetPointVariationConstraint.getCoefficient(curDownwardVariationVariable));
+        assertEquals(-1, curSetPointVariationConstraint.getCoefficient(prevSetPointVariable));
 
-        // check absolute variation constraints for preventive state
-        OpenRaoMPConstraint prevAbsoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, prevState);
-        assertNotNull(prevAbsoluteVariationConstraint);
-        assertEquals(0.0, prevAbsoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(0.0, prevAbsoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, prevAbsoluteVariationConstraint.getCoefficient(prevAbsoluteVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, prevAbsoluteVariationConstraint.getCoefficient(prevUpwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, prevAbsoluteVariationConstraint.getCoefficient(prevDownwardVariationVariable), DOUBLE_TOLERANCE);
-
-        // check absolute variation constraints for curative state
-        OpenRaoMPConstraint curAbsoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, curState);
-        assertNotNull(curAbsoluteVariationConstraint);
-        assertEquals(0.0, curAbsoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(0.0, curAbsoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, curAbsoluteVariationConstraint.getCoefficient(curAbsoluteVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, curAbsoluteVariationConstraint.getCoefficient(curUpwardVariationVariable), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, curAbsoluteVariationConstraint.getCoefficient(curDownwardVariationVariable), DOUBLE_TOLERANCE);
+        // check activation constraint for curative state
+        OpenRaoMPConstraint curActivationConstraint = linearProblem.getIsVariationConstraint(pstRangeAction, curState);
+        assertNotNull(curActivationConstraint);
+        assertEquals(0, curActivationConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(linearProblem.infinity(), curActivationConstraint.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(-1, curActivationConstraint.getCoefficient(curUpwardVariationVariable));
+        assertEquals(-1, curActivationConstraint.getCoefficient(curDownwardVariationVariable));
+        assertEquals(11.6782, curActivationConstraint.getCoefficient(curActivationVariable), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
         // total number of variables 10 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point 3 variations [up, down, absolute])
-        // total number of constraints 6 or 7 :
+        //      - 4 per range action (set-point, activation and variation up/down)
+        // total number of constraints 6 or 7:
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (set-point and absolute variation constraints)
+        //      - 2 per range action (activation and set-point variation)
         //      - 0 or 1 for curative range action (relative variation constraint)
         assertEquals(10, linearProblem.numVariables());
         if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
@@ -477,6 +499,14 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         } else {
             assertEquals(7, linearProblem.numConstraints());
         }
+
+        // check objective
+        assertEquals(15.0, linearProblem.getObjective().getCoefficient(prevActivationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(prevUpwardVariationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(prevDownwardVariationVariable));
+        assertEquals(15.0, linearProblem.getObjective().getCoefficient(curActivationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(curUpwardVariationVariable));
+        assertEquals(10.0, linearProblem.getObjective().getCoefficient(curDownwardVariationVariable));
     }
 
     private void updateLinearProblem() {
@@ -529,13 +559,13 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals("Constraint Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_constraint has not been created yet", e.getMessage());
 
         // check the number of variables and constraints
-        // No iterative relative variation constraint should be created since CoreProblemFiller.raRangeShrinking = false
-        // total number of variables 5 :
+        // No iterative relative variation constraint should be created since MarginCoreProblemFiller.raRangeShrinking = false
+        // total number of variables 3 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point 3 variations [up, down, absolute])
+        //      - 4 per range action (set-point, activation and variation up/down)
         // total number of constraints 3 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (set-point and absolute variation constraints)
+        //      - 2 per range action (activation and set-point variation)
 
         assertEquals(5, linearProblem.numVariables());
         assertEquals(3, linearProblem.numConstraints());
@@ -611,12 +641,12 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC2_IT2, flowConstraint2.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
-        // total number of variables 5 :
+        // total number of variables 3 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point 3 variations [up, down, absolute])
+        //      - 4 per range action (set-point, activation and variation up/down)
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 3 per range action (set-point and absolute variation constraints and iterative relative variation constraint: created before 2nd iteration)
+        //      - 3 per range action (activation, set-point variation and iterative relative variation constraint: created before 2nd iteration)
         assertEquals(5, linearProblem.numVariables());
         assertEquals(4, linearProblem.numConstraints());
 
