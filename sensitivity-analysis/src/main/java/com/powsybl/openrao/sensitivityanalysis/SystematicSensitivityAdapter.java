@@ -40,11 +40,11 @@ final class SystematicSensitivityAdapter {
         SensitivityAnalysisResult result;
         try {
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
-                    network.getVariantManager().getWorkingVariantId(),
-                    cnecSensitivityProvider.getAllFactors(network),
-                    cnecSensitivityProvider.getContingencies(network),
-                    cnecSensitivityProvider.getVariableSets(),
-                    sensitivityComputationParameters);
+                network.getVariantManager().getWorkingVariantId(),
+                cnecSensitivityProvider.getAllFactors(network),
+                cnecSensitivityProvider.getContingencies(network),
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters);
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
@@ -76,21 +76,21 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("... (1/{}) {} state(s) without RA ", statesWithRa.size() + 1, statesWithoutRa.size());
 
         List<Contingency> contingenciesWithoutRa = statesWithoutRa.stream()
-                .filter(state -> state.getContingency().isPresent())
-                .map(state -> state.getContingency().get())
-                .distinct()
-                .toList();
+            .filter(state -> state.getContingency().isPresent())
+            .map(state -> state.getContingency().get())
+            .distinct()
+            .toList();
 
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
         try {
             result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
-                    network.getVariantManager().getWorkingVariantId(),
-                    allFactorsWithoutRa,
-                    contingenciesWithoutRa,
-                    cnecSensitivityProvider.getVariableSets(),
-                    sensitivityComputationParameters), outageInstant.getOrder());
+                network.getVariantManager().getWorkingVariantId(),
+                allFactorsWithoutRa,
+                contingenciesWithoutRa,
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters), outageInstant.getOrder());
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
@@ -124,11 +124,11 @@ final class SystematicSensitivityAdapter {
 
             try {
                 result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
-                        network.getVariantManager().getWorkingVariantId(),
-                        cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
-                        contingencyList,
-                        cnecSensitivityProvider.getVariableSets(),
-                        sensitivityComputationParameters), state.getInstant().getOrder());
+                    network.getVariantManager().getWorkingVariantId(),
+                    cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
+                    contingencyList,
+                    cnecSensitivityProvider.getVariableSets(),
+                    sensitivityComputationParameters), state.getInstant().getOrder());
             } catch (Exception e) {
                 TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
                 result.completeDataWithFailingPerimeter(state.getInstant().getOrder(), optContingency.get().getId());
