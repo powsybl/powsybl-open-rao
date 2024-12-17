@@ -43,14 +43,7 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
         try {
-            if (DO_LOG_TEST_DATA) {
-                TECHNICAL_LOGS.warn("s1##########################");
-                try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-                    NetworkSerDe.write(network, os);
-                    TECHNICAL_LOGS.warn("{}", os.toString());
-                }
-                TECHNICAL_LOGS.warn("e##########################");
-            }
+            logNetwork(network, 1);
 
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
                     network.getVariantManager().getWorkingVariantId(),
@@ -58,16 +51,40 @@ final class SystematicSensitivityAdapter {
                     cnecSensitivityProvider.getContingencies(network),
                     cnecSensitivityProvider.getVariableSets(),
                     sensitivityComputationParameters);
-            if (DO_LOG_TEST_DATA) {
-                TECHNICAL_LOGS.warn("r1##########################");
-                TECHNICAL_LOGS.warn("{}", result.getValues());
-            }
+            logResult(result, 1);
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
         return new SystematicSensitivityResult().completeData(result, outageInstant.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+    }
+
+    private static void logNetwork(Network network, int position) {
+        if (DO_LOG_TEST_DATA) {
+            TECHNICAL_LOGS.warn("s##########################{}", position);
+            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                NetworkSerDe.write(network, os);
+                TECHNICAL_LOGS.warn("{}", os.toString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            TECHNICAL_LOGS.warn("e##########################");
+        }
+    }
+
+    private static void logResult(SensitivityAnalysisResult result, int position) {
+        if (DO_LOG_TEST_DATA) {
+            TECHNICAL_LOGS.warn("r##########################{}", position);
+            for (var v : result.getValues()) {
+                TECHNICAL_LOGS.warn("{} - {} - ref: {} - val: {}",
+                        String.format("%2s", v.getContingencyIndex()),
+                        v.getFactorIndex(),
+                        String.format("%15s", (String.format("%.6f", v.getFunctionReference()))),
+                        String.format("%15s", String.format("%.6f", v.getValue())));
+            }
+            TECHNICAL_LOGS.warn("{}", result.getValues());
+        }
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
@@ -101,16 +118,7 @@ final class SystematicSensitivityAdapter {
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
-        if (DO_LOG_TEST_DATA) {
-            TECHNICAL_LOGS.warn("s2##########################");
-            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-                NetworkSerDe.write(network, os);
-                TECHNICAL_LOGS.warn("{}", os.toString());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            TECHNICAL_LOGS.warn("e##########################");
-        }
+        logNetwork(network, 2);
         SensitivityAnalysisResult res2 = SensitivityAnalysis.find(sensitivityProvider).run(network,
                 network.getVariantManager().getWorkingVariantId(),
                 allFactorsWithoutRa,
@@ -118,10 +126,7 @@ final class SystematicSensitivityAdapter {
                 cnecSensitivityProvider.getVariableSets(),
                 sensitivityComputationParameters);
         result.completeData(res2, outageInstant.getOrder());
-        if (DO_LOG_TEST_DATA) {
-            TECHNICAL_LOGS.warn("r2##########################");
-            TECHNICAL_LOGS.warn("{}", res2.getValues());
-        }
+        logResult(res2, 2);
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
         String workingVariantId = network.getVariantManager().getWorkingVariantId();
@@ -148,16 +153,7 @@ final class SystematicSensitivityAdapter {
 
             List<Contingency> contingencyList = Collections.singletonList(optContingency.get());
 
-            if (DO_LOG_TEST_DATA) {
-                TECHNICAL_LOGS.warn("s3##########################");
-                try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-                    NetworkSerDe.write(network, os);
-                    TECHNICAL_LOGS.warn("{}", os.toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                TECHNICAL_LOGS.warn("e##########################");
-            }
+            logNetwork(network, 3);
 
             SensitivityAnalysisResult res3 = SensitivityAnalysis.find(sensitivityProvider).run(network,
                     network.getVariantManager().getWorkingVariantId(),
@@ -166,10 +162,7 @@ final class SystematicSensitivityAdapter {
                     cnecSensitivityProvider.getVariableSets(),
                     sensitivityComputationParameters);
             result.completeData(res3, state.getInstant().getOrder());
-            if (DO_LOG_TEST_DATA) {
-                TECHNICAL_LOGS.warn("r3##########################");
-                TECHNICAL_LOGS.warn("{}", res3.getValues());
-            }
+            logResult(res3, 3);
             counterForLogs++;
         }
 
