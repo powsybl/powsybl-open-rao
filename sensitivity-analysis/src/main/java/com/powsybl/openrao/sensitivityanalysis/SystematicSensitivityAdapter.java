@@ -40,11 +40,11 @@ final class SystematicSensitivityAdapter {
         SensitivityAnalysisResult result;
         try {
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
-                    network.getVariantManager().getWorkingVariantId(),
-                    cnecSensitivityProvider.getAllFactors(network),
-                    cnecSensitivityProvider.getContingencies(network),
-                    cnecSensitivityProvider.getVariableSets(),
-                    sensitivityComputationParameters);
+                network.getVariantManager().getWorkingVariantId(),
+                cnecSensitivityProvider.getAllFactors(network),
+                cnecSensitivityProvider.getContingencies(network),
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters);
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
@@ -84,12 +84,17 @@ final class SystematicSensitivityAdapter {
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
-        result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
-            network.getVariantManager().getWorkingVariantId(),
-            allFactorsWithoutRa,
-            contingenciesWithoutRa,
-            cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters), outageInstant.getOrder());
+        try {
+            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
+                network.getVariantManager().getWorkingVariantId(),
+                allFactorsWithoutRa,
+                contingenciesWithoutRa,
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters), outageInstant.getOrder());
+        } catch (Exception e) {
+            TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
+            return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+        }
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
@@ -117,12 +122,17 @@ final class SystematicSensitivityAdapter {
 
             List<Contingency> contingencyList = Collections.singletonList(optContingency.get());
 
-            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
-                network.getVariantManager().getWorkingVariantId(),
-                cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
-                contingencyList,
-                cnecSensitivityProvider.getVariableSets(),
-                sensitivityComputationParameters), state.getInstant().getOrder());
+            try {
+                result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
+                    network.getVariantManager().getWorkingVariantId(),
+                    cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
+                    contingencyList,
+                    cnecSensitivityProvider.getVariableSets(),
+                    sensitivityComputationParameters), state.getInstant().getOrder());
+            } catch (Exception e) {
+                TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
+                result.completeDataWithFailingPerimeter(state.getInstant().getOrder(), optContingency.get().getId());
+            }
             counterForLogs++;
         }
 
