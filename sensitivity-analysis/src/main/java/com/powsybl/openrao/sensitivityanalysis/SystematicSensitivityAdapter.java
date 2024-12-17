@@ -80,7 +80,7 @@ final class SystematicSensitivityAdapter {
                 TECHNICAL_LOGS.warn("{} - {} - ref: {} - val: {}",
                         String.format("%2s", v.getContingencyIndex()),
                         v.getFactorIndex(),
-                        String.format("%15s", (String.format("%.6f", v.getFunctionReference()))),
+                        String.format("%15s", String.format("%.6f", v.getFunctionReference())),
                         String.format("%15s", String.format("%.6f", v.getValue())));
             }
             TECHNICAL_LOGS.warn("{}", result.getValues());
