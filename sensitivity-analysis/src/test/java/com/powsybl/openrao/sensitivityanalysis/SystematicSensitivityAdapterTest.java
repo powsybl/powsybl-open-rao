@@ -162,4 +162,13 @@ class SystematicSensitivityAdapterTest {
         assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateOutageContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(5.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateOutageContingency1"), TWO), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    void testCatchInRunSensitivity() {
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(null, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+    }
 }
