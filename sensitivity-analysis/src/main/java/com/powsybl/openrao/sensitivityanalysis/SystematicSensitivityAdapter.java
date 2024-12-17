@@ -58,6 +58,10 @@ final class SystematicSensitivityAdapter {
                     cnecSensitivityProvider.getContingencies(network),
                     cnecSensitivityProvider.getVariableSets(),
                     sensitivityComputationParameters);
+            if (DO_LOG_TEST_DATA) {
+                TECHNICAL_LOGS.warn("r1##########################");
+                TECHNICAL_LOGS.warn("{}", result.getValues());
+            }
         } catch (Exception e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
@@ -107,13 +111,17 @@ final class SystematicSensitivityAdapter {
             }
             TECHNICAL_LOGS.warn("e##########################");
         }
-        result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
-            network.getVariantManager().getWorkingVariantId(),
-            allFactorsWithoutRa,
-            contingenciesWithoutRa,
-            cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters), outageInstant.getOrder());
-
+        SensitivityAnalysisResult res2 = SensitivityAnalysis.find(sensitivityProvider).run(network,
+                network.getVariantManager().getWorkingVariantId(),
+                allFactorsWithoutRa,
+                contingenciesWithoutRa,
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters);
+        result.completeData(res2, outageInstant.getOrder());
+        if (DO_LOG_TEST_DATA) {
+            TECHNICAL_LOGS.warn("r2##########################");
+            TECHNICAL_LOGS.warn("{}", res2.getValues());
+        }
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
         String workingVariantId = network.getVariantManager().getWorkingVariantId();
@@ -151,12 +159,17 @@ final class SystematicSensitivityAdapter {
                 TECHNICAL_LOGS.warn("e##########################");
             }
 
-            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
-                network.getVariantManager().getWorkingVariantId(),
-                cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
-                contingencyList,
-                cnecSensitivityProvider.getVariableSets(),
-                sensitivityComputationParameters), state.getInstant().getOrder());
+            SensitivityAnalysisResult res3 = SensitivityAnalysis.find(sensitivityProvider).run(network,
+                    network.getVariantManager().getWorkingVariantId(),
+                    cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
+                    contingencyList,
+                    cnecSensitivityProvider.getVariableSets(),
+                    sensitivityComputationParameters);
+            result.completeData(res3, state.getInstant().getOrder());
+            if (DO_LOG_TEST_DATA) {
+                TECHNICAL_LOGS.warn("r3##########################");
+                TECHNICAL_LOGS.warn("{}", res3.getValues());
+            }
             counterForLogs++;
         }
 
