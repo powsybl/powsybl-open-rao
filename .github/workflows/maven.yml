@@ -25,4 +25,4 @@ jobs:
         run: mvn --batch-mode install -DskipCucumberTests=true -DskipTests=true
 
       - name: Run problematic test
-        run: mvn test -pl ra-optimisation/search-tree-rao -Dtest=CastorFullOptimizationTest#smallRaoWithGlobal2P
+        run: mvn test -pl ra-optimisation/search-tree-rao -Dtest=CastorFullOptimizationTest#smallRaoWithGlobal2P+spotGraalVmProblem

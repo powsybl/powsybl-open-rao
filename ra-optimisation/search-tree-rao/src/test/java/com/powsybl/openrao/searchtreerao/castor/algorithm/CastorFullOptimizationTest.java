@@ -159,7 +159,6 @@ class CastorFullOptimizationTest {
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
     }
 
-    //@Disabled
     @Test
     void smallRaoWithGlobal2P() throws IOException {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
@@ -287,7 +286,7 @@ class CastorFullOptimizationTest {
             );
         }
 
-        // Preventive - final
+        // Preventive - final - openjdk
         {
             Network nFinal = Network.read("final.xiidm", getClass().getResourceAsStream("/network/preventive/final.xiidm"));
             SensitivityAnalysisResult result = SensitivityAnalysis.find("OpenLoadFlow")
@@ -295,25 +294,18 @@ class CastorFullOptimizationTest {
 
             List<SensitivityValue> values = result.getValues();
             assertEquals(10, values.size());
-            assertAll(
-//                    () -> assertEquals(-341.58, getFunctionReferenceValue(result, null, factor1), 0.01d),
-//                    () -> assertEquals(1308.92, getFunctionReferenceValue(result, null, factor2), 0.01d),
-//                    () -> assertEquals(493.06, getFunctionReferenceValue(result, null, factor3), 0.01d),
-//                    () -> assertEquals(1890.85, getFunctionReferenceValue(result, null, factor4), 0.01d),
-//                    () -> assertEquals(194.26, getFunctionReferenceValue(result, contingency.getContingencyId(), factor5), 0.01d),
-//                    () -> assertEquals(-338.33, getFunctionReferenceValue(result, contingency.getContingencyId(), factor6), 0.01d),
-//                    () -> assertEquals(280.39, getFunctionReferenceValue(result, contingency.getContingencyId(), factor8), 0.01d),
-//                    () -> assertEquals(488.36, getFunctionReferenceValue(result, contingency.getContingencyId(), factor9), 0.01d),
-                    () -> assertEquals(2674.61, getFunctionReferenceValue(result, contingency.getContingencyId(), factor10), 0.01d)
-//                    () -> assertEquals(-6.83, values.get(0).getValue(), 0.01d),
-//                    () -> assertEquals(-20.93, values.get(1).getValue(), 0.01d),
-//                    () -> assertEquals(9.86, values.get(2).getValue(), 0.01d),
-//                    () -> assertEquals(-30.29, values.get(3).getValue(), 0.01d),
-//                    () -> assertEquals(-29.63, values.get(4).getValue(), 0.01d),
-//                    () -> assertEquals(-6.80, values.get(5).getValue(), 0.01d),
-//                    () -> assertEquals(-42.77, values.get(6).getValue(), 0.01d),
-//                    () -> assertEquals(9.82, values.get(7).getValue(), 0.01d)
-            );
+            assertEquals(2674.61, getFunctionReferenceValue(result, contingency.getContingencyId(), factor10), 0.01d);
+        }
+
+        // Preventive - final - graalvm
+        {
+            Network nFinal = Network.read("final2.xiidm", getClass().getResourceAsStream("/network/preventive/final2.xiidm"));
+            SensitivityAnalysisResult result = SensitivityAnalysis.find("OpenLoadFlow")
+                    .run(nFinal, "InitialState", sensitivityFactors, contingencyList, List.of(), sensitivityAnalysisParameters);
+
+            List<SensitivityValue> values = result.getValues();
+            assertEquals(10, values.size());
+            assertEquals(2695.16, getFunctionReferenceValue(result, contingency.getContingencyId(), factor10), 0.01d);
         }
 
     }
