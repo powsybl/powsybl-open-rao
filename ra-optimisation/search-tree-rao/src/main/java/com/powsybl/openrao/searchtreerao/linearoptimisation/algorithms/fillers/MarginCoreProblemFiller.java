@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
@@ -32,31 +31,6 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
     }
 
     /**
-     * Build one set point variable S[r] for each RangeAction r
-     * This variable describes the setpoint of the given RangeAction r, given :
-     * <ul>
-     *     <li>in DEGREE for PST range actions</li>
-     *     <li>in MEGAWATT for HVDC range actions</li>
-     *     <li>in MEGAWATT for Injection range actions</li>
-     * </ul>
-     * <p>
-     * Build one absolute variation variable AV[r] for each RangeAction r
-     * This variable describes the absolute difference between the range action setpoint
-     * and its initial value. It is given in the same unit as S[r].
-     */
-    @Override
-    protected void buildRangeActionVariables(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-            rangeActions.forEach(rangeAction -> {
-                linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
-                linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state);
-                linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
-                linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-            })
-        );
-    }
-
-    /**
      * Build range action constraints for each RangeAction r.
      * These constraints link the set-point variable of the RangeAction with its
      * variation variables, and bounds the set-point in an admissible range.
@@ -65,18 +39,6 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
     @Override
     protected void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         addSetPointConstraints(linearProblem, rangeAction, state);
-        addAbsoluteVariationConstraint(linearProblem, rangeAction, state);
-    }
-
-    private void addAbsoluteVariationConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
-        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-
-        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.addRangeActionAbsoluteVariationConstraint(rangeAction, state);
-        absoluteVariationConstraint.setCoefficient(absoluteVariationVariable, 1.0);
-        absoluteVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
-        absoluteVariationConstraint.setCoefficient(downwardVariationVariable, -1.0);
     }
 
     /**

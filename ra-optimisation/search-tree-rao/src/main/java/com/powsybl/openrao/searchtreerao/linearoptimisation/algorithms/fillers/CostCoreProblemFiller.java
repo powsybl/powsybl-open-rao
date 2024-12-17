@@ -36,29 +36,12 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
         super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, unit, raRangeShrinking, pstModel);
     }
 
-    /**
-     * Build one set point variable S[r] for each RangeAction r
-     * This variable describes the setpoint of the given RangeAction r, given :
-     * <ul>
-     *     <li>in DEGREE for PST range actions</li>
-     *     <li>in MEGAWATT for HVDC range actions</li>
-     *     <li>in MEGAWATT for Injection range actions</li>
-     * </ul>
-     * <p>
-     * If the range action has an activation cost, a binary activation variable is also created.
-     */
     @Override
-    protected void buildRangeActionVariables(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-            rangeActions.forEach(rangeAction -> {
-                linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
-                linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
-                linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-                if (rangeAction.getActivationCost().isPresent() && rangeAction.getActivationCost().get() > 0) {
-                    linearProblem.addRangeActionVariationBinary(rangeAction, state);
-                }
-            })
-        );
+    protected void addAllRangeActionVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+        super.addAllRangeActionVariables(linearProblem, rangeAction, state);
+        if (rangeAction.getActivationCost().isPresent() && rangeAction.getActivationCost().get() > 0) {
+            linearProblem.addRangeActionVariationBinary(rangeAction, state);
+        }
     }
 
     /**

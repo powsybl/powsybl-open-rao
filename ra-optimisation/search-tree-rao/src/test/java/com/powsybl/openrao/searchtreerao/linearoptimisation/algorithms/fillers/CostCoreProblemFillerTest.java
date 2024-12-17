@@ -176,12 +176,12 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // check the number of variables and constraints
         // total number of variables 4 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point, activation and variation up/down)
+        //      - 5 per range action (set-point, absolute variation, activation and variation up/down)
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (activation and set-point variation)
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(3, linearProblem.numConstraints());
+        //      - 3 per range action (activation and set-point + absolute variation)
+        assertEquals(6, linearProblem.numVariables());
+        assertEquals(4, linearProblem.numConstraints());
 
         // check objective
         assertEquals(15.0, linearProblem.getObjective().getCoefficient(activationVariable));
@@ -261,12 +261,12 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // check the number of variables and constraints
         // total number of variables 4 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point, activation and variation up/down)
+        //      - 5 per range action (set-point, absolute variation, activation and variation up/down)
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (activation and set-point variation)
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(3, linearProblem.numConstraints());
+        //      - 3 per range action (activation and set-point + absolute variation)
+        assertEquals(6, linearProblem.numVariables());
+        assertEquals(4, linearProblem.numConstraints());
 
         // check objective
         assertEquals(15.0, linearProblem.getObjective().getCoefficient(activationVariable));
@@ -346,12 +346,12 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // check the number of variables and constraints
         // total number of variables 4 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point, activation and variation up/down)
+        //      - 5 per range action (set-point, absolute variation, activation and variation up/down)
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (activation and set-point variation)
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(3, linearProblem.numConstraints());
+        //      - 3 per range action (activation and set-point + absolute variation)
+        assertEquals(6, linearProblem.numVariables());
+        assertEquals(4, linearProblem.numConstraints());
 
         // check objective
         assertEquals(15.0, linearProblem.getObjective().getCoefficient(activationVariable));
@@ -488,16 +488,16 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // check the number of variables and constraints
         // total number of variables 10 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point, activation and variation up/down)
+        //      - 5 per range action (set-point, absolute variation, activation and variation up/down)
         // total number of constraints 6 or 7:
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (activation and set-point variation)
+        //      - 3 per range action (activation and set-point + absolute variation)
         //      - 0 or 1 for curative range action (relative variation constraint)
-        assertEquals(10, linearProblem.numVariables());
+        assertEquals(12, linearProblem.numVariables());
         if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
-            assertEquals(6, linearProblem.numConstraints());
+            assertEquals(8, linearProblem.numConstraints());
         } else {
-            assertEquals(7, linearProblem.numConstraints());
+            assertEquals(9, linearProblem.numConstraints());
         }
 
         // check objective
@@ -562,13 +562,13 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // No iterative relative variation constraint should be created since MarginCoreProblemFiller.raRangeShrinking = false
         // total number of variables 3 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point, activation and variation up/down)
+        //      - 5 per range action (set-point, absolute variation, activation and variation up/down)
         // total number of constraints 3 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (activation and set-point variation)
+        //      - 3 per range action (activation and set-point + absolute variation)
 
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(3, linearProblem.numConstraints());
+        assertEquals(6, linearProblem.numVariables());
+        assertEquals(4, linearProblem.numConstraints());
     }
 
     @Test
@@ -582,8 +582,8 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // 1st update
         updateLinearProblem();
 
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(4, linearProblem.numConstraints());
+        assertEquals(6, linearProblem.numVariables());
+        assertEquals(5, linearProblem.numConstraints());
 
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
         OpenRaoMPConstraint shrinkingConstraint = linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
@@ -595,8 +595,8 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // 2nd update
         updateLinearProblem();
 
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(4, linearProblem.numConstraints());
+        assertEquals(6, linearProblem.numVariables());
+        assertEquals(5, linearProblem.numConstraints());
 
         setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
         shrinkingConstraint = linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
@@ -643,16 +643,16 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // check the number of variables and constraints
         // total number of variables 3 :
         //      - 1 per CNEC (flow)
-        //      - 4 per range action (set-point, activation and variation up/down)
+        //      - 5 per range action (set-point, absolute variation, activation and variation up/down)
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 3 per range action (activation, set-point variation and iterative relative variation constraint: created before 2nd iteration)
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(4, linearProblem.numConstraints());
+        //      - 3 per range action (activation, absolute variation, set-point variation and iterative relative variation constraint: created before 2nd iteration)
+        assertEquals(6, linearProblem.numVariables());
+        assertEquals(5, linearProblem.numConstraints());
 
         // assert that no other constraint is created after 2nd iteration
         updateLinearProblem();
-        assertEquals(4, linearProblem.numConstraints());
+        assertEquals(5, linearProblem.numConstraints());
     }
 
     @Test

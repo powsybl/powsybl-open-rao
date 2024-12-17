@@ -21,7 +21,7 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
 
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
-                if (linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue() + linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue() > 1e-6) {
+                if (linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue() > 1e-6) {
                     double setPoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state).solutionValue();
                     putResult(rangeAction, state, setPoint);
                 }
