@@ -111,6 +111,7 @@ public class SystematicSensitivityResult {
         this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
         StateResult contingencyStateResult = new StateResult();
         contingencyStateResult.status = SensitivityComputationStatus.FAILURE;
+        postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
         postContingencyResults.get(instantOrder).put(contingencyId, contingencyStateResult);
         return this;
     }

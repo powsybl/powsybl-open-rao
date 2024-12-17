@@ -177,7 +177,7 @@ class SystematicSensitivityAdapterTest {
     @Test
     void testCatchInRunSensitivityWithAppliedRa() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        network.setName("Mock_Exception");
+        network.setName("Second_Run_Exception");
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         crac.newFlowCnec()
@@ -199,6 +199,6 @@ class SystematicSensitivityAdapterTest {
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), crac.getPstRangeAction("pst"), -3.1);
 
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant());
-        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
     }
 }

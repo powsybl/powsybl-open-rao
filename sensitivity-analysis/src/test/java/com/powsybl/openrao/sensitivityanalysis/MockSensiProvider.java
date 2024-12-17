@@ -25,12 +25,19 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @AutoService(SensitivityAnalysisProvider.class)
 public final class MockSensiProvider implements SensitivityAnalysisProvider {
+    int counter = 0;
 
     @Override
     public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, ReportNode reportNode) {
         return CompletableFuture.runAsync(() -> {
             if (network.getNameOrId().equals("Mock_Exception")) {
                 throw new OpenRaoException("Mocked exception");
+            }
+            if (network.getNameOrId().equals("Second_Run_Exception")) {
+                counter++;
+                if (counter == 2) {
+                    throw new OpenRaoException("Mocked exception on second round");
+                }
             }
             TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
             if (pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) {
