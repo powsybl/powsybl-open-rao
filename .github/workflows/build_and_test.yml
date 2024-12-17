@@ -1,23 +1,33 @@
 name: CI
 
-on: [push]
+on: [ push ]
 
 jobs:
   build:
-    name: Build OS ${{ matrix.os }}
+    name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        jvm: [ java, graalvm ]
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
 
-      - name: Set up JDK 17
+      - name: Set up Java 17
+        if: matrix.jvm == 'java'
         uses: actions/setup-java@v1
         with:
           java-version: 17
+
+      - name: Setup GraalVM
+        if: matrix.jvm == 'graalvm'
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.12'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest'
@@ -37,3 +47,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run cucumber tests
+        run: mvn test -pl tests
