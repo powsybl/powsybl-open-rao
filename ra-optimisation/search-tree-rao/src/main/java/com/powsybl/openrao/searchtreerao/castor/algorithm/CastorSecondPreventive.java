@@ -282,9 +282,9 @@ public class CastorSecondPreventive {
         OptimizationResult secondPreventiveResult = optimizeSecondPreventivePerimeter(initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult, postContingencyResults, appliedArasAndCras)
             .join().getOptimizationResult(crac.getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access after PRA results
-        DO_LOG_TEST_DATA = true;
+        //DO_LOG_TEST_DATA = true;
         PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, stateTree.getOperatorsNotSharingCras(), null);
-        DO_LOG_TEST_DATA = false;
+        //DO_LOG_TEST_DATA = false;
         if (postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed");
         }

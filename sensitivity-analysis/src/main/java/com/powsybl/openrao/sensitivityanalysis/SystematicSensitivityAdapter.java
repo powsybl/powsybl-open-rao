@@ -20,6 +20,7 @@ import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,7 @@ final class SystematicSensitivityAdapter {
         SensitivityAnalysisResult result;
         try {
             if (DO_LOG_TEST_DATA) {
-                TECHNICAL_LOGS.warn("s##########################");
+                TECHNICAL_LOGS.warn("s1##########################");
                 try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
                     NetworkSerDe.write(network, os);
                     TECHNICAL_LOGS.warn("{}", os.toString());
@@ -96,6 +97,16 @@ final class SystematicSensitivityAdapter {
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
+        if (DO_LOG_TEST_DATA) {
+            TECHNICAL_LOGS.warn("s2##########################");
+            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                NetworkSerDe.write(network, os);
+                TECHNICAL_LOGS.warn("{}", os.toString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            TECHNICAL_LOGS.warn("e##########################");
+        }
         result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
             network.getVariantManager().getWorkingVariantId(),
             allFactorsWithoutRa,
@@ -128,6 +139,17 @@ final class SystematicSensitivityAdapter {
             appliedRemedialActions.applyOnNetwork(state, network);
 
             List<Contingency> contingencyList = Collections.singletonList(optContingency.get());
+
+            if (DO_LOG_TEST_DATA) {
+                TECHNICAL_LOGS.warn("s3##########################");
+                try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                    NetworkSerDe.write(network, os);
+                    TECHNICAL_LOGS.warn("{}", os.toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                TECHNICAL_LOGS.warn("e##########################");
+            }
 
             result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
                 network.getVariantManager().getWorkingVariantId(),
