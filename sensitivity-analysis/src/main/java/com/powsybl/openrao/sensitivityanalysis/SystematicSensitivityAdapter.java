@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.contingency.Contingency;
@@ -18,9 +19,11 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.DO_LOG_TEST_DATA;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -39,6 +42,15 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
         try {
+            if (DO_LOG_TEST_DATA) {
+                TECHNICAL_LOGS.warn("s##########################");
+                try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                    NetworkSerDe.write(network, os);
+                    TECHNICAL_LOGS.warn("{}", os.toString());
+                }
+                TECHNICAL_LOGS.warn("e##########################");
+            }
+
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
                     network.getVariantManager().getWorkingVariantId(),
                     cnecSensitivityProvider.getAllFactors(network),

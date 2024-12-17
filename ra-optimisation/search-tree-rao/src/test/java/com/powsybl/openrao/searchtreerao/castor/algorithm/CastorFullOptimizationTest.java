@@ -35,7 +35,6 @@ import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -160,7 +159,7 @@ class CastorFullOptimizationTest {
         assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
     }
 
-    @Disabled
+    //@Disabled
     @Test
     void smallRaoWithGlobal2P() throws IOException {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)

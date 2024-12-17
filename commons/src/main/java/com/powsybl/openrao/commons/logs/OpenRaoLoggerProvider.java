@@ -15,6 +15,8 @@ public final class OpenRaoLoggerProvider {
     public static final OpenRaoLogger BUSINESS_WARNS = new RaoBusinessWarns();
     public static final OpenRaoLogger TECHNICAL_LOGS = new TechnicalLogs();
 
+    public static boolean DO_LOG_TEST_DATA = false;
+
     private OpenRaoLoggerProvider() {
         // utility class
     }
