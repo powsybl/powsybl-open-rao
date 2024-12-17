@@ -162,4 +162,71 @@ class SystematicSensitivityAdapterTest {
         assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateOutageContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(5.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateOutageContingency1"), TWO), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    void testCatchInRunSensitivity() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        network.setName("Mock_Exception");
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
+        Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
+        RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+    }
+
+    @Test
+    void testFirstCatchInRunSensitivityWithAppliedRa() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        network.setName("Mock_Exception");
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        crac.newFlowCnec()
+            .withId("cnec2stateOutageContingency1")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withInstant(OUTAGE_INSTANT_ID)
+            .withContingency("Contingency FR1 FR3")
+            .withOptimized(true)
+            .withOperator("operator2")
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(ONE).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(TWO).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(ONE).withMin(-0.3).withMax(0.3).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(TWO).withMin(-0.3).withMax(0.3).add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
+            .add();
+        RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), crac.getPstRangeAction("pst"), -3.1);
+
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+    }
+
+    @Test
+    void testSecondCatchInRunSensitivityWithAppliedRa() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        network.setName("Second_Run_Exception");
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        crac.newFlowCnec()
+            .withId("cnec2stateOutageContingency1")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withInstant(OUTAGE_INSTANT_ID)
+            .withContingency("Contingency FR1 FR3")
+            .withOptimized(true)
+            .withOperator("operator2")
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(ONE).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(TWO).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(ONE).withMin(-0.3).withMax(0.3).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(TWO).withMin(-0.3).withMax(0.3).add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
+            .add();
+        RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), crac.getPstRangeAction("pst"), -3.1);
+
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
+    }
 }
