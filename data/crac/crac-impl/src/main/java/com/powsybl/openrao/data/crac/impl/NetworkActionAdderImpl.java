@@ -101,7 +101,7 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
             throw new OpenRaoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));
         }
 
-        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed, networkElements);
+        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed, activationCost, networkElements);
         getCrac().addNetworkAction(networkAction);
         return networkAction;
     }

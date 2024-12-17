@@ -11,9 +11,12 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,6 +48,9 @@ class InjectionRangeActionAdderImplTest {
                 .withId("id1")
                 .withOperator("BE")
                 .withGroupId("groupId1")
+                .withActivationCost(200d)
+                .withVariationCost(700d, RangeAction.VariationDirection.UP)
+                .withVariationCost(1000d, RangeAction.VariationDirection.DOWN)
                 .withNetworkElementAndKey(1., injectionId1)
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
@@ -54,6 +60,9 @@ class InjectionRangeActionAdderImplTest {
         assertEquals("id1", injectionRangeAction.getId());
         assertEquals("id1", injectionRangeAction.getName());
         assertEquals("BE", injectionRangeAction.getOperator());
+        assertEquals(Optional.of(200d), injectionRangeAction.getActivationCost());
+        assertEquals(Optional.of(700d), injectionRangeAction.getVariationCost(RangeAction.VariationDirection.UP));
+        assertEquals(Optional.of(1000d), injectionRangeAction.getVariationCost(RangeAction.VariationDirection.DOWN));
         assertTrue(injectionRangeAction.getGroupId().isPresent());
         assertEquals("groupId1", injectionRangeAction.getGroupId().get());
         assertEquals(1, injectionRangeAction.getRanges().size());
@@ -86,6 +95,9 @@ class InjectionRangeActionAdderImplTest {
         assertEquals("id1", injectionRangeAction.getId());
         assertEquals("id1", injectionRangeAction.getName());
         assertEquals("BE", injectionRangeAction.getOperator());
+        assertTrue(injectionRangeAction.getActivationCost().isEmpty());
+        assertTrue(injectionRangeAction.getVariationCost(RangeAction.VariationDirection.UP).isEmpty());
+        assertTrue(injectionRangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).isEmpty());
         assertTrue(injectionRangeAction.getGroupId().isPresent());
         assertEquals("groupId1", injectionRangeAction.getGroupId().get());
         assertEquals(1, injectionRangeAction.getRanges().size());

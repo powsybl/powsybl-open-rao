@@ -21,7 +21,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
@@ -29,7 +29,9 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.Iterating
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -150,9 +152,10 @@ public class Leaf implements OptimizationResult {
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
+        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(raActivationResultFromParentLeaf, new NetworkActionsResultImpl(appliedNetworkActionsInPrimaryState));
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult);
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult);
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
@@ -164,7 +167,7 @@ public class Leaf implements OptimizationResult {
         }
         preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
         preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult);
+        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult);
         status = Status.EVALUATED;
     }
 
@@ -201,6 +204,7 @@ public class Leaf implements OptimizationResult {
                     .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
                     .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
                     .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
+                    .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(appliedNetworkActionsInPrimaryState))
                     .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
                     .withToolProvider(searchTreeInput.getToolProvider())
                     .withOutageInstant(searchTreeInput.getOutageInstant())
@@ -487,17 +491,6 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        if (status == Status.EVALUATED) {
-            return preOptimObjectiveFunctionResult.getObjectiveFunction();
-        } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getObjectiveFunction();
-        } else {
-            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
-        }
-    }
-
-    @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         if (status == Status.EVALUATED) {
             preOptimObjectiveFunctionResult.excludeContingencies(contingenciesToExclude);
@@ -552,6 +545,17 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        if (status == Status.EVALUATED) {
+            return raActivationResultFromParentLeaf.getSetPointVariation(rangeAction, state);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getSetPointVariation(rangeAction, state);
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         if (status == Status.EVALUATED) {
             return raActivationResultFromParentLeaf.getOptimizedTap(pstRangeAction, state);
@@ -572,6 +576,17 @@ public class Leaf implements OptimizationResult {
             return raActivationResultFromParentLeaf.getOptimizedTapsOnState(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getOptimizedTapsOnState(state);
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        if (status == Status.EVALUATED) {
+            return raActivationResultFromParentLeaf.getTapVariation(pstRangeAction, state);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getTapVariation(pstRangeAction, state);
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }
