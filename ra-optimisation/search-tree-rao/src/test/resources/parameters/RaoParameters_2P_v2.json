@@ -28,7 +28,7 @@
     "max-curative-search-tree-depth" : 5,
     "predefined-combinations" : [ ],
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 0.0,
+    "absolute-minimum-impact-threshold" : 0.001,
     "skip-actions-far-from-most-limiting-element" : false,
     "max-number-of-boundaries-for-skipping-actions" : 2
   },
