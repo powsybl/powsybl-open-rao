@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -34,6 +35,9 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                                  boolean raRangeShrinking,
                                  RangeActionsOptimizationParameters.PstModel pstModel) {
         super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, unit, raRangeShrinking, pstModel);
+        if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS)) {
+            throw new OpenRaoException("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.");
+        }
     }
 
     @Override

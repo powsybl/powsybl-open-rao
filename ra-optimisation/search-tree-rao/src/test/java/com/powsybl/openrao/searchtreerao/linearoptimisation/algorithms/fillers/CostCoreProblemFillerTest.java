@@ -26,8 +26,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResult
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -74,7 +72,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
     }
 
     private void initializeForPreventive(double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold) {
-        initialize(Set.of(cnec1), pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold, crac.getPreventiveState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(Set.of(cnec1), pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold, crac.getPreventiveState(), false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
     }
 
     private void initializeForGlobal(RangeActionsOptimizationParameters.PstModel pstModel) {
@@ -276,7 +274,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void fillTestOnCurative() {
-        initialize(Set.of(cnec2), 1e-6, 1e-6, 1e-6, cnec2.getState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(Set.of(cnec2), 1e-6, 1e-6, 1e-6, cnec2.getState(), false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         State state = cnec2.getState();
 
         // check range action setpoint variable
@@ -359,18 +357,21 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(10.0, linearProblem.getObjective().getCoefficient(downwardVariationVariable));
     }
 
-    @ParameterizedTest
-    @EnumSource(value = RangeActionsOptimizationParameters.PstModel.class)
-    void fillTestOnGlobal(RangeActionsOptimizationParameters.PstModel pstModel) {
-        initializeForGlobal(pstModel);
+    @Test
+    void testContinuousPstMode() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> initializeForGlobal(RangeActionsOptimizationParameters.PstModel.CONTINUOUS));
+        assertEquals("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.", exception.getMessage());
+    }
+
+    @Test
+    void fillTestOnGlobal() {
+        initializeForGlobal(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         State prevState = cnec1.getState();
         State curState = cnec2.getState();
 
-        if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
-            // check relative setpoint constraint for PRA_PST_BE has not been created in curative.
-            Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, curState, LinearProblem.RaRangeShrinking.FALSE));
-            assertEquals("Constraint PRA_PST_BE_N-1 NL1-NL3 - curative_relative_setpoint_constraint has not been created yet", e.getMessage());
-        }
+        // check relative setpoint constraint for PRA_PST_BE has not been created in curative.
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, curState, LinearProblem.RaRangeShrinking.FALSE));
+        assertEquals("Constraint PRA_PST_BE_N-1 NL1-NL3 - curative_relative_setpoint_constraint has not been created yet", e.getMessage());
 
         // check range action setpoint variable for preventive state
         OpenRaoMPVariable prevSetPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, prevState);
@@ -494,11 +495,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         //      - 3 per range action (activation and set-point + absolute variation)
         //      - 0 or 1 for curative range action (relative variation constraint)
         assertEquals(12, linearProblem.numVariables());
-        if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
-            assertEquals(8, linearProblem.numConstraints());
-        } else {
-            assertEquals(9, linearProblem.numConstraints());
-        }
+        assertEquals(8, linearProblem.numConstraints());
 
         // check objective
         assertEquals(15.0, linearProblem.getObjective().getCoefficient(prevActivationVariable));
@@ -573,7 +570,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void updateTestOnPreventiveWithRaRangeShrinking() {
-        initialize(Set.of(cnec1), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), true, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(Set.of(cnec1), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), true, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         State state = cnec1.getState();
 
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE));
@@ -608,7 +605,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void updateTestOnCurativeWithRaRangeShrinking() {
-        initialize(Set.of(cnec2), 1e-6, 1e-6, 1e-6, cnec2.getState(), true, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(Set.of(cnec2), 1e-6, 1e-6, 1e-6, cnec2.getState(), true, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         State state = cnec2.getState();
         // update the problem with new data
         updateLinearProblem();
@@ -663,7 +660,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
         // (sensi = 2) < 2.5 should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
-        initialize(Set.of(cnec1), 2.5, 2.5, 2.5, crac.getPreventiveState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(Set.of(cnec1), 2.5, 2.5, 2.5, crac.getPreventiveState(), false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
@@ -680,7 +677,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
         // (sensi = 2) > 1/.5 should not be filtered
         when(flowResult.getMargin(cnec1, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-1.0);
-        initialize(Set.of(cnec1), 1.5, 1.5, 1.5, crac.getPreventiveState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(Set.of(cnec1), 1.5, 1.5, 1.5, crac.getPreventiveState(), false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
@@ -694,7 +691,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // only cnec2's flow variables & constraints must be added to MIP
         when(sensitivityResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.FAILURE);
         when(sensitivityResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
-        initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
 
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec2.getState());
 
@@ -727,7 +724,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // only cnec2's flow variables & constraints must be added to MIP
         when(sensitivityResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.FAILURE);
         when(sensitivityResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
-        initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
 
         updateLinearProblem();
 
@@ -762,7 +759,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         // only cnec2's flow variables & constraints must be added to MIP
         when(sensitivityResult.getSensitivityStatus(cnec1.getState())).thenReturn(ComputationStatus.FAILURE);
         when(sensitivityResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
-        initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
 
         // invert sensitivity failure statuses & update
         // only cnec1's flow variables & constraints must be added to MIP
