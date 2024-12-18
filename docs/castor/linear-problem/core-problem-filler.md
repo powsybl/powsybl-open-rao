@@ -92,11 +92,8 @@ $$
 #### Using the upward and downward variation variables
 
 > The following equations are used if the RAO is used in remedial actions' cost optimization mode.
-$$
-\begin{equation}
-A(r,s) = \Delta^{+}(r,s) - \Delta^{-}(r,s) + A(r,s') , \forall (r,s) \in \mathcal{RA}
-\end{equation}
-$$
+
+$$A(r,s) = \Delta^{+}(r,s) - \Delta^{-}(r,s) + A(r,s') , \forall (r,s) \in \mathcal{RA}$$
 
 with $A(r,s')$ the setpoint of the last range action on the same element as $r$ but a state preceding $s$. If none such
 range actions exists, then $A(r,s') = \alpha_{0}(r)$
@@ -104,11 +101,8 @@ range actions exists, then $A(r,s') = \alpha_{0}(r)$
 ### Range action activation variable
 
 > The following equations are used if the RAO is used in remedial actions' cost optimization mode.
-$$
-\begin{equation}
-\left ( \alpha_{\max}(r, s) - \alpha_{\min}(r, s) \right ) \delta(r,s) \geq \Delta^{+}(r,s) + \Delta^{-}(r,s) , \forall (r,s) \in \mathcal{RA}
-\end{equation}
-$$
+
+$$\left ( \alpha_{\max}(r, s) - \alpha_{\min}(r, s) \right ) \delta(r,s) \geq \Delta^{+}(r,s) + \Delta^{-}(r,s) , \forall (r,s) \in \mathcal{RA}$$
 
 where $\alpha_{\max}(r, s)$ and $\alpha_{\min}(r, s)$ are respectively the maximum and minimum reachable set-points for
 range action $r$ at state $s$.
