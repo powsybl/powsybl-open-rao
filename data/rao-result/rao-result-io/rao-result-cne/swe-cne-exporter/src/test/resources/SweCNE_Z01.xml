@@ -8,7 +8,7 @@
     <sender_MarketParticipant.marketRole.type>A04</sender_MarketParticipant.marketRole.type>
     <receiver_MarketParticipant.mRID codingScheme="A01">receiverId</receiver_MarketParticipant.mRID>
     <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
-    <createdDateTime>2022-06-08T09:22:09Z</createdDateTime>
+    <createdDateTime>2024-12-19T11:04:18Z</createdDateTime>
     <time_Period.timeInterval>
         <start>2021-08-27T15:22Z</start>
         <end>2021-08-27T16:22Z</end>
@@ -26,7 +26,7 @@
             <Point>
                 <position>1</position>
                 <Constraint_Series>
-                    <mRID>bb80b4c-b51b-4b77-8fb6-ed39520133ab</mRID>
+                    <mRID>6495270-91d7-4e19-bdba-b1e2f11cd59e</mRID>
                     <businessType>B56</businessType>
                     <RemedialAction_Series>
                         <mRID>PRA_1@-7@</mRID>
@@ -48,7 +48,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>33378a0-9f48-4397-836f-d4facae1c04e</mRID>
+                    <mRID>512172b-361c-44cc-8100-dc531f328ee3</mRID>
                     <businessType>B56</businessType>
                     <Contingency_Series>
                         <mRID>Co-1</mRID>
@@ -92,7 +92,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>b207176-7d9b-4fa0-ae5d-cd8a869ae491</mRID>
+                    <mRID>6d0af11-b1ff-4b40-9382-c4c45ddd7914</mRID>
                     <businessType>B56</businessType>
                     <Contingency_Series>
                         <mRID>Co-2</mRID>
@@ -118,7 +118,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>f1863fc-aac4-449b-8ee9-663bc4355f29</mRID>
+                    <mRID>604e063-9929-4da9-a96d-bc4c088d19f6</mRID>
                     <businessType>B57</businessType>
                     <Monitored_Series>
                         <mRID>CNEC-1</mRID>
@@ -132,13 +132,13 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>1220</analogValues.value>
+                                <analogValues.value>1220.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
-                                <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>40</analogValues.value>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>40.0</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -154,13 +154,13 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>1220</analogValues.value>
+                                <analogValues.value>1220.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>40</analogValues.value>
+                                <analogValues.value>40.0</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -176,7 +176,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>53c404b-8a90-4830-8f92-78956ce4469f</mRID>
+                    <mRID>cc05136-a928-485b-858e-aa7804881337</mRID>
                     <businessType>B57</businessType>
                     <AdditionalConstraint_Series>
                         <mRID>ac1</mRID>
@@ -200,13 +200,13 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>2220</analogValues.value>
+                                <analogValues.value>2220.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>15</analogValues.value>
+                                <analogValues.value>15.0</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -222,19 +222,19 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>4220</analogValues.value>
+                                <analogValues.value>4220.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A12</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
-                                <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>12</analogValues.value>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>12.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A13</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
-                                <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>13</analogValues.value>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>13.0</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -250,13 +250,13 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3220</analogValues.value>
+                                <analogValues.value>3220.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
-                                <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>7</analogValues.value>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>7.0</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -292,7 +292,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>98bcd13-e1b2-4b7b-a692-00125f17d542</mRID>
+                    <mRID>ab23d66-b232-42bb-96a1-0d9a61728ea5</mRID>
                     <businessType>B57</businessType>
                     <Contingency_Series>
                         <mRID>Co-2</mRID>
@@ -310,13 +310,13 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3220</analogValues.value>
+                                <analogValues.value>3220.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>15</analogValues.value>
+                                <analogValues.value>15.0</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -332,19 +332,19 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>4220</analogValues.value>
+                                <analogValues.value>4220.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A12</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
-                                <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>12</analogValues.value>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>12.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A13</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
-                                <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>13</analogValues.value>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>13.0</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -360,13 +360,13 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3410</analogValues.value>
+                                <analogValues.value>3410.0</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
-                                <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>7</analogValues.value>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>7.0</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -399,4 +399,3 @@
         </Period>
     </TimeSeries>
 </CriticalNetworkElement_MarketDocument>
-

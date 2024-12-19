@@ -8,7 +8,7 @@
     <sender_MarketParticipant.marketRole.type>A44</sender_MarketParticipant.marketRole.type>
     <receiver_MarketParticipant.mRID codingScheme="A01">receiverId</receiver_MarketParticipant.mRID>
     <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
-    <createdDateTime>2022-10-21T11:19:36Z</createdDateTime>
+    <createdDateTime>2024-12-19T10:21:09Z</createdDateTime>
     <time_Period.timeInterval>
         <start>2019-04-01T13:09Z</start>
         <end>2019-04-01T14:09Z</end>
@@ -26,11 +26,11 @@
             <Point>
                 <position>1</position>
                 <Constraint_Series>
-                    <mRID>8421ed2-fc00-4912-8dd3-865e67af852e</mRID>
+                    <mRID>82ce19a-b601-4b06-b6f9-17e6f6aefc3f</mRID>
                     <businessType>B56</businessType>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>0d11d59-e17e-41e1-9150-5d730293d5e0</mRID>
+                    <mRID>e86dfe6-a3d5-43fd-ad79-f1741e3cd8dd</mRID>
                     <businessType>B56</businessType>
                     <Contingency_Series>
                         <mRID>CO_N1012_N4012</mRID>
@@ -38,7 +38,7 @@
                     </Contingency_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>1ab263f-8db6-4187-b697-12bb30465f83</mRID>
+                    <mRID>0b04303-a720-43da-b067-f646c1c5a781</mRID>
                     <businessType>B57</businessType>
                     <Monitored_Series>
                         <mRID>CNE_N1013_N1014</mRID>
@@ -52,19 +52,19 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>520</analogValues.value>
+                                <analogValues.value>500.213</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A02</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>500</analogValues.value>
+                                <analogValues.value>500.211</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>f3f127c-98fb-45da-94bb-a6a88fd8fecc</mRID>
+                    <mRID>5ae2a9d-651a-471b-a6e3-779cd937ab96</mRID>
                     <businessType>B57</businessType>
                     <Contingency_Series>
                         <mRID>CO_N1012_N4012</mRID>
@@ -82,13 +82,13 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>1919.4</analogValues.value>
+                                <analogValues.value>500.43</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A13</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A02</positiveFlowIn>
-                                <analogValues.value>500</analogValues.value>
+                                <analogValues.value>500.41</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
