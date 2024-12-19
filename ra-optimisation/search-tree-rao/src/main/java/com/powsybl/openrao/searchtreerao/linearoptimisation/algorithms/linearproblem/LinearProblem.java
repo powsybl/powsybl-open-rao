@@ -477,7 +477,7 @@ public final class LinearProblem {
     }
 
     public OpenRaoMPConstraint addTotalPstRangeActionTapVariationConstraint(PstRangeAction pstRangeAction, State state) {
-        return solver.makeConstraint(0, infinity(), totalPstRangeActionTapVariationConstraintId(pstRangeAction, state));
+        return solver.makeConstraint(0, 0, totalPstRangeActionTapVariationConstraintId(pstRangeAction, state));
     }
 
     public OpenRaoMPConstraint getTotalPstRangeActionTapVariationConstraint(PstRangeAction pstRangeAction, State state) {

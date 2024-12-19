@@ -84,7 +84,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
     And the tap of PstRangeAction "pstBeFr3" should be -9 in preventive
-    # Activation of pstBeFr3 twice (20) + 9 taps moved (9 * 7.5)
+    # Activation of pstBeFr3 (20) + 9 taps moved (9 * 7.5)
     And the value of the objective function after PRA should be 87.5
     And 0 remedial actions are used after "coBeFr2" at "curative"
     And the value of the objective function after CRA should be 87.5
