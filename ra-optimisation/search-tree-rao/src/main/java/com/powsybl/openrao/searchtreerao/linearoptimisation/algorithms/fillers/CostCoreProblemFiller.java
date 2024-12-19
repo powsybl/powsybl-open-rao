@@ -111,28 +111,15 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
                 double defaultVariationCost = getRangeActionPenaltyCost(ra, rangeActionParameters);
-                // convert cost/tap to cost/degree for PSTs
-                double conversionCoefficient = ra instanceof PstRangeAction pstRangeAction ? getCostPerAngleCoefficient(pstRangeAction) : 1.0;
-                linearProblem.getObjective().setCoefficient(upwardVariationVariable, conversionCoefficient * ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(defaultVariationCost));
-                linearProblem.getObjective().setCoefficient(downwardVariationVariable, conversionCoefficient * ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(defaultVariationCost));
-
-                if (ra.getActivationCost().isPresent() && ra.getActivationCost().get() > 0) {
-                    OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
-                    linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
+                if (!(ra instanceof PstRangeAction)) {
+                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(defaultVariationCost));
+                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(defaultVariationCost));
+                    if (ra.getActivationCost().isPresent() && ra.getActivationCost().get() > 0) {
+                        OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
+                        linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
+                    }
                 }
             }
         ));
-    }
-
-    /**
-     * Approximates the cost of changing the angle of a PST by a degree.
-     * @param pstRangeAction : PST range action to optimize
-     * @return averaged cost per degree
-     */
-    private static double getCostPerAngleCoefficient(PstRangeAction pstRangeAction) {
-        double maxAngle = pstRangeAction.getTapToAngleConversionMap().values().stream().max(Double::compareTo).orElseThrow();
-        double minAngle = pstRangeAction.getTapToAngleConversionMap().values().stream().min(Double::compareTo).orElseThrow();
-        int numberOfTaps = pstRangeAction.getTapToAngleConversionMap().size();
-        return numberOfTaps / (maxAngle - minAngle);
     }
 }

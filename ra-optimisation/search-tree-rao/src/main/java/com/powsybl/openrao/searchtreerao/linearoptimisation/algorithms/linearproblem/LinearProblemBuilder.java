@@ -180,7 +180,9 @@ public class LinearProblemBuilder {
         return new DiscretePstTapFiller(
             inputs.optimizationPerimeter(),
             pstRangeActions,
-            inputs.prePerimeterSetpoints()
+            inputs.prePerimeterSetpoints(),
+            parameters.getRangeActionParameters(),
+            parameters.getObjectiveFunction().costOptimization()
         );
     }
 

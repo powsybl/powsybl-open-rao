@@ -468,6 +468,40 @@ public final class LinearProblem {
         return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state));
     }
 
+    public OpenRaoMPVariable addTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return solver.makeIntVar(0, infinity(), totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection));
+    }
+
+    public OpenRaoMPVariable getTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return solver.getVariable(totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection));
+    }
+
+    public OpenRaoMPConstraint addTotalPstRangeActionTapVariationConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(0, infinity(), totalPstRangeActionTapVariationConstraintId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getTotalPstRangeActionTapVariationConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.getConstraint(totalPstRangeActionTapVariationConstraintId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPVariable addTapVariable(PstRangeAction pstRangeAction, State state) {
+        int minTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().min(Integer::compareTo).orElseThrow();
+        int maxTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().max(Integer::compareTo).orElseThrow();
+        return solver.makeIntVar(minTap, maxTap, tapVariableId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPVariable getTapVariable(PstRangeAction pstRangeAction, State state) {
+        return solver.getVariable(tapVariableId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(0, 0, tapConstraintId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.getConstraint(tapConstraintId(pstRangeAction, state));
+    }
+
     public double infinity() {
         return solver.infinity();
     }

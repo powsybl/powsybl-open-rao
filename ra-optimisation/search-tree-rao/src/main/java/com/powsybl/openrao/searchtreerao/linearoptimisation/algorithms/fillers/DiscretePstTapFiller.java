@@ -12,9 +12,11 @@ import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPObjective;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -33,14 +35,20 @@ public class DiscretePstTapFiller implements ProblemFiller {
     private final OptimizationPerimeter optimizationPerimeter;
     private final Map<State, Set<PstRangeAction>> rangeActions;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
+    private final RangeActionsOptimizationParameters rangeActionsParameters;
+    private final boolean costOptimization;
     private int iteration = 0;
 
     public DiscretePstTapFiller(OptimizationPerimeter optimizationPerimeter,
                                 Map<State, Set<PstRangeAction>> rangeActions,
-                                RangeActionSetpointResult prePerimeterRangeActionSetpoints) {
+                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
+                                RangeActionsOptimizationParameters rangeActionsParameters,
+                                boolean costOptimization) {
         this.optimizationPerimeter = optimizationPerimeter;
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
+        this.rangeActionsParameters = rangeActionsParameters;
+        this.costOptimization = costOptimization;
     }
 
     @Override
@@ -52,6 +60,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
         if (iteration > 1) {
             update(linearProblem, rangeActionActivationResult);
         }
+        fillObjective(linearProblem);
     }
 
     @Override
@@ -145,6 +154,31 @@ public class DiscretePstTapFiller implements ProblemFiller {
         OpenRaoMPConstraint upAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationVariable, 1);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
+
+        OpenRaoMPVariable tapVariable = linearProblem.addTapVariable(pstRangeAction, state);
+        OpenRaoMPConstraint tapConstraint = linearProblem.addTapConstraint(pstRangeAction, state);
+        tapConstraint.setCoefficient(tapVariable, 1.0);
+        tapConstraint.setCoefficient(pstTapUpwardVariationVariable, -1.0);
+        tapConstraint.setCoefficient(pstTapDownwardVariationVariable, 1.0);
+        tapConstraint.setLb(currentTap);
+        tapConstraint.setUb(currentTap);
+
+        if (costOptimization) {
+            OpenRaoMPConstraint totalTapVariationConstraint = linearProblem.addTotalPstRangeActionTapVariationConstraint(pstRangeAction, state);
+            OpenRaoMPVariable totalUpwardTapVariationVariable = linearProblem.addTotalPstRangeActionTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+            OpenRaoMPVariable totalDownwardTapVariationVariable = linearProblem.addTotalPstRangeActionTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+
+            totalTapVariationConstraint.setCoefficient(totalUpwardTapVariationVariable, 1.0);
+            totalTapVariationConstraint.setCoefficient(totalDownwardTapVariationVariable, -1.0);
+            totalTapVariationConstraint.setCoefficient(tapVariable, -1.0);
+
+            if (lastAvailableRangeAction == null) {
+                totalTapVariationConstraint.setLb(-currentTap);
+                totalTapVariationConstraint.setUb(-currentTap);
+            } else {
+                totalTapVariationConstraint.setCoefficient(linearProblem.getTapVariable((PstRangeAction) lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getRight()), 1.0);
+            }
+        }
     }
 
     private void updateRelativeRangeConstraints(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state, RangeActionActivationResult rangeActionActivationResult) {
@@ -207,6 +241,10 @@ public class DiscretePstTapFiller implements ProblemFiller {
         // update the coefficient on the min/max tap variations of the isVariationInDirectionConstraints
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationBinary, -maxDownwardTapVariation);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
+
+        OpenRaoMPConstraint tapConstraint = linearProblem.getTapConstraint(pstRangeAction, state);
+        tapConstraint.setLb(newTapPosition);
+        tapConstraint.setUb(newTapPosition);
     }
 
     /**
@@ -245,5 +283,21 @@ public class DiscretePstTapFiller implements ProblemFiller {
         minRelativeTap = Math.min(0, minRelativeTap);
         maxRelativeTap = Math.max(0, maxRelativeTap);
         return Pair.of(minRelativeTap, maxRelativeTap);
+    }
+
+    private void fillObjective(LinearProblem linearProblem) {
+        if (costOptimization) {
+            double defaultCost = rangeActionsParameters.getPstPenaltyCost();
+            OpenRaoMPObjective objective = linearProblem.getObjective();
+            rangeActions.forEach((state, pstRangeActions) -> pstRangeActions.forEach(pstRangeAction -> {
+                objective.setCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD), pstRangeAction.getVariationCost(RangeAction.VariationDirection.UP).orElse(defaultCost));
+                objective.setCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD), pstRangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(defaultCost));
+                Optional<Double> activationCost = pstRangeAction.getActivationCost();
+                if (activationCost.isPresent() && activationCost.get() > 0) {
+                    objective.setCoefficient(linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD), activationCost.get());
+                    objective.setCoefficient(linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD), activationCost.get());
+                }
+            }));
+        }
     }
 }

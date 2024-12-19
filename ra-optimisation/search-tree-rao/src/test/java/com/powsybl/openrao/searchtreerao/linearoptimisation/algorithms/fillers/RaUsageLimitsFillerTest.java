@@ -548,7 +548,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(state);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerState);
 
-        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult);
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult, new RangeActionsOptimizationParameters(), false);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

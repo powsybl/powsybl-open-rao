@@ -72,7 +72,9 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
             optimizationPerimeter,
             pstRangeActions,
-            initialRangeActionSetpointResult);
+            initialRangeActionSetpointResult,
+            rangeActionParameters,
+            false);
 
         DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
             state,
