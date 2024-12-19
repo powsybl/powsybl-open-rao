@@ -70,6 +70,30 @@ public final class RaoLogger {
             numberOfLoggedLimitingElements);
     }
 
+    public static void logObjectifFunctionResult(String prefix,
+                                                     ObjectiveFunctionResult objectiveFunctionResult,
+                                                     PrePerimeterResult sensitivityAnalysisResult,
+                                                     RaoParameters raoParameters,
+                                                     int numberOfLoggedLimitingElements) {
+
+        if (!BUSINESS_LOGS.isInfoEnabled()) {
+            return;
+        }
+
+        Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(objectiveFunctionResult);
+
+        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})",
+            formatDoubleBasedOnMargin(objectiveFunctionResult.getCost(), -objectiveFunctionResult.getCost()),
+            formatDoubleBasedOnMargin(objectiveFunctionResult.getFunctionalCost(), -objectiveFunctionResult.getCost()),
+            formatDoubleBasedOnMargin(objectiveFunctionResult.getVirtualCost(), -objectiveFunctionResult.getCost()),
+            virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
+
+        RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
+            sensitivityAnalysisResult,
+            raoParameters.getObjectiveFunctionParameters().getType(),
+            numberOfLoggedLimitingElements);
+    }
+
     public static void logRangeActions(OpenRaoLogger logger,
                                        Leaf leaf,
                                        OptimizationPerimeter
