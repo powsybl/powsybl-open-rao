@@ -29,6 +29,7 @@ import org.mockito.Mockito;
 import java.nio.file.FileSystem;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ class InterTemporalRaoTest {
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
-        raoInput = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC), RaoInput.build(network, crac).build())));
+        raoInput = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC), RaoInput.build(network, crac).build())), new HashSet<>());
     }
 
     @AfterEach
