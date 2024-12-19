@@ -48,7 +48,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
         iteration++;
         rangeActions.entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder())).forEach(entry -> entry.getValue().forEach(rangeAction ->
-                buildPstTapVariablesAndConstraints(linearProblem, rangeAction, entry.getKey(), rangeActionActivationResult)));
+                buildPstTapVariablesAndConstraints(linearProblem, rangeAction, entry.getKey())));
         if (iteration > 1) {
             update(linearProblem, rangeActionActivationResult);
         }
@@ -68,19 +68,19 @@ public class DiscretePstTapFiller implements ProblemFiller {
                 updateRelativeRangeConstraints(linearProblem, rangeAction, entry.getKey(), rangeActionActivationResult)));
     }
 
-    private void buildPstTapVariablesAndConstraints(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state, RangeActionActivationResult rangeActionActivationResult) {
+    private void buildPstTapVariablesAndConstraints(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state) {
 
         // compute a few values on PST taps and angle
-        double currentAngle = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, state);
-        int currentTap = rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
+        double initialAngle = prePerimeterRangeActionSetpoints.getSetpoint(pstRangeAction);
+        int initialTap = prePerimeterRangeActionSetpoints.getTap(pstRangeAction);
 
         Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationPerimeter, pstRangeAction, state);
         Pair<Integer, Integer> admissibleTaps = getMinAndMaxAdmissibleTaps(pstRangeAction, lastAvailableRangeAction);
         int minAdmissibleTap = admissibleTaps.getLeft();
         int maxAdmissibleTap = admissibleTaps.getRight();
 
-        int maxDownwardTapVariation = Math.max(0, currentTap - minAdmissibleTap);
-        int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - currentTap);
+        int maxDownwardTapVariation = Math.max(0, initialTap - minAdmissibleTap);
+        int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - initialTap);
 
         // create and get variables
         OpenRaoMPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
@@ -119,15 +119,15 @@ public class DiscretePstTapFiller implements ProblemFiller {
         //
         // in the first MIP, we calibrate the 'constant tap to angle factor' with the extremities of the PST
         // when updating the MIP, the factors will be calibrated on a change of one tap (see update() method)
-        OpenRaoMPConstraint tapToAngleConversionConstraint = linearProblem.addTapToAngleConversionConstraint(currentAngle, currentAngle, pstRangeAction, state);
+        OpenRaoMPConstraint tapToAngleConversionConstraint = linearProblem.addTapToAngleConversionConstraint(initialAngle, initialAngle, pstRangeAction, state);
         tapToAngleConversionConstraint.setCoefficient(setPointVariable, 1);
 
         if (maxDownwardTapVariation > 0) {
-            double angleToTapDownwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(currentTap) - pstRangeAction.getTapToAngleConversionMap().get(minAdmissibleTap)) / maxDownwardTapVariation;
+            double angleToTapDownwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(initialTap) - pstRangeAction.getTapToAngleConversionMap().get(minAdmissibleTap)) / maxDownwardTapVariation;
             tapToAngleConversionConstraint.setCoefficient(pstTapDownwardVariationVariable, angleToTapDownwardConversionFactor);
         }
         if (maxUpwardTapVariation > 0) {
-            double angleToTapUpwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(maxAdmissibleTap) - pstRangeAction.getTapToAngleConversionMap().get(currentTap)) / maxUpwardTapVariation;
+            double angleToTapUpwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(maxAdmissibleTap) - pstRangeAction.getTapToAngleConversionMap().get(initialTap)) / maxUpwardTapVariation;
             tapToAngleConversionConstraint.setCoefficient(pstTapUpwardVariationVariable, -angleToTapUpwardConversionFactor);
         }
 
