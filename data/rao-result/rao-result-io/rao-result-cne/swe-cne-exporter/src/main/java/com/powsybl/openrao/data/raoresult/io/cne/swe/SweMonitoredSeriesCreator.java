@@ -21,12 +21,14 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.MonitoredSeriesCreationC
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Analog;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredRegisteredResource;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredSeries;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
-import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING;
+import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING_FLOWS;
+import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING_THRESHOLDS;
 
 /**
  * Generates MonitoredSeries for SWE CNE format
@@ -84,21 +86,32 @@ public class SweMonitoredSeriesCreator {
         return monitoredSeriesList;
     }
 
-    private double getCnecFlowClosestToThreshold(Instant optimizedInstant, FlowCnec cnec) {
+    private Pair<Double, Double> getCnecLimitingFlowAndThreshold(Instant optimizedInstant, FlowCnec cnec) {
         double flow = 0.0;
+        double threshold = 0.0;
         double margin = Double.POSITIVE_INFINITY;
         for (TwoSides side : cnec.getMonitoredSides()) {
             double flowOnSide = sweCneHelper.getRaoResult().getFlow(optimizedInstant, cnec, side, Unit.AMPERE);
             if (Double.isNaN(flowOnSide)) {
                 continue;
             }
-            double marginOnSide = cnec.computeMargin(flowOnSide, side, Unit.AMPERE);
-            if (marginOnSide < margin) {
-                margin = marginOnSide;
+            double marginOnLowerBound = flowOnSide - cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY);
+            if (marginOnLowerBound < margin) {
+                margin = marginOnLowerBound;
                 flow = flowOnSide;
+                threshold = cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY);
+            }
+            double marginOnUpperBound = cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY) - flowOnSide;
+            if (marginOnUpperBound < margin) {
+                margin = marginOnUpperBound;
+                flow = flowOnSide;
+                threshold = cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY);
             }
         }
-        return roundValueBasedOnMargin(flow, margin, DEFAULT_DECIMALS_FOR_ROUNDING).doubleValue();
+        return Pair.of(
+            roundValueBasedOnMargin(flow, margin, DEFAULT_DECIMALS_FOR_ROUNDING_FLOWS).doubleValue(),
+            roundValueBasedOnMargin(threshold, margin, DEFAULT_DECIMALS_FOR_ROUNDING_THRESHOLDS).doubleValue()
+        );
     }
 
     private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext, Set<CnecCreationContext> cnecCreationContexts, boolean includeMeasurements) {
@@ -106,27 +119,23 @@ public class SweMonitoredSeriesCreator {
         Map<Double, MonitoredSeries> monitoredSeriesPerFlowValue = new LinkedHashMap<>();
         cnecCreationContexts.forEach(cnecCreationContext -> {
             FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
-            double flow = getCnecFlowClosestToThreshold(cnec.getState().getInstant(), cnec);
-            if (monitoredSeriesPerFlowValue.containsKey(flow) && includeMeasurements) {
-                mergeSeries(monitoredSeriesPerFlowValue.get(flow), cnec);
-            } else if (!monitoredSeriesPerFlowValue.containsKey(flow)) {
-                monitoredSeriesPerFlowValue.put(flow, generateMonitoredSeriesFromScratch(monitoredSeriesCreationContext, cnec, includeMeasurements));
+            Pair<Double, Double> flowAndThreshold = getCnecLimitingFlowAndThreshold(cnec.getState().getInstant(), cnec);
+            double flowValue = flowAndThreshold.getLeft();
+            if (monitoredSeriesPerFlowValue.containsKey(flowValue) && includeMeasurements) {
+                mergeSeries(monitoredSeriesPerFlowValue.get(flowValue), cnec, flowAndThreshold.getRight());
+            } else if (!monitoredSeriesPerFlowValue.containsKey(flowValue)) {
+                monitoredSeriesPerFlowValue.put(flowValue, generateMonitoredSeriesFromScratch(monitoredSeriesCreationContext, cnec, includeMeasurements));
             }
         });
         return new ArrayList<>(monitoredSeriesPerFlowValue.values());
     }
 
-    private void mergeSeries(MonitoredSeries monitoredSeries, FlowCnec cnec) {
+    private void mergeSeries(MonitoredSeries monitoredSeries, FlowCnec cnec, double thresholdValue) {
         Analog threshold = new Analog();
         threshold.setMeasurementType(getThresholdMeasurementType(cnec));
         threshold.setUnitSymbol(AMP_UNIT_SYMBOL);
-        TwoSides side = cnec.getMonitoredSides().contains(TwoSides.ONE) ? TwoSides.ONE : cnec.getMonitoredSides().iterator().next();
-        float roundedThreshold = Math.round(Math.min(
-            Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
-            Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
-        threshold.setPositiveFlowIn(getCnecFlowClosestToThreshold(cnec.getState().getInstant(), cnec) >= 0 ?
-            DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
-        threshold.setAnalogValuesValue(Math.abs(roundedThreshold));
+        threshold.setPositiveFlowIn(thresholdValue >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
+        threshold.setAnalogValuesValue((float) Math.abs(thresholdValue));
 
         monitoredSeries.getRegisteredResource().get(0).getMeasurements().add(threshold);
     }
@@ -141,10 +150,12 @@ public class SweMonitoredSeriesCreator {
         setInOutAggregateNodes(cnec.getNetworkElement().getId(), monitoredSeriesCreationContext.getNativeId(), registeredResource);
 
         if (includeMeasurements) {
+            Pair<Double, Double> flowAndThreshold = getCnecLimitingFlowAndThreshold(cnec.getState().getInstant(), cnec);
+
             Analog flow = new Analog();
             flow.setMeasurementType(FLOW_MEASUREMENT_TYPE);
             flow.setUnitSymbol(AMP_UNIT_SYMBOL);
-            double flowValue = getCnecFlowClosestToThreshold(cnec.getState().getInstant(), cnec);
+            double flowValue = flowAndThreshold.getLeft();
             flow.setPositiveFlowIn(flowValue >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
             flow.setAnalogValuesValue((float) Math.abs(flowValue));
             registeredResource.getMeasurements().add(flow);
@@ -152,12 +163,9 @@ public class SweMonitoredSeriesCreator {
             Analog threshold = new Analog();
             threshold.setMeasurementType(getThresholdMeasurementType(cnec));
             threshold.setUnitSymbol(AMP_UNIT_SYMBOL);
-            TwoSides side = cnec.getMonitoredSides().contains(TwoSides.ONE) ? TwoSides.ONE : cnec.getMonitoredSides().iterator().next();
-            float roundedThreshold = Math.round(Math.min(
-                Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
-                Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
-            threshold.setPositiveFlowIn(flowValue >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
-            threshold.setAnalogValuesValue(Math.abs(roundedThreshold));
+            double thresholdValue = flowAndThreshold.getRight();
+            threshold.setPositiveFlowIn(thresholdValue >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
+            threshold.setAnalogValuesValue((float) Math.abs(thresholdValue));
             registeredResource.getMeasurements().add(threshold);
         }
 
