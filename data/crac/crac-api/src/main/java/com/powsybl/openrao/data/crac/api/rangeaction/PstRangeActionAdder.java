@@ -28,7 +28,7 @@ public interface PstRangeActionAdder extends RemedialActionAdder<PstRangeActionA
 
     PstRangeActionAdder withTapToAngleConversionMap(Map<Integer, Double> tapToAngleConversionMap);
 
-    PstRangeActionAdder withVariationCost(Double variationCost, RangeAction.VariationDirection variationDirection);
+    PstRangeActionAdder withVariationCost(Double variationCost, VariationDirection variationDirection);
 
     TapRangeAdder newTapRange();
 
