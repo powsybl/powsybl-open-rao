@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,8 +55,8 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .withGroupId("groupId1")
             .withActivationCost(0d)
-            .withVariationCost(0d, RangeAction.VariationDirection.UP)
-            .withVariationCost(0d, RangeAction.VariationDirection.DOWN)
+            .withVariationCost(0d, VariationDirection.UP)
+            .withVariationCost(0d, VariationDirection.DOWN)
             .newTapRange()
                 .withMinTap(-10)
                 .withMaxTap(10)
@@ -74,8 +74,8 @@ class PstRangeActionAdderImplTest {
         assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(Optional.of(0d), pstRangeAction.getActivationCost());
-        assertEquals(Optional.of(0d), pstRangeAction.getVariationCost(RangeAction.VariationDirection.UP));
-        assertEquals(Optional.of(0d), pstRangeAction.getVariationCost(RangeAction.VariationDirection.DOWN));
+        assertEquals(Optional.of(0d), pstRangeAction.getVariationCost(VariationDirection.UP));
+        assertEquals(Optional.of(0d), pstRangeAction.getVariationCost(VariationDirection.DOWN));
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkElements().size());
@@ -127,8 +127,8 @@ class PstRangeActionAdderImplTest {
 
         assertEquals(123, pstRangeAction.getSpeed().get().intValue());
         assertTrue(pstRangeAction.getActivationCost().isEmpty());
-        assertTrue(pstRangeAction.getVariationCost(RangeAction.VariationDirection.UP).isEmpty());
-        assertTrue(pstRangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).isEmpty());
+        assertTrue(pstRangeAction.getVariationCost(VariationDirection.UP).isEmpty());
+        assertTrue(pstRangeAction.getVariationCost(VariationDirection.DOWN).isEmpty());
     }
 
     @Test

@@ -55,9 +55,4 @@ public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T>
     Optional<String> getGroupId();
 
     Optional<Double> getVariationCost(VariationDirection variationDirection);
-
-    enum VariationDirection {
-        UP, DOWN
-    }
-
 }

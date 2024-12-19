@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
 import java.util.HashMap;
@@ -310,8 +310,8 @@ public final class ExhaustiveCracCreation {
             .withNetworkElementAndKey(1., "generator1Id")
             .withNetworkElementAndKey(-1., "generator2Id", "generator2Name")
             .withActivationCost(100d)
-            .withVariationCost(750d, RangeAction.VariationDirection.UP)
-            .withVariationCost(1000d, RangeAction.VariationDirection.DOWN)
+            .withVariationCost(750d, VariationDirection.UP)
+            .withVariationCost(1000d, VariationDirection.DOWN)
             .newRange().withMin(-500).withMax(500).add()
             .newRange().withMin(-1000).withMax(1000).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("contingency2Id").withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -322,8 +322,8 @@ public final class ExhaustiveCracCreation {
             .withName("counterTradeRange1Name")
             .withExportingCountry(Country.FR)
             .withImportingCountry(Country.DE)
-            .withVariationCost(2000d, RangeAction.VariationDirection.UP)
-            .withVariationCost(1000d, RangeAction.VariationDirection.DOWN)
+            .withVariationCost(2000d, VariationDirection.UP)
+            .withVariationCost(1000d, VariationDirection.DOWN)
             .newRange().withMin(-500).withMax(500).add()
             .newRange().withMin(-1000).withMax(1000).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.ES).withUsageMethod(UsageMethod.AVAILABLE).add()

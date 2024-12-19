@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.range.TapRangeAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.*;
@@ -34,7 +34,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     private String groupId = null;
     private Integer initialTap = null;
     private Map<Integer, Double> tapToAngleConversionMap;
-    private Map<RangeAction.VariationDirection, Double> variationCosts;
+    private Map<VariationDirection, Double> variationCosts;
 
     @Override
     protected String getTypeDescription() {
@@ -78,7 +78,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     }
 
     @Override
-    public PstRangeActionAdder withVariationCost(Double variationCost, RangeAction.VariationDirection variationDirection) {
+    public PstRangeActionAdder withVariationCost(Double variationCost, VariationDirection variationDirection) {
         this.variationCosts.put(variationDirection, variationCost);
         return this;
     }

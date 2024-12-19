@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
@@ -509,8 +510,8 @@ public final class JsonSerializationConstants {
     }
 
     public static void serializeVariationCosts(RangeAction<?> rangeAction, JsonGenerator gen) throws IOException {
-        Optional<Double> variationCostUp = rangeAction.getVariationCost(RangeAction.VariationDirection.UP);
-        Optional<Double> variationCostDown = rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN);
+        Optional<Double> variationCostUp = rangeAction.getVariationCost(VariationDirection.UP);
+        Optional<Double> variationCostDown = rangeAction.getVariationCost(VariationDirection.DOWN);
         if (variationCostUp.isEmpty() && variationCostDown.isEmpty()) {
             return;
         }
@@ -524,11 +525,11 @@ public final class JsonSerializationConstants {
         gen.writeEndObject();
     }
 
-    public static RangeAction.VariationDirection deserializeVariationDirection(String variationDirection) {
+    public static VariationDirection deserializeVariationDirection(String variationDirection) {
         if (JsonSerializationConstants.UP.equals(variationDirection)) {
-            return RangeAction.VariationDirection.UP;
+            return VariationDirection.UP;
         } else if (JsonSerializationConstants.DOWN.equals(variationDirection)) {
-            return RangeAction.VariationDirection.DOWN;
+            return VariationDirection.DOWN;
         } else {
             throw new OpenRaoException("Unexpected variation direction '%s'.".formatted(variationDirection));
         }
