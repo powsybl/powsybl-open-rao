@@ -218,6 +218,8 @@ class SweMonitoredSeriesCreatorTest {
         Mockito.when(flowCnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE, TwoSides.TWO));
         Mockito.when(raoResult.getFlow(instant, flowCnec, TwoSides.ONE, Unit.AMPERE)).thenReturn(flow);
         Mockito.when(raoResult.getFlow(instant, flowCnec, TwoSides.TWO, Unit.AMPERE)).thenReturn(flow + 10);
+        Mockito.when(flowCnec.getUpperBound(TwoSides.ONE, Unit.AMPERE)).thenReturn(Optional.of(1000.));
+        Mockito.when(flowCnec.getUpperBound(TwoSides.TWO, Unit.AMPERE)).thenReturn(Optional.of(1100.));
         Mockito.when(flowCnec.computeMargin(flow, TwoSides.ONE, Unit.AMPERE)).thenReturn(1000 - flow);
         Mockito.when(flowCnec.computeMargin(flow, TwoSides.TWO, Unit.AMPERE)).thenReturn(1100 - flow);
     }

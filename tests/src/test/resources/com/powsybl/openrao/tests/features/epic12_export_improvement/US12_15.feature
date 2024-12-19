@@ -301,3 +301,14 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     When I import data at "2021-04-02 05:00"
     And I export SWE CNE
     Then the exported CNE file is the same as "epic12/ExpectedCNE_12_15_6.xml"
+
+  @fast @cne-export @mock
+  Scenario: US 12.15.7: CNE export: Check rounding on flows
+    Given network file is "epic12/nordic32.xiidm"
+    Given crac file is "epic12/CIM_12_15_7.xml"
+    Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
+    Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
+    Given RaoResult file is "epic12/RaoResult_12_15_7.json"
+    When I import data at "2021-04-02 05:00"
+    And I export SWE CNE
+    Then the exported CNE file is the same as "epic12/ExpectedCNE_12_15_7.xml"
