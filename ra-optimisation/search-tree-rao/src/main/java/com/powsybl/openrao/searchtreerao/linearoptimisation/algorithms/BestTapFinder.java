@@ -40,7 +40,7 @@ public final class BestTapFinder {
     /**
      * This function computes the best tap positions for PstRangeActions that were optimized in the linear problem.
      * It is a little smarter than just rounding the optimal angle to the closest tap position:
-     * if the optimal angle is close to the limit between two tap positions, it will chose the one that maximizes the
+     * if the optimal angle is close to the limit between two tap positions, it will choose the one that maximizes the
      * minimum margin on the 10 most limiting elements (pre-optim)
      * If virtual costs are an important part of the optimization, it is highly recommended to use APPROXIMATED_INTEGERS
      * taps in the linear optimization, rather than relying on the best tap finder to round the taps.
@@ -157,7 +157,7 @@ public final class BestTapFinder {
         double approxLimitAngle = 0.5 * (closestAngle + otherAngle);
         if (Math.abs(angle - approxLimitAngle) / Math.abs(closestAngle - otherAngle) < 0.15) {
             // Angle is too close to the limit between two tap positions
-            // Chose the tap that maximizes the margin on the most limiting element
+            // Choose the tap that maximizes the margin on the most limiting element
             Pair<Double, Double> margins = computeMinMargins(network, pstRangeAction, closestAngle, otherAngle, linearOptimizationResult, unit);
             if (margins.getRight() > margins.getLeft()) {
                 return Map.of(closestTap, margins.getLeft(), otherTap, margins.getRight());

@@ -30,14 +30,17 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
+    private static final double OVERLOAD_PENALTY = 10000.0; // TODO: put this in Rao Parameters and mutualize with evaluator
     protected final Set<FlowCnec> optimizedCnecs;
     private final Unit unit;
+    private final boolean costOptimization;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
-                              Unit unit) {
+                              Unit unit, boolean costOptimization) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.unit = unit;
+        this.costOptimization = costOptimization;
     }
 
     @Override
@@ -49,9 +52,16 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
         // build constraints
         buildMinimumMarginConstraints(linearProblem, validFlowCnecs);
+        if (costOptimization) {
+            forceMinMarginToBeNegative(linearProblem);
+        }
 
         // complete objective
         fillObjectiveWithMinMargin(linearProblem);
+    }
+
+    private static void forceMinMarginToBeNegative(LinearProblem linearProblem) {
+        linearProblem.getMinimumMarginVariable().setUb(0.0);
     }
 
     @Override
@@ -122,8 +132,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min(-MM)
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
-        OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
-        linearProblem.getObjective().setCoefficient(minimumMarginVariable, -1);
+        linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(), costOptimization ? -OVERLOAD_PENALTY : -1);
     }
 
 }
