@@ -53,7 +53,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         RaoParameters parameters = new RaoParameters();
         // Objective Function parameters
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
-        parameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
         parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);

@@ -15,7 +15,7 @@
     <criticalBranch id="FR2-DE3-D">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch name="FR2-DE3" from="FFR2AA1" to="DDE3AA1" order="1" eic="1234567890123451"/>
-      <imaxA>2165</imaxA>
+      <imaxA>2365</imaxA>
       <imaxType>FIXED</imaxType>
       <permanentImaxFactor>1</permanentImaxFactor>
       <temporaryImaxFactor>1</temporaryImaxFactor>
@@ -77,7 +77,7 @@
     <criticalBranch id="FR2-FR3-D">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch name="FR2-FR3" from="FFR2AA1" to="FFR3AA1" order="1" eic="1234567890123451"/>
-      <imaxA>2165</imaxA>
+      <imaxA>2465</imaxA>
       <imaxType>FIXED</imaxType>
       <permanentImaxFactor>1</permanentImaxFactor>
       <temporaryImaxFactor>1</temporaryImaxFactor>
@@ -91,7 +91,7 @@
     <criticalBranch id="FR2-FR3-O">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch name="FR2-FR3" from="FFR2AA1" to="FFR3AA1" order="1" eic="1234567890123451"/>
-      <imaxA>2165</imaxA>
+      <imaxA>2465</imaxA>
       <imaxType>FIXED</imaxType>
       <permanentImaxFactor>1</permanentImaxFactor>
       <temporaryImaxFactor>1</temporaryImaxFactor>
@@ -161,7 +161,7 @@
     <criticalBranch id="NL1-NL3-D">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch name="NL1-NL3" from="NNL1AA1" to="NNL3AA1" order="1" eic="1234567890123451"/>
-      <imaxA>722</imaxA>
+      <imaxA>822</imaxA>
       <imaxType>FIXED</imaxType>
       <permanentImaxFactor>1</permanentImaxFactor>
       <temporaryImaxFactor>1</temporaryImaxFactor>
@@ -178,7 +178,7 @@
     <criticalBranch id="NL1-NL3-O">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch name="NL1-NL3" from="NNL1AA1" to="NNL3AA1" order="1" eic="1234567890123451"/>
-      <imaxA>722</imaxA>
+      <imaxA>822</imaxA>
       <imaxType>FIXED</imaxType>
       <permanentImaxFactor>1</permanentImaxFactor>
       <temporaryImaxFactor>1</temporaryImaxFactor>

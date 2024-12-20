@@ -1,8 +1,7 @@
 {
-  "version" : "2.4",
+  "version" : "2.5",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
-    "forbid-cost-increase" : false,
     "curative-min-obj-improvement" : 50.0,
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
     "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE_AND_SECURE"

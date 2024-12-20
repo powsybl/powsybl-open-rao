@@ -1,8 +1,7 @@
 {
-  "version" : "2.4",
+  "version" : "2.5",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_AMPERE",
-    "forbid-cost-increase" : false,
     "curative-min-obj-improvement" : 0.0,
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
     "curative-stop-criterion" : "MIN_OBJECTIVE"
@@ -38,7 +37,7 @@
     "curative-leaves-in-parallel" : 1
   },
   "second-preventive-rao" : {
-    "execution-condition" : "DISABLED",
+    "execution-condition" : "COST_INCREASE",
     "re-optimize-curative-range-actions" : false,
     "hint-from-first-preventive-rao" : false
   },
