@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -44,7 +45,8 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
     @Override
     protected void addAllRangeActionVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         super.addAllRangeActionVariables(linearProblem, rangeAction, state);
-        if (rangeAction.getActivationCost().isPresent() && rangeAction.getActivationCost().get() > 0) {
+        Optional<Double> activationCost = rangeAction.getActivationCost();
+        if (activationCost.isPresent() && activationCost.get() > 0) {
             linearProblem.addRangeActionVariationBinary(rangeAction, state);
         }
     }
@@ -112,8 +114,8 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
 
                 double defaultVariationCost = getRangeActionPenaltyCost(ra, rangeActionParameters);
                 if (!(ra instanceof PstRangeAction)) {
-                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(defaultVariationCost));
-                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(defaultVariationCost));
+                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(VariationDirection.UP).orElse(defaultVariationCost));
+                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(VariationDirection.DOWN).orElse(defaultVariationCost));
                 }
 
                 if (ra.getActivationCost().isPresent() && ra.getActivationCost().get() > 0) {
