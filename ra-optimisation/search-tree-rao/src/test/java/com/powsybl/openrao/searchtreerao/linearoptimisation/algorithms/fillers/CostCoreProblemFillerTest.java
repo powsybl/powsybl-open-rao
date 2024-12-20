@@ -183,8 +183,6 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
         // check objective
         assertEquals(15.0, linearProblem.getObjective().getCoefficient(activationVariable));
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(upwardVariationVariable), 0.01);
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(downwardVariationVariable), 0.01);
     }
 
     @Test
@@ -268,8 +266,6 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
         // check objective
         assertEquals(15.0, linearProblem.getObjective().getCoefficient(activationVariable));
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(upwardVariationVariable), 0.01);
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(downwardVariationVariable), 0.01);
     }
 
     @Test
@@ -353,8 +349,6 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
         // check objective
         assertEquals(15.0, linearProblem.getObjective().getCoefficient(activationVariable));
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(upwardVariationVariable), 0.01);
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(downwardVariationVariable), 0.01);
     }
 
     @Test
@@ -496,14 +490,6 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         //      - 0 or 1 for curative range action (relative variation constraint)
         assertEquals(12, linearProblem.numVariables());
         assertEquals(8, linearProblem.numConstraints());
-
-        // check objective
-        assertEquals(15.0, linearProblem.getObjective().getCoefficient(prevActivationVariable));
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(prevUpwardVariationVariable), 0.01);
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(prevDownwardVariationVariable), 0.01);
-        assertEquals(15.0, linearProblem.getObjective().getCoefficient(curActivationVariable));
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(curUpwardVariationVariable), 0.01);
-        assertEquals(26.49, linearProblem.getObjective().getCoefficient(curDownwardVariationVariable), 0.01);
     }
 
     private void updateLinearProblem() {

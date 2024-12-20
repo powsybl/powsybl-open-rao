@@ -21,8 +21,9 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -48,8 +49,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     private PstRangeAction pra;
     private PstRangeAction cra;
 
-    @BeforeEach
-    void setUpAndFill() throws IOException {
+    void setUpAndFill(boolean costOptimization) throws IOException {
         // prepare data
         init();
         preventiveState = crac.getPreventiveState();
@@ -61,6 +61,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("N-1 NL1-NL3").withInstant("curative").add()
             .withInitialTap(0)
+            .withActivationCost(10.0)
             .withTapToAngleConversionMap(tapToAngle)
             .newTapRange()
             .withMinTap(-10)
@@ -96,7 +97,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             pstRangeActions,
             initialRangeActionSetpointResult,
             new RangeActionsOptimizationParameters(),
-            false);
+            true);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -190,8 +191,10 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         assertEquals(1, craRelativeTapC.getCoefficient(variationDownV));
     }
 
-    @Test
-    void testFillAndUpdateMethods() {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testFillAndUpdateMethods(boolean costOptimization) throws IOException {
+        setUpAndFill(costOptimization);
         checkContent(pstRangeAction, preventiveState, 0, -15, 15, true);
         checkContent(cra, curativeState, 0, -16, 16, true);
         checkPstRelativeTapConstraint(-10, 7);
@@ -208,10 +211,18 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         checkContent(pra, preventiveState, -4, -15, 15, false);
         checkContent(cra, curativeState, -6, -16, 16, false);
         checkPstRelativeTapConstraint(-8, 9);
+
+        if (costOptimization) {
+            assertEquals(10.0, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pra, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD)));
+            assertEquals(10.0, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pra, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD)));
+            assertEquals(0.01, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.UPWARD)), 1e-2);
+            assertEquals(0.01, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-2);
+        }
     }
 
     @Test
-    void testUpdateBetweenMipIteration() {
+    void testUpdateBetweenMipIteration() throws IOException {
+        setUpAndFill(false);
         RangeActionActivationResultImpl rangeActionActivationResult =
             new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(pra, 0., cra, 0.)));
 

@@ -114,10 +114,11 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                 if (!(ra instanceof PstRangeAction)) {
                     linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.UP).orElse(defaultVariationCost));
                     linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(RangeAction.VariationDirection.DOWN).orElse(defaultVariationCost));
-                    if (ra.getActivationCost().isPresent() && ra.getActivationCost().get() > 0) {
-                        OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
-                        linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
-                    }
+                }
+
+                if (ra.getActivationCost().isPresent() && ra.getActivationCost().get() > 0) {
+                    OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
+                    linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
                 }
             }
         ));
