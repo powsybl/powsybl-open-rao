@@ -155,7 +155,7 @@ public class Monitoring {
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
         boolean lfSuccess = computeLoadFlow(network);
         if (!lfSuccess) {
-            String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.",state);
+            String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
             return makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, failureReason);
         }
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
@@ -181,7 +181,7 @@ public class Monitoring {
         if (appliedNetworkActionsResultList.stream().map(AppliedNetworkActionsResult::getAppliedNetworkActions).findAny().isPresent()) {
             lfSuccess = computeLoadFlow(network);
             if (!lfSuccess) {
-                String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.",state);
+                String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
                 return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
             }
             // Re-compute all voltage/angle values
