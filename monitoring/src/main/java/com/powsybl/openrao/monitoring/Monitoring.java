@@ -140,6 +140,7 @@ public class Monitoring {
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (Exception e) {
             Thread.currentThread().interrupt();
+            throw new OpenRaoException(e);
         }
 
         BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
@@ -391,6 +392,10 @@ public class Monitoring {
     private void checkGlsks(Country country, String naId, String angleCnecId, ZonalData<Scalable> scalableZonalData) {
         Set<Country> glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
         for (String zone : scalableZonalData.getDataPerZone().keySet()) {
+            if (zone.equals("")) {
+                BUSINESS_LOGS.error("Incomplete Glsk: Missing Country EI Code");
+                throw new OpenRaoException("Incomplete Glsk: Missing Country EI Code");
+            }
             glskCountries.add(new CountryEICode(zone).getCountry());
         }
         if (!glskCountries.contains(country)) {
