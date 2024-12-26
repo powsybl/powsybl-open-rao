@@ -99,7 +99,7 @@ public class SystematicSensitivityResult {
             postContingencyResults.get(instantOrder).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
 
-        nStateResult.status = this.status;
+        nStateResult.status = this.status; // What is this StateResult ?
 
         if (nStateResult.status != SensitivityComputationStatus.FAILURE && anyContingencyFailure) {
             this.status = SensitivityComputationStatus.PARTIAL_FAILURE;

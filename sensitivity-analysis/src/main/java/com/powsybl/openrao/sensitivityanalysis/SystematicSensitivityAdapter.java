@@ -13,10 +13,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityAnalysis;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
-import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -131,7 +128,14 @@ final class SystematicSensitivityAdapter {
                     sensitivityComputationParameters), state.getInstant().getOrder());
             } catch (Exception e) {
                 TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
-                result.completeDataWithFailingPerimeter(state.getInstant().getOrder(), optContingency.get().getId());
+
+                SensitivityAnalysisResult failingResult  = new SensitivityAnalysisResult(
+                    cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
+                    List.of(new SensitivityAnalysisResult.SensitivityContingencyStatus(optContingency.get().getId(), SensitivityAnalysisResult.Status.FAILURE)),
+                    List.of(new SensitivityValue(0,0,0,0))
+                    );
+                //result.completeDataWithFailingPerimeter(state.getInstant().getOrder(), optContingency.get().getId());
+                result.completeData(failingResult, state.getInstant().getOrder());
             }
             counterForLogs++;
         }
