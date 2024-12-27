@@ -138,6 +138,70 @@ class InjectionRangeActionAdderImplTest {
     }
 
     @Test
+    void testAddDefaultKey() {
+        InjectionRangeAction injectionRangeAction1 = crac.newInjectionRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withGroupId("groupId1")
+            .withNetworkElement(injectionId1)
+            .newRange().withMin(-5).withMax(10).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        assertEquals("id1", injectionRangeAction1.getId());
+        assertEquals("id1", injectionRangeAction1.getName());
+        assertEquals("BE", injectionRangeAction1.getOperator());
+        assertTrue(injectionRangeAction1.getGroupId().isPresent());
+        assertEquals("groupId1", injectionRangeAction1.getGroupId().get());
+        assertEquals(1, injectionRangeAction1.getRanges().size());
+        assertEquals(1, injectionRangeAction1.getUsageRules().size());
+        assertEquals(1, injectionRangeAction1.getInjectionDistributionKeys().size());
+        assertEquals(1., injectionRangeAction1.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId1)), 1e-6);
+
+        InjectionRangeAction injectionRangeAction2 = crac.newInjectionRangeAction()
+            .withId("id2")
+            .withOperator("DE")
+            .withGroupId("groupId2")
+            .withNetworkElement(injectionId2, injectionName2)
+            .newRange().withMin(-5).withMax(10).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        assertEquals("id2", injectionRangeAction2.getId());
+        assertEquals("id2", injectionRangeAction2.getName());
+        assertEquals("DE", injectionRangeAction2.getOperator());
+        assertTrue(injectionRangeAction2.getGroupId().isPresent());
+        assertEquals("groupId2", injectionRangeAction2.getGroupId().get());
+        assertEquals(1, injectionRangeAction2.getRanges().size());
+        assertEquals(1, injectionRangeAction2.getUsageRules().size());
+        assertEquals(1, injectionRangeAction2.getInjectionDistributionKeys().size());
+        assertEquals(1., injectionRangeAction2.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId2)), 1e-6);
+
+        assertEquals(2, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement(injectionId1));
+        assertNotNull(crac.getNetworkElement(injectionId2));
+
+        assertEquals(2, crac.getRangeActions().size());
+
+        Exception e1 = assertThrows(OpenRaoException.class, () ->
+            crac.newInjectionRangeAction()
+            .withId("id_error_1")
+            .withNetworkElement(injectionId1)
+            .withNetworkElement(injectionId2, injectionName2)
+        );
+        assertEquals("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements", e1.getMessage());
+
+        Exception e2 = assertThrows(OpenRaoException.class, () ->
+            crac.newInjectionRangeAction()
+                .withId("id_error_2")
+                .withNetworkElement(injectionId2, injectionName2)
+                .withNetworkElement(injectionId1)
+        );
+        assertEquals("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements", e2.getMessage());
+
+    }
+
+    @Test
     void testAddWithoutUsageRule() {
         /*
         This behaviour is considered admissible:
