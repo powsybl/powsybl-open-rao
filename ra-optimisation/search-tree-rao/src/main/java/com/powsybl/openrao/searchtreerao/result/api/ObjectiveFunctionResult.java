@@ -7,9 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.result.api;
 
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 
 import java.util.List;
 import java.util.Set;
@@ -77,7 +76,4 @@ public interface ObjectiveFunctionResult {
     List<FlowCnec> getCostlyElements(String virtualCostName, int number);
 
     void excludeContingencies(Set<String> contingenciesToExclude);
-
-    ObjectiveFunction getObjectiveFunction();
-
 }

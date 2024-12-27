@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CriticalNetworkElement_MarketDocument xsi:schemaLocation="iec62325-451-n-cne_v2_3.xsd" xmlns="urn:iec62325.351:tc57wg16:451-n:cnedocument:2:3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <mRID>documentId</mRID>
+    <revisionNumber>1</revisionNumber>
+    <type>B06</type>
+    <process.processType>Z01</process.processType>
+    <sender_MarketParticipant.mRID codingScheme="A01">senderId</sender_MarketParticipant.mRID>
+    <sender_MarketParticipant.marketRole.type>A04</sender_MarketParticipant.marketRole.type>
+    <receiver_MarketParticipant.mRID codingScheme="A01">receiverId</receiver_MarketParticipant.mRID>
+    <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
+    <createdDateTime>2024-12-19T11:05:02Z</createdDateTime>
+    <time_Period.timeInterval>
+        <start>2021-08-27T15:22Z</start>
+        <end>2021-08-27T16:22Z</end>
+    </time_Period.timeInterval>
+    <TimeSeries>
+        <mRID>CNE_RAO_CASTOR-TimeSeries-1</mRID>
+        <businessType>B54</businessType>
+        <curveType>A01</curveType>
+        <Period>
+            <timeInterval>
+                <start>2021-04-02T12:00Z</start>
+                <end>2021-04-02T13:00Z</end>
+            </timeInterval>
+            <resolution>PT60M</resolution>
+            <Point>
+                <position>1</position>
+                <Constraint_Series>
+                    <mRID>2a60bf9-be64-4844-97b2-ce69203351e2</mRID>
+                    <businessType>B56</businessType>
+                    <RemedialAction_Series>
+                        <mRID>PRA_1@-7@</mRID>
+                        <name>PRA_1</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">BBE2AA11 BBE3AA11 1</mRID>
+                            <name>RA1-name</name>
+                            <pSRType.psrType>A06</pSRType.psrType>
+                            <marketObjectStatus.status>A26</marketObjectStatus.status>
+                            <resourceCapacity.defaultCapacity>-7</resourceCapacity.defaultCapacity>
+                            <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+                        </RegisteredResource>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_2</mRID>
+                        <name>PRA_2</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>49194be-54da-4075-bd52-0498bf2b22b8</mRID>
+                    <businessType>B56</businessType>
+                    <Contingency_Series>
+                        <mRID>Co-1</mRID>
+                        <name>Contingency 1 name</name>
+                    </Contingency_Series>
+                    <Reason>
+                        <code>B40</code>
+                        <text>Load flow divergence</text>
+                    </Reason>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>817dc8f-31e7-4626-8cf1-c9a9adab3e9a</mRID>
+                    <businessType>B56</businessType>
+                    <Contingency_Series>
+                        <mRID>Co-2</mRID>
+                        <name>Contingency 2 name</name>
+                    </Contingency_Series>
+                    <RemedialAction_Series>
+                        <mRID>HVDC-direction12@400.0@</mRID>
+                        <name>HVDC-direction12@400.0@</name>
+                        <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_1@-5@</mRID>
+                        <name>PRA_1</name>
+                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">BBE2AA11 BBE3AA11 1</mRID>
+                            <name>RA1-name</name>
+                            <pSRType.psrType>A06</pSRType.psrType>
+                            <marketObjectStatus.status>A26</marketObjectStatus.status>
+                            <resourceCapacity.defaultCapacity>-5</resourceCapacity.defaultCapacity>
+                            <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+                        </RegisteredResource>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>8319f46-7aa5-412b-a9fd-f5eb3f1067ef</mRID>
+                    <businessType>B57</businessType>
+                    <Monitored_Series>
+                        <mRID>CNEC-1</mRID>
+                        <name>CNEC-1-name</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">DDE2AA11 NNL3AA11 1</mRID>
+                            <name>CNEC-1</name>
+                            <in_AggregateNode.mRID codingScheme="A02">DDE2AA1</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">NNL3AA1</out_AggregateNode.mRID>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1220.0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>40.0</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <Monitored_Series>
+                        <mRID>CNEC-2</mRID>
+                        <name>CNEC-2-name</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">FFR1AA11 FFR2AA11 1</mRID>
+                            <name>CNEC-2</name>
+                            <in_AggregateNode.mRID codingScheme="A02">FFR1AA1</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">FFR2AA1</out_AggregateNode.mRID>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>1220.0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A02</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>40.0</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_1@-7@</mRID>
+                        <name>PRA_1</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_2</mRID>
+                        <name>PRA_2</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>9d89006-4ffe-405d-8454-ca00f4a70e61</mRID>
+                    <businessType>B57</businessType>
+                    <AdditionalConstraint_Series>
+                        <mRID>ac1</mRID>
+                        <businessType>B87</businessType>
+                        <name>ac1-name</name>
+                        <quantity.quantity>4.0</quantity.quantity>
+                    </AdditionalConstraint_Series>
+                    <Contingency_Series>
+                        <mRID>Co-1</mRID>
+                        <name>Contingency 1 name</name>
+                    </Contingency_Series>
+                    <Monitored_Series>
+                        <mRID>CNEC-1</mRID>
+                        <name>CNEC-1-name</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">DDE2AA11 NNL3AA11 1</mRID>
+                            <name>CNEC-1</name>
+                            <in_AggregateNode.mRID codingScheme="A02">DDE2AA1</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">NNL3AA1</out_AggregateNode.mRID>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <Monitored_Series>
+                        <mRID>CNEC-2</mRID>
+                        <name>CNEC-2-name</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">FFR1AA11 FFR2AA11 1</mRID>
+                            <name>CNEC-2</name>
+                            <in_AggregateNode.mRID codingScheme="A02">FFR1AA1</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">FFR2AA1</out_AggregateNode.mRID>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <Monitored_Series>
+                        <mRID>CNEC-2</mRID>
+                        <name>CNEC-2-name</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">FFR1AA11 FFR2AA11 1</mRID>
+                            <name>CNEC-2</name>
+                            <in_AggregateNode.mRID codingScheme="A02">FFR1AA1</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">FFR2AA1</out_AggregateNode.mRID>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <Reason>
+                        <code>B40</code>
+                        <text>Load flow divergence</text>
+                    </Reason>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <mRID>a8aa969-63f2-4f46-87cc-3beb89da2960</mRID>
+                    <businessType>B57</businessType>
+                    <Contingency_Series>
+                        <mRID>Co-2</mRID>
+                        <name>Contingency 2 name</name>
+                    </Contingency_Series>
+                    <Monitored_Series>
+                        <mRID>CNEC-1</mRID>
+                        <name>CNEC-1-name</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">DDE2AA11 NNL3AA11 1</mRID>
+                            <name>CNEC-1</name>
+                            <in_AggregateNode.mRID codingScheme="A02">DDE2AA1</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">NNL3AA1</out_AggregateNode.mRID>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>3220.0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>15.0</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <Monitored_Series>
+                        <mRID>CNEC-2</mRID>
+                        <name>CNEC-2-name</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">FFR1AA11 FFR2AA11 1</mRID>
+                            <name>CNEC-2</name>
+                            <in_AggregateNode.mRID codingScheme="A02">FFR1AA1</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">FFR2AA1</out_AggregateNode.mRID>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>4220.0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A12</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>12.0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A13</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>13.0</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <Monitored_Series>
+                        <mRID>CNEC-2</mRID>
+                        <name>CNEC-2-name</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">FFR1AA11 FFR2AA11 1</mRID>
+                            <name>CNEC-2</name>
+                            <in_AggregateNode.mRID codingScheme="A02">FFR1AA1</in_AggregateNode.mRID>
+                            <out_AggregateNode.mRID codingScheme="A02">FFR2AA1</out_AggregateNode.mRID>
+                            <Measurements>
+                                <measurementType>A01</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A01</positiveFlowIn>
+                                <analogValues.value>3410.0</analogValues.value>
+                            </Measurements>
+                            <Measurements>
+                                <measurementType>A07</measurementType>
+                                <unitSymbol>AMP</unitSymbol>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>7.0</analogValues.value>
+                            </Measurements>
+                        </RegisteredResource>
+                    </Monitored_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_1@-7@</mRID>
+                        <name>PRA_1</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_2</mRID>
+                        <name>PRA_2</name>
+                        <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>HVDC-direction12@400.0@</mRID>
+                        <name>HVDC-direction12@400.0@</name>
+                        <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>PRA_1@-5@</mRID>
+                        <name>PRA_1</name>
+                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                </Constraint_Series>
+                <Reason>
+                    <code>B40</code>
+                    <text>Load flow divergence</text>
+                </Reason>
+            </Point>
+        </Period>
+    </TimeSeries>
+</CriticalNetworkElement_MarketDocument>

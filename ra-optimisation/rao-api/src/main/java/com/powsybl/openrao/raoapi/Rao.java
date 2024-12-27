@@ -7,7 +7,7 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -149,7 +149,7 @@ public final class Rao {
         RaoProvider provider;
         if (providers.size() == 1 && raOptimizerName == null) {
             // no information to select the implementation but only one provider, so we can use it by default
-            // (that is be the most common use case)
+            // (that is the most common use case)
             provider = providers.get(0);
         } else {
             if (providers.size() > 1 && raOptimizerName == null) {

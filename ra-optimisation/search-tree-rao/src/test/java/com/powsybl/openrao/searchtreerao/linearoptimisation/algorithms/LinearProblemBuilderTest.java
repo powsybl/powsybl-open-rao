@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
@@ -62,7 +62,7 @@ class LinearProblemBuilderTest {
         when(parameters.getLoopFlowParameters()).thenReturn(loopFlowParameters);
 
         optimizationPerimeter = Mockito.mock(CurativeOptimizationPerimeter.class);
-        when(inputs.getOptimizationPerimeter()).thenReturn(optimizationPerimeter);
+        when(inputs.optimizationPerimeter()).thenReturn(optimizationPerimeter);
 
     }
 

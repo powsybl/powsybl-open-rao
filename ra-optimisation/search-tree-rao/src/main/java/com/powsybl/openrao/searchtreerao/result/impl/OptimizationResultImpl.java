@@ -9,14 +9,13 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -118,11 +117,6 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        return objectiveFunctionResult.getObjectiveFunction();
-    }
-
-    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return rangeActionActivationResult.getRangeActions();
     }
@@ -143,6 +137,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        return rangeActionActivationResult.getSetPointVariation(rangeAction, state);
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         return rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
     }
@@ -150,6 +149,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         return rangeActionActivationResult.getOptimizedTapsOnState(state);
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        return rangeActionActivationResult.getTapVariation(pstRangeAction, state);
     }
 
     @Override

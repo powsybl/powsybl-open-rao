@@ -11,14 +11,15 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 
 import java.util.*;
@@ -33,7 +34,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     private final PrePerimeterResult initialResult;
     private final OptimizationResult postOptimizationResult;
     private final Set<FlowCnec> optimizedFlowCnecs;
-    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
+    private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public OneStateOnlyRaoResultImpl(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
         this.optimizedState = optimizedState;
@@ -269,12 +270,8 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
-            this.optimizationStepsExecuted = optimizationStepsExecuted;
-        } else {
-            throw new OpenRaoException("The RaoResult object should not be modified outside of its usual routine");
-        }
+    public void setExecutionDetails(String executionDetails) {
+        this.executionDetails = executionDetails;
     }
 
     @Override
@@ -283,7 +280,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
+    public String getExecutionDetails() {
+        return executionDetails;
     }
 }

@@ -10,15 +10,16 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.util.Map;
 import java.util.Set;
@@ -27,16 +28,12 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class FailedRaoResultImpl implements RaoResult {
-    private final String failureReason;
+    private String failureReason;
     private final String exceptionMessage;
 
     public FailedRaoResultImpl(String failureReason) {
         this.failureReason = failureReason;
         this.exceptionMessage = "This method should not be used, because the RAO failed: " + failureReason;
-    }
-
-    public String getFailureReason() {
-        return failureReason;
     }
 
     @Override
@@ -160,13 +157,13 @@ public class FailedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        throw new OpenRaoException(exceptionMessage);
+    public void setExecutionDetails(String executionDetails) {
+        this.failureReason = executionDetails;
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        throw new OpenRaoException(exceptionMessage);
+    public String getExecutionDetails() {
+        return this.failureReason;
     }
 
     @Override

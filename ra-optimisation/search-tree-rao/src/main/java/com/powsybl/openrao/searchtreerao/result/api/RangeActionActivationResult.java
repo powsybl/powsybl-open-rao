@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.result.api;
 
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +27,11 @@ public interface RangeActionActivationResult {
 
     Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state);
 
+    double getSetPointVariation(RangeAction<?> rangeAction, State state);
+
     int getOptimizedTap(PstRangeAction pstRangeAction, State state);
 
     Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state);
+
+    int getTapVariation(PstRangeAction pstRangeAction, State state);
 }

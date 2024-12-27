@@ -9,20 +9,26 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
-import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.StandardRangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.data.raoresultapi.RaoResult;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
+import com.powsybl.openrao.data.crac.api.RaUsageLimits;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.*;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
@@ -39,8 +45,8 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-import static com.powsybl.openrao.data.cracapi.range.RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
-import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.FAILURE;
+import static com.powsybl.openrao.data.crac.api.range.RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -149,7 +155,7 @@ public class CastorSecondPreventive {
             }
         } catch (OpenRaoException e) {
             BUSINESS_LOGS.error(e.getMessage());
-            return new FailedRaoResultImpl(e.getMessage());
+            return new FailedRaoResultImpl(String.format("RAO failed during second preventive : %s", e.getMessage()));
         }
 
         // Run 2nd automaton simulation and update results
@@ -213,7 +219,8 @@ public class CastorSecondPreventive {
             secondPreventiveRaoResult.postPraSensitivityAnalysisOutput(),
             newPostContingencyResults,
             postCraSensitivityAnalysisOutput,
-            crac);
+            crac,
+            raoParameters.getObjectiveFunctionParameters());
     }
 
     private record SecondPreventiveRaoResult(OptimizationResult perimeterResult,
@@ -264,6 +271,7 @@ public class CastorSecondPreventive {
         }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
+            new RemedialActionActivationResultImpl(new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions())), new NetworkActionsResultImpl(getAllAppliedNetworkAraAndCra(appliedArasAndCras))),
             sensiWithPostContingencyRemedialActions,
             raoParameters,
             NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -306,6 +314,13 @@ public class CastorSecondPreventive {
         );
     }
 
+    private Set<NetworkAction> getAllAppliedNetworkAraAndCra(AppliedRemedialActions appliedArasAndCras) {
+        Set<NetworkAction> appliedNetworkActions = new HashSet<>();
+        crac.getStates().stream().filter(state -> state.getInstant().isAuto() || state.getInstant().isCurative())
+            .forEach(state -> appliedNetworkActions.addAll(appliedArasAndCras.getAppliedNetworkActions(state)));
+        return appliedNetworkActions;
+    }
+
     private CompletableFuture<OneStateOnlyRaoResultImpl> optimizeSecondPreventivePerimeter(PrePerimeterResult initialOutput,
                                                                                            PrePerimeterResult prePerimeterResult,
                                                                                            OptimizationResult firstPreventiveResult,
@@ -346,13 +361,16 @@ public class CastorSecondPreventive {
             searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(firstPreventiveResult.getActivatedNetworkActions(), true));
         }
 
+        Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
+        statesToOptimize.add(optPerimeter.getMainOptimizationState());
+
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
             .withOptimizationPerimeter(optPerimeter)
             .withInitialFlowResult(initialOutput)
             .withPrePerimeterResult(prePerimeterResult)
             .withPreOptimizationAppliedNetworkActions(appliedCras) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, new HashSet<>(), raoParameters))
+            .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, new HashSet<>(), raoParameters, statesToOptimize))
             .withToolProvider(toolProvider)
             .withOutageInstant(crac.getOutageInstant())
             .build();
@@ -455,7 +473,7 @@ public class CastorSecondPreventive {
         correspondanceMap.forEach((pra, associatedCras) -> {
             setPointResults.get(preventiveState).put(pra, firstPreventiveResult.getOptimizedSetpoint(pra, preventiveState));
             associatedCras.forEach(cra -> contingencyResults.forEach((state, result) -> {
-                if (crac.isRangeActionAvailableInState(cra, state)) {
+                if (crac.isRangeActionAvailableInState(cra, state) && result.getComputationStatus() != FAILURE) {
                     setPointResults.putIfAbsent(state, new HashMap<>());
                     setPointResults.get(state).put(pra, result.getOptimizedSetpoint(cra, state));
                 }
@@ -464,7 +482,7 @@ public class CastorSecondPreventive {
         multipleInstantRangeActions.forEach(ra -> {
             setPointResults.get(preventiveState).put(ra, firstPreventiveResult.getOptimizedSetpoint(ra, preventiveState));
             contingencyResults.forEach((state, result) -> {
-                if (crac.isRangeActionAvailableInState(ra, state)) {
+                if (crac.isRangeActionAvailableInState(ra, state) && result.getComputationStatus() != FAILURE) {
                     setPointResults.putIfAbsent(state, new HashMap<>());
                     setPointResults.get(state).put(ra, result.getOptimizedSetpoint(ra, state));
                 }

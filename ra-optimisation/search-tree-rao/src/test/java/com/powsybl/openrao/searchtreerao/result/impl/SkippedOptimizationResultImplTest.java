@@ -10,13 +10,13 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -67,7 +67,6 @@ class SkippedOptimizationResultImplTest {
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
-        assertThrows(OpenRaoException.class, skippedOptimizationResult::getObjectiveFunction);
     }
 
     @Test

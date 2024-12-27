@@ -12,16 +12,17 @@ import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracapi.cnec.AngleCnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.cnec.VoltageCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.data.raoresultapi.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -425,15 +426,9 @@ class OneStateOnlyRaoResultImplTest {
 
     @Test
     void testOptimizedStepsExecuted() {
-        assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
-        output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
-        assertTrue(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertEquals("The RaoResult object should not be modified outside of its usual routine", exception.getMessage());
+        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, output.getExecutionDetails());
+        output.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
+        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, output.getExecutionDetails());
     }
 
     @Test

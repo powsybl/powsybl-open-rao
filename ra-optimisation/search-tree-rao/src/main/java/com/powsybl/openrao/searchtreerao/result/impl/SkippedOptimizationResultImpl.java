@@ -10,14 +10,14 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -151,11 +151,6 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return activatedRangeActions;
     }
@@ -176,12 +171,22 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 }

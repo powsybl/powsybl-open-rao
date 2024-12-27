@@ -9,15 +9,14 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -31,6 +30,7 @@ import java.util.*;
  */
 public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
+    private final PrePerimeterResult preAutomatonSensitivityAnalysisOutput;
     private final PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
     private final Set<NetworkAction> forcedNetworkActions;
     private final Set<NetworkAction> selectedNetworkActions;
@@ -38,7 +38,8 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private final State optimizedState;
 
-    public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> forcedNetworkActions, Set<NetworkAction> selectedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
+    public AutomatonPerimeterResultImpl(PrePerimeterResult preAutomatonSensitivityAnalysisOutput, PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> forcedNetworkActions, Set<NetworkAction> selectedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
+        this.preAutomatonSensitivityAnalysisOutput = preAutomatonSensitivityAnalysisOutput;
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
         this.forcedNetworkActions = forcedNetworkActions;
         this.selectedNetworkActions = selectedNetworkActions;
@@ -133,11 +134,6 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     }
 
     @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        return postAutomatonSensitivityAnalysisOutput.getObjectiveFunction();
-    }
-
-    @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         postAutomatonSensitivityAnalysisOutput.excludeContingencies(contingenciesToExclude);
 
@@ -167,6 +163,11 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        return preAutomatonSensitivityAnalysisOutput == null ? 0.0 : getOptimizedSetpoint(rangeAction, state) - preAutomatonSensitivityAnalysisOutput.getSetpoint(rangeAction);
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         checkState(state);
         return pstRangeAction.convertAngleToTap(rangeActionsWithSetpoint.get(pstRangeAction));
@@ -182,8 +183,13 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     }
 
     @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        return preAutomatonSensitivityAnalysisOutput == null ? 0 : getOptimizedTap(pstRangeAction, state) - preAutomatonSensitivityAnalysisOutput.getTap(pstRangeAction);
+    }
+
+    @Override
     public ComputationStatus getSensitivityStatus() {
-        return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus();
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus(optimizedState);
     }
 
     @Override

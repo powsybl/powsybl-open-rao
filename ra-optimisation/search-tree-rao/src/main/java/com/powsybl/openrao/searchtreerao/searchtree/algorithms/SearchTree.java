@@ -9,10 +9,10 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -272,8 +272,8 @@ public class SearchTree {
             return comp3;
         }
         // 4. Last priority is random but deterministic
-        return Integer.compare(Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode(),
-                Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode());
+        return Integer.compare(Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).asInt(),
+                Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).asInt());
     }
 
     /**

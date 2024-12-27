@@ -8,9 +8,9 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.State;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -156,7 +156,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.minimization());
 
         // check the number of variables and constraints
-        assertEquals(6, linearProblem.numVariables());
+        assertEquals(8, linearProblem.numVariables());
         assertEquals(9, linearProblem.numConstraints());
     }
 
@@ -223,7 +223,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.minimization());
 
         // check the number of variables and constraints
-        assertEquals(6, linearProblem.numVariables());
+        assertEquals(8, linearProblem.numVariables());
         assertEquals(9, linearProblem.numConstraints());
     }
 

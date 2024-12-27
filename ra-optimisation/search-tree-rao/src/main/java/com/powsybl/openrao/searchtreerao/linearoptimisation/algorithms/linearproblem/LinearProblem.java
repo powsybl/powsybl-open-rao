@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -267,14 +267,6 @@ public final class LinearProblem {
         return solver.getVariable(absoluteRangeActionVariationVariableId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addAbsoluteRangeActionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
-        return solver.makeConstraint(lb, ub, absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
-    }
-
-    public OpenRaoMPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
-        return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
-    }
-
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
@@ -450,6 +442,30 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getTsoMaxElementaryActionsConstraint(String operator, State state) {
         return solver.getConstraint(maxElementaryActionsPerTsoConstraintId(operator, state));
+    }
+
+    public OpenRaoMPVariable addRangeActionVariationVariable(double ub, RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection) {
+        return solver.makeNumVar(0.0, ub, rangeActionVariationVariableId(rangeAction, state, variationDirection));
+    }
+
+    public OpenRaoMPVariable getRangeActionVariationVariable(RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection) {
+        return solver.getVariable(rangeActionVariationVariableId(rangeAction, state, variationDirection));
+    }
+
+    public OpenRaoMPConstraint addRangeActionSetPointVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(0.0, 0.0, rangeActionSetPointVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionSetPointVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionSetPointVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(0.0, 0.0, rangeActionAbsoluteVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state));
     }
 
     public double infinity() {

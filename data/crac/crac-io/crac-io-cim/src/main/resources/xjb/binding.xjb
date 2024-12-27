@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jxb:bindings version="1.0"
-              xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+<jxb:bindings version="3.0"
+              xmlns:jxb="https://jakarta.ee/xml/ns/jaxb"
               xmlns:inheritance="http://jaxb2-commons.dev.java.net/basic/inheritance"
               xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <!-- Raise theEnumMemberSizeCap limit -->
@@ -9,12 +9,12 @@
     </jxb:bindings>
     <jxb:bindings schemaLocation="../xsd/iec62325-451-n-crac_v2_3.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.powsybl.openrao.data.cracio.cim.xsd" />
+            <jxb:package name="com.powsybl.openrao.data.crac.io.cim.xsd" />
         </jxb:schemaBindings>
     </jxb:bindings>
     <jxb:bindings schemaLocation="../xsd/urn-entsoe-eu-wgedi-codelists.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.powsybl.openrao.data.cracio.cim.xsd.urncodelists" />
+            <jxb:package name="com.powsybl.openrao.data.crac.io.cim.xsd.urncodelists" />
         </jxb:schemaBindings>
     </jxb:bindings>
 </jxb:bindings>

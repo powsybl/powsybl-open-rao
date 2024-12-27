@@ -9,17 +9,16 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.RemedialAction;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.Cnec;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -159,11 +158,6 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        return postCraSensitivityObjectiveResult.getObjectiveFunction();
-    }
-
-    @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         firstCraoResult.excludeContingencies(contingenciesToExclude);
         secondPraoResult.excludeContingencies(contingenciesToExclude);
@@ -204,6 +198,16 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        checkState(state);
+        if (isCraIncludedInSecondPreventiveRao(rangeAction)) {
+            return secondPraoResult.getSetPointVariation(rangeAction, state);
+        } else {
+            return firstCraoResult.getSetPointVariation(rangeAction, state);
+        }
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         checkState(state);
         if (isCraIncludedInSecondPreventiveRao(pstRangeAction)) {
@@ -222,8 +226,18 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        checkState(state);
+        if (isCraIncludedInSecondPreventiveRao(pstRangeAction)) {
+            return secondPraoResult.getTapVariation(pstRangeAction, state);
+        } else {
+            return firstCraoResult.getTapVariation(pstRangeAction, state);
+        }
+    }
+
+    @Override
     public ComputationStatus getSensitivityStatus() {
-        return postCraSensitivitySensitivityResult.getSensitivityStatus();
+        return postCraSensitivitySensitivityResult.getSensitivityStatus(state);
     }
 
     @Override

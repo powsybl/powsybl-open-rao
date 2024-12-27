@@ -9,14 +9,14 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.cracapi.Instant;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.networkaction.NetworkAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +69,6 @@ class OptimizationResultImplTest {
         when(objectiveFunctionResult.getVirtualCostNames()).thenReturn(virtualCostNames);
         when(objectiveFunctionResult.getVirtualCost("vc1")).thenReturn(vc1Cost);
         when(objectiveFunctionResult.getCostlyElements("vc1", 2)).thenReturn(vc1CostlyElements);
-        when(objectiveFunctionResult.getObjectiveFunction()).thenReturn(objectiveFunction);
 
         assertEquals(functionalCost, optimizationResult.getFunctionalCost());
         assertEquals(limitingCnecs, optimizationResult.getMostLimitingElements(1));
@@ -77,7 +76,6 @@ class OptimizationResultImplTest {
         assertEquals(virtualCostNames, optimizationResult.getVirtualCostNames());
         assertEquals(vc1Cost, optimizationResult.getVirtualCost("vc1"));
         assertEquals(vc1CostlyElements, optimizationResult.getCostlyElements("vc1", 2));
-        assertEquals(objectiveFunction, optimizationResult.getObjectiveFunction());
     }
 
     @Test

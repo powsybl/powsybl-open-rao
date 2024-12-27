@@ -9,13 +9,14 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
-import com.powsybl.openrao.data.cracapi.*;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
-import com.powsybl.openrao.data.cracapi.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresultapi.ComputationStatus;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.*;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
@@ -33,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-import static com.powsybl.openrao.data.raoresultapi.ComputationStatus.DEFAULT;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 
 /**
@@ -73,8 +74,8 @@ public class CastorContingencyScenarios {
     }
 
     public Map<State, OptimizationResult> optimizeContingencyScenarios(Network network,
-                                                                        PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                        boolean automatonsOnly) {
+                                                                       PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                       boolean automatonsOnly) {
         Map<State, OptimizationResult> contingencyScenarioResults = new ConcurrentHashMap<>();
         // Create a new variant
         String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);
@@ -193,18 +194,18 @@ public class CastorContingencyScenarios {
             .collect(Collectors.toSet());
 
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
+        Map<RangeAction<?>, Double> rangeActionSetpointMap = crac.getPotentiallyAvailableRangeActions(curativeState)
+            .stream()
+            .collect(Collectors.toMap(rangeAction -> rangeAction, prePerimeterSensitivityOutput::getSetpoint));
+        RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(rangeActionSetpointMap);
+        RangeActionActivationResult rangeActionsResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
+        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(rangeActionsResult, new NetworkActionsResultImpl(Set.of()));
 
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.create().build(flowCnecs, loopFlowCnecs, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), raoParameters);
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput);
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs, loopFlowCnecs, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), raoParameters, curativePerimeter.getAllStates());
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput, remedialActionActivationResult);
         boolean stopCriterionReached = isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
         if (stopCriterionReached) {
             NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Collections.emptySet());
-
-            Map<RangeAction<?>, Double> rangeActionSetpointMap = crac.getPotentiallyAvailableRangeActions(curativeState)
-                .stream()
-                .collect(Collectors.toMap(rangeAction -> rangeAction, prePerimeterSensitivityOutput::getSetpoint));
-            RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(rangeActionSetpointMap);
-            RangeActionActivationResult rangeActionsResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
             return new OptimizationResultImpl(objectiveFunctionResult, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, networkActionsResult, rangeActionsResult);
         }
 

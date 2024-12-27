@@ -8,10 +8,10 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.cracapi.State;
-import com.powsybl.openrao.data.cracapi.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.cracapi.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
@@ -98,20 +98,6 @@ class LinearProblemTest {
         assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
         assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).lb(), DOUBLE_TOLERANCE);
         assertEquals(UB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).ub(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void rangeActionAbsoluteVariationConstraintTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE));
-        assertEquals("Constraint rangeaction_id_null_absolutevariationnegative_constraint has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.POSITIVE));
-        assertEquals("Constraint rangeaction_id_null_absolutevariationpositive_constraint has not been created yet", e.getMessage());
-        linearProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
-        linearProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, state, LinearProblem.AbsExtension.POSITIVE);
-        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE));
-        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.POSITIVE));
-        assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.POSITIVE).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
