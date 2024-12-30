@@ -107,6 +107,12 @@ $$
 The value $\frac{2}{3}$ has been chosen to force the linear problem convergence while allowing the RA to go
 back to its initial solution if needed.
 
+### Injection balance constraint
+
+The network must remain balanced in terms of production and consumption after injection variations:
+
+$$\sum_{r \text{ injection}} = \left ( \Delta^{+} (r, s) - \Delta^{-} (r, s) \right ) \times \sum_{d \text{ shift key of }} d, \forall s$$
+
 ## Contribution to the objective function
 
 Small penalisation for the use of RangeActions:

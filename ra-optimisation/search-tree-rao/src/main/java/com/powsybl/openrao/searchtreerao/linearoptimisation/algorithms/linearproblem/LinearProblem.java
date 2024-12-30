@@ -468,6 +468,14 @@ public final class LinearProblem {
         return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state));
     }
 
+    public OpenRaoMPConstraint addInjectionBalanceConstraint(State state) {
+        return solver.makeConstraint(0.0, 0.0, injectionBalanceConstraintId(state));
+    }
+
+    public OpenRaoMPConstraint getInjectionBalanceConstraint(State state) {
+        return solver.getConstraint(injectionBalanceConstraintId(state));
+    }
+
     public double infinity() {
         return solver.infinity();
     }
