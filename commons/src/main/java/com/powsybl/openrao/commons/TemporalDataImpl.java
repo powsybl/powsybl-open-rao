@@ -10,6 +10,8 @@ package com.powsybl.openrao.commons;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -31,5 +33,9 @@ public class TemporalDataImpl<T> implements TemporalData<T> {
 
     public void add(OffsetDateTime timestamp, T data) {
         dataPerTimestamp.put(timestamp, data);
+    }
+
+    public <U> TemporalData<U> map(Function<T, U> function) {
+        return new TemporalDataImpl<>(dataPerTimestamp.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> function.apply(entry.getValue()))));
     }
 }

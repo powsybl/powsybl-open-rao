@@ -11,6 +11,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -27,4 +28,6 @@ public interface TemporalData<T> {
     }
 
     void add(OffsetDateTime timestamp, T data);
+
+    <U> TemporalData<U> map(Function<T, U> function);
 }
