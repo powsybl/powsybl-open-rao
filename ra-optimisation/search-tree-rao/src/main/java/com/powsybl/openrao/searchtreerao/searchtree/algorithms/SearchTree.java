@@ -272,8 +272,8 @@ public class SearchTree {
             return comp3;
         }
         // 4. Last priority is random but deterministic
-        return Integer.compare(Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode(),
-                Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode());
+        return Integer.compare(Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).asInt(),
+                Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).asInt());
     }
 
     /**
