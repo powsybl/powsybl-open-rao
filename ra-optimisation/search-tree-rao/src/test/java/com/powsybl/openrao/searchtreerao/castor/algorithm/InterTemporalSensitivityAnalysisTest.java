@@ -66,7 +66,7 @@ class InterTemporalSensitivityAnalysisTest {
         RaoInput raoInput2 = RaoInput.build(network2, crac2).build();
         RaoInput raoInput3 = RaoInput.build(network3, crac3).build();
 
-        InterTemporalRaoInput input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)));
+        InterTemporalRaoInput input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), Set.of());
         parameters = new RaoParameters();
         parameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
 
