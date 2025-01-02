@@ -152,7 +152,7 @@ public final class SearchTreeBloomer {
         Set<PstRangeAction> activatedRangeActions = optimizationResult.getActivatedRangeActions(input.getOptimizationPerimeter().getMainOptimizationState()).stream().filter(PstRangeAction.class::isInstance).map(ra -> (PstRangeAction) ra).collect(Collectors.toSet());
         for (PstRangeAction pstRangeAction : activatedRangeActions) {
             String operator = pstRangeAction.getOperator();
-            int tapsMoved = Math.abs(optimizationResult.getOptimizedTap(pstRangeAction, input.getOptimizationPerimeter().getMainOptimizationState()) - input.getPrePerimeterResult().getTap(pstRangeAction));
+            int tapsMoved = Math.abs(optimizationResult.getOptimizedTap(pstRangeAction, input.getOptimizationPerimeter().getMainOptimizationState()) - input.getPrePerimeterResult().rangeActionSetpointResult().getTap(pstRangeAction));
             pstTapsMovedByTso.put(operator, pstTapsMovedByTso.getOrDefault(operator, 0) + tapsMoved);
         }
         return pstTapsMovedByTso;

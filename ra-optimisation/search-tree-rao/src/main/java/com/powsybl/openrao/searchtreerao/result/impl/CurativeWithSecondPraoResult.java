@@ -52,7 +52,7 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, PrePerimeterResult postCraPrePerimeterResult) {
-        this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, postCraPrePerimeterResult, postCraPrePerimeterResult, postCraPrePerimeterResult);
+        this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, postCraPrePerimeterResult.flowResult(), postCraPrePerimeterResult.objectiveFunctionResult(), postCraPrePerimeterResult.sensitivityResult());
     }
 
     private void checkState(State stateToCheck) {

@@ -14,7 +14,6 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -124,7 +123,7 @@ public class PrePerimeterSensitivityAnalysis {
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(rangeActionSetpointResult));
-        return new PrePerimeterSensitivityResultImpl(
+        return new PrePerimeterResult(
                 flowResult,
                 sensitivityResult,
                 rangeActionSetpointResult,

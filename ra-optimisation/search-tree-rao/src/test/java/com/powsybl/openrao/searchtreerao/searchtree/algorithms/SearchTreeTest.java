@@ -129,7 +129,9 @@ class SearchTreeTest {
         when(cnec.isOptimized()).thenReturn(true);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec));
         when(searchTreeInput.getOptimizationPerimeter()).thenReturn(optimizationPerimeter);
-        prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        RangeActionSetpointResult rangeActionSetpointResult = mock(RangeActionSetpointResult.class);
+        when(rangeActionSetpointResult.getRangeActions()).thenReturn(Set.of());
+        prePerimeterResult = new PrePerimeterResult(null, null, rangeActionSetpointResult, null);
         when(searchTreeInput.getPrePerimeterResult()).thenReturn(prePerimeterResult);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);

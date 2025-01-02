@@ -23,8 +23,12 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -45,6 +49,10 @@ import static org.mockito.Mockito.when;
 class OneStateOnlyRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private State optimizedState;
+    private FlowResult initialFlowResult;
+    private SensitivityResult initialSensitivityResult;
+    private RangeActionSetpointResult initialSetPoints;
+    private ObjectiveFunctionResult initialObjectiveFunctionResult;
     private PrePerimeterResult initialResult;
     private OptimizationResult postOptimizationResult;
     private PstRangeAction pstRangeAction;
@@ -66,7 +74,12 @@ class OneStateOnlyRaoResultImplTest {
         Mockito.when(curativeInstant.isCurative()).thenReturn(true);
         optimizedState = mock(State.class);
 
-        initialResult = mock(PrePerimeterResult.class);
+        initialFlowResult = mock(FlowResult.class);
+        initialSensitivityResult = mock(SensitivityResult.class);
+        initialSetPoints = mock(RangeActionSetpointResult.class);
+        initialObjectiveFunctionResult = mock(ObjectiveFunctionResult.class);
+        initialResult = new PrePerimeterResult(initialFlowResult, initialSensitivityResult, initialSetPoints, initialObjectiveFunctionResult);
+
         postOptimizationResult = mock(OptimizationResult.class);
         pstRangeAction = mock(PstRangeAction.class);
         optimizedState = mock(State.class);
@@ -79,38 +92,38 @@ class OneStateOnlyRaoResultImplTest {
         when(cnec1.getState()).thenReturn(cnec1state);
         when(cnec2.getState()).thenReturn(cnec2state);
 
-        when(initialResult.getFunctionalCost()).thenReturn(1000.);
-        when(initialResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1));
-        when(initialResult.getVirtualCost()).thenReturn(100.);
-        when(initialResult.getVirtualCost("mnec")).thenReturn(20.);
-        when(initialResult.getVirtualCost("lf")).thenReturn(80.);
-        when(initialResult.getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
-        when(initialResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(cnec2));
-        when(initialResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec1));
-        when(initialResult.getSetpoint(pstRangeAction)).thenReturn(6.7);
-        when(initialResult.getSetpoint(rangeAction)).thenReturn(5.6);
-        when(initialResult.getTap(pstRangeAction)).thenReturn(1);
-        when(initialResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(initialResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1000.);
-        when(initialResult.getMargin(cnec1, Unit.AMPERE)).thenReturn(-500.);
-        when(initialResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(-2000.);
-        when(initialResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(-1000.);
-        when(initialResult.getFlow(cnec1, TwoSides.ONE, MEGAWATT)).thenReturn(-300.);
-        when(initialResult.getFlow(cnec1, TwoSides.TWO, Unit.AMPERE)).thenReturn(-150.);
-        when(initialResult.getCommercialFlow(cnec1, TwoSides.ONE, MEGAWATT)).thenReturn(-300.);
-        when(initialResult.getCommercialFlow(cnec1, TwoSides.TWO, Unit.AMPERE)).thenReturn(-150.);
-        when(initialResult.getLoopFlow(cnec1, TwoSides.ONE, MEGAWATT)).thenReturn(0.);
-        when(initialResult.getLoopFlow(cnec1, TwoSides.TWO, Unit.AMPERE)).thenReturn(-0.);
-        when(initialResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-500.);
-        when(initialResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(-250.);
-        when(initialResult.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(-1500.);
-        when(initialResult.getRelativeMargin(cnec2, Unit.AMPERE)).thenReturn(-750.);
-        when(initialResult.getFlow(cnec2, TwoSides.ONE, MEGAWATT)).thenReturn(-1000.);
-        when(initialResult.getFlow(cnec2, TwoSides.TWO, Unit.AMPERE)).thenReturn(500.);
-        when(initialResult.getCommercialFlow(cnec2, TwoSides.ONE, MEGAWATT)).thenReturn(-700.);
-        when(initialResult.getCommercialFlow(cnec2, TwoSides.TWO, Unit.AMPERE)).thenReturn(450.);
-        when(initialResult.getLoopFlow(cnec2, TwoSides.ONE, MEGAWATT)).thenReturn(-300.);
-        when(initialResult.getLoopFlow(cnec2, TwoSides.TWO, Unit.AMPERE)).thenReturn(50.);
+        when(initialObjectiveFunctionResult.getFunctionalCost()).thenReturn(1000.);
+        when(initialObjectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1));
+        when(initialObjectiveFunctionResult.getVirtualCost()).thenReturn(100.);
+        when(initialObjectiveFunctionResult.getVirtualCost("mnec")).thenReturn(20.);
+        when(initialObjectiveFunctionResult.getVirtualCost("lf")).thenReturn(80.);
+        when(initialObjectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
+        when(initialObjectiveFunctionResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(cnec2));
+        when(initialObjectiveFunctionResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec1));
+        when(initialSetPoints.getSetpoint(pstRangeAction)).thenReturn(6.7);
+        when(initialSetPoints.getSetpoint(rangeAction)).thenReturn(5.6);
+        when(initialSetPoints.getTap(pstRangeAction)).thenReturn(1);
+        when(initialSetPoints.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
+        when(initialFlowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1000.);
+        when(initialFlowResult.getMargin(cnec1, Unit.AMPERE)).thenReturn(-500.);
+        when(initialFlowResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(-2000.);
+        when(initialFlowResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(-1000.);
+        when(initialFlowResult.getFlow(cnec1, TwoSides.ONE, MEGAWATT)).thenReturn(-300.);
+        when(initialFlowResult.getFlow(cnec1, TwoSides.TWO, Unit.AMPERE)).thenReturn(-150.);
+        when(initialFlowResult.getCommercialFlow(cnec1, TwoSides.ONE, MEGAWATT)).thenReturn(-300.);
+        when(initialFlowResult.getCommercialFlow(cnec1, TwoSides.TWO, Unit.AMPERE)).thenReturn(-150.);
+        when(initialFlowResult.getLoopFlow(cnec1, TwoSides.ONE, MEGAWATT)).thenReturn(0.);
+        when(initialFlowResult.getLoopFlow(cnec1, TwoSides.TWO, Unit.AMPERE)).thenReturn(-0.);
+        when(initialFlowResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-500.);
+        when(initialFlowResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(-250.);
+        when(initialFlowResult.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(-1500.);
+        when(initialFlowResult.getRelativeMargin(cnec2, Unit.AMPERE)).thenReturn(-750.);
+        when(initialFlowResult.getFlow(cnec2, TwoSides.ONE, MEGAWATT)).thenReturn(-1000.);
+        when(initialFlowResult.getFlow(cnec2, TwoSides.TWO, Unit.AMPERE)).thenReturn(500.);
+        when(initialFlowResult.getCommercialFlow(cnec2, TwoSides.ONE, MEGAWATT)).thenReturn(-700.);
+        when(initialFlowResult.getCommercialFlow(cnec2, TwoSides.TWO, Unit.AMPERE)).thenReturn(450.);
+        when(initialFlowResult.getLoopFlow(cnec2, TwoSides.ONE, MEGAWATT)).thenReturn(-300.);
+        when(initialFlowResult.getLoopFlow(cnec2, TwoSides.TWO, Unit.AMPERE)).thenReturn(50.);
 
         when(postOptimizationResult.getFunctionalCost()).thenReturn(-1000.);
         when(postOptimizationResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
@@ -158,17 +171,17 @@ class OneStateOnlyRaoResultImplTest {
 
     @Test
     void testGetComputationStatus() {
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(initialSensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
         when(postOptimizationResult.getSensitivityStatus(optimizedState)).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus(optimizedState));
 
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(initialSensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
 
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        when(initialSensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
         when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
     }

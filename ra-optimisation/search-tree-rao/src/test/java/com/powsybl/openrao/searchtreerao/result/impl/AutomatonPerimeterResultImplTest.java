@@ -15,7 +15,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +52,12 @@ class AutomatonPerimeterResultImplTest {
     private RangeAction<?> unshiftedRangeAction;
     private Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private AutomatonPerimeterResultImpl result;
+    private RangeActionSetpointResult preAutoSetPoints;
     private PrePerimeterResult preAutoSensitivity;
+    private FlowResult postAutoFlowResult;
+    private SensitivityResult postAutoSensitivityResult;
+    private RangeActionSetpointResult postAutoSetPoints;
+    private ObjectiveFunctionResult postAutoObjectiveFunctionResult;
     private PrePerimeterResult postAutoSensitivity;
 
     @BeforeEach
@@ -61,8 +70,13 @@ class AutomatonPerimeterResultImplTest {
         pstRangeActionShifted = mock(PstRangeAction.class);
         hvdcRangeActionShifted = mock(HvdcRangeAction.class);
         unshiftedRangeAction = mock(RangeAction.class);
-        preAutoSensitivity = mock(PrePerimeterResult.class);
-        postAutoSensitivity = mock(PrePerimeterResult.class);
+        preAutoSetPoints = mock(RangeActionSetpointResult.class);
+        preAutoSensitivity = new PrePerimeterResult(null, null, preAutoSetPoints, null);
+        postAutoFlowResult = mock(FlowResult.class);
+        postAutoSensitivityResult = mock(SensitivityResult.class);
+        postAutoSetPoints = mock(RangeActionSetpointResult.class);
+        postAutoObjectiveFunctionResult = mock(ObjectiveFunctionResult.class);
+        postAutoSensitivity = new PrePerimeterResult(postAutoFlowResult, postAutoSensitivityResult, postAutoSetPoints, postAutoObjectiveFunctionResult);
         // Define rangeActionsWithSetpoint
         rangeActionsWithSetpoint = new HashMap<>();
         rangeActionsWithSetpoint.put(pstRangeActionShifted, 1.0);
@@ -78,29 +92,29 @@ class AutomatonPerimeterResultImplTest {
 
     @Test
     void testGetFlow() {
-        when(postAutoSensitivity.getFlow(cnec1, TWO, AMPERE)).thenReturn(10.);
-        when(postAutoSensitivity.getFlow(cnec1, TWO, MEGAWATT)).thenReturn(100.);
+        when(postAutoFlowResult.getFlow(cnec1, TWO, AMPERE)).thenReturn(10.);
+        when(postAutoFlowResult.getFlow(cnec1, TWO, MEGAWATT)).thenReturn(100.);
         assertEquals(10., result.getFlow(cnec1, TWO, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(100., result.getFlow(cnec1, TWO, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetCommercialFlow() {
-        when(postAutoSensitivity.getCommercialFlow(cnec1, TWO, AMPERE)).thenReturn(10.);
-        when(postAutoSensitivity.getCommercialFlow(cnec1, TWO, MEGAWATT)).thenReturn(100.);
+        when(postAutoFlowResult.getCommercialFlow(cnec1, TWO, AMPERE)).thenReturn(10.);
+        when(postAutoFlowResult.getCommercialFlow(cnec1, TWO, MEGAWATT)).thenReturn(100.);
         assertEquals(10., result.getCommercialFlow(cnec1, TWO, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(100., result.getCommercialFlow(cnec1, TWO, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetPtdfZonalSum() {
-        when(postAutoSensitivity.getPtdfZonalSum(cnec1, TWO)).thenReturn(10.);
+        when(postAutoFlowResult.getPtdfZonalSum(cnec1, TWO)).thenReturn(10.);
         assertEquals(10., result.getPtdfZonalSum(cnec1, TWO), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetPtdfZonalSums() {
-        when(postAutoSensitivity.getPtdfZonalSums()).thenReturn(Map.of(cnec1, Map.of(TWO, 0.1)));
+        when(postAutoFlowResult.getPtdfZonalSums()).thenReturn(Map.of(cnec1, Map.of(TWO, 0.1)));
         assertEquals(Map.of(cnec1, Map.of(TWO, 0.1)), result.getPtdfZonalSums());
     }
 
@@ -124,56 +138,56 @@ class AutomatonPerimeterResultImplTest {
 
     @Test
     void testGetFunctionalCost() {
-        when(postAutoSensitivity.getFunctionalCost()).thenReturn(350.);
+        when(postAutoObjectiveFunctionResult.getFunctionalCost()).thenReturn(350.);
         assertEquals(350., result.getFunctionalCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetMostLimitingElements() {
-        when(postAutoSensitivity.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec1));
+        when(postAutoObjectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec1));
         assertEquals(List.of(cnec2, cnec1), result.getMostLimitingElements(100));
     }
 
     @Test
     void testGetVirtualCost() {
-        when(postAutoSensitivity.getVirtualCost()).thenReturn(350.);
+        when(postAutoObjectiveFunctionResult.getVirtualCost()).thenReturn(350.);
         assertEquals(350., result.getVirtualCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetVirtualCostNames() {
-        when(postAutoSensitivity.getVirtualCostNames()).thenReturn(Set.of("lf", "mnec"));
+        when(postAutoObjectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("lf", "mnec"));
         assertEquals(Set.of("lf", "mnec"), result.getVirtualCostNames());
     }
 
     @Test
     void testGetVirtualCostByName() {
-        when(postAutoSensitivity.getVirtualCost("lf")).thenReturn(350.);
-        when(postAutoSensitivity.getVirtualCost("mnec")).thenReturn(3500.);
+        when(postAutoObjectiveFunctionResult.getVirtualCost("lf")).thenReturn(350.);
+        when(postAutoObjectiveFunctionResult.getVirtualCost("mnec")).thenReturn(3500.);
         assertEquals(350., result.getVirtualCost("lf"), DOUBLE_TOLERANCE);
         assertEquals(3500., result.getVirtualCost("mnec"), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetCostlyElements() {
-        when(postAutoSensitivity.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec2));
-        when(postAutoSensitivity.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(cnec2, cnec1));
+        when(postAutoObjectiveFunctionResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec2));
+        when(postAutoObjectiveFunctionResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(cnec2, cnec1));
         assertEquals(List.of(cnec2), result.getCostlyElements("lf", 100));
         assertEquals(List.of(cnec2, cnec1), result.getCostlyElements("mnec", 1000));
     }
 
     @Test
     void testGetRangeActions() {
-        when(postAutoSensitivity.getRangeActions()).thenReturn(rangeActionsWithSetpoint.keySet());
+        when(postAutoSetPoints.getRangeActions()).thenReturn(rangeActionsWithSetpoint.keySet());
         assertEquals(Set.of(pstRangeActionShifted, hvdcRangeActionShifted, unshiftedRangeAction), result.getRangeActions());
     }
 
     @Test
     void testGetTapsAndSetpoints() {
-        when(postAutoSensitivity.getSetpoint(pstRangeActionShifted)).thenReturn(rangeActionsWithSetpoint.get(pstRangeActionShifted));
-        when(postAutoSensitivity.getSetpoint(unshiftedRangeAction)).thenReturn(rangeActionsWithSetpoint.get(unshiftedRangeAction));
-        when(postAutoSensitivity.getSetpoint(unshiftedRangeAction)).thenReturn(rangeActionsWithSetpoint.get(unshiftedRangeAction));
-        when(postAutoSensitivity.getSetpoint(hvdcRangeActionShifted)).thenReturn(rangeActionsWithSetpoint.get(hvdcRangeActionShifted));
+        when(postAutoSetPoints.getSetpoint(pstRangeActionShifted)).thenReturn(rangeActionsWithSetpoint.get(pstRangeActionShifted));
+        when(postAutoSetPoints.getSetpoint(unshiftedRangeAction)).thenReturn(rangeActionsWithSetpoint.get(unshiftedRangeAction));
+        when(postAutoSetPoints.getSetpoint(unshiftedRangeAction)).thenReturn(rangeActionsWithSetpoint.get(unshiftedRangeAction));
+        when(postAutoSetPoints.getSetpoint(hvdcRangeActionShifted)).thenReturn(rangeActionsWithSetpoint.get(hvdcRangeActionShifted));
         when(pstRangeActionShifted.convertAngleToTap(rangeActionsWithSetpoint.get(pstRangeActionShifted))).thenReturn(55);
         assertEquals(55, result.getOptimizedTap(pstRangeActionShifted, state1));
         assertEquals(1., result.getOptimizedSetpoint(pstRangeActionShifted, state1), DOUBLE_TOLERANCE);
@@ -191,17 +205,17 @@ class AutomatonPerimeterResultImplTest {
 
     @Test
     void testGetSensitivityStatus() {
-        when(postAutoSensitivity.getSensitivityStatus(state1)).thenReturn(ComputationStatus.DEFAULT);
+        when(postAutoSensitivityResult.getSensitivityStatus(state1)).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, result.getSensitivityStatus());
     }
 
     @Test
     void testGetSensitivityOnRangeAction() {
         RangeAction<?> rangeAction = mock(RangeAction.class);
-        when(postAutoSensitivity.getSensitivityValue(cnec1, TWO, rangeAction, MEGAWATT)).thenReturn(100.);
-        when(postAutoSensitivity.getSensitivityValue(cnec1, TWO, rangeAction, AMPERE)).thenReturn(1000.);
-        when(postAutoSensitivity.getSensitivityValue(cnec2, ONE, rangeAction, MEGAWATT)).thenReturn(200.);
-        when(postAutoSensitivity.getSensitivityValue(cnec2, ONE, rangeAction, AMPERE)).thenReturn(2000.);
+        when(postAutoSensitivityResult.getSensitivityValue(cnec1, TWO, rangeAction, MEGAWATT)).thenReturn(100.);
+        when(postAutoSensitivityResult.getSensitivityValue(cnec1, TWO, rangeAction, AMPERE)).thenReturn(1000.);
+        when(postAutoSensitivityResult.getSensitivityValue(cnec2, ONE, rangeAction, MEGAWATT)).thenReturn(200.);
+        when(postAutoSensitivityResult.getSensitivityValue(cnec2, ONE, rangeAction, AMPERE)).thenReturn(2000.);
         assertEquals(100., result.getSensitivityValue(cnec1, TWO, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(1000., result.getSensitivityValue(cnec1, TWO, rangeAction, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(200., result.getSensitivityValue(cnec2, ONE, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
@@ -211,10 +225,10 @@ class AutomatonPerimeterResultImplTest {
     @Test
     void testGetSensitivityOnLinearGlsk() {
         SensitivityVariableSet linearGlsk = mock(SensitivityVariableSet.class);
-        when(postAutoSensitivity.getSensitivityValue(cnec1, TWO, linearGlsk, MEGAWATT)).thenReturn(100.);
-        when(postAutoSensitivity.getSensitivityValue(cnec1, TWO, linearGlsk, AMPERE)).thenReturn(1000.);
-        when(postAutoSensitivity.getSensitivityValue(cnec2, ONE, linearGlsk, MEGAWATT)).thenReturn(200.);
-        when(postAutoSensitivity.getSensitivityValue(cnec2, ONE, linearGlsk, AMPERE)).thenReturn(2000.);
+        when(postAutoSensitivityResult.getSensitivityValue(cnec1, TWO, linearGlsk, MEGAWATT)).thenReturn(100.);
+        when(postAutoSensitivityResult.getSensitivityValue(cnec1, TWO, linearGlsk, AMPERE)).thenReturn(1000.);
+        when(postAutoSensitivityResult.getSensitivityValue(cnec2, ONE, linearGlsk, MEGAWATT)).thenReturn(200.);
+        when(postAutoSensitivityResult.getSensitivityValue(cnec2, ONE, linearGlsk, AMPERE)).thenReturn(2000.);
         assertEquals(100., result.getSensitivityValue(cnec1, TWO, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(1000., result.getSensitivityValue(cnec1, TWO, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(200., result.getSensitivityValue(cnec2, ONE, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
@@ -225,9 +239,9 @@ class AutomatonPerimeterResultImplTest {
     void testGetRangeActionsVariations() {
         Mockito.when(pstRangeActionShifted.convertAngleToTap(0.0)).thenReturn(0);
         Mockito.when(pstRangeActionShifted.convertAngleToTap(1.0)).thenReturn(12);
-        Mockito.when(preAutoSensitivity.getSetpoint(pstRangeActionShifted)).thenReturn(0.0);
-        Mockito.when(preAutoSensitivity.getSetpoint(hvdcRangeActionShifted)).thenReturn(-5.0);
-        Mockito.when(preAutoSensitivity.getSetpoint(unshiftedRangeAction)).thenReturn(3.0);
+        Mockito.when(preAutoSetPoints.getSetpoint(pstRangeActionShifted)).thenReturn(0.0);
+        Mockito.when(preAutoSetPoints.getSetpoint(hvdcRangeActionShifted)).thenReturn(-5.0);
+        Mockito.when(preAutoSetPoints.getSetpoint(unshiftedRangeAction)).thenReturn(3.0);
         assertEquals(12, result.getTapVariation(pstRangeActionShifted, state1));
         assertEquals(1.0, result.getSetPointVariation(pstRangeActionShifted, state1));
         assertEquals(7.0, result.getSetPointVariation(hvdcRangeActionShifted, state1));

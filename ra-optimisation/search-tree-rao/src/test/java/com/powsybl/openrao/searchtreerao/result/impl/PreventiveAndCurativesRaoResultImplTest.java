@@ -34,6 +34,8 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -60,8 +62,16 @@ class PreventiveAndCurativesRaoResultImplTest {
     private Instant outageInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
+    private FlowResult initialFlowResult;
+    private SensitivityResult initialSensitivityResult;
+    private RangeActionSetpointResult initialSetPoints;
+    private ObjectiveFunctionResult initialObjectiveFunctionResult;
     private PrePerimeterResult initialResult;
     private OptimizationResult postPrevResult;
+    private FlowResult preCurativeFlowResult;
+    private SensitivityResult preCurativeSensitivityResult;
+    private RangeActionSetpointResult preCurativeSetPoints;
+    private ObjectiveFunctionResult preCurativeObjectiveFunctionResult;
     private PrePerimeterResult preCurativeResult;
     private PstRangeAction pstRangeAction;
     private RangeAction<?> rangeAction;
@@ -179,9 +189,19 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         when(curativeState3.getInstant()).thenReturn(curativeInstant);
 
-        initialResult = mock(PrePerimeterResult.class);
+        initialFlowResult = mock(FlowResult.class);
+        initialSensitivityResult = mock(SensitivityResult.class);
+        initialSetPoints = mock(RangeActionSetpointResult.class);
+        initialObjectiveFunctionResult = mock(ObjectiveFunctionResult.class);
+        initialResult = new PrePerimeterResult(initialFlowResult, initialSensitivityResult, initialSetPoints, initialObjectiveFunctionResult);
+
         postPrevResult = mock(OptimizationResult.class);
-        preCurativeResult = mock(PrePerimeterResult.class);
+
+        preCurativeFlowResult = mock(FlowResult.class);
+        preCurativeSensitivityResult = mock(SensitivityResult.class);
+        preCurativeSetPoints = mock(RangeActionSetpointResult.class);
+        preCurativeObjectiveFunctionResult = mock(ObjectiveFunctionResult.class);
+        preCurativeResult = new PrePerimeterResult(preCurativeFlowResult, preCurativeSensitivityResult, preCurativeSetPoints, preCurativeObjectiveFunctionResult);
 
         autoResult1 = mock(OptimizationResult.class);
         curativeResult1 = mock(OptimizationResult.class);
@@ -191,16 +211,16 @@ class PreventiveAndCurativesRaoResultImplTest {
         rangeAction = mock(RangeAction.class);
         networkAction = mock(NetworkAction.class);
 
-        when(initialResult.getFunctionalCost()).thenReturn(1000.);
-        when(initialResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1));
-        when(initialResult.getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
-        mockVirtualCosts(initialResult, 100, 20, List.of(cnec2), 80, List.of(cnec1));
-        when(initialResult.getSetpoint(pstRangeAction)).thenReturn(6.7);
-        when(initialResult.getSetpoint(rangeAction)).thenReturn(5.6);
-        when(initialResult.getTap(pstRangeAction)).thenReturn(1);
-        when(initialResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        mockCnecResults(initialResult, cnec1, -1000, -500, -2000, -1000);
-        mockCnecResults(initialResult, cnec2, -500, -250, -1500, -750);
+        when(initialObjectiveFunctionResult.getFunctionalCost()).thenReturn(1000.);
+        when(initialObjectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1));
+        when(initialObjectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
+        mockVirtualCosts(initialObjectiveFunctionResult, 100, 20, List.of(cnec2), 80, List.of(cnec1));
+        when(initialSetPoints.getSetpoint(pstRangeAction)).thenReturn(6.7);
+        when(initialSetPoints.getSetpoint(rangeAction)).thenReturn(5.6);
+        when(initialSetPoints.getTap(pstRangeAction)).thenReturn(1);
+        when(initialSetPoints.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
+        mockCnecResults(initialFlowResult, cnec1, -1000, -500, -2000, -1000);
+        mockCnecResults(initialFlowResult, cnec2, -500, -250, -1500, -750);
 
         when(postPrevResult.getFunctionalCost()).thenReturn(-1020.);
         when(postPrevResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
@@ -261,15 +281,15 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeResult2.getOptimizedSetpointsOnState(curativeState2)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
         mockCnecResults(curativeResult2, cnec2, 1040, 540, 2040, 1040);
 
-        when(preCurativeResult.getFunctionalCost()).thenReturn(-1050.);
-        when(preCurativeResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec3));
-        mockVirtualCosts(preCurativeResult, -150, -70, List.of(cnec3, cnec2), -130, List.of(cnec1, cnec4));
-        when(preCurativeResult.getSetpoint(pstRangeAction)).thenReturn(58.9);
-        when(preCurativeResult.getSetpoint(rangeAction)).thenReturn(55.6);
-        when(preCurativeResult.getTap(pstRangeAction)).thenReturn(52);
-        when(preCurativeResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        mockCnecResults(preCurativeResult, cnec2, 1050, 550, 2050, 1050);
-        mockCnecResults(preCurativeResult, cnec1, 5050, 300, 1550, 800);
+        when(preCurativeObjectiveFunctionResult.getFunctionalCost()).thenReturn(-1050.);
+        when(preCurativeObjectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec3));
+        mockVirtualCosts(preCurativeObjectiveFunctionResult, -150, -70, List.of(cnec3, cnec2), -130, List.of(cnec1, cnec4));
+        when(preCurativeSetPoints.getSetpoint(pstRangeAction)).thenReturn(58.9);
+        when(preCurativeSetPoints.getSetpoint(rangeAction)).thenReturn(55.6);
+        when(preCurativeSetPoints.getTap(pstRangeAction)).thenReturn(52);
+        when(preCurativeSetPoints.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
+        mockCnecResults(preCurativeFlowResult, cnec2, 1050, 550, 2050, 1050);
+        mockCnecResults(preCurativeFlowResult, cnec1, 5050, 300, 1550, 800);
 
         stateTree = mock(StateTree.class);
         Perimeter preventivePerimeter = new Perimeter(preventiveState, null);
@@ -331,7 +351,7 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetComputationStatus() {
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(initialSensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(autoResult1.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult1.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
@@ -339,10 +359,10 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
 
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        when(initialSensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
 
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(initialSensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
 
@@ -354,10 +374,10 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
 
         when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        when(initialSensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
 
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(initialSensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }
@@ -582,8 +602,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetFlow() {
-        when(initialResult.getFlow(cnec1, ONE, MEGAWATT, null)).thenReturn(10.);
-        when(preCurativeResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
+        when(initialFlowResult.getFlow(cnec1, ONE, MEGAWATT, null)).thenReturn(10.);
+        when(preCurativeFlowResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
         when(postPrevResult.getFlow(cnec3, TWO, MEGAWATT, curativeInstant)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
@@ -593,8 +613,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetMargin() {
-        when(initialResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(initialFlowResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
+        when(preCurativeFlowResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
         when(postPrevResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
@@ -604,8 +624,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetRelativeMargin() {
-        when(initialResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(initialFlowResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
+        when(preCurativeFlowResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
         when(postPrevResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getRelativeMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
@@ -615,8 +635,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetCommercialFlow() {
-        when(initialResult.getCommercialFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getCommercialFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
+        when(initialFlowResult.getCommercialFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
+        when(preCurativeFlowResult.getCommercialFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
         when(curativeResult1.getCommercialFlow(cnec3, TWO, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState1);
         assertEquals(10., output.getCommercialFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
@@ -626,8 +646,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetLoopFlow() {
-        when(initialResult.getLoopFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getLoopFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
+        when(initialFlowResult.getLoopFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
+        when(preCurativeFlowResult.getLoopFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
         when(curativeResult2.getLoopFlow(cnec3, TWO, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getLoopFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
@@ -637,8 +657,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetPtdfZonalSum() {
-        when(initialResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(10.);
-        when(preCurativeResult.getPtdfZonalSum(cnec2, TWO)).thenReturn(20.);
+        when(initialFlowResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(10.);
+        when(preCurativeFlowResult.getPtdfZonalSum(cnec2, TWO)).thenReturn(20.);
         when(autoResult1.getPtdfZonalSum(cnec1auto, ONE)).thenReturn(25.);
         when(curativeResult2.getPtdfZonalSum(cnec3, TWO)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
@@ -659,7 +679,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         State outageState = mock(State.class);
         when(outageState.getInstant()).thenReturn(outageInstant);
 
-        when(initialResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(1.);
+        when(initialFlowResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(1.);
         when(postPrevResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(2.);
         when(autoResult1.getPtdfZonalSum(cnec1, ONE)).thenReturn(3.);
         when(curativeResult1.getPtdfZonalSum(cnec1, ONE)).thenReturn(4.);
@@ -858,54 +878,54 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(curativeState3));
 
         // Test get flow
-        when(initialResult.getFlow(cnec1, ONE, MEGAWATT, null)).thenReturn(10.);
-        when(preCurativeResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
-        when(preCurativeResult.getFlow(cnec3, TWO, MEGAWATT, curativeInstant)).thenReturn(30.);
+        when(initialFlowResult.getFlow(cnec1, ONE, MEGAWATT, null)).thenReturn(10.);
+        when(preCurativeFlowResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
+        when(preCurativeFlowResult.getFlow(cnec3, TWO, MEGAWATT, curativeInstant)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(30., output.getFlow(curativeInstant, cnec3, TWO, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get margin
-        when(initialResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
-        when(preCurativeResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
+        when(initialFlowResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
+        when(preCurativeFlowResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(preCurativeFlowResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(30., output.getMargin(curativeInstant, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get relative margin
-        when(initialResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
-        when(preCurativeResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
+        when(initialFlowResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
+        when(preCurativeFlowResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(preCurativeFlowResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getRelativeMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getRelativeMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(30., output.getRelativeMargin(curativeInstant, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get commercial flow
-        when(initialResult.getCommercialFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getCommercialFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
-        when(preCurativeResult.getCommercialFlow(cnec3, TWO, MEGAWATT)).thenReturn(25.);
+        when(initialFlowResult.getCommercialFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
+        when(preCurativeFlowResult.getCommercialFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
+        when(preCurativeFlowResult.getCommercialFlow(cnec3, TWO, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState1);
         assertEquals(10., output.getCommercialFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getCommercialFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(25., output.getCommercialFlow(curativeInstant, cnec3, TWO, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get loopflow
-        when(initialResult.getLoopFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getLoopFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
-        when(preCurativeResult.getLoopFlow(cnec3, TWO, MEGAWATT)).thenReturn(25.);
+        when(initialFlowResult.getLoopFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
+        when(preCurativeFlowResult.getLoopFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
+        when(preCurativeFlowResult.getLoopFlow(cnec3, TWO, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getLoopFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getLoopFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(25., output.getLoopFlow(curativeInstant, cnec3, TWO, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get ptdf zonal sum
-        when(initialResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(10.);
-        when(preCurativeResult.getPtdfZonalSum(cnec2, TWO)).thenReturn(20.);
-        when(preCurativeResult.getPtdfZonalSum(cnec3, TWO)).thenReturn(30.);
+        when(initialFlowResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(10.);
+        when(preCurativeFlowResult.getPtdfZonalSum(cnec2, TWO)).thenReturn(20.);
+        when(preCurativeFlowResult.getPtdfZonalSum(cnec3, TWO)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getPtdfZonalSum(null, cnec1, ONE), DOUBLE_TOLERANCE);
         assertEquals(20., output.getPtdfZonalSum(preventiveInstant, cnec2, TWO), DOUBLE_TOLERANCE);
@@ -920,7 +940,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         State outageState = mock(State.class);
         when(outageState.getInstant()).thenReturn(outageInstant);
 
-        when(initialResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(1.);
+        when(initialFlowResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(1.);
         when(postPrevResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(2.);
         when(autoResult1.getPtdfZonalSum(cnec1, ONE)).thenReturn(3.);
         when(curativeResult1.getPtdfZonalSum(cnec1, ONE)).thenReturn(4.);

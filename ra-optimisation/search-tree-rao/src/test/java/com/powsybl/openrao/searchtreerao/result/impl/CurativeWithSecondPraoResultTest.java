@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.Test;
 
@@ -50,9 +51,10 @@ class CurativeWithSecondPraoResultTest {
         State state2 = mockStateWithContingency("state2");
         FlowCnec cnec1 = mockFlowCnec(state1, "cnec1");
         FlowCnec cnec2 = mockFlowCnec(state2, "cnec2");
-        PrePerimeterResult postCraPrePerimeterResult = mock(PrePerimeterResult.class);
-        when(postCraPrePerimeterResult.getFlow(eq(cnec1), any(), any())).thenReturn(135.4);
-        when(postCraPrePerimeterResult.getFlow(eq(cnec1), any(), any(), any())).thenReturn(135.4);
+        FlowResult postCracFlowResult = mock(FlowResult.class);
+        when(postCracFlowResult.getFlow(eq(cnec1), any(), any())).thenReturn(135.4);
+        when(postCracFlowResult.getFlow(eq(cnec1), any(), any(), any())).thenReturn(135.4);
+        PrePerimeterResult postCraPrePerimeterResult = new PrePerimeterResult(postCracFlowResult, null, null, null);
 
         CurativeWithSecondPraoResult result = new CurativeWithSecondPraoResult(state1, null, null, null, postCraPrePerimeterResult);
 

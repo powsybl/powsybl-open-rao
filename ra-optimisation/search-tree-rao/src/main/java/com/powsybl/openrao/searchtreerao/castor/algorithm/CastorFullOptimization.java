@@ -88,13 +88,13 @@ public class CastorFullOptimization {
 
             PrePerimeterResult initialOutput;
             initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
-            if (initialOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            if (initialOutput.sensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 BUSINESS_LOGS.error("Initial sensitivity analysis failed");
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl("Initial sensitivity analysis failed"));
             }
             RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
                 prePerimeterSensitivityAnalysis.getObjectiveFunction(),
-                RemedialActionActivationResultImpl.empty(initialOutput),
+                RemedialActionActivationResultImpl.empty(initialOutput.rangeActionSetpointResult()),
                 initialOutput,
                 raoParameters,
                 NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -133,8 +133,8 @@ public class CastorFullOptimization {
             network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
             applyRemedialActions(network, preventiveResult, crac.getPreventiveState());
 
-            PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, Collections.emptySet(), null);
-            if (preCurativeSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput.flowResult(), Collections.emptySet(), null);
+            if (preCurativeSensitivityAnalysisOutput.sensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions failed");
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl("Systematic sensitivity analysis after preventive remedial actions failed"));
             }
@@ -232,9 +232,9 @@ public class CastorFullOptimization {
     private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, ObjectiveFunctionParameters objectiveFunctionParameters) {
         RaoResult finalRaoResult = raoResult;
 
-        double initialCost = initialResult.getCost();
-        double initialFunctionalCost = initialResult.getFunctionalCost();
-        double initialVirtualCost = initialResult.getVirtualCost();
+        double initialCost = initialResult.objectiveFunctionResult().getCost();
+        double initialFunctionalCost = initialResult.objectiveFunctionResult().getFunctionalCost();
+        double initialVirtualCost = initialResult.objectiveFunctionResult().getVirtualCost();
         Instant lastInstant = crac.getLastInstant();
         double finalCost = finalRaoResult.getCost(lastInstant);
         double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
@@ -257,7 +257,7 @@ public class CastorFullOptimization {
             }
         }
 
-        Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(initialResult);
+        Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(initialResult.objectiveFunctionResult());
         Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalRaoResult, crac.getLastInstant());
 
         // Log costs before and after RAO
@@ -286,10 +286,10 @@ public class CastorFullOptimization {
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
             .withOptimizationPerimeter(optPerimeter)
-            .withInitialFlowResult(initialResult)
+            .withInitialFlowResult(initialResult.flowResult())
             .withPrePerimeterResult(initialResult)
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, Collections.emptySet(), raoParameters, statesToOptimize))
+            .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult.flowResult(), initialResult.flowResult(), Collections.emptySet(), raoParameters, statesToOptimize))
             .withToolProvider(toolProvider)
             .withOutageInstant(crac.getOutageInstant())
             .build();

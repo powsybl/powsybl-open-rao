@@ -17,7 +17,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,6 +29,7 @@ import org.mockito.Mockito;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.TWO;
 import static com.powsybl.iidm.network.TwoSides.ONE;
@@ -34,6 +39,10 @@ import static com.powsybl.openrao.commons.Unit.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class UnoptimizedRaoResultImplTest {
+    private FlowResult initialFlowResult;
+    private SensitivityResult initialSensitivityResult;
+    private RangeActionSetpointResult initialSetPoints;
+    private ObjectiveFunctionResult initialObjectiveFunctionResult;
     private PrePerimeterResult initialResult;
     private UnoptimizedRaoResultImpl output;
     private FlowCnec flowCnec;
@@ -47,21 +56,25 @@ class UnoptimizedRaoResultImplTest {
         preventiveInstant = Mockito.mock(Instant.class);
         autoInstant = Mockito.mock(Instant.class);
         curativeInstant = Mockito.mock(Instant.class);
-        initialResult = Mockito.mock(PrePerimeterResult.class);
+        initialFlowResult = mock(FlowResult.class);
+        initialSensitivityResult = mock(SensitivityResult.class);
+        initialSetPoints = mock(RangeActionSetpointResult.class);
+        initialObjectiveFunctionResult = mock(ObjectiveFunctionResult.class);
+        initialResult = new PrePerimeterResult(initialFlowResult, initialSensitivityResult, initialSetPoints, initialObjectiveFunctionResult);
         output = new UnoptimizedRaoResultImpl(initialResult);
         flowCnec = Mockito.mock(FlowCnec.class);
     }
 
     @Test
     void testGetComputationStatus() {
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(initialSensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 
     @Test
     void testGetFlow() {
-        when(initialResult.getFlow(flowCnec, ONE, AMPERE)).thenReturn(100.);
-        when(initialResult.getFlow(flowCnec, ONE, MEGAWATT)).thenReturn(1000.);
+        when(initialFlowResult.getFlow(flowCnec, ONE, AMPERE)).thenReturn(100.);
+        when(initialFlowResult.getFlow(flowCnec, ONE, MEGAWATT)).thenReturn(1000.);
 
         assertEquals(100., output.getFlow(null, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(100., output.getFlow(preventiveInstant, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
@@ -76,8 +89,8 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetMargin() {
-        when(initialResult.getMargin(flowCnec, AMPERE)).thenReturn(100.);
-        when(initialResult.getMargin(flowCnec, MEGAWATT)).thenReturn(1000.);
+        when(initialFlowResult.getMargin(flowCnec, AMPERE)).thenReturn(100.);
+        when(initialFlowResult.getMargin(flowCnec, MEGAWATT)).thenReturn(1000.);
 
         assertEquals(100., output.getMargin(null, flowCnec, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(100., output.getMargin(preventiveInstant, flowCnec, AMPERE), DOUBLE_TOLERANCE);
@@ -92,8 +105,8 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetRelativeMargin() {
-        when(initialResult.getRelativeMargin(flowCnec, AMPERE)).thenReturn(100.);
-        when(initialResult.getRelativeMargin(flowCnec, MEGAWATT)).thenReturn(1000.);
+        when(initialFlowResult.getRelativeMargin(flowCnec, AMPERE)).thenReturn(100.);
+        when(initialFlowResult.getRelativeMargin(flowCnec, MEGAWATT)).thenReturn(1000.);
 
         assertEquals(100., output.getRelativeMargin(null, flowCnec, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(100., output.getRelativeMargin(preventiveInstant, flowCnec, AMPERE), DOUBLE_TOLERANCE);
@@ -108,8 +121,8 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetCommercialFlow() {
-        when(initialResult.getCommercialFlow(flowCnec, TWO, AMPERE)).thenReturn(100.);
-        when(initialResult.getCommercialFlow(flowCnec, TWO, MEGAWATT)).thenReturn(1000.);
+        when(initialFlowResult.getCommercialFlow(flowCnec, TWO, AMPERE)).thenReturn(100.);
+        when(initialFlowResult.getCommercialFlow(flowCnec, TWO, MEGAWATT)).thenReturn(1000.);
 
         assertEquals(100., output.getCommercialFlow(null, flowCnec, TWO, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(100., output.getCommercialFlow(preventiveInstant, flowCnec, TWO, AMPERE), DOUBLE_TOLERANCE);
@@ -124,8 +137,8 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetLoopFlow() {
-        when(initialResult.getLoopFlow(flowCnec, ONE, AMPERE)).thenReturn(100.);
-        when(initialResult.getLoopFlow(flowCnec, ONE, MEGAWATT)).thenReturn(1000.);
+        when(initialFlowResult.getLoopFlow(flowCnec, ONE, AMPERE)).thenReturn(100.);
+        when(initialFlowResult.getLoopFlow(flowCnec, ONE, MEGAWATT)).thenReturn(1000.);
 
         assertEquals(100., output.getLoopFlow(null, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(100., output.getLoopFlow(preventiveInstant, flowCnec, ONE, AMPERE), DOUBLE_TOLERANCE);
@@ -140,7 +153,7 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetPtdfZonalSum() {
-        when(initialResult.getPtdfZonalSum(flowCnec, TWO)).thenReturn(100.);
+        when(initialFlowResult.getPtdfZonalSum(flowCnec, TWO)).thenReturn(100.);
 
         assertEquals(100., output.getPtdfZonalSum(null, flowCnec, TWO), DOUBLE_TOLERANCE);
         assertEquals(100., output.getPtdfZonalSum(preventiveInstant, flowCnec, TWO), DOUBLE_TOLERANCE);
@@ -150,7 +163,7 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetCost() {
-        when(initialResult.getCost()).thenReturn(-50.);
+        when(initialObjectiveFunctionResult.getCost()).thenReturn(-50.);
         assertEquals(-50., output.getCost(null), DOUBLE_TOLERANCE);
         assertEquals(-50., output.getCost(preventiveInstant), DOUBLE_TOLERANCE);
         assertEquals(-50., output.getCost(autoInstant), DOUBLE_TOLERANCE);
@@ -159,7 +172,7 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetFunctionalCost() {
-        when(initialResult.getFunctionalCost()).thenReturn(-500.);
+        when(initialObjectiveFunctionResult.getFunctionalCost()).thenReturn(-500.);
         assertEquals(-500., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
         assertEquals(-500., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
         assertEquals(-500., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
@@ -168,7 +181,7 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetVirtualCost() {
-        when(initialResult.getVirtualCost()).thenReturn(-5000.);
+        when(initialObjectiveFunctionResult.getVirtualCost()).thenReturn(-5000.);
         assertEquals(-5000., output.getVirtualCost(null), DOUBLE_TOLERANCE);
         assertEquals(-5000., output.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
         assertEquals(-5000., output.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
@@ -177,14 +190,14 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testGetVirtualCostNames() {
-        when(initialResult.getVirtualCostNames()).thenReturn(Set.of("one", "two"));
+        when(initialObjectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("one", "two"));
         assertEquals(Set.of("one", "two"), output.getVirtualCostNames());
     }
 
     @Test
     void testGetVirtualCostWithName() {
-        when(initialResult.getVirtualCost("one")).thenReturn(60.);
-        when(initialResult.getVirtualCost("two")).thenReturn(600.);
+        when(initialObjectiveFunctionResult.getVirtualCost("one")).thenReturn(60.);
+        when(initialObjectiveFunctionResult.getVirtualCost("two")).thenReturn(600.);
 
         assertEquals(60., output.getVirtualCost(null, "one"), DOUBLE_TOLERANCE);
         assertEquals(60., output.getVirtualCost(preventiveInstant, "one"), DOUBLE_TOLERANCE);
@@ -227,7 +240,7 @@ class UnoptimizedRaoResultImplTest {
     @Test
     void testGetPreOptimizationTapOnState() {
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        when(initialResult.getTap(pstRangeAction)).thenReturn(6);
+        when(initialSetPoints.getTap(pstRangeAction)).thenReturn(6);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         assertEquals(6, output.getPreOptimizationTapOnState(state1, pstRangeAction));
@@ -237,7 +250,7 @@ class UnoptimizedRaoResultImplTest {
     @Test
     void testGetOptimizedTapOnState() {
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        when(initialResult.getTap(pstRangeAction)).thenReturn(6);
+        when(initialSetPoints.getTap(pstRangeAction)).thenReturn(6);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         assertEquals(6, output.getOptimizedTapOnState(state1, pstRangeAction));
@@ -247,7 +260,7 @@ class UnoptimizedRaoResultImplTest {
     @Test
     void testGetPreOptimizationSetPointOnState() {
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        when(initialResult.getSetpoint(rangeAction)).thenReturn(60.);
+        when(initialSetPoints.getSetpoint(rangeAction)).thenReturn(60.);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         assertEquals(60., output.getPreOptimizationSetPointOnState(state1, rangeAction), DOUBLE_TOLERANCE);
@@ -257,7 +270,7 @@ class UnoptimizedRaoResultImplTest {
     @Test
     void testGetOptimizedSetPointOnState() {
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        when(initialResult.getSetpoint(rangeAction)).thenReturn(60.);
+        when(initialSetPoints.getSetpoint(rangeAction)).thenReturn(60.);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
         assertEquals(60., output.getOptimizedSetPointOnState(state1, rangeAction), DOUBLE_TOLERANCE);

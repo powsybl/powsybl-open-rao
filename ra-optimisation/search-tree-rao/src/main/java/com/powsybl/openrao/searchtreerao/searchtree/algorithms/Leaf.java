@@ -125,10 +125,10 @@ public class Leaf implements OptimizationResult {
          Network network,
          PrePerimeterResult prePerimeterOutput,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput.rangeActionSetpointResult()), prePerimeterOutput.rangeActionSetpointResult(), appliedRemedialActionsInSecondaryStates);
         this.status = Status.EVALUATED;
-        this.preOptimFlowResult = prePerimeterOutput;
-        this.preOptimSensitivityResult = prePerimeterOutput;
+        this.preOptimFlowResult = prePerimeterOutput.flowResult();
+        this.preOptimSensitivityResult = prePerimeterOutput.sensitivityResult();
     }
 
     public FlowResult getPreOptimBranchResult() {
@@ -198,7 +198,7 @@ public class Leaf implements OptimizationResult {
                     .withNetwork(network)
                     .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
                     .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
-                    .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
+                    .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult().flowResult())
                     .withPrePerimeterSetpoints(prePerimeterSetpoints)
                     .withPreOptimizationFlowResult(preOptimFlowResult)
                     .withPreOptimizationSensitivityResult(preOptimSensitivityResult)

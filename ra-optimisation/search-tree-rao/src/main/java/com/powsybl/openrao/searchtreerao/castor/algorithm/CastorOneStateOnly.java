@@ -72,7 +72,7 @@ public class CastorOneStateOnly {
 
         PrePerimeterResult initialResults;
         initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac(), Set.of(raoInput.getOptimizedState()));
-        if (initialResults.getSensitivityStatus() == ComputationStatus.FAILURE) {
+        if (initialResults.sensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Initial sensitivity analysis failed");
             return CompletableFuture.completedFuture(new FailedRaoResultImpl("Initial sensitivity analysis failed"));
         }
@@ -89,7 +89,7 @@ public class CastorOneStateOnly {
             perimeterFlowCnecs = raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState());
             // TODO: see how to handle multiple curative instants here
             State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow(), raoInput.getCrac().getInstant(InstantKind.CURATIVE));
-            AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
+            AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults.flowResult(), initialResults, stateTree.getOperatorsNotSharingCras(), 2);
             TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
             optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), Set.of(curativeState), raoInput.getNetwork(), stateTree, automatonTreeParameters);
         } else {
@@ -112,10 +112,10 @@ public class CastorOneStateOnly {
             SearchTreeInput searchTreeInput = SearchTreeInput.create()
                     .withNetwork(raoInput.getNetwork())
                     .withOptimizationPerimeter(optPerimeter)
-                    .withInitialFlowResult(initialResults)
+                    .withInitialFlowResult(initialResults.flowResult())
                     .withPrePerimeterResult(initialResults)
                     .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-                    .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, operatorsNotToOptimize, raoParameters, statesToOptimize))
+                    .withObjectiveFunction(ObjectiveFunction.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults.flowResult(), initialResults.flowResult(), operatorsNotToOptimize, raoParameters, statesToOptimize))
                     .withToolProvider(toolProvider)
                     .withOutageInstant(raoInput.getCrac().getOutageInstant())
                     .build();

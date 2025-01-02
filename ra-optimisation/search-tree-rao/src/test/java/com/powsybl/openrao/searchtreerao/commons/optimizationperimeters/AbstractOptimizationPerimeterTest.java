@@ -17,7 +17,11 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
@@ -44,6 +48,10 @@ abstract class AbstractOptimizationPerimeterTest {
     protected RemedialAction<?> pNA;
     protected RemedialAction<?> cNA;
     protected RaoParameters raoParameters;
+    protected FlowResult flowResult;
+    protected SensitivityResult sensitivityResult;
+    protected RangeActionSetpointResult rangeActionSetpointResult;
+    protected ObjectiveFunctionResult objectiveFunctionResult;
     protected PrePerimeterResult prePerimeterResult;
 
     @BeforeEach
@@ -140,6 +148,10 @@ abstract class AbstractOptimizationPerimeterTest {
         cState1 = crac.getState("outage-1", curativeInstant);
         cState2 = crac.getState("outage-2", curativeInstant);
 
-        prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        flowResult = Mockito.mock(FlowResult.class);
+        sensitivityResult = Mockito.mock(SensitivityResult.class);
+        rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
+        objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
+        prePerimeterResult = new PrePerimeterResult(flowResult, sensitivityResult, rangeActionSetpointResult, objectiveFunctionResult);
     }
 }

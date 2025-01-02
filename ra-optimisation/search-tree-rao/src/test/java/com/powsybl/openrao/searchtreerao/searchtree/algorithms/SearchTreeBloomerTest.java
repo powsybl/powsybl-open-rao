@@ -15,6 +15,7 @@ import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import org.junit.jupiter.api.Test;
@@ -157,8 +158,9 @@ class SearchTreeBloomerTest {
     private SearchTreeBloomer initBloomer(List<NetworkActionCombination> naCombinations, Map<Instant, RaUsageLimits> raUsageLimits) {
         OptimizationPerimeter perimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(perimeter.getMainOptimizationState()).thenReturn(P_STATE);
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Mockito.when(prePerimeterResult.getTap(Mockito.any())).thenReturn(0);
+        RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
+        Mockito.when(rangeActionSetpointResult.getTap(Mockito.any())).thenReturn(0);
+        PrePerimeterResult prePerimeterResult = new PrePerimeterResult(null, null, rangeActionSetpointResult, null);
         SearchTreeInput input = SearchTreeInput.create()
             .withNetwork(NetworkActionCombinationsUtils.NETWORK)
             .withOptimizationPerimeter(perimeter)
