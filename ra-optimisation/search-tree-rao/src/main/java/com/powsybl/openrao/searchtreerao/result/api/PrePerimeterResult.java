@@ -7,27 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.result.api;
 
-import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface PrePerimeterResult extends FlowResult, SensitivityResult, RangeActionSetpointResult, ObjectiveFunctionResult {
-
-    FlowResult getFlowResult();
-
-    RangeActionSetpointResult getRangeActionSetpointResult();
-
-    SensitivityResult getSensitivityResult();
-
-    @Override
-    default ComputationStatus getComputationStatus() {
-        return getSensitivityStatus();
-    }
-
-    @Override
-    default ComputationStatus getComputationStatus(State state) {
-        return getSensitivityStatus(state);
-    }
+public record PrePerimeterResult(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionSetpointResult rangeActionSetpointResult, ObjectiveFunctionResult objectiveFunctionResult) {
 }

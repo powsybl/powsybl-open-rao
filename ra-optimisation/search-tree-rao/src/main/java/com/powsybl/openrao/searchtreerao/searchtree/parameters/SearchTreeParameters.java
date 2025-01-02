@@ -227,7 +227,7 @@ public class SearchTreeParameters {
     }
 
     private static int computeTapsMoved(PstRangeAction pstRangeAction, State optimizedState, OptimizationResult result, PrePerimeterResult prePerimeterResult) {
-        return Math.abs(result.getOptimizedTap(pstRangeAction, optimizedState) - prePerimeterResult.getTap(pstRangeAction));
+        return Math.abs(result.getOptimizedTap(pstRangeAction, optimizedState) - prePerimeterResult.rangeActionSetpointResult().getTap(pstRangeAction));
     }
 
     public static SearchTreeParametersBuilder create() {

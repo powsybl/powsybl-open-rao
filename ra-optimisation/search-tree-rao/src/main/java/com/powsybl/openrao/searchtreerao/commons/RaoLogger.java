@@ -55,7 +55,7 @@ public final class RaoLogger {
             return;
         }
 
-        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, remedialActionActivationResult);
+        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult.flowResult(), remedialActionActivationResult);
         Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(prePerimeterObjectiveFunctionResult);
 
         BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})",
@@ -98,11 +98,11 @@ public final class RaoLogger {
     }
 
     public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, Set<State> states, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
-        logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, states, objectiveFunction, numberOfLoggedElements);
+        logMostLimitingElementsResults(logger, prePerimeterResult.objectiveFunctionResult(), prePerimeterResult.flowResult(), states, objectiveFunction, numberOfLoggedElements);
     }
 
     public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
-        logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, null, objectiveFunction, numberOfLoggedElements);
+        logMostLimitingElementsResults(logger, prePerimeterResult.objectiveFunctionResult(), prePerimeterResult.flowResult(), null, objectiveFunction, numberOfLoggedElements);
     }
 
     private static void logMostLimitingElementsResults(OpenRaoLogger logger,

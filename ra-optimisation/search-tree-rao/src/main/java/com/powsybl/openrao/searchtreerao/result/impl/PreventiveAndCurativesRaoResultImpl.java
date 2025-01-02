@@ -181,10 +181,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     private void excludeContingencies(Set<String> contingenciesToExclude) {
-        initialResult.excludeContingencies(contingenciesToExclude);
+        initialResult.objectiveFunctionResult().excludeContingencies(contingenciesToExclude);
         firstPreventivePerimeterResult.excludeContingencies(contingenciesToExclude);
         secondPreventivePerimeterResult.excludeContingencies(contingenciesToExclude);
-        resultsWithPrasForAllCnecs.excludeContingencies(contingenciesToExclude);
+        resultsWithPrasForAllCnecs.objectiveFunctionResult().excludeContingencies(contingenciesToExclude);
         postContingencyResults.values().forEach(result -> result.excludeContingencies(contingenciesToExclude));
         if (finalCostEvaluator != null) {
             finalCostEvaluator.excludeContingencies(contingenciesToExclude);
@@ -193,11 +193,11 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (initialResult.getSensitivityStatus() == FAILURE
+        if (initialResult.sensitivityResult().getSensitivityStatus() == FAILURE
             || secondPreventivePerimeterResult.getSensitivityStatus() == FAILURE) {
             return FAILURE;
         }
-        if (initialResult.getSensitivityStatus() == PARTIAL_FAILURE ||
+        if (initialResult.sensitivityResult().getSensitivityStatus() == PARTIAL_FAILURE ||
             secondPreventivePerimeterResult.getSensitivityStatus() == PARTIAL_FAILURE ||
             postContingencyResults.entrySet().stream().anyMatch(entry ->
                 entry.getValue() == null || entry.getValue().getSensitivityStatus(entry.getKey()) != DEFAULT)) {
@@ -243,11 +243,11 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
         if (optimizedInstant == null) {
-            return initialResult.getFunctionalCost();
+            return initialResult.objectiveFunctionResult().getFunctionalCost();
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
             optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto())) {
             // using postPreventiveResult would exclude curative CNECs
-            return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : resultsWithPrasForAllCnecs.getFunctionalCost();
+            return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : resultsWithPrasForAllCnecs.objectiveFunctionResult().getFunctionalCost();
         } else if (optimizedInstant.isCurative() && finalCostEvaluator != null) {
             // When a second preventive optimization has been run, use its updated cost evaluation
             return finalCostEvaluator.getFunctionalCost();
@@ -320,13 +320,13 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     private FlowResult getFlowResult(Instant optimizedInstant, FlowCnec flowCnec) {
         if (optimizedInstant == null) {
-            return initialResult;
+            return initialResult.flowResult();
         } else if (flowCnec.getState().getInstant().comesBefore(optimizedInstant)) {
             throw new OpenRaoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizedInstant));
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
             optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto())) {
             // using postPreventiveResult would exclude curative CNECs
-            return resultsWithPrasForAllCnecs;
+            return resultsWithPrasForAllCnecs.flowResult();
         } else if (Objects.nonNull(findStateOptimizedFor(optimizedInstant, flowCnec))) {
             // if cnec has been optimized during a post contingency instant
             return postContingencyResults.get(findStateOptimizedFor(optimizedInstant, flowCnec));
@@ -397,10 +397,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
         if (optimizedInstant == null) {
-            return initialResult.getVirtualCost();
+            return initialResult.objectiveFunctionResult().getVirtualCost();
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
             optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto())) {
-            return resultsWithPrasForAllCnecs.getVirtualCost();
+            return resultsWithPrasForAllCnecs.objectiveFunctionResult().getVirtualCost();
         } else if (optimizedInstant.isCurative() && finalCostEvaluator != null) {
             return finalCostEvaluator.getVirtualCost();
         } else {
@@ -415,8 +415,8 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public Set<String> getVirtualCostNames() {
         Set<String> virtualCostNames = new HashSet<>();
-        if (initialResult.getVirtualCostNames() != null) {
-            virtualCostNames.addAll(initialResult.getVirtualCostNames());
+        if (initialResult.objectiveFunctionResult().getVirtualCostNames() != null) {
+            virtualCostNames.addAll(initialResult.objectiveFunctionResult().getVirtualCostNames());
         }
         if (firstPreventivePerimeterResult.getVirtualCostNames() != null) {
             virtualCostNames.addAll(firstPreventivePerimeterResult.getVirtualCostNames());
@@ -434,10 +434,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
         if (optimizedInstant == null) {
-            return initialResult.getVirtualCost(virtualCostName);
+            return initialResult.objectiveFunctionResult().getVirtualCost(virtualCostName);
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
             optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto())) {
-            return resultsWithPrasForAllCnecs.getVirtualCost(virtualCostName);
+            return resultsWithPrasForAllCnecs.objectiveFunctionResult().getVirtualCost(virtualCostName);
         } else if (optimizedInstant.isCurative() && finalCostEvaluator != null) {
             return finalCostEvaluator.getVirtualCost(virtualCostName);
         } else {
@@ -451,10 +451,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     public List<FlowCnec> getCostlyElements(Instant optimizedInstant, String virtualCostName, int number) {
         if (optimizedInstant == null) {
-            return initialResult.getCostlyElements(virtualCostName, number);
+            return initialResult.objectiveFunctionResult().getCostlyElements(virtualCostName, number);
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
             optimizedInstant.isAuto() && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().isAuto())) {
-            return resultsWithPrasForAllCnecs.getCostlyElements(virtualCostName, number);
+            return resultsWithPrasForAllCnecs.objectiveFunctionResult().getCostlyElements(virtualCostName, number);
         } else if (optimizedInstant.isCurative() && finalCostEvaluator != null) {
             return finalCostEvaluator.getCostlyElements(virtualCostName, number);
         } else {
@@ -518,7 +518,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant().isPreventive()) {
-            return initialResult.getTap(pstRangeAction);
+            return initialResult.rangeActionSetpointResult().getTap(pstRangeAction);
         }
         throwIfNotOptimized(state);
         State previousState = getStateOptimizedBefore(state);
@@ -541,7 +541,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant().isPreventive()) {
-            return initialResult.getSetpoint(rangeAction);
+            return initialResult.rangeActionSetpointResult().getSetpoint(rangeAction);
         }
         throwIfNotOptimized(state);
         State previousState = getStateOptimizedBefore(state);

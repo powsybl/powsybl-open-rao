@@ -49,13 +49,13 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
         }
         State state = flowCnec.getState();
         if (optimizedInstant == null) {
-            return initialResult;
+            return initialResult.flowResult();
         }
         if (optimizedState.isPreventive()) {
             return postOptimizationResult;
         }
         if (state.isPreventive()) {
-            return initialResult;
+            return initialResult.flowResult();
         }
         if (!optimizedState.isPreventive()) {
             Contingency optimizedContingency = optimizedState.getContingency().orElseThrow(() -> new OpenRaoException("Should not happen"));
@@ -65,16 +65,16 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
                 return postOptimizationResult;
             }
         }
-        return initialResult;
+        return initialResult.flowResult();
     }
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE || postOptimizationResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+        if (initialResult.sensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE || postOptimizationResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
             return ComputationStatus.FAILURE;
         }
-        if (initialResult.getSensitivityStatus() == postOptimizationResult.getSensitivityStatus()) {
-            return initialResult.getSensitivityStatus();
+        if (initialResult.sensitivityResult().getSensitivityStatus() == postOptimizationResult.getSensitivityStatus()) {
+            return initialResult.sensitivityResult().getSensitivityStatus();
         }
         return ComputationStatus.DEFAULT;
     }
@@ -128,7 +128,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
         if (optimizedInstant == null) {
-            return initialResult.getFunctionalCost();
+            return initialResult.objectiveFunctionResult().getFunctionalCost();
         } else {
             return postOptimizationResult.getFunctionalCost();
         }
@@ -136,7 +136,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
 
     public List<FlowCnec> getMostLimitingElements(Instant optimizedInstant, int number) {
         if (optimizedInstant == null) {
-            return initialResult.getMostLimitingElements(number);
+            return initialResult.objectiveFunctionResult().getMostLimitingElements(number);
         } else {
             return postOptimizationResult.getMostLimitingElements(number);
         }
@@ -145,7 +145,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
         if (optimizedInstant == null) {
-            return initialResult.getVirtualCost();
+            return initialResult.objectiveFunctionResult().getVirtualCost();
         } else {
             return postOptimizationResult.getVirtualCost();
         }
@@ -154,8 +154,8 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public Set<String> getVirtualCostNames() {
         Set<String> virtualCostNames = new HashSet<>();
-        if (initialResult.getVirtualCostNames() != null) {
-            virtualCostNames.addAll(initialResult.getVirtualCostNames());
+        if (initialResult.objectiveFunctionResult().getVirtualCostNames() != null) {
+            virtualCostNames.addAll(initialResult.objectiveFunctionResult().getVirtualCostNames());
         }
         if (postOptimizationResult.getVirtualCostNames() != null) {
             virtualCostNames.addAll(postOptimizationResult.getVirtualCostNames());
@@ -166,7 +166,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
         if (optimizedInstant == null) {
-            return initialResult.getVirtualCost(virtualCostName);
+            return initialResult.objectiveFunctionResult().getVirtualCost(virtualCostName);
         } else {
             return postOptimizationResult.getVirtualCost(virtualCostName);
         }
@@ -174,7 +174,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
 
     public List<FlowCnec> getCostlyElements(Instant optimizedInstant, String virtualCostName, int number) {
         if (optimizedInstant == null) {
-            return initialResult.getCostlyElements(virtualCostName, number);
+            return initialResult.objectiveFunctionResult().getCostlyElements(virtualCostName, number);
         } else {
             return postOptimizationResult.getCostlyElements(virtualCostName, number);
         }
@@ -209,7 +209,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return postOptimizationResult.getOptimizedSetpoint(rangeAction, state) != initialResult.getSetpoint(rangeAction);
+        return postOptimizationResult.getOptimizedSetpoint(rangeAction, state) != initialResult.rangeActionSetpointResult().getSetpoint(rangeAction);
     }
 
     @Override
@@ -217,7 +217,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return initialResult.getTap(pstRangeAction);
+        return initialResult.rangeActionSetpointResult().getTap(pstRangeAction);
     }
 
     @Override
@@ -233,7 +233,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException(WRONG_STATE);
         }
-        return initialResult.getSetpoint(rangeAction);
+        return initialResult.rangeActionSetpointResult().getSetpoint(rangeAction);
     }
 
     @Override

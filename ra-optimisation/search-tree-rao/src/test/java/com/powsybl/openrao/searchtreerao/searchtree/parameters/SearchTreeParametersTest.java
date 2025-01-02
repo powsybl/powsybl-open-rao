@@ -20,6 +20,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameter
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -171,8 +172,9 @@ class SearchTreeParametersTest {
         when(preventiveOptimizationResult.getActivatedRangeActions(crac.getPreventiveState())).thenReturn(Set.of(crac.getPstRangeAction("prev-pst-fr")));
         when(preventiveOptimizationResult.getOptimizedTap(crac.getPstRangeAction("prev-pst-fr"), crac.getPreventiveState())).thenReturn(4);
 
-        PrePerimeterResult prePreventivePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Mockito.when(prePreventivePerimeterResult.getTap(crac.getPstRangeAction("prev-pst-fr"))).thenReturn(0);
+        RangeActionSetpointResult prePreventiveRangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
+        Mockito.when(prePreventiveRangeActionSetpointResult.getTap(crac.getPstRangeAction("prev-pst-fr"))).thenReturn(0);
+        PrePerimeterResult prePreventivePerimeterResult = new PrePerimeterResult(null, null, prePreventiveRangeActionSetpointResult, null);
 
         preventiveParameters.decreaseRemedialActionUsageLimits(Map.of(crac.getPreventiveState(), preventiveOptimizationResult), Map.of(crac.getPreventiveState(), prePreventivePerimeterResult));
 
@@ -219,8 +221,9 @@ class SearchTreeParametersTest {
         when(curative1OptimizationResult.getActivatedRangeActions(crac.getState("contingency", crac.getInstant("curative1")))).thenReturn(Set.of(crac.getPstRangeAction("cur1-pst-be")));
         when(curative1OptimizationResult.getOptimizedTap(crac.getPstRangeAction("cur1-pst-be"), crac.getState("contingency", crac.getInstant("curative1")))).thenReturn(-7);
 
-        PrePerimeterResult preCurative1PerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Mockito.when(preCurative1PerimeterResult.getTap(crac.getPstRangeAction("cur1-pst-be"))).thenReturn(0);
+        RangeActionSetpointResult preCurative1RangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
+        Mockito.when(preCurative1RangeActionSetpointResult.getTap(crac.getPstRangeAction("cur1-pst-be"))).thenReturn(0);
+        PrePerimeterResult preCurative1PerimeterResult = new PrePerimeterResult(null, null, preCurative1RangeActionSetpointResult, null);
 
         curative1Parameters.decreaseRemedialActionUsageLimits(Map.of(crac.getState("contingency", crac.getInstant("curative1")), curative1OptimizationResult), Map.of(crac.getState("contingency", crac.getInstant("curative1")), preCurative1PerimeterResult));
 

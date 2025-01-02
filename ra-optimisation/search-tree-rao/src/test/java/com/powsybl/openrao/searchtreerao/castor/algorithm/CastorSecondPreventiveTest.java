@@ -32,6 +32,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -445,13 +446,15 @@ class CastorSecondPreventiveTest {
 
     @Test
     void testGetAppliedRemedialActionsInCurative() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        // TODO: remove useless code?
+        RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
+        PrePerimeterResult prePerimeterResult = new PrePerimeterResult(null, null, rangeActionSetpointResult, null);
 
         String pstNeId = "BBE2AA1  BBE3AA1  1";
         String naNeId = "BBE1AA1  BBE2AA1  1";
 
         setUpCracWithRealRAs(true);
-        Mockito.doReturn(0.).when(prePerimeterResult).getSetpoint(ra1);
+        Mockito.doReturn(0.).when(rangeActionSetpointResult).getSetpoint(ra1);
 
         OptimizationResult optimResult1 = Mockito.mock(OptimizationResult.class);
         Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions(Mockito.any());

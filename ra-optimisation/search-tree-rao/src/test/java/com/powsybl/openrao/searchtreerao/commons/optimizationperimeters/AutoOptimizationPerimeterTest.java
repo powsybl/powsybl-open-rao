@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -49,7 +50,7 @@ class AutoOptimizationPerimeterTest {
     void buildAutoOptimizationPerimeter() {
         Crac crac = initCrac();
         State automatonState = crac.getState("contingency", crac.getInstant("auto"));
-        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(), null);
+        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(), new PrePerimeterResult(null, null, null, null));
 
         // Only available topological actions are considered in the perimeter
         assertEquals(automatonState, autoOptimizationPerimeter.getMainOptimizationState());

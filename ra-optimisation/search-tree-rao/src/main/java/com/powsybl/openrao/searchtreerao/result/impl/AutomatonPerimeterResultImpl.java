@@ -54,32 +54,32 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return postAutomatonSensitivityAnalysisOutput.getFlow(flowCnec, side, unit);
+        return postAutomatonSensitivityAnalysisOutput.flowResult().getFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant instant) {
-        return postAutomatonSensitivityAnalysisOutput.getFlow(flowCnec, side, unit, instant);
+        return postAutomatonSensitivityAnalysisOutput.flowResult().getFlow(flowCnec, side, unit, instant);
     }
 
     @Override
     public double getMargin(FlowCnec flowCnec, Unit unit) {
-        return postAutomatonSensitivityAnalysisOutput.getMargin(flowCnec, unit);
+        return postAutomatonSensitivityAnalysisOutput.flowResult().getMargin(flowCnec, unit);
     }
 
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return postAutomatonSensitivityAnalysisOutput.getCommercialFlow(flowCnec, side, unit);
+        return postAutomatonSensitivityAnalysisOutput.flowResult().getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
-        return postAutomatonSensitivityAnalysisOutput.getPtdfZonalSum(flowCnec, side);
+        return postAutomatonSensitivityAnalysisOutput.flowResult().getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
     public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
-        return postAutomatonSensitivityAnalysisOutput.getPtdfZonalSums();
+        return postAutomatonSensitivityAnalysisOutput.flowResult().getPtdfZonalSums();
     }
 
     @Override
@@ -105,37 +105,37 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
     @Override
     public double getFunctionalCost() {
-        return postAutomatonSensitivityAnalysisOutput.getFunctionalCost();
+        return postAutomatonSensitivityAnalysisOutput.objectiveFunctionResult().getFunctionalCost();
     }
 
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
-        return postAutomatonSensitivityAnalysisOutput.getMostLimitingElements(number);
+        return postAutomatonSensitivityAnalysisOutput.objectiveFunctionResult().getMostLimitingElements(number);
     }
 
     @Override
     public double getVirtualCost() {
-        return postAutomatonSensitivityAnalysisOutput.getVirtualCost();
+        return postAutomatonSensitivityAnalysisOutput.objectiveFunctionResult().getVirtualCost();
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return postAutomatonSensitivityAnalysisOutput.getVirtualCostNames();
+        return postAutomatonSensitivityAnalysisOutput.objectiveFunctionResult().getVirtualCostNames();
     }
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return postAutomatonSensitivityAnalysisOutput.getVirtualCost(virtualCostName);
+        return postAutomatonSensitivityAnalysisOutput.objectiveFunctionResult().getVirtualCost(virtualCostName);
     }
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
-        return postAutomatonSensitivityAnalysisOutput.getCostlyElements(virtualCostName, number);
+        return postAutomatonSensitivityAnalysisOutput.objectiveFunctionResult().getCostlyElements(virtualCostName, number);
     }
 
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
-        postAutomatonSensitivityAnalysisOutput.excludeContingencies(contingenciesToExclude);
+        postAutomatonSensitivityAnalysisOutput.objectiveFunctionResult().excludeContingencies(contingenciesToExclude);
 
     }
 
@@ -164,7 +164,7 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
     @Override
     public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
-        return preAutomatonSensitivityAnalysisOutput == null ? 0.0 : getOptimizedSetpoint(rangeAction, state) - preAutomatonSensitivityAnalysisOutput.getSetpoint(rangeAction);
+        return preAutomatonSensitivityAnalysisOutput == null ? 0.0 : getOptimizedSetpoint(rangeAction, state) - preAutomatonSensitivityAnalysisOutput.rangeActionSetpointResult().getSetpoint(rangeAction);
     }
 
     @Override
@@ -184,32 +184,32 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
 
     @Override
     public int getTapVariation(PstRangeAction pstRangeAction, State state) {
-        return preAutomatonSensitivityAnalysisOutput == null ? 0 : getOptimizedTap(pstRangeAction, state) - preAutomatonSensitivityAnalysisOutput.getTap(pstRangeAction);
+        return preAutomatonSensitivityAnalysisOutput == null ? 0 : getOptimizedTap(pstRangeAction, state) - preAutomatonSensitivityAnalysisOutput.rangeActionSetpointResult().getTap(pstRangeAction);
     }
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus(optimizedState);
+        return postAutomatonSensitivityAnalysisOutput.sensitivityResult().getSensitivityStatus(optimizedState);
     }
 
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
-        return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus(state);
+        return postAutomatonSensitivityAnalysisOutput.sensitivityResult().getSensitivityStatus(state);
     }
 
     @Override
     public Set<String> getContingencies() {
-        return postAutomatonSensitivityAnalysisOutput.getContingencies();
+        return postAutomatonSensitivityAnalysisOutput.sensitivityResult().getContingencies();
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
-        return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, side, rangeAction, unit);
+        return postAutomatonSensitivityAnalysisOutput.sensitivityResult().getSensitivityValue(flowCnec, side, rangeAction, unit);
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
-        return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, side, linearGlsk, unit);
+        return postAutomatonSensitivityAnalysisOutput.sensitivityResult().getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
 
     private void checkState(State state) {

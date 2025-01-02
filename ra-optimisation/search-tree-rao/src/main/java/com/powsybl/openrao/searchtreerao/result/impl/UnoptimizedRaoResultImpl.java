@@ -42,67 +42,67 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        return initialResult.getSensitivityStatus();
+        return initialResult.sensitivityResult().getSensitivityStatus();
     }
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        return initialResult.getSensitivityStatus(state);
+        return initialResult.sensitivityResult().getSensitivityStatus(state);
     }
 
     @Override
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return initialResult.getFlow(flowCnec, side, unit);
+        return initialResult.flowResult().getFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return initialResult.getMargin(flowCnec, unit);
+        return initialResult.flowResult().getMargin(flowCnec, unit);
     }
 
     @Override
     public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return initialResult.getRelativeMargin(flowCnec, unit);
+        return initialResult.flowResult().getRelativeMargin(flowCnec, unit);
     }
 
     @Override
     public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return initialResult.getCommercialFlow(flowCnec, side, unit);
+        return initialResult.flowResult().getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return initialResult.getLoopFlow(flowCnec, side, unit);
+        return initialResult.flowResult().getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        return initialResult.getPtdfZonalSum(flowCnec, side);
+        return initialResult.flowResult().getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
     public double getCost(Instant optimizedInstant) {
-        return initialResult.getCost();
+        return initialResult.objectiveFunctionResult().getCost();
     }
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
-        return initialResult.getFunctionalCost();
+        return initialResult.objectiveFunctionResult().getFunctionalCost();
     }
 
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
-        return initialResult.getVirtualCost();
+        return initialResult.objectiveFunctionResult().getVirtualCost();
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return initialResult.getVirtualCostNames();
+        return initialResult.objectiveFunctionResult().getVirtualCostNames();
     }
 
     @Override
     public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        return initialResult.getVirtualCost(virtualCostName);
+        return initialResult.objectiveFunctionResult().getVirtualCost(virtualCostName);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        return initialResult.getTap(pstRangeAction);
+        return initialResult.rangeActionSetpointResult().getTap(pstRangeAction);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        return initialResult.getSetpoint(rangeAction);
+        return initialResult.rangeActionSetpointResult().getSetpoint(rangeAction);
     }
 
     @Override
@@ -153,9 +153,9 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         Map<PstRangeAction, Integer> tapPerPst = new HashMap<>();
-        initialResult.getRangeActions().forEach(ra -> {
+        initialResult.rangeActionSetpointResult().getRangeActions().forEach(ra -> {
             if (ra instanceof PstRangeAction pstRangeAction) {
-                tapPerPst.put(pstRangeAction, initialResult.getTap(pstRangeAction));
+                tapPerPst.put(pstRangeAction, initialResult.rangeActionSetpointResult().getTap(pstRangeAction));
             }
         });
         return tapPerPst;
@@ -164,8 +164,8 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         Map<RangeAction<?>, Double> setpointPerRa = new HashMap<>();
-        initialResult.getRangeActions().forEach(ra ->
-            setpointPerRa.put(ra, initialResult.getSetpoint(ra))
+        initialResult.rangeActionSetpointResult().getRangeActions().forEach(ra ->
+            setpointPerRa.put(ra, initialResult.rangeActionSetpointResult().getSetpoint(ra))
         );
         return setpointPerRa;
     }

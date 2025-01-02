@@ -232,7 +232,7 @@ public class SearchTree {
                 if (shouldRangeActionBeRemoved) {
                     // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
                     input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
-                        ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                        ra.apply(networkClone, input.getPrePerimeterResult().rangeActionSetpointResult().getSetpoint(ra))
                     );
                 } else {
                     // Apply range actions that have been changed by the previous leaf on the network to start next depth leaves
@@ -347,8 +347,8 @@ public class SearchTree {
             network,
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
-            shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
-            input.getPrePerimeterResult(),
+            shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult().rangeActionSetpointResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
+            input.getPrePerimeterResult().rangeActionSetpointResult(),
             shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf));
     }
 
