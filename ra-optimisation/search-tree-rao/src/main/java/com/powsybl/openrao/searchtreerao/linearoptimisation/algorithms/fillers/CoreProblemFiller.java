@@ -202,8 +202,16 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
-            .forEach(entry ->
-                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())));
+            .forEach(entry -> {
+                addGlobalInjectionBalanceConstraint(linearProblem, entry.getKey());
+                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey()));
+            });
+    }
+
+    private void addGlobalInjectionBalanceConstraint(LinearProblem linearProblem, State state) {
+        if (optimizationContext.getRangeActionsPerState().get(state).stream().anyMatch(InjectionRangeAction.class::isInstance)) {
+            linearProblem.addInjectionBalanceConstraint(state);
+        }
     }
 
     private void checkAndActivateRangeShrinking(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
@@ -299,6 +307,13 @@ public class CoreProblemFiller implements ProblemFiller {
             setPointVariable.setUb(maxAbsoluteSetpoint + RANGE_ACTION_SETPOINT_EPSILON);
 
             setPointVariationConstraint.setCoefficient(previousSetpointVariable, -1.0);
+        }
+
+        if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
+            double totalShiftKey = injectionRangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(v -> v).sum();
+            OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state);
+            injectionBalanceConstraint.setCoefficient(upwardVariationVariable, totalShiftKey);
+            injectionBalanceConstraint.setCoefficient(downwardVariationVariable, -totalShiftKey);
         }
     }
 
