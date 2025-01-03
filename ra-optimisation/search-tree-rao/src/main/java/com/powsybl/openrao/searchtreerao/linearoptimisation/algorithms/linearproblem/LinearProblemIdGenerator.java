@@ -49,9 +49,9 @@ public final class LinearProblemIdGenerator {
     private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
-    private static final String RANGE_ACTION_ACTIVATION = "rangeactionactivation";
     private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
     private static final String RANGE_ACTION_ABSOLUTE_VARIATION = "rangeactionabsolutevariation";
+    private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -227,5 +227,21 @@ public final class LinearProblemIdGenerator {
 
     public static String rangeActionAbsoluteVariationConstraintId(RangeAction<?> rangeAction, State state) {
         return RANGE_ACTION_ABSOLUTE_VARIATION + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String totalPstRangeActionTapVariationVariableId(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return TOTAL_PST_RANGE_ACTION_TAP_VARIATION + SEPARATOR + pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + VARIABLE_SUFFIX + SEPARATOR + variationDirection;
+    }
+
+    public static String totalPstRangeActionTapVariationConstraintId(PstRangeAction pstRangeAction, State state) {
+        return TOTAL_PST_RANGE_ACTION_TAP_VARIATION + SEPARATOR + pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String tapVariableId(PstRangeAction pstRangeAction, State state) {
+        return TAP + SEPARATOR + pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String tapConstraintId(PstRangeAction pstRangeAction, State state) {
+        return TAP + SEPARATOR + pstRangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 }
