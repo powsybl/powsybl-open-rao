@@ -7,12 +7,14 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.intertemporalconstraint.PowerGradientConstraint;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -27,6 +29,7 @@ public class InterTemporalRaoInput {
         this.raoInputs = raoInputs;
         this.timestampsToRun = timestampsToRun;
         this.powerGradientConstraints = powerGradientConstraints;
+        checkTimestampsToRun();
     }
 
     public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<PowerGradientConstraint> powerGradientConstraints) {
@@ -43,5 +46,12 @@ public class InterTemporalRaoInput {
 
     public Set<PowerGradientConstraint> getPowerGradientConstraints() {
         return powerGradientConstraints;
+    }
+
+    private void checkTimestampsToRun() {
+        Set<String> invalidTimestampsToRun = timestampsToRun.stream().filter(timestamp -> !raoInputs.getTimestamps().contains(timestamp)).map(OffsetDateTime::toString).collect(Collectors.toSet());
+        if (!invalidTimestampsToRun.isEmpty()) {
+            throw new OpenRaoException("Timestamp(s) '" + String.join("', '", invalidTimestampsToRun) + "' are not defined in the inputs.");
+        }
     }
 }
