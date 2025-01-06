@@ -65,6 +65,3 @@ rao-relative-margins-parameters:
   ptdf-boundaries: [ "{FR}-{BE}", "{FR}-{DE}" ]
   ptdf-approximation: UPDATE_PTDF_WITH_TOPO_AND_PST
   ptdf-sum-lower-bound: 0.02
-
-rao-inter-temporal-parameters:
-  sensitivity-computations-in-parallel: 4

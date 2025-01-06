@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.InterTemporalParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -44,8 +43,7 @@ public class InterTemporalSensitivityAnalysis {
     }
 
     public TemporalData<LoadFlowAndSensitivityResult> runInitialSensitivityAnalysis() throws InterruptedException {
-        int numberOfThreads = parameters.hasExtension(InterTemporalParametersExtension.class) ? parameters.getExtension(InterTemporalParametersExtension.class).getSensitivityComputationsInParallel() : Integer.MAX_VALUE;
-        return new InterTemporalPool(input.getTimestampsToRun(), numberOfThreads).runTasks(this::runForTimestamp);
+        return new InterTemporalPool(input.getTimestampsToRun()).runTasks(this::runForTimestamp);
     }
 
     private LoadFlowAndSensitivityResult runForTimestamp(OffsetDateTime timestamp) {

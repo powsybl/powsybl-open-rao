@@ -110,9 +110,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.05);
-        // -- Inter-temporal parameters
-        parameters.addExtension(InterTemporalParametersExtension.class, new InterTemporalParametersExtension());
-        parameters.getExtension(InterTemporalParametersExtension.class).setSensitivityComputationsInParallel(4);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }

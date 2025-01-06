@@ -7,7 +7,6 @@
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.InterTemporalParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
@@ -117,10 +116,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(0.02, relativeMarginsParametersExtension.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
         assertEquals(expectedBoundaries, relativeMarginsParametersExtension.getPtdfBoundariesAsString());
 
-        InterTemporalParametersExtension interTemporalParametersExtension = parameters.getExtension(InterTemporalParametersExtension.class);
-        assertNotNull(interTemporalParametersExtension);
-        assertEquals(4, interTemporalParametersExtension.getSensitivityComputationsInParallel());
-
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withExtensions.json");
     }
@@ -191,9 +186,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         RelativeMarginsParametersExtension relativeMarginsParametersExtension = parameters.getExtension(RelativeMarginsParametersExtension.class);
         assertNull(relativeMarginsParametersExtension);
-
-        InterTemporalParametersExtension interTemporalParametersExtension = parameters.getExtension(InterTemporalParametersExtension.class);
-        assertNull(interTemporalParametersExtension);
 
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withoutExtensions.json");
