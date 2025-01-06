@@ -17,19 +17,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class InterTemporalPool extends ForkJoinPool {
+public class InterTemporalPool extends ThreadPoolExecutor {
     private final Set<OffsetDateTime> timestampsToRun;
 
     public InterTemporalPool(Set<OffsetDateTime> timestampsToRun, int numberOfThreads) {
-        super(Math.min(timestampsToRun.size(), numberOfThreads));
+        super(Math.min(timestampsToRun.size(), numberOfThreads), Math.min(timestampsToRun.size(), numberOfThreads), 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
         this.timestampsToRun = timestampsToRun;
     }
 
@@ -38,16 +41,19 @@ public class InterTemporalPool extends ForkJoinPool {
     }
 
     public <T> TemporalData<T> runTasks(Function<OffsetDateTime, T> temporalFunction) throws InterruptedException {
-        List<ForkJoinTask<Pair<OffsetDateTime, T>>> tasks = timestampsToRun.stream().map(timestamp -> submit(() -> Pair.of(timestamp, temporalFunction.apply(timestamp)))).toList();
         Map<OffsetDateTime, T> taskResultPerTimestamp = new HashMap<>();
-        for (ForkJoinTask<Pair<OffsetDateTime, T>> task : tasks) {
+        for (Future<Pair<OffsetDateTime, T>> result : invokeAll(getTimedTasks(temporalFunction))) {
             try {
-                Pair<OffsetDateTime, T> taskResult = task.get();
+                Pair<OffsetDateTime, T> taskResult = result.get();
                 taskResultPerTimestamp.put(taskResult.getLeft(), taskResult.getRight());
             } catch (ExecutionException e) {
                 throw new OpenRaoException(e);
             }
         }
         return new TemporalDataImpl<>(taskResultPerTimestamp);
+    }
+
+    private <T> List<Callable<Pair<OffsetDateTime, T>>> getTimedTasks(Function<OffsetDateTime, T> temporalFunction) {
+        return timestampsToRun.stream().map(timestamp -> (Callable<Pair<OffsetDateTime, T>>) () -> Pair.of(timestamp, temporalFunction.apply(timestamp))).toList();
     }
 }

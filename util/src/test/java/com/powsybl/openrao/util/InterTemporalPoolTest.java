@@ -28,18 +28,18 @@ class InterTemporalPoolTest {
 
     @Test
     void initWithNoSpecifiedThreads() {
-        assertEquals(3, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3)).getParallelism());
+        assertEquals(3, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3)).getCorePoolSize());
     }
 
     @Test
     void initWithLimitedThreads() {
-        assertEquals(2, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2).getParallelism());
+        assertEquals(2, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2).getCorePoolSize());
     }
 
     @Test
     void testRunTemporalTasks() throws InterruptedException {
         InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3));
-        assertEquals(3, pool.getParallelism());
+        assertEquals(3, pool.getCorePoolSize());
 
         TemporalData<String> resultPerTimestamp = pool.runTasks(OffsetDateTime::toString);
 
