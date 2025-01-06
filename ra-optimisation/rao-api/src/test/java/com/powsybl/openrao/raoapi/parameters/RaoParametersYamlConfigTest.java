@@ -92,7 +92,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
 
         // EXTENSIONS
-        assertEquals(4, parameters.getExtensions().size());
+        assertEquals(3, parameters.getExtensions().size());
 
         LoopFlowParametersExtension loopFlowParameters = parameters.getExtension(LoopFlowParametersExtension.class);
         assertNotNull(loopFlowParameters);
