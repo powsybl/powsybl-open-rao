@@ -155,7 +155,7 @@ public class Monitoring {
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
         boolean lfSuccess = computeLoadFlow(network);
         if (!lfSuccess) {
-            String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
+            String failureReason = String.format("Load-flow computation failed at state %s. Skipping this state.", state);
             return makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, failureReason);
         }
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
@@ -391,11 +391,12 @@ public class Monitoring {
      */
     private void checkGlsks(Country country, String naId, String angleCnecId, ZonalData<Scalable> scalableZonalData) {
         Set<Country> glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
+        if (Objects.isNull(scalableZonalData)) {
+            String error = "Incomplete Glsk: scalableZonalData undefined";
+            BUSINESS_LOGS.error(error);
+            throw new OpenRaoException(error);
+        }
         for (String zone : scalableZonalData.getDataPerZone().keySet()) {
-            if (zone.equals("")) {
-                BUSINESS_LOGS.error("Incomplete Glsk: Missing Country EI Code");
-                throw new OpenRaoException("Incomplete Glsk: Missing Country EI Code");
-            }
             glskCountries.add(new CountryEICode(zone).getCountry());
         }
         if (!glskCountries.contains(country)) {

@@ -373,12 +373,8 @@ class AngleMonitoringTest {
             .newLoadAction().withNetworkElement("LD2").withActivePowerValue(50.).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test_noScalableZonalData.xml")).getZonalScalable(network);
-        OpenRaoException e = assertThrows(OpenRaoException.class, () -> runAngleMonitoring(scalableZonalData));
-        // weird ?
-        assertEquals(
-            "com.powsybl.openrao.commons.OpenRaoException: java.util.concurrent.ExecutionException: com.powsybl.openrao.commons.OpenRaoException: com.powsybl.openrao.commons.OpenRaoException: Incomplete Glsk: Missing Country EI Code",
-            e.getMessage());
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).build();
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput));
     }
 
 }
