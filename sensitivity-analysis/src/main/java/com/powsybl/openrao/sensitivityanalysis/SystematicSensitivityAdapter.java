@@ -13,7 +13,10 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysis;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityFactor;
 
 import java.util.*;
 import java.util.stream.Collectors;
