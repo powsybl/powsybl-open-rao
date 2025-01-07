@@ -109,7 +109,8 @@ class LoadActionImplTest {
             .withActivePowerValue(100)
             .add()
             .add();
-        assertThrows(NullPointerException.class, () -> dummy.hasImpactOnNetwork(network));
+        assertFalse(dummy.canBeApplied(network));
+        assertFalse(dummy.hasImpactOnNetwork(network));
     }
 
     @Test
