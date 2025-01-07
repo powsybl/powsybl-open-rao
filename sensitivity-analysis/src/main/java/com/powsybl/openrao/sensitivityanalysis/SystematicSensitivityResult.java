@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class SystematicSensitivityResult {
 
     private static class StateResult {
-        private SensitivityComputationStatus status;
+        private SensitivityComputationStatus status = SensitivityComputationStatus.SUCCESS;
         private final Map<String, Map<TwoSides, Double>> referenceFlows = new HashMap<>();
         private final Map<String, Map<TwoSides, Double>> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Map<TwoSides, Double>>> flowSensitivities = new HashMap<>();
@@ -98,21 +98,12 @@ public class SystematicSensitivityResult {
             );
             postContingencyResults.get(instantOrder).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
-
-        nStateResult.status = this.status; // What is this StateResult ?
-
+        if (!results.getPreContingencyValues().isEmpty()) {
+            nStateResult.status = this.status;
+        }
         if (nStateResult.status != SensitivityComputationStatus.FAILURE && anyContingencyFailure) {
             this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
         }
-        return this;
-    }
-
-    public SystematicSensitivityResult completeDataWithFailingPerimeter(int instantOrder, String contingencyId) {
-        this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
-        StateResult contingencyStateResult = new StateResult();
-        contingencyStateResult.status = SensitivityComputationStatus.FAILURE;
-        postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
-        postContingencyResults.get(instantOrder).put(contingencyId, contingencyStateResult);
         return this;
     }
 
