@@ -75,8 +75,11 @@ public class PowerGradientConstraint {
             if (minPowerGradient == null && maxPowerGradient == null) {
                 throw new OpenRaoException("At least one min or max power gradient value must be provided.");
             }
-            if (minPowerGradient != null && maxPowerGradient != null && minPowerGradient > maxPowerGradient) {
-                throw new OpenRaoException("The min power gradient must be lower than the max power gradient.");
+            if (minPowerGradient != null && minPowerGradient > 0) {
+                throw new OpenRaoException("The min power gradient must be negative.");
+            }
+            if (maxPowerGradient != null && maxPowerGradient < 0) {
+                throw new OpenRaoException("The max power gradient must be positive.");
             }
             return new PowerGradientConstraint(networkElementId, minPowerGradient, maxPowerGradient);
         }

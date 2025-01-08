@@ -68,8 +68,14 @@ class PowerGradientConstraintTest {
     }
 
     @Test
-    void buildPowerGradientConstraintIncoherentMinAndMax() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> PowerGradientConstraint.builder().withNetworkElementId("generator").withMinPowerGradient(100.0).withMaxPowerGradient(-100.0).build());
-        assertEquals("The min power gradient must be lower than the max power gradient.", exception.getMessage());
+    void buildPowerGradientConstraintPositiveMin() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> PowerGradientConstraint.builder().withNetworkElementId("generator").withMinPowerGradient(100.0).build());
+        assertEquals("The min power gradient must be negative.", exception.getMessage());
+    }
+
+    @Test
+    void buildPowerGradientConstraintNegativeMax() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> PowerGradientConstraint.builder().withNetworkElementId("generator").withMaxPowerGradient(-100.0).build());
+        assertEquals("The max power gradient must be positive.", exception.getMessage());
     }
 }
