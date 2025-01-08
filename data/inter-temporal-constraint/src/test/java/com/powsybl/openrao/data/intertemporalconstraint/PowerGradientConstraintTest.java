@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;

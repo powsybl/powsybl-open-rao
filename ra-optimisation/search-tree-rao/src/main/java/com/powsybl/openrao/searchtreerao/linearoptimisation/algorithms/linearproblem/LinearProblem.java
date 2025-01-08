@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.intertemporalconstraint.PowerGradientConstraint;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -486,9 +487,12 @@ public final class LinearProblem {
         return solver.getConstraint(generatorPowerConstraintId(generatorId, timestamp));
     }
 
-    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(String generatorId, double minPowerGradient, double maxPowerGradient, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
+    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(PowerGradientConstraint powerGradientConstraint, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
         double timeGap = previousTimestamp.until(currentTimestamp, ChronoUnit.HOURS);
-        return solver.makeConstraint(timeGap * minPowerGradient, timeGap * maxPowerGradient, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
+        double lb = powerGradientConstraint.getMinPowerGradient().isPresent() ? powerGradientConstraint.getMinPowerGradient().get() * timeGap : -infinity();
+        double ub = powerGradientConstraint.getMaxPowerGradient().isPresent() ? powerGradientConstraint.getMaxPowerGradient().get() * timeGap : infinity();
+        String generatorId = powerGradientConstraint.getNetworkElementId();
+        return solver.makeConstraint(lb, ub, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
     }
 
     public OpenRaoMPConstraint getGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {

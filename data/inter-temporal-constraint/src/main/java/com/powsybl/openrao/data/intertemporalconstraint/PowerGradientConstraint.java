@@ -18,7 +18,7 @@ import java.util.Optional;
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class PowerGradientConstraint {
+public final class PowerGradientConstraint {
     private final String networkElementId;
     private final Double minPowerGradient;
     private final Double maxPowerGradient;
@@ -45,7 +45,7 @@ public class PowerGradientConstraint {
         return new PowerGradientConstraintBuilder();
     }
 
-    static public class PowerGradientConstraintBuilder {
+    public static final class PowerGradientConstraintBuilder {
         private String networkElementId;
         private Double minPowerGradient;
         private Double maxPowerGradient;
