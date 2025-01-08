@@ -54,6 +54,9 @@ public class SystematicSensitivityResult {
         private Map<String, Map<String, Map<TwoSides, Double>>> getIntensitySensitivities() {
             return intensitySensitivities;
         }
+        private boolean isEmpty(){
+            return referenceFlows.isEmpty() && referenceIntensities.isEmpty() && flowSensitivities.isEmpty() && intensitySensitivities.isEmpty();
+        }
     }
 
     public enum SensitivityComputationStatus {
@@ -101,7 +104,7 @@ public class SystematicSensitivityResult {
         if (!results.getPreContingencyValues().isEmpty()) {
             nStateResult.status = this.status;
         }
-        if (nStateResult.status != SensitivityComputationStatus.FAILURE && anyContingencyFailure) {
+        if (nStateResult.status != SensitivityComputationStatus.FAILURE && anyContingencyFailure && !nStateResult.isEmpty() ) {
             this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
         }
         return this;
