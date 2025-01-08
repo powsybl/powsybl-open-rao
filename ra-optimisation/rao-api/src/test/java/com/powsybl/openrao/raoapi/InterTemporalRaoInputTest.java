@@ -42,7 +42,7 @@ class InterTemporalRaoInputTest {
         timestamp2 = OffsetDateTime.of(2024, 12, 10, 17, 21, 0, 0, ZoneOffset.UTC);
         timestamp3 = OffsetDateTime.of(2024, 12, 10, 18, 21, 0, 0, ZoneOffset.UTC);
         temporalData = new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3));
-        powerGradientConstraints = Set.of(new PowerGradientConstraint("generator-1", 200, VariationDirection.UP), new PowerGradientConstraint("generator-2", 50, VariationDirection.DOWN));
+        powerGradientConstraints = Set.of(PowerGradientConstraint.builder().withNetworkElementId("generator-1").withMaxPowerGradient(200.0).build(), PowerGradientConstraint.builder().withNetworkElementId("generator-2").withMinPowerGradient(-50.0).build());
     }
 
     @Test

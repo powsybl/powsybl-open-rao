@@ -8,7 +8,8 @@
 package com.powsybl.openrao.data.intertemporalconstraint;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
+
+import java.util.Optional;
 
 /**
  * Power Gradient Constraint that applies on a generator or a load.
@@ -17,11 +18,67 @@ import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record PowerGradientConstraint(String networkElementId, double powerGradient,
-                                      VariationDirection variationDirection) {
-    public PowerGradientConstraint {
-        if (powerGradient < 0) {
-            throw new OpenRaoException("powerGradient must be a positive value. For a decreasing variation, use VariationDirection.DOWN as the third parameter of the constructor.");
+public class PowerGradientConstraint {
+    private final String networkElementId;
+    private final Double minPowerGradient;
+    private final Double maxPowerGradient;
+
+    private PowerGradientConstraint(String networkElementId, Double minPowerGradient, Double maxPowerGradient) {
+        this.networkElementId = networkElementId;
+        this.minPowerGradient = minPowerGradient;
+        this.maxPowerGradient = maxPowerGradient;
+    }
+
+    public String getNetworkElementId() {
+        return networkElementId;
+    }
+
+    public Optional<Double> getMinPowerGradient() {
+        return Optional.ofNullable(minPowerGradient);
+    }
+
+    public Optional<Double> getMaxPowerGradient() {
+        return Optional.ofNullable(maxPowerGradient);
+    }
+
+    public static PowerGradientConstraintBuilder builder() {
+        return new PowerGradientConstraintBuilder();
+    }
+
+    static public class PowerGradientConstraintBuilder {
+        private String networkElementId;
+        private Double minPowerGradient;
+        private Double maxPowerGradient;
+
+        private PowerGradientConstraintBuilder() {
+        }
+
+        public PowerGradientConstraintBuilder withNetworkElementId(String networkElementId) {
+            this.networkElementId = networkElementId;
+            return this;
+        }
+
+        public PowerGradientConstraintBuilder withMinPowerGradient(Double minPowerGradient) {
+            this.minPowerGradient = minPowerGradient;
+            return this;
+        }
+
+        public PowerGradientConstraintBuilder withMaxPowerGradient(Double maxPowerGradient) {
+            this.maxPowerGradient = maxPowerGradient;
+            return this;
+        }
+
+        public PowerGradientConstraint build() {
+            if (networkElementId == null) {
+                throw new OpenRaoException("The network element id of the gradient constraint must be provided.");
+            }
+            if (minPowerGradient == null && maxPowerGradient == null) {
+                throw new OpenRaoException("At least one min or max power gradient value must be provided.");
+            }
+            if (minPowerGradient != null && maxPowerGradient != null && minPowerGradient > maxPowerGradient) {
+                throw new OpenRaoException("The min power gradient must be lower than the max power gradient.");
+            }
+            return new PowerGradientConstraint(networkElementId, minPowerGradient, maxPowerGradient);
         }
     }
 }
