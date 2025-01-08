@@ -12,9 +12,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import java.util.Optional;
 
 /**
- * Power Gradient Constraint that applies on a generator or a load.
- * It is always positive and represents the rate of change of the set-point (in MW/hour) and
- * can apply either for upward or downward variation.
+ * Power Gradient (in MW/hour) that applies on a generator or a load.
+ * It has a negative minimum value and/or a positive maximum value.
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
