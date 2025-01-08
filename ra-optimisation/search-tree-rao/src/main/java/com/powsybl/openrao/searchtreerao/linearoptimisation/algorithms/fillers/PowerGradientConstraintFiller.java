@@ -15,7 +15,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
-import com.powsybl.openrao.data.intertemporalconstraint.PowerGradientConstraint;
+import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -61,7 +61,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
         }
     }
 
-    private static void addPowerGradientConstraint(LinearProblem linearProblem, PowerGradientConstraint constraint, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, OpenRaoMPVariable generatorPowerVariable) {
+    private static void addPowerGradientConstraint(LinearProblem linearProblem, PowerGradient constraint, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, OpenRaoMPVariable generatorPowerVariable) {
         OpenRaoMPVariable previousGeneratorPowerVariable = linearProblem.addGeneratorPowerVariable(constraint.getNetworkElementId(), previousTimestamp);
         OpenRaoMPConstraint generatorPowerGradientConstraint = linearProblem.addGeneratorPowerGradientConstraint(constraint, currentTimestamp, previousTimestamp);
         generatorPowerGradientConstraint.setCoefficient(generatorPowerVariable, 1.0);

@@ -8,7 +8,7 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.intertemporalconstraint.PowerGradientConstraint;
+import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -21,16 +21,16 @@ import java.util.Set;
 public class InterTemporalRaoInput {
     private final TemporalData<RaoInput> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
-    private final Set<PowerGradientConstraint> powerGradientConstraints;
+    private final Set<PowerGradient> powerGradients;
 
-    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, Set<PowerGradientConstraint> powerGradientConstraints) {
+    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, Set<PowerGradient> powerGradients) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = timestampsToRun;
-        this.powerGradientConstraints = powerGradientConstraints;
+        this.powerGradients = powerGradients;
     }
 
-    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<PowerGradientConstraint> powerGradientConstraints) {
-        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), powerGradientConstraints);
+    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<PowerGradient> powerGradients) {
+        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), powerGradients);
     }
 
     public TemporalData<RaoInput> getRaoInputs() {
@@ -41,7 +41,7 @@ public class InterTemporalRaoInput {
         return timestampsToRun;
     }
 
-    public Set<PowerGradientConstraint> getPowerGradientConstraints() {
-        return powerGradientConstraints;
+    public Set<PowerGradient> getPowerGradientConstraints() {
+        return powerGradients;
     }
 }

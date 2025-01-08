@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.intertemporalconstraint.PowerGradientConstraint;
+import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -487,11 +487,11 @@ public final class LinearProblem {
         return solver.getConstraint(generatorPowerConstraintId(generatorId, timestamp));
     }
 
-    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(PowerGradientConstraint powerGradientConstraint, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
+    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(PowerGradient powerGradient, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
         double timeGap = previousTimestamp.until(currentTimestamp, ChronoUnit.HOURS);
-        double lb = powerGradientConstraint.getMinPowerGradient().isPresent() ? powerGradientConstraint.getMinPowerGradient().get() * timeGap : -infinity();
-        double ub = powerGradientConstraint.getMaxPowerGradient().isPresent() ? powerGradientConstraint.getMaxPowerGradient().get() * timeGap : infinity();
-        String generatorId = powerGradientConstraint.getNetworkElementId();
+        double lb = powerGradient.getMinValue().isPresent() ? powerGradient.getMinValue().get() * timeGap : -infinity();
+        double ub = powerGradient.getMaxValue().isPresent() ? powerGradient.getMaxValue().get() * timeGap : infinity();
+        String generatorId = powerGradient.getNetworkElementId();
         return solver.makeConstraint(lb, ub, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
     }
 

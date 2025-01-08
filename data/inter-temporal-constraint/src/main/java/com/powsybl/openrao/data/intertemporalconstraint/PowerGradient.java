@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.data.intertemporalconstraint;
+
+import com.powsybl.openrao.commons.OpenRaoException;
+
+import java.util.Optional;
+
+/**
+ * Power Gradient Constraint that applies on a generator or a load.
+ * It is always positive and represents the rate of change of the set-point (in MW/hour) and
+ * can apply either for upward or downward variation.
+ *
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
+public final class PowerGradient {
+    private final String networkElementId;
+    private final Double minValue;
+    private final Double maxValue;
+
+    private PowerGradient(String networkElementId, Double minValue, Double maxValue) {
+        this.networkElementId = networkElementId;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+    }
+
+    public String getNetworkElementId() {
+        return networkElementId;
+    }
+
+    public Optional<Double> getMinValue() {
+        return Optional.ofNullable(minValue);
+    }
+
+    public Optional<Double> getMaxValue() {
+        return Optional.ofNullable(maxValue);
+    }
+
+    public static PowerGradientConstraintBuilder builder() {
+        return new PowerGradientConstraintBuilder();
+    }
+
+    public static final class PowerGradientConstraintBuilder {
+        private String networkElementId;
+        private Double minValue;
+        private Double maxValue;
+
+        private PowerGradientConstraintBuilder() {
+        }
+
+        public PowerGradientConstraintBuilder withNetworkElementId(String networkElementId) {
+            this.networkElementId = networkElementId;
+            return this;
+        }
+
+        public PowerGradientConstraintBuilder withMinValue(Double minPowerGradient) {
+            this.minValue = minPowerGradient;
+            return this;
+        }
+
+        public PowerGradientConstraintBuilder withMaxValue(Double maxPowerGradient) {
+            this.maxValue = maxPowerGradient;
+            return this;
+        }
+
+        public PowerGradient build() {
+            if (networkElementId == null) {
+                throw new OpenRaoException("No network element id provided.");
+            }
+            if (minValue == null && maxValue == null) {
+                throw new OpenRaoException("At least one of min or max power gradient's value must be provided.");
+            }
+            if (minValue != null && minValue > 0) {
+                throw new OpenRaoException("The min value of the power gradient must be negative.");
+            }
+            if (maxValue != null && maxValue < 0) {
+                throw new OpenRaoException("The max value of the power gradient must be positive.");
+            }
+            return new PowerGradient(networkElementId, minValue, maxValue);
+        }
+    }
+}
