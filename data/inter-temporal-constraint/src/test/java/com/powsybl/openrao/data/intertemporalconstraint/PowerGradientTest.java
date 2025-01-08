@@ -22,36 +22,36 @@ import java.util.Optional;
 class PowerGradientTest {
     @Test
     void buildExhaustivePowerGradientConstraint() {
-        PowerGradient pgc = PowerGradient.builder()
+        PowerGradient powerGradient = PowerGradient.builder()
             .withNetworkElementId("generator")
             .withMinValue(-100.0)
             .withMaxValue(100.0)
             .build();
-        assertEquals("generator", pgc.getNetworkElementId());
-        assertEquals(Optional.of(-100.0), pgc.getMinValue());
-        assertEquals(Optional.of(100.0), pgc.getMaxValue());
+        assertEquals("generator", powerGradient.getNetworkElementId());
+        assertEquals(Optional.of(-100.0), powerGradient.getMinValue());
+        assertEquals(Optional.of(100.0), powerGradient.getMaxValue());
     }
 
     @Test
     void buildPowerGradientConstraintWithoutMin() {
-        PowerGradient pgc = PowerGradient.builder()
+        PowerGradient powerGradient = PowerGradient.builder()
             .withNetworkElementId("generator")
             .withMaxValue(100.0)
             .build();
-        assertEquals("generator", pgc.getNetworkElementId());
-        assertTrue(pgc.getMinValue().isEmpty());
-        assertEquals(Optional.of(100.0), pgc.getMaxValue());
+        assertEquals("generator", powerGradient.getNetworkElementId());
+        assertTrue(powerGradient.getMinValue().isEmpty());
+        assertEquals(Optional.of(100.0), powerGradient.getMaxValue());
     }
 
     @Test
     void buildPowerGradientConstraintWithoutMax() {
-        PowerGradient pgc = PowerGradient.builder()
+        PowerGradient powerGradient = PowerGradient.builder()
             .withNetworkElementId("generator")
             .withMinValue(-100.0)
             .build();
-        assertEquals("generator", pgc.getNetworkElementId());
-        assertEquals(Optional.of(-100.0), pgc.getMinValue());
-        assertTrue(pgc.getMaxValue().isEmpty());
+        assertEquals("generator", powerGradient.getNetworkElementId());
+        assertEquals(Optional.of(-100.0), powerGradient.getMinValue());
+        assertTrue(powerGradient.getMaxValue().isEmpty());
     }
 
     @Test

@@ -41,29 +41,29 @@ public final class PowerGradient {
         return Optional.ofNullable(maxValue);
     }
 
-    public static PowerGradientConstraintBuilder builder() {
-        return new PowerGradientConstraintBuilder();
+    public static PowerGradientBuilder builder() {
+        return new PowerGradientBuilder();
     }
 
-    public static final class PowerGradientConstraintBuilder {
+    public static final class PowerGradientBuilder {
         private String networkElementId;
         private Double minValue;
         private Double maxValue;
 
-        private PowerGradientConstraintBuilder() {
+        private PowerGradientBuilder() {
         }
 
-        public PowerGradientConstraintBuilder withNetworkElementId(String networkElementId) {
+        public PowerGradientBuilder withNetworkElementId(String networkElementId) {
             this.networkElementId = networkElementId;
             return this;
         }
 
-        public PowerGradientConstraintBuilder withMinValue(Double minPowerGradient) {
+        public PowerGradientBuilder withMinValue(Double minPowerGradient) {
             this.minValue = minPowerGradient;
             return this;
         }
 
-        public PowerGradientConstraintBuilder withMaxValue(Double maxPowerGradient) {
+        public PowerGradientBuilder withMaxValue(Double maxPowerGradient) {
             this.maxValue = maxPowerGradient;
             return this;
         }
