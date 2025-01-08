@@ -19,6 +19,8 @@ import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.*;
@@ -466,6 +468,31 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
         return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeNumVar(-solver.infinity(), solver.infinity(), generatorPowerVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPVariable getGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.getVariable(generatorPowerVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerConstraint(String generatorId, double p0, OffsetDateTime timestamp) {
+        return solver.makeConstraint(p0, p0, generatorPowerConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorPowerConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.getConstraint(generatorPowerConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(String generatorId, double minPowerGradient, double maxPowerGradient, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
+        double timeGap = previousTimestamp.until(currentTimestamp, ChronoUnit.HOURS);
+        return solver.makeConstraint(timeGap * minPowerGradient, timeGap * maxPowerGradient, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
+        return solver.getConstraint(generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
     }
 
     public double infinity() {
