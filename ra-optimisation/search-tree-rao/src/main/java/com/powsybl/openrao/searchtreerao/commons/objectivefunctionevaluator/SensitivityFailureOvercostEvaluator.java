@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
-import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.AbsoluteCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import org.apache.commons.lang3.tuple.Pair;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +23,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     private final double sensitivityFailureOvercost;
@@ -39,29 +40,17 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         if (flowResult.getComputationStatus() == ComputationStatus.FAILURE) {
             TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
-            return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
+            return new AbsoluteCostEvaluatorResult(sensitivityFailureOvercost);
         }
         for (State state : states) {
-            Optional<Contingency> contingency = state.getContingency();
-            if ((state.getContingency().isEmpty() || contingency.isPresent()) &&
-                flowResult.getComputationStatus(state) == ComputationStatus.FAILURE) {
+            if (flowResult.getComputationStatus(state) == ComputationStatus.FAILURE) {
                 TECHNICAL_LOGS.info(String.format("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost));
-                return Pair.of(sensitivityFailureOvercost, new ArrayList<>());
+                return new AbsoluteCostEvaluatorResult(sensitivityFailureOvercost);
             }
         }
-        return Pair.of(0., new ArrayList<>());
-    }
-
-    @Override
-    public Unit getUnit() {
-        return Unit.MEGAWATT;
-    }
-
-    @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return Collections.emptySet();
+        return new AbsoluteCostEvaluatorResult(0.0);
     }
 }

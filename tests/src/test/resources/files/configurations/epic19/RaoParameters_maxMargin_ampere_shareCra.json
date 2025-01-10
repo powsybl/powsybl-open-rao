@@ -38,7 +38,7 @@
     "curative-leaves-in-parallel" : 1
   },
   "second-preventive-rao" : {
-    "execution-condition" : "DISABLED",
+    "execution-condition" : "COST_INCREASE",
     "re-optimize-curative-range-actions" : false,
     "hint-from-first-preventive-rao" : false
   },

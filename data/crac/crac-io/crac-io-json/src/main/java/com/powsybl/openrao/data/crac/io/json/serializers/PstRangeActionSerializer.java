@@ -16,6 +16,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Optional;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeActivationCost;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeVariationCosts;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -27,6 +30,8 @@ public class PstRangeActionSerializer extends AbstractJsonSerializer<PstRangeAct
         gen.writeStringField(JsonSerializationConstants.ID, value.getId());
         gen.writeStringField(JsonSerializationConstants.NAME, value.getName());
         gen.writeStringField(JsonSerializationConstants.OPERATOR, value.getOperator());
+        serializeActivationCost(value, gen);
+        serializeVariationCosts(value, gen);
         UsageRulesSerializer.serializeUsageRules(value, gen);
         gen.writeStringField(JsonSerializationConstants.NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
         Optional<String> groupId = value.getGroupId();
