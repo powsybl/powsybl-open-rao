@@ -112,4 +112,7 @@ Feature: US 19.6: handle maximum number of TSOs using RAs in curative optimizati
     Given crac file is "epic19/SL_ep19us6case10.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then the execution details should be "First preventive fell back to initial situation"
+    Then 3 remedial actions are used in preventive
+    And the remedial action "open_be1_be4" is used in preventive
+    And the remedial action "open_fr1_fr2" is used in preventive
+    And the tap of PstRangeAction "pst_be" should be -15 in preventive
