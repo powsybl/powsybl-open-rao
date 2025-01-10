@@ -32,9 +32,15 @@ public class ObjectiveFunctionParameters {
     public enum ObjectiveFunctionType {
         SECURE_FLOW,
         MAX_MIN_MARGIN,
-        MAX_MIN_RELATIVE_MARGIN;
+        MAX_MIN_RELATIVE_MARGIN,
+        MIN_COST;
+
         public boolean relativePositiveMargins() {
             return this.equals(MAX_MIN_RELATIVE_MARGIN);
+        }
+
+        public boolean costOptimization() {
+            return this.equals(MIN_COST);
         }
     }
 

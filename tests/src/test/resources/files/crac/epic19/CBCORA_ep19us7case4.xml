@@ -111,7 +111,7 @@
       <imaxFactor>1</imaxFactor>
       <imaxType>SEASONAL</imaxType>
       <permanentImaxFactor>1</permanentImaxFactor>
-      <temporaryImaxFactor>1000</temporaryImaxFactor>
+      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>75</minRAMfactor>
       <CNEC>true</CNEC>

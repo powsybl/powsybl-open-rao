@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -104,11 +103,6 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
-    public ObjectiveFunction getObjectiveFunction() {
-        return objectiveFunctionResult.getObjectiveFunction();
-    }
-
-    @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         objectiveFunctionResult.excludeContingencies(contingenciesToExclude);
     }
@@ -169,6 +163,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
+    public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
+        return rangeActionActivationResult.getSetPointVariation(rangeAction, state);
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         return rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
     }
@@ -176,6 +175,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         return rangeActionActivationResult.getOptimizedTapsOnState(state);
+    }
+
+    @Override
+    public int getTapVariation(PstRangeAction pstRangeAction, State state) {
+        return rangeActionActivationResult.getTapVariation(pstRangeAction, state);
     }
 
     @Override

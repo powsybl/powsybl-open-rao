@@ -57,16 +57,16 @@ class MnecViolationCostEvaluatorTest {
         currentFlowResult = Mockito.mock(FlowResult.class);
 
         evaluator1 = new MnecViolationCostEvaluator(
-                Set.of(mnec1, pureCnec),
-                Unit.MEGAWATT,
-                initialFlowResult,
-                50, 10
+            Set.of(mnec1, pureCnec),
+            Unit.MEGAWATT,
+            initialFlowResult,
+            50, 10
         );
         evaluator2 = new MnecViolationCostEvaluator(
-                Set.of(mnec1, pureCnec),
-                Unit.MEGAWATT,
-                initialFlowResult,
-                20, 2
+            Set.of(mnec1, pureCnec),
+            Unit.MEGAWATT,
+            initialFlowResult,
+            20, 2
         );
     }
 
@@ -77,16 +77,11 @@ class MnecViolationCostEvaluatorTest {
         when(currentFlowResult.getMargin(mnec2, unit)).thenReturn(-400.);
 
         return new MnecViolationCostEvaluator(
-                Set.of(mnec1, mnec2, pureCnec),
-                unit,
-                initialFlowResult,
-                50, violationCost
+            Set.of(mnec1, mnec2, pureCnec),
+            unit,
+            initialFlowResult,
+            50, violationCost
         );
-    }
-
-    @Test
-    void getUnit() {
-        assertEquals(Unit.MEGAWATT, evaluator1.getUnit());
     }
 
     @Test
@@ -95,20 +90,13 @@ class MnecViolationCostEvaluatorTest {
     }
 
     @Test
-    void getCostlyElements() {
+    void getElementsInViolation() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.MEGAWATT);
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult).getRight();
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));
-    }
-
-    @Test
-    void computeCostWithTooLowCost() {
-        MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10, Unit.MEGAWATT);
-
-        assertEquals(0, evaluator.computeCostAndLimitingElements(currentFlowResult).getLeft(), 1e-12);
     }
 
     @Test
@@ -132,15 +120,15 @@ class MnecViolationCostEvaluatorTest {
         when(currentFlowResult.getMargin(mnec1, Unit.MEGAWATT)).thenReturn(newMargin);
 
         assertEquals(
-                expectedCostWithEval1,
-                evaluator1.computeCostAndLimitingElements(currentFlowResult).getLeft(),
-                DOUBLE_TOLERANCE
+            expectedCostWithEval1,
+            evaluator1.evaluate(currentFlowResult, null).getCost(Set.of()),
+            DOUBLE_TOLERANCE
         );
 
         assertEquals(
-                expectedCostWithEval2,
-                evaluator2.computeCostAndLimitingElements(currentFlowResult).getLeft(),
-                DOUBLE_TOLERANCE
+            expectedCostWithEval2,
+            evaluator2.evaluate(currentFlowResult, null).getCost(Set.of()),
+            DOUBLE_TOLERANCE
         );
     }
 
@@ -148,11 +136,9 @@ class MnecViolationCostEvaluatorTest {
     void testAmperes() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.AMPERE);
 
-        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult).getRight();
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));
-
-        assertEquals(Unit.AMPERE, evaluator.getUnit());
     }
 }
