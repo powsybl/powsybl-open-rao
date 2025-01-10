@@ -28,7 +28,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
     @Override
     public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInput raoInput, RaoParameters parameters) {
-        TemporalData<RaoResult> raoResults = raoInput.getRaoInputs().map(individualRapInput -> Rao.run(individualRapInput, parameters));
+        TemporalData<RaoResult> raoResults = raoInput.getRaoInputs().map(individualRaoInput -> Rao.run(individualRaoInput, parameters));
         return CompletableFuture.completedFuture(raoResults);
     }
 
