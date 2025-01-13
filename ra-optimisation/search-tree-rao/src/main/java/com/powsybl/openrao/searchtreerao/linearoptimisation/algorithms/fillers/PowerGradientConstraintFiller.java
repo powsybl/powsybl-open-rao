@@ -62,7 +62,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
     }
 
     private static void addPowerGradientConstraint(LinearProblem linearProblem, PowerGradient constraint, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, OpenRaoMPVariable generatorPowerVariable) {
-        OpenRaoMPVariable previousGeneratorPowerVariable = linearProblem.addGeneratorPowerVariable(constraint.getNetworkElementId(), previousTimestamp);
+        OpenRaoMPVariable previousGeneratorPowerVariable = linearProblem.getGeneratorPowerVariable(constraint.getNetworkElementId(), previousTimestamp);
         OpenRaoMPConstraint generatorPowerGradientConstraint = linearProblem.addGeneratorPowerGradientConstraint(constraint, currentTimestamp, previousTimestamp);
         generatorPowerGradientConstraint.setCoefficient(generatorPowerVariable, 1.0);
         generatorPowerGradientConstraint.setCoefficient(previousGeneratorPowerVariable, -1.0);

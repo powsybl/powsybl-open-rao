@@ -22,7 +22,7 @@ public final class PowerGradient {
     private final Double minValue;
     private final Double maxValue;
 
-    private PowerGradient(String networkElementId, Double minValue, Double maxValue) {
+    public PowerGradient(String networkElementId, Double minValue, Double maxValue) {
         this.networkElementId = networkElementId;
         this.minValue = minValue;
         this.maxValue = maxValue;
