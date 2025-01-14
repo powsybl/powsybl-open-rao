@@ -66,8 +66,8 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
 - **Default value**: 0.01
 - **Usage**: the pst-ra-min-impact-threshold represents the cost of changing the PST set-points, it is used within the linear
   optimisation problem of the RAO, where, for each PST, the following term is added to the objective function: 
-  *pst-ra-min-impact-threshold $$\times |\alpha - \alpha_{0}|$$*, where *$$\alpha$$* is the optimized angle of the PST, and 
-  *$$\alpha_{0}$$* the angle in its initial position.  
+  $pst\text{-}ra\text{-}min\text{-}impact\text{-}threshold \times |\alpha - \alpha_{0}|$, where $\alpha$ is the optimized angle of the PST, and 
+  $\alpha_{0}$ the angle in its initial position.  
   If several solutions are equivalent (e.g. with the same min margin), a strictly positive pst-ra-min-impact-threshold will favour
   the ones with the PST taps the closest to the initial situation.  
 
@@ -76,7 +76,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
 - **Default value**: 0.001
 - **Usage**: the hvdc-ra-min-impact-threshold represents the cost of changing the HVDC set-points, it is used within the linear
   optimisation problem of the RAO, where, for each HVDC, the following term is added to the objective function: 
-  *hvdc-ra-min-impact-threshold x |P - P0|*, where *P* is the optimized target power of the HVDC, and *P0* the initial target
+  $hvdc\text{-}ra\text{-}min\text{-}impact\text{-}threshold \times |P - P_{0}|$, where $P$ is the optimized target power of the HVDC, and $P_{0}$ the initial target
   power.  
   If several solutions are equivalent (e.g. with the same min margin), a strictly positive hvdc-ra-min-impact-threshold will favour
   the ones with the HVDC set-points the closest to the initial situation.
@@ -106,7 +106,7 @@ when searching for the best network actions.
 - **Default value**: 0.0
 - **Usage**: behaves like [absolute-minimum-impact-threshold](#absolute-minimum-impact-threshold), but the
   threshold here is defined as a coefficient of the objective function value of the previous depth. In depth (n+1), if a
-  topological action improves the objective function by x, with x < solution(depth(n)) x relative-minimum-impact-threshold, 
+  topological action improves the objective function by $x$, with $x < solution(depth(n)) \times relative\text{-}minimum\text{-}impact\text{-}threshold$, 
   it will not be retained by the search-tree.
 
 ### CNECs that should not be optimised
