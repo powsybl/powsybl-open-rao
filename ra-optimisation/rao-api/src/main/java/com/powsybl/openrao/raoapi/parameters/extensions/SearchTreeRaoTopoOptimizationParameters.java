@@ -22,8 +22,9 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  * Topological actions optimization parameters for RAO
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public class TopoOptimizationParameters {
+public class SearchTreeRaoTopoOptimizationParameters {
     // Default values
     private static final int DEFAULT_MAX_SEARCH_TREE_DEPTH = Integer.MAX_VALUE;
     private static final List<List<String>> DEFAULT_PREDEFINED_COMBINATIONS = new ArrayList<>();
@@ -90,9 +91,9 @@ public class TopoOptimizationParameters {
         return predefinedCombinations;
     }
 
-    public static TopoOptimizationParameters load(PlatformConfig platformConfig) {
+    public static SearchTreeRaoTopoOptimizationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        TopoOptimizationParameters parameters = new TopoOptimizationParameters();
+        SearchTreeRaoTopoOptimizationParameters parameters = new SearchTreeRaoTopoOptimizationParameters();
         platformConfig.getOptionalModuleConfig(ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setMaxPreventiveSearchTreeDepth(config.getIntProperty(MAX_PREVENTIVE_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));

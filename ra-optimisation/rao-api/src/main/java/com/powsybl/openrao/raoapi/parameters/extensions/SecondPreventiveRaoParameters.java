@@ -17,6 +17,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  * Second preventive parameters for RAO
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
 public class SecondPreventiveRaoParameters {
     private static final ExecutionCondition DEFAULT_EXECUTION_CONDITION = ExecutionCondition.DISABLED;

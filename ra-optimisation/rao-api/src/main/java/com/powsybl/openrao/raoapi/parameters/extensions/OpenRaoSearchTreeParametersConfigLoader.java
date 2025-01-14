@@ -34,9 +34,9 @@ public class OpenRaoSearchTreeParametersConfigLoader implements RaoParameters.Co
             return null;
         }
         OpenRaoSearchTreeParameters parameters = new OpenRaoSearchTreeParameters();
-        parameters.setObjectiveFunctionParameters(ObjectiveFunctionParameters.load(platformConfig));
-        parameters.setRangeActionsOptimizationParameters(RangeActionsOptimizationParameters.load(platformConfig));
-        parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig));
+        parameters.setObjectiveFunctionParameters(SearchTreeRaoObjectiveFunctionParameters.load(platformConfig));
+        parameters.setRangeActionsOptimizationParameters(SearchTreeRaoRangeActionsOptimizationParameters.load(platformConfig));
+        parameters.setTopoOptimizationParameters(SearchTreeRaoTopoOptimizationParameters.load(platformConfig));
         parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
         parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
         parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));

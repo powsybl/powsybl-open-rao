@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 import java.nio.file.FileSystem;
 import java.util.*;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.ObjectiveFunctionParameters.getCurativeMinObjImprovement;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.getCurativeMinObjImprovement;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 
@@ -74,17 +74,17 @@ class RaoParametersConfigTest {
         linearOptimizationSolverModuleConfig.setStringProperty("solver-specific-parameters", "blabla");
         RaoParameters parameters = RaoParameters.load(platformCfg);
         RangeActionsOptimizationParameters params = parameters.getRangeActionsOptimizationParameters();
-        com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        SearchTreeRaoRangeActionsOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
         assertEquals(4, paramsExt.getMaxMipIterations(), DOUBLE_TOLERANCE);
         assertEquals(44, params.getPstRAMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(7, paramsExt.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, paramsExt.getPstModel());
-        assertEquals(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, paramsExt.getRaRangeShrinking());
+        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, paramsExt.getPstModel());
+        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.DISABLED, paramsExt.getRaRangeShrinking());
         assertEquals(33, params.getHvdcRAMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(8, paramsExt.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(22, params.getInjectionRAMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(9, paramsExt.getInjectionRaSensitivityThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.Solver.XPRESS, paramsExt.getLinearOptimizationSolver().getSolver());
+        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS, paramsExt.getLinearOptimizationSolver().getSolver());
         assertEquals(22, paramsExt.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
         assertEquals("blabla", paramsExt.getLinearOptimizationSolver().getSolverSpecificParameters());
     }
@@ -103,7 +103,7 @@ class RaoParametersConfigTest {
         topoActionsModuleConfigExt.setStringProperty("max-number-of-boundaries-for-skipping-actions", Objects.toString(3333));
         RaoParameters parameters = RaoParameters.load(platformCfg);
         TopoOptimizationParameters params = parameters.getTopoOptimizationParameters();
-        com.powsybl.openrao.raoapi.parameters.extensions.TopoOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
+        SearchTreeRaoTopoOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
         assertEquals(3, paramsExt.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(2, paramsExt.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(3, paramsExt.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);

@@ -13,24 +13,27 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
+/**
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
+ */
 public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters> {
-    private ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
-    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
-    private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
+    private SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters = new SearchTreeRaoObjectiveFunctionParameters();
+    private SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters = new SearchTreeRaoRangeActionsOptimizationParameters();
+    private SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters = new SearchTreeRaoTopoOptimizationParameters();
     private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
     private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
 
     // Getters and setters
-    public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
+    public void setObjectiveFunctionParameters(SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters) {
         this.objectiveFunctionParameters = objectiveFunctionParameters;
     }
 
-    public void setRangeActionsOptimizationParameters(RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+    public void setRangeActionsOptimizationParameters(SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
         this.rangeActionsOptimizationParameters = rangeActionsOptimizationParameters;
     }
 
-    public void setTopoOptimizationParameters(TopoOptimizationParameters topoOptimizationParameters) {
+    public void setTopoOptimizationParameters(SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters) {
         this.topoOptimizationParameters = topoOptimizationParameters;
     }
 
@@ -46,15 +49,15 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         this.loadFlowAndSensitivityParameters = loadFlowAndSensitivityParameters;
     }
 
-    public ObjectiveFunctionParameters getObjectiveFunctionParameters() {
+    public SearchTreeRaoObjectiveFunctionParameters getObjectiveFunctionParameters() {
         return objectiveFunctionParameters;
     }
 
-    public RangeActionsOptimizationParameters getRangeActionsOptimizationParameters() {
+    public SearchTreeRaoRangeActionsOptimizationParameters getRangeActionsOptimizationParameters() {
         return rangeActionsOptimizationParameters;
     }
 
-    public TopoOptimizationParameters getTopoOptimizationParameters() {
+    public SearchTreeRaoTopoOptimizationParameters getTopoOptimizationParameters() {
         return topoOptimizationParameters;
     }
 

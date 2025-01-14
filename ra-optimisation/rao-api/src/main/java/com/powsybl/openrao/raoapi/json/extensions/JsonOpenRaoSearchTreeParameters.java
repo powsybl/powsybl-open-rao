@@ -22,6 +22,9 @@ import java.io.IOException;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
+/**
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
+ */
 @AutoService(JsonRaoParameters.ExtensionSerializer.class)
 public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.ExtensionSerializer<OpenRaoSearchTreeParameters> {
     @Override

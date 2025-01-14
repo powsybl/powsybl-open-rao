@@ -17,6 +17,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  * Multi-threading optimization parameters for RAO
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
 public class MultithreadingParameters {
     private static final int DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL = 1;

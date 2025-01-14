@@ -7,13 +7,13 @@
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.*;
-import static com.powsybl.openrao.raoapi.parameters.extensions.ObjectiveFunctionParameters.getCurativeMinObjImprovement;
-import static com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.getRaRangeShrinking;
-import static com.powsybl.openrao.raoapi.parameters.extensions.TopoOptimizationParameters.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.getCurativeMinObjImprovement;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getRaRangeShrinking;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.*;
 
 /**
  * This class contains internal Open RAO parameters used in the SearchTree algorithm.
@@ -31,9 +31,9 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
     }
 
     public static TreeParameters buildForPreventivePerimeter(RaoParameters parameters) {
-        RangeActionsOptimizationParameters.RaRangeShrinking raRangeShrinking = getRaRangeShrinking(parameters);
-        boolean shouldShrinkRaRange = raRangeShrinking.equals(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
-            raRangeShrinking.equals(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
+        SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking raRangeShrinking = getRaRangeShrinking(parameters);
+        boolean shouldShrinkRaRange = raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
+            raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         if (parameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW) {
             return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
                 0.0, // secure
@@ -64,9 +64,9 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
                 targetObjectiveValue = Math.min(targetObjectiveValue, 0);
             }
         }
-        RangeActionsOptimizationParameters.RaRangeShrinking raRangeShrinking = getRaRangeShrinking(parameters);
-        boolean shouldShrinkRaRange = raRangeShrinking.equals(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
-            raRangeShrinking.equals(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
+        SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking raRangeShrinking = getRaRangeShrinking(parameters);
+        boolean shouldShrinkRaRange = raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
+            raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
             getMaxPreventiveSearchTreeDepth(parameters),
@@ -75,7 +75,7 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
     }
 
     public static TreeParameters buildForSecondPreventivePerimeter(RaoParameters parameters) {
-        boolean raRangeShrinking = getRaRangeShrinking(parameters).equals(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
+        boolean raRangeShrinking = getRaRangeShrinking(parameters).equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         if (parameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)) {
             return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
                 0.0, // secure

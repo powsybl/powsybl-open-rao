@@ -22,7 +22,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
@@ -37,7 +38,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -51,7 +52,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private final Set<FlowCnec> flowCnecs;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionsOptimizationParameters rangeActionParameters;
-    private final com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
+    private final SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
 
     private final Unit unit;
     private int iteration = 0;
@@ -63,7 +64,7 @@ public class CoreProblemFiller implements ProblemFiller {
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              RangeActionsOptimizationParameters rangeActionParameters,
-                             com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension,
+                             SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
                              Unit unit,
                              boolean raRangeShrinking,
                              PstModel pstModel) {

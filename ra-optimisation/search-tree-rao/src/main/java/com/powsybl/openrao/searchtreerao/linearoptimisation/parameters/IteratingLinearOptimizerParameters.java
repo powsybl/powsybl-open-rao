@@ -11,7 +11,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.LinearOptimizationSolver;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
@@ -26,7 +27,7 @@ public final class IteratingLinearOptimizerParameters {
     private final Unit objectiveFunctionUnit;
 
     private final RangeActionsOptimizationParameters rangeActionParameters;
-    private final com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
+    private final SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
     private final MnecParametersExtension mnecParameters;
     private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
     private final LoopFlowParametersExtension loopFlowParameters;
@@ -40,7 +41,7 @@ public final class IteratingLinearOptimizerParameters {
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                Unit objectiveFunctionUnit,
                                                RangeActionsOptimizationParameters rangeActionParameters,
-                                               com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension,
+                                               SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
                                                MnecParametersExtension mnecParameters,
                                                RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
                                                LoopFlowParametersExtension loopFlowParameters,
@@ -92,7 +93,7 @@ public final class IteratingLinearOptimizerParameters {
         return rangeActionParameters;
     }
 
-    public com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters getRangeActionParametersExtension() {
+    public SearchTreeRaoRangeActionsOptimizationParameters getRangeActionParametersExtension() {
         return rangeActionParametersExtension;
     }
 
@@ -137,7 +138,7 @@ public final class IteratingLinearOptimizerParameters {
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
         private Unit objectiveFunctionUnit;
         private RangeActionsOptimizationParameters rangeActionParameters;
-        private com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
+        private SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
 
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
@@ -163,7 +164,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withRangeActionParametersExtension(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParameters) {
+        public LinearOptimizerParametersBuilder withRangeActionParametersExtension(SearchTreeRaoRangeActionsOptimizationParameters rangeActionParameters) {
             this.rangeActionParametersExtension = rangeActionParameters;
             return this;
         }

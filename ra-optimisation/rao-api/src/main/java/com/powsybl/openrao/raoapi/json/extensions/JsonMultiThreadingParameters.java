@@ -18,6 +18,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
 final class JsonMultiThreadingParameters {
 
