@@ -33,18 +33,18 @@ class InterTemporalPoolTest {
 
     @Test
     void initWithNoSpecifiedThreads() {
-        assertEquals(3, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3)).getCorePoolSize());
+        assertEquals(3, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3)).getParallelism());
     }
 
     @Test
     void initWithLimitedThreads() {
-        assertEquals(2, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2).getCorePoolSize());
+        assertEquals(2, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2).getParallelism());
     }
 
     @Test
     void testRunTemporalTasks() throws InterruptedException {
         InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3));
-        assertEquals(3, pool.getCorePoolSize());
+        assertEquals(3, pool.getParallelism());
 
         TemporalData<String> resultPerTimestamp = pool.runTasks(OffsetDateTime::toString);
 
@@ -53,8 +53,7 @@ class InterTemporalPoolTest {
     }
 
     @Test
-    void testNestedMultiThreads() throws InterruptedException {
-
+    void testNestedPools() throws InterruptedException {
         Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
@@ -63,11 +62,11 @@ class InterTemporalPoolTest {
 
         InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2);
         pool.runTasks(timestamp -> {
-            Set<OffsetDateTime> dateList = new HashSet<>();
+            Set<OffsetDateTime> newDates = new HashSet<>();
             for (int i = 0; i < 10; i++) {
-                dateList.add(timestamp.plusYears(i));
+                newDates.add(timestamp.plusYears(i));
             }
-            InterTemporalPool childPool = new InterTemporalPool(dateList, 3);
+            InterTemporalPool childPool = new InterTemporalPool(newDates, 3);
             try {
                 childPool.runTasks(newTimestamp -> {
                     OpenRaoLoggerProvider.TECHNICAL_LOGS.info(newTimestamp.toString());
@@ -78,20 +77,22 @@ class InterTemporalPoolTest {
             }
             return timestamp;
         });
+
         assertEquals(30, logsList.size());
-        //check that third timestamp is launched only after the first two timestamps finished.
+
+        // check that third timestamp is launched only after the first two timestamps finished.
         Map<Integer, Integer> finishedTasksPerDate = new HashMap<>(Map.of(13, 0, 14, 0, 15, 0));
         Integer firstProcessedDate = null;
         Integer secondProcessedDate = null;
 
         for (ILoggingEvent event : logsList) {
             int date = Integer.parseInt(event.getMessage().substring(8, 10));
-            if (firstProcessedDate == null && secondProcessedDate == null) {
+            if (firstProcessedDate == null) {
                 firstProcessedDate = date;
-            } else if (firstProcessedDate != null && secondProcessedDate == null && date != firstProcessedDate) {
+            } else if (secondProcessedDate == null && date != firstProcessedDate) {
                 secondProcessedDate = date;
             }
-            if (firstProcessedDate != null && secondProcessedDate != null && date != firstProcessedDate && date != secondProcessedDate) {
+            if (secondProcessedDate != null && date != firstProcessedDate && date != secondProcessedDate) {
                 assertTrue(finishedTasksPerDate.get(firstProcessedDate) == 10 || finishedTasksPerDate.get(secondProcessedDate) == 10);
             }
             finishedTasksPerDate.put(date, finishedTasksPerDate.get(date) + 1);
