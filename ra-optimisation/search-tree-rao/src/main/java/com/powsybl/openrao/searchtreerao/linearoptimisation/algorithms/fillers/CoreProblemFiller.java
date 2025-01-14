@@ -249,7 +249,10 @@ public class CoreProblemFiller implements ProblemFiller {
      * Build range action constraints for each RangeAction r.
      * These constraints link the set-point variable of the RangeAction with its
      * variation variables, and bounds the set-point in an admissible range.
-     * S[r] = initialSetPoint[r] + upwardVariation[r] - downwardVariation[r]
+     * S[r,s] = initialSetPoint[r,s] + upwardVariation[r,s] - downwardVariation[r,s]
+     *
+     * If r in an injection action, add contribution of its variation to the global balancing constraint (as defined below and )
+     * sum{r InjectionRangeAction} (upwardVariation[r,s] - downwardVariation[r,s]) x sum{distribution keys of r} = 0
      */
     private void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
