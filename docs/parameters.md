@@ -64,27 +64,27 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
 #### pst-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / ° (per degree)
 - **Default value**: 0.01
-- **Usage**: the pst-penalty-cost represents the cost of changing the PST set-points, it is used within the linear
+- **Usage**: the pst-ra-min-impact-threshold represents the cost of changing the PST set-points, it is used within the linear
   optimisation problem of the RAO, where, for each PST, the following term is added to the objective function: 
-  *pst-penalty-cost $$\times |\alpha - \alpha_{0}|$$*, where *$$\alpha$$* is the optimized angle of the PST, and 
+  *pst-ra-min-impact-threshold $$\times |\alpha - \alpha_{0}|$$*, where *$$\alpha$$* is the optimized angle of the PST, and 
   *$$\alpha_{0}$$* the angle in its initial position.  
-  If several solutions are equivalent (e.g. with the same min margin), a strictly positive pst penalty cost will favour
+  If several solutions are equivalent (e.g. with the same min margin), a strictly positive pst-ra-min-impact-threshold will favour
   the ones with the PST taps the closest to the initial situation.  
 
 #### hvdc-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
-- **Usage**: the hvdc-penalty-cost represents the cost of changing the HVDC set-points, it is used within the linear
+- **Usage**: the hvdc-ra-min-impact-threshold represents the cost of changing the HVDC set-points, it is used within the linear
   optimisation problem of the RAO, where, for each HVDC, the following term is added to the objective function: 
-  *hvdc-penalty-cost x |P - P0|*, where *P* is the optimized target power of the HVDC, and *P0* the initial target
+  *hvdc-ra-min-impact-threshold x |P - P0|*, where *P* is the optimized target power of the HVDC, and *P0* the initial target
   power.  
-  If several solutions are equivalent (e.g. with the same min margin), a strictly positive hvdc penalty cost will favour
+  If several solutions are equivalent (e.g. with the same min margin), a strictly positive hvdc-ra-min-impact-threshold will favour
   the ones with the HVDC set-points the closest to the initial situation.
 
 #### injection-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
-- **Usage**: the injection-ra-penalty-cost represents the cost of changing the injection set-points, it is used within the linear
+- **Usage**: the injection-ra-min-impact-threshold represents the cost of changing the injection set-points, it is used within the linear
   optimisation problem of the RAO, in the same way as the two types of RangeAction above.
 
 ### Network actions optimisation parameters
@@ -140,8 +140,8 @@ These parameters (objective-function) configure the remedial action optimisation
 ##### curative-min-obj-improvement
 - **Expected value**: numeric value, where the unit is that of the objective function
 - **Default value**: 0
-- **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO stop criterion,
-  when it is set to PREVENTIVE_OBJECTIVE or PREVENTIVE_OBJECTIVE_AND_SECURE.
+- **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO objective value,
+  when [type](#type) is set to MAX_MIN_MARGIN or MAX_MIN_RELATIVE_MARGIN.
 
 #### Range actions optimisation parameters
 These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem.md) used to optimise range actions.  
@@ -401,7 +401,7 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
   Then it is used for:
   - number of contingency scenarios (auto + curative instants) to optimise in parallel.  
   - number of combination of remedial actions that the search-tree will investigate in
-    parallel during the <ins>automaton</ins> RAO.
+    parallel during the <ins>preventive</ins> RAO and <ins>automaton</ins> RAO.
   *Note that the more available cpus is configured, the more RAM is required by the RAO, and that the performance
   of the RAO might significantly decrease on a machine with limited memory resources.*
 
