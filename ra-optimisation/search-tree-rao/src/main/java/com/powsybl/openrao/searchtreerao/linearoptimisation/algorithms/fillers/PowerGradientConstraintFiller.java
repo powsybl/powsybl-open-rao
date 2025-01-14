@@ -70,7 +70,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
     }
 
     private static void addPowerConstraint(LinearProblem linearProblem, Set<InjectionRangeAction> preventiveInjectionRangeActions, RaoInput raoInput, String generatorId, OpenRaoMPVariable generatorPowerVariable, OffsetDateTime timestamp) {
-        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, getP0(generatorId, raoInput.getNetwork()), timestamp);
+        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, getInitialPower(generatorId, raoInput.getNetwork()), timestamp);
         generatorPowerConstraint.setCoefficient(generatorPowerVariable, 1.0);
         preventiveInjectionRangeActions.stream()
             .filter(injectionRangeAction -> injectionRangeAction.getInjectionDistributionKeys().keySet().stream().map(NetworkElement::getId).anyMatch(networkElementId -> generatorId.equals(networkElementId)))
@@ -84,7 +84,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
             });
     }
 
-    private static double getP0(String generatorId, Network network) {
+    private static double getInitialPower(String generatorId, Network network) {
         Identifiable<?> networkElement = network.getIdentifiable(generatorId);
         if (networkElement instanceof Generator generator) {
             return generator.getTargetP();

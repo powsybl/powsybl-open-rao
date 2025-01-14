@@ -76,6 +76,7 @@ class PowerGradientConstraintFillerTest {
         PowerGradient powerGradientFFR2AA1 = new PowerGradient("FFR2AA1 _generator", -100.0, 200.0);
         PowerGradient powerGradientFFR3AA1 = new PowerGradient("FFR3AA1 _load", -500.0, 500.0);
 
+        // TODO: use different time gaps between timestamps
         input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), Set.of(powerGradientFFR1AA1, powerGradientFFR3AA1, powerGradientFFR2AA1));
 
         parameters = new RaoParameters();
@@ -159,7 +160,7 @@ class PowerGradientConstraintFillerTest {
         assertNotNull(fr3Timestamp1PowerConstraint); //constraint created even if no injection action defined on this element
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerVariable("FFR4AA1 _load", timestamp1)); //No power gradient constraint but injection range action defined on it
 
-        //check bound
+        // check bound
         assertEquals(500.0, fr1Timestamp1PowerConstraint.ub());
         assertEquals(500.0, fr1Timestamp1PowerConstraint.lb());
         assertEquals(1000.0, fr2Timestamp1PowerConstraint.ub());
@@ -167,7 +168,7 @@ class PowerGradientConstraintFillerTest {
         assertEquals(500.0, fr3Timestamp1PowerConstraint.ub());
         assertEquals(500.0, fr3Timestamp1PowerConstraint.lb());
 
-        //check Coefficient for injection action variable
+        // check coefficient for injection action variable
         assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
         assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
         assertEquals(1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
@@ -183,7 +184,7 @@ class PowerGradientConstraintFillerTest {
         createPowerGradientConstraintFiller();
         buildAndFillLinearProblem();
 
-        // check the power gradient constraint, Expect two gradient constraints per generator
+        // check the power gradient constraint, expect two gradient constraints per generator
         OpenRaoMPConstraint powerGradientConstraintFR1TS12 = linearProblem.getGeneratorPowerGradientConstraint("FFR1AA1 _load", timestamp2, timestamp1);
         assertNotNull(powerGradientConstraintFR1TS12);
         assertEquals(-500.0, powerGradientConstraintFR1TS12.lb());
@@ -209,7 +210,7 @@ class PowerGradientConstraintFillerTest {
         assertEquals(-500.0, powerGradientConstraintFR3TS23.lb());
         assertEquals(500.0, powerGradientConstraintFR3TS23.ub());
 
-        // wrong previous timesteps
+        // wrong previous timestamp
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerGradientConstraint("FFR1AA1 _load", timestamp3, timestamp1));
     }
 

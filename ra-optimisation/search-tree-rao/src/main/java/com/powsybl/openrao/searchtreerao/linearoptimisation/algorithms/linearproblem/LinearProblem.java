@@ -479,8 +479,8 @@ public final class LinearProblem {
         return solver.getVariable(generatorPowerVariableId(generatorId, timestamp));
     }
 
-    public OpenRaoMPConstraint addGeneratorPowerConstraint(String generatorId, double p0, OffsetDateTime timestamp) {
-        return solver.makeConstraint(p0, p0, generatorPowerConstraintId(generatorId, timestamp));
+    public OpenRaoMPConstraint addGeneratorPowerConstraint(String generatorId, double initialPower, OffsetDateTime timestamp) {
+        return solver.makeConstraint(initialPower, initialPower, generatorPowerConstraintId(generatorId, timestamp));
     }
 
     public OpenRaoMPConstraint getGeneratorPowerConstraint(String generatorId, OffsetDateTime timestamp) {
