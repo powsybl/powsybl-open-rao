@@ -32,6 +32,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,7 +99,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            Unit.MEGAWATT, raRangeShrinking, pstModel);
+            Unit.MEGAWATT, raRangeShrinking, pstModel, null);
         buildLinearProblem();
     }
 
@@ -108,36 +109,36 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         State state = cnec1.getState();
 
         // check range action setpoint variable
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state, Optional.empty());
         assertNotNull(setPointVariable);
         assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
 
         // check range action variation variables
-        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
         assertNotNull(upwardVariationVariable);
         assertEquals(0, upwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), upwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
-        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
         assertNotNull(downwardVariationVariable);
         assertEquals(0, downwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), downwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check range action absolute variation variable
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state);
+        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state, Optional.empty());
         assertNotNull(absoluteVariationVariable);
         assertEquals(0, absoluteVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), absoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow variable for cnec1
-        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowVariable);
         assertEquals(-linearProblem.infinity(), flowVariable.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow constraint for cnec1
-        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE);
+        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowConstraint);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * SENSI_CNEC1_IT1, flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * SENSI_CNEC1_IT1, flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -145,15 +146,15 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC1_IT1, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec2 does not exist
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec2, TwoSides.TWO));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty()));
         assertEquals("Variable Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec2 does not exist
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec2, TwoSides.TWO));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty()));
         assertEquals("Constraint Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_constraint has not been created yet", e.getMessage());
 
         // check set-point variation constraint
-        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, state);
+        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, state, Optional.empty());
         assertNotNull(setPointVariationConstraint);
         assertEquals(initialAlpha, setPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(initialAlpha, setPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -162,7 +163,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(1.0, setPointVariationConstraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
 
         // check absolute variation constraints
-        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, state);
+        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, state, Optional.empty());
         assertNotNull(absoluteVariationConstraint);
         assertEquals(0.0, absoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(0.0, absoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -187,36 +188,36 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         State state = cnec1.getState();
 
         // check range action setpoint variable
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state, Optional.empty());
         assertNotNull(setPointVariable);
         assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
 
         // check range action variation variables
-        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
         assertNotNull(upwardVariationVariable);
         assertEquals(0, upwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), upwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
-        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
         assertNotNull(downwardVariationVariable);
         assertEquals(0, downwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), downwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check range action absolute variation variable
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state);
+        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state, Optional.empty());
         assertNotNull(absoluteVariationVariable);
         assertEquals(0, absoluteVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), absoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow variable for cnec1
-        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowVariable);
         assertEquals(-linearProblem.infinity(), flowVariable.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow constraint for cnec1
-        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE);
+        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowConstraint);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * 0, flowConstraint.lb(), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * 0, flowConstraint.ub(), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
@@ -224,15 +225,15 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(0, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
 
         // check flow variable for cnec2 does not exist
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec2, TwoSides.TWO));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty()));
         assertEquals("Variable Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec2 does not exist
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec2, TwoSides.TWO));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty()));
         assertEquals("Constraint Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_constraint has not been created yet", e.getMessage());
 
         // check set-point variation constraint
-        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, state);
+        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, state, Optional.empty());
         assertNotNull(setPointVariationConstraint);
         assertEquals(initialAlpha, setPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(initialAlpha, setPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -241,7 +242,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(1.0, setPointVariationConstraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
 
         // check absolute variation constraints
-        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, state);
+        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, state, Optional.empty());
         assertNotNull(absoluteVariationConstraint);
         assertEquals(0.0, absoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(0.0, absoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -266,44 +267,44 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         State state = cnec2.getState();
 
         // check range action setpoint variable
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state, Optional.empty());
         assertNotNull(setPointVariable);
         assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
 
         // check range action variation variables
-        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
         assertNotNull(upwardVariationVariable);
         assertEquals(0, upwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), upwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
-        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
         assertNotNull(downwardVariationVariable);
         assertEquals(0, downwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), downwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check range action absolute variation variable
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state);
+        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state, Optional.empty());
         assertNotNull(absoluteVariationVariable);
         assertEquals(0, absoluteVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), absoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow variable for cnec1 does not exist
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec1, TwoSides.ONE));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty()));
         assertEquals("Variable Tieline BE FR - N - preventive_one_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec1 does not exist
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec1, TwoSides.ONE));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty()));
         assertEquals("Constraint Tieline BE FR - N - preventive_one_flow_constraint has not been created yet", e.getMessage());
 
         // check flow variable for cnec2
-        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO);
+        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty());
         assertNotNull(flowVariable2);
         assertEquals(-linearProblem.infinity(), flowVariable2.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable2.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow constraint for cnec2
-        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO);
+        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty());
         assertNotNull(flowConstraint2);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.ub(), DOUBLE_TOLERANCE);
@@ -311,7 +312,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC2_IT1, flowConstraint2.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check set-point variation constraint
-        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, state);
+        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, state, Optional.empty());
         assertNotNull(setPointVariationConstraint);
         assertEquals(initialAlpha, setPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(initialAlpha, setPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -320,7 +321,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(1.0, setPointVariationConstraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
 
         // check absolute variation constraints
-        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, state);
+        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, state, Optional.empty());
         assertNotNull(absoluteVariationConstraint);
         assertEquals(0.0, absoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(0.0, absoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -348,64 +349,64 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
         if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
             // check relative setpoint constraint for PRA_PST_BE has not been created in curative.
-            Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, curState, LinearProblem.RaRangeShrinking.FALSE));
+            Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, curState, LinearProblem.RaRangeShrinking.FALSE, Optional.empty()));
             assertEquals("Constraint PRA_PST_BE_N-1 NL1-NL3 - curative_relative_setpoint_constraint has not been created yet", e.getMessage());
         }
 
         // check range action setpoint variable for preventive state
-        OpenRaoMPVariable prevSetPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, prevState);
+        OpenRaoMPVariable prevSetPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, prevState, Optional.empty());
         assertNotNull(prevSetPointVariable);
         assertEquals(minAlpha, prevSetPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, prevSetPointVariable.ub(), DOUBLE_TOLERANCE);
 
         // check range action setpoint variable for curative state
-        OpenRaoMPVariable curSetPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, curState);
+        OpenRaoMPVariable curSetPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, curState, Optional.empty());
         assertNotNull(curSetPointVariable);
         assertEquals(minAlpha, curSetPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, curSetPointVariable.ub(), DOUBLE_TOLERANCE);
 
         // check range action variation variables for preventive state
-        OpenRaoMPVariable prevUpwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable prevUpwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
         assertNotNull(prevUpwardVariationVariable);
         assertEquals(0, prevUpwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), prevUpwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
-        OpenRaoMPVariable prevDownwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable prevDownwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
         assertNotNull(prevDownwardVariationVariable);
         assertEquals(0, prevDownwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), prevDownwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check range action variation variables for curative state
-        OpenRaoMPVariable curUpwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, curState, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable curUpwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, curState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
         assertNotNull(curUpwardVariationVariable);
         assertEquals(0, curUpwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), curUpwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
-        OpenRaoMPVariable curDownwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, curState, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable curDownwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, curState, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
         assertNotNull(curDownwardVariationVariable);
         assertEquals(0, curDownwardVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), curDownwardVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check range action absolute variation variable for preventive state
-        OpenRaoMPVariable prevAbsoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, prevState);
+        OpenRaoMPVariable prevAbsoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, prevState, Optional.empty());
         assertNotNull(prevAbsoluteVariationVariable);
         assertEquals(0, prevAbsoluteVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), prevAbsoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check range action absolute variation variable for curative state
-        OpenRaoMPVariable curAbsoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, curState);
+        OpenRaoMPVariable curAbsoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, curState, Optional.empty());
         assertNotNull(curAbsoluteVariationVariable);
         assertEquals(0, curAbsoluteVariationVariable.lb(), 0.01);
         assertEquals(linearProblem.infinity(), curAbsoluteVariationVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow variable for cnec1
-        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowVariable);
         assertEquals(-linearProblem.infinity(), flowVariable.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow constraint for cnec1
-        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE);
+        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowConstraint);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * SENSI_CNEC1_IT1, flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * SENSI_CNEC1_IT1, flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -413,13 +414,13 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC1_IT1, flowConstraint.getCoefficient(prevSetPointVariable), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec2
-        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO);
+        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty());
         assertNotNull(flowVariable2);
         assertEquals(-linearProblem.infinity(), flowVariable2.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable2.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow constraint for cnec2
-        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO);
+        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty());
         assertNotNull(flowConstraint2);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.ub(), DOUBLE_TOLERANCE);
@@ -427,7 +428,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC2_IT1, flowConstraint2.getCoefficient(curSetPointVariable), DOUBLE_TOLERANCE);
 
         // check set-point variation constraint for preventive state
-        OpenRaoMPConstraint prevSetPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, prevState);
+        OpenRaoMPConstraint prevSetPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, prevState, Optional.empty());
         assertNotNull(prevSetPointVariationConstraint);
         assertEquals(initialAlpha, prevSetPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(initialAlpha, prevSetPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -436,7 +437,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(1.0, prevSetPointVariationConstraint.getCoefficient(prevDownwardVariationVariable), DOUBLE_TOLERANCE);
 
         // check set-point variation constraint for curative state
-        OpenRaoMPConstraint curSetPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, curState);
+        OpenRaoMPConstraint curSetPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(pstRangeAction, curState, Optional.empty());
         assertNotNull(curSetPointVariationConstraint);
         assertEquals(0.0, curSetPointVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(0.0, curSetPointVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -446,7 +447,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-1.0, curSetPointVariationConstraint.getCoefficient(prevSetPointVariable), DOUBLE_TOLERANCE);
 
         // check absolute variation constraints for preventive state
-        OpenRaoMPConstraint prevAbsoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, prevState);
+        OpenRaoMPConstraint prevAbsoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, prevState, Optional.empty());
         assertNotNull(prevAbsoluteVariationConstraint);
         assertEquals(0.0, prevAbsoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(0.0, prevAbsoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -455,7 +456,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-1.0, prevAbsoluteVariationConstraint.getCoefficient(prevDownwardVariationVariable), DOUBLE_TOLERANCE);
 
         // check absolute variation constraints for curative state
-        OpenRaoMPConstraint curAbsoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, curState);
+        OpenRaoMPConstraint curAbsoluteVariationConstraint = linearProblem.getRangeActionAbsoluteVariationConstraint(pstRangeAction, curState, Optional.empty());
         assertNotNull(curAbsoluteVariationConstraint);
         assertEquals(0.0, curAbsoluteVariationConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(0.0, curAbsoluteVariationConstraint.ub(), DOUBLE_TOLERANCE);
@@ -504,16 +505,16 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         // some additional data
         final double currentAlpha = pstRangeAction.convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state, Optional.empty());
 
         // check flow variable for cnec1
-        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
+        OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowVariable);
         assertEquals(-linearProblem.infinity(), flowVariable.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow constraint for cnec1
-        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE);
+        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowConstraint);
         assertEquals(REF_FLOW_CNEC1_IT2 - currentAlpha * SENSI_CNEC1_IT2, flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC1_IT2 - currentAlpha * SENSI_CNEC1_IT2, flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -521,11 +522,11 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC1_IT2, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec2 does not exist
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec2, TwoSides.TWO));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty()));
         assertEquals("Variable Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec2 does not exist
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec2, TwoSides.TWO));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty()));
         assertEquals("Constraint Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_constraint has not been created yet", e.getMessage());
 
         // check the number of variables and constraints
@@ -546,8 +547,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         initialize(Set.of(cnec1), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), true, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         State state = cnec1.getState();
 
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE));
-        assertEquals("Constraint PRA_PST_BE_preventive_relative_setpoint_iterative-shrinkconstraint has not been created yet", e.getMessage());
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE, Optional.empty()));
+        assertEquals("Constraint PRA_PST_BE_preventive_relative_setpoint_iterative-shrink_constraint has not been created yet", e.getMessage());
 
         // 1st update
         updateLinearProblem();
@@ -555,8 +556,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(5, linearProblem.numVariables());
         assertEquals(4, linearProblem.numConstraints());
 
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
-        OpenRaoMPConstraint shrinkingConstraint = linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state, Optional.empty());
+        OpenRaoMPConstraint shrinkingConstraint = linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE, Optional.empty());
         assertNotNull(shrinkingConstraint);
         assertEquals(1, shrinkingConstraint.getCoefficient(setPointVariable));
         assertEquals(-10.5161, shrinkingConstraint.lb(), DOUBLE_TOLERANCE);
@@ -568,8 +569,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(5, linearProblem.numVariables());
         assertEquals(4, linearProblem.numConstraints());
 
-        setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
-        shrinkingConstraint = linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
+        setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state, Optional.empty());
+        shrinkingConstraint = linearProblem.getRangeActionRelativeSetpointConstraint(pstRangeAction, state, LinearProblem.RaRangeShrinking.TRUE, Optional.empty());
         assertNotNull(shrinkingConstraint);
         assertEquals(1, shrinkingConstraint.getCoefficient(setPointVariable));
         assertEquals(-7.9222, shrinkingConstraint.lb(), DOUBLE_TOLERANCE);
@@ -586,24 +587,24 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         // some additional data
         final double currentAlpha = pstRangeAction.convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state, Optional.empty());
 
         // check flow variable for cnec1 does not exist
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec1, TwoSides.ONE));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty()));
         assertEquals("Variable Tieline BE FR - N - preventive_one_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec1 does not exist
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec1, TwoSides.ONE));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty()));
         assertEquals("Constraint Tieline BE FR - N - preventive_one_flow_constraint has not been created yet", e.getMessage());
 
         // check flow variable for cnec2
-        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO);
+        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty());
         assertNotNull(flowVariable2);
         assertEquals(-linearProblem.infinity(), flowVariable2.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable2.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow constraint for cnec2
-        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO);
+        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty());
         assertNotNull(flowConstraint2);
         assertEquals(REF_FLOW_CNEC2_IT2 - currentAlpha * SENSI_CNEC2_IT2, flowConstraint2.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC2_IT2 - currentAlpha * SENSI_CNEC2_IT2, flowConstraint2.ub(), DOUBLE_TOLERANCE);
@@ -634,8 +635,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         // (sensi = 2) < 2.5 should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
         initialize(Set.of(cnec1), 2.5, 2.5, 2.5, crac.getPreventiveState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
-        flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE);
-        rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
+        flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty());
+        rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState(), Optional.empty());
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -651,8 +652,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         // (sensi = 2) > 1/.5 should not be filtered
         when(flowResult.getMargin(cnec1, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-1.0);
         initialize(Set.of(cnec1), 1.5, 1.5, 1.5, crac.getPreventiveState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
-        flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE);
-        rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
+        flowConstraint = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty());
+        rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState(), Optional.empty());
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -666,24 +667,24 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         when(sensitivityResult.getSensitivityStatus(cnec2.getState())).thenReturn(ComputationStatus.DEFAULT);
         initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, cnec1.getState(), false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
 
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec2.getState());
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec2.getState(), Optional.empty());
 
         // check flow variable for cnec1 does not exist
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec1, TwoSides.ONE));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty()));
         assertEquals("Variable Tieline BE FR - N - preventive_one_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec1 does not exist
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec1, TwoSides.ONE));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty()));
         assertEquals("Constraint Tieline BE FR - N - preventive_one_flow_constraint has not been created yet", e.getMessage());
 
         // check flow variable for cnec2
-        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO);
+        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty());
         assertNotNull(flowVariable2);
         assertEquals(-linearProblem.infinity(), flowVariable2.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable2.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow constraint for cnec2
-        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO);
+        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty());
         assertNotNull(flowConstraint2);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.ub(), DOUBLE_TOLERANCE);
@@ -701,25 +702,25 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
         updateLinearProblem();
 
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec2.getState());
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec2.getState(), Optional.empty());
 
         // check flow variable for cnec1 does not exist
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec1, TwoSides.ONE));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty()));
         assertEquals("Variable Tieline BE FR - N - preventive_one_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec1 does not exist
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec1, TwoSides.ONE));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty()));
         assertEquals("Constraint Tieline BE FR - N - preventive_one_flow_constraint has not been created yet", e.getMessage());
 
         // check flow variable for cnec2
-        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO);
+        OpenRaoMPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty());
         assertNotNull(flowVariable2);
         assertEquals(-linearProblem.infinity(), flowVariable2.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable2.ub(), linearProblem.infinity() * 1e-3);
 
         // check flow constraint for cnec2
         final double currentAlpha = pstRangeAction.convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
-        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO);
+        OpenRaoMPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty());
         assertEquals(REF_FLOW_CNEC2_IT2 - currentAlpha * SENSI_CNEC2_IT2, flowConstraint2.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC2_IT2 - currentAlpha * SENSI_CNEC2_IT2, flowConstraint2.ub(), DOUBLE_TOLERANCE);
         assertEquals(1, flowConstraint2.getCoefficient(flowVariable2), DOUBLE_TOLERANCE);
@@ -741,24 +742,24 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         updateLinearProblem();
 
         // check flow variable for cnec2 does not exist
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec2, TwoSides.TWO));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty()));
         assertEquals("Variable Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_variable has not been created yet", e.getMessage());
 
         // check flow constraint for cnec2 does not exist
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec2, TwoSides.TWO));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty()));
         assertEquals("Constraint Tieline BE FR - Defaut - N-1 NL1-NL3_two_flow_constraint has not been created yet", e.getMessage());
 
         // check flow variable for cnec1
-        OpenRaoMPVariable flowVariable1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
+        OpenRaoMPVariable flowVariable1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowVariable1);
         assertEquals(-linearProblem.infinity(), flowVariable1.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), flowVariable1.ub(), linearProblem.infinity() * 1e-3);
 
         final double currentAlpha = pstRangeAction.convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState(), Optional.empty());
 
         // check flow constraint for cnec1
-        OpenRaoMPConstraint flowConstraint1 = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE);
+        OpenRaoMPConstraint flowConstraint1 = linearProblem.getFlowConstraint(cnec1, TwoSides.ONE, Optional.empty());
         assertNotNull(flowConstraint1);
         assertEquals(REF_FLOW_CNEC1_IT2 - currentAlpha * SENSI_CNEC1_IT2, flowConstraint1.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC1_IT2 - currentAlpha * SENSI_CNEC1_IT2, flowConstraint1.ub(), DOUBLE_TOLERANCE);

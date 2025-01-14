@@ -11,6 +11,8 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 
+import java.util.Optional;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -18,11 +20,11 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
 
     public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetpoints, OptimizationPerimeter optimizationContext) {
         super(prePerimeterSetpoints);
-
+        // TODO: handle multiple timstamps
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
-                if (linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue() > 1e-6) {
-                    double setpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state).solutionValue();
+                if (linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.empty()).solutionValue() > 1e-6) {
+                    double setpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.empty()).solutionValue();
                     putResult(rangeAction, state, setpoint);
                 }
             })

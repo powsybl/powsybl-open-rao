@@ -15,6 +15,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -26,9 +27,11 @@ import java.util.Set;
 public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
     private final Map<State, Set<RangeAction<?>>> rangeActionsPerState;
+    private final OffsetDateTime timestamp;
 
-    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
+    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState, OffsetDateTime timestamp) {
         this.rangeActionsPerState = rangeActionsPerState;
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -50,9 +53,9 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
                 String groupId = optGroupId.get();
                 // For the first time the group ID is encountered a common variable for set point has to be created
                 try {
-                    linearProblem.getRangeActionGroupSetpointVariable(groupId, state);
+                    linearProblem.getRangeActionGroupSetpointVariable(groupId, state, Optional.ofNullable(timestamp));
                 } catch (OpenRaoException ignored) {
-                    linearProblem.addRangeActionGroupSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId, state);
+                    linearProblem.addRangeActionGroupSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId, state, Optional.ofNullable(timestamp));
                 }
                 addRangeActionGroupConstraint(linearProblem, ra, groupId, state);
             }
@@ -62,8 +65,8 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
     }
 
     private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, String groupId, State state) {
-        OpenRaoMPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction, state);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(rangeAction, state), 1);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId, state), -1);
+        OpenRaoMPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction, state, Optional.ofNullable(timestamp));
+        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.ofNullable(timestamp)), 1);
+        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId, state, Optional.ofNullable(timestamp)), -1);
     }
 }
