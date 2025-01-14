@@ -489,8 +489,8 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(PowerGradient powerGradient, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
         double timeGap = previousTimestamp.until(currentTimestamp, ChronoUnit.HOURS);
-        double lb = powerGradient.getMinValue().isPresent() ? powerGradient.getMinValue().get() * timeGap : -infinity();
-        double ub = powerGradient.getMaxValue().isPresent() ? powerGradient.getMaxValue().get() * timeGap : infinity();
+        double lb = powerGradient.getMinValue().map(minValue -> minValue * timeGap).orElse(-infinity());
+        double ub = powerGradient.getMaxValue().map(maxValue -> maxValue * timeGap).orElse(infinity());
         String generatorId = powerGradient.getNetworkElementId();
         return solver.makeConstraint(lb, ub, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
     }

@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.Network;
@@ -36,7 +43,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class PowerGradientConstraintFillerTest {
+/**
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
+ */
+class PowerGradientConstraintFillerTest {
     private LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(RangeActionsOptimizationParameters.Solver.SCIP);
     private LinearProblem linearProblem;
     private Crac crac1;
@@ -173,7 +183,7 @@ public class PowerGradientConstraintFillerTest {
         createPowerGradientConstraintFiller();
         buildAndFillLinearProblem();
 
-        //check the power gradient constraint, Expect two gradient constraint per generator
+        // check the power gradient constraint, Expect two gradient constraints per generator
         OpenRaoMPConstraint powerGradientConstraintFR1TS12 = linearProblem.getGeneratorPowerGradientConstraint("FFR1AA1 _load", timestamp2, timestamp1);
         assertNotNull(powerGradientConstraintFR1TS12);
         assertEquals(-500.0, powerGradientConstraintFR1TS12.lb());
@@ -199,7 +209,7 @@ public class PowerGradientConstraintFillerTest {
         assertEquals(-500.0, powerGradientConstraintFR3TS23.lb());
         assertEquals(500.0, powerGradientConstraintFR3TS23.ub());
 
-        //wrong previous timesteps
+        // wrong previous timesteps
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerGradientConstraint("FFR1AA1 _load", timestamp3, timestamp1));
     }
 
@@ -245,6 +255,5 @@ public class PowerGradientConstraintFillerTest {
         assertNotNull(powerGradientConstraintFR2TS12);
         assertEquals(-100.0, powerGradientConstraintFR2TS12.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(linearProblem.infinity(), powerGradientConstraintFR2TS12.ub(), linearProblem.infinity() * 1e-3);
-
     }
 }

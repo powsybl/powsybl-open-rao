@@ -54,7 +54,6 @@ public final class LinearProblemIdGenerator {
     private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
-    private static final String RANGE_ACTION_ACTIVATION = "rangeactionactivation";
     private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
     private static final String RANGE_ACTION_ABSOLUTE_VARIATION = "rangeactionabsolutevariation";
     private static final String GENERATOR_POWER = "generatorpower";
@@ -245,6 +244,6 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String generatorPowerGradientConstraintId(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
-        return String.join(SEPARATOR, GENERATOR_POWER, generatorId, currentTimestamp.format(DATE_TIME_FORMATTER), previousTimestamp.format(DATE_TIME_FORMATTER), CONSTRAINT_SUFFIX);
+        return String.join(SEPARATOR, GENERATOR_POWER_GRADIENT_CONSTRAINT, generatorId, currentTimestamp.format(DATE_TIME_FORMATTER), previousTimestamp.format(DATE_TIME_FORMATTER), CONSTRAINT_SUFFIX);
     }
 }
