@@ -412,4 +412,32 @@ class SystematicSensitivityResultTest {
         //  success in n and a n-1 fails -> PARTIAL_FAILURE
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
     }
+
+    @Test
+    void testFailingCurativePerimeter() {
+        setUpWith12Nodes();
+        // Simulate a second call to completeData during sensitivity computation pre 2P on a state with RAs that failed (a N-1 state fails).
+        Contingency contingency = new Contingency("contingency", new BranchContingency("branch"));
+
+        SensitivityFactor sensitivityFactor1 = new SensitivityFactor(
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
+            "BBE2AA1  FFR3AA1  1",
+            SensitivityVariableType.TRANSFORMER_PHASE,
+            "BBE2AA1  BBE3AA1  1",
+            false,
+            new ContingencyContext(contingency.getId(), ContingencyContextType.SPECIFIC)
+        );
+
+        SensitivityAnalysisResult sensitivityAnalysisResult = new SensitivityAnalysisResult(
+            List.of(sensitivityFactor1),
+            List.of(new SensitivityAnalysisResult.SensitivityContingencyStatus(contingency.getId(), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of()
+        );
+
+        SystematicSensitivityResult result = new SystematicSensitivityResult();
+        result.completeData(sensitivityAnalysisResult, outageInstantOrder);
+
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+    }
+
 }
