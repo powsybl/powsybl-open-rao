@@ -111,7 +111,7 @@ back to its initial solution if needed.
 
 The network must remain balanced in terms of production and consumption after injection variations:
 
-$$\sum_{r \text{ injection}} = \left ( \Delta^{+} (r, s) - \Delta^{-} (r, s) \right ) \times \sum_{d \text{ shift key of }} d, \forall s$$
+$$\sum_{r \text{ injection}} \left ( \Delta^{+} (r, s) - \Delta^{-} (r, s) \right ) \times \sum_{d \text{ shift key of $r$}} d = 0, \forall s$$
 
 ## Contribution to the objective function
 
