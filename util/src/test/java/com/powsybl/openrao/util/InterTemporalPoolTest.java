@@ -12,7 +12,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
