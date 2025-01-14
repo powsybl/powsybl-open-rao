@@ -198,7 +198,8 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
         return DEFAULT_RA_RANGE_SHRINKING;
     }
 
-    // TODO: do not set if default...
+    // The return value should not be written since it will re-write the parameters if the value si the real one,
+    // but it will not if the value is the default one since it is an independent object
     public static LinearOptimizationSolver getLinearOptimizationSolver(RaoParameters parameters) {
         if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             return parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver();
