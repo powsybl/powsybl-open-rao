@@ -30,7 +30,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -543,19 +542,6 @@ class CastorFullOptimizationTest {
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals("RAO failed during first preventive : Testing exception handling", raoResult.getExecutionDetails());
-    }
-
-    @Test
-    void catchDuringContingencyScenarios() throws IOException {
-        setup("small-network-2P.uct", "small-crac-2P.json");
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
-        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-        MultithreadingParameters multithreadingParameters = Mockito.spy(searchTreeParameters.getMultithreadingParameters());
-        when(multithreadingParameters.getContingencyScenariosInParallel()).thenThrow(new OpenRaoException("Testing exception handling"));
-        searchTreeParameters.setMultithreadingParameters(multithreadingParameters);
-
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-        assertEquals("RAO failed during contingency scenarios : Testing exception handling", raoResult.getExecutionDetails());
     }
 
     @Test

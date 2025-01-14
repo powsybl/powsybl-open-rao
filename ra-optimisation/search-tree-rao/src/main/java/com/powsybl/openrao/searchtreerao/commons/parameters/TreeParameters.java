@@ -38,19 +38,19 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
             return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
                 0.0, // secure
                 getMaxPreventiveSearchTreeDepth(parameters),
-                getPreventiveLeavesInParallel(parameters),
+                getAvailableCPUs(parameters),
                 shouldShrinkRaRange);
         } else {
             return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
                 0.0, // value does not matter
                 getMaxPreventiveSearchTreeDepth(parameters),
-                getPreventiveLeavesInParallel(parameters),
+                getAvailableCPUs(parameters),
                 shouldShrinkRaRange);
         }
     }
 
     public static TreeParameters buildForAutomatonPerimeter(RaoParameters parameters) {
-        return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, getMaxAutoSearchTreeDepth(parameters), getAutoLeavesInParallel(parameters), false);
+        return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, getMaxAutoSearchTreeDepth(parameters), 1, false);
     }
 
     public static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost) {
@@ -70,7 +70,7 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
             getMaxPreventiveSearchTreeDepth(parameters),
-            getCurativeLeavesInParallel(parameters),
+            1,
             shouldShrinkRaRange);
     }
 
@@ -80,13 +80,13 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
             return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
                 0.0, // secure
                 getMaxPreventiveSearchTreeDepth(parameters),
-                getPreventiveLeavesInParallel(parameters),
+                getAvailableCPUs(parameters),
                 raRangeShrinking);
         } else {
             return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
                 0.0, // value does not matter
                 getMaxPreventiveSearchTreeDepth(parameters),
-                getPreventiveLeavesInParallel(parameters),
+                getAvailableCPUs(parameters),
                 raRangeShrinking);
         }
     }

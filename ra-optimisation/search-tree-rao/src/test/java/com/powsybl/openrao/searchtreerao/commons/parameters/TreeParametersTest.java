@@ -34,8 +34,7 @@ class TreeParametersTest {
         searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(6);
         searchTreeParameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(2);
         searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(6);
-        searchTreeParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(4);
-        searchTreeParameters.getMultithreadingParameters().setCurativeLeavesInParallel(2);
+        searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(4);
     }
 
     @Test
@@ -51,7 +50,7 @@ class TreeParametersTest {
 
         // test with secure, and different values of the parameters
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
-        searchTreeParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(8);
+        searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(8);
         searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(15);
         searchTreeParameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(5);
         searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(15);
@@ -72,13 +71,12 @@ class TreeParametersTest {
     @Test
     void testCurativeSecureStopCriterion() {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
-        searchTreeParameters.getMultithreadingParameters().setCurativeLeavesInParallel(16);
         searchTreeParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO);
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());
         assertEquals(0., treeParameters.targetObjectiveValue(), DOUBLE_TOLERANCE);
-        assertEquals(16, treeParameters.leavesInParallel());
+        assertEquals(1, treeParameters.leavesInParallel());
         assertEquals(6, treeParameters.maximumSearchDepth());
         assertTrue(treeParameters.raRangeShrinking());
     }
@@ -96,7 +94,7 @@ class TreeParametersTest {
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());
         assertEquals(65, treeParameters.targetObjectiveValue(), DOUBLE_TOLERANCE);
-        assertEquals(2, treeParameters.leavesInParallel());
+        assertEquals(1, treeParameters.leavesInParallel());
         assertEquals(0, treeParameters.maximumSearchDepth());
         assertTrue(treeParameters.raRangeShrinking());
     }
@@ -111,21 +109,21 @@ class TreeParametersTest {
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());
         assertEquals(0, treeParameters.targetObjectiveValue(), DOUBLE_TOLERANCE);
-        assertEquals(2, treeParameters.leavesInParallel());
+        assertEquals(1, treeParameters.leavesInParallel());
         assertEquals(6, treeParameters.maximumSearchDepth());
 
         // limited by preventive_objective + minObjImprovement
         treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 30.0);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());
         assertEquals(-5, treeParameters.targetObjectiveValue(), DOUBLE_TOLERANCE);
-        assertEquals(2, treeParameters.leavesInParallel());
+        assertEquals(1, treeParameters.leavesInParallel());
         assertEquals(6, treeParameters.maximumSearchDepth());
 
         // limited by preventive_objective + minObjImprovement
         treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, -50.0);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.stopCriterion());
         assertEquals(-85, treeParameters.targetObjectiveValue(), DOUBLE_TOLERANCE);
-        assertEquals(2, treeParameters.leavesInParallel());
+        assertEquals(1, treeParameters.leavesInParallel());
         assertEquals(6, treeParameters.maximumSearchDepth());
     }
 
@@ -168,7 +166,7 @@ class TreeParametersTest {
         // still another combination
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
         raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
-        searchTreeParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(8);
+        searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(8);
         searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(15);
         searchTreeParameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(5);
         searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(15);

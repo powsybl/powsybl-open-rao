@@ -120,10 +120,7 @@ class RaoParametersConfigTest {
         multiThreadingModuleConfig.setStringProperty("available-cpus", Objects.toString(43));
         RaoParameters parameters = RaoParameters.load(platformCfg);
         MultithreadingParameters params = parameters.getExtension(OpenRaoSearchTreeParameters.class).getMultithreadingParameters();
-        assertEquals(43, params.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(43, params.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, params.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, params.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(43, params.getAvailableCPUs(), DOUBLE_TOLERANCE);
     }
 
     @Test

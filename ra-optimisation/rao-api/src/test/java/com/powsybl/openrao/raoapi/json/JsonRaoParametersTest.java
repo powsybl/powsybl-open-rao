@@ -77,10 +77,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20);
         searchTreeParameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
         // Multi-threading parameters
-        searchTreeParameters.getMultithreadingParameters().setContingencyScenariosInParallel(15);
-        searchTreeParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(21);
-        searchTreeParameters.getMultithreadingParameters().setAutoLeavesInParallel(30);
-        searchTreeParameters.getMultithreadingParameters().setCurativeLeavesInParallel(22);
+        searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(21);
         // Second preventive RAO parameters
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         searchTreeParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
@@ -128,9 +125,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(0, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(1, parameters.getTopoOptimizationParameters().getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(8, searchTreeParameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
-        assertEquals(1, searchTreeParameters.getMultithreadingParameters().getAutoLeavesInParallel());
-        assertEquals(1, searchTreeParameters.getMultithreadingParameters().getCurativeLeavesInParallel());
+        assertEquals(8, searchTreeParameters.getMultithreadingParameters().getAvailableCPUs());
         assertTrue(searchTreeParameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
         assertEquals(2, searchTreeParameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
         assertTrue(parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras());

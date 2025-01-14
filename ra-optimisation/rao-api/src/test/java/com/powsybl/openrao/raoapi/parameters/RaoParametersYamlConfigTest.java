@@ -75,10 +75,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(3, searchTreeParameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
 
         MultithreadingParameters multithreadingParameters = searchTreeParameters.getMultithreadingParameters();
-        assertEquals(5, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(5, multithreadingParameters.getAvailableCPUs(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = searchTreeParameters.getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT, secondPreventiveRaoParameters.getExecutionCondition());
@@ -195,10 +192,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(2, searchTreeParameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
 
         MultithreadingParameters multithreadingParameters = searchTreeParameters.getMultithreadingParameters();
-        assertEquals(5, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(5, multithreadingParameters.getAvailableCPUs(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = searchTreeParameters.getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED, secondPreventiveRaoParameters.getExecutionCondition());

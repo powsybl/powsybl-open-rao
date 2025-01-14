@@ -27,9 +27,7 @@ final class JsonMultiThreadingParameters {
 
     static void serialize(OpenRaoSearchTreeParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(MULTI_THREADING);
-        jsonGenerator.writeNumberField(AVAILABLE_CPUS, Math.max(
-            parameters.getMultithreadingParameters().getContingencyScenariosInParallel(),
-            parameters.getMultithreadingParameters().getPreventiveLeavesInParallel()));
+        jsonGenerator.writeNumberField(AVAILABLE_CPUS, parameters.getMultithreadingParameters().getAvailableCPUs());
         jsonGenerator.writeEndObject();
     }
 
@@ -38,10 +36,7 @@ final class JsonMultiThreadingParameters {
             if (jsonParser.getCurrentName().equals(AVAILABLE_CPUS)) {
                 jsonParser.nextToken();
                 int availableCpus = jsonParser.getIntValue();
-                searchTreeParameters.getMultithreadingParameters().setContingencyScenariosInParallel(availableCpus);
-                searchTreeParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(availableCpus);
-                searchTreeParameters.getMultithreadingParameters().setAutoLeavesInParallel(1);
-                searchTreeParameters.getMultithreadingParameters().setCurativeLeavesInParallel(1);
+                searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(availableCpus);
             } else {
                 throw new OpenRaoException(String.format("Cannot deserialize multi-threading parameters: unexpected field in %s (%s)", MULTI_THREADING, jsonParser.getCurrentName()));
             }
