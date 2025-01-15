@@ -37,6 +37,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -117,7 +118,8 @@ class PowerGradientConstraintFillerTest {
                 rangeActionParameters,
                 Unit.MEGAWATT,
                 false,
-                RangeActionsOptimizationParameters.PstModel.CONTINUOUS
+                RangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+                entry.getKey()
             );
             linearProblemBuilder.withProblemFiller(coreProblemFiller);
         });
@@ -169,12 +171,12 @@ class PowerGradientConstraintFillerTest {
         assertEquals(500.0, fr3Timestamp1PowerConstraint.lb());
 
         // check coefficient for injection action variable
-        assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
-        assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
-        assertEquals(1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
-        assertEquals(-1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
-        assertEquals(-0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
-        assertEquals(0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
+        assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD, Optional.of(timestamp1))), 1e-5);
+        assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.of(timestamp1))), 1e-5);
+        assertEquals(1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD, Optional.of(timestamp1))), 1e-5);
+        assertEquals(-1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.of(timestamp1))), 1e-5);
+        assertEquals(-0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD, Optional.of(timestamp1))), 1e-5);
+        assertEquals(0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.of(timestamp1))), 1e-5);
     }
 
     @Test
