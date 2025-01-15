@@ -55,7 +55,7 @@ class PowerGradientConstraintFillerTest {
     private Crac crac3;
     private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 1, 9, 16, 21, 0, 0, ZoneOffset.UTC);
     private final OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 1, 9, 17, 21, 0, 0, ZoneOffset.UTC);
-    private final OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 1, 9, 18, 21, 0, 0, ZoneOffset.UTC);
+    private final OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 1, 9, 19, 21, 0, 0, ZoneOffset.UTC);
     InterTemporalRaoInput input;
     RaoParameters parameters;
 
@@ -66,7 +66,7 @@ class PowerGradientConstraintFillerTest {
 
         crac1 = Crac.read("crac-1600.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
         crac2 = Crac.read("crac-1700.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1700.json"), network2);
-        crac3 = Crac.read("crac-1800.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1800.json"), network3);
+        crac3 = Crac.read("crac-1900.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1900.json"), network3);
 
         RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
         RaoInput raoInput2 = RaoInput.build(network2, crac2).build();
@@ -77,7 +77,6 @@ class PowerGradientConstraintFillerTest {
         PowerGradient powerGradientFFR2AA1 = new PowerGradient("FFR2AA1 _generator", -100.0, 200.0);
         PowerGradient powerGradientFFR3AA1 = new PowerGradient("FFR3AA1 _load", -500.0, 500.0);
 
-        // TODO: use different time gaps between timestamps
         input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), Set.of(powerGradientFFR1AA1, powerGradientFFR3AA1, powerGradientFFR2AA1));
 
         parameters = new RaoParameters();
@@ -191,26 +190,31 @@ class PowerGradientConstraintFillerTest {
         assertNotNull(powerGradientConstraintFR1TS12);
         assertEquals(-500.0, powerGradientConstraintFR1TS12.lb());
         assertEquals(500.0, powerGradientConstraintFR1TS12.ub());
+
         OpenRaoMPConstraint powerGradientConstraintFR1TS23 = linearProblem.getGeneratorPowerGradientConstraint("FFR1AA1 _load", timestamp3, timestamp2);
         assertNotNull(powerGradientConstraintFR1TS23);
-        assertEquals(-500.0, powerGradientConstraintFR1TS23.lb());
-        assertEquals(500.0, powerGradientConstraintFR1TS23.ub());
+        assertEquals(-1000.0, powerGradientConstraintFR1TS23.lb());
+        assertEquals(1000.0, powerGradientConstraintFR1TS23.ub());
+
         OpenRaoMPConstraint powerGradientConstraintFR2TS12 = linearProblem.getGeneratorPowerGradientConstraint("FFR2AA1 _generator", timestamp2, timestamp1);
         assertNotNull(powerGradientConstraintFR2TS12);
         assertEquals(-100.0, powerGradientConstraintFR2TS12.lb());
         assertEquals(200.0, powerGradientConstraintFR2TS12.ub());
+
         OpenRaoMPConstraint powerGradientConstraintFR2TS23 = linearProblem.getGeneratorPowerGradientConstraint("FFR2AA1 _generator", timestamp3, timestamp2);
         assertNotNull(powerGradientConstraintFR2TS23);
-        assertEquals(-100.0, powerGradientConstraintFR2TS23.lb());
-        assertEquals(200.0, powerGradientConstraintFR2TS23.ub());
+        assertEquals(-200.0, powerGradientConstraintFR2TS23.lb());
+        assertEquals(400.0, powerGradientConstraintFR2TS23.ub());
+
         OpenRaoMPConstraint powerGradientConstraintFR3TS12 = linearProblem.getGeneratorPowerGradientConstraint("FFR3AA1 _load", timestamp2, timestamp1);
         assertNotNull(powerGradientConstraintFR3TS12);
         assertEquals(-500.0, powerGradientConstraintFR3TS12.lb());
         assertEquals(500.0, powerGradientConstraintFR3TS12.ub());
+
         OpenRaoMPConstraint powerGradientConstraintFR3TS23 = linearProblem.getGeneratorPowerGradientConstraint("FFR3AA1 _load", timestamp3, timestamp2);
         assertNotNull(powerGradientConstraintFR3TS23);
-        assertEquals(-500.0, powerGradientConstraintFR3TS23.lb());
-        assertEquals(500.0, powerGradientConstraintFR3TS23.ub());
+        assertEquals(-1000.0, powerGradientConstraintFR3TS23.lb());
+        assertEquals(1000.0, powerGradientConstraintFR3TS23.ub());
 
         // wrong previous timestamp
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerGradientConstraint("FFR1AA1 _load", timestamp3, timestamp1));
@@ -254,6 +258,7 @@ class PowerGradientConstraintFillerTest {
         assertNotNull(powerGradientConstraintFR1TS12);
         assertEquals(-linearProblem.infinity(), powerGradientConstraintFR1TS12.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(500.0, powerGradientConstraintFR1TS12.ub());
+
         OpenRaoMPConstraint powerGradientConstraintFR2TS12 = linearProblem.getGeneratorPowerGradientConstraint("FFR2AA1 _generator", timestamp2, timestamp1);
         assertNotNull(powerGradientConstraintFR2TS12);
         assertEquals(-100.0, powerGradientConstraintFR2TS12.lb(), linearProblem.infinity() * 1e-3);
