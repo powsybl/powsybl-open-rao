@@ -214,7 +214,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
     private void addGlobalInjectionBalanceConstraint(LinearProblem linearProblem, State state) {
         if (optimizationContext.getRangeActionsPerState().get(state).stream().anyMatch(InjectionRangeAction.class::isInstance)) {
-            linearProblem.addInjectionBalanceConstraint(state);
+            linearProblem.addInjectionBalanceConstraint(state, Optional.ofNullable(timestamp));
         }
     }
 
@@ -315,7 +315,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
         if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
             double totalShiftKey = injectionRangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(v -> v).sum();
-            OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state);
+            OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state, Optional.ofNullable(timestamp));
             injectionBalanceConstraint.setCoefficient(upwardVariationVariable, totalShiftKey);
             injectionBalanceConstraint.setCoefficient(downwardVariationVariable, -totalShiftKey);
         }

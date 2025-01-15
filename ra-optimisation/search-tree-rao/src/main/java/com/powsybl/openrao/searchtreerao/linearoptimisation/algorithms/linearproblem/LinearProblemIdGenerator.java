@@ -239,7 +239,7 @@ public final class LinearProblemIdGenerator {
         return formatName(timestamp, RANGE_ACTION_ABSOLUTE_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String injectionBalanceConstraintId(State state) {
-        return INJECTION_BALANCE + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX + SEPARATOR;
+    public static String injectionBalanceConstraintId(State state, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, INJECTION_BALANCE, state.getId(), CONSTRAINT_SUFFIX);
     }
 }

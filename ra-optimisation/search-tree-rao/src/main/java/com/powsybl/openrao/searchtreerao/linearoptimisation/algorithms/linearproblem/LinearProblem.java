@@ -470,12 +470,12 @@ public final class LinearProblem {
         return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state, timestamp));
     }
 
-    public OpenRaoMPConstraint addInjectionBalanceConstraint(State state) {
-        return solver.makeConstraint(0.0, 0.0, injectionBalanceConstraintId(state));
+    public OpenRaoMPConstraint addInjectionBalanceConstraint(State state, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(0.0, 0.0, injectionBalanceConstraintId(state, timestamp));
     }
 
-    public OpenRaoMPConstraint getInjectionBalanceConstraint(State state) {
-        return solver.getConstraint(injectionBalanceConstraintId(state));
+    public OpenRaoMPConstraint getInjectionBalanceConstraint(State state, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(injectionBalanceConstraintId(state, timestamp));
     }
 
     public double infinity() {
