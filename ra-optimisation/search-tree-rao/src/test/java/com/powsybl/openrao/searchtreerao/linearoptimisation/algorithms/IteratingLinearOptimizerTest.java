@@ -45,6 +45,7 @@ import org.mockito.stubbing.Answer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -179,10 +180,10 @@ class IteratingLinearOptimizerTest {
                 if (statuses.get(count - 1) == LinearProblemStatus.OPTIMAL) {
                     OpenRaoMPVariable absVariationMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
                     when(absVariationMpVarMock.solutionValue()).thenReturn(Math.abs(setPoints.get(count - 1)));
-                    when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, optimizedState)).thenReturn(absVariationMpVarMock);
+                    when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, optimizedState, Optional.empty())).thenReturn(absVariationMpVarMock);
                     OpenRaoMPVariable setpointMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
                     when(setpointMpVarMock.solutionValue()).thenReturn(setPoints.get(count - 1));
-                    when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState)).thenReturn(setpointMpVarMock);
+                    when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState, Optional.empty())).thenReturn(setpointMpVarMock);
                 }
                 return statuses.get(count - 1);
             }
