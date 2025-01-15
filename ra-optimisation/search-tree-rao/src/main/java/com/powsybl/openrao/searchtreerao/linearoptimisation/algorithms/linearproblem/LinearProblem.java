@@ -480,10 +480,6 @@ public final class LinearProblem {
         return solver.makeConstraint(0, 0, totalPstRangeActionTapVariationConstraintId(pstRangeAction, state));
     }
 
-    public OpenRaoMPConstraint getTotalPstRangeActionTapVariationConstraint(PstRangeAction pstRangeAction, State state) {
-        return solver.getConstraint(totalPstRangeActionTapVariationConstraintId(pstRangeAction, state));
-    }
-
     public OpenRaoMPVariable addTapVariable(PstRangeAction pstRangeAction, State state) {
         int minTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().min(Integer::compareTo).orElseThrow();
         int maxTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().max(Integer::compareTo).orElseThrow();

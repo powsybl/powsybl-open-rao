@@ -17,12 +17,12 @@ import java.util.Map;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class TotalFunctionalCostComputer extends AbstractFunctionalCostComputer {
-    public TotalFunctionalCostComputer(OptimizationResult secondPreventivePerimeterResult, Map<State, OptimizationResult> postContingencyResults) {
-        super(secondPreventivePerimeterResult, postContingencyResults);
+    public TotalFunctionalCostComputer(OptimizationResult optimizationResult, Map<State, OptimizationResult> postContingencyResults) {
+        super(optimizationResult, postContingencyResults);
     }
 
     @Override
     public double computeFunctionalCost(Instant instant) {
-        return instant == null ? 0.0 : secondPreventivePerimeterResult.getFunctionalCost() + streamPostContingencyResultsBeforeInstant(instant).sum();
+        return instant == null ? 0.0 : optimizationResult.getFunctionalCost() + streamPostContingencyResultsBeforeInstant(instant).sum();
     }
 }

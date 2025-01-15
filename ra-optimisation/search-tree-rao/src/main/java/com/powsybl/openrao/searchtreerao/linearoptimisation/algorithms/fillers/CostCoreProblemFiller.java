@@ -51,18 +51,18 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
         }
     }
 
-    /**
-     * Build range action constraints for each RangeAction r.
-     * These constraints link the set-point variable of the RangeAction with its
-     * variation variables, and bounds the set-point in an admissible range.
-     * S[r] = initialSetPoint[r] + upwardVariation[r] - downwardVariation[r]
-     */
     @Override
     protected void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         addSetPointConstraints(linearProblem, rangeAction, state);
         addIsVariationConstraint(linearProblem, rangeAction, state);
     }
 
+    /**
+     * Link the activation binary variable of a RangeAction r to its variation variables.
+     * If one of the variation variables is non-null, the total variation is necessarily
+     * lower than maxReachableSetPoint[r] - minReachableSetPoint[r] and r is activated.
+     * isVariation[r] * (maxReachableSetPoint[r] - minReachableSetPoint[r]) >= upwardVariation[r] + downwardVariation[r]
+     */
     private void addIsVariationConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         Optional<Double> activationCost = rangeAction.getActivationCost();
         if (activationCost.isPresent() && activationCost.get() > 0) {
@@ -113,6 +113,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
                 double defaultVariationCost = getRangeActionPenaltyCost(ra, rangeActionParameters);
+                // pst costs are considered in the discreteTapFiller
                 if (!(ra instanceof PstRangeAction)) {
                     linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(VariationDirection.UP).orElse(defaultVariationCost));
                     linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(VariationDirection.DOWN).orElse(defaultVariationCost));

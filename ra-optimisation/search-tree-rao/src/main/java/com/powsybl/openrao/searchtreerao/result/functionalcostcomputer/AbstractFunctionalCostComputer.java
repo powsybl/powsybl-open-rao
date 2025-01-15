@@ -17,11 +17,11 @@ import java.util.stream.DoubleStream;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public abstract class AbstractFunctionalCostComputer {
-    protected final OptimizationResult secondPreventivePerimeterResult;
+    protected final OptimizationResult optimizationResult;
     protected final Map<State, OptimizationResult> postContingencyResults;
 
-    protected AbstractFunctionalCostComputer(OptimizationResult secondPreventivePerimeterResult, Map<State, OptimizationResult> postContingencyResults) {
-        this.secondPreventivePerimeterResult = secondPreventivePerimeterResult;
+    protected AbstractFunctionalCostComputer(OptimizationResult optimizationResult, Map<State, OptimizationResult> postContingencyResults) {
+        this.optimizationResult = optimizationResult;
         this.postContingencyResults = postContingencyResults;
     }
 

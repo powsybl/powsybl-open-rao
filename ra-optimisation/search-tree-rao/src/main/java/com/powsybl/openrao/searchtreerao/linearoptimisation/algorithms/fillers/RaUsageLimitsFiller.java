@@ -66,9 +66,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 return;
             }
             // if cost optimization, variation variables are already defined
-            if (!costOptimization) {
-                rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
-            }
+            rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
             if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
                 addMaxRaConstraint(linearProblem, state);
             }

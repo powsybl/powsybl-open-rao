@@ -60,6 +60,12 @@ public class MaxMinMarginFiller implements ProblemFiller {
         fillObjectiveWithMinMargin(linearProblem);
     }
 
+    /**
+     * Force the min margin to be negative. Used in costly optimization where
+     * overloads are considered as a virtual cost.
+     * If the actual min margin is non-negative, the variable will be forced to 0,
+     * so it does not take part in the objective.
+     */
     private static void forceMinMarginToBeNegative(LinearProblem linearProblem) {
         linearProblem.getMinimumMarginVariable().setUb(0.0);
     }
