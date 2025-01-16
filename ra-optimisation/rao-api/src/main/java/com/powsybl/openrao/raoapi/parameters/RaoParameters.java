@@ -15,6 +15,9 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -154,7 +157,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
             }
             extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
             if (extension.getMnecParameters().isEmpty()) {
-                extension.setMnecParameters(new com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters());
+                extension.setMnecParameters(new SearchTreeRaoMnecParameters());
             }
         } else {
             if (!Objects.isNull(extension) && extension.getMnecParameters().isPresent()) {
@@ -167,7 +170,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
             }
             extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
             if (extension.getRelativeMarginsParameters().isEmpty()) {
-                extension.setRelativeMarginsParameters(new com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters());
+                extension.setRelativeMarginsParameters(new SearchTreeRaoRelativeMarginsParameters());
             }
         } else {
             if (!Objects.isNull(extension) && extension.getRelativeMarginsParameters().isPresent()) {
@@ -180,7 +183,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
             }
             extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
             if (extension.getLoopFlowParameters().isEmpty()) {
-                extension.setLoopFlowParameters(new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters());
+                extension.setLoopFlowParameters(new SearchTreeRaoLoopFlowParameters());
             }
         } else {
             if (!Objects.isNull(extension) && extension.getLoopFlowParameters().isPresent()) {

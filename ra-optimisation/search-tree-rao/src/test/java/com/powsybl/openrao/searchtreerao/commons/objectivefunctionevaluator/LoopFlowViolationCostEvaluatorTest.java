@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ class LoopFlowViolationCostEvaluatorTest {
     private FlowResult initialLoopFlows;
     private FlowResult currentLoopFlows;
     private LoopFlowParameters parameters;
-    private com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters parametersExtension;
+    private SearchTreeRaoLoopFlowParameters parametersExtension;
 
     private LoopFlowViolationCostEvaluator evaluator;
 
@@ -59,7 +60,7 @@ class LoopFlowViolationCostEvaluatorTest {
         initialLoopFlows = Mockito.mock(FlowResult.class);
         currentLoopFlows = Mockito.mock(FlowResult.class);
         parameters = Mockito.mock(LoopFlowParameters.class);
-        parametersExtension = Mockito.mock(com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters.class);
+        parametersExtension = Mockito.mock(SearchTreeRaoLoopFlowParameters.class);
     }
 
     private void setInputThresholdWithReliabilityMargin(FlowCnec branchCnec, double inputThresholdWIthReliabilityMargin) {

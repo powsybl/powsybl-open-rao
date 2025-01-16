@@ -20,7 +20,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.PTDF_SUM_LOWER_BOU
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class RelativeMarginsParameters {
+public class SearchTreeRaoRelativeMarginsParameters {
 
     static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     static final PtdfApproximation DEFAULT_PTDF_APPROXIMATION = PtdfApproximation.FIXED_PTDF;
@@ -44,13 +44,13 @@ public class RelativeMarginsParameters {
         this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
-    public static Optional<RelativeMarginsParameters> load(PlatformConfig platformConfig) {
+    public static Optional<SearchTreeRaoRelativeMarginsParameters> load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         return platformConfig.getOptionalModuleConfig(ST_RELATIVE_MARGINS_SECTION)
             .map(config -> {
-                RelativeMarginsParameters parameters = new RelativeMarginsParameters();
-                parameters.setPtdfApproximation(config.getEnumProperty(PTDF_APPROXIMATION, PtdfApproximation.class, RelativeMarginsParameters.DEFAULT_PTDF_APPROXIMATION));
-                parameters.setPtdfSumLowerBound(config.getDoubleProperty(PTDF_SUM_LOWER_BOUND, RelativeMarginsParameters.DEFAULT_PTDF_SUM_LOWER_BOUND));
+                SearchTreeRaoRelativeMarginsParameters parameters = new SearchTreeRaoRelativeMarginsParameters();
+                parameters.setPtdfApproximation(config.getEnumProperty(PTDF_APPROXIMATION, PtdfApproximation.class, SearchTreeRaoRelativeMarginsParameters.DEFAULT_PTDF_APPROXIMATION));
+                parameters.setPtdfSumLowerBound(config.getDoubleProperty(PTDF_SUM_LOWER_BOUND, SearchTreeRaoRelativeMarginsParameters.DEFAULT_PTDF_SUM_LOWER_BOUND));
                 return parameters;
             });
     }

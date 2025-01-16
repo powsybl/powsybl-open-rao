@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
@@ -48,7 +49,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private CoreProblemFiller coreProblemFiller;
     private MaxLoopFlowFiller maxLoopFlowFiller;
     private LoopFlowParameters loopFlowParameters;
-    private com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParametersExtension;
+    private SearchTreeRaoLoopFlowParameters loopFlowParametersExtension;
     private FlowCnec cnecOn2sides;
 
     @BeforeEach
@@ -117,7 +118,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testFill1() {
         loopFlowParameters = new LoopFlowParameters();
-        loopFlowParametersExtension = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
         loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(13);
         loopFlowParametersExtension.setViolationCost(10);
@@ -148,7 +149,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testFill2() {
         loopFlowParameters = new LoopFlowParameters();
-        loopFlowParametersExtension = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
         loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(30);
         loopFlowParametersExtension.setViolationCost(10);
@@ -176,7 +177,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testShouldUpdate() {
         loopFlowParameters = new LoopFlowParameters();
-        loopFlowParametersExtension = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
         loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
         loopFlowParameters.setAcceptableIncrease(0);
         loopFlowParametersExtension.setViolationCost(10);
@@ -205,7 +206,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testFill2Sides() {
         loopFlowParameters = new LoopFlowParameters();
-        loopFlowParametersExtension = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
         loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(13);
         loopFlowParametersExtension.setViolationCost(10);
@@ -262,7 +263,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     void testFilterCnecWithNoInitialFlow() {
         loopFlowParameters = new LoopFlowParameters();
-        loopFlowParametersExtension = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
         loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(13);
         loopFlowParametersExtension.setViolationCost(10);

@@ -41,9 +41,4 @@ public class MnecParameters {
                 return parameters;
             });
     }
-
-    //TODO to remove
-    public static double getAcceptableMarginDecrease(RaoParameters parameters) {
-        return parameters.getMnecParameters().map(MnecParameters::getAcceptableMarginDecrease).orElse(DEFAULT_ACCEPTABLE_MARGIN_DECREASE);
-    }
 }

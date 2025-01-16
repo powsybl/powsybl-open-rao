@@ -20,7 +20,8 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.AbsolutePtdfSumsComputation;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
@@ -140,10 +141,10 @@ class PrePerimeterSensitivityAnalysisTest {
     void testRunWithFixedPtdfAndLf() {
         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
-        com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParameters = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
+        SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
         searchTreeParameters.setLoopFlowParameters(loopFlowParameters);
         loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
-        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        SearchTreeRaoRelativeMarginsParameters relativeMarginsParameters = new SearchTreeRaoRelativeMarginsParameters();
         searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParameters);
         relativeMarginsParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
@@ -160,10 +161,10 @@ class PrePerimeterSensitivityAnalysisTest {
     void testRunAndRecomputePtdf() {
         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
-        com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParameters = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
+        SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
         searchTreeParameters.setLoopFlowParameters(loopFlowParameters);
         loopFlowParameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
-        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        SearchTreeRaoRelativeMarginsParameters relativeMarginsParameters = new SearchTreeRaoRelativeMarginsParameters();
         searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParameters);
         relativeMarginsParameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);

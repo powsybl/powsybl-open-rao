@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -115,7 +116,7 @@ class MnecFillerTest extends AbstractFillerTest {
 
     private void fillProblemWithFiller(Unit unit) {
         MnecParameters parameters = new MnecParameters();
-        com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters parametersExtension = new com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters();
+        SearchTreeRaoMnecParameters parametersExtension = new SearchTreeRaoMnecParameters();
         parameters.setAcceptableMarginDecrease(50);
         parametersExtension.setViolationCost(10);
         parametersExtension.setConstraintAdjustmentCoefficient(3.5);
@@ -218,7 +219,7 @@ class MnecFillerTest extends AbstractFillerTest {
     @Test
     void testFilterCnecWithNoInitialFlow() {
         MnecParameters parameters = new MnecParameters();
-        com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters parametersExtension = new com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters();
+        SearchTreeRaoMnecParameters parametersExtension = new SearchTreeRaoMnecParameters();
         parameters.setAcceptableMarginDecrease(50);
         parametersExtension.setViolationCost(10);
         parametersExtension.setConstraintAdjustmentCoefficient(3.5);

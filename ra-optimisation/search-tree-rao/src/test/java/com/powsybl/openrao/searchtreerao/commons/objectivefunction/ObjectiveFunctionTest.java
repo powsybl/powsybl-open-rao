@@ -17,6 +17,8 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
@@ -88,9 +90,9 @@ class ObjectiveFunctionTest {
         MnecParameters mnecParameters = new MnecParameters();
         mnecParameters.setAcceptableMarginDecrease(200.0);
         raoParameters.setMnecParameters(mnecParameters);
-        openRaoSearchTreeParameters.setMnecParameters(new com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters());
+        openRaoSearchTreeParameters.setMnecParameters(new SearchTreeRaoMnecParameters());
         raoParameters.setLoopFlowParameters(new LoopFlowParameters());
-        com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters loopFlowParameters = new com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters();
+        SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
         loopFlowParameters.setViolationCost(10.);
         openRaoSearchTreeParameters.setLoopFlowParameters(loopFlowParameters);
 

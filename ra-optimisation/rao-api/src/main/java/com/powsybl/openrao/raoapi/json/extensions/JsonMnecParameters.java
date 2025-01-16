@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi.json.extensions;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public final class JsonMnecParameters {
     }
 
     static void serialize(OpenRaoSearchTreeParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        Optional<MnecParameters> optionalMnecParameters = parameters.getMnecParameters();
+        Optional<SearchTreeRaoMnecParameters> optionalMnecParameters = parameters.getMnecParameters();
         if (optionalMnecParameters.isPresent()) {
             jsonGenerator.writeObjectFieldStart(MNEC_PARAMETERS);
             jsonGenerator.writeNumberField(VIOLATION_COST, optionalMnecParameters.get().getViolationCost());
@@ -36,7 +36,7 @@ public final class JsonMnecParameters {
     }
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
-        MnecParameters mnecParameters = new MnecParameters();
+        SearchTreeRaoMnecParameters mnecParameters = new SearchTreeRaoMnecParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case VIOLATION_COST:

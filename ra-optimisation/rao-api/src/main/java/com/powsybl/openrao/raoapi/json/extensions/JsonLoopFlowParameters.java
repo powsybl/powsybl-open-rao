@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi.json.extensions;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public final class JsonLoopFlowParameters {
     }
 
     static void serialize(OpenRaoSearchTreeParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        Optional<LoopFlowParameters> optionalLoopFlowParameters = parameters.getLoopFlowParameters();
+        Optional<SearchTreeRaoLoopFlowParameters> optionalLoopFlowParameters = parameters.getLoopFlowParameters();
         if (optionalLoopFlowParameters.isPresent()) {
             jsonGenerator.writeObjectFieldStart(LOOP_FLOW_PARAMETERS);
             jsonGenerator.writeObjectField(PTDF_APPROXIMATION, optionalLoopFlowParameters.get().getPtdfApproximation());
@@ -37,7 +37,7 @@ public final class JsonLoopFlowParameters {
     }
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
-        LoopFlowParameters loopFlowParameters = new LoopFlowParameters();
+        SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case PTDF_APPROXIMATION:

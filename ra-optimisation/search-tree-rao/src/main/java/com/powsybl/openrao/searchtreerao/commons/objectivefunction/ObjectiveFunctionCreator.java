@@ -15,6 +15,8 @@ import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.*;
@@ -62,7 +64,7 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
         // mnec virtual cost evaluator
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             Optional<MnecParameters> mnecParametersOptional = raoParameters.getMnecParameters();
-            Optional<com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters> mnecParametersExtensionOptional = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMnecParameters();
+            Optional<SearchTreeRaoMnecParameters> mnecParametersExtensionOptional = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMnecParameters();
             if (mnecParametersOptional.isPresent() && mnecParametersExtensionOptional.isPresent()) {
                 virtualCostEvaluators.add(new MnecViolationCostEvaluator(
                     flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
@@ -77,7 +79,7 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
         // loop-flow virtual cost evaluator
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             Optional<LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
-            Optional<com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters> loopFlowParametersExtensionOptional = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters();
+            Optional<SearchTreeRaoLoopFlowParameters> loopFlowParametersExtensionOptional = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters();
             if (loopFlowParametersOptional.isPresent() && loopFlowParametersExtensionOptional.isPresent()) {
                 virtualCostEvaluators.add(new LoopFlowViolationCostEvaluator(
                     loopFlowCnecs,

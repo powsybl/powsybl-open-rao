@@ -10,7 +10,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -26,7 +26,7 @@ public final class JsonRelativeMarginsParameters {
     }
 
     static void serialize(OpenRaoSearchTreeParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        Optional<RelativeMarginsParameters> optionalRelativeMarginsParameters = parameters.getRelativeMarginsParameters();
+        Optional<SearchTreeRaoRelativeMarginsParameters> optionalRelativeMarginsParameters = parameters.getRelativeMarginsParameters();
         if (optionalRelativeMarginsParameters.isPresent()) {
             jsonGenerator.writeObjectFieldStart(RELATIVE_MARGINS);
             jsonGenerator.writeObjectField(PTDF_APPROXIMATION, optionalRelativeMarginsParameters.get().getPtdfApproximation());
@@ -36,7 +36,7 @@ public final class JsonRelativeMarginsParameters {
     }
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
-        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        SearchTreeRaoRelativeMarginsParameters relativeMarginsParameters = new SearchTreeRaoRelativeMarginsParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case PTDF_APPROXIMATION:

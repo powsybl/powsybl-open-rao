@@ -40,9 +40,9 @@ public class OpenRaoSearchTreeParametersConfigLoader implements RaoParameters.Co
         parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
         parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
         parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));
-        MnecParameters.load(platformConfig).ifPresent(parameters::setMnecParameters);
-        RelativeMarginsParameters.load(platformConfig).ifPresent(parameters::setRelativeMarginsParameters);
-        LoopFlowParameters.load(platformConfig).ifPresent(parameters::setLoopFlowParameters);
+        SearchTreeRaoMnecParameters.load(platformConfig).ifPresent(parameters::setMnecParameters);
+        SearchTreeRaoRelativeMarginsParameters.load(platformConfig).ifPresent(parameters::setRelativeMarginsParameters);
+        SearchTreeRaoLoopFlowParameters.load(platformConfig).ifPresent(parameters::setLoopFlowParameters);
         return parameters;
     }
 

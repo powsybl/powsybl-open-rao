@@ -25,9 +25,9 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
     private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
     private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
-    private Optional<MnecParameters> mnecParameters = Optional.empty();
-    private Optional<RelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
-    private Optional<LoopFlowParameters> loopFlowParameters = Optional.empty();
+    private Optional<SearchTreeRaoMnecParameters> mnecParameters = Optional.empty();
+    private Optional<SearchTreeRaoRelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
+    private Optional<SearchTreeRaoLoopFlowParameters> loopFlowParameters = Optional.empty();
 
     // Getters and setters
     public void setObjectiveFunctionParameters(SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -54,15 +54,15 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         this.loadFlowAndSensitivityParameters = loadFlowAndSensitivityParameters;
     }
 
-    public void setMnecParameters(MnecParameters mnecParameters) {
+    public void setMnecParameters(SearchTreeRaoMnecParameters mnecParameters) {
         this.mnecParameters = Optional.of(mnecParameters);
     }
 
-    public void setRelativeMarginsParameters(RelativeMarginsParameters relativeMarginsParameters) {
+    public void setRelativeMarginsParameters(SearchTreeRaoRelativeMarginsParameters relativeMarginsParameters) {
         this.relativeMarginsParameters = Optional.of(relativeMarginsParameters);
     }
 
-    public void setLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
+    public void setLoopFlowParameters(SearchTreeRaoLoopFlowParameters loopFlowParameters) {
         this.loopFlowParameters = Optional.of(loopFlowParameters);
     }
 
@@ -90,15 +90,15 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         return loadFlowAndSensitivityParameters;
     }
 
-    public Optional<MnecParameters> getMnecParameters() {
+    public Optional<SearchTreeRaoMnecParameters> getMnecParameters() {
         return mnecParameters;
     }
 
-    public Optional<RelativeMarginsParameters> getRelativeMarginsParameters() {
+    public Optional<SearchTreeRaoRelativeMarginsParameters> getRelativeMarginsParameters() {
         return relativeMarginsParameters;
     }
 
-    public Optional<LoopFlowParameters> getLoopFlowParameters() {
+    public Optional<SearchTreeRaoLoopFlowParameters> getLoopFlowParameters() {
         return loopFlowParameters;
     }
 

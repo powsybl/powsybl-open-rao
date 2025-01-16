@@ -90,7 +90,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         // Extensions
         // -- LoopFlow parameters
         com.powsybl.openrao.raoapi.parameters.LoopFlowParameters loopFlowParameters = new com.powsybl.openrao.raoapi.parameters.LoopFlowParameters();
-        LoopFlowParameters loopFlowParametersExtension = new LoopFlowParameters();
+        SearchTreeRaoLoopFlowParameters loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
         loopFlowParameters.setAcceptableIncrease(20.);
         loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
         loopFlowParametersExtension.setConstraintAdjustmentCoefficient(0.5);
@@ -102,7 +102,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         searchTreeParameters.setLoopFlowParameters(loopFlowParametersExtension);
         // -- Mnec parameters
         com.powsybl.openrao.raoapi.parameters.MnecParameters mnecParameters = new com.powsybl.openrao.raoapi.parameters.MnecParameters();
-        MnecParameters mnecParametersExtension = new MnecParameters();
+        SearchTreeRaoMnecParameters mnecParametersExtension = new SearchTreeRaoMnecParameters();
         mnecParametersExtension.setViolationCost(20);
         mnecParameters.setAcceptableMarginDecrease(30);
         mnecParametersExtension.setConstraintAdjustmentCoefficient(3);
@@ -110,7 +110,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         searchTreeParameters.setMnecParameters(mnecParametersExtension);
         // -- Relative Margins parameters
         com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters relativeMarginsParameters = new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters();
-        RelativeMarginsParameters relativeMarginsParametersExtension = new RelativeMarginsParameters();
+        SearchTreeRaoRelativeMarginsParameters relativeMarginsParametersExtension = new SearchTreeRaoRelativeMarginsParameters();
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}", "{BE}-{22Y201903144---9}-{DE}-{22Y201903145---4}"));
         relativeMarginsParameters.setPtdfBoundariesFromString(stringBoundaries);
         relativeMarginsParametersExtension.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);

@@ -20,7 +20,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.CONSTRAINT_ADJUSTM
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class MnecParameters {
+public class SearchTreeRaoMnecParameters {
     static final double DEFAULT_VIOLATION_COST = 10.0;
     static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
@@ -43,13 +43,13 @@ public class MnecParameters {
         this.constraintAdjustmentCoefficient = constraintAdjustmentCoefficient;
     }
 
-    public static Optional<MnecParameters> load(PlatformConfig platformConfig) {
+    public static Optional<SearchTreeRaoMnecParameters> load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         return platformConfig.getOptionalModuleConfig(ST_MNEC_PARAMETERS_SECTION)
             .map(config -> {
-                MnecParameters parameters = new MnecParameters();
-                parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, MnecParameters.DEFAULT_VIOLATION_COST));
-                parameters.setConstraintAdjustmentCoefficient(config.getDoubleProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT, MnecParameters.DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
+                SearchTreeRaoMnecParameters parameters = new SearchTreeRaoMnecParameters();
+                parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, SearchTreeRaoMnecParameters.DEFAULT_VIOLATION_COST));
+                parameters.setConstraintAdjustmentCoefficient(config.getDoubleProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT, SearchTreeRaoMnecParameters.DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
                 return parameters;
             });
     }

@@ -178,7 +178,7 @@ class RaoParametersConfigTest {
         Mockito.when(loopFlowModuleConfig.getDoubleProperty(eq("constraint-adjustment-coefficient"), anyDouble())).thenReturn(45.);
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
-        com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParameters parameters = configLoader.load(mockedPlatformConfig).getLoopFlowParameters().get();
+        SearchTreeRaoLoopFlowParameters parameters = configLoader.load(mockedPlatformConfig).getLoopFlowParameters().get();
         assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, parameters.getPtdfApproximation());
         assertEquals(45, parameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(43, parameters.getViolationCost(), DOUBLE_TOLERANCE);
@@ -201,7 +201,7 @@ class RaoParametersConfigTest {
         Mockito.when(mnecModuleConfig.getDoubleProperty(eq("constraint-adjustment-coefficient"), anyDouble())).thenReturn(45.);
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-mnec-parameters")).thenReturn(Optional.of(mnecModuleConfig));
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
-        com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters parameters = configLoader.load(mockedPlatformConfig).getMnecParameters().get();
+        SearchTreeRaoMnecParameters parameters = configLoader.load(mockedPlatformConfig).getMnecParameters().get();
         assertEquals(43, parameters.getViolationCost(), DOUBLE_TOLERANCE);
         assertEquals(45, parameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
     }
@@ -222,7 +222,7 @@ class RaoParametersConfigTest {
         Mockito.when(relativeMarginsModuleConfig.getDoubleProperty(eq("ptdf-sum-lower-bound"), anyDouble())).thenReturn(32.);
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
-        com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters parameters = configLoader.load(mockedPlatformConfig).getRelativeMarginsParameters().get();
+        SearchTreeRaoRelativeMarginsParameters parameters = configLoader.load(mockedPlatformConfig).getRelativeMarginsParameters().get();
         assertEquals(32, parameters.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
     }
 
