@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.time.OffsetDateTime;
+import java.util.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -57,13 +59,15 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected static final double RANGE_SHRINK_RATE = 0.667;
     protected final boolean raRangeShrinking;
     protected final RangeActionsOptimizationParameters.PstModel pstModel;
+    private final OffsetDateTime timestamp;
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                         RangeActionsOptimizationParameters rangeActionParameters,
                                         Unit unit,
                                         boolean raRangeShrinking,
-                                        RangeActionsOptimizationParameters.PstModel pstModel) {
+                                        RangeActionsOptimizationParameters.PstModel pstModel,
+                                        OffsetDateTime timestamp) {
         this.optimizationContext = optimizationContext;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -72,6 +76,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         this.unit = unit;
         this.raRangeShrinking = raRangeShrinking;
         this.pstModel = pstModel;
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -103,7 +108,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
      */
     private void buildFlowVariables(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         validFlowCnecs.forEach(cnec ->
-            cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-linearProblem.infinity(), linearProblem.infinity(), cnec, side))
+            cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-linearProblem.infinity(), linearProblem.infinity(), cnec, side, Optional.ofNullable(timestamp)))
         );
     }
 
@@ -131,10 +136,10 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private void addBasicRangeActionVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
-        linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state);
-        linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state, Optional.ofNullable(timestamp));
+        linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state, Optional.ofNullable(timestamp));
+        linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp));
+        linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.ofNullable(timestamp));
     }
 
     /**
@@ -147,9 +152,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
             double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
-            OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
+            OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side, Optional.ofNullable(timestamp));
 
-            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
@@ -158,7 +163,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, TwoSides side, RangeActionActivationResult rangeActionActivationResult) {
-        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
+        OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side, Optional.ofNullable(timestamp));
 
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
             .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
@@ -187,7 +192,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             return;
         }
 
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.ofNullable(timestamp));
         double currentSetPoint = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
 
         flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentSetPoint);
@@ -221,12 +226,12 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
         if (iteration > 0) {
             // don't shrink the range for the first iteration
-            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration)));
+            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration, timestamp)));
         }
         iteration++;
     }
 
-    private static void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration) {
+    private static void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration, OffsetDateTime timestamp) {
         double previousSetPointValue = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
         double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
@@ -235,13 +240,13 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         double lb = previousSetPointValue - constrainedSetPointRange;
         double ub = previousSetPointValue + constrainedSetPointRange;
         try {
-            OpenRaoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
+            OpenRaoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, LinearProblem.RaRangeShrinking.TRUE, Optional.ofNullable(timestamp));
             iterativeShrink.setLb(lb);
             iterativeShrink.setUb(ub);
         } catch (OpenRaoException ignored) {
             // Constraint iterativeShrink has not yet been created
-            OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-            OpenRaoMPConstraint iterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(lb, ub, rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
+            OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.ofNullable(timestamp));
+            OpenRaoMPConstraint iterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(lb, ub, rangeAction, state, LinearProblem.RaRangeShrinking.TRUE, Optional.ofNullable(timestamp));
             iterativeShrink.setCoefficient(setPointVariable, 1);
         }
     }
@@ -255,17 +260,17 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected abstract void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state);
 
     protected void addSetPointConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
-        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.ofNullable(timestamp));
+        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.ofNullable(timestamp));
+        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp));
+        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.ofNullable(timestamp));
 
-        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.addRangeActionAbsoluteVariationConstraint(rangeAction, state);
+        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.addRangeActionAbsoluteVariationConstraint(rangeAction, state, Optional.ofNullable(timestamp));
         absoluteVariationConstraint.setCoefficient(absoluteVariationVariable, 1.0);
         absoluteVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
         absoluteVariationConstraint.setCoefficient(downwardVariationVariable, -1.0);
 
-        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.addRangeActionSetPointVariationConstraint(rangeAction, state);
+        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.addRangeActionSetPointVariationConstraint(rangeAction, state, Optional.ofNullable(timestamp));
         setPointVariationConstraint.setCoefficient(setPointVariable, 1.0);
         setPointVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
         setPointVariationConstraint.setCoefficient(downwardVariationVariable, 1.0);
@@ -290,7 +295,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
             // range action have been activated in a previous instant
             // getRangeActionSetpointVariable from previous instant
-            OpenRaoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
+            OpenRaoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue(), Optional.ofNullable(timestamp));
 
             List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
             double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
@@ -300,7 +305,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
             // relative range
             if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS) || !(rangeAction instanceof PstRangeAction)) {
-                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
+                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE, Optional.ofNullable(timestamp));
                 relSetpointConstraint.setCoefficient(setPointVariable, 1);
                 relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
             }

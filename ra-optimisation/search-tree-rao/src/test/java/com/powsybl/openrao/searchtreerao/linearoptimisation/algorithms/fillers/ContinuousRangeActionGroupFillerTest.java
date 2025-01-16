@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,10 +64,10 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
                 rangeActionParameters,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS, null);
 
         ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(
-            rangeActions);
+            rangeActions, null);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -78,12 +79,12 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
 
         // check that all constraints and variables relate to discrete Pst Group filler exists
-        OpenRaoMPVariable groupSetpointV = linearProblem.getRangeActionGroupSetpointVariable(groupId, state);
-        OpenRaoMPVariable setpoint1V = linearProblem.getRangeActionSetpointVariable(pstRa1, state);
-        OpenRaoMPVariable setpoint2V = linearProblem.getRangeActionSetpointVariable(pstRa2, state);
+        OpenRaoMPVariable groupSetpointV = linearProblem.getRangeActionGroupSetpointVariable(groupId, state, Optional.empty());
+        OpenRaoMPVariable setpoint1V = linearProblem.getRangeActionSetpointVariable(pstRa1, state, Optional.empty());
+        OpenRaoMPVariable setpoint2V = linearProblem.getRangeActionSetpointVariable(pstRa2, state, Optional.empty());
 
-        OpenRaoMPConstraint groupTap1C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa1, state);
-        OpenRaoMPConstraint groupTap2C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa2, state);
+        OpenRaoMPConstraint groupTap1C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa1, state, Optional.empty());
+        OpenRaoMPConstraint groupTap2C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa2, state, Optional.empty());
 
         assertNotNull(groupSetpointV);
         assertNotNull(groupTap1C);
