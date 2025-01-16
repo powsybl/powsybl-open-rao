@@ -551,7 +551,7 @@ Zones are seperated by + or -.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "2.5",
+  "version" : "3.0",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "unit" : "A",

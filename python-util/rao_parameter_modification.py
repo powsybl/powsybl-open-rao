@@ -22,7 +22,7 @@ def rao_parameters_file(file_path):
     if "target" not in file_path and (file_path.endswith(".json")):
         with open(os.path.join(dirpath, filename), 'r') as file:
             for line in file:
-                if '"version" : "2.4"' in line or '"version" : "2.5"' in line:
+                if '"version" : "2.4"' in line or '"version" : "3.0"' in line:
                     correct_version = True
                 if any(name in line for name in relevant_rao_param_names):
                     has_rao_param_name = True
