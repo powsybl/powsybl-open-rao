@@ -138,16 +138,16 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     private void buildIsVariationVariableAndConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         if (!costOptimization) {
-            OpenRaoMPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction, state);
+            OpenRaoMPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction, state, Optional.ofNullable(timestamp));
 
-            OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
+            OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.ofNullable(timestamp));
 
             double initialSetpointRelaxation = getInitialSetpointRelaxation(rangeAction);
 
             // range action absolute variation <= isVariationVariable * (max setpoint - min setpoint) + initialSetpointRelaxation
             // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring that the maximum setpoint is feasible
             // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
-            OpenRaoMPConstraint constraint = linearProblem.addIsVariationConstraint(-linearProblem.infinity(), initialSetpointRelaxation, rangeAction, state);
+            OpenRaoMPConstraint constraint = linearProblem.addIsVariationConstraint(-linearProblem.infinity(), initialSetpointRelaxation, rangeAction, state, Optional.ofNullable(timestamp));
             constraint.setCoefficient(absoluteVariationVariable, 1);
             double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
             constraint.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - rangeAction.getMinAdmissibleSetpoint(initialSetpoint)));

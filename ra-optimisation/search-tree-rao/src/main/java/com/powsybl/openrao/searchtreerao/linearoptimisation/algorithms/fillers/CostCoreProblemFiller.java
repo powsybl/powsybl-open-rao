@@ -22,6 +22,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,8 +36,9 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                                  RangeActionsOptimizationParameters rangeActionParameters,
                                  Unit unit,
                                  boolean raRangeShrinking,
-                                 RangeActionsOptimizationParameters.PstModel pstModel) {
-        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, unit, raRangeShrinking, pstModel);
+                                 RangeActionsOptimizationParameters.PstModel pstModel,
+                                 OffsetDateTime timestamp) {
+        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, unit, raRangeShrinking, pstModel, timestamp);
         if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS)) {
             throw new OpenRaoException("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.");
         }
@@ -47,7 +49,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
         super.addAllRangeActionVariables(linearProblem, rangeAction, state);
         Optional<Double> activationCost = rangeAction.getActivationCost();
         if (activationCost.isPresent() && activationCost.get() > 0) {
-            linearProblem.addRangeActionVariationBinary(rangeAction, state);
+            linearProblem.addRangeActionVariationBinary(rangeAction, state, Optional.ofNullable(timestamp));
         }
     }
 
@@ -66,10 +68,10 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
     private void addIsVariationConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         Optional<Double> activationCost = rangeAction.getActivationCost();
         if (activationCost.isPresent() && activationCost.get() > 0) {
-            OpenRaoMPConstraint activationConstraint = linearProblem.addIsVariationConstraint(0, linearProblem.infinity(), rangeAction, state);
-            OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
-            OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-            OpenRaoMPVariable variationBinaryVariable = linearProblem.getRangeActionVariationBinary(rangeAction, state);
+            OpenRaoMPConstraint activationConstraint = linearProblem.addIsVariationConstraint(0, linearProblem.infinity(), rangeAction, state, Optional.ofNullable(timestamp));
+            OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp));
+            OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.ofNullable(timestamp));
+            OpenRaoMPVariable variationBinaryVariable = linearProblem.getRangeActionVariationBinary(rangeAction, state, Optional.ofNullable(timestamp));
 
             double minSetPoint;
             double maxSetPoint;
@@ -109,8 +111,8 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
-                OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
-                OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+                OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp));
+                OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.ofNullable(timestamp));
 
                 double defaultVariationCost = getRangeActionPenaltyCost(ra, rangeActionParameters);
                 // pst costs are considered in the discreteTapFiller
@@ -120,7 +122,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                 }
 
                 if (ra.getActivationCost().isPresent() && ra.getActivationCost().get() > 0) {
-                    OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
+                    OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state, Optional.ofNullable(timestamp));
                     linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
                 }
             }

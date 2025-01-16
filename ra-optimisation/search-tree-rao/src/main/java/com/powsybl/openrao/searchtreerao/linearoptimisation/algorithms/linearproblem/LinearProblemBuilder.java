@@ -124,14 +124,16 @@ public class LinearProblemBuilder {
             parameters.getRangeActionParameters(),
             parameters.getObjectiveFunctionUnit(),
             parameters.getRaRangeShrinking(),
-            parameters.getRangeActionParameters().getPstModel()
+            parameters.getRangeActionParameters().getPstModel(),
+            null
         ) : new MarginCoreProblemFiller(
             inputs.optimizationPerimeter(),
             inputs.prePerimeterSetpoints(),
             parameters.getRangeActionParameters(),
             parameters.getObjectiveFunctionUnit(),
             parameters.getRaRangeShrinking(),
-            parameters.getRangeActionParameters().getPstModel()
+            parameters.getRangeActionParameters().getPstModel(),
+            null
         );
     }
 
@@ -148,7 +150,8 @@ public class LinearProblemBuilder {
         return new MaxMinMarginFiller(
             inputs.optimizationPerimeter().getOptimizedFlowCnecs(),
             parameters.getObjectiveFunctionUnit(),
-            parameters.getObjectiveFunction().costOptimization());
+            parameters.getObjectiveFunction().costOptimization(),
+            null);
     }
 
     private ProblemFiller buildMnecFiller() {
@@ -172,7 +175,8 @@ public class LinearProblemBuilder {
         return new UnoptimizedCnecFiller(
             inputs.optimizationPerimeter().getFlowCnecs(),
             inputs.prePerimeterFlowResult(),
-            parameters.getUnoptimizedCnecParameters()
+            parameters.getUnoptimizedCnecParameters(),
+            null
         );
     }
 
@@ -182,7 +186,8 @@ public class LinearProblemBuilder {
             pstRangeActions,
             inputs.prePerimeterSetpoints(),
             parameters.getRangeActionParameters(),
-            parameters.getObjectiveFunction().costOptimization()
+            parameters.getObjectiveFunction().costOptimization(),
+            null
         );
     }
 

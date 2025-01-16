@@ -59,7 +59,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected static final double RANGE_SHRINK_RATE = 0.667;
     protected final boolean raRangeShrinking;
     protected final RangeActionsOptimizationParameters.PstModel pstModel;
-    private final OffsetDateTime timestamp;
+    protected final OffsetDateTime timestamp;
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,

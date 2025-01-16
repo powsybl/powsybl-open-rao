@@ -214,10 +214,10 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         checkPstRelativeTapConstraint(-8, 9);
 
         if (costOptimization) {
-            assertEquals(10.0, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pra, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD)));
-            assertEquals(10.0, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pra, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD)));
-            assertEquals(0.01, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.UPWARD)), 1e-2);
-            assertEquals(0.01, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-2);
+            assertEquals(10.0, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pra, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty())));
+            assertEquals(10.0, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pra, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty())));
+            assertEquals(0.01, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty())), 1e-2);
+            assertEquals(0.01, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty())), 1e-2);
         }
     }
 

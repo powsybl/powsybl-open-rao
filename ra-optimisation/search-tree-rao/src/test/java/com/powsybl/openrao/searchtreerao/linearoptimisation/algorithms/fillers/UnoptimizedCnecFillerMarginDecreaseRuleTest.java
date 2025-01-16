@@ -96,7 +96,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinMargin(boolean initialFlowsAreNan) {
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"));
-        MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnecNl, cnecFr), Unit.MEGAWATT, false);
+        MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnecNl, cnecFr), Unit.MEGAWATT, false, null);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(cnecNl, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(400.);
         when(initialFlowResult.getMargin(cnecFr, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(600.);

@@ -35,7 +35,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
     protected final Set<FlowCnec> optimizedCnecs;
     private final Unit unit;
     private final boolean costOptimization;
-    private final OffsetDateTime timestamp;
+    protected final OffsetDateTime timestamp;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
                               Unit unit, boolean costOptimization,
@@ -70,8 +70,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * If the actual min margin is non-negative, the variable will be forced to 0,
      * so it does not take part in the objective.
      */
-    private static void forceMinMarginToBeNegative(LinearProblem linearProblem) {
-        linearProblem.getMinimumMarginVariable().setUb(0.0);
+    private void forceMinMarginToBeNegative(LinearProblem linearProblem) {
+        linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)).setUb(0.0);
     }
 
     @Override
@@ -142,9 +142,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min(-MM)
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
-        linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(), costOptimization ? -OVERLOAD_PENALTY : -1);
-        OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp));
-        linearProblem.getObjective().setCoefficient(minimumMarginVariable, -1);
+        linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), costOptimization ? -OVERLOAD_PENALTY : -1);
     }
 
 }
