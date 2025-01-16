@@ -29,6 +29,14 @@ public class Marmot implements InterTemporalRaoProvider {
     @Override
     public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInput raoInput, RaoParameters parameters) {
         TemporalData<RaoResult> raoResults = raoInput.getRaoInputs().map(individualRaoInput -> Rao.run(individualRaoInput, parameters));
+        if (raoInput.getPowerGradientConstraints().isEmpty()) {
+            return CompletableFuture.completedFuture(raoResults);
+        }
+        // TODO: apply topological remedial actions (at least preventive ones, maybe curative too but how?)
+        // TODO: run sensitivity analysis on all timestamps
+        // TODO: create big MIP with all timestamps
+        // TODO: iterate MIP
+        // TODO: complie RaoResults by merging topological and linear results
         return CompletableFuture.completedFuture(raoResults);
     }
 
