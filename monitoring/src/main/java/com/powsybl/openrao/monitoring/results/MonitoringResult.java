@@ -81,7 +81,7 @@ public class MonitoringResult {
         return constraints;
     }
 
-    public void combine(MonitoringResult monitoringResult) {
+    public synchronized void combine(MonitoringResult monitoringResult) {
         Set<CnecResult> thisCnecResults = new HashSet<>(this.getCnecResults());
         Set<CnecResult> otherCnecResults = monitoringResult.getCnecResults();
         thisCnecResults.addAll(otherCnecResults);
