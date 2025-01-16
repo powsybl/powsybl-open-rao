@@ -36,7 +36,7 @@ public class Marmot implements InterTemporalRaoProvider {
         // TODO: run sensitivity analysis on all timestamps
         // TODO: create big MIP with all timestamps
         // TODO: iterate MIP
-        // TODO: complie RaoResults by merging topological and linear results
+        // TODO: compile RaoResults by merging topological and linear results
         return CompletableFuture.completedFuture(raoResults);
     }
 
