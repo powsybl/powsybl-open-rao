@@ -64,7 +64,7 @@ public class Monitoring {
      * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with AngleMonitoringResult
      */
-    public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
+    public static RaoResultWithAngleMonitoring runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
         return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
     }
 
@@ -140,7 +140,8 @@ public class Monitoring {
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (Exception e) {
             Thread.currentThread().interrupt();
-            throw new OpenRaoException(e);
+            monitoringResult.setStatusToFailure();
+
         }
 
         BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
@@ -392,7 +393,7 @@ public class Monitoring {
     private void checkGlsks(Country country, String naId, String angleCnecId, ZonalData<Scalable> scalableZonalData) {
         Set<Country> glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
         if (Objects.isNull(scalableZonalData)) {
-            String error = "Incomplete Glsk: scalableZonalData undefined";
+            String error = "ScalableZonalData undefined (no GLSK given)";
             BUSINESS_LOGS.error(error);
             throw new OpenRaoException(error);
         }

@@ -374,8 +374,8 @@ class AngleMonitoringTest {
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).build();
-        OpenRaoException e = assertThrows(OpenRaoException.class, () -> Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput));
+        angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 2);
+        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
     }
-
 }
 

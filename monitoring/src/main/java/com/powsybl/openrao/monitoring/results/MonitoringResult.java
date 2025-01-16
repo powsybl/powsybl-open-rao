@@ -116,4 +116,9 @@ public class MonitoringResult {
         }
         return SecurityStatus.SECURE;
     }
+
+    public void setStatusToFailure() {
+        this.status = SecurityStatus.FAILURE;
+    }
+
 }
