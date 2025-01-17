@@ -37,13 +37,13 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     private final double highestThreshold;
     private final double maxPositiveRelativeRam;
     private final double maxNegativeRelativeRam;
-    private final OffsetDateTime timestamp;
 
     public MaxMinRelativeMarginFiller(Set<FlowCnec> optimizedCnecs,
                                       FlowResult preOptimFlowResult,
                                       Unit unit,
-                                      RelativeMarginsParametersExtension maxMinRelativeMarginParameters, OffsetDateTime timestamp) {
-        super(optimizedCnecs, unit, null);
+                                      RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
+                                      OffsetDateTime timestamp) {
+        super(optimizedCnecs, unit, false, timestamp);
         this.preOptimFlowResult = preOptimFlowResult;
         this.ptdfApproximationLevel = maxMinRelativeMarginParameters.getPtdfApproximation();
         this.unit = unit;
@@ -51,7 +51,6 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         this.highestThreshold = RaoUtil.getLargestCnecThreshold(optimizedCnecs, MEGAWATT);
         this.maxPositiveRelativeRam = highestThreshold / ptdfSumLowerBound;
         this.maxNegativeRelativeRam = 5 * maxPositiveRelativeRam;
-        this.timestamp = timestamp;
     }
 
     @Override
