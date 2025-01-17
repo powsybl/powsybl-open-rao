@@ -255,7 +255,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * variation variables, and bounds the set-point in an admissible range.
      * S[r,s] = initialSetPoint[r,s] + upwardVariation[r,s] - downwardVariation[r,s]
      *
-     * If r in an injection action, add contribution of its variation to the global balancing constraint (as defined below and )
+     * If r in an injection action, add contribution of its variation to the global balancing constraint (as defined below)
      * sum{r InjectionRangeAction} (upwardVariation[r,s] - downwardVariation[r,s]) x sum{distribution keys of r} = 0
      */
     private void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
