@@ -216,8 +216,16 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
-            .forEach(entry ->
-                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())));
+            .forEach(entry -> {
+                addGlobalInjectionBalanceConstraint(linearProblem, entry.getKey());
+                entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey()));
+            });
+    }
+
+    private void addGlobalInjectionBalanceConstraint(LinearProblem linearProblem, State state) {
+        if (optimizationContext.getRangeActionsPerState().get(state).stream().anyMatch(InjectionRangeAction.class::isInstance)) {
+            linearProblem.addInjectionBalanceConstraint(state, Optional.ofNullable(timestamp));
+        }
     }
 
     private void checkAndActivateRangeShrinking(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
@@ -255,7 +263,10 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
      * Build range action constraints for each RangeAction r.
      * These constraints link the set-point variable of the RangeAction with its
      * variation variables, and bounds the set-point in an admissible range.
-     * S[r] = initialSetPoint[r] + upwardVariation[r] - downwardVariation[r]
+     * S[r,s] = initialSetPoint[r,s] + upwardVariation[r,s] - downwardVariation[r,s]
+     *
+     * If r in an injection action, add contribution of its variation to the global balancing constraint (as defined below)
+     * sum{r InjectionRangeAction} (upwardVariation[r,s] - downwardVariation[r,s]) x sum{distribution keys of r} = 0
      */
     protected abstract void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state);
 
@@ -315,6 +326,13 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             setPointVariable.setUb(maxAbsoluteSetpoint + RANGE_ACTION_SETPOINT_EPSILON);
 
             setPointVariationConstraint.setCoefficient(previousSetpointVariable, -1.0);
+        }
+
+        if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
+            double totalShiftKey = injectionRangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(v -> v).sum();
+            OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state, Optional.ofNullable(timestamp));
+            injectionBalanceConstraint.setCoefficient(upwardVariationVariable, totalShiftKey);
+            injectionBalanceConstraint.setCoefficient(downwardVariationVariable, -totalShiftKey);
         }
     }
 

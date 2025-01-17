@@ -55,6 +55,7 @@ public final class LinearProblemIdGenerator {
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
     private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
     private static final String RANGE_ACTION_ABSOLUTE_VARIATION = "rangeactionabsolutevariation";
+    private static final String INJECTION_BALANCE = "injectionbalance";
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final DateTimeFormatter DATETIME_FORMATER = DateTimeFormatter.ofPattern("hhMMddHHmm");
 
@@ -237,6 +238,10 @@ public final class LinearProblemIdGenerator {
 
     public static String rangeActionAbsoluteVariationConstraintId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
         return formatName(timestamp, RANGE_ACTION_ABSOLUTE_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String injectionBalanceConstraintId(State state, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, INJECTION_BALANCE, state.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String totalPstRangeActionTapVariationVariableId(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {

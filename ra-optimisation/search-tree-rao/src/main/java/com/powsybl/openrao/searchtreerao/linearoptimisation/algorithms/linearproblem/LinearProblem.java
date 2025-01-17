@@ -470,6 +470,14 @@ public final class LinearProblem {
         return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state, timestamp));
     }
 
+    public OpenRaoMPConstraint addInjectionBalanceConstraint(State state, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(0.0, 0.0, injectionBalanceConstraintId(state, timestamp));
+    }
+
+    public OpenRaoMPConstraint getInjectionBalanceConstraint(State state, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(injectionBalanceConstraintId(state, timestamp));
+    }
+
     public OpenRaoMPVariable addTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
         return solver.makeIntVar(0, infinity(), totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection, timestamp));
     }
