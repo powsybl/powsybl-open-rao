@@ -64,7 +64,7 @@ public class Monitoring {
      * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with AngleMonitoringResult
      */
-    public static RaoResultWithAngleMonitoring runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
+    public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
         return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
     }
 
@@ -141,7 +141,6 @@ public class Monitoring {
         } catch (Exception e) {
             Thread.currentThread().interrupt();
             monitoringResult.setStatusToFailure();
-
         }
 
         BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
