@@ -28,6 +28,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
@@ -86,7 +87,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
             rangeActionParameters,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+            false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, null);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(preventiveState, Set.of(pstRangeAction));
@@ -94,7 +95,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         discretePstTapFiller = new DiscretePstTapFiller(
             optimizationPerimeter,
             pstRangeActions,
-            initialRangeActionSetpointResult);
+            initialRangeActionSetpointResult, null);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -111,15 +112,15 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         double initialSetpoint = tapToAngle.get(initialTap);
 
         // check that all constraints and variables exists
-        OpenRaoMPVariable setpointV = linearProblem.getRangeActionSetpointVariable(pst, state);
-        OpenRaoMPVariable variationUpV = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable variationDownV = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pst, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable binaryDownV = linearProblem.getPstTapVariationBinary(pst, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPConstraint tapToAngleConversionC = linearProblem.getTapToAngleConversionConstraint(pst, state);
-        OpenRaoMPConstraint upOrDownC = linearProblem.getUpOrDownPstVariationConstraint(pst, state);
-        OpenRaoMPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pst, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pst, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable setpointV = linearProblem.getRangeActionSetpointVariable(pst, state, Optional.empty());
+        OpenRaoMPVariable variationUpV = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPVariable variationDownV = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
+        OpenRaoMPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pst, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPVariable binaryDownV = linearProblem.getPstTapVariationBinary(pst, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
+        OpenRaoMPConstraint tapToAngleConversionC = linearProblem.getTapToAngleConversionConstraint(pst, state, Optional.empty());
+        OpenRaoMPConstraint upOrDownC = linearProblem.getUpOrDownPstVariationConstraint(pst, state, Optional.empty());
+        OpenRaoMPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pst, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pst, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
 
         assertNotNull(setpointV);
         assertNotNull(variationUpV);
@@ -172,11 +173,11 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     }
 
     private void checkPstRelativeTapConstraint(double expectedLb, double expectedUb) {
-        OpenRaoMPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, preventiveState, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPVariable craVariationUpV = linearProblem.getPstTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable craVariationDownV = linearProblem.getPstTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPConstraint craRelativeTapC = linearProblem.getPstRelativeTapConstraint(cra, curativeState);
+        OpenRaoMPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, preventiveState, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
+        OpenRaoMPVariable craVariationUpV = linearProblem.getPstTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPVariable craVariationDownV = linearProblem.getPstTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
+        OpenRaoMPConstraint craRelativeTapC = linearProblem.getPstRelativeTapConstraint(cra, curativeState, Optional.empty());
 
         assertNotNull(craRelativeTapC);
 
