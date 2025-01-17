@@ -56,6 +56,7 @@ public final class LinearProblemIdGenerator {
     private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
     private static final String RANGE_ACTION_ABSOLUTE_VARIATION = "rangeactionabsolutevariation";
     private static final String INJECTION_BALANCE = "injectionbalance";
+    private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final DateTimeFormatter DATETIME_FORMATER = DateTimeFormatter.ofPattern("hhMMddHHmm");
 
     private LinearProblemIdGenerator() {
@@ -241,5 +242,21 @@ public final class LinearProblemIdGenerator {
 
     public static String injectionBalanceConstraintId(State state, Optional<OffsetDateTime> timestamp) {
         return formatName(timestamp, INJECTION_BALANCE, state.getId(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String totalPstRangeActionTapVariationVariableId(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, TOTAL_PST_RANGE_ACTION_TAP_VARIATION, pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX, variationDirection.toString());
+    }
+
+    public static String totalPstRangeActionTapVariationConstraintId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, TOTAL_PST_RANGE_ACTION_TAP_VARIATION, pstRangeAction.getId(), state.getId() + SEPARATOR + CONSTRAINT_SUFFIX);
+    }
+
+    public static String tapVariableId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX);
+    }
+
+    public static String tapConstraintId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 }
