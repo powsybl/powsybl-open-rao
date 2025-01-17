@@ -46,18 +46,21 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final boolean arePstSetpointsApproximated;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-4;
     private final Network network;
+    private final boolean costOptimization;
     private final OffsetDateTime timestamp;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                RangeActionLimitationParameters rangeActionLimitationParameters,
                                boolean arePstSetpointsApproximated,
-                               Network network, OffsetDateTime timestamp) {
+                               Network network, boolean costOptimization,
+                               OffsetDateTime timestamp) {
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionLimitationParameters = rangeActionLimitationParameters;
         this.arePstSetpointsApproximated = arePstSetpointsApproximated;
         this.network = network;
+        this.costOptimization = costOptimization;
         this.timestamp = timestamp;
     }
 
@@ -67,6 +70,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
                 return;
             }
+            // if cost optimization, variation variables are already defined
             rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
             if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
                 addMaxRaConstraint(linearProblem, state);
@@ -133,19 +137,21 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     private void buildIsVariationVariableAndConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        OpenRaoMPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction, state, Optional.ofNullable(timestamp));
+        if (!costOptimization) {
+            OpenRaoMPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction, state, Optional.ofNullable(timestamp));
 
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.ofNullable(timestamp));
+            OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.ofNullable(timestamp));
 
-        double initialSetpointRelaxation = getInitialSetpointRelaxation(rangeAction);
+            double initialSetpointRelaxation = getInitialSetpointRelaxation(rangeAction);
 
-        // range action absolute variation <= isVariationVariable * (max setpoint - min setpoint) + initialSetpointRelaxation
-        // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring that the maximum setpoint is feasible
-        // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
-        OpenRaoMPConstraint constraint = linearProblem.addIsVariationConstraint(-linearProblem.infinity(), initialSetpointRelaxation, rangeAction, state, Optional.ofNullable(timestamp));
-        constraint.setCoefficient(absoluteVariationVariable, 1);
-        double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
-        constraint.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - rangeAction.getMinAdmissibleSetpoint(initialSetpoint)));
+            // range action absolute variation <= isVariationVariable * (max setpoint - min setpoint) + initialSetpointRelaxation
+            // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring that the maximum setpoint is feasible
+            // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
+            OpenRaoMPConstraint constraint = linearProblem.addIsVariationConstraint(-linearProblem.infinity(), initialSetpointRelaxation, rangeAction, state, Optional.ofNullable(timestamp));
+            constraint.setCoefficient(absoluteVariationVariable, 1);
+            double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+            constraint.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - rangeAction.getMinAdmissibleSetpoint(initialSetpoint)));
+        }
     }
 
     private void addMaxRaConstraint(LinearProblem linearProblem, State state) {

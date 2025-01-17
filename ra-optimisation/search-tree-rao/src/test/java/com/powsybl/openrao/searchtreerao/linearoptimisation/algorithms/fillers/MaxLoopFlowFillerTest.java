@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
  */
 class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller coreProblemFiller;
     private MaxLoopFlowFiller maxLoopFlowFiller;
     private LoopFlowParametersExtension loopFlowParameters;
     private FlowCnec cnecOn2sides;
@@ -75,7 +75,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
-        coreProblemFiller = new CoreProblemFiller(
+        coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
                 rangeActionParameters,
