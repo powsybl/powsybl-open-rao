@@ -44,6 +44,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
     }
 
     @Override
+    //  TODO : only create generator variables when necessary (map injection range actions/generators)
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         List<OffsetDateTime> timestamps = input.getRaoInputs().getTimestamps();
         for (int timestampIndex = 0; timestampIndex < timestamps.size(); timestampIndex++) {
