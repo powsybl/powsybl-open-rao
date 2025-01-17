@@ -111,7 +111,7 @@ class PowerGradientConstraintFillerTest {
             Map<RangeAction<?>, Double> map = new HashMap<>();
             crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(action -> map.put(action, 0.0));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
-            CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
+            MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
                 optimizationPerimeter,
                 rangeActionSetpointResult,
                 rangeActionParameters,
