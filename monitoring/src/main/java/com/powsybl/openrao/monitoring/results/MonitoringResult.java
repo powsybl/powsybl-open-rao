@@ -81,7 +81,9 @@ public class MonitoringResult {
         return constraints;
     }
 
-    public void combine(MonitoringResult monitoringResult) {
+    // Add synchronized in the signature to make the function blocking
+    // Necessary because in the function runMonitoring this function is called in parallel threads -> can cause overwriting conflict.
+    public synchronized void combine(MonitoringResult monitoringResult) {
         Set<CnecResult> thisCnecResults = new HashSet<>(this.getCnecResults());
         Set<CnecResult> otherCnecResults = monitoringResult.getCnecResults();
         thisCnecResults.addAll(otherCnecResults);
