@@ -10,7 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters;
@@ -40,9 +40,9 @@ class LinearProblemBuilderTest {
     private LinearProblemBuilder linearProblemBuilder;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
-    private RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
+    private SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
     private com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters rangeActionParameters;
-    private RangeActionsOptimizationParameters rangeActionParametersExtension;
+    private SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
     private OptimizationPerimeter optimizationPerimeter;
 
     @BeforeEach
@@ -51,12 +51,12 @@ class LinearProblemBuilderTest {
         inputs = Mockito.mock(IteratingLinearOptimizerInput.class);
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
 
-        solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
-        when(solverParameters.getSolver()).thenReturn(RangeActionsOptimizationParameters.Solver.SCIP);
+        solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        when(solverParameters.getSolver()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
         rangeActionParameters = Mockito.mock(com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
-        rangeActionParametersExtension = Mockito.mock(RangeActionsOptimizationParameters.class);
+        rangeActionParametersExtension = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParametersExtension()).thenReturn(rangeActionParametersExtension);
         RelativeMarginsParameters relativeMarginParameters = Mockito.mock(RelativeMarginsParameters.class);
         when(parameters.getMaxMinRelativeMarginParameters()).thenReturn(relativeMarginParameters);
@@ -76,7 +76,7 @@ class LinearProblemBuilderTest {
 
     @Test
     void testBuildMaxMarginContinuous() {
-        when(rangeActionParametersExtension.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
 
@@ -91,7 +91,7 @@ class LinearProblemBuilderTest {
 
     @Test
     void testBuildMaxMarginDiscrete() {
-        when(rangeActionParametersExtension.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+        when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
 
@@ -108,7 +108,7 @@ class LinearProblemBuilderTest {
 
     @Test
     void testBuildMaxRelativeMarginContinuous() {
-        when(rangeActionParametersExtension.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
 
@@ -123,7 +123,7 @@ class LinearProblemBuilderTest {
 
     @Test
     void testBuildMaxMarginContinuousMnecLoopflowUnoptimized() {
-        when(rangeActionParametersExtension.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
         when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
@@ -146,7 +146,7 @@ class LinearProblemBuilderTest {
 
     @Test
     void testBuildMaxMarginContinuousRaLimitation() {
-        when(rangeActionParametersExtension.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
         RangeActionLimitationParameters raLimitationParameters = Mockito.mock(RangeActionLimitationParameters.class);

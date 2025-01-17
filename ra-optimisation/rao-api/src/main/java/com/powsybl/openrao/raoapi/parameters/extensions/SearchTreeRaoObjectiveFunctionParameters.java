@@ -17,8 +17,9 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  * Objective function parameters for RAO
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public class ObjectiveFunctionParameters {
+public class SearchTreeRaoObjectiveFunctionParameters {
     private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
     private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
 
@@ -26,8 +27,8 @@ public class ObjectiveFunctionParameters {
         return curativeMinObjImprovement;
     }
 
-    public static ObjectiveFunctionParameters load(PlatformConfig platformConfig) {
-        ObjectiveFunctionParameters parameters = new ObjectiveFunctionParameters();
+    public static SearchTreeRaoObjectiveFunctionParameters load(PlatformConfig platformConfig) {
+        SearchTreeRaoObjectiveFunctionParameters parameters = new SearchTreeRaoObjectiveFunctionParameters();
         platformConfig.getOptionalModuleConfig(ST_OBJECTIVE_FUNCTION_SECTION)
             .ifPresent(config -> parameters.setCurativeMinObjImprovement(config.getDoubleProperty(CURATIVE_MIN_OBJ_IMPROVEMENT, DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT)));
         return parameters;

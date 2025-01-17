@@ -16,7 +16,7 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "2.5";
+    public static final String RAO_PARAMETERS_VERSION = "3.0";
 
     // header
     public static final String VERSION = "version";

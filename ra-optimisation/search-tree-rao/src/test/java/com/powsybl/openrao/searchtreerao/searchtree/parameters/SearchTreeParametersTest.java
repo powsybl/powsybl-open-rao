@@ -19,7 +19,7 @@ import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.LinearOptimizationSolver;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -80,12 +80,12 @@ class SearchTreeParametersTest {
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         Map<Instant, RaUsageLimits> raLimitationParameters = new HashMap<>();
         RangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
-        com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension = Mockito.mock(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.class);
+        SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.class);
         MnecParameters mnecParameters = Mockito.mock(MnecParameters.class);
         RelativeMarginsParameters maxMinRelativeMarginParameters = Mockito.mock(RelativeMarginsParameters.class);
         LoopFlowParameters loopFlowParameters = Mockito.mock(LoopFlowParameters.class);
         UnoptimizedCnecParameters unoptimizedCnecParameters = Mockito.mock(UnoptimizedCnecParameters.class);
-        LinearOptimizationSolver solverParameters = Mockito.mock(LinearOptimizationSolver.class);
+        SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
         int maxNumberOfIterations = 3;
 
         SearchTreeParameters searchTreeParameters = builder

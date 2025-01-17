@@ -102,7 +102,8 @@ public class LoadFlowAndSensitivityParameters {
         return DEFAULT_SENSITIVITY_PROVIDER;
     }
 
-    // TODO: do not set if default...
+    // The return value should not be written since it will re-write the parameters if the value si the real one,
+    // but it will not if the value is the default one since it is an independent object
     public static SensitivityAnalysisParameters getSensitivityWithLoadFlowParameters(RaoParameters raoParameters) {
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters();

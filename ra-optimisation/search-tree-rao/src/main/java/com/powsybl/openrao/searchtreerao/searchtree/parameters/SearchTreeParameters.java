@@ -15,8 +15,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.LinearOptimizationSolver;
+import com.powsybl.openrao.raoapi.parameters.extensions.*;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
@@ -30,8 +30,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.getLinearOptimizationSolver;
-import static com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.getMaxMipIterations;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getLinearOptimizationSolver;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getMaxMipIterations;
 
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
@@ -48,7 +48,7 @@ public class SearchTreeParameters {
 
     // required for sub-module iterating linear optimizer
     private final RangeActionsOptimizationParameters rangeActionParameters;
-    private final com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
+    private final SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
 
     private final MnecParameters mnecParameters;
     private final com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters mnecParametersExtension;
@@ -66,7 +66,7 @@ public class SearchTreeParameters {
                                 NetworkActionParameters networkActionParameters,
                                 Map<Instant, RaUsageLimits> raLimitationParameters,
                                 RangeActionsOptimizationParameters rangeActionParameters,
-                                com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension,
+                                SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
                                 MnecParameters mnecParameters,
                                 com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters mnecParametersExtension,
                                 RelativeMarginsParameters maxMinRelativeMarginParameters,
@@ -116,7 +116,7 @@ public class SearchTreeParameters {
         return rangeActionParameters;
     }
 
-    public com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters getRangeActionParametersExtension() {
+    public SearchTreeRaoRangeActionsOptimizationParameters getRangeActionParametersExtension() {
         return rangeActionParametersExtension;
     }
 
@@ -277,7 +277,7 @@ public class SearchTreeParameters {
         private NetworkActionParameters networkActionParameters;
         private Map<Instant, RaUsageLimits> raLimitationParameters;
         private RangeActionsOptimizationParameters rangeActionParameters;
-        private com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
+        private SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
         private MnecParameters mnecParameters;
         private com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters mnecParametersExtension;
 
@@ -343,7 +343,7 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withRangeActionParametersExtension(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension) {
+        public SearchTreeParametersBuilder withRangeActionParametersExtension(SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension) {
             this.rangeActionParametersExtension = rangeActionParametersExtension;
             return this;
         }

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 
 import java.io.IOException;
 
@@ -18,6 +18,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
 final class JsonRangeActionsOptimizationParameters {
 
@@ -95,25 +96,25 @@ final class JsonRangeActionsOptimizationParameters {
         }
     }
 
-    private static RangeActionsOptimizationParameters.PstModel stringToPstModel(String string) {
+    private static SearchTreeRaoRangeActionsOptimizationParameters.PstModel stringToPstModel(String string) {
         try {
-            return RangeActionsOptimizationParameters.PstModel.valueOf(string);
+            return SearchTreeRaoRangeActionsOptimizationParameters.PstModel.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new OpenRaoException(String.format("Unknown Pst model: %s", string));
         }
     }
 
-    private static RangeActionsOptimizationParameters.RaRangeShrinking stringToRaRangeShrinking(String string) {
+    private static SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking stringToRaRangeShrinking(String string) {
         try {
-            return RangeActionsOptimizationParameters.RaRangeShrinking.valueOf(string);
+            return SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new OpenRaoException(String.format("Unknown Pst variation range shrinking: %s", string));
         }
     }
 
-    private static RangeActionsOptimizationParameters.Solver stringToSolver(String string) {
+    private static SearchTreeRaoRangeActionsOptimizationParameters.Solver stringToSolver(String string) {
         try {
-            return RangeActionsOptimizationParameters.Solver.valueOf(string);
+            return SearchTreeRaoRangeActionsOptimizationParameters.Solver.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new OpenRaoException(String.format("Unknown solver: %s", string));
         }

@@ -11,7 +11,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.LinearOptimizationSolver;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParameters;
@@ -26,7 +27,7 @@ public final class IteratingLinearOptimizerParameters {
     private final Unit objectiveFunctionUnit;
 
     private final RangeActionsOptimizationParameters rangeActionParameters;
-    private final com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
+    private final SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
     private final MnecParameters mnecParameters;
     private final com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters mnecParametersExtension;
     private final RelativeMarginsParameters maxMinRelativeMarginParameters;
@@ -42,7 +43,7 @@ public final class IteratingLinearOptimizerParameters {
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                Unit objectiveFunctionUnit,
                                                RangeActionsOptimizationParameters rangeActionParameters,
-                                               com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension,
+                                               SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
                                                MnecParameters mnecParameters,
                                                com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters mnecParametersExtension,
                                                RelativeMarginsParameters maxMinRelativeMarginParameters,
@@ -98,7 +99,7 @@ public final class IteratingLinearOptimizerParameters {
         return rangeActionParameters;
     }
 
-    public com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters getRangeActionParametersExtension() {
+    public SearchTreeRaoRangeActionsOptimizationParameters getRangeActionParametersExtension() {
         return rangeActionParametersExtension;
     }
 
@@ -151,7 +152,7 @@ public final class IteratingLinearOptimizerParameters {
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
         private Unit objectiveFunctionUnit;
         private RangeActionsOptimizationParameters rangeActionParameters;
-        private com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParametersExtension;
+        private SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
 
         private MnecParameters mnecParameters;
         private com.powsybl.openrao.raoapi.parameters.extensions.MnecParameters mnecParametersExtension;
@@ -179,7 +180,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withRangeActionParametersExtension(com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters rangeActionParameters) {
+        public LinearOptimizerParametersBuilder withRangeActionParametersExtension(SearchTreeRaoRangeActionsOptimizationParameters rangeActionParameters) {
             this.rangeActionParametersExtension = rangeActionParameters;
             return this;
         }

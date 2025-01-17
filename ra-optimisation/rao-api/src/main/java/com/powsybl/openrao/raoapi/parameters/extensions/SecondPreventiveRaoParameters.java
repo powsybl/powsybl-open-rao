@@ -17,6 +17,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  * Second preventive parameters for RAO
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
 public class SecondPreventiveRaoParameters {
     private static final ExecutionCondition DEFAULT_EXECUTION_CONDITION = ExecutionCondition.DISABLED;
@@ -70,21 +71,21 @@ public class SecondPreventiveRaoParameters {
         return parameters;
     }
 
-    public static ExecutionCondition getExecutionCondition(RaoParameters parameters) {
+    public static ExecutionCondition getSecondPreventiveExecutionCondition(RaoParameters parameters) {
         if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             return parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getExecutionCondition();
         }
         return DEFAULT_EXECUTION_CONDITION;
     }
 
-    public static boolean getReOptimizeCurativeRangeActions(RaoParameters parameters) {
+    public static boolean getSecondPreventiveReOptimizeCurativeRangeActions(RaoParameters parameters) {
         if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             return parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions();
         }
         return DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS;
     }
 
-    public static boolean getHintFromFirstPreventiveRao(RaoParameters parameters) {
+    public static boolean getSecondPreventiveHintFromFirstPreventiveRao(RaoParameters parameters) {
         if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             return parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao();
         }

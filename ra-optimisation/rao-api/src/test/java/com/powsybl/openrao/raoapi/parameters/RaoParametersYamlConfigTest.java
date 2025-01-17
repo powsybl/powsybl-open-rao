@@ -9,9 +9,9 @@ package com.powsybl.openrao.raoapi.parameters;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.PstModel;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.RaRangeShrinking;
-import com.powsybl.openrao.raoapi.parameters.extensions.RangeActionsOptimizationParameters.Solver;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
 import com.powsybl.commons.config.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Country;
@@ -75,10 +75,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(3, searchTreeParameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
 
         MultithreadingParameters multithreadingParameters = searchTreeParameters.getMultithreadingParameters();
-        assertEquals(5, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(5, multithreadingParameters.getAvailableCPUs(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = searchTreeParameters.getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT, secondPreventiveRaoParameters.getExecutionCondition());
@@ -189,10 +186,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(2, searchTreeParameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions(), DOUBLE_TOLERANCE);
 
         MultithreadingParameters multithreadingParameters = searchTreeParameters.getMultithreadingParameters();
-        assertEquals(5, multithreadingParameters.getContingencyScenariosInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(5, multithreadingParameters.getPreventiveLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, multithreadingParameters.getAutoLeavesInParallel(), DOUBLE_TOLERANCE);
-        assertEquals(1, multithreadingParameters.getCurativeLeavesInParallel(), DOUBLE_TOLERANCE);
+        assertEquals(5, multithreadingParameters.getAvailableCPUs(), DOUBLE_TOLERANCE);
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = searchTreeParameters.getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED, secondPreventiveRaoParameters.getExecutionCondition());

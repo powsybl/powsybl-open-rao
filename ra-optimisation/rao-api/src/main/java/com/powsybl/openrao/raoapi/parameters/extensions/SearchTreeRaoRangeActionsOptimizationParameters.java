@@ -19,9 +19,10 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  * Range actions optimization parameters for RAO
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  *
  */
-public class RangeActionsOptimizationParameters {
+public class SearchTreeRaoRangeActionsOptimizationParameters {
 
     // Default values
     private static final int DEFAULT_MAX_MIP_ITERATIONS = 10;
@@ -167,9 +168,9 @@ public class RangeActionsOptimizationParameters {
         return raRangeShrinking;
     }
 
-    public static RangeActionsOptimizationParameters load(PlatformConfig platformConfig) {
+    public static SearchTreeRaoRangeActionsOptimizationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        RangeActionsOptimizationParameters parameters = new RangeActionsOptimizationParameters();
+        SearchTreeRaoRangeActionsOptimizationParameters parameters = new SearchTreeRaoRangeActionsOptimizationParameters();
         platformConfig.getOptionalModuleConfig(ST_RANGE_ACTIONS_OPTIMIZATION_SECTION)
             .ifPresent(config -> {
                 parameters.setMaxMipIterations(config.getIntProperty(MAX_MIP_ITERATIONS, DEFAULT_MAX_MIP_ITERATIONS));
@@ -197,7 +198,8 @@ public class RangeActionsOptimizationParameters {
         return DEFAULT_RA_RANGE_SHRINKING;
     }
 
-    // TODO: do not set if default...
+    // The return value should not be written since it will re-write the parameters if the value si the real one,
+    // but it will not if the value is the default one since it is an independent object
     public static LinearOptimizationSolver getLinearOptimizationSolver(RaoParameters parameters) {
         if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             return parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver();
@@ -212,28 +214,28 @@ public class RangeActionsOptimizationParameters {
         return DEFAULT_MAX_MIP_ITERATIONS;
     }
 
-    public static PstModel getPstModel(RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+    public static PstModel getPstModel(SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
         if (!Objects.isNull(rangeActionsOptimizationParameters)) {
             return rangeActionsOptimizationParameters.getPstModel();
         }
         return DEFAULT_PST_MODEL;
     }
 
-    public static double getPstSensitivityThreshold(RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+    public static double getPstSensitivityThreshold(SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
         if (!Objects.isNull(rangeActionsOptimizationParameters)) {
             return rangeActionsOptimizationParameters.getPstSensitivityThreshold();
         }
         return DEFAULT_PST_SENSITIVITY_THRESHOLD;
     }
 
-    public static double getHvdcSensitivityThreshold(RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+    public static double getHvdcSensitivityThreshold(SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
         if (!Objects.isNull(rangeActionsOptimizationParameters)) {
             return rangeActionsOptimizationParameters.getHvdcSensitivityThreshold();
         }
         return DEFAULT_HVDC_SENSITIVITY_THRESHOLD;
     }
 
-    public static double getInjectionRaSensitivityThreshold(RangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+    public static double getInjectionRaSensitivityThreshold(SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
         if (!Objects.isNull(rangeActionsOptimizationParameters)) {
             return rangeActionsOptimizationParameters.getInjectionRaSensitivityThreshold();
         }
