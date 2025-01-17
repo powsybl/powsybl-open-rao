@@ -31,15 +31,19 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
+    private static final double OVERLOAD_PENALTY = 10000.0; // TODO: put this in Rao Parameters and mutualize with evaluator
     protected final Set<FlowCnec> optimizedCnecs;
     private final Unit unit;
-    private final OffsetDateTime timestamp;
+    private final boolean costOptimization;
+    protected final OffsetDateTime timestamp;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
-                              Unit unit, OffsetDateTime timestamp) {
+                              Unit unit, boolean costOptimization,
+                              OffsetDateTime timestamp) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.unit = unit;
+        this.costOptimization = costOptimization;
         this.timestamp = timestamp;
     }
 
@@ -52,9 +56,22 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
         // build constraints
         buildMinimumMarginConstraints(linearProblem, validFlowCnecs);
+        if (costOptimization) {
+            forceMinMarginToBeNegative(linearProblem);
+        }
 
         // complete objective
         fillObjectiveWithMinMargin(linearProblem);
+    }
+
+    /**
+     * Force the min margin to be negative. Used in costly optimization where
+     * overloads are considered as a virtual cost.
+     * If the actual min margin is non-negative, the variable will be forced to 0,
+     * so it does not take part in the objective.
+     */
+    private void forceMinMarginToBeNegative(LinearProblem linearProblem) {
+        linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)).setUb(0.0);
     }
 
     @Override
@@ -125,8 +142,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min(-MM)
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
-        OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp));
-        linearProblem.getObjective().setCoefficient(minimumMarginVariable, -1);
+        linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), costOptimization ? -OVERLOAD_PENALTY : -1);
     }
 
 }

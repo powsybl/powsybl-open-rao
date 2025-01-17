@@ -26,6 +26,8 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.MaximumFunctionalCostComputer;
+import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.TotalFunctionalCostComputer;
 
 import java.util.*;
 
@@ -242,6 +244,9 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
+        if (objectiveFunctionParameters.getType().costOptimization()) {
+            return new TotalFunctionalCostComputer(secondPreventivePerimeterResult, postContingencyResults).computeFunctionalCost(optimizedInstant);
+        }
         if (optimizedInstant == null) {
             return initialResult.getFunctionalCost();
         } else if (optimizedInstant.isPreventive() || optimizedInstant.isOutage() || postContingencyResults.isEmpty() ||
@@ -254,7 +259,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         } else {
             // No second preventive was run => use CRAO1 results
             // OR ARA
-            return objectiveFunctionParameters.getType().costOptimization() ? getTotalFunctionalCostForInstant(optimizedInstant) : getHighestFunctionalForInstant(optimizedInstant);
+            return new MaximumFunctionalCostComputer(secondPreventivePerimeterResult, postContingencyResults).computeFunctionalCost(optimizedInstant);
         }
     }
 
