@@ -68,7 +68,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
         double lb = constraint.getMinValue().map(minValue -> minValue * timeGap).orElse(-linearProblem.infinity());
         double ub = constraint.getMaxValue().map(maxValue -> maxValue * timeGap).orElse(linearProblem.infinity());
         String generatorId = constraint.getNetworkElementId();
-        OpenRaoMPConstraint generatorPowerGradientConstraint = linearProblem.addGeneratorPowerGradientConstraint(generatorId, currentTimestamp,previousTimestamp,lb, ub);
+        OpenRaoMPConstraint generatorPowerGradientConstraint = linearProblem.addGeneratorPowerGradientConstraint(generatorId, currentTimestamp, previousTimestamp, lb, ub);
         OpenRaoMPVariable previousGeneratorPowerVariable = linearProblem.getGeneratorPowerVariable(constraint.getNetworkElementId(), previousTimestamp);
         generatorPowerGradientConstraint.setCoefficient(generatorPowerVariable, 1.0);
         generatorPowerGradientConstraint.setCoefficient(previousGeneratorPowerVariable, -1.0);

@@ -221,7 +221,6 @@ class PowerGradientConstraintFillerTest {
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerGradientConstraint("FFR1AA1 _load", timestamp3, timestamp1));
     }
 
-
     @Test
     void testMissingGradientBound() throws IOException {
         createThreeTSInput();
