@@ -30,10 +30,10 @@
 
 For a given generator $g$ at timestamp $t \in \mathcal{T}$, we denote $\mathcal{I}_{\text{prev}}(g,t)$ the set of preventive [injection range actions](/input-data/crac/json.html#injection-range-action) defined at timestamp $t$ that act on $g$. For each such injection range action $i$, $d_{i}(g)$ denotes the distribution key of $g$ for this very remedial action. The power of $g$ in the preventive state is:
 
-$$P(g,t) = p_{0}(g,t) + \sum_{i \in \mathcal{I}_{\text{prev}}(g,t)} d_i(g) \left [ \Delta^{+}(r,s,t) - \Delta^{-}(r,s,t) \right ], \forall g, t$$
+$$\forall g, t \quad  P(g,t) = p_{0}(g,t) + \sum_{i \in \mathcal{I}_{\text{prev}}(g,t)} d_i(g) \left [ \Delta^{+}(r,s,t) - \Delta^{-}(r,s,t) \right ]$$
 
 ### Define the power gradient constraint
 
 $$\nabla p^{-}(g) * \Delta_t(t, t + 1) \leq P(g, t + 1) - P(g, t)\leq \nabla p^{+}(g) * \Delta_t(t, t + 1)$$
 
-> If the constraint is only defined with an upper (resp. lower) gradient then the lower (resp. upper) bound of the constraint if $-\infty$ (resp. $\infty$).
+> If the constraint is only defined with an upper (resp. lower) gradient then the lower (resp. upper) bound of the constraint is $-\infty$ (resp. $\infty$).

@@ -49,7 +49,7 @@ class InterTemporalRaoInputTest {
         InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, Set.of(timestamp1, timestamp3), powerGradients);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp3), input.getTimestampsToRun());
-        assertEquals(powerGradients, input.getPowerGradientConstraints());
+        assertEquals(powerGradients, input.getPowerGradient());
     }
 
     @Test
@@ -57,6 +57,6 @@ class InterTemporalRaoInputTest {
         InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, powerGradients);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp2, timestamp3), input.getTimestampsToRun());
-        assertEquals(powerGradients, input.getPowerGradientConstraints());
+        assertEquals(powerGradients, input.getPowerGradient());
     }
 }
