@@ -123,11 +123,6 @@ public final class RaoParametersCommons {
     public static final String PTDF_BOUNDARIES = "ptdf-boundaries";
     public static final String PTDF_SUM_LOWER_BOUND = "ptdf-sum-lower-bound";
 
-    // -- Inter Temporal parameters
-    public static final String INTER_TEMPORAL_PARAMETERS = "inter-temporal-parameters";
-    public static final String INTER_TEMPORAL_PARAMETERS_SECTION = "rao-inter-temporal-parameters";
-    public static final String SENSITIVITY_COMPUTATIONS_IN_PARALLEL = "sensitivity-computations-in-parallel";
-
     public static PtdfApproximation stringToPtdfApproximation(String string) {
         try {
             return PtdfApproximation.valueOf(string);
