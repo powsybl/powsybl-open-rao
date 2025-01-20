@@ -248,11 +248,6 @@
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-action-util</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-commons</artifactId>
                 <version>${powsybl.core.version}</version>
             </dependency>
