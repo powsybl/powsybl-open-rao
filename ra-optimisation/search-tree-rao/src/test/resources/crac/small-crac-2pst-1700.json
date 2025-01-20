@@ -106,6 +106,30 @@
       ]
     }
   ],
+  "networkActions": [
+    {
+      "id": "pst_tap5",
+      "name": "pst_tap5",
+      "operator": "RTE",
+      "speed": 40,
+      "onInstantUsageRules": [
+        {
+          "instant": "preventive",
+          "usageMethod": "available"
+        }
+      ],
+      "phaseTapChangerTapPositionActions": [
+        {
+          "networkElementId": "BBE2AA1  BBE3AA1  1",
+          "tapPosition": 5
+        },
+        {
+          "networkElementId": "DDE2AA1  DDE3AA1  1",
+          "tapPosition": 5
+        }
+      ]
+    }
+  ],
   "pstRangeActions": [
     {
       "id": "pstBe - 1700",

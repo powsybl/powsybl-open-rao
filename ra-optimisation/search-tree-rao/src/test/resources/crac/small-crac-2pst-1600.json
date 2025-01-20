@@ -106,6 +106,22 @@
       ]
     }
   ],
+  "networkActions": [
+    {
+      "id" : "open_DE1DE2",
+      "name" : "open_DE1DE2",
+      "operator" : "RTE",
+      "speed" : 40,
+      "onInstantUsageRules" : [ {
+        "instant" : "preventive",
+        "usageMethod" : "available"
+      } ],
+      "terminalsConnectionActions" : [ {
+        "networkElementId" : "DDE1AA1  DDE2AA1  1",
+        "actionType" : "open"
+      } ]
+    }
+  ],
   "pstRangeActions": [
     {
       "id": "pstBe - 1600",

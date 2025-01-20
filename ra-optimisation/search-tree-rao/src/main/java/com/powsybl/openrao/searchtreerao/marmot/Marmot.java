@@ -13,9 +13,12 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.InterTemporalRaoProvider;
 import com.powsybl.openrao.raoapi.Rao;
+import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.concurrent.CompletableFuture;
+
+import static com.powsybl.openrao.searchtreerao.marmot.TopologyChanger.applyPreventiveNetworkActions;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -32,6 +35,8 @@ public class Marmot implements InterTemporalRaoProvider {
         if (raoInput.getPowerGradientConstraints().isEmpty()) {
             return CompletableFuture.completedFuture(raoResults);
         }
+        applyPreventiveNetworkActions(raoInput.getRaoInputs(), raoResults);
+
         // TODO: apply topological remedial actions (at least preventive ones, maybe curative too but how?)
         // TODO: run sensitivity analysis on all timestamps
         // TODO: create big MIP with all timestamps

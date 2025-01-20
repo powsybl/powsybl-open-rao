@@ -106,6 +106,29 @@
       ]
     }
   ],
+  "networkActions": [
+    {
+      "id": "shutDownGenerators",
+      "name": "shutDownGenerators",
+      "operator": "RTE",
+      "onInstantUsageRules": [
+        {
+          "instant": "preventive",
+          "usageMethod": "available"
+        }
+      ],
+      "generatorActions": [
+        {
+          "networkElementId": "FFR1AA1 _generator",
+          "activePowerValue": 0.0
+        },
+        {
+          "networkElementId": "NNL1AA1 _generator",
+          "activePowerValue": 0.0
+        }
+      ]
+    }
+  ],
   "pstRangeActions": [
     {
       "id": "pstBe - 1800",

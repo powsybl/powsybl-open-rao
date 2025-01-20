@@ -28,6 +28,9 @@ import java.util.Set;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public class InterTemporalPrePerimeterSensitivityAnalysis {
+
+    private InterTemporalPrePerimeterSensitivityAnalysis(){}
+
     public static TemporalData<PrePerimeterResult> runInitialSensitivityAnalysis(TemporalData<RaoInput> inputs, RaoParameters parameters) {
         return inputs.map(raoInput -> {
             Crac crac = raoInput.getCrac();
