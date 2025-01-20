@@ -10,9 +10,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -22,6 +20,8 @@ import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
 import java.util.Set;
+
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventivePerimeterCnecs;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -38,9 +38,7 @@ public final class InterTemporalPrePerimeterSensitivityAnalysis {
             Network network = raoInput.getNetwork();
             State preventiveState = crac.getPreventiveState();
             Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
-            Set<FlowCnec> flowCnecs = crac.getFlowCnecs(preventiveState);
-            crac.getStates(crac.getInstant(InstantKind.OUTAGE)).forEach(state -> flowCnecs.addAll(crac.getFlowCnecs(state)));
-            return new PrePerimeterSensitivityAnalysis(flowCnecs, rangeActions, parameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, parameters)).runInitialSensitivityAnalysis(network, crac);
+            return new PrePerimeterSensitivityAnalysis(getPreventivePerimeterCnecs(crac), rangeActions, parameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, parameters)).runInitialSensitivityAnalysis(network, crac);
         });
     }
 }

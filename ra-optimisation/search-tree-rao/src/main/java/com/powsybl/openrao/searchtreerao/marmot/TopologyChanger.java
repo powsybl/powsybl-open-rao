@@ -16,13 +16,15 @@ import com.powsybl.openrao.raoapi.RaoInput;
  */
 public final class TopologyChanger {
 
+    private static final String VARIANT_NAME_SUFFIX = "_with_topological_actions";
+
     private TopologyChanger() {
     }
 
     public static void applyPreventiveNetworkActions(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> raoResults) {
         raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
             String currentNetworkVariantId = raoInput.getNetwork().getVariantManager().getWorkingVariantId();
-            String newNetworkVariantId = currentNetworkVariantId + "_with_topological_actions";
+            String newNetworkVariantId = currentNetworkVariantId + VARIANT_NAME_SUFFIX;
             raoInput.getNetwork().getVariantManager().cloneVariant(currentNetworkVariantId, newNetworkVariantId);
             raoInput.getNetwork().getVariantManager().setWorkingVariant(newNetworkVariantId);
             raoResults.getData(timestamp).get().getActivatedNetworkActionsDuringState(raoInput.getCrac().getPreventiveState())
