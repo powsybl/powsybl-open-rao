@@ -27,9 +27,10 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class InterTemporalPrePerimeterSensitivityAnalysis {
+public final class InterTemporalPrePerimeterSensitivityAnalysis {
 
-    private InterTemporalPrePerimeterSensitivityAnalysis(){}
+    private InterTemporalPrePerimeterSensitivityAnalysis() {
+    }
 
     public static TemporalData<PrePerimeterResult> runInitialSensitivityAnalysis(TemporalData<RaoInput> inputs, RaoParameters parameters) {
         return inputs.map(raoInput -> {
@@ -38,7 +39,7 @@ public class InterTemporalPrePerimeterSensitivityAnalysis {
             State preventiveState = crac.getPreventiveState();
             Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
             Set<FlowCnec> flowCnecs = crac.getFlowCnecs(preventiveState);
-            crac.getStates(crac.getInstant(InstantKind.OUTAGE)).forEach(state-> flowCnecs.addAll(crac.getFlowCnecs(state)));
+            crac.getStates(crac.getInstant(InstantKind.OUTAGE)).forEach(state -> flowCnecs.addAll(crac.getFlowCnecs(state)));
             return new PrePerimeterSensitivityAnalysis(flowCnecs, rangeActions, parameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, parameters)).runInitialSensitivityAnalysis(network, crac);
         });
     }

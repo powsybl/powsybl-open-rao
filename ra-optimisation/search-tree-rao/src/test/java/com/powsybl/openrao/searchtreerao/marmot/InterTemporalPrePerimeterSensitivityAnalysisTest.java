@@ -72,7 +72,7 @@ public class InterTemporalPrePerimeterSensitivityAnalysisTest {
     }
 
     @Test
-    void testRunInitialSensitivityAnalysis(){
+    void testRunInitialSensitivityAnalysis() {
         TemporalData<PrePerimeterResult> prePerimeterResults = runInitialSensitivityAnalysis(inputs, parameters);
 
         assertEquals(3, prePerimeterResults.getDataPerTimestamp().size());

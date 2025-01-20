@@ -63,7 +63,7 @@ public class TopologyChangerTest {
     }
 
     @Test
-    void testApplyPreventiveNetworkActions(){
+    void testApplyPreventiveNetworkActions() {
         RaoResult raoResult1 = Mockito.mock(RaoResult.class);
         Mockito.when(raoResult1.getActivatedNetworkActionsDuringState(crac1.getPreventiveState())).thenReturn(Set.of(crac1.getNetworkAction("open_DE1DE2")));
 
@@ -83,13 +83,13 @@ public class TopologyChangerTest {
         assertEquals(12, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
         assertEquals(0, network2.getTwoWindingsTransformer("DDE2AA1  DDE3AA1  1").getPhaseTapChanger().getTapPosition());
 
-        assertEquals(-1000.0,network3.getGenerator("FFR1AA1 _generator").getTargetP());
-        assertEquals(1000.0,network3.getGenerator("NNL1AA1 _generator").getTargetP());
+        assertEquals(-1000.0, network3.getGenerator("FFR1AA1 _generator").getTargetP());
+        assertEquals(1000.0, network3.getGenerator("NNL1AA1 _generator").getTargetP());
 
         applyPreventiveNetworkActions(raoInputs, raoResults);
 
         // check that the network variant exists, and that the network actions were applied
-        networkVariants.getDataPerTimestamp().forEach((timestamp, id) -> assertEquals(id+"_with_topological_actions", raoInputs.getData(timestamp).get().getNetwork().getVariantManager().getWorkingVariantId()));
+        networkVariants.getDataPerTimestamp().forEach((timestamp, id) -> assertEquals(id + "_with_topological_actions", raoInputs.getData(timestamp).get().getNetwork().getVariantManager().getWorkingVariantId()));
 
         // timestamp 1
         assertFalse(network1.getLine("DDE1AA1  DDE2AA1  1").getTerminal1().isConnected());
@@ -100,8 +100,8 @@ public class TopologyChangerTest {
         assertEquals(5, network2.getTwoWindingsTransformer("DDE2AA1  DDE3AA1  1").getPhaseTapChanger().getTapPosition());
 
         //timestamp 3
-        assertEquals(0.0,network3.getGenerator("NNL1AA1 _generator").getTargetP());
-        assertEquals(0.0,network3.getGenerator("FFR1AA1 _generator").getTargetP());
+        assertEquals(0.0, network3.getGenerator("NNL1AA1 _generator").getTargetP());
+        assertEquals(0.0, network3.getGenerator("FFR1AA1 _generator").getTargetP());
 
     }
 }
