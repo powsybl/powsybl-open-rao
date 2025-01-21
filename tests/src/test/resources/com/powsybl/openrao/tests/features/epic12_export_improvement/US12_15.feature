@@ -92,7 +92,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     And the value of the objective function after CRA should be 10020.2
 
   @fast @rao @mock @ac @contingency-scenarios @second-preventive
-  # sensi pre 2P fails
+  # sensi pre 2P partially fails
   Scenario: US 12.15.2.2: one contingency failing during 1st ARAO, with 2P
     Given network file is "epic12/nordic32.xiidm"
     Given crac file is "epic12/CIM_12_15_2.xml"
@@ -109,7 +109,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     And the value of the objective function after CRA should be 10020.2
 
   @fast @rao @mock @ac @contingency-scenarios @second-preventive
-  # sensi pre 2P fails
+  # sensi pre 2P partially fails
   Scenario: US 12.15.2.3: one contingency failing during 1st ARAO, with global 2P
     Given network file is "epic12/nordic32.xiidm"
     Given crac file is "epic12/CIM_12_15_2.xml"
