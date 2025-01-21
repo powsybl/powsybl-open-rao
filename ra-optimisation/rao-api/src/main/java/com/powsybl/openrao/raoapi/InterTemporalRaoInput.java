@@ -44,7 +44,7 @@ public class InterTemporalRaoInput {
         return timestampsToRun;
     }
 
-    public Set<PowerGradient> getPowerGradient() {
+    public Set<PowerGradient> getPowerGradients() {
         return powerGradients;
     }
 

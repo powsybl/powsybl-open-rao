@@ -49,7 +49,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
         List<OffsetDateTime> timestamps = input.getRaoInputs().getTimestamps();
         IntStream.range(0, timestamps.size()).forEach(timestampIndex -> {
             OffsetDateTime timestamp = timestamps.get(timestampIndex);
-            input.getPowerGradient().forEach(powerGradient -> {
+            input.getPowerGradients().forEach(powerGradient -> {
                 String generatorId = powerGradient.getNetworkElementId();
                 OpenRaoMPVariable generatorPowerVariable = linearProblem.addGeneratorPowerVariable(generatorId, timestamp);
                 addPowerConstraint(linearProblem, generatorId, generatorPowerVariable, timestamp);
