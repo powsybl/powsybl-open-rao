@@ -69,7 +69,7 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
             raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
-            getMaxPreventiveSearchTreeDepth(parameters),
+            getMaxCurativeSearchTreeDepth(parameters),
             1,
             shouldShrinkRaRange);
     }
