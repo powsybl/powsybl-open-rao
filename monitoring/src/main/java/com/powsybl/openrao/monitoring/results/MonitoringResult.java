@@ -65,7 +65,7 @@ public class MonitoringResult {
 
     public List<String> printConstraints() {
         if (status.equals(SecurityStatus.FAILURE)) {
-            return List.of(physicalParameter + " monitoring failed due to a load flow divergence or an inconsistency in the crac.");
+            return List.of(physicalParameter + " monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters.");
         }
         List<String> constraints = new ArrayList<>();
         cnecResults.stream()
@@ -118,4 +118,9 @@ public class MonitoringResult {
         }
         return SecurityStatus.SECURE;
     }
+
+    public void setStatusToFailure() {
+        this.status = SecurityStatus.FAILURE;
+    }
+
 }

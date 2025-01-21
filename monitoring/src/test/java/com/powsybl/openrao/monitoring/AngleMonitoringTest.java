@@ -161,7 +161,7 @@ class AngleMonitoringTest {
         assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertTrue(angleMonitoringResult.getCnecResults().stream().map(CnecResult::getValue).filter(AngleCnecValue.class::isInstance).allMatch(angleCnecValue -> ((AngleCnecValue) angleCnecValue).value().isNaN()));
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac."));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."));
     }
 
     @Test
@@ -364,5 +364,18 @@ class AngleMonitoringTest {
         assertFalse(raoResultWithAngleMonitoring.isSecure());
     }
 
+    @Test
+    void testNoZonalDataInputForAngleMonitoring() {
+        setUpCracFactory("network.xiidm");
+        mockCurativeStatesSecure();
+        naL1Cur = crac.newNetworkAction()
+            .withId("Injection L1 - 2")
+            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(50.).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).build();
+        angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 2);
+        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+    }
 }
 
