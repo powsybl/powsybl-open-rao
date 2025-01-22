@@ -52,7 +52,7 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<PrePerimeterResult> prePerimeterResults = runAllInitialPrePerimeterSensitivityAnalysis(raoInput.getRaoInputs(), raoParameters);
 
         // 4. Create and iteratively solve MIP to find optimal range actions' set-points
-        TemporalData<LinearOptimizationResult> linearOptimizationResults = optimizeLinearRemedialActions(raoInput, raoParameters, prePerimeterResults);
+        TemporalData<LinearOptimizationResult> linearOptimizationResults = optimizeLinearRemedialActions(raoInput, prePerimeterResults, raoParameters);
 
         // 5. Merge topological and linear result
         TemporalData<RaoResult> mergedRaoResults = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), prePerimeterResults, linearOptimizationResults, topologicalOptimizationResults);
@@ -76,7 +76,7 @@ public class Marmot implements InterTemporalRaoProvider {
         return raoInputs.map(individualRaoInput -> runInitialPrePerimeterSensitivityAnalysis(individualRaoInput, raoParameters));
     }
 
-    private static TemporalData<LinearOptimizationResult> optimizeLinearRemedialActions(InterTemporalRaoInput raoInput, RaoParameters parameters, TemporalData<PrePerimeterResult> prePerimeterResults) {
+    private static TemporalData<LinearOptimizationResult> optimizeLinearRemedialActions(InterTemporalRaoInput raoInput, TemporalData<PrePerimeterResult> prePerimeterResults, RaoParameters parameters) {
         // TODO: create MIP with all timestamps and power gradient constraints
         return new TemporalDataImpl<>();
     }
