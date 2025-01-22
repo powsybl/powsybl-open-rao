@@ -14,15 +14,16 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.InterTemporalRaoProvider;
 import com.powsybl.openrao.raoapi.Rao;
+import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.powsybl.openrao.searchtreerao.marmot.InterTemporalPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis;
-import static com.powsybl.openrao.searchtreerao.marmot.OptimizationResultsMerger.mergeResults;
-import static com.powsybl.openrao.searchtreerao.marmot.TopologyChanger.applyPreventiveNetworkActions;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getTopologicalOptimizationResult;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPrePerimeterSensitivityAnalysis;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -35,30 +36,54 @@ public class Marmot implements InterTemporalRaoProvider {
     private static final String VERSION = "1.0.0";
 
     @Override
-    public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInput raoInput, RaoParameters parameters) {
+    public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInput raoInput, RaoParameters raoParameters) {
+        // 1. Run independent RAOs to compute optimal preventive topological remedial actions
+        TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(raoInput.getRaoInputs(), raoParameters);
 
-        TemporalData<RaoResult> raoResults = raoInput.getRaoInputs().map(individualRaoInput -> Rao.run(individualRaoInput, parameters));
+        // if no inter-temporal constraints are defined, the results can be returned
         if (raoInput.getPowerGradientConstraints().isEmpty()) {
-            return CompletableFuture.completedFuture(raoResults);
+            return CompletableFuture.completedFuture(topologicalOptimizationResults);
         }
-        //Apply topological remedial actions (for now only preventive ones, maybe curative too but how?)
-        applyPreventiveNetworkActions(raoInput.getRaoInputs(), raoResults);
 
-        //Run sensitivity analysis on all timestamps
-        TemporalData<PrePerimeterResult> prePerimeterResults = runInitialSensitivityAnalysis(raoInput.getRaoInputs(), parameters);
+        // 2. Apply preventive topological remedial actions
+        applyPreventiveTopologicalActionsOnNetwork(raoInput.getRaoInputs(), topologicalOptimizationResults);
 
-        // TODO: create big MIP with all timestamps
-        // TODO: iterate MIP -> output = TemporalData<LinearOptimizationResult>
-        TemporalData<LinearOptimizationResult> linearOptimizationResults = runMIP(raoInput, parameters, prePerimeterResults);
+        // 3. Run initial sensitivity analysis on all timestamps
+        TemporalData<PrePerimeterResult> prePerimeterResults = runAllInitialPrePerimeterSensitivityAnalysis(raoInput.getRaoInputs(), raoParameters);
 
-        // Compile RaoResults by merging topological and linear results -> TemporalData<RaoResult>
-        // TODO: Add curative RAs (range action and topological)
-        TemporalData<RaoResult> mergedRaoResults = mergeResults(raoResults, linearOptimizationResults, raoInput.getRaoInputs(), prePerimeterResults);
+        // 4. Create and iteratively solve MIP to find optimal range actions' set-points
+        TemporalData<LinearOptimizationResult> linearOptimizationResults = optimizeLinearRemedialActions(raoInput, raoParameters, prePerimeterResults);
+
+        // 5. Merge topological and linear result
+        TemporalData<RaoResult> mergedRaoResults = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), prePerimeterResults, linearOptimizationResults, topologicalOptimizationResults);
+
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
 
-    private TemporalData<LinearOptimizationResult> runMIP(InterTemporalRaoInput raoInput, RaoParameters parameters, TemporalData<PrePerimeterResult> prePerimeterResults) {
+    private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInput> raoInputs, RaoParameters raoParameters) {
+        return raoInputs.map(individualRaoInput -> Rao.run(individualRaoInput, raoParameters));
+    }
+
+    private static void applyPreventiveTopologicalActionsOnNetwork(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
+        getTopologicalOptimizationResult(raoInputs, topologicalOptimizationResults)
+            .getDataPerTimestamp()
+            .values()
+            .forEach(TopologicalOptimizationResult::applyTopologicalActions);
+        // TODO: also handle curative remedial actions
+    }
+
+    private static TemporalData<PrePerimeterResult> runAllInitialPrePerimeterSensitivityAnalysis(TemporalData<RaoInput> raoInputs, RaoParameters raoParameters) {
+        return raoInputs.map(individualRaoInput -> runInitialPrePerimeterSensitivityAnalysis(individualRaoInput, raoParameters));
+    }
+
+    private static TemporalData<LinearOptimizationResult> optimizeLinearRemedialActions(InterTemporalRaoInput raoInput, RaoParameters parameters, TemporalData<PrePerimeterResult> prePerimeterResults) {
+        // TODO: create MIP with all timestamps and power gradient constraints
         return new TemporalDataImpl<>();
+    }
+
+    private static TemporalData<RaoResult> mergeTopologicalAndLinearOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> prePerimeterResults, TemporalData<LinearOptimizationResult> linearOptimizationResults, TemporalData<RaoResult> topologicalOptimizationResults) {
+        // TODO: add curative RAs (range action and topological)
+        return getPostOptimizationResults(raoInputs, prePerimeterResults, linearOptimizationResults, topologicalOptimizationResults).map(PostOptimizationResult::merge);
     }
 
     @Override
