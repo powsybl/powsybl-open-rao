@@ -21,13 +21,15 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
@@ -48,8 +50,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     private PstRangeAction pra;
     private PstRangeAction cra;
 
-    @BeforeEach
-    void setUpAndFill() throws IOException {
+    void setUpAndFill(boolean costOptimization) throws IOException {
         // prepare data
         init();
         preventiveState = crac.getPreventiveState();
@@ -61,6 +62,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("N-1 NL1-NL3").withInstant("curative").add()
             .withInitialTap(0)
+            .withActivationCost(10.0)
             .withTapToAngleConversionMap(tapToAngle)
             .newTapRange()
             .withMinTap(-10)
@@ -81,12 +83,12 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
 
-        CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
+        MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             rangeActionParameters,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+            false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, null);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(preventiveState, Set.of(pstRangeAction));
@@ -94,7 +96,9 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         discretePstTapFiller = new DiscretePstTapFiller(
             optimizationPerimeter,
             pstRangeActions,
-            initialRangeActionSetpointResult);
+            initialRangeActionSetpointResult,
+            new RangeActionsOptimizationParameters(),
+            true, null);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -111,15 +115,15 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         double initialSetpoint = tapToAngle.get(initialTap);
 
         // check that all constraints and variables exists
-        OpenRaoMPVariable setpointV = linearProblem.getRangeActionSetpointVariable(pst, state);
-        OpenRaoMPVariable variationUpV = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable variationDownV = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pst, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable binaryDownV = linearProblem.getPstTapVariationBinary(pst, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPConstraint tapToAngleConversionC = linearProblem.getTapToAngleConversionConstraint(pst, state);
-        OpenRaoMPConstraint upOrDownC = linearProblem.getUpOrDownPstVariationConstraint(pst, state);
-        OpenRaoMPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pst, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pst, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable setpointV = linearProblem.getRangeActionSetpointVariable(pst, state, Optional.empty());
+        OpenRaoMPVariable variationUpV = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPVariable variationDownV = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
+        OpenRaoMPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pst, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPVariable binaryDownV = linearProblem.getPstTapVariationBinary(pst, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
+        OpenRaoMPConstraint tapToAngleConversionC = linearProblem.getTapToAngleConversionConstraint(pst, state, Optional.empty());
+        OpenRaoMPConstraint upOrDownC = linearProblem.getUpOrDownPstVariationConstraint(pst, state, Optional.empty());
+        OpenRaoMPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pst, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pst, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
 
         assertNotNull(setpointV);
         assertNotNull(variationUpV);
@@ -172,11 +176,11 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     }
 
     private void checkPstRelativeTapConstraint(double expectedLb, double expectedUb) {
-        OpenRaoMPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, preventiveState, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPVariable craVariationUpV = linearProblem.getPstTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable craVariationDownV = linearProblem.getPstTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        OpenRaoMPConstraint craRelativeTapC = linearProblem.getPstRelativeTapConstraint(cra, curativeState);
+        OpenRaoMPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, preventiveState, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
+        OpenRaoMPVariable craVariationUpV = linearProblem.getPstTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty());
+        OpenRaoMPVariable craVariationDownV = linearProblem.getPstTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty());
+        OpenRaoMPConstraint craRelativeTapC = linearProblem.getPstRelativeTapConstraint(cra, curativeState, Optional.empty());
 
         assertNotNull(craRelativeTapC);
 
@@ -188,8 +192,10 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         assertEquals(1, craRelativeTapC.getCoefficient(variationDownV));
     }
 
-    @Test
-    void testFillAndUpdateMethods() {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testFillAndUpdateMethods(boolean costOptimization) throws IOException {
+        setUpAndFill(costOptimization);
         checkContent(pstRangeAction, preventiveState, 0, -15, 15, true);
         checkContent(cra, curativeState, 0, -16, 16, true);
         checkPstRelativeTapConstraint(-10, 7);
@@ -206,10 +212,18 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         checkContent(pra, preventiveState, -4, -15, 15, false);
         checkContent(cra, curativeState, -6, -16, 16, false);
         checkPstRelativeTapConstraint(-8, 9);
+
+        if (costOptimization) {
+            assertEquals(10.0, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pra, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty())));
+            assertEquals(10.0, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pra, preventiveState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty())));
+            assertEquals(0.01, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.UPWARD, Optional.empty())), 1e-2);
+            assertEquals(0.01, linearProblem.getObjective().getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(cra, curativeState, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.empty())), 1e-2);
+        }
     }
 
     @Test
-    void testUpdateBetweenMipIteration() {
+    void testUpdateBetweenMipIteration() throws IOException {
+        setUpAndFill(false);
         RangeActionActivationResultImpl rangeActionActivationResult =
             new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(pra, 0., cra, 0.)));
 

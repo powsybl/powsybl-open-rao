@@ -140,6 +140,7 @@ public class Monitoring {
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (Exception e) {
             Thread.currentThread().interrupt();
+            monitoringResult.setStatusToFailure();
         }
 
         BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
@@ -154,7 +155,7 @@ public class Monitoring {
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
         boolean lfSuccess = computeLoadFlow(network);
         if (!lfSuccess) {
-            String failureReason = "Load-flow computation failed at state {}. Skipping this state." + state;
+            String failureReason = String.format("Load-flow computation failed at state %s. Skipping this state.", state);
             return makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, failureReason);
         }
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
@@ -180,7 +181,7 @@ public class Monitoring {
         if (appliedNetworkActionsResultList.stream().map(AppliedNetworkActionsResult::getAppliedNetworkActions).findAny().isPresent()) {
             lfSuccess = computeLoadFlow(network);
             if (!lfSuccess) {
-                String failureReason = "Load-flow computation failed at state {} after applying RAs. Skipping this state." + state;
+                String failureReason = String.format("Load-flow computation failed at state %s after applying RAs. Skipping this state.", state);
                 return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
             }
             // Re-compute all voltage/angle values
@@ -390,6 +391,11 @@ public class Monitoring {
      */
     private void checkGlsks(Country country, String naId, String angleCnecId, ZonalData<Scalable> scalableZonalData) {
         Set<Country> glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
+        if (Objects.isNull(scalableZonalData)) {
+            String error = "ScalableZonalData undefined (no GLSK given)";
+            BUSINESS_LOGS.error(error);
+            throw new OpenRaoException(error);
+        }
         for (String zone : scalableZonalData.getDataPerZone().keySet()) {
             glskCountries.add(new CountryEICode(zone).getCountry());
         }
