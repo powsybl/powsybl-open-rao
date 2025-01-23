@@ -508,6 +508,30 @@ public final class LinearProblem {
         return solver.getConstraint(tapConstraintId(pstRangeAction, state, timestamp));
     }
 
+    public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeNumVar(-solver.infinity(), solver.infinity(), generatorPowerVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPVariable getGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.getVariable(generatorPowerVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerConstraint(String generatorId, double initialPower, OffsetDateTime timestamp) {
+        return solver.makeConstraint(initialPower, initialPower, generatorPowerConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorPowerConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.getConstraint(generatorPowerConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, double lb, double ub) {
+        return solver.makeConstraint(lb, ub, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
+        return solver.getConstraint(generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
+    }
+
     public double infinity() {
         return solver.infinity();
     }

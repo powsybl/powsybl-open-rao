@@ -12,6 +12,7 @@ linear-problem/discrete-pst-tap-filler.md
 linear-problem/discrete-pst-group-filler.md
 linear-problem/unoptimized-cnec-filler-cra.md
 linear-problem/ra-usage-limits-filler.md
+linear-problem/power-gradient-constraint-filler.md
 ```
 
 ## Introduction
