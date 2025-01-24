@@ -103,9 +103,9 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(674.6, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
+        assertEquals(694.30, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(crac.getLastInstant()), 1.);
-        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getExecutionDetails());
     }
@@ -123,9 +123,9 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(674.6, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
+        assertEquals(694.30, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
         assertEquals(-555.91, raoResult.getFunctionalCost(crac.getLastInstant()), 1.);
-        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getExecutionDetails());
     }

@@ -372,4 +372,21 @@ class SystematicSensitivityResultTest {
 
     }
 
+    @Test
+    void testCompleteDataWithFailingPerimeter() {
+        setUpWith12Nodes();
+        // When
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
+            rangeActionSensitivityProvider.getAllFactors(network),
+            rangeActionSensitivityProvider.getContingencies(network),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load());
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus());
+
+        result.completeDataWithFailingPerimeter(outageInstantOrder, "Contingency FR1 FR3");
+        //  after computation failure on contingency
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
+    }
+
 }
