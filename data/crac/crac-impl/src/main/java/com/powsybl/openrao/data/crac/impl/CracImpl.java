@@ -42,6 +42,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,13 +71,27 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
     private final Map<Instant, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
     private Instant lastInstantAdded = null;
+    private final OffsetDateTime timestamp;
+
+    public CracImpl(String id, String name, OffsetDateTime timestamp) {
+        super(id, name);
+        this.timestamp = timestamp;
+    }
 
     public CracImpl(String id, String name) {
-        super(id, name);
+        this(id, name, null);
+    }
+
+    public CracImpl(String id, OffsetDateTime timestamp) {
+        this(id, id, timestamp);
     }
 
     public CracImpl(String id) {
-        this(id, id);
+        this(id, id, null);
+    }
+
+    public Optional<OffsetDateTime> getTimestamp() {
+        return Optional.ofNullable(timestamp);
     }
 
     // ========================================
