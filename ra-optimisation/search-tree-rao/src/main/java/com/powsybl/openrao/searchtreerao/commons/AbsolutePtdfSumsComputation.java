@@ -26,10 +26,12 @@ import java.util.*;
 public class AbsolutePtdfSumsComputation {
     private final ZonalData<SensitivityVariableSet> glskProvider;
     private final List<ZoneToZonePtdfDefinition> zTozPtdfs;
+    private final double ptdfSumLowerBound;
 
-    public AbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, List<ZoneToZonePtdfDefinition> zTozPtdfs) {
+    public AbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, List<ZoneToZonePtdfDefinition> zTozPtdfs, double ptdfSumLowerBound) {
         this.glskProvider = glskProvider;
         this.zTozPtdfs = zTozPtdfs;
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
     public Map<FlowCnec, Map<TwoSides, Double>> computeAbsolutePtdfSums(Set<FlowCnec> flowCnecs, SystematicSensitivityResult sensitivityResult) {
@@ -40,6 +42,7 @@ public class AbsolutePtdfSumsComputation {
             flowCnec.getMonitoredSides().forEach(side -> {
                 Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(flowCnec, side, glskProvider, eiCodesInPtdfs, sensitivityResult);
                 double sumOfZToZPtdf = zTozPtdfs.stream().mapToDouble(zToz -> Math.abs(computeZToZPtdf(zToz, ptdfMap))).sum();
+                sumOfZToZPtdf = Math.max(sumOfZToZPtdf, ptdfSumLowerBound);
                 ptdfSums.computeIfAbsent(flowCnec, k -> new EnumMap<>(TwoSides.class)).put(side, sumOfZToZPtdf);
             });
         }

@@ -218,7 +218,8 @@ public final class ToolProvider {
                 raoInput.getGlskProvider(),
                 new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
-                        raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries()
+                    raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries(),
+                    raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfSumLowerBound()
                 )
             );
         }
