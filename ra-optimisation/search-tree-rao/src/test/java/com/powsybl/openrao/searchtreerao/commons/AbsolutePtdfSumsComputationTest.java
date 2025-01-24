@@ -167,7 +167,7 @@ class AbsolutePtdfSumsComputationTest {
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, PTDF_SUM_LOWER_BOUND);
         Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
-        // Test that these 3 new boundaries are ignored (results should be the same as previous test)
-        assertEquals(0.01, ptdfSums.get(crac.getFlowCnec("cnec3basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE);
+        // Test that sum = PTDF_SUM_LOWER_BOUND
+        assertEquals(PTDF_SUM_LOWER_BOUND, ptdfSums.get(crac.getFlowCnec("cnec3basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE);
     }
 }
