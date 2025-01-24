@@ -61,7 +61,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             return null;
         }
 
-        // get id and name
+        // get id, name and timestamp
         scrollJsonUntilField(jsonParser, JsonSerializationConstants.ID);
         String id = jsonParser.nextTextValue();
         jsonParser.nextToken();
@@ -69,6 +69,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             throw new OpenRaoException(String.format("The JSON Crac must contain a %s field after the %s field", JsonSerializationConstants.NAME, JsonSerializationConstants.ID));
         }
         String name = jsonParser.nextTextValue();
+        // TODO: deserialize timestamp
         Crac crac = cracFactory.create(id, name);
         if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2) {
             crac.newInstant("preventive", InstantKind.PREVENTIVE)
