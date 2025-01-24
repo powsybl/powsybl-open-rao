@@ -77,7 +77,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
-        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
     }
@@ -92,7 +92,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(5, fillers.size());
-        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(DiscretePstTapFiller.class, fillers.get(2));
         assertInstanceOf(DiscretePstGroupFiller.class, fillers.get(3));
@@ -109,7 +109,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
-        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
         assertInstanceOf(MaxMinRelativeMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
     }
@@ -129,7 +129,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(6, fillers.size());
-        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(MnecFiller.class, fillers.get(2));
         assertInstanceOf(MaxLoopFlowFiller.class, fillers.get(3));
@@ -151,7 +151,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(4, fillers.size());
-        assertInstanceOf(CoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
         assertInstanceOf(RaUsageLimitsFiller.class, fillers.get(3));
