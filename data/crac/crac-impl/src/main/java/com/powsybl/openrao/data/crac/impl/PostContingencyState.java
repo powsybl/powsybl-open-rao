@@ -77,7 +77,7 @@ public class PostContingencyState implements State {
         Optional<Contingency> oContingency = state.getContingency();
         return state.getInstant().equals(instant)
             && oContingency.map(value -> value.equals(contingency)).orElseGet(() -> contingency == null)
-            && state.getTimestamp().equals(Optional.of(timestamp));
+            && state.getTimestamp().equals(Optional.ofNullable(timestamp));
     }
 
     @Override
