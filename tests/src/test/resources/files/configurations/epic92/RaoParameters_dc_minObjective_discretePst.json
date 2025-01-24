@@ -3,8 +3,7 @@
   "objective-function" : {
     "type" : "MIN_COST_IN_MEGAWATT",
     "curative-min-obj-improvement" : 0.0,
-    "preventive-stop-criterion" : "MIN_OBJECTIVE",
-    "curative-stop-criterion" : "MIN_OBJECTIVE"
+    "preventive-stop-criterion" : "MIN_OBJECTIVE"
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 5,
