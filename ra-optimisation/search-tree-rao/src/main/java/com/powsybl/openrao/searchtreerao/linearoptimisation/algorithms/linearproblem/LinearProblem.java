@@ -470,6 +470,68 @@ public final class LinearProblem {
         return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state, timestamp));
     }
 
+    public OpenRaoMPConstraint addInjectionBalanceConstraint(State state, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(0.0, 0.0, injectionBalanceConstraintId(state, timestamp));
+    }
+
+    public OpenRaoMPConstraint getInjectionBalanceConstraint(State state, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(injectionBalanceConstraintId(state, timestamp));
+    }
+
+    public OpenRaoMPVariable addTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
+        return solver.makeIntVar(0, infinity(), totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection, timestamp));
+    }
+
+    public OpenRaoMPVariable getTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection, timestamp));
+    }
+
+    public OpenRaoMPConstraint addTotalPstRangeActionTapVariationConstraint(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(0, 0, totalPstRangeActionTapVariationConstraintId(pstRangeAction, state, timestamp));
+    }
+
+    public OpenRaoMPVariable addTapVariable(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        int minTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().min(Integer::compareTo).orElseThrow();
+        int maxTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().max(Integer::compareTo).orElseThrow();
+        return solver.makeIntVar(minTap, maxTap, tapVariableId(pstRangeAction, state, timestamp));
+    }
+
+    public OpenRaoMPVariable getTapVariable(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(tapVariableId(pstRangeAction, state, timestamp));
+    }
+
+    public OpenRaoMPConstraint addTapConstraint(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(0, 0, tapConstraintId(pstRangeAction, state, timestamp));
+    }
+
+    public OpenRaoMPConstraint getTapConstraint(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(tapConstraintId(pstRangeAction, state, timestamp));
+    }
+
+    public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeNumVar(-solver.infinity(), solver.infinity(), generatorPowerVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPVariable getGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.getVariable(generatorPowerVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerConstraint(String generatorId, double initialPower, OffsetDateTime timestamp) {
+        return solver.makeConstraint(initialPower, initialPower, generatorPowerConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorPowerConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.getConstraint(generatorPowerConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, double lb, double ub) {
+        return solver.makeConstraint(lb, ub, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
+        return solver.getConstraint(generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
+    }
+
     public double infinity() {
         return solver.infinity();
     }

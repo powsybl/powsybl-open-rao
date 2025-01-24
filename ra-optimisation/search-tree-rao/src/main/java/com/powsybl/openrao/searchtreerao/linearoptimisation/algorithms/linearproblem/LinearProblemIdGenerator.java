@@ -53,10 +53,13 @@ public final class LinearProblemIdGenerator {
     private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
-    private static final String RANGE_ACTION_ACTIVATION = "rangeactionactivation";
     private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
     private static final String RANGE_ACTION_ABSOLUTE_VARIATION = "rangeactionabsolutevariation";
-    private static final DateTimeFormatter DATETIME_FORMATER = DateTimeFormatter.ofPattern("hhMMddHHmm");
+    private static final String INJECTION_BALANCE = "injectionbalance";
+    private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
+    private static final String GENERATOR_POWER = "generatorpower";
+    private static final String GENERATOR_POWER_GRADIENT_CONSTRAINT = "generatorpowergradientconstraint";
+    private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("hhMMddHHmm");
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -64,11 +67,7 @@ public final class LinearProblemIdGenerator {
 
     private static String formatName(Optional<OffsetDateTime> timestamp, String... substrings) {
         String name = String.join(SEPARATOR, substrings).replace("__", "_"); // remove empty strings
-        return timestamp.map(time -> name + SEPARATOR + time.format(DATETIME_FORMATER)).orElse(name);
-    }
-
-    private static String formatName(String... substrings) {
-        return formatName(Optional.empty(), substrings);
+        return timestamp.map(time -> name + SEPARATOR + time.format(DATE_TIME_FORMATER)).orElse(name);
     }
 
     public static String flowVariableId(FlowCnec flowCnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
@@ -237,5 +236,37 @@ public final class LinearProblemIdGenerator {
 
     public static String rangeActionAbsoluteVariationConstraintId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
         return formatName(timestamp, RANGE_ACTION_ABSOLUTE_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String injectionBalanceConstraintId(State state, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, INJECTION_BALANCE, state.getId(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String totalPstRangeActionTapVariationVariableId(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, TOTAL_PST_RANGE_ACTION_TAP_VARIATION, pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX, variationDirection.toString());
+    }
+
+    public static String totalPstRangeActionTapVariationConstraintId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, TOTAL_PST_RANGE_ACTION_TAP_VARIATION, pstRangeAction.getId(), state.getId() + SEPARATOR + CONSTRAINT_SUFFIX);
+    }
+
+    public static String tapVariableId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX);
+    }
+
+    public static String tapConstraintId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorPowerVariableId(String generatorId, OffsetDateTime timestamp) {
+        return String.join(SEPARATOR, GENERATOR_POWER, generatorId, timestamp.format(DATE_TIME_FORMATER), VARIABLE_SUFFIX);
+    }
+
+    public static String generatorPowerConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return String.join(SEPARATOR, GENERATOR_POWER, generatorId, timestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorPowerGradientConstraintId(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
+        return String.join(SEPARATOR, GENERATOR_POWER_GRADIENT_CONSTRAINT, generatorId, currentTimestamp.format(DATE_TIME_FORMATER), previousTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
     }
 }
