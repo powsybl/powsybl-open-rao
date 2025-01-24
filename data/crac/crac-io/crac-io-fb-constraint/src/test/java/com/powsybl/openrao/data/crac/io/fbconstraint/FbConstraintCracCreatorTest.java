@@ -250,6 +250,20 @@ class FbConstraintCracCreatorTest {
         assertCriticalBranchNotImported("BE_CBCO_000004", ImportStatus.NOT_FOR_RAO);
     }
 
+    @Test
+    void importWithoutMnecs() throws IOException {
+        Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
+        OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext("no_MNEC_test.xml", getClass().getResourceAsStream("/merged_cb/no_MNEC_test.xml"), network, timestamp, parameters);
+        Crac crac = creationContext.getCrac();
+
+        assertEquals(1, crac.getFlowCnecs().size());
+        assertTrue(crac.getFlowCnec("BE_CBCO_000001 - preventive").isOptimized());
+        assertFalse(crac.getFlowCnec("BE_CBCO_000001 - preventive").isMonitored());
+
+        assertCriticalBranchNotImported("BE_CBCO_000002", ImportStatus.NOT_FOR_RAO);
+    }
+
     private void assertHasThresholds(FlowCnec cnec, Set<TwoSides> monitoredSides, Unit unit, Double min, Double max) {
         assertEquals(monitoredSides.size(), cnec.getThresholds().size());
         monitoredSides.forEach(side -> assertTrue(cnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getSide().equals(side))));

@@ -19,6 +19,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,15 +39,17 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private final FlowResult prePerimeterFlowResult;
     private final Set<String> operatorsNotToOptimize;
     private final double highestThresholdValue;
+    private final OffsetDateTime timestamp;
 
     public UnoptimizedCnecFiller(Set<FlowCnec> flowCnecs,
                                  FlowResult prePerimeterFlowResult,
-                                 UnoptimizedCnecParameters unoptimizedCnecParameters) {
+                                 UnoptimizedCnecParameters unoptimizedCnecParameters, OffsetDateTime timestamp) {
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(flowCnecs, prePerimeterFlowResult));
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
         this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs, MEGAWATT);
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -76,7 +79,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      */
     private void buildDontOptimizeCnecVariables(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
-            linearProblem.addOptimizeCnecBinaryVariable(cnec, side)
+            linearProblem.addOptimizeCnecBinaryVariable(cnec, side, Optional.ofNullable(timestamp))
         ));
     }
 
@@ -111,8 +114,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, side, MEGAWATT);
 
-            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
-            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
+            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
+            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side, Optional.ofNullable(timestamp));
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
@@ -123,7 +126,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
                     prePerimeterMargin + minFlow.get(),
                     linearProblem.infinity(), cnec, side,
-                    LinearProblem.MarginExtension.BELOW_THRESHOLD
+                    LinearProblem.MarginExtension.BELOW_THRESHOLD,
+                    Optional.ofNullable(timestamp)
                 );
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, 1);
                 decreaseMinmumThresholdMargin.setCoefficient(optimizeCnecBinaryVariable, worstMarginDecrease);
@@ -133,7 +137,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
                     prePerimeterMargin - maxFlow.get(),
                     linearProblem.infinity(), cnec, side,
-                    LinearProblem.MarginExtension.ABOVE_THRESHOLD
+                    LinearProblem.MarginExtension.ABOVE_THRESHOLD,
+                    Optional.ofNullable(timestamp)
                 );
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, -1);
                 decreaseMinmumThresholdMargin.setCoefficient(optimizeCnecBinaryVariable, worstMarginDecrease);
@@ -151,10 +156,10 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private void updateMinimumMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         double bigM = 2 * highestThresholdValue;
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
+            OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side, Optional.ofNullable(timestamp));
             try {
                 updateMinimumMarginConstraint(
-                    linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD),
+                    linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp)),
                     optimizeCnecBinaryVariable,
                     bigM
                 );
@@ -163,7 +168,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             }
             try {
                 updateMinimumMarginConstraint(
-                    linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
+                    linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp)),
                     optimizeCnecBinaryVariable,
                     bigM
                 );
@@ -172,7 +177,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             }
             try {
                 updateMinimumMarginConstraint(
-                    linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD),
+                    linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp)),
                     optimizeCnecBinaryVariable,
                     bigM
                 );
@@ -181,7 +186,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             }
             try {
                 updateMinimumMarginConstraint(
-                    linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
+                    linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp)),
                     optimizeCnecBinaryVariable,
                     bigM
                 );
