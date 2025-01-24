@@ -132,7 +132,7 @@ class AbsolutePtdfSumsComputationTest {
 
     @Test
     void testWithNullPtdfSum() {
-        Network network = NetworkImportsUtil.import12NodesNetworkWithOpenBranch();
+        Network network = NetworkImportsUtil.import12NodesNetwork();
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 
