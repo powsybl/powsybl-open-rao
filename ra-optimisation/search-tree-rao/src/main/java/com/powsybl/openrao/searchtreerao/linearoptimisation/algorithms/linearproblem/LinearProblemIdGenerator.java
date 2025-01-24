@@ -59,7 +59,7 @@ public final class LinearProblemIdGenerator {
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final String GENERATOR_POWER = "generatorpower";
     private static final String GENERATOR_POWER_GRADIENT_CONSTRAINT = "generatorpowergradientconstraint";
-    private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("hhMMddHHmm");
+    private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
