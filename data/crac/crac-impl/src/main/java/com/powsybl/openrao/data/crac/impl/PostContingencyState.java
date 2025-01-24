@@ -12,6 +12,8 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 /**
@@ -20,17 +22,21 @@ import java.util.Optional;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class PostContingencyState implements State {
+    private static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     private String id;
     private Contingency contingency;
     private Instant instant;
+    private OffsetDateTime timestamp;
 
-    PostContingencyState(Contingency contingency, Instant instant) {
+    PostContingencyState(Contingency contingency, Instant instant, OffsetDateTime timestamp) {
         if (instant.isPreventive()) {
             throw new OpenRaoException("Instant cannot be preventive");
         }
-        this.id = contingency.getId() + " - " + instant.getId();
+        String baseId = contingency.getId() + " - " + instant.getId();
+        this.id = timestamp == null ? baseId : baseId + " - " + timestamp.format(DATE_TIME_FORMATTER);
         this.contingency = contingency;
         this.instant = instant;
+        this.timestamp = timestamp;
     }
 
     public final String getId() {
@@ -45,6 +51,11 @@ public class PostContingencyState implements State {
     @Override
     public Optional<Contingency> getContingency() {
         return Optional.of(contingency);
+    }
+
+    @Override
+    public Optional<OffsetDateTime> getTimestamp() {
+        return Optional.ofNullable(timestamp);
     }
 
     /**
@@ -64,8 +75,9 @@ public class PostContingencyState implements State {
         }
         State state = (State) o;
         Optional<Contingency> oContingency = state.getContingency();
-        return state.getInstant().equals(instant) && oContingency.map(value -> value.equals(contingency))
-            .orElseGet(() -> contingency == null);
+        return state.getInstant().equals(instant)
+            && oContingency.map(value -> value.equals(contingency)).orElseGet(() -> contingency == null)
+            && state.getTimestamp().equals(Optional.of(timestamp));
     }
 
     @Override

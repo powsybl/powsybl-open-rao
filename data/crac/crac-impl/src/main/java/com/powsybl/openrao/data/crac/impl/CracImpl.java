@@ -366,7 +366,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
-            State state = new PreventiveState(getPreventiveInstant());
+            State state = new PreventiveState(getPreventiveInstant(), timestamp);
             states.put(state.getId(), state);
             return state;
         }
@@ -383,7 +383,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             if (!contingencies.containsKey(contingency.getId())) {
                 throw new OpenRaoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));
             }
-            State state = new PostContingencyState(getContingency(contingency.getId()), instant);
+            State state = new PostContingencyState(getContingency(contingency.getId()), instant, null);
             states.put(state.getId(), state);
             return state;
         }
