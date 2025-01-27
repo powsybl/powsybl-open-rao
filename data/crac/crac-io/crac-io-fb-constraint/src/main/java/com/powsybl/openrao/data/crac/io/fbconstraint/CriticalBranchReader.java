@@ -71,6 +71,14 @@ class CriticalBranchReader {
         return null;
     }
 
+    boolean nullSafeIsMnec() {
+        /*
+         * In case of absence of element MNEC in XML input (as it is optional), no default value is set.
+         * An absence of MNEC element is equivalent to the critical branch to be considered as non MNEC
+         */
+        return Optional.ofNullable(criticalBranch.isMNEC()).orElse(false);
+    }
+
     String getOutageCnecId() {
         if (!isBaseCase) {
             return criticalBranch.getId().concat(" - ").concat("outage");
@@ -145,7 +153,7 @@ class CriticalBranchReader {
             }
         }
 
-        if (!criticalBranch.isCNEC() && !criticalBranch.isMNEC()) {
+        if (!criticalBranch.isCNEC() && !nullSafeIsMnec()) {
             this.importStatus = ImportStatus.NOT_FOR_RAO;
             this.importStatusDetail = String.format("critical branch %s was removed as it is neither a CNEC, nor a MNEC", criticalBranch.getId());
             return;
@@ -192,7 +200,7 @@ class CriticalBranchReader {
             .withInstant(instantId)
             .withReliabilityMargin(criticalBranch.getFrmMw())
             .withOperator(criticalBranch.getTsoOrigin())
-            .withMonitored(criticalBranch.isMNEC())
+            .withMonitored(nullSafeIsMnec())
             .withOptimized(criticalBranch.isCNEC())
             .withIMax(ucteFlowElementHelper.getCurrentLimit(TwoSides.ONE), TwoSides.ONE)
             .withIMax(ucteFlowElementHelper.getCurrentLimit(TwoSides.TWO), TwoSides.TWO)

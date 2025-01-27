@@ -21,7 +21,9 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.time.OffsetDateTime;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -35,9 +37,14 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private final double loopFlowAcceptableAugmentation;
     private final double loopFlowViolationCost;
     private final double loopFlowConstraintAdjustmentCoefficient;
+    private final OffsetDateTime timestamp;
     private FlowResult preOptimFlowResult; // = flow result used in the first "fill" iteration
 
-    public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, LoopFlowParameters loopFlowParameters, SearchTreeRaoLoopFlowParameters loopFlowParametersExtension) {
+    public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs,
+                             FlowResult initialFlowResult,
+                             LoopFlowParameters loopFlowParameters,
+                             SearchTreeRaoLoopFlowParameters loopFlowParametersExtension,
+                             OffsetDateTime timestamp) {
         this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.loopFlowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(loopFlowCnecs, initialFlowResult));
         this.initialFlowResult = initialFlowResult;
@@ -45,6 +52,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
         this.loopFlowViolationCost = loopFlowParametersExtension.getViolationCost();
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowParametersExtension.getConstraintAdjustmentCoefficient();
+        this.timestamp = timestamp;
     }
 
     private Set<FlowCnec> getValidLoopFlowCnecs(SensitivityResult sensitivityResult) {
@@ -98,13 +106,14 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 }
 
                 // get loop-flow variable
-                OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+                OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
 
                 OpenRaoMPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
                     0,
                     linearProblem.infinity(),
                     cnec,
-                    side
+                    side,
+                    Optional.ofNullable(timestamp)
                 );
 
                 // build constraint which defines the loopFlow :
@@ -117,7 +126,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                     linearProblem.infinity(),
                     cnec,
                     side,
-                    LinearProblem.BoundExtension.LOWER_BOUND
+                    LinearProblem.BoundExtension.LOWER_BOUND,
+                    Optional.ofNullable(timestamp)
                 );
                 positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
                 positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1.0);
@@ -127,7 +137,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                     loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
                     cnec,
                     side,
-                    LinearProblem.BoundExtension.UPPER_BOUND
+                    LinearProblem.BoundExtension.UPPER_BOUND,
+                    Optional.ofNullable(timestamp)
                 );
                 negativeLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
                 negativeLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, -1);

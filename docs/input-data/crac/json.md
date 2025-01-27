@@ -283,7 +283,7 @@ one/left. The convention of OpenRAO is that a positive flow is a flow in the "di
 a flow in the "opposite" direction.
 
 > 💡  **NOTE**  
-> A OpenRAO FlowCnec is one implementation of the generic ["BranchCnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/cnec/BranchCnec.java).
+> A OpenRAO FlowCnec is one implementation of the generic ["BranchCnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/cnec/BranchCnec.java).
 > If needed, this would allow you a fast implementation of other types of CNECs, on branches, but with a monitored
 > physical parameter other than power flow.
 
@@ -1367,8 +1367,8 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withGroupId("group-id")
    		.withOperator("operator")
         .withActivationCost(100d)
-        .withVariationCost(1000d, RangeAction.VariationDirection.UP)
-        .withVariationCost(2000d, RangeAction.VariationDirection.DOWN)
+        .withVariationCost(1000d, VariationDirection.UP)
+        .withVariationCost(2000d, VariationDirection.DOWN)
         .withExportingCountry(Country.FR)
         .withImportingCountry(Country.ES)
         .withInitialSetpoint(50)

@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,17 +21,18 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 class InterTemporalRaoInputTest {
-
     private OffsetDateTime timestamp1;
     private OffsetDateTime timestamp2;
     private OffsetDateTime timestamp3;
     private TemporalData<RaoInput> temporalData;
+    private Set<PowerGradient> powerGradients;
 
     @BeforeEach
     void setUp() {
@@ -40,19 +43,34 @@ class InterTemporalRaoInputTest {
         timestamp2 = OffsetDateTime.of(2024, 12, 10, 17, 21, 0, 0, ZoneOffset.UTC);
         timestamp3 = OffsetDateTime.of(2024, 12, 10, 18, 21, 0, 0, ZoneOffset.UTC);
         temporalData = new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3));
+        powerGradients = Set.of(PowerGradient.builder().withNetworkElementId("generator-1").withMaxValue(200.0).build(), PowerGradient.builder().withNetworkElementId("generator-2").withMinValue(-50.0).build());
     }
 
     @Test
     void testInstantiateInterTemporalRaoInput() {
-        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, Set.of(timestamp1, timestamp3));
+        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, Set.of(timestamp1, timestamp3), powerGradients);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp3), input.getTimestampsToRun());
+        assertEquals(powerGradients, input.getPowerGradients());
     }
 
     @Test
     void testInstantiateInterTemporalRaoInputAllTimestamps() {
-        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData);
+        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, powerGradients);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp2, timestamp3), input.getTimestampsToRun());
+        assertEquals(powerGradients, input.getPowerGradients());
+    }
+
+    @Test
+    void testInstantiateWithMissingTimestamp() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InterTemporalRaoInput(temporalData, Set.of(OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC)), Set.of()));
+        assertEquals("Timestamp(s) '2024-12-11T14:29Z' are not defined in the inputs.", exception.getMessage());
+    }
+
+    @Test
+    void testInstantiateWithMissingTimestamps() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InterTemporalRaoInput(temporalData, Set.of(OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2024, 11, 11, 14, 29, 0, 0, ZoneOffset.UTC)), Set.of()));
+        assertEquals("Timestamp(s) '2024-11-11T14:29Z', '2024-12-11T14:29Z' are not defined in the inputs.", exception.getMessage());
     }
 }

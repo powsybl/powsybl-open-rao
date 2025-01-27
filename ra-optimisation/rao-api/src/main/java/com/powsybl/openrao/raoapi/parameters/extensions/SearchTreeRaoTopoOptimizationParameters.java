@@ -120,6 +120,13 @@ public class SearchTreeRaoTopoOptimizationParameters {
         return DEFAULT_MAX_SEARCH_TREE_DEPTH;
     }
 
+    public static int getMaxCurativeSearchTreeDepth(RaoParameters parameters) {
+        if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            return parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth();
+        }
+        return DEFAULT_MAX_SEARCH_TREE_DEPTH;
+    }
+
     public static boolean isSkipActionsFarFromMostLimitingElement(RaoParameters raoParameters) {
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement();
