@@ -12,6 +12,6 @@
         <jxb:javaType name="java.lang.Float"
                       xmlType="xs:float"
                       parseMethod="jakarta.xml.bind.DatatypeConverter.parseFloat"
-                      printMethod="com.powsybl.openrao.data.raoresult.io.cne.commons.xmlformatter.NumberFormatter.printFloat" />
+                      printMethod="jakarta.xml.bind.DatatypeConverter.printFloat" />
     </jxb:globalBindings>
 </jxb:bindings>
