@@ -34,7 +34,7 @@ public abstract class AbstractObjectiveFunctionCreator {
         this.flowCnecs = flowCnecs;
         this.optimizedStates = optimizedStates;
         this.raoParameters = raoParameters;
-        this.unit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
+        this.unit = raoParameters.getObjectiveFunctionParameters().getUnit();
     }
 
     protected MarginEvaluator getMarginEvaluator() {

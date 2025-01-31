@@ -11,8 +11,9 @@ import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -39,14 +40,18 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private final OffsetDateTime timestamp;
     private FlowResult preOptimFlowResult; // = flow result used in the first "fill" iteration
 
-    public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, LoopFlowParametersExtension loopFlowParameters, OffsetDateTime timestamp) {
+    public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs,
+                             FlowResult initialFlowResult,
+                             LoopFlowParameters loopFlowParameters,
+                             SearchTreeRaoLoopFlowParameters loopFlowParametersExtension,
+                             OffsetDateTime timestamp) {
         this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.loopFlowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(loopFlowCnecs, initialFlowResult));
         this.initialFlowResult = initialFlowResult;
-        this.loopFlowPtdfApproximationLevel = loopFlowParameters.getPtdfApproximation();
+        this.loopFlowPtdfApproximationLevel = loopFlowParametersExtension.getPtdfApproximation();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
-        this.loopFlowViolationCost = loopFlowParameters.getViolationCost();
-        this.loopFlowConstraintAdjustmentCoefficient = loopFlowParameters.getConstraintAdjustmentCoefficient();
+        this.loopFlowViolationCost = loopFlowParametersExtension.getViolationCost();
+        this.loopFlowConstraintAdjustmentCoefficient = loopFlowParametersExtension.getConstraintAdjustmentCoefficient();
         this.timestamp = timestamp;
     }
 

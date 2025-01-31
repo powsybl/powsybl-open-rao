@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
@@ -84,7 +84,7 @@ public final class LinearProblem {
         return new LinearProblemBuilder();
     }
 
-    LinearProblem(List<ProblemFiller> fillerList, RangeActionActivationResult raActivationFromParentLeaf, RangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
+    LinearProblem(List<ProblemFiller> fillerList, RangeActionActivationResult raActivationFromParentLeaf, SearchTreeRaoRangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
         this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver);
         this.fillerList = fillerList;
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
