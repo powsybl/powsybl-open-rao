@@ -31,13 +31,11 @@ final class JsonNotOptimizedCnecsParameters {
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
-                case DO_NOT_OPTIMIZE_CURATIVE_CNECS:
-                    jsonParser.nextToken();
-                    raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(jsonParser.getBooleanValue());
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize not optimized cnecs parameters: unexpected field in %s (%s)", NOT_OPTIMIZED_CNECS, jsonParser.getCurrentName()));
+            if (jsonParser.getCurrentName().equals(DO_NOT_OPTIMIZE_CURATIVE_CNECS)) {
+                jsonParser.nextToken();
+                raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(jsonParser.getBooleanValue());
+            } else {
+                throw new OpenRaoException(String.format("Cannot deserialize not optimized cnecs parameters: unexpected field in %s (%s)", NOT_OPTIMIZED_CNECS, jsonParser.getCurrentName()));
             }
         }
     }

@@ -4,13 +4,13 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.openrao.raoapi.json;
+package com.powsybl.openrao.raoapi.json.extensions;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ final class JsonLoadFlowAndSensitivityComputationParameters {
     private JsonLoadFlowAndSensitivityComputationParameters() {
     }
 
-    static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    static void serialize(OpenRaoSearchTreeParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeObjectFieldStart(LOAD_FLOW_AND_SENSITIVITY_COMPUTATION);
         jsonGenerator.writeStringField(LOAD_FLOW_PROVIDER, parameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider());
         jsonGenerator.writeStringField(SENSITIVITY_PROVIDER, parameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider());
@@ -35,24 +35,24 @@ final class JsonLoadFlowAndSensitivityComputationParameters {
         jsonGenerator.writeEndObject();
     }
 
-    static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
+    static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case LOAD_FLOW_PROVIDER:
                     jsonParser.nextToken();
-                    raoParameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider(jsonParser.getValueAsString());
+                    searchTreeParameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider(jsonParser.getValueAsString());
                     break;
                 case SENSITIVITY_PROVIDER:
                     jsonParser.nextToken();
-                    raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider(jsonParser.getValueAsString());
+                    searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider(jsonParser.getValueAsString());
                     break;
                 case SENSITIVITY_FAILURE_OVERCOST:
                     jsonParser.nextToken();
-                    raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(jsonParser.getValueAsDouble());
+                    searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(jsonParser.getValueAsDouble());
                     break;
                 case SENSITIVITY_PARAMETERS:
                     jsonParser.nextToken();
-                    raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityWithLoadFlowParameters(JsonSensitivityAnalysisParameters.createObjectMapper().readerForUpdating(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters()).readValue(jsonParser));
+                    searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityWithLoadFlowParameters(JsonSensitivityAnalysisParameters.createObjectMapper().readerForUpdating(searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters()).readValue(jsonParser));
                     break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize load flow and sensitivity parameters: unexpected field in %s (%s)", LOAD_FLOW_AND_SENSITIVITY_COMPUTATION, jsonParser.getCurrentName()));
