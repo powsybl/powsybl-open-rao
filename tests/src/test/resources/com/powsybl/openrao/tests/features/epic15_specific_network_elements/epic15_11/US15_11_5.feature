@@ -14,7 +14,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     And the remedial action "open_de1_de2_open_nl2_be3 - prev" is used in preventive
     And the remedial action "open_de2_nl3 - co1 - auto" is used after "co1_fr2_de3" at "auto"
     And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_de3" at "curative"
-    And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 112.7 MW
+    And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 327.73 MW
 
   @fast @rao @mock @dc @second-preventive
   Scenario: US 15.11.5.2: test fix condition 2P
@@ -61,7 +61,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_de3" at "curative"
     And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after PRA should be -293.5 MW
     And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - auto" after ARA should be -360.65 MW
-    And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 112.7 MW
+    And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 327.73 MW
     And the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @dc @contingency-scenarios
@@ -76,7 +76,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_de3" at "curative"
     And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after PRA should be -302.38 MW
     And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - auto" after ARA should be -223.44 MW
-    And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 240.61 MW
+    And the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 414.58 MW
     And the execution details should be "The RAO only went through first preventive"
 
   @fast @rao @mock @dc @second-preventive

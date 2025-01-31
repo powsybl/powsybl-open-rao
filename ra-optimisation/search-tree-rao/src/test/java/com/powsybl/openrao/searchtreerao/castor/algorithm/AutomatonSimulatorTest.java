@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -233,8 +234,11 @@ class AutomatonSimulatorTest {
         autoState = crac.getState(contingency1, autoInstant);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
 
         mockedPreAutoPerimeterSensitivityAnalysis = mock(PrePerimeterSensitivityAnalysis.class);
         mockedPrePerimeterResult = mock(PrePerimeterResult.class);

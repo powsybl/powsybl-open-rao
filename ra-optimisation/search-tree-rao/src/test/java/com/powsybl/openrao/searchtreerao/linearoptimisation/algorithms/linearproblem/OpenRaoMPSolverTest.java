@@ -10,7 +10,7 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,18 +28,18 @@ class OpenRaoMPSolverTest {
 
     @BeforeEach
     void setUp() {
-        openRaoMPSolver = new OpenRaoMPSolver("test", RangeActionsOptimizationParameters.Solver.SCIP);
+        openRaoMPSolver = new OpenRaoMPSolver("test", SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
         mpSolver = openRaoMPSolver.getMpSolver();
     }
 
     @Test
     void basicTest() {
         assertNotNull(openRaoMPSolver.getObjective());
-        assertEquals(RangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
+        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
         assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
 
-        openRaoMPSolver = new OpenRaoMPSolver("rao_test_prob", RangeActionsOptimizationParameters.Solver.CBC);
-        assertEquals(RangeActionsOptimizationParameters.Solver.CBC, openRaoMPSolver.getSolver());
+        openRaoMPSolver = new OpenRaoMPSolver("rao_test_prob", SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC);
+        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC, openRaoMPSolver.getSolver());
         assertEquals(MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
     }
 
@@ -285,16 +285,16 @@ class OpenRaoMPSolverTest {
         openRaoMPSolver.resetModel();
         assertNotNull(openRaoMPSolver.getObjective());
         checkObjectiveSense(false);
-        assertEquals(RangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
+        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
         assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
     }
 
     @Test
     void testInfinity() {
-        OpenRaoMPSolver solver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.CBC);
+        OpenRaoMPSolver solver = new OpenRaoMPSolver("solver", SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC);
         assertEquals(Double.POSITIVE_INFINITY, solver.infinity());
 
-        solver = new OpenRaoMPSolver("solver", RangeActionsOptimizationParameters.Solver.SCIP);
+        solver = new OpenRaoMPSolver("solver", SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
         assertEquals(1e23, solver.infinity());
 
         // can't test XPRESS because we need the link to the library

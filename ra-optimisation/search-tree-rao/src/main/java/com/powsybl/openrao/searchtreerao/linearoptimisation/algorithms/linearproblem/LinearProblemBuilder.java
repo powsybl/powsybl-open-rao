@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -19,14 +19,16 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LinearProblemBuilder {
     private final List<ProblemFiller> problemFillers = new ArrayList<>();
-    private RangeActionsOptimizationParameters.Solver solver;
-    private double relativeMipGap = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_RELATIVE_MIP_GAP;
-    private String solverSpecificParameters = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
+    private SearchTreeRaoRangeActionsOptimizationParameters.Solver solver;
+    private double relativeMipGap = SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_RELATIVE_MIP_GAP;
+    private String solverSpecificParameters = SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
     private RangeActionActivationResult initialRangeActionActivationResult;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
@@ -68,7 +70,7 @@ public class LinearProblemBuilder {
         }
 
         // MIP optimization vs. CONTINUOUS optimization
-        if (parameters.getRangeActionParameters().getPstModel().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
             Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(inputs.optimizationPerimeter().getRangeActionsPerState());
             Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(inputs.optimizationPerimeter().getRangeActionsPerState());
             this.withProblemFiller(buildIntegerPstTapFiller(pstRangeActions));
@@ -97,7 +99,7 @@ public class LinearProblemBuilder {
         return this;
     }
 
-    public LinearProblemBuilder withSolver(RangeActionsOptimizationParameters.Solver solver) {
+    public LinearProblemBuilder withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         this.solver = solver;
         return this;
     }
@@ -122,17 +124,19 @@ public class LinearProblemBuilder {
             inputs.optimizationPerimeter(),
             inputs.prePerimeterSetpoints(),
             parameters.getRangeActionParameters(),
+            parameters.getRangeActionParametersExtension(),
             parameters.getObjectiveFunctionUnit(),
             parameters.getRaRangeShrinking(),
-            parameters.getRangeActionParameters().getPstModel(),
+            getPstModel(parameters.getRangeActionParametersExtension()),
             null
         ) : new MarginCoreProblemFiller(
             inputs.optimizationPerimeter(),
             inputs.prePerimeterSetpoints(),
             parameters.getRangeActionParameters(),
+            parameters.getRangeActionParametersExtension(),
             parameters.getObjectiveFunctionUnit(),
             parameters.getRaRangeShrinking(),
-            parameters.getRangeActionParameters().getPstModel(),
+            getPstModel(parameters.getRangeActionParametersExtension()),
             null
         );
     }
@@ -141,9 +145,10 @@ public class LinearProblemBuilder {
         return new MaxMinRelativeMarginFiller(
             inputs.optimizationPerimeter().getOptimizedFlowCnecs(),
             inputs.preOptimizationFlowResult(),
-            parameters.getObjectiveFunction().getUnit(),
+            parameters.getObjectiveFunctionUnit(),
             parameters.getMaxMinRelativeMarginParameters(),
-            null);
+            null
+        );
     }
 
     private ProblemFiller buildMaxMinMarginFiller() {
@@ -159,7 +164,9 @@ public class LinearProblemBuilder {
             inputs.initialFlowResult(),
             inputs.optimizationPerimeter().getMonitoredFlowCnecs(),
             parameters.getObjectiveFunctionUnit(),
-            parameters.getMnecParameters(),
+            parameters.getMnecParametersExtension().getViolationCost(),
+            parameters.getMnecParameters().getAcceptableMarginDecrease(),
+            parameters.getMnecParametersExtension().getConstraintAdjustmentCoefficient(),
             null);
     }
 
@@ -168,7 +175,9 @@ public class LinearProblemBuilder {
             inputs.optimizationPerimeter().getLoopFlowCnecs(),
             inputs.initialFlowResult(),
             parameters.getLoopFlowParameters(),
-            null);
+            parameters.getLoopFlowParametersExtension(),
+            null
+        );
     }
 
     private ProblemFiller buildUnoptimizedCnecFiller() {
@@ -207,8 +216,10 @@ public class LinearProblemBuilder {
             inputs.optimizationPerimeter().getRangeActionsPerState(),
             inputs.prePerimeterSetpoints(),
             parameters.getRaLimitationParameters(),
-            parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-            inputs.network(), parameters.getObjectiveFunction().costOptimization(), null);
+            getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
+            inputs.network(),
+            parameters.getObjectiveFunction().costOptimization(),
+            null);
     }
 
     private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {

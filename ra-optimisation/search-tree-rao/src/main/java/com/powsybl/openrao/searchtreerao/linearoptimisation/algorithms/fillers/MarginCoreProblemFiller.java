@@ -11,6 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -27,11 +28,12 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
     public MarginCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                    RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                    RangeActionsOptimizationParameters rangeActionParameters,
+                                   SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
                                    Unit unit,
                                    boolean raRangeShrinking,
-                                   RangeActionsOptimizationParameters.PstModel pstModel,
+                                   SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
                                    OffsetDateTime timestamp) {
-        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, unit, raRangeShrinking, pstModel, timestamp);
+        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
     }
 
     /**

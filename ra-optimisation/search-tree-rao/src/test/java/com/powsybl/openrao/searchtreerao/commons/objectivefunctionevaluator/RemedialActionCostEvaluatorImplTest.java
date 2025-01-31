@@ -36,9 +36,9 @@ class RemedialActionCostEvaluatorImplTest {
     @BeforeEach
     void setUp() {
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
-        rangeActionsOptimizationParameters.setPstPenaltyCost(0.01);
-        rangeActionsOptimizationParameters.setInjectionRaPenaltyCost(0.02);
-        rangeActionsOptimizationParameters.setHvdcPenaltyCost(0.5);
+        rangeActionsOptimizationParameters.setPstRAMinImpactThreshold(0.01);
+        rangeActionsOptimizationParameters.setInjectionRAMinImpactThreshold(0.02);
+        rangeActionsOptimizationParameters.setHvdcRAMinImpactThreshold(0.5);
 
         PstRangeAction pstRangeAction1 = Mockito.mock(PstRangeAction.class);
         Mockito.when(pstRangeAction1.getActivationCost()).thenReturn(Optional.empty());

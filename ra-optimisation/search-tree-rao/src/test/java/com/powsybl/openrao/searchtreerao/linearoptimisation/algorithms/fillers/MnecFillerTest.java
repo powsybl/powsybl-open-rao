@@ -16,9 +16,11 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.*;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -99,39 +101,45 @@ class MnecFillerTest extends AbstractFillerTest {
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
 
         coreProblemFiller = new MarginCoreProblemFiller(
-                optimizationPerimeter,
-                initialRangeActionSetpointResult,
-                rangeActionParameters,
-                Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS, null);
+            optimizationPerimeter,
+            initialRangeActionSetpointResult,
+            raoParameters.getRangeActionsOptimizationParameters(),
+            null,
+            Unit.MEGAWATT,
+            false,
+            PstModel.CONTINUOUS,
+            null);
     }
 
     private void fillProblemWithFiller(Unit unit) {
-        MnecParametersExtension parameters = new MnecParametersExtension();
+        MnecParameters parameters = new MnecParameters();
+        SearchTreeRaoMnecParameters parametersExtension = new SearchTreeRaoMnecParameters();
         parameters.setAcceptableMarginDecrease(50);
-        parameters.setViolationCost(10);
-        parameters.setConstraintAdjustmentCoefficient(3.5);
+        parametersExtension.setViolationCost(10);
+        parametersExtension.setConstraintAdjustmentCoefficient(3.5);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(flowResult.getFlow(mnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(900.);
         when(flowResult.getFlow(mnec2, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-200.);
         when(flowResult.getFlow(mnec3, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-200.);
         when(flowResult.getFlow(mnec3, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-200.);
         MnecFiller mnecFiller = new MnecFiller(
-                flowResult,
-                Set.of(mnec1, mnec2, mnec3),
-                unit,
-                parameters, null);
+            flowResult,
+            Set.of(mnec1, mnec2, mnec3),
+            unit,
+            parametersExtension.getViolationCost(),
+            parameters.getAcceptableMarginDecrease(),
+            parametersExtension.getConstraintAdjustmentCoefficient(),
+            null);
         linearProblem = new LinearProblemBuilder()
-                .withProblemFiller(coreProblemFiller)
-                .withProblemFiller(mnecFiller)
-                .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
-                .build();
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(mnecFiller)
+            .withSolver(Solver.SCIP)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
@@ -213,10 +221,11 @@ class MnecFillerTest extends AbstractFillerTest {
 
     @Test
     void testFilterCnecWithNoInitialFlow() {
-        MnecParametersExtension parameters = new MnecParametersExtension();
+        MnecParameters parameters = new MnecParameters();
+        SearchTreeRaoMnecParameters parametersExtension = new SearchTreeRaoMnecParameters();
         parameters.setAcceptableMarginDecrease(50);
-        parameters.setViolationCost(10);
-        parameters.setConstraintAdjustmentCoefficient(3.5);
+        parametersExtension.setViolationCost(10);
+        parametersExtension.setConstraintAdjustmentCoefficient(3.5);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(flowResult.getFlow(mnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(900.);
         when(flowResult.getFlow(mnec2, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-200.);
@@ -227,11 +236,14 @@ class MnecFillerTest extends AbstractFillerTest {
             flowResult,
             Set.of(mnec1, mnec2, mnec3),
             Unit.MEGAWATT,
-            parameters, null);
+            parametersExtension.getViolationCost(),
+            parameters.getAcceptableMarginDecrease(),
+            parametersExtension.getConstraintAdjustmentCoefficient(),
+            null);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(mnecFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 

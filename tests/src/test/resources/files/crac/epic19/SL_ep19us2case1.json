@@ -430,8 +430,8 @@
       "16" : 6.2276423729910535
     },
     "ranges" : [ {
-      "min" : -10,
-      "max" : 10,
+      "min" : -20,
+      "max" : 20,
       "rangeType" : "relativeToPreviousInstant"
     } ]
   } ],

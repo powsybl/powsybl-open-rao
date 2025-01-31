@@ -11,8 +11,8 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -57,17 +57,19 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
 
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-                rangeActionParameters,
+            raoParameters.getRangeActionsOptimizationParameters(),
+            null,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS, null);
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+            null);
     }
 
     private void createMaxMinMarginFiller(Unit unit) {
@@ -78,7 +80,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
@@ -168,7 +170,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         createMaxMinMarginFiller(Unit.MEGAWATT);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(maxMinMarginFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
             .build();
 
         // AbsoluteRangeActionVariables present, but no the FlowVariables
@@ -183,7 +185,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
             createMaxMinMarginFiller(Unit.MEGAWATT);
             linearProblem = new LinearProblemBuilder()
                 .withProblemFiller(maxMinMarginFiller)
-                .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+                .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
                 .build();
 
             // FlowVariables present , but not the absoluteRangeActionVariables present,

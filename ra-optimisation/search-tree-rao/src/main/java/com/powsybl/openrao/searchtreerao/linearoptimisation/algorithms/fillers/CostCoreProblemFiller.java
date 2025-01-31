@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -34,12 +35,13 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
     public CostCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                  RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                  RangeActionsOptimizationParameters rangeActionParameters,
+                                 SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
                                  Unit unit,
                                  boolean raRangeShrinking,
-                                 RangeActionsOptimizationParameters.PstModel pstModel,
+                                 SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
                                  OffsetDateTime timestamp) {
-        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, unit, raRangeShrinking, pstModel, timestamp);
-        if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS)) {
+        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
+        if (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS)) {
             throw new OpenRaoException("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.");
         }
     }
