@@ -18,7 +18,7 @@ def rao_parameters_file(file_path):
     if "target" not in file_path and (file_path.endswith(".json")):
         with open(os.path.join(dirpath, filename), 'r') as file:
             for line in file:
-                if '"version" : "2.4"' in line or '"version" : "2.5"' in line:
+                if '"version" : "2.4"' in line or '"version" : "2.5"' in line or '"version": "2.4"' in line or '"version": "2.5"':
                     return True
     return False
 
@@ -84,7 +84,8 @@ def new_rao_param(data: dict, file_path: str) -> dict:
         data["version"] = "3.0"
 
         # remove forbid-cost-increase
-        del data["objective-function"]["forbid-cost-increase"]
+        if "forbid-cost-increase" in data["objective-function"]:
+            del data["objective-function"]["forbid-cost-increase"]
 
         # set enforce-curative-security and curative-min-obj-improvement
         prev_secure = "preventive-stop-criterion" not in data["objective-function"] or data["objective-function"]["preventive-stop-criterion"] == "SECURE"
@@ -100,7 +101,10 @@ def new_rao_param(data: dict, file_path: str) -> dict:
                 cur_min = "curative-stop-criterion" in data["objective-function"] and data["objective-function"]["curative-stop-criterion"] == "MIN_OBJECTIVE"
                 if cur_min:
                     data["objective-function"]["curative-min-obj-improvement"] = 10000.0
-        del data["objective-function"]["curative-stop-criterion"]
+        if "curative-stop-criterion" in data["objective-function"]:
+            del data["objective-function"]["curative-stop-criterion"]
+        if "optimize-curative-if-preventive-unsecure" in data["objective-function"]:
+            del data["objective-function"]["optimize-curative-if-preventive-unsecure"]
 
         # separate unit from objective function type
         if "type" in data["objective-function"]:
