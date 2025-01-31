@@ -164,7 +164,9 @@ public class LinearProblemBuilder {
             inputs.initialFlowResult(),
             inputs.optimizationPerimeter().getMonitoredFlowCnecs(),
             parameters.getObjectiveFunctionUnit(),
-            parameters.getMnecParameters(),
+            parameters.getMnecParametersExtension().getViolationCost(),
+            parameters.getMnecParameters().getAcceptableMarginDecrease(),
+            parameters.getMnecParametersExtension().getConstraintAdjustmentCoefficient(),
             null);
     }
 
@@ -173,7 +175,9 @@ public class LinearProblemBuilder {
             inputs.optimizationPerimeter().getLoopFlowCnecs(),
             inputs.initialFlowResult(),
             parameters.getLoopFlowParameters(),
-            null);
+            parameters.getLoopFlowParametersExtension(),
+            null
+        );
     }
 
     private ProblemFiller buildUnoptimizedCnecFiller() {

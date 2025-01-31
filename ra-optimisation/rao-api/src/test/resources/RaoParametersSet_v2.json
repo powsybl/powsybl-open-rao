@@ -17,24 +17,17 @@
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
+  "mnec-parameters" : {
+    "acceptable-margin-decrease" : 30.0
+  },
+  "relative-margins-parameters" : {
+    "ptdf-boundaries" : [ "{FR}-{ES}", "{ES}-{PT}", "{BE}-{22Y201903144---9}-{DE}-{22Y201903145---4}" ]
+  },
+  "loop-flow-parameters" : {
+    "acceptable-increase" : 20.0,
+    "countries" : [ "BE", "FR" ]
+  },
   "extensions" : {
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 30.0,
-      "violation-cost" : 20.0,
-      "constraint-adjustment-coefficient" : 3.0
-    },
-    "relative-margins-parameters" : {
-      "ptdf-boundaries" : [ "{FR}-{ES}", "{ES}-{PT}", "{BE}-{22Y201903144---9}-{DE}-{22Y201903145---4}" ],
-      "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
-      "ptdf-sum-lower-bound" : 0.05
-    },
-    "loop-flow-parameters" : {
-      "acceptable-increase" : 20.0,
-      "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
-      "constraint-adjustment-coefficient" : 0.5,
-      "violation-cost" : 0.0,
-      "countries" : [ "BE", "FR" ]
-    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 983.0
@@ -98,6 +91,19 @@
       },
       "multi-threading" : {
         "available-cpus" : 21
+      },
+      "mnec-parameters" : {
+        "violation-cost" : 20.0,
+        "constraint-adjustment-coefficient" : 3.0
+      },
+      "relative-margins-parameters" : {
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
+        "ptdf-sum-lower-bound" : 0.05
+      },
+      "loop-flow-parameters" : {
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
+        "constraint-adjustment-coefficient" : 0.5,
+        "violation-cost" : 0.0
       }
     }
   }

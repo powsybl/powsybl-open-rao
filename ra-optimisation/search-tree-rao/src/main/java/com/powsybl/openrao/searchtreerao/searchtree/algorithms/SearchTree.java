@@ -385,10 +385,12 @@ public class SearchTree {
             }
         }
 
-        if (parameters.getLoopFlowParameters() != null && parameters.getLoopFlowParameters().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-            sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
-        } else if (parameters.getLoopFlowParameters() != null) {
-            sensitivityComputerBuilder.withCommercialFlowsResults(input.getInitialFlowResult());
+        if (parameters.getLoopFlowParametersExtension() != null) {
+            if (parameters.getLoopFlowParametersExtension().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
+            } else {
+                sensitivityComputerBuilder.withCommercialFlowsResults(input.getInitialFlowResult());
+            }
         }
 
         return sensitivityComputerBuilder.build();

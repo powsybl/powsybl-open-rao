@@ -12,11 +12,13 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
+import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
@@ -85,10 +87,14 @@ class ObjectiveFunctionTest {
         OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters();
         openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, openRaoSearchTreeParameters);
-        raoParameters.addExtension(MnecParametersExtension.class, new MnecParametersExtension());
-        raoParameters.getExtension(MnecParametersExtension.class).setAcceptableMarginDecrease(200.0);
-        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setViolationCost(10.0);
+        MnecParameters mnecParameters = new MnecParameters();
+        mnecParameters.setAcceptableMarginDecrease(200.0);
+        raoParameters.setMnecParameters(mnecParameters);
+        openRaoSearchTreeParameters.setMnecParameters(new SearchTreeRaoMnecParameters());
+        raoParameters.setLoopFlowParameters(new LoopFlowParameters());
+        SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
+        loopFlowParameters.setViolationCost(10.);
+        openRaoSearchTreeParameters.setLoopFlowParameters(loopFlowParameters);
 
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
 
