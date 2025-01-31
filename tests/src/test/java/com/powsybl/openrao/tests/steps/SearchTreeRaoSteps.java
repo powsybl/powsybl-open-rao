@@ -30,6 +30,7 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.openrao.tests.utils.RaoUtils;
 import io.cucumber.java.en.Then;
@@ -44,6 +45,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -645,12 +647,13 @@ public class SearchTreeRaoSteps {
             network = CommonTestData.getNetwork();
             crac = CommonTestData.getCrac();
             RaoParameters raoParameters = CommonTestData.getRaoParameters();
-            ReferenceProgram referenceProgram = CommonTestData.getReferenceProgram() != null ? CommonTestData.getReferenceProgram() : ReferenceProgramBuilder.buildReferenceProgram(network, loadFlowProvider, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+            SensitivityAnalysisParameters sensitivityAnalysisParameters = getSensitivityWithLoadFlowParameters(raoParameters);
+            ReferenceProgram referenceProgram = CommonTestData.getReferenceProgram() != null ? CommonTestData.getReferenceProgram() : ReferenceProgramBuilder.buildReferenceProgram(network, loadFlowProvider, sensitivityAnalysisParameters.getLoadFlowParameters());
             ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
 
             // run loopFlowComputation
             LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram);
-            this.loopFlowResult = loopFlowComputation.calculateLoopFlows(network, sensitivityProvider, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters(), crac.getFlowCnecs(), crac.getOutageInstant());
+            this.loopFlowResult = loopFlowComputation.calculateLoopFlows(network, sensitivityProvider, sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
 
         } catch (IOException e) {
             throw new UncheckedIOException(e);

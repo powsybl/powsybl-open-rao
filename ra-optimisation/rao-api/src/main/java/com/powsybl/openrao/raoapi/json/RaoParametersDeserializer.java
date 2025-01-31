@@ -6,20 +6,21 @@
  */
 package com.powsybl.openrao.raoapi.json;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.parameters.RaoParameters.addOptionalExtensionsDefaultValuesIfExist;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -59,21 +60,21 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     JsonTopoOptimizationParameters.deserialize(parser, parameters);
                     break;
-                case MULTI_THREADING:
-                    parser.nextToken();
-                    JsonMultiThreadingParameters.deserialize(parser, parameters);
-                    break;
-                case SECOND_PREVENTIVE_RAO:
-                    parser.nextToken();
-                    JsonSecondPreventiveRaoParameters.deserialize(parser, parameters);
-                    break;
                 case NOT_OPTIMIZED_CNECS:
                     parser.nextToken();
                     JsonNotOptimizedCnecsParameters.deserialize(parser, parameters);
                     break;
-                case LOAD_FLOW_AND_SENSITIVITY_COMPUTATION:
+                case MNEC_PARAMETERS:
                     parser.nextToken();
-                    JsonLoadFlowAndSensitivityComputationParameters.deserialize(parser, parameters);
+                    JsonMnecParameters.deserialize(parser, parameters);
+                    break;
+                case RELATIVE_MARGINS:
+                    parser.nextToken();
+                    JsonRelativeMarginsParameters.deserialize(parser, parameters);
+                    break;
+                case LOOP_FLOW_PARAMETERS:
+                    parser.nextToken();
+                    JsonLoopFlowParameters.deserialize(parser, parameters);
                     break;
                 case "extensions":
                     parser.nextToken();
@@ -84,6 +85,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
+        addOptionalExtensionsDefaultValuesIfExist(parameters);
         return parameters;
     }
 }

@@ -125,9 +125,6 @@ public class CastorFullOptimization {
             currentStep = "post-PRA sensitivity analysis";
             // mutualise the pre-perimeter sensi analysis for all contingency scenario + get after-PRA result over all CNECs
 
-            double preventiveOptimalCost = preventiveResult.getCost();
-            TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
-            TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
             network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
             network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_SCENARIO, true);
             network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
@@ -153,6 +150,7 @@ public class CastorFullOptimization {
 
             // If stop criterion is SECURE and preventive perimeter was not secure, do not run post-contingency RAOs
             // (however RAO could continue depending on parameter optimize-curative-if-basecase-unsecure)
+            double preventiveOptimalCost = preventiveResult.getCost();
             if (shouldStopOptimisationIfPreventiveUnsecure(preventiveOptimalCost)) {
                 BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
                 mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(crac.getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, crac, raoParameters.getObjectiveFunctionParameters());
@@ -163,6 +161,8 @@ public class CastorFullOptimization {
             }
 
             BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
+            TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
+            TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
             CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(crac, raoParameters, toolProvider, stateTree, automatonTreeParameters, curativeTreeParameters, initialOutput);
             Map<State, OptimizationResult> postContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, false);
             BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [end]");
@@ -197,7 +197,7 @@ public class CastorFullOptimization {
     }
 
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
-        return raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+        return raoParameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)
             && preventiveOptimalCost > 0
             && !raoParameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity();
     }

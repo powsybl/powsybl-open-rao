@@ -29,8 +29,6 @@ final class JsonObjectiveFunctionParameters {
         jsonGenerator.writeObjectFieldStart(OBJECTIVE_FUNCTION);
         jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getType());
         jsonGenerator.writeObjectField(UNIT, parameters.getObjectiveFunctionParameters().getUnit());
-        jsonGenerator.writeObjectField(PREVENTIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
-        jsonGenerator.writeNumberField(CURATIVE_MIN_OBJ_IMPROVEMENT, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement());
         jsonGenerator.writeBooleanField(ENFORCE_CURATIVE_SECURITY, parameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity());
         jsonGenerator.writeEndObject();
     }
@@ -43,13 +41,6 @@ final class JsonObjectiveFunctionParameters {
                     break;
                 case UNIT:
                     raoParameters.getObjectiveFunctionParameters().setUnit(stringToObjectiveFunctionUnit(jsonParser.nextTextValue()));
-                    break;
-                case PREVENTIVE_STOP_CRITERION:
-                    raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(stringToPreventiveStopCriterion(jsonParser.nextTextValue()));
-                    break;
-                case CURATIVE_MIN_OBJ_IMPROVEMENT:
-                    jsonParser.nextToken();
-                    raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble());
                     break;
                 case ENFORCE_CURATIVE_SECURITY:
                     jsonParser.nextToken();
@@ -80,14 +71,6 @@ final class JsonObjectiveFunctionParameters {
             throw new OpenRaoException(String.format("Unknown objective function unit value: %s", string));
         }
         return unit;
-    }
-
-    private static ObjectiveFunctionParameters.PreventiveStopCriterion stringToPreventiveStopCriterion(String string) {
-        try {
-            return ObjectiveFunctionParameters.PreventiveStopCriterion.valueOf(string);
-        } catch (IllegalArgumentException e) {
-            throw new OpenRaoException(String.format("Unknown preventive stop criterion: %s", string));
-        }
     }
 
 }

@@ -17,7 +17,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.adapter.BranchResultAdapter;
 import com.powsybl.openrao.searchtreerao.commons.adapter.SensitivityResultAdapter;
@@ -101,13 +101,13 @@ class IteratingLinearOptimizerTest {
         when(input.optimizationPerimeter()).thenReturn(optimizationPerimeter);
 
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
-        RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
-        when(solverParameters.getSolver()).thenReturn(RangeActionsOptimizationParameters.Solver.CBC);
+        SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        when(solverParameters.getSolver()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
         when(parameters.getMaxNumberOfIterations()).thenReturn(5);
-        RangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
-        when(rangeActionParameters.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
-        when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
+        SearchTreeRaoRangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.class);
+        when(rangeActionParameters.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        when(parameters.getRangeActionParametersExtension()).thenReturn(rangeActionParameters);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
         when(parameters.getRaRangeShrinking()).thenReturn(false);

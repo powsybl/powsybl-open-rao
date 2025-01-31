@@ -17,9 +17,11 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.AbsolutePtdfSumsComputation;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
@@ -118,10 +120,7 @@ class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     void testRunWithLf() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
+        raoParameters.setLoopFlowParameters(new LoopFlowParameters());
         mockSystematicSensitivityInterface(false, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
@@ -130,10 +129,8 @@ class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     void testRunWithPtdfAndLf() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        raoParameters.setLoopFlowParameters(new LoopFlowParameters());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         mockSystematicSensitivityInterface(true, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
@@ -142,10 +139,14 @@ class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     void testRunWithFixedPtdfAndLf() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
+        SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
+        searchTreeParameters.setLoopFlowParameters(loopFlowParameters);
+        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        SearchTreeRaoRelativeMarginsParameters relativeMarginsParameters = new SearchTreeRaoRelativeMarginsParameters();
+        searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        relativeMarginsParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         mockSystematicSensitivityInterface(false, false);
@@ -158,10 +159,14 @@ class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     void testRunAndRecomputePtdf() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        raoParameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
+        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
+        SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
+        searchTreeParameters.setLoopFlowParameters(loopFlowParameters);
+        loopFlowParameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
+        SearchTreeRaoRelativeMarginsParameters relativeMarginsParameters = new SearchTreeRaoRelativeMarginsParameters();
+        searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        relativeMarginsParameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         mockSystematicSensitivityInterface(true, true);
