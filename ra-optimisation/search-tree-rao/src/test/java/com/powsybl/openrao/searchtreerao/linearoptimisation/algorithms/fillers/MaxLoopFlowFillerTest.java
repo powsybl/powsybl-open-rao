@@ -16,7 +16,9 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
@@ -48,7 +50,8 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private MarginCoreProblemFiller coreProblemFiller;
     private MaxLoopFlowFiller maxLoopFlowFiller;
-    private LoopFlowParametersExtension loopFlowParameters;
+    private LoopFlowParameters loopFlowParameters;
+    private SearchTreeRaoLoopFlowParameters loopFlowParametersExtension;
     private FlowCnec cnecOn2sides;
 
     @BeforeEach
@@ -74,14 +77,17 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         rangeActions.put(state, Set.of(pstRangeAction));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
+        RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters()).getRangeActionsOptimizationParameters();
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-                rangeActionParameters,
+            rangeActionParameters,
+            null,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-            null);
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+            null
+        );
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(100.).withUnit(Unit.MEGAWATT).add();
     }
 
@@ -89,10 +95,12 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getLoopFlow(cnec1, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(initialLoopFlowValue);
         maxLoopFlowFiller = new MaxLoopFlowFiller(
-                Set.of(cnec1),
-                initialFlowResult,
-                loopFlowParameters,
-            null);
+            Set.of(cnec1),
+            initialFlowResult,
+            loopFlowParameters,
+            loopFlowParametersExtension,
+            null
+        );
     }
 
     private void setCommercialFlowValue(double commercialFlowValue) {
@@ -103,7 +111,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxLoopFlowFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
@@ -115,11 +123,12 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testFill1() {
-        loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        loopFlowParameters = new LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
+        loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(13);
-        loopFlowParameters.setViolationCost(10);
-        loopFlowParameters.setConstraintAdjustmentCoefficient(5);
+        loopFlowParametersExtension.setViolationCost(10);
+        loopFlowParametersExtension.setConstraintAdjustmentCoefficient(5);
 
         createMaxLoopFlowFiller(0);
         setCommercialFlowValue(49);
@@ -145,11 +154,12 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testFill2() {
-        loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        loopFlowParameters = new LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
+        loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(30);
-        loopFlowParameters.setViolationCost(10);
-        loopFlowParameters.setConstraintAdjustmentCoefficient(5);
+        loopFlowParametersExtension.setViolationCost(10);
+        loopFlowParametersExtension.setConstraintAdjustmentCoefficient(5);
 
         createMaxLoopFlowFiller(80);
         setCommercialFlowValue(49);
@@ -172,11 +182,12 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testShouldUpdate() {
-        loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
+        loopFlowParameters = new LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
+        loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
         loopFlowParameters.setAcceptableIncrease(0);
-        loopFlowParameters.setViolationCost(10);
-        loopFlowParameters.setConstraintAdjustmentCoefficient(5);
+        loopFlowParametersExtension.setViolationCost(10);
+        loopFlowParametersExtension.setConstraintAdjustmentCoefficient(5);
 
         createMaxLoopFlowFiller(0);
         setCommercialFlowValue(49);
@@ -200,11 +211,12 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testFill2Sides() {
-        loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        loopFlowParameters = new LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
+        loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(13);
-        loopFlowParameters.setViolationCost(10);
-        loopFlowParameters.setConstraintAdjustmentCoefficient(5);
+        loopFlowParametersExtension.setViolationCost(10);
+        loopFlowParametersExtension.setConstraintAdjustmentCoefficient(5);
 
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getLoopFlow(cnecOn2sides, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(0.);
@@ -213,7 +225,9 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             Set.of(cnecOn2sides),
             initialFlowResult,
             loopFlowParameters,
-            null);
+            loopFlowParametersExtension,
+            null
+        );
 
         when(flowResult.getCommercialFlow(cnecOn2sides, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(49.);
         when(flowResult.getCommercialFlow(cnecOn2sides, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(69.);
@@ -255,11 +269,12 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testFilterCnecWithNoInitialFlow() {
-        loopFlowParameters = new LoopFlowParametersExtension();
-        loopFlowParameters.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
+        loopFlowParameters = new LoopFlowParameters();
+        loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
+        loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.FIXED_PTDF);
         loopFlowParameters.setAcceptableIncrease(13);
-        loopFlowParameters.setViolationCost(10);
-        loopFlowParameters.setConstraintAdjustmentCoefficient(5);
+        loopFlowParametersExtension.setViolationCost(10);
+        loopFlowParametersExtension.setConstraintAdjustmentCoefficient(5);
 
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getLoopFlow(cnec1, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(90.);
@@ -268,7 +283,9 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             loopFlowParameters,
-            null);
+            loopFlowParametersExtension,
+            null
+        );
         setCommercialFlowValue(49);
         buildLinearProblem();
 

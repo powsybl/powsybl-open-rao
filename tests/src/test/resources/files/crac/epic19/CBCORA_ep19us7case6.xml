@@ -109,7 +109,7 @@
       <branch eic="1234567890123450" from="FFR1AA1 " name="FFR1AA1  FFR4AA1  1" order="1" to="FFR4AA1 "/>
       <imaxType>SEASONAL</imaxType>
       <permanentImaxFactor>1.1</permanentImaxFactor>
-      <temporaryImaxFactor>1000</temporaryImaxFactor>
+      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>75</minRAMfactor>
       <CNEC>true</CNEC>

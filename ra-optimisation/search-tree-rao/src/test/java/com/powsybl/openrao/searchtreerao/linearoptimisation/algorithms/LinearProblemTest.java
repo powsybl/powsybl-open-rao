@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +48,7 @@ class LinearProblemTest {
 
     @BeforeEach
     public void setUp() {
-        linearProblem = new LinearProblemBuilder().withSolver(RangeActionsOptimizationParameters.Solver.SCIP).build();
+        linearProblem = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP).build();
 
         rangeAction = Mockito.mock(PstRangeAction.class);
         cnec = Mockito.mock(FlowCnec.class);

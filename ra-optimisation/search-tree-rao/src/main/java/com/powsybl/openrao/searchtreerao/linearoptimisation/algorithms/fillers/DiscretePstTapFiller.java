@@ -295,7 +295,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
 
     private void fillObjective(LinearProblem linearProblem) {
         if (costOptimization) {
-            double defaultCost = rangeActionsParameters.getPstPenaltyCost();
+            double defaultCost = rangeActionsParameters.getPstRAMinImpactThreshold();
             OpenRaoMPObjective objective = linearProblem.getObjective();
             rangeActions.forEach((state, pstRangeActions) -> pstRangeActions.forEach(pstRangeAction -> {
                 objective.setCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp)), pstRangeAction.getVariationCost(VariationDirection.UP).orElse(defaultCost));

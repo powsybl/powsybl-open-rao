@@ -20,6 +20,7 @@ import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -48,7 +49,7 @@ import static org.mockito.Mockito.when;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
  */
 class PowerGradientConstraintFillerTest {
-    private LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(RangeActionsOptimizationParameters.Solver.SCIP);
+    private LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
     private LinearProblem linearProblem;
     private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 1, 9, 16, 21, 0, 0, ZoneOffset.UTC);
     private final OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 1, 9, 17, 21, 0, 0, ZoneOffset.UTC);
@@ -104,7 +105,7 @@ class PowerGradientConstraintFillerTest {
                 crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE)
             );
 
-            RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(parameters);
+            RangeActionsOptimizationParameters rangeActionParameters = parameters.getRangeActionsOptimizationParameters();
             Map<RangeAction<?>, Double> map = new HashMap<>();
             crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(action -> map.put(action, 0.0));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
@@ -112,9 +113,10 @@ class PowerGradientConstraintFillerTest {
                 optimizationPerimeter,
                 rangeActionSetpointResult,
                 rangeActionParameters,
+                null,
                 Unit.MEGAWATT,
                 false,
-                RangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+                SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
                 entry.getKey()
             );
             linearProblemBuilder.withProblemFiller(coreProblemFiller);

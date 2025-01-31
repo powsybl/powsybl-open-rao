@@ -58,10 +58,8 @@ properties.setProperty("rao-result.export.core-cne.receiver-id", "RECEIVER_ID");
 properties.setProperty("rao-result.export.core-cne.receiver-role", "A36"); // CAPACITY_COORDINATOR
 properties.setProperty("rao-result.export.core-cne.time-interval", "2021-10-30T22:00Z/2021-10-31T23:00Z");
 switch (raoParameters.getObjectiveFunctionParameters().getType()) {
-    case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
-    case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
-    case MAX_MIN_MARGIN_IN_AMPERE -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "false");
-    case MAX_MIN_MARGIN_IN_MEGAWATT -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "false");
+    case MAX_MIN_RELATIVE_MARGIN -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
+    case MAX_MIN_MARGIN -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "false");
 }
 if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
     properties.setProperty("rao-result.export.core-cne.with-loop-flows", "true");

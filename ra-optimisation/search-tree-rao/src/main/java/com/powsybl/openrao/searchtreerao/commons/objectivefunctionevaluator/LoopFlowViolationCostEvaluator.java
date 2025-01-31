@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -37,11 +36,11 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     public LoopFlowViolationCostEvaluator(Set<FlowCnec> loopflowCnecs,
                                           FlowResult initialLoopFlowResult,
-                                          LoopFlowParametersExtension loopFlowParameters) {
+                                          double loopFlowAcceptableAugmentation, double loopFlowViolationCost) {
         this.loopflowCnecs = loopflowCnecs;
         this.initialLoopFlowResult = initialLoopFlowResult;
-        this.loopFlowViolationCost = loopFlowParameters.getViolationCost();
-        this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
+        this.loopFlowViolationCost = loopFlowViolationCost;
+        this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
     }
 
     @Override

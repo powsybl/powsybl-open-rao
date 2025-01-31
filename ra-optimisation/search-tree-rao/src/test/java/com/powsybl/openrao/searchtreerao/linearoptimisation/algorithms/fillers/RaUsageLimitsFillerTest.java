@@ -16,6 +16,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.*;
@@ -105,14 +107,17 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         rangeActionsPerState.put(state, rangeActions);
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerState);
 
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
+        RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters()).getRangeActionsOptimizationParameters();
 
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             prePerimeterRangeActionSetpointResult,
-                rangeActionParameters,
+            rangeActionParameters,
+            null,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS, null);
+            false,
+            PstModel.CONTINUOUS,
+            null);
     }
 
     @Test
@@ -127,7 +132,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -150,7 +155,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -183,7 +188,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -216,7 +221,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -249,7 +254,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -271,7 +276,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -298,7 +303,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -321,7 +326,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -351,7 +356,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -384,7 +389,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -406,7 +411,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -428,7 +433,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -456,7 +461,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -497,7 +502,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -554,7 +559,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(discretePstTapFiller)
             .withProblemFiller(raUsageLimitsFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .withInitialRangeActionActivationResult(prePerimeterRangeActionActivationResult)
             .build();
 

@@ -125,9 +125,6 @@ public class CastorFullOptimization {
             currentStep = "post-PRA sensitivity analysis";
             // mutualise the pre-perimeter sensi analysis for all contingency scenario + get after-PRA result over all CNECs
 
-            double preventiveOptimalCost = preventiveResult.getCost();
-            TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
-            TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
             network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
             network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_SCENARIO, true);
             network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
@@ -153,16 +150,19 @@ public class CastorFullOptimization {
 
             // If stop criterion is SECURE and preventive perimeter was not secure, do not run post-contingency RAOs
             // (however RAO could continue depending on parameter optimize-curative-if-basecase-unsecure)
+            double preventiveOptimalCost = preventiveResult.getCost();
             if (shouldStopOptimisationIfPreventiveUnsecure(preventiveOptimalCost)) {
                 BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
                 mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(crac.getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, crac, raoParameters.getObjectiveFunctionParameters());
                 // log results
-                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
                 return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
             }
 
             BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
+            TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
+            TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
             CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(crac, raoParameters, toolProvider, stateTree, automatonTreeParameters, curativeTreeParameters, initialOutput);
             Map<State, OptimizationResult> postContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, false);
             BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [end]");
@@ -186,7 +186,7 @@ public class CastorFullOptimization {
             // Log final results
             if (logFinalResultsOutsideOfSecondPreventive) {
                 BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
-                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
             }
             RaoLogger.logSensitivityAnalysisResults(String.format("Iteration %d: sensitivity analysis: ", 1),
                 prePerimeterSensitivityAnalysis.getObjectiveFunction(),
@@ -202,9 +202,9 @@ public class CastorFullOptimization {
     }
 
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
-        return raoParameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+        return raoParameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)
             && preventiveOptimalCost > 0
-            && !raoParameters.getObjectiveFunctionParameters().getOptimizeCurativeIfPreventiveUnsecure();
+            && !raoParameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity();
     }
 
     /**
@@ -245,12 +245,12 @@ public class CastorFullOptimization {
         double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
         double finalVirtualCost = finalRaoResult.getVirtualCost(lastInstant);
 
-        if (objectiveFunctionParameters.getForbidCostIncrease() && finalCost > initialCost) {
+        if (finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
                 formatDoubleBasedOnMargin(initialCost, -initialCost), formatDoubleBasedOnMargin(initialFunctionalCost, -initialCost), formatDoubleBasedOnMargin(initialVirtualCost, -initialCost),
                 formatDoubleBasedOnMargin(finalCost, -finalCost), formatDoubleBasedOnMargin(finalFunctionalCost, -finalCost), formatDoubleBasedOnMargin(finalVirtualCost, -finalCost));
             // log results
-            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, objectiveFunctionParameters.getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, objectiveFunctionParameters.getType(), objectiveFunctionParameters.getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
             finalRaoResult = new UnoptimizedRaoResultImpl(initialResult);
             finalCost = initialCost;
             finalFunctionalCost = initialFunctionalCost;
