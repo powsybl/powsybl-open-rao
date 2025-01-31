@@ -24,9 +24,10 @@ import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.glsk.commons.ZonalData;
@@ -84,8 +85,9 @@ class RaoUtilTest {
 
     @Test
     void testExceptionForGlskOnRelativeMargin() {
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
+        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        relativeMarginsParameters.setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires glsks", exception.getMessage());
@@ -102,7 +104,6 @@ class RaoUtilTest {
     @Test
     void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
@@ -111,8 +112,9 @@ class RaoUtilTest {
     @Test
     void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
+        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        relativeMarginsParameters.setPtdfBoundariesFromString(new ArrayList<>());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
@@ -120,8 +122,10 @@ class RaoUtilTest {
 
     @Test
     void testAmpereWithDc() {
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
-        raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
         assertEquals("Objective function unit A cannot be calculated with a DC default sensitivity engine", exception.getMessage());
     }
@@ -347,7 +351,8 @@ class RaoUtilTest {
 
     @Test
     void testElementaryActionsLimitWithNonDiscretePsts() {
-        raoParameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().setPstModel(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         raoInput.getCrac().newRaUsageLimits(PREVENTIVE_INSTANT_ID).withMaxElementaryActionPerTso(Map.of("TSO", 2)).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
         assertEquals("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.", exception.getMessage());
