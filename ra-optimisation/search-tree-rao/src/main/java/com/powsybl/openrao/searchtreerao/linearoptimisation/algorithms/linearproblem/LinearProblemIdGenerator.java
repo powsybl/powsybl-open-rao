@@ -259,14 +259,14 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String generatorPowerVariableId(String generatorId, OffsetDateTime timestamp) {
-        return String.join(SEPARATOR, GENERATOR_POWER, generatorId, timestamp.format(DATE_TIME_FORMATER), VARIABLE_SUFFIX);
+        return formatName(Optional.of(timestamp), GENERATOR_POWER, generatorId, VARIABLE_SUFFIX);
     }
 
     public static String generatorPowerConstraintId(String generatorId, OffsetDateTime timestamp) {
-        return String.join(SEPARATOR, GENERATOR_POWER, generatorId, timestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
+        return formatName(Optional.of(timestamp), GENERATOR_POWER, generatorId, CONSTRAINT_SUFFIX);
     }
 
     public static String generatorPowerGradientConstraintId(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
-        return String.join(SEPARATOR, GENERATOR_POWER_GRADIENT_CONSTRAINT, generatorId, currentTimestamp.format(DATE_TIME_FORMATER), previousTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
+        return formatName(Optional.empty(), GENERATOR_POWER_GRADIENT_CONSTRAINT, generatorId, currentTimestamp.format(DATE_TIME_FORMATER), previousTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
     }
 }
