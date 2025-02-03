@@ -22,6 +22,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -34,14 +36,10 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.time.OffsetDateTime;
 import java.util.*;
+import java.time.OffsetDateTime;
+
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -54,25 +52,28 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     protected final Set<FlowCnec> flowCnecs;
     protected final RangeActionsOptimizationParameters rangeActionParameters;
+    protected final SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
     protected final Unit unit;
     protected int iteration = 0;
     protected static final double RANGE_SHRINK_RATE = 0.667;
     protected final boolean raRangeShrinking;
-    protected final RangeActionsOptimizationParameters.PstModel pstModel;
+    protected final PstModel pstModel;
     protected final OffsetDateTime timestamp;
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                         RangeActionsOptimizationParameters rangeActionParameters,
+                                        SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
                                         Unit unit,
                                         boolean raRangeShrinking,
-                                        RangeActionsOptimizationParameters.PstModel pstModel,
+                                        PstModel pstModel,
                                         OffsetDateTime timestamp) {
         this.optimizationContext = optimizationContext;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
         this.rangeActionParameters = rangeActionParameters;
+        this.rangeActionParametersExtension = rangeActionParametersExtension;
         this.unit = unit;
         this.raRangeShrinking = raRangeShrinking;
         this.pstModel = pstModel;
@@ -203,11 +204,11 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
     private boolean isRangeActionSensitivityAboveThreshold(RangeAction<?> rangeAction, double sensitivity) {
         if (rangeAction instanceof PstRangeAction) {
-            return sensitivity >= rangeActionParameters.getPstSensitivityThreshold();
+            return sensitivity >= getPstSensitivityThreshold(rangeActionParametersExtension);
         } else if (rangeAction instanceof HvdcRangeAction) {
-            return sensitivity >= rangeActionParameters.getHvdcSensitivityThreshold();
+            return sensitivity >= getHvdcSensitivityThreshold(rangeActionParametersExtension);
         } else if (rangeAction instanceof InjectionRangeAction) {
-            return sensitivity >= rangeActionParameters.getInjectionRaSensitivityThreshold();
+            return sensitivity >= getInjectionRaSensitivityThreshold(rangeActionParametersExtension);
         } else {
             throw new OpenRaoException("Type of RangeAction not yet handled by the LinearRao.");
         }
@@ -315,7 +316,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             double maxRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(3);
 
             // relative range
-            if (pstModel.equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS) || !(rangeAction instanceof PstRangeAction)) {
+            if (pstModel.equals(PstModel.CONTINUOUS) || !(rangeAction instanceof PstRangeAction)) {
                 OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE, Optional.ofNullable(timestamp));
                 relSetpointConstraint.setCoefficient(setPointVariable, 1);
                 relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
@@ -423,11 +424,11 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
     protected static double getRangeActionPenaltyCost(RangeAction<?> rangeAction, RangeActionsOptimizationParameters rangeActionParameters) {
         if (rangeAction instanceof PstRangeAction) {
-            return rangeActionParameters.getPstPenaltyCost();
+            return rangeActionParameters.getPstRAMinImpactThreshold();
         } else if (rangeAction instanceof HvdcRangeAction) {
-            return rangeActionParameters.getHvdcPenaltyCost();
+            return rangeActionParameters.getHvdcRAMinImpactThreshold();
         } else if (rangeAction instanceof InjectionRangeAction) {
-            return rangeActionParameters.getInjectionRaPenaltyCost();
+            return rangeActionParameters.getInjectionRAMinImpactThreshold();
         } else {
             throw new OpenRaoException("Unexpected type of range action: '%s'.".formatted(rangeAction.getClass().getSimpleName()));
         }
