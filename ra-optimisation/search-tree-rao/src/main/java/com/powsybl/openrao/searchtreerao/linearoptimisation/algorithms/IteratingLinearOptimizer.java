@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
@@ -29,6 +29,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Locale;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -129,7 +130,7 @@ public final class IteratingLinearOptimizer {
     private static RangeActionActivationResult resolveIfApproximatedPstTaps(IteratingLinearOptimizationResultImpl bestResult, LinearProblem linearProblem, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         LinearProblemStatus solveStatus;
         RangeActionActivationResult rangeActionActivationResult = currentRangeActionActivationResult;
-        if (parameters.getRangeActionParameters().getPstModel().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.APPROXIMATED_INTEGERS)) {
 
             // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
             // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
@@ -190,7 +191,7 @@ public final class IteratingLinearOptimizer {
                 .withToolProvider(input.toolProvider())
                 .withOutageInstant(input.outageInstant());
 
-        if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
+        if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParametersExtension().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.toolProvider().getLoopFlowComputation(), input.optimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.isRaoWithLoopFlowLimitation()) {
             builder.withCommercialFlowsResults(input.preOptimizationFlowResult());
@@ -244,7 +245,7 @@ public final class IteratingLinearOptimizer {
     }
 
     private static RangeActionActivationResultImpl roundPsts(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
-        if (parameters.getRangeActionParameters().getPstModel().equals(RangeActionsOptimizationParameters.PstModel.CONTINUOUS)) {
+        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.CONTINUOUS)) {
             return BestTapFinder.round(
                 linearProblemResult,
                 input.network(),
