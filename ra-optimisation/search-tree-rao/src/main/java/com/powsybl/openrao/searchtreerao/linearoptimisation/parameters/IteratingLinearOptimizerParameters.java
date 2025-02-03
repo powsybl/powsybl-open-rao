@@ -11,9 +11,13 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.MnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 
 /**
@@ -22,33 +26,45 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 public final class IteratingLinearOptimizerParameters {
 
     private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
+    private final Unit objectiveFunctionUnit;
 
     private final RangeActionsOptimizationParameters rangeActionParameters;
-    private final MnecParametersExtension mnecParameters;
-    private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
-    private final LoopFlowParametersExtension loopFlowParameters;
+    private final SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
+    private final MnecParameters mnecParameters;
+    private final SearchTreeRaoMnecParameters mnecParametersExtension;
+    private final SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters;
+    private final LoopFlowParameters loopFlowParameters;
+    private final SearchTreeRaoLoopFlowParameters loopFlowParametersExtension;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final RangeActionLimitationParameters raLimitationParameters;
-    private final RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
+    private final LinearOptimizationSolver solverParameters;
 
     private final int maxNumberOfIterations;
     private final boolean raRangeShrinking;
 
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+                                               Unit objectiveFunctionUnit,
                                                RangeActionsOptimizationParameters rangeActionParameters,
-                                               MnecParametersExtension mnecParameters,
-                                               RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
-                                               LoopFlowParametersExtension loopFlowParameters,
+                                               SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
+                                               MnecParameters mnecParameters,
+                                               SearchTreeRaoMnecParameters mnecParametersExtension,
+                                               SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters,
+                                               LoopFlowParameters loopFlowParameters,
+                                               SearchTreeRaoLoopFlowParameters loopFlowParametersExtension,
                                                UnoptimizedCnecParameters unoptimizedCnecParameters,
                                                RangeActionLimitationParameters raLimitationParameters,
-                                               RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
+                                               LinearOptimizationSolver solverParameters,
                                                int maxNumberOfIterations,
                                                boolean raRangeShrinking) {
         this.objectiveFunction = objectiveFunction;
+        this.objectiveFunctionUnit = objectiveFunctionUnit;
         this.rangeActionParameters = rangeActionParameters;
+        this.rangeActionParametersExtension = rangeActionParametersExtension;
         this.mnecParameters = mnecParameters;
+        this.mnecParametersExtension = mnecParametersExtension;
         this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
         this.loopFlowParameters = loopFlowParameters;
+        this.loopFlowParametersExtension = loopFlowParametersExtension;
         this.unoptimizedCnecParameters = unoptimizedCnecParameters;
         this.raLimitationParameters = raLimitationParameters;
         this.solverParameters = solverParameters;
@@ -61,7 +77,7 @@ public final class IteratingLinearOptimizerParameters {
     }
 
     public Unit getObjectiveFunctionUnit() {
-        return getObjectiveFunction().getUnit();
+        return objectiveFunctionUnit;
     }
 
     public boolean hasRelativeMargins() {
@@ -74,27 +90,39 @@ public final class IteratingLinearOptimizerParameters {
     }
 
     public boolean isRaoWithLoopFlowLimitation() {
-        return loopFlowParameters != null;
+        return loopFlowParameters != null && loopFlowParametersExtension != null;
     }
 
     public boolean isRaoWithMnecLimitation() {
-        return mnecParameters != null;
+        return mnecParameters != null && mnecParametersExtension != null;
     }
 
     public RangeActionsOptimizationParameters getRangeActionParameters() {
         return rangeActionParameters;
     }
 
-    public MnecParametersExtension getMnecParameters() {
+    public SearchTreeRaoRangeActionsOptimizationParameters getRangeActionParametersExtension() {
+        return rangeActionParametersExtension;
+    }
+
+    public MnecParameters getMnecParameters() {
         return mnecParameters;
     }
 
-    public RelativeMarginsParametersExtension getMaxMinRelativeMarginParameters() {
+    public SearchTreeRaoMnecParameters getMnecParametersExtension() {
+        return mnecParametersExtension;
+    }
+
+    public SearchTreeRaoRelativeMarginsParameters getMaxMinRelativeMarginParameters() {
         return maxMinRelativeMarginParameters;
     }
 
-    public LoopFlowParametersExtension getLoopFlowParameters() {
+    public LoopFlowParameters getLoopFlowParameters() {
         return loopFlowParameters;
+    }
+
+    public SearchTreeRaoLoopFlowParameters getLoopFlowParametersExtension() {
+        return loopFlowParametersExtension;
     }
 
     public UnoptimizedCnecParameters getUnoptimizedCnecParameters() {
@@ -105,7 +133,7 @@ public final class IteratingLinearOptimizerParameters {
         return raLimitationParameters;
     }
 
-    public RangeActionsOptimizationParameters.LinearOptimizationSolver getSolverParameters() {
+    public LinearOptimizationSolver getSolverParameters() {
         return solverParameters;
     }
 
@@ -124,13 +152,18 @@ public final class IteratingLinearOptimizerParameters {
     public static class LinearOptimizerParametersBuilder {
 
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
+        private Unit objectiveFunctionUnit;
         private RangeActionsOptimizationParameters rangeActionParameters;
-        private MnecParametersExtension mnecParameters;
-        private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
-        private LoopFlowParametersExtension loopFlowParameters;
+        private SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
+
+        private MnecParameters mnecParameters;
+        private SearchTreeRaoMnecParameters mnecParametersExtension;
+        private SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters;
+        private LoopFlowParameters loopFlowParameters;
+        private SearchTreeRaoLoopFlowParameters loopFlowParametersExtension;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private RangeActionLimitationParameters raLimitationParameters;
-        private RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
+        private LinearOptimizationSolver solverParameters;
         private int maxNumberOfIterations;
         private boolean raRangeShrinking;
 
@@ -139,23 +172,43 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
+        public LinearOptimizerParametersBuilder withObjectiveFunctionUnit(Unit objectiveFunctionUnit) {
+            this.objectiveFunctionUnit = objectiveFunctionUnit;
+            return this;
+        }
+
         public LinearOptimizerParametersBuilder withRangeActionParameters(RangeActionsOptimizationParameters rangeActionParameters) {
             this.rangeActionParameters = rangeActionParameters;
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withMnecParameters(MnecParametersExtension mnecParameters) {
+        public LinearOptimizerParametersBuilder withRangeActionParametersExtension(SearchTreeRaoRangeActionsOptimizationParameters rangeActionParameters) {
+            this.rangeActionParametersExtension = rangeActionParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withMnecParameters(MnecParameters mnecParameters) {
             this.mnecParameters = mnecParameters;
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withMaxMinRelativeMarginParameters(RelativeMarginsParametersExtension maxMinRelativeMarginParameters) {
+        public LinearOptimizerParametersBuilder withMnecParametersExtension(SearchTreeRaoMnecParameters mnecParametersExtension) {
+            this.mnecParametersExtension = mnecParametersExtension;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withMaxMinRelativeMarginParameters(SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters) {
             this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withLoopFlowParameters(LoopFlowParametersExtension loopFlowParameters) {
+        public LinearOptimizerParametersBuilder withLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
             this.loopFlowParameters = loopFlowParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withLoopFlowParametersExtension(SearchTreeRaoLoopFlowParameters loopFlowParametersExtension) {
+            this.loopFlowParametersExtension = loopFlowParametersExtension;
             return this;
         }
 
@@ -169,7 +222,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters) {
+        public LinearOptimizerParametersBuilder withSolverParameters(LinearOptimizationSolver solverParameters) {
             this.solverParameters = solverParameters;
             return this;
         }
@@ -191,10 +244,14 @@ public final class IteratingLinearOptimizerParameters {
 
             return new IteratingLinearOptimizerParameters(
                 objectiveFunction,
+                objectiveFunctionUnit,
                 rangeActionParameters,
+                rangeActionParametersExtension,
                 mnecParameters,
+                mnecParametersExtension,
                 maxMinRelativeMarginParameters,
                 loopFlowParameters,
+                loopFlowParametersExtension,
                 unoptimizedCnecParameters,
                 raLimitationParameters,
                 solverParameters,
