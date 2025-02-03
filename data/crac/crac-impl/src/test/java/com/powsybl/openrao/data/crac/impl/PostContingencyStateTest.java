@@ -89,6 +89,18 @@ class PostContingencyStateTest {
         PostContingencyState state2 = new PostContingencyState(contingency1, curativeInstant, null);
 
         assertTrue(state2.compareTo(state1) > 0);
+
+        PostContingencyState state3 = new PostContingencyState(contingency1, outageInstant, OffsetDateTime.of(2025, 2, 3, 9, 49, 0, 0, ZoneOffset.UTC));
+        PostContingencyState state4 = new PostContingencyState(contingency1, outageInstant, OffsetDateTime.of(2025, 2, 4, 9, 49, 0, 0, ZoneOffset.UTC));
+
+        assertTrue(state4.compareTo(state3) > 0);
+
+        PostContingencyState state5 = new PostContingencyState(contingency1, curativeInstant, OffsetDateTime.of(2025, 2, 3, 9, 49, 0, 0, ZoneOffset.UTC));
+
+        assertTrue(state5.compareTo(state3) > 0);
+
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> state4.compareTo(state1));
+        assertEquals("Cannot compare states with no timestamp", exception.getMessage());
     }
 
     @Test
