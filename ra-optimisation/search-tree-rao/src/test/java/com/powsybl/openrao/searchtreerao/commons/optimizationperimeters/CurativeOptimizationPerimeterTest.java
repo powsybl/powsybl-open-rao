@@ -7,7 +7,6 @@
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,7 +28,6 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
 
     @Test
     void curativePerimeterTest() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(500.);
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(cState1, crac, network, raoParameters, prePerimeterResult);
 

@@ -65,7 +65,7 @@ $$\begin{equation}
 \max MM - \sum_{lra \in \mathcal{LRA}} \Delta_{lra} c^{LRA}
 \end{equation}$$
 
-with $MM$ the minimum margin, $\mathcal{LRA}$ the set of LRAs, $\Delta_{lra}$ the variation of setpoint of the LRA $lra$, and $c^{LRA}$ the penalty cost (see [pst-penalty-cost](/parameters.md#pst-penalty-cost), [hvdc-penalty-cost](/parameters.md#hvdc-penalty-cost), and [injection-ra-penalty-cost](/parameters.md#injection-ra-penalty-cost)).
+with $MM$ the minimum margin, $\mathcal{LRA}$ the set of LRAs, $\Delta_{lra}$ the variation of setpoint of the LRA $lra$, and $c^{LRA}$ the penalty cost (see [pst-ra-min-impact-threshold](/parameters.md#pst-ra-min-impact-threshold), [hvdc-ra-min-impact-threshold](/parameters.md#hvdc-ra-min-impact-threshold), and [injection-ra-min-impact-threshold](/parameters.md#injection-ra-min-impact-threshold)).
 
 This way, if two solutions provide (almost) the same minimum margin, the problem will favor the one that changes the setpoints the 
 least.

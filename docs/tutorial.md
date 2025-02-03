@@ -295,7 +295,8 @@ raoParameters.setLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParamete
 
 // Ask the RAO to maximize minimum margin in MW, and to stop when network is secure (i.e. when margins are positive)
 ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
-objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
+objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+objectiveFunctionParameters.setUnit(Unit.MEGAWATT);
 objectiveFunctionParameters.setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
 objectiveFunctionParameters.setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
 raoParameters.setObjectiveFunctionParameters(objectiveFunctionParameters);
@@ -577,7 +578,8 @@ public class Main {
 
         // Ask the RAO to maximize minimum margin in MW, and to stop when network is secure (i.e. when margins are positive)
         ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
-        objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
+        objectiveFunctionParameters.setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+        objectiveFunctionParameters.setUnit(Unit.MEGAWATT);
         objectiveFunctionParameters.setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
         objectiveFunctionParameters.setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
         raoParameters.setObjectiveFunctionParameters(objectiveFunctionParameters);
