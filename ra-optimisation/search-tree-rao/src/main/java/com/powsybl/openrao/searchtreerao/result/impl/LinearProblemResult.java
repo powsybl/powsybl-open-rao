@@ -20,9 +20,10 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
 
     public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetpoints, OptimizationPerimeter optimizationContext) {
         super(prePerimeterSetpoints);
-        // TODO: handle multiple timstamps
+        // TODO: handle multiple timestamps
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
+                // TODO: use state's timestamp when this new feature is available
                 if (linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.empty()).solutionValue() > 1e-6) {
                     double setPoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.empty()).solutionValue();
                     putResult(rangeAction, state, setPoint);
