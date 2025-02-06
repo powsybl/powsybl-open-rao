@@ -12,8 +12,10 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -62,13 +64,13 @@ public final class InterTemporalIteratingLinearOptimizer {
 
         // 1. Initialize best result using input data
 
-        // TODO
-        IteratingLinearOptimizationResultImpl bestResult = null;
+        // TODO : adapt InterTemporalIteratingLinearOptimizationResult : temporal data de tout
+        InterTemporalIteratingLinearOptimizationResult bestResult = null;
 
         // 2. Initialize linear problem using input data
 
         TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
-        List<ProblemFiller> interTemporalProblemFillers = getInterTemporalProblemFillers(raoInput);
+        List<ProblemFiller> interTemporalProblemFillers = getInterTemporalProblemFillers(input, parameters);
         LinearProblem linearProblem = buildLinearProblem(problemFillers, interTemporalProblemFillers, parameters);
 
         // 3. Iterate
@@ -378,7 +380,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         return new TemporalDataImpl<>(problemFillers);
     }
 
-    private static List<ProblemFiller> getInterTemporalProblemFillers(InterTemporalRaoInput raoInput) {
+    private static List<ProblemFiller> getInterTemporalProblemFillers(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // TODO: add inter-temporal margin filler (min of all min margins)
         return List.of(new PowerGradientConstraintFiller(raoInput));
     }
