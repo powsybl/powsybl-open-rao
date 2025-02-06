@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
@@ -60,7 +61,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     private InterTemporalIteratingLinearOptimizer() {
     }
 
-    public static LinearOptimizationResult optimize(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    public static InterTemporalIteratingLinearOptimizationResult optimize(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
 
         // 1. Initialize best result using input data
 
@@ -70,7 +71,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         // 2. Initialize linear problem using input data
 
         TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
-        List<ProblemFiller> interTemporalProblemFillers = getInterTemporalProblemFillers(input, parameters);
+        List<ProblemFiller> interTemporalProblemFillers = getInterTemporalProblemFillers(input);
         LinearProblem linearProblem = buildLinearProblem(problemFillers, interTemporalProblemFillers, parameters);
 
         // 3. Iterate
@@ -380,9 +381,16 @@ public final class InterTemporalIteratingLinearOptimizer {
         return new TemporalDataImpl<>(problemFillers);
     }
 
-    private static List<ProblemFiller> getInterTemporalProblemFillers(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    private static List<ProblemFiller> getInterTemporalProblemFillers(InterTemporalIteratingLinearOptimizerInput input) {
         // TODO: add inter-temporal margin filler (min of all min margins)
-        return List.of(new PowerGradientConstraintFiller(raoInput));
+        TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
+        TemporalData<Network> networks = input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network);
+        TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
+        return List.of(new PowerGradientConstraintFiller(preventiveStates, networks, preventiveInjectionRangeActions, input.powerGradients()));
+    }
+
+    private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {
+        return rangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
     }
 
     private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, IteratingLinearOptimizerParameters parameters) {
@@ -400,7 +408,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         return linearProblemBuilder.build();
     }
 
-    private static TemporalData<RangeActionActivationResult> retrieveResults(LinearProblem linearProblem, TemporalData<PrePerimeterResult> prePerimeterResults, TemporalData<OptimizationPerimeter> optimizationPerimeters) {
+    private static TemporalData<RangeActionActivationResult> retrieveRangeActionActivationResults(LinearProblem linearProblem, TemporalData<PrePerimeterResult> prePerimeterResults, TemporalData<OptimizationPerimeter> optimizationPerimeters) {
         Map<OffsetDateTime, RangeActionActivationResult> linearOptimizationResults = new HashMap<>();
         List<OffsetDateTime> timestamps = optimizationPerimeters.getTimestamps();
         timestamps.forEach(timestamp -> linearOptimizationResults.put(timestamp, new LinearProblemResult(linearProblem, prePerimeterResults.getData(timestamp).orElseThrow(), optimizationPerimeters.getData(timestamp).orElseThrow())));
