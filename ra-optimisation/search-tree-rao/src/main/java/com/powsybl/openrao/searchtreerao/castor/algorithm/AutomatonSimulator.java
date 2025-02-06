@@ -550,7 +550,13 @@ public final class AutomatonSimulator {
         double phi2 = hvdcLine.getConverterStation2().getTerminal().getBusView().getBus().getAngle();
         double p0 = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getP0();
         double droop = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getDroop();
-        return p0 + droop * (phi1 - phi2);
+        // Bug : quand la branche est ouverte, phi1/phi2 sont nuls (nullpointer sur getBusView)
+        // TODO :add UT
+        if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
+            return hvdcLine.getConverterStation2().getTerminal().getP();
+        } else {
+            return hvdcLine.getConverterStation1().getTerminal().getP();
+        }
     }
 
     /**
