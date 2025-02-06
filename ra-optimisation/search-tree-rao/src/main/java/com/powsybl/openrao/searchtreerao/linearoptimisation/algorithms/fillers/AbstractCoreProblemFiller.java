@@ -316,7 +316,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             double maxRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(3);
 
             // relative range
-            if (pstModel.equals(PstModel.CONTINUOUS) || !(rangeAction instanceof PstRangeAction)) {
+            if (PstModel.CONTINUOUS.equals(pstModel) || !(rangeAction instanceof PstRangeAction)) {
                 OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE, Optional.ofNullable(timestamp));
                 relSetpointConstraint.setCoefficient(setPointVariable, 1);
                 relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
