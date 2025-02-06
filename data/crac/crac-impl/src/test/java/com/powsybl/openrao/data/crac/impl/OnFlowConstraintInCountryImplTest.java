@@ -80,10 +80,10 @@ class OnFlowConstraintInCountryImplTest {
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Contingency contingency2 = Mockito.mock(Contingency.class);
 
-        State stateAuto1 = new PostContingencyState(contingency1, AUTO_INSTANT);
-        State stateCur1 = new PostContingencyState(contingency1, CURATIVE_INSTANT);
-        State stateAuto2 = new PostContingencyState(contingency2, AUTO_INSTANT);
-        State stateCur2 = new PostContingencyState(contingency2, CURATIVE_INSTANT);
+        State stateAuto1 = new PostContingencyState(contingency1, AUTO_INSTANT, null);
+        State stateCur1 = new PostContingencyState(contingency1, CURATIVE_INSTANT, null);
+        State stateAuto2 = new PostContingencyState(contingency2, AUTO_INSTANT, null);
+        State stateCur2 = new PostContingencyState(contingency2, CURATIVE_INSTANT, null);
 
         OnFlowConstraintInCountry ur;
 

@@ -59,6 +59,11 @@ import static java.lang.String.format;
  */
 public interface Crac extends Identifiable<Crac> {
 
+    /**
+     * Get the timestamp of the Crac.
+     */
+    Optional<OffsetDateTime> getTimestamp();
+
     // Contingencies management
 
     /**

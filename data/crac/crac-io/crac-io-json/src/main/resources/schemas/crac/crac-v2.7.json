@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.orgopen-rao-crac-schema=crac-v2.6.schema",
+  "title": "CRAC",
+  "description": "Contingency list, Remedial Actions and additional Constraints",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "CRAC"
+    },
+    "version": {
+      "const": "2.7"
+    },
+    "info": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "instants": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/instant/instant-v2.0.json"
+      }
+    },
+    "ra-usage-limits-per-instant": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/ra-usage-limits-per-instant/ra-usage-limits-per-instant-v2.1.json"
+      }
+    },
+    "networkElementsNamePerId": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "contingencies": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/contingency/contingency-v1.0.json"
+      }
+    },
+    "flowCnecs": {
+      "type": "array",
+      "items": {
+        "items": {
+          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v2.4.json"
+        }
+      }
+    },
+    "angleCnecs": {
+      "type": "array",
+      "items": {
+        "items": {
+          "$ref": "resource:/schemas/angle-cnec/angle-cnec-v1.4.json"
+        }
+      }
+    },
+    "voltageCnecs": {
+      "type": "array",
+      "items": {
+        "items": {
+          "$ref": "resource:/schemas/voltage-cnec/voltage-cnec-v1.5.json"
+        }
+      }
+    },
+    "pstRangeActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/pst-range-action/pst-range-action-v2.6.json"
+      }
+    },
+    "hvdcRangeActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/hvdc-range-action/hvdc-range-action-v2.6.json"
+      }
+    },
+    "injectionRangeActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/injection-range-action/injection-range-action-v2.6.json"
+      }
+    },
+    "counterTradeRangeActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/counter-trade-range-action/counter-trade-range-action-v2.6.json"
+      }
+    },
+    "networkActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/network-action/network-action-v2.6.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "version",
+    "id",
+    "name"
+  ]
+}
