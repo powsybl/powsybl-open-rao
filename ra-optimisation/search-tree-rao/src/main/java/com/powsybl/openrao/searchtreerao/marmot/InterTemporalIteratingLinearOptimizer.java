@@ -58,7 +58,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     private InterTemporalIteratingLinearOptimizer() {
     }
 
-    public static LinearOptimizationResult optimize(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    public static LinearOptimizationResult optimize(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
 
         // 1. Initialize best result using input data
 
@@ -67,7 +67,7 @@ public final class InterTemporalIteratingLinearOptimizer {
 
         // 2. Initialize linear problem using input data
 
-        TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(raoInput.getRaoInputs(), optimizationPerimeterTemporalData, prePerimeterResults, parameters);
+        TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
         List<ProblemFiller> interTemporalProblemFillers = getInterTemporalProblemFillers(raoInput);
         LinearProblem linearProblem = buildLinearProblem(problemFillers, interTemporalProblemFillers, parameters);
 
@@ -371,20 +371,10 @@ public final class InterTemporalIteratingLinearOptimizer {
 
     // inter-temporal methods
 
-    private static TemporalData<List<ProblemFiller>> getProblemFillersPerTimestamp(TemporalData<RaoInput> raoInputs, TemporalData<OptimizationPerimeter> optimizationPerimeters, TemporalData<PrePerimeterResult> prePerimeterResults, RaoParameters raoParameters) {
+    private static TemporalData<List<ProblemFiller>> getProblemFillersPerTimestamp(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // TODO: parallel
-        List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, List<ProblemFiller>> problemFillers = new HashMap<>();
-        timestamps.forEach(
-            timestamp -> problemFillers.put(timestamp, ProblemFillerHelper.getProblemFillers(
-                raoInputs.getData(timestamp).orElseThrow().getCrac(),
-                raoInputs.getData(timestamp).orElseThrow().getNetwork(),
-                optimizationPerimeters.getData(timestamp).orElseThrow(),
-                prePerimeterResults.getData(timestamp).orElseThrow(),
-                timestamp,
-                raoParameters
-            ))
-        );
+        input.iteratingLinearOptimizerInputs().getDataPerTimestamp().forEach((timestamp, linearOptimizerInput) -> problemFillers.put(timestamp, ProblemFillerHelper.getProblemFillers(linearOptimizerInput, parameters, timestamp)));
         return new TemporalDataImpl<>(problemFillers);
     }
 
@@ -393,17 +383,11 @@ public final class InterTemporalIteratingLinearOptimizer {
         return List.of(new PowerGradientConstraintFiller(raoInput));
     }
 
-    private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, RaoParameters raoParameters) {
-        // initialize builder from parameters
-        if (!raoParameters.hasExtension(SearchTreeRaoRangeActionsOptimizationParameters.class)) {
-            throw new OpenRaoException("RAO parameters do not have a SearchTreeRaoRangeActionsOptimizationParameters extension.");
-        }
-        SearchTreeRaoRangeActionsOptimizationParameters linearRaoParameters = raoParameters.getExtension(SearchTreeRaoRangeActionsOptimizationParameters.class);
-
+    private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, IteratingLinearOptimizerParameters parameters) {
         LinearProblemBuilder linearProblemBuilder = LinearProblem.create()
-            .withSolver(linearRaoParameters.getLinearOptimizationSolver().getSolver())
-            .withRelativeMipGap(linearRaoParameters.getLinearOptimizationSolver().getRelativeMipGap())
-            .withSolverSpecificParameters(linearRaoParameters.getLinearOptimizationSolver().getSolverSpecificParameters())
+            .withSolver(parameters.getSolverParameters().getSolver())
+            .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
+            .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters())
             // TODO: check if we can simply ignore this line
             .withInitialRangeActionActivationResult(new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of())));
 
