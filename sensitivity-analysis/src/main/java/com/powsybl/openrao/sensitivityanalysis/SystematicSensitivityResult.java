@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class SystematicSensitivityResult {
 
     private static class StateResult {
-        private SensitivityComputationStatus status;
+        private SensitivityComputationStatus status = SensitivityComputationStatus.SUCCESS;
         private final Map<String, Map<TwoSides, Double>> referenceFlows = new HashMap<>();
         private final Map<String, Map<TwoSides, Double>> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Map<TwoSides, Double>>> flowSensitivities = new HashMap<>();
@@ -53,6 +53,10 @@ public class SystematicSensitivityResult {
 
         private Map<String, Map<String, Map<TwoSides, Double>>> getIntensitySensitivities() {
             return intensitySensitivities;
+        }
+
+        private boolean isEmpty() {
+            return referenceFlows.isEmpty() && referenceIntensities.isEmpty() && flowSensitivities.isEmpty() && intensitySensitivities.isEmpty();
         }
     }
 
@@ -98,21 +102,12 @@ public class SystematicSensitivityResult {
             );
             postContingencyResults.get(instantOrder).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
-
-        nStateResult.status = this.status;
-
-        if (nStateResult.status != SensitivityComputationStatus.FAILURE && anyContingencyFailure) {
+        if (!results.getPreContingencyValues().isEmpty()) {
+            nStateResult.status = this.status;
+        }
+        if (nStateResult.status != SensitivityComputationStatus.FAILURE && anyContingencyFailure && !nStateResult.isEmpty()) {
             this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
         }
-        return this;
-    }
-
-    public SystematicSensitivityResult completeDataWithFailingPerimeter(int instantOrder, String contingencyId) {
-        this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
-        StateResult contingencyStateResult = new StateResult();
-        contingencyStateResult.status = SensitivityComputationStatus.FAILURE;
-        postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
-        postContingencyResults.get(instantOrder).put(contingencyId, contingencyStateResult);
         return this;
     }
 

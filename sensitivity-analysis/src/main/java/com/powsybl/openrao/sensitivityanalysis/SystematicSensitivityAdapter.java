@@ -131,7 +131,12 @@ final class SystematicSensitivityAdapter {
                     sensitivityComputationParameters), state.getInstant().getOrder());
             } catch (Exception e) {
                 TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
-                result.completeDataWithFailingPerimeter(state.getInstant().getOrder(), optContingency.get().getId());
+                SensitivityAnalysisResult failedResult = new SensitivityAnalysisResult(
+                    cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
+                    List.of(new SensitivityAnalysisResult.SensitivityContingencyStatus(optContingency.get().getId(), SensitivityAnalysisResult.Status.FAILURE)),
+                    List.of()
+                );
+                result.completeData(failedResult, state.getInstant().getOrder());
             }
             counterForLogs++;
         }
