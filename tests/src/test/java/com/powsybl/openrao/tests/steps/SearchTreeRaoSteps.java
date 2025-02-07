@@ -173,7 +173,7 @@ public class SearchTreeRaoSteps {
 
     @Then("the value of the objective function after CRA should be {double}")
     public void objectiveFunctionValueAfterCraShouldBe(double expectedValue) {
-        assertEquals(expectedValue, raoResult.getCost(crac.getInstant(InstantKind.CURATIVE)), flowAmpereTolerance(expectedValue));
+        assertEquals(expectedValue, raoResult.getCost(crac.getLastInstant()), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function before optimisation should be {double}")
