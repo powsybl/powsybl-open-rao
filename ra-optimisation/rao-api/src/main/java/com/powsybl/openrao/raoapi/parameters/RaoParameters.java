@@ -14,21 +14,25 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
     private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
     private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
-    private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
-    private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
     private NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
-    private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
+    private Optional<MnecParameters> mnecParameters = Optional.empty();
+    private Optional<RelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
+    private Optional<LoopFlowParameters> loopFlowParameters = Optional.empty();
 
     // Getters and setters
     public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -43,20 +47,20 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.topoOptimizationParameters = topoOptimizationParameters;
     }
 
-    public void setMultithreadingParameters(MultithreadingParameters multithreadingParameters) {
-        this.multithreadingParameters = multithreadingParameters;
-    }
-
-    public void setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters secondPreventiveRaoParameters) {
-        this.secondPreventiveRaoParameters = secondPreventiveRaoParameters;
-    }
-
     public void setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters notOptimizedCnecsParameters) {
         this.notOptimizedCnecsParameters = notOptimizedCnecsParameters;
     }
 
-    public void setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters) {
-        this.loadFlowAndSensitivityParameters = loadFlowAndSensitivityParameters;
+    public void setMnecParameters(MnecParameters mnecParameters) {
+        this.mnecParameters = Optional.of(mnecParameters);
+    }
+
+    public void setRelativeMarginsParameters(RelativeMarginsParameters relativeMarginsParameters) {
+        this.relativeMarginsParameters = Optional.of(relativeMarginsParameters);
+    }
+
+    public void setLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
+        this.loopFlowParameters = Optional.of(loopFlowParameters);
     }
 
     public ObjectiveFunctionParameters getObjectiveFunctionParameters() {
@@ -71,20 +75,20 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return topoOptimizationParameters;
     }
 
-    public MultithreadingParameters getMultithreadingParameters() {
-        return multithreadingParameters;
-    }
-
-    public SecondPreventiveRaoParameters getSecondPreventiveRaoParameters() {
-        return secondPreventiveRaoParameters;
-    }
-
     public NotOptimizedCnecsParameters getNotOptimizedCnecsParameters() {
         return notOptimizedCnecsParameters;
     }
 
-    public LoadFlowAndSensitivityParameters getLoadFlowAndSensitivityParameters() {
-        return loadFlowAndSensitivityParameters;
+    public Optional<MnecParameters> getMnecParameters() {
+        return mnecParameters;
+    }
+
+    public Optional<RelativeMarginsParameters> getRelativeMarginsParameters() {
+        return relativeMarginsParameters;
+    }
+
+    public Optional<LoopFlowParameters> getLoopFlowParameters() {
+        return loopFlowParameters;
     }
 
     public boolean hasExtension(Class classType) {
@@ -92,15 +96,17 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     }
 
     // ConfigLoader
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
+     *
      * @param <E> The extension class
      */
     public interface ConfigLoader<E extends Extension<RaoParameters>> extends ExtensionConfigLoader<RaoParameters, E> {
     }
 
     private static final Supplier<ExtensionProviders<RaoParameters.ConfigLoader>> PARAMETERS_EXTENSIONS_SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(RaoParameters.ConfigLoader.class, "rao-parameters"));
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(RaoParameters.ConfigLoader.class, "rao-parameters"));
 
     /**
      * @return RaoParameters from platform default config.
@@ -118,6 +124,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         RaoParameters parameters = new RaoParameters();
         load(parameters, platformConfig);
         parameters.loadExtensions(platformConfig);
+        addOptionalExtensionsDefaultValuesIfExist(parameters);
         return parameters;
     }
 
@@ -127,16 +134,60 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         parameters.setObjectiveFunctionParameters(ObjectiveFunctionParameters.load(platformConfig));
         parameters.setRangeActionsOptimizationParameters(RangeActionsOptimizationParameters.load(platformConfig));
         parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig));
-        parameters.setMultithreadingParameters(MultithreadingParameters.load(platformConfig));
-        parameters.setSecondPreventiveRaoParameters(SecondPreventiveRaoParameters.load(platformConfig));
         parameters.setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters.load(platformConfig));
-        parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));
+        MnecParameters.load(platformConfig).ifPresent(parameters::setMnecParameters);
+        RelativeMarginsParameters.load(platformConfig).ifPresent(parameters::setRelativeMarginsParameters);
+        LoopFlowParameters.load(platformConfig).ifPresent(parameters::setLoopFlowParameters);
     }
 
     private void loadExtensions(PlatformConfig platformConfig) {
         for (ExtensionConfigLoader provider : PARAMETERS_EXTENSIONS_SUPPLIER.get().getProviders()) {
-            if (platformConfig.getOptionalModuleConfig(provider.getExtensionName()).isPresent()) {
-                addExtension(provider.getExtensionClass(), provider.load(platformConfig));
+            Extension extension = provider.load(platformConfig);
+            if (extension != null) {
+                addExtension(provider.getExtensionClass(), extension);
+            }
+        }
+    }
+
+    public static void addOptionalExtensionsDefaultValuesIfExist(RaoParameters parameters) {
+        OpenRaoSearchTreeParameters extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+        if (parameters.getMnecParameters().isPresent()) {
+            if (Objects.isNull(extension)) {
+                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+            }
+            extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+            if (extension.getMnecParameters().isEmpty()) {
+                extension.setMnecParameters(new SearchTreeRaoMnecParameters());
+            }
+        } else {
+            if (!Objects.isNull(extension) && extension.getMnecParameters().isPresent()) {
+                parameters.setMnecParameters(new com.powsybl.openrao.raoapi.parameters.MnecParameters());
+            }
+        }
+        if (parameters.getRelativeMarginsParameters().isPresent()) {
+            if (Objects.isNull(extension)) {
+                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+            }
+            extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+            if (extension.getRelativeMarginsParameters().isEmpty()) {
+                extension.setRelativeMarginsParameters(new SearchTreeRaoRelativeMarginsParameters());
+            }
+        } else {
+            if (!Objects.isNull(extension) && extension.getRelativeMarginsParameters().isPresent()) {
+                parameters.setRelativeMarginsParameters(new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters());
+            }
+        }
+        if (parameters.getLoopFlowParameters().isPresent()) {
+            if (Objects.isNull(extension)) {
+                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+            }
+            extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+            if (extension.getLoopFlowParameters().isEmpty()) {
+                extension.setLoopFlowParameters(new SearchTreeRaoLoopFlowParameters());
+            }
+        } else {
+            if (!Objects.isNull(extension) && extension.getLoopFlowParameters().isPresent()) {
+                parameters.setLoopFlowParameters(new com.powsybl.openrao.raoapi.parameters.LoopFlowParameters());
             }
         }
     }

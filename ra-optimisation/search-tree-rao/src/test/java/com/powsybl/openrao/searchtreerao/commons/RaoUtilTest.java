@@ -7,16 +7,20 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
@@ -24,9 +28,11 @@ import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.glsk.commons.ZonalData;
@@ -34,6 +40,7 @@ import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -84,46 +91,49 @@ class RaoUtilTest {
 
     @Test
     void testExceptionForGlskOnRelativeMargin() {
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        relativeMarginsParameters.setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires glsks", exception.getMessage());
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires glsks", exception.getMessage());
     }
 
     @Test
     void testExceptionForNoRelativeMarginParametersOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
     }
 
     @Test
     void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE requires a config with a non empty boundary set", exception.getMessage());
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
     }
 
     @Test
     void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
+        raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        relativeMarginsParameters.setPtdfBoundariesFromString(new ArrayList<>());
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT requires a config with a non empty boundary set", exception.getMessage());
+        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
     }
 
     @Test
     void testAmpereWithDc() {
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN_IN_AMPERE cannot be calculated with a DC default sensitivity engine", exception.getMessage());
+        assertEquals("Objective function unit A cannot be calculated with a DC default sensitivity engine", exception.getMessage());
     }
 
     @Test
@@ -347,9 +357,60 @@ class RaoUtilTest {
 
     @Test
     void testElementaryActionsLimitWithNonDiscretePsts() {
-        raoParameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().setPstModel(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         raoInput.getCrac().newRaUsageLimits(PREVENTIVE_INSTANT_ID).withMaxElementaryActionPerTso(Map.of("TSO", 2)).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
         assertEquals("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.", exception.getMessage());
+    }
+
+    @Test
+    void testGetLastAvailableRangeActionOnSameNetworkElementWithOutageState() {
+        OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationContext.getMainOptimizationState()).thenReturn(crac.getPreventiveState());
+        State outageState = Mockito.mock(State.class);
+        Mockito.when(outageState.getContingency()).thenReturn(Optional.of(crac.getContingency("Contingency FR1 FR3")));
+        Mockito.when(outageState.getInstant()).thenReturn(crac.getInstant(InstantKind.OUTAGE));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, crac.getRangeActions().iterator().next(), outageState));
+        assertEquals("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.", exception.getMessage());
+    }
+
+    @Test
+    void testGetLastAvailableRangeActionOnSameNetworkElementMultiCurative() {
+        Contingency contingency = crac.getContingency("Contingency FR1 FR3");
+
+        Instant curative1Instant = Mockito.mock(Instant.class);
+        Mockito.when(curative1Instant.getKind()).thenReturn(InstantKind.CURATIVE);
+
+        State curativeState1 = Mockito.mock(State.class);
+        Mockito.when(curativeState1.getInstant()).thenReturn(curative1Instant);
+        Mockito.when(curativeState1.getContingency()).thenReturn(Optional.of(contingency));
+
+        Instant curative3Instant = Mockito.mock(Instant.class);
+        Mockito.when(curative3Instant.getKind()).thenReturn(InstantKind.CURATIVE);
+        Mockito.when(curative3Instant.isCurative()).thenReturn(true);
+
+        State curativeState3 = Mockito.mock(State.class);
+        Mockito.when(curativeState3.getInstant()).thenReturn(curative3Instant);
+        Mockito.when(curativeState3.getContingency()).thenReturn(Optional.of(contingency));
+
+        Mockito.when(curative1Instant.comesBefore(curative3Instant)).thenReturn(true);
+
+        NetworkElement pst = Mockito.mock(NetworkElement.class);
+        Mockito.when(pst.getId()).thenReturn("pst");
+
+        RangeAction<?> rangeAction1 = Mockito.mock(RangeAction.class);
+        Mockito.when(rangeAction1.getNetworkElements()).thenReturn(Set.of(pst));
+        Mockito.when(rangeAction1.getId()).thenReturn("range-action-1");
+
+        RangeAction<?> rangeAction2 = Mockito.mock(RangeAction.class);
+        Mockito.when(rangeAction2.getNetworkElements()).thenReturn(Set.of(pst));
+        Mockito.when(rangeAction2.getId()).thenReturn("range-action-2");
+
+        OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationContext.getMainOptimizationState()).thenReturn(curativeState1);
+        Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1)));
+
+        assertEquals(Pair.of(rangeAction1, curativeState1), RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction2, curativeState3));
     }
 }

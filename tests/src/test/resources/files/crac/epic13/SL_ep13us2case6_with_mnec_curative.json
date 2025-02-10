@@ -40,8 +40,8 @@
     "nominalV" : [ 400.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
-      "min" : -1500.0,
-      "max" : 1500.0,
+      "min" : -700.0,
+      "max" : 700.0,
       "rule" : "onNonRegulatedSide"
     } ]
   }, {
