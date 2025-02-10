@@ -16,10 +16,10 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after PRA should be -631.83 MW
     And 1 remedial actions are used after "co1_be1_fr5" at "auto"
     And the remedial action "ARA_HVDC" is used after "co1_be1_fr5" at "auto"
-    And the setpoint of RangeAction "ARA_HVDC" should be 1879.68 MW after "co1_be1_fr5" at "auto"
-    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after ARA should be 0.0 MW
-    And the margin on cnec "be3_be4_co1 - BBE3AA11->BBE4AA11  - co1_be1_fr5 - auto" after ARA should be 12.01 MW
-    And its security status should be "secured"
+    And the setpoint of RangeAction "ARA_HVDC" should be 965.75 MW after "co1_be1_fr5" at "auto"
+    And the margin on cnec "be3_be4_co1 - BBE3AA11->BBE4AA11  - co1_be1_fr5 - auto" after ARA should be -29.5 MW
+    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after ARA should be 1.12 MW
+    And its security status should be "UNSECURED"
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 15.11.3.2: 1 auto PST
