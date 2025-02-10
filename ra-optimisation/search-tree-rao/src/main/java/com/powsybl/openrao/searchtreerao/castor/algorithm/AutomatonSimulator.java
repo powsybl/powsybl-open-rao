@@ -539,18 +539,17 @@ public final class AutomatonSimulator {
     }
 
     /**
-     * Compute setpoint set by AngleDroopActivePowerControl = p0 + droop * angle difference
-     * NB: p0 and angle difference are always in 1->2 direction
+     * Get setpoint set by AngleDroopActivePowerControl
      *
      * @param hvdcLine: HVDC line object
      * @return the setpoint computed by the HvdcAngleDroopActivePowerControl
      */
     private static double computeHvdcAngleDroopActivePowerControlValue(HvdcLine hvdcLine) {
-        double phi1 = hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getAngle();
-        double phi2 = hvdcLine.getConverterStation2().getTerminal().getBusView().getBus().getAngle();
-        double p0 = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getP0();
-        double droop = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getDroop();
-        return p0 + droop * (phi1 - phi2);
+        if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
+            return hvdcLine.getConverterStation2().getTerminal().getP();
+        } else {
+            return hvdcLine.getConverterStation1().getTerminal().getP();
+        }
     }
 
     /**
