@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.csaprofiles.parameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +24,7 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
     private int autoInstantApplicationTime = 0;
     private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
     private Set<Border> borders = Set.of();
+    private OffsetDateTime timestamp;
 
     @Override
     public String getName() {
@@ -67,5 +69,13 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
 
     public void setBorders(Set<Border> borders) {
         this.borders = new HashSet<>(borders);
+    }
+
+    public void setTimestamp(OffsetDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public OffsetDateTime getTimestamp() {
+        return timestamp;
     }
 }

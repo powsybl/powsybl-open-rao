@@ -35,8 +35,9 @@ class CsaProfileCracCreator {
     CsaProfileCracCreationContext creationContext;
     private CsaProfileCrac nativeCrac;
 
-    CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, CracCreationParameters cracCreationParameters) {
         CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
+        OffsetDateTime offsetDateTime = csaParameters.getTimestamp();
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());

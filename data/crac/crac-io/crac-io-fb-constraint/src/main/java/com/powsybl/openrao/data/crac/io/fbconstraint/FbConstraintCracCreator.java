@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVariant;
@@ -42,7 +43,9 @@ class FbConstraintCracCreator {
             .newInstant("curative", InstantKind.CURATIVE);
     }
 
-    FbConstraintCreationContext createCrac(FlowBasedConstraintDocument fbConstraintDocument, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreatorParameters) {
+    FbConstraintCreationContext createCrac(FlowBasedConstraintDocument fbConstraintDocument, Network network, CracCreationParameters cracCreatorParameters) {
+        FbConstraintCracCreationParameters fbConstraintCracCreationParameters = cracCreatorParameters.getExtension(FbConstraintCracCreationParameters.class);
+        OffsetDateTime offsetDateTime = fbConstraintCracCreationParameters.getTimestamp();
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
         Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocumentIdentification().getV());
         addFbContraintInstants(crac);

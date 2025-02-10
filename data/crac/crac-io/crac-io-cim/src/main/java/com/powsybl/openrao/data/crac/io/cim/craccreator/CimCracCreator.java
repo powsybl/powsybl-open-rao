@@ -32,15 +32,13 @@ class CimCracCreator {
     private Network network;
     CimCracCreationContext creationContext;
 
-    CimCracCreationContext createCrac(CRACMarketDocument cimCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters parameters) {
+    CimCracCreationContext createCrac(CRACMarketDocument cimCrac, Network network, CracCreationParameters parameters) {
         // Set attributes
         this.crac = parameters.getCracFactory().create(cimCrac.getMRID());
         addCimInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getTimeSeries());
-        this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network);
-
         // Get warning messages from parameters parsing
         CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
         if (cimCracCreationParameters != null) {
@@ -52,6 +50,8 @@ class CimCracCreator {
                     .forEach(mrid -> creationContext.getCreationReport().warn(String.format("Requested TimeSeries mRID \"%s\" in CimCracCreationParameters was not found in the CRAC file.", mrid)));
             }
         }
+        OffsetDateTime offsetDateTime = cimCracCreationParameters.getTimestamp();
+        this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network);
 
         if (offsetDateTime == null) {
             creationContext.getCreationReport().error("Timestamp is null for cim crac creator.");

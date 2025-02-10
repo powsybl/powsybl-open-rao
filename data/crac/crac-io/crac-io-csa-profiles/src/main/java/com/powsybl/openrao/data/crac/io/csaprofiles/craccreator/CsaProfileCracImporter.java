@@ -141,7 +141,7 @@ public class CsaProfileCracImporter implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
-        return new CsaProfileCracCreator().createCrac(importNativeCrac(inputStream), network, offsetDateTime, cracCreationParameters);
+    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
+        return new CsaProfileCracCreator().createCrac(importNativeCrac(inputStream), network, cracCreationParameters);
     }
 }

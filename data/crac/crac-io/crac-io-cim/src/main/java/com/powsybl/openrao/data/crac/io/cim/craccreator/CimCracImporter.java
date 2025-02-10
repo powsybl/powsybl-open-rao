@@ -89,8 +89,8 @@ public class CimCracImporter implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
-        return new CimCracCreator().createCrac(importNativeCrac(inputStream), network, offsetDateTime, cracCreationParameters);
+    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
+        return new CimCracCreator().createCrac(importNativeCrac(inputStream), network, cracCreationParameters);
     }
 
 }

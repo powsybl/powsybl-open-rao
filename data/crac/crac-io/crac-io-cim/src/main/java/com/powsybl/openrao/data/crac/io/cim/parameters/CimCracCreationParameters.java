@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.cim.parameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.parameters.AbstractAlignedRaCracCreationParameters;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
@@ -18,6 +19,7 @@ public class CimCracCreationParameters extends AbstractAlignedRaCracCreationPara
     private Set<String> timeseriesMrids = new HashSet<>();
     private Set<RangeActionSpeed> speedSet = new HashSet<>();
     private VoltageCnecsCreationParameters voltageCnecsCreationParameters = null;
+    private OffsetDateTime timestamp;
 
     @Override
     public String getName() {
@@ -71,5 +73,13 @@ public class CimCracCreationParameters extends AbstractAlignedRaCracCreationPara
 
     public void setVoltageCnecsCreationParameters(VoltageCnecsCreationParameters voltageCnecsCreationParameters) {
         this.voltageCnecsCreationParameters = voltageCnecsCreationParameters;
+    }
+
+    public OffsetDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(OffsetDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }

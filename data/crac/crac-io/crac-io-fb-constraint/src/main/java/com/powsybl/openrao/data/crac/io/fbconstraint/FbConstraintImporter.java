@@ -108,8 +108,8 @@ public class FbConstraintImporter implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
-        return new FbConstraintCracCreator().createCrac(importNativeCrac(inputStream), network, offsetDateTime, cracCreationParameters);
+    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
+        return new FbConstraintCracCreator().createCrac(importNativeCrac(inputStream), network, cracCreationParameters);
     }
 
     private int flowBasedDocumentVersion(InputStream inputStream) {

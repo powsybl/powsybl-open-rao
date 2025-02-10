@@ -32,17 +32,12 @@ import java.util.List;
 class CseCracCreator {
     CseCracCreationContext creationContext;
 
-    CseCracCreationContext createCrac(CRACDocumentType cseCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+    CseCracCreationContext createCrac(CRACDocumentType cseCrac, Network network, CracCreationParameters cracCreationParameters) {
         // Set attributes
         Crac crac = cracCreationParameters.getCracFactory().create(cseCrac.getDocumentIdentification().getV());
         addCseInstants(crac);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
-        this.creationContext = new CseCracCreationContext(crac, offsetDateTime, network.getNameOrId());
-
-        // Check timestamp field
-        if (offsetDateTime != null) {
-            creationContext.getCreationReport().warn("Timestamp filtering is not implemented for cse crac creator. The timestamp will be ignored.");
-        }
+        this.creationContext = new CseCracCreationContext(crac, network.getNameOrId());
 
         // Get warning messages from parameters parsing
         CseCracCreationParameters cseCracCreationParameters = cracCreationParameters.getExtension(CseCracCreationParameters.class);
