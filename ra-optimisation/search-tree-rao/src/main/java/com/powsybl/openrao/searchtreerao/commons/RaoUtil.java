@@ -189,15 +189,15 @@ public final class RaoUtil {
         } else if (state.getInstant().isCurative()) {
 
             // look if a preventive range action acts on the same network elements
-            State preventiveState = optimizationContext.getMainOptimizationState();
+            State previousUsageState = optimizationContext.getMainOptimizationState();
 
-            if (preventiveState.isPreventive()) {
-                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(preventiveState).stream()
+            if (previousUsageState.getInstant().comesBefore(state.getInstant())) {
+                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageState).stream()
                         .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
                         .findAny();
 
                 if (correspondingRa.isPresent()) {
-                    return Pair.of(correspondingRa.get(), preventiveState);
+                    return Pair.of(correspondingRa.get(), previousUsageState);
                 }
             }
             return null;
