@@ -16,10 +16,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
-import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -29,7 +26,6 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,8 +48,9 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
         this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
         this.powerGradients = powerGradients;
     }
-    @Override
+
     //  TODO : only create generator variables when necessary (map injection range actions/generators)
+    @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         List<OffsetDateTime> timestamps = preventiveStates.getTimestamps();
         IntStream.range(0, timestamps.size()).forEach(timestampIndex -> {
