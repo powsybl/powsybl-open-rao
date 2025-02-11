@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 
 /**
@@ -15,10 +18,12 @@ import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 public class InterTemporalIteratingLinearOptimizationResult {
     private LinearProblemStatus status;
     private int nbOfIteration;
+    private TemporalData<LinearOptimizationResult> resultPerTimestamp;
 
     public InterTemporalIteratingLinearOptimizationResult(LinearProblemStatus status, int nbOfIteration) {
         this.status = status;
         this.nbOfIteration = nbOfIteration;
+        this.resultPerTimestamp = new TemporalDataImpl<>();
     }
 
     public void setStatus(LinearProblemStatus status) {
@@ -37,4 +42,7 @@ public class InterTemporalIteratingLinearOptimizationResult {
         this.nbOfIteration = nbOfIteration;
     }
 
+    public TemporalData<LinearOptimizationResult> getResultPerTimestamp() {
+        return resultPerTimestamp;
+    }
 }
