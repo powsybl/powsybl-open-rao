@@ -75,7 +75,6 @@
     <properties>
         <!-- Project properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
         <java.version>17</java.version>
 
         <!-- Sonar properties -->
