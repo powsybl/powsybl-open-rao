@@ -288,7 +288,8 @@ public final class CsaProfileCracCreationTestUtil {
 
     public static CsaProfileCracCreationContext getCsaCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         try (InputStream inputStream = CsaProfileCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive)) {
-            return (CsaProfileCracCreationContext) Crac.readWithContext(csaProfilesArchive, inputStream, network, offsetDateTime, cracCreationParameters);
+            cracCreationParameters.getExtension(CsaCracCreationParameters.class).setTimestamp(offsetDateTime);
+            return (CsaProfileCracCreationContext) Crac.readWithContext(csaProfilesArchive, inputStream, network, cracCreationParameters);
         } catch (IOException e) {
             throw new OpenRaoException(e);
         }
