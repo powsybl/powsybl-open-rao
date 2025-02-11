@@ -36,7 +36,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
 import java.io.*;
-import java.time.OffsetDateTime;
 import java.util.*;
 
 import static java.lang.String.format;

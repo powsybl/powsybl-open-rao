@@ -55,7 +55,6 @@ class CimCracCreator {
             }
         }
 
-
         if (offsetDateTime == null) {
             creationContext.getCreationReport().error("Timestamp is null for cim crac creator.");
             creationContext.setCreationFailure();

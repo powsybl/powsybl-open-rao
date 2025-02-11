@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.data.crac.util.CracValidator;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 /**

@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 
 import java.io.InputStream;
-import java.time.OffsetDateTime;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

@@ -10,10 +10,6 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
