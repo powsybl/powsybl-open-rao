@@ -55,7 +55,6 @@ class CseCracCreatorTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
-    private final OffsetDateTime offsetDateTime = null;
     private CracCreationParameters parameters = new CracCreationParameters();
     private Crac importedCrac;
     private CseCracCreationContext cracCreationContext;
@@ -66,7 +65,7 @@ class CseCracCreatorTest {
     private void setUp(String cracFileName, String networkFileName) throws IOException {
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
         InputStream is = getClass().getResourceAsStream(cracFileName);
-        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, offsetDateTime, parameters);
+        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, parameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = importedCrac.getInstant(OUTAGE_INSTANT_ID);
@@ -123,7 +122,7 @@ class CseCracCreatorTest {
     void createCrac() throws IOException {
         setUp("/cracs/cse_crac_1.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(offsetDateTime, cracCreationContext.getTimeStamp());
+        assertEquals(null, cracCreationContext.getTimeStamp());
         assertEquals("/networks/TestCase12Nodes_with_Xnodes", cracCreationContext.getNetworkName());
     }
 
@@ -134,7 +133,7 @@ class CseCracCreatorTest {
         parameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
         setUp("/cracs/cse_crac_1.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(offsetDateTime, cracCreationContext.getTimeStamp());
+        assertEquals(null, cracCreationContext.getTimeStamp());
         assertEquals("/networks/TestCase12Nodes_with_Xnodes", cracCreationContext.getNetworkName());
         assertEquals(4, cracCreationContext.getCrac().getRaUsageLimits(preventiveInstant).getMaxRa());
     }
