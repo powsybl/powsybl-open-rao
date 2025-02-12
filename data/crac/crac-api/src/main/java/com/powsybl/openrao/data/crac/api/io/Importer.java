@@ -33,6 +33,5 @@ public interface Importer {
      * @param network     network upon which the CRAC is based
      * @return the model
      */
-    // TODO : put offset date time in CracCreationParameters
     CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network);
 }
