@@ -468,3 +468,45 @@ cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParamete
 ```
 :::
 ::::
+
+## Flow Based Constraint-specific parameters
+
+The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint) need an additional information to be converted to the internal OpenRAO CRAC format. 
+The user can define a [FbConstraintCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-io/crac-io-fb-constraint/src/main/java/com/powsybl/openrao/data/crac/io/fbconstraint/parameters/FbConstraintCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+
+### timestamp
+
+This parameter allows the user to define the timestamp for which to create the CRAC.
+
+In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
+
+
+### Full FbConstraint example
+
+::::{tabs}
+:::{group-tab} JAVA API
+```java
+// Create CracCreationParameters and set global parameters
+CracCreationParameters cracCreationParameters = new CracCreationParameters();
+// Create CSA-specific parameters
+FbConstraintCracCreationParameters fbConstraintParameters = new FbConstraintCracCreationParameters();
+// Add timestamp
+fbConstraintParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
+// Add FbConstraint extension to CracCreationParameters
+cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParameters);
+```
+:::
+
+:::{group-tab} JSON file
+```json
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "FbConstraintCracCreatorParameters" : {
+      "timestamp": "2019-01-08T12:00+02:00"
+    }
+  }
+}
+```
+:::
+::::
