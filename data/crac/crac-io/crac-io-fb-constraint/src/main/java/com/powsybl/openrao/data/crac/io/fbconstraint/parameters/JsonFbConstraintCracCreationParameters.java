@@ -26,31 +26,8 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
     private static final String TIMESTAMP = "timestamp";
 
     @Override
-    public void serialize(FbConstraintCracCreationParameters fbConstraintParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStartObject();
-        serializeTimestamp(fbConstraintParameters.getTimestamp(), jsonGenerator);
-        jsonGenerator.writeEndObject();
-    }
-
-    @Override
-    public FbConstraintCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FbConstraintCracCreationParameters parameters) throws IOException {
-        while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
-                case TIMESTAMP:
-                    jsonParser.nextToken();
-                    parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
-                    break;
-                default:
-                    throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
-            }
-        }
-
-        return parameters;
-    }
-
-    @Override
     public String getExtensionName() {
-        return "FbConstraintCracCreationParameters";
+        return "FbConstraintCracCreatorParameters";
     }
 
     @Override
@@ -61,6 +38,28 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
     @Override
     public Class<? super FbConstraintCracCreationParameters> getExtensionClass() {
         return FbConstraintCracCreationParameters.class;
+    }
+
+    @Override
+    public void serialize(FbConstraintCracCreationParameters fbConstraintParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        jsonGenerator.writeStartObject();
+        serializeTimestamp(fbConstraintParameters.getTimestamp(), jsonGenerator);
+        jsonGenerator.writeEndObject();
+    }
+
+    @Override
+    public FbConstraintCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FbConstraintCracCreationParameters parameters) throws IOException {
+        while (!jsonParser.nextToken().isStructEnd()) {
+            if (jsonParser.getCurrentName() == TIMESTAMP) {
+                jsonParser.nextToken();
+                parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
+                break;
+            } else {
+                throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+            }
+        }
+
+        return parameters;
     }
 
     private void serializeTimestamp(OffsetDateTime timestamp, JsonGenerator jsonGenerator) throws IOException {

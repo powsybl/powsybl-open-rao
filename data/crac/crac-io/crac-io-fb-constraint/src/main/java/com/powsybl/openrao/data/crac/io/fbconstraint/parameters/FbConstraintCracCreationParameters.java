@@ -20,7 +20,7 @@ public class FbConstraintCracCreationParameters extends AbstractExtension<CracCr
 
     @Override
     public String getName() {
-        return "FbConstraintCracCreationParameters";
+        return "FbConstraintCracCreatorParameters";
     }
 
     public void setTimestamp(OffsetDateTime timestamp) {

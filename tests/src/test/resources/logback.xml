@@ -9,6 +9,6 @@
         <appender-ref ref="STDOUT" />
     </root>
     <logger name="com.powsybl" level="OFF"/>
-    <logger name="com.powsybl.openrao" level="INFO"/>
+    <logger name="com.powsybl.openrao" level="DEBUG"/>
 
 </configuration>
