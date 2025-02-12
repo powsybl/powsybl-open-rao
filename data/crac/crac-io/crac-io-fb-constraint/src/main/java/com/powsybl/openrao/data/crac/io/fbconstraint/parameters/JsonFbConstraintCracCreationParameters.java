@@ -50,7 +50,7 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
     @Override
     public FbConstraintCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FbConstraintCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName() == TIMESTAMP) {
+            if (jsonParser.getCurrentName().equals(TIMESTAMP)) {
                 jsonParser.nextToken();
                 parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
                 break;
