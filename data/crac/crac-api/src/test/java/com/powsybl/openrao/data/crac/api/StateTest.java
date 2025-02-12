@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.data.crac.api;
 
 import com.powsybl.contingency.Contingency;
@@ -14,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 class StateTest {
     private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 12, 14, 48, 0, 0, ZoneOffset.UTC);
     private final OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 12, 15, 48, 0, 0, ZoneOffset.UTC);
