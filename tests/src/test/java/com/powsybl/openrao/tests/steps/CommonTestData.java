@@ -41,6 +41,7 @@ import java.io.*;
 import java.time.OffsetDateTime;
 
 import static com.powsybl.openrao.tests.utils.Helpers.*;
+import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 
 public final class CommonTestData {
 
@@ -285,16 +286,13 @@ public final class CommonTestData {
             e.printStackTrace();
         }
 
-        // Add timestamp manually if no crac creation parameters file were given explicitly
+        OffsetDateTime offsetDateTime = null;
+        // Add timestamp manually if no crac creation parameters file were given explicitly but a timestamp is still needed
         if (timestamp != null && cracCreationParametersPath == null) {
-            addTimestampToCracCreationParameters(cracFormat, timestamp, cracCreationParameters);
-        }
-
-        OffsetDateTime offsetDateTime;
-        if (cracCreationParametersPath != null) {
-            offsetDateTime = importTimestampFromCracCreationParameters(cracFormat, cracCreationParameters);
-        } else {
             offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+            addTimestampToCracCreationParameters(cracFormat, offsetDateTime, cracCreationParameters);
+        } else if (cracCreationParametersPath != null) { //
+            offsetDateTime = importTimestampFromCracCreationParameters(cracFormat, cracCreationParameters);
         }
 
         // Crac
@@ -359,17 +357,20 @@ public final class CommonTestData {
         }
     }
 
-    private static void addTimestampToCracCreationParameters(String cracFormat, String timestamp, CracCreationParameters cracCreationParameters) {
+    private static void addTimestampToCracCreationParameters(String cracFormat, OffsetDateTime timestamp, CracCreationParameters cracCreationParameters) {
 
         if (cracFormat.equals("CimCrac")) {
-            cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
-            cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(getOffsetDateTimeFromBrusselsTimestamp(timestamp));
+            CimCracCreationParameters cimParams = new CimCracCreationParameters();
+            cimParams.setTimestamp(timestamp);
+            cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParams);
         } else if (cracFormat.equals("FlowBasedConstraintDocument")) {
-            cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, new FbConstraintCracCreationParameters());
-            cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(getOffsetDateTimeFromBrusselsTimestamp(timestamp));
+            FbConstraintCracCreationParameters fbConstraintParams = new FbConstraintCracCreationParameters();
+            fbConstraintParams.setTimestamp(timestamp);
+            cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParams);
         } else if (cracFormat.equals("CsaCrac")) {
-            cracCreationParameters.addExtension(CsaCracCreationParameters.class, new CsaCracCreationParameters());
-            cracCreationParameters.getExtension(CsaCracCreationParameters.class).setTimestamp(getOffsetDateTimeFromBrusselsTimestamp(timestamp));
+            CsaCracCreationParameters csaParams = new CsaCracCreationParameters();
+            csaParams.setTimestamp(timestamp);
+            cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParams);
         }
     }
 
