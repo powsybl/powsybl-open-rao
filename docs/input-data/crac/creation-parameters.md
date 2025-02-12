@@ -502,7 +502,7 @@ cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fb
 {
   "crac-factory" : "CracImplFactory",
   "extensions" : {
-    "FbConstraintCracCreatorParameters" : {
+    "FbConstraintCracCreationParameters" : {
       "timestamp": "2019-01-08T12:00+02:00"
     }
   }
