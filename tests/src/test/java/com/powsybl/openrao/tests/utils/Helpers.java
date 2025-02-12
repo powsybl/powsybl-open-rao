@@ -58,7 +58,7 @@ public final class Helpers {
 
     public static Pair<Crac, CracCreationContext> importCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) throws IOException {
         if (cracFile.getName().endsWith(".json")) {
-            // for now, the only JSON format is the farao internal format
+            // for now, the only JSON format is the open rao internal format
             return Pair.of(importCracFromInternalFormat(cracFile, network), null);
         } else {
             CracCreationContext ccc = importCracFromNativeCrac(cracFile, network, timestamp, cracCreationParameters);

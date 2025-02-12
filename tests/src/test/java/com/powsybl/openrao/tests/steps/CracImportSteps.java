@@ -63,7 +63,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CracImportSteps {
 
     private static final double DOUBLE_TOLERANCE = 1e-1;
-    private static final String NOT_IMPLEMENTED_JSON = "This step is not implemented for farao-native crac import";
+    private static final String NOT_IMPLEMENTED_JSON = "This step is not implemented for open-rao-native crac import";
     private static final String NOT_IMPLEMENTED_FB = "This step is not implemented for FbConstraintCreationContext";
     private static final String TYPE_NOT_HANDLED = "%s type is not handled";
     private Crac crac;
