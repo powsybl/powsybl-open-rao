@@ -158,7 +158,9 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     }
 
     private void serializeTimestamp(OffsetDateTime timestamp, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField(TIMESTAMP, timestamp.toString());
+        if (timestamp != null) {
+            jsonGenerator.writeStringField(TIMESTAMP, timestamp.toString());
+        }
     }
 
     @Override
