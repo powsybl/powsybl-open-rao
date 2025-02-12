@@ -389,6 +389,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         return roundedResult;
     }
 
+    // TODO: check that this does not violate gradient constraints
     static void roundOtherRas(RangeActionActivationResult linearProblemResult,
                               OptimizationPerimeter optimizationContext,
                               RangeActionActivationResultImpl roundedResult) {
