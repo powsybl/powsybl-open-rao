@@ -1,4 +1,9 @@
 {
   "crac-factory": "CracImplFactory",
-  "default-monitored-line-side" : "monitor-lines-on-side-one"
+  "default-monitored-line-side" : "monitor-lines-on-side-one",
+  "extensions": {
+    "CimCracCreatorParameters": {
+      "timestamp": "2021-04-02T05:00+02:00"
+    }
+  }
 }
