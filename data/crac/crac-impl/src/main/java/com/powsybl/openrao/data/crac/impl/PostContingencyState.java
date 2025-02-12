@@ -32,8 +32,7 @@ public class PostContingencyState implements State {
         if (instant.isPreventive()) {
             throw new OpenRaoException("Instant cannot be preventive");
         }
-        String baseId = contingency.getId() + " - " + instant.getId();
-        this.id = timestamp == null ? baseId : baseId + " - " + timestamp.format(DATE_TIME_FORMATTER);
+        this.id = StateIdHelper.getStateId(contingency, instant, timestamp);
         this.contingency = contingency;
         this.instant = instant;
         this.timestamp = timestamp;

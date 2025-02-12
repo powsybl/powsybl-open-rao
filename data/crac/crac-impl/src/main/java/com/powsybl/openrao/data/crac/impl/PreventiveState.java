@@ -22,6 +22,7 @@ public class PreventiveState implements State {
 
     private final Instant instant;
     private final OffsetDateTime timestamp;
+    private final String id;
 
     PreventiveState(Instant instant, OffsetDateTime timestamp) {
         if (!instant.isPreventive()) {
@@ -29,11 +30,12 @@ public class PreventiveState implements State {
         }
         this.instant = instant;
         this.timestamp = timestamp;
+        this.id = StateIdHelper.getStateId(instant, timestamp);
     }
 
     @Override
     public String getId() {
-        return instant.getId();
+        return id;
     }
 
     @Override
