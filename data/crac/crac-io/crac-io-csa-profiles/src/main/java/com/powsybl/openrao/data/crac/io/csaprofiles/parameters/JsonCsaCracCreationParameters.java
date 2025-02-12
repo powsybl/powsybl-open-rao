@@ -17,6 +17,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,6 +38,7 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
     private static final String BORDERS = "borders";
     private static final String EIC = "eic";
     private static final String DEFAULT_FOR_TSO = "default-for-tso";
+    private static final String TIMESTAMP = "timestamp";
 
     @Override
     public void serialize(CsaCracCreationParameters csaParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -46,6 +48,7 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
         serializeTsosWhichDoNotUsePatlInFinalState(csaParameters.getTsosWhichDoNotUsePatlInFinalState(), jsonGenerator);
         serializeCurativeInstants(csaParameters.getCurativeInstants(), jsonGenerator);
         serializeBorders(csaParameters.getBorders(), jsonGenerator);
+        serializeTimestamp(csaParameters.getTimestamp(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -72,6 +75,10 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
                 case BORDERS:
                     jsonParser.nextToken();
                     parameters.setBorders(deserializeBorders(jsonParser));
+                    break;
+                case TIMESTAMP:
+                    jsonParser.nextToken();
+                    parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
                     break;
                 default:
                     throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -148,6 +155,10 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
             }
         });
         jsonGenerator.writeEndArray();
+    }
+
+    private void serializeTimestamp(OffsetDateTime timestamp, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStringField(TIMESTAMP, timestamp.toString());
     }
 
     @Override
