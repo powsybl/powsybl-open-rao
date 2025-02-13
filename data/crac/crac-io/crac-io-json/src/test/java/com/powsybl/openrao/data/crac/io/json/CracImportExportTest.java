@@ -6,16 +6,12 @@
  */
 package com.powsybl.openrao.data.crac.io.json;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.action.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -41,17 +37,18 @@ import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
 import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.FORCED;
+import static com.powsybl.openrao.data.crac.io.json.RoundTripUtil.implicitJsonRoundTrip;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -102,7 +99,7 @@ class CracImportExportTest {
     @Test
     void implicitJsonRoundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
-        Crac importedCrac = RoundTripUtil.implicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+        Crac importedCrac = implicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
         checkContent(importedCrac);
     }
 
@@ -110,6 +107,10 @@ class CracImportExportTest {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
         Instant curativeInstant = crac.getInstant("curative");
+
+        // check timestamp
+        assertTrue(crac.getTimestamp().isPresent());
+        assertEquals(OffsetDateTime.of(2025, 2, 3, 10, 12, 0, 0, ZoneOffset.UTC), crac.getTimestamp().get());
 
         // check overall content
         assertNotNull(crac);
@@ -525,19 +526,18 @@ class CracImportExportTest {
         Network network = Mockito.mock(Network.class);
         Crac crac = Crac.read("emptyCrac.json", CracImportExportTest.class.getResourceAsStream("/emptyCrac.json"), network);
         assertNotNull(crac);
+
+        // round-trip
+        Crac roundTripCrac = implicitJsonRoundTrip(crac, network);
+        assertTrue(roundTripCrac.getTimestamp().isEmpty());
+        assertTrue(roundTripCrac.getContingencies().isEmpty());
+        assertTrue(roundTripCrac.getRemedialActions().isEmpty());
+        assertTrue(roundTripCrac.getCnecs().isEmpty());
     }
 
     @Test
     void testImportCracWithErrors() {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("cracWithErrors.json", CracImportExportTest.class.getResourceAsStream("/cracWithErrors.json")));
         assertEquals("JSON file is not a valid CRAC v2.5. Reasons: /instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]; /contingencies/1/networkElementsIds/0: integer found, string expected; /contingencies/1/networkElementsIds/1: integer found, string expected; /contingencies/2: required property 'networkElementsIds' not found", exception.getMessage());
-    }
-
-    private static ListAppender<ILoggingEvent> initLogger() {
-        Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
-        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-        listAppender.start();
-        logger.addAppender(listAppender);
-        return listAppender;
     }
 }

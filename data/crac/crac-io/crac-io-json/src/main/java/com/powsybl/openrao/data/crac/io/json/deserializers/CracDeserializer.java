@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             return null;
         }
 
-        // get id and name
+        // get id, name and timestamp
         scrollJsonUntilField(jsonParser, JsonSerializationConstants.ID);
         String id = jsonParser.nextTextValue();
         jsonParser.nextToken();
@@ -69,7 +70,15 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             throw new OpenRaoException(String.format("The JSON Crac must contain a %s field after the %s field", JsonSerializationConstants.NAME, JsonSerializationConstants.ID));
         }
         String name = jsonParser.nextTextValue();
-        Crac crac = cracFactory.create(id, name);
+        JsonToken nextToken = jsonParser.nextToken();
+        OffsetDateTime timestamp;
+        if (jsonParser.getCurrentName().equals(JsonSerializationConstants.TIMESTAMP)) {
+            timestamp = OffsetDateTime.parse(jsonParser.nextTextValue());
+            nextToken = jsonParser.nextToken();
+        } else {
+            timestamp = null;
+        }
+        Crac crac = cracFactory.create(id, name, timestamp);
         if (JsonSerializationConstants.getPrimaryVersionNumber(version) < 2) {
             crac.newInstant("preventive", InstantKind.PREVENTIVE)
                 .newInstant("outage", InstantKind.OUTAGE)
@@ -80,7 +89,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         Map<String, String> deserializedNetworkElementsNamesPerId = null;
 
         // deserialize the following lines of the Crac
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+        while (nextToken != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
                 case JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID:
                     jsonParser.nextToken();
@@ -150,6 +159,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                 default:
                     throw new OpenRaoException("Unexpected field in Crac: " + jsonParser.getCurrentName());
             }
+            nextToken = jsonParser.nextToken();
         }
         return crac;
     }

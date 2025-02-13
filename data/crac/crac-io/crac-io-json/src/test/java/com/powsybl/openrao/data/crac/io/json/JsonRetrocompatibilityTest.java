@@ -41,6 +41,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -354,7 +356,17 @@ class JsonRetrocompatibilityTest {
 
         Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
         assertEquals(7, crac.getNetworkActions().size());
+        assertTrue(crac.getTimestamp().isEmpty());
         testContentOfV2Point6Crac(crac);
+    }
+
+    @Test
+    void importV2Point7Test() {
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.7.json");
+
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
+        assertEquals(7, crac.getNetworkActions().size());
+        testContentOfV2Point7Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -877,5 +889,12 @@ class JsonRetrocompatibilityTest {
         assertTrue(crac.getRangeAction("injectionRange1Id").getVariationCost(VariationDirection.DOWN).isEmpty());
         assertEquals(Optional.of(15000.0), crac.getRangeAction("counterTradeRange1Id").getVariationCost(VariationDirection.UP));
         assertEquals(Optional.of(18000.0), crac.getRangeAction("counterTradeRange1Id").getVariationCost(VariationDirection.DOWN));
+    }
+
+    private void testContentOfV2Point7Crac(Crac crac) {
+        testContentOfV2Point6Crac(crac);
+        Optional<OffsetDateTime> timestamp = crac.getTimestamp();
+        assertTrue(timestamp.isPresent());
+        assertEquals(OffsetDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), timestamp.get());
     }
 }

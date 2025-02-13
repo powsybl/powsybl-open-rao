@@ -31,9 +31,11 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -47,6 +49,10 @@ public final class MockCrac implements Crac {
     public MockCrac(String id) {
         this.id = id;
         this.wasExportSuccessful = false;
+    }
+
+    public Optional<OffsetDateTime> getTimestamp() {
+        return Optional.empty();
     }
 
     public void setExportSuccessful() {

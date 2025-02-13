@@ -8,7 +8,9 @@
 package com.powsybl.openrao.data.crac.api;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.commons.OpenRaoException;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 /**
@@ -39,6 +41,11 @@ public interface State extends Comparable<State> {
     Optional<Contingency> getContingency();
 
     /**
+     * Get the timestamp of the state. It is the same as the CRAC's
+     */
+    Optional<OffsetDateTime> getTimestamp();
+
+    /**
      * Returns a boolean indicating whether the state is the preventive one
      */
     default boolean isPreventive() {
@@ -47,6 +54,14 @@ public interface State extends Comparable<State> {
 
     @Override
     default int compareTo(State state) {
-        return getInstant().getOrder() - state.getInstant().getOrder();
+        if (state.getTimestamp().equals(getTimestamp())) {
+            return getInstant().getOrder() - state.getInstant().getOrder();
+        }
+        Optional<OffsetDateTime> timestamp = getTimestamp();
+        Optional<OffsetDateTime> otherTimestamp = state.getTimestamp();
+        if (timestamp.isEmpty() || otherTimestamp.isEmpty()) {
+            throw new OpenRaoException("Cannot compare states with no timestamp");
+        }
+        return timestamp.get().compareTo(otherTimestamp.get());
     }
 }

@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,6 +50,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeStringField(JsonSerializationConstants.INFO, JsonSerializationConstants.CRAC_INFO);
         gen.writeStringField(JsonSerializationConstants.ID, crac.getId());
         gen.writeStringField(JsonSerializationConstants.NAME, crac.getName());
+        serializeTimestamp(crac, gen);
 
         serializeInstants(crac, gen);
         serializeRaUsageLimits(crac, gen);
@@ -65,6 +68,13 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         JsonUtil.writeExtensions(crac, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
 
         gen.writeEndObject();
+    }
+
+    private static void serializeTimestamp(Crac crac, JsonGenerator gen) throws IOException {
+        Optional<OffsetDateTime> timestamp = crac.getTimestamp();
+        if (timestamp.isPresent()) {
+            gen.writeStringField(JsonSerializationConstants.TIMESTAMP, timestamp.get().format(DateTimeFormatter.ISO_DATE_TIME));
+        }
     }
 
     private void serializeRaUsageLimits(Crac crac, JsonGenerator gen) throws IOException {
