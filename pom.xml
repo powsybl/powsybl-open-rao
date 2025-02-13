@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>powsybl-open-rao</artifactId>
-    <version>6.3.0-SNAPSHOT</version>
+    <version>6.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Open RAO</name>
@@ -75,7 +75,6 @@
     <properties>
         <!-- Project properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
         <java.version>17</java.version>
 
         <!-- Sonar properties -->
