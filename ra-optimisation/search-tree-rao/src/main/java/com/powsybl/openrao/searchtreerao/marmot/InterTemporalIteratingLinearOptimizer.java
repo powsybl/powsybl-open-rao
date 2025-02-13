@@ -222,6 +222,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     private static void updateLinearProblemBetweenSensiComputations(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, InterTemporalIteratingLinearOptimizationResult optimizationResult) {
+        linearProblem.reset();
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
             List<ProblemFiller> problemFillersForTimestamp = problemFillers.getData(timestamp).orElseThrow();

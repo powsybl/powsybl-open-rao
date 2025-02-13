@@ -9,7 +9,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
-import com.powsybl.openrao.raoapi.json.extensions.JsonOpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +36,8 @@ class MarmotTest {
             Set.of(new PowerGradient("FFR1AA1 _generator", -1000d, 1000d))
         );
 
+        // first RAOs shift tap to -5 for a cost of 55 each
+        // MARMOT should also move the tap to -5 for both timestamps with a total cost of 110
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
     }
 }

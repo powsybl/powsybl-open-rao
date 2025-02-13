@@ -93,6 +93,10 @@ public final class LinearProblem {
         this.solver.setMinimization();
     }
 
+    public void reset() {
+        solver.resetModel();
+    }
+
     public List<ProblemFiller> getFillers() {
         return fillerList;
     }
