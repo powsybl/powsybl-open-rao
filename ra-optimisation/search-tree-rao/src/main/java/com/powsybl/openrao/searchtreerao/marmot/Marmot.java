@@ -103,24 +103,14 @@ public class Marmot implements InterTemporalRaoProvider {
         // Connexion des Filler
 
         // -- BUILD OBJECTIVE FUNCTION
-        Set<FlowCnec> preventiveFlowCnecsForAllTimestamps = new HashSet<>();
-        raoInput.getRaoInputs().getDataPerTimestamp().entrySet().stream().map(Map.Entry::getValue).map(RaoInput::getCrac).filter(crac -> preventiveFlowCnecsForAllTimestamps.addAll(crac.getFlowCnecs(crac.getPreventiveState())));
-        Set<FlowCnec> preventiveLoopFlowCnecsForAllTimestamps = Collections.emptySet();
-        // Only used in costly to fetch activated range actions
-        Set<State> statesToOptimize = new HashSet<>();
 
         InterTemporalPrePerimeterResult interTemporalPrePerimeterResult = new InterTemporalPrePerimeterResult(prePerimeterResults);
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(preventiveFlowCnecsForAllTimestamps,
-            preventiveLoopFlowCnecsForAllTimestamps,
-            interTemporalPrePerimeterResult,
-            interTemporalPrePerimeterResult,
-            Collections.emptySet(),
-            parameters,
-            statesToOptimize);
+        ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), interTemporalPrePerimeterResult, parameters);
 
         // TODO : withRaActivationFromParentLeaf not defined, check this is ok
         // TODO : withAppliedNetworkActionsInPrimaryState not defined, check this is ok
         // TODO : withOutageInstant : why not directly write integer value (in this case, not a paremeter)
+        // no objective function defined in individual IteratingLinearOptimizerInputs as it is global
 
         // -- BUILD IteratingLinearOptimizerInterTemporalInput
         TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac));
@@ -135,12 +125,10 @@ public class Marmot implements InterTemporalRaoProvider {
             .withPrePerimeterSetpoints(prePerimeterResults.getData(timestamp).orElseThrow())
             .withPreOptimizationSensitivityResult(prePerimeterResults.getData(timestamp).orElseThrow())
             .withPreOptimizationAppliedRemedialActions(new AppliedRemedialActions())
-            // TODO: see how not to duplicate the objective function
-            .withObjectiveFunction(objectiveFunction)
             .withToolProvider(ToolProvider.buildFromRaoInputAndParameters(raoInput.getRaoInputs().getData(timestamp).orElseThrow(), parameters))
             .withOutageInstant(raoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getOutageInstant())
             .build()));
-        InterTemporalIteratingLinearOptimizerInput interTemporalLinearOptimizerInput = new InterTemporalIteratingLinearOptimizerInput(new TemporalDataImpl<>(linearOptimizerInputPerTimestamp), raoInput.getPowerGradients());
+        InterTemporalIteratingLinearOptimizerInput interTemporalLinearOptimizerInput = new InterTemporalIteratingLinearOptimizerInput(new TemporalDataImpl<>(linearOptimizerInputPerTimestamp), objectiveFunction, raoInput.getPowerGradients());
 
         // build parameters
         IteratingLinearOptimizerParameters.LinearOptimizerParametersBuilder linearOptimizerParametersBuilder = IteratingLinearOptimizerParameters.create()
@@ -157,15 +145,7 @@ public class Marmot implements InterTemporalRaoProvider {
         parameters.getLoopFlowParameters().ifPresent(linearOptimizerParametersBuilder::withLoopFlowParameters);
         IteratingLinearOptimizerParameters linearOptimizerParameters = linearOptimizerParametersBuilder.build();
 
-        // TODO include work done on ProblemFillerHelper, taking into account LinearProblemBuilder functionalities :
-        // default method for non intertemporal, and for intertemporal deduce from parameters and input necessary fillers
-        // au final : no new class for LinearBuilder
-
-        InterTemporalIteratingLinearOptimizer.optimize(interTemporalLinearOptimizerInput, linearOptimizerParameters);
-
-        // TODO : create pseudo Leaf class fetching results from optimize in pair programming
-
-        return new TemporalDataImpl<>();
+        return InterTemporalIteratingLinearOptimizer.optimize(interTemporalLinearOptimizerInput, linearOptimizerParameters).getResultPerTimestamp();
     }
 
     private static TemporalData<OptimizationPerimeter> computeOptimizationPerimetersPerTimestamp(TemporalData<Crac> cracs) {
@@ -183,6 +163,21 @@ public class Marmot implements InterTemporalRaoProvider {
     private static TemporalData<RaoResult> mergeTopologicalAndLinearOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> prePerimeterResults, TemporalData<LinearOptimizationResult> linearOptimizationResults, TemporalData<RaoResult> topologicalOptimizationResults) {
         // TODO: add curative RAs (range action and topological)
         return getPostOptimizationResults(raoInputs, prePerimeterResults, linearOptimizationResults, topologicalOptimizationResults).map(PostOptimizationResult::merge);
+    }
+
+    private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, InterTemporalPrePerimeterResult interTemporalPrePerimeterResult, RaoParameters raoParameters) {
+        Set<FlowCnec> allFlowCnecs = new HashSet<>();
+        cracs.map(MarmotUtils::getPreventivePerimeterCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
+
+        Set<State> allOptimizedStates = new HashSet<>(cracs.map(Crac::getPreventiveState).getDataPerTimestamp().values());
+
+        return ObjectiveFunction.build(allFlowCnecs,
+            new HashSet<>(), // no loop flows for now
+            interTemporalPrePerimeterResult,
+            interTemporalPrePerimeterResult,
+            Collections.emptySet(),
+            raoParameters,
+            allOptimizedStates);
     }
 
     @Override

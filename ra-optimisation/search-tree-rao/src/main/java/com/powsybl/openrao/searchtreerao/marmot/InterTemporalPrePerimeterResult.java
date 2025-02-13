@@ -141,7 +141,6 @@ public class InterTemporalPrePerimeterResult implements SensitivityResult, FlowR
     }
 
     private PrePerimeterResult getPrePerimeterFromState(State state) {
-        // TODO: use state's timestamp when dedicated PR is merged
-        return systematicSensitivityResults.getDataPerTimestamp().values().iterator().next();
+        return systematicSensitivityResults.getData(state.getTimestamp().orElseThrow()).orElseThrow();
     }
 }

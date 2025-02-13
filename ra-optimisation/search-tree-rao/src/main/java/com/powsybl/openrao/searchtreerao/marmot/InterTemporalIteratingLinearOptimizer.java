@@ -59,14 +59,11 @@ public final class InterTemporalIteratingLinearOptimizer {
 
         // 1. Initialize best result using input data
 
-        // TODO: keep using temporal data
-        ObjectiveFunction objectiveFunction = input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().iterator().next().objectiveFunction();
-
         InterTemporalIteratingLinearOptimizationResult bestResult = createInitialResult(
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterFlowResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints).map(RangeActionActivationResultImpl::new),
-            objectiveFunction
+            input.objectiveFunction()
         );
         InterTemporalIteratingLinearOptimizationResult previousResult = bestResult;
 
@@ -151,7 +148,7 @@ public final class InterTemporalIteratingLinearOptimizer {
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
                 rangeActionActivationPerTimestamp,
                 iteration,
-                objectiveFunction
+                input.objectiveFunction()
             );
             previousResult = newResult;
 
