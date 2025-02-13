@@ -18,6 +18,8 @@ import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,7 +60,7 @@ public final class ExhaustiveCracCreation {
 
     public static Crac create(CracFactory cracFactory) {
 
-        Crac crac = cracFactory.create("exhaustiveCracId", "exhaustiveCracName")
+        Crac crac = cracFactory.create("exhaustiveCracId", "exhaustiveCracName", OffsetDateTime.of(2025, 2, 3, 10, 12, 0, 0, ZoneOffset.UTC))
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
             .newInstant(OUTAGE_INSTANT_ID, InstantKind.OUTAGE)
             .newInstant(AUTO_INSTANT_ID, InstantKind.AUTO)

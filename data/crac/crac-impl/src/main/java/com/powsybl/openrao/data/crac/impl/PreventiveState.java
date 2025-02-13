@@ -12,6 +12,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 /**
@@ -20,17 +21,21 @@ import java.util.Optional;
 public class PreventiveState implements State {
 
     private final Instant instant;
+    private final OffsetDateTime timestamp;
+    private final String id;
 
-    PreventiveState(Instant instant) {
+    PreventiveState(Instant instant, OffsetDateTime timestamp) {
         if (!instant.isPreventive()) {
             throw new OpenRaoException("Instant must be preventive");
         }
         this.instant = instant;
+        this.timestamp = timestamp;
+        this.id = StateIdHelper.getStateId(instant, timestamp);
     }
 
     @Override
     public String getId() {
-        return instant.getId();
+        return id;
     }
 
     @Override
@@ -41,6 +46,11 @@ public class PreventiveState implements State {
     @Override
     public Optional<Contingency> getContingency() {
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<OffsetDateTime> getTimestamp() {
+        return Optional.ofNullable(timestamp);
     }
 
     @Override
