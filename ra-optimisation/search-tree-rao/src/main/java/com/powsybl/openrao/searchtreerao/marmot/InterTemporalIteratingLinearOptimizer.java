@@ -89,7 +89,6 @@ public final class InterTemporalIteratingLinearOptimizer {
             // a. Solve linear problem
 
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
-            bestResult.setNbOfIteration(iteration);
 
             // b. Check linear problem status and return best result if not FEASIBLE not OPTIMAL
 
@@ -147,7 +146,6 @@ public final class InterTemporalIteratingLinearOptimizer {
                 sensitivityComputers,
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
                 rangeActionActivationPerTimestamp,
-                iteration,
                 input.objectiveFunction()
             );
             previousResult = newResult;
@@ -292,24 +290,16 @@ public final class InterTemporalIteratingLinearOptimizer {
     // Result management
 
     private static InterTemporalIteratingLinearOptimizationResult createInitialResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivations, ObjectiveFunction objectiveFunction) {
-        return new InterTemporalIteratingLinearOptimizationResult(LinearProblemStatus.OPTIMAL, 0, flowResults, sensitivityResults, rangeActionActivations, objectiveFunction);
+        return new InterTemporalIteratingLinearOptimizationResult(LinearProblemStatus.OPTIMAL, flowResults, sensitivityResults, rangeActionActivations, objectiveFunction);
     }
 
-    private static InterTemporalIteratingLinearOptimizationResult createResultFromData(TemporalData<SensitivityComputer> sensitivityComputers, TemporalData<Network> networks, TemporalData<RangeActionActivationResult> rangeActionActivation, int nbOfIterations, ObjectiveFunction objectiveFunction) {
+    private static InterTemporalIteratingLinearOptimizationResult createResultFromData(TemporalData<SensitivityComputer> sensitivityComputers, TemporalData<Network> networks, TemporalData<RangeActionActivationResult> rangeActionActivation, ObjectiveFunction objectiveFunction) {
         Map<OffsetDateTime, FlowResult> flowResults = new HashMap<>();
         for (OffsetDateTime timestamp : sensitivityComputers.getTimestamps()) {
             FlowResult flowResult = sensitivityComputers.getData(timestamp).orElseThrow().getBranchResult(networks.getData(timestamp).orElseThrow());
             flowResults.put(timestamp, flowResult);
         }
-        return new InterTemporalIteratingLinearOptimizationResult(LinearProblemStatus.OPTIMAL, nbOfIterations, new TemporalDataImpl<>(flowResults), sensitivityComputers.map(SensitivityComputer::getSensitivityResult), rangeActionActivation, objectiveFunction);
-    }
-
-    private static double computeTotalCost(InterTemporalIteratingLinearOptimizationResult result) {
-        return result.getResultPerTimestamp().map(LinearOptimizationResult::getCost).getDataPerTimestamp().values().stream().mapToDouble(v -> v).sum();
-    }
-
-    private static double computeTotalFunctionalCost(InterTemporalIteratingLinearOptimizationResult result) {
-        return result.getResultPerTimestamp().map(LinearOptimizationResult::getFunctionalCost).getDataPerTimestamp().values().stream().mapToDouble(v -> v).sum();
+        return new InterTemporalIteratingLinearOptimizationResult(LinearProblemStatus.OPTIMAL, new TemporalDataImpl<>(flowResults), sensitivityComputers.map(SensitivityComputer::getSensitivityResult), rangeActionActivation, objectiveFunction);
     }
 
     // Set-point rounding
@@ -343,18 +333,18 @@ public final class InterTemporalIteratingLinearOptimizer {
         TECHNICAL_LOGS.info(
             "Iteration {}: better solution found with a cost of {} (functional: {})",
             iteration,
-            formatDouble(computeTotalCost(result)),
-            formatDouble(computeTotalFunctionalCost(result)));
+            formatDouble(result.getGlobalObjectiveFunctionResult().getCost()),
+            formatDouble(result.getGlobalObjectiveFunctionResult().getFunctionalCost()));
     }
 
     private static void logWorseResult(int iteration, InterTemporalIteratingLinearOptimizationResult bestResult, InterTemporalIteratingLinearOptimizationResult currentResult) {
         TECHNICAL_LOGS.info(
             "Iteration {}: linear optimization found a worse result than best iteration, with a cost increasing from {} to {} (functional: from {} to {})",
             iteration,
-            formatDouble(computeTotalCost(bestResult)),
-            formatDouble(computeTotalCost(currentResult)),
-            formatDouble(computeTotalFunctionalCost(bestResult)),
-            formatDouble(computeTotalFunctionalCost(currentResult)));
+            formatDouble(bestResult.getGlobalObjectiveFunctionResult().getCost()),
+            formatDouble(currentResult.getGlobalObjectiveFunctionResult().getCost()),
+            formatDouble(bestResult.getGlobalObjectiveFunctionResult().getFunctionalCost()),
+            formatDouble(currentResult.getGlobalObjectiveFunctionResult().getFunctionalCost()));
     }
 
     private static String formatDouble(double value) {
@@ -445,7 +435,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     private static Pair<InterTemporalIteratingLinearOptimizationResult, Boolean> updateBestResultAndCheckStopCondition(boolean raRangeShrinking, LinearProblem linearProblem, InterTemporalIteratingLinearOptimizerInput input, int iteration, InterTemporalIteratingLinearOptimizationResult currentResult, InterTemporalIteratingLinearOptimizationResult bestResult, TemporalData<List<ProblemFiller>> problemFillers) {
-        if (computeTotalCost(currentResult) < computeTotalCost(bestResult)) {
+        if (currentResult.getGlobalObjectiveFunctionResult().getCost() < bestResult.getGlobalObjectiveFunctionResult().getCost()) {
             logBetterResult(iteration, currentResult);
             updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, currentResult);
             return Pair.of(currentResult, false);

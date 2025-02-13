@@ -66,4 +66,8 @@ public final class MarmotUtils {
         timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), linearOptimizationResults.getData(timestamp).orElseThrow(), topologicalOptimizationResults.getData(timestamp).orElseThrow())));
         return new TemporalDataImpl<>(postOptimizationResults);
     }
+
+    public static <T> T getDataFromState(TemporalData<T> temporalData, State state) {
+        return temporalData.getData(state.getTimestamp().orElseThrow()).orElseThrow();
+    }
 }

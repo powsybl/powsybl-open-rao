@@ -13,6 +13,7 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -31,14 +32,13 @@ import java.util.Set;
  */
 public class InterTemporalIteratingLinearOptimizationResult {
     private LinearProblemStatus status;
-    private int nbOfIteration;
-    private TemporalData<LinearOptimizationResult> resultPerTimestamp;
-    // TODO: ObjectiveFunctionResult that computes for all TS
+    private final TemporalData<LinearOptimizationResult> resultPerTimestamp;
+    private final ObjectiveFunctionResult globalObjectiveFunctionResult;
 
-    public InterTemporalIteratingLinearOptimizationResult(LinearProblemStatus status, int nbOfIteration, TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResult, TemporalData<RangeActionActivationResult> rangeActionActivation, ObjectiveFunction objectiveFunction) {
+    public InterTemporalIteratingLinearOptimizationResult(LinearProblemStatus status, TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResult, TemporalData<RangeActionActivationResult> rangeActionActivation, ObjectiveFunction objectiveFunction) {
         this.status = status;
-        this.nbOfIteration = nbOfIteration;
         this.resultPerTimestamp = mergeFlowSensitivityAndRangeActionResults(flowResults, sensitivityResult, rangeActionActivation, objectiveFunction, status);
+        this.globalObjectiveFunctionResult = evaluateGlobalObjectiveFunction(objectiveFunction, flowResults, rangeActionActivation.map(rangeActionActivationResult -> new RemedialActionActivationResultImpl(rangeActionActivationResult, new NetworkActionsResultImpl(Set.of()))));
     }
 
     public void setStatus(LinearProblemStatus status) {
@@ -49,12 +49,12 @@ public class InterTemporalIteratingLinearOptimizationResult {
         return status;
     }
 
-    public void setNbOfIteration(int nbOfIteration) {
-        this.nbOfIteration = nbOfIteration;
-    }
-
     public TemporalData<LinearOptimizationResult> getResultPerTimestamp() {
         return resultPerTimestamp;
+    }
+
+    public ObjectiveFunctionResult getGlobalObjectiveFunctionResult() {
+        return globalObjectiveFunctionResult;
     }
 
     private static TemporalData<LinearOptimizationResult> mergeFlowSensitivityAndRangeActionResults(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
@@ -64,10 +64,15 @@ public class InterTemporalIteratingLinearOptimizationResult {
             FlowResult flowResult = flowResults.getData(timestamp).orElseThrow();
             SensitivityResult sensitivityResult = sensitivityResults.getData(timestamp).orElseThrow();
             RangeActionActivationResult rangeActionActivationResult = rangeActionActivationResults.getData(timestamp).orElseThrow();
-            RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(rangeActionActivationResult, new NetworkActionsResultImpl(Set.of()));
-            LinearOptimizationResult linearOptimizationResult = new LinearOptimizationResultImpl(flowResult, sensitivityResult, rangeActionActivationResult, objectiveFunction.evaluate(flowResult, remedialActionActivationResult), status);
+            LinearOptimizationResult linearOptimizationResult = new LinearOptimizationResultImpl(flowResult, sensitivityResult, rangeActionActivationResult, null, status);
             linearOptimizationResults.put(timestamp, linearOptimizationResult);
         }
         return new TemporalDataImpl<>(linearOptimizationResults);
+    }
+
+    private static ObjectiveFunctionResult evaluateGlobalObjectiveFunction(ObjectiveFunction objectiveFunction, TemporalData<FlowResult> flowResults, TemporalData<RemedialActionActivationResult> remedialActionActivationResults) {
+        FlowResult globalFlowResult = new GlobalFlowResult(flowResults);
+        RemedialActionActivationResult globalRemedialActionActivationResult = new GlobalRemedialActionActivationResult(remedialActionActivationResults);
+        return objectiveFunction.evaluate(globalFlowResult, globalRemedialActionActivationResult);
     }
 }

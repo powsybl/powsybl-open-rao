@@ -60,7 +60,7 @@ public class InterTemporalPrePerimeterResult implements SensitivityResult, FlowR
 
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
-        return getPrePerimeterFromState(state).getSensitivityStatus(state);
+        return getPrePerimeterResult(state).getSensitivityStatus(state);
     }
 
     @Override
@@ -72,37 +72,37 @@ public class InterTemporalPrePerimeterResult implements SensitivityResult, FlowR
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
-        return getPrePerimeterFromState(flowCnec.getState()).getSensitivityValue(flowCnec, side, rangeAction, unit);
+        return getPrePerimeterResult(flowCnec).getSensitivityValue(flowCnec, side, rangeAction, unit);
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
-        return getPrePerimeterFromState(flowCnec.getState()).getSensitivityValue(flowCnec, side, linearGlsk, unit);
+        return getPrePerimeterResult(flowCnec).getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
 
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return getPrePerimeterFromState(flowCnec.getState()).getFlow(flowCnec, side, unit);
+        return getPrePerimeterResult(flowCnec).getFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant optimizedInstant) {
-        return getPrePerimeterFromState(flowCnec.getState()).getFlow(flowCnec, side, unit, optimizedInstant);
+        return getPrePerimeterResult(flowCnec).getFlow(flowCnec, side, unit, optimizedInstant);
     }
 
     @Override
     public double getMargin(FlowCnec flowCnec, Unit unit) {
-        return getPrePerimeterFromState(flowCnec.getState()).getMargin(flowCnec, unit);
+        return getPrePerimeterResult(flowCnec).getMargin(flowCnec, unit);
     }
 
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return getPrePerimeterFromState(flowCnec.getState()).getCommercialFlow(flowCnec, side, unit);
+        return getPrePerimeterResult(flowCnec).getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
-        return getPrePerimeterFromState(flowCnec.getState()).getPtdfZonalSum(flowCnec, side);
+        return getPrePerimeterResult(flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
@@ -137,10 +137,14 @@ public class InterTemporalPrePerimeterResult implements SensitivityResult, FlowR
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        return getPrePerimeterFromState(state).getComputationStatus(state);
+        return getPrePerimeterResult(state).getComputationStatus(state);
     }
 
-    private PrePerimeterResult getPrePerimeterFromState(State state) {
+    private PrePerimeterResult getPrePerimeterResult(FlowCnec flowCnec) {
+        return getPrePerimeterResult(flowCnec.getState());
+    }
+
+    private PrePerimeterResult getPrePerimeterResult(State state) {
         return systematicSensitivityResults.getData(state.getTimestamp().orElseThrow()).orElseThrow();
     }
 }
