@@ -22,28 +22,28 @@ class PreventiveStateTest {
 
     @Test
     void testEqualsForPreventive() {
-        PreventiveState state1 = new PreventiveState(PREVENTIVE_INSTANT);
-        PreventiveState state2 = new PreventiveState(PREVENTIVE_INSTANT);
+        PreventiveState state1 = new PreventiveState(PREVENTIVE_INSTANT, null);
+        PreventiveState state2 = new PreventiveState(PREVENTIVE_INSTANT, null);
 
         assertEquals(state1, state2);
     }
 
     @Test
     void testHashCodeForPreventive() {
-        PreventiveState state = new PreventiveState(PREVENTIVE_INSTANT);
+        PreventiveState state = new PreventiveState(PREVENTIVE_INSTANT, null);
         assertEquals("preventive".hashCode(), state.hashCode());
     }
 
     @Test
     void testToStringForPreventive() {
-        PreventiveState state = new PreventiveState(PREVENTIVE_INSTANT);
+        PreventiveState state = new PreventiveState(PREVENTIVE_INSTANT, null);
         assertEquals("preventive", state.toString());
     }
 
     @Test
     void testCannotCreatePreventiveStateWithNonPreventiveInstant() {
         Instant instant = new InstantImpl("my instant", InstantKind.OUTAGE, PREVENTIVE_INSTANT);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new PreventiveState(instant));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new PreventiveState(instant, null));
         assertEquals("Instant must be preventive", exception.getMessage());
     }
 }
