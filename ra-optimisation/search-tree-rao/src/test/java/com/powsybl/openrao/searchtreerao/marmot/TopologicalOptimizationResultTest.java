@@ -7,13 +7,13 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -52,6 +52,10 @@ class TopologicalOptimizationResultTest {
         network2 = Network.read("12Nodes_2_pst.uct", TopologicalOptimizationResultTest.class.getResourceAsStream("/network/12Nodes_2_pst.uct"));
         network3 = Network.read("12Nodes_2_pst.uct", TopologicalOptimizationResultTest.class.getResourceAsStream("/network/12Nodes_2_pst.uct"));
 
+        createInitialScenarioVariant(network1);
+        createInitialScenarioVariant(network2);
+        createInitialScenarioVariant(network3);
+
         crac1 = Crac.read("small-crac-2pst-1600.json", TopologicalOptimizationResultTest.class.getResourceAsStream("/crac/small-crac-2pst-1600.json"), network1);
         crac2 = Crac.read("small-crac-2pst-1700.json", TopologicalOptimizationResultTest.class.getResourceAsStream("/crac/small-crac-2pst-1700.json"), network2);
         crac3 = Crac.read("small-crac-2pst-1800.json", TopologicalOptimizationResultTest.class.getResourceAsStream("/crac/small-crac-2pst-1800.json"), network3);
@@ -62,7 +66,13 @@ class TopologicalOptimizationResultTest {
 
         raoInputs = new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3));
         parameters = new RaoParameters();
-        parameters.getExtension(LoadFlowParameters.class).setDc(true);
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
+    }
+
+    private static void createInitialScenarioVariant(Network network) {
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "InitialScenario");
+        network.getVariantManager().setWorkingVariant("InitialScenario");
     }
 
     @Test
@@ -71,15 +81,13 @@ class TopologicalOptimizationResultTest {
         RaoResult raoResult1 = Mockito.mock(RaoResult.class);
         Mockito.when(raoResult1.getActivatedNetworkActionsDuringState(crac1.getPreventiveState())).thenReturn(Set.of(crac1.getNetworkAction("open_DE1DE2")));
 
-        String networkVariantId1 = network1.getVariantManager().getWorkingVariantId();
-
         assertTrue(network1.getLine("DDE1AA1  DDE2AA1  1").getTerminal1().isConnected());
         assertTrue(network1.getLine("DDE1AA1  DDE2AA1  1").getTerminal2().isConnected());
 
         TopologicalOptimizationResult topologicalOptimizationResult1 = new TopologicalOptimizationResult(raoInput1, raoResult1);
         topologicalOptimizationResult1.applyTopologicalActions();
 
-        assertEquals(networkVariantId1 + "_with_topological_actions", network1.getVariantManager().getWorkingVariantId());
+        assertEquals("InitialScenario_with_topological_actions", network1.getVariantManager().getWorkingVariantId());
         assertFalse(network1.getLine("DDE1AA1  DDE2AA1  1").getTerminal1().isConnected());
         assertFalse(network1.getLine("DDE1AA1  DDE2AA1  1").getTerminal2().isConnected());
 
@@ -87,15 +95,13 @@ class TopologicalOptimizationResultTest {
         RaoResult raoResult2 = Mockito.mock(RaoResult.class);
         Mockito.when(raoResult2.getActivatedNetworkActionsDuringState(crac2.getPreventiveState())).thenReturn(Set.of(crac2.getNetworkAction("pst_tap5")));
 
-        String networkVariantId2 = network2.getVariantManager().getWorkingVariantId();
-
         assertEquals(12, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
         assertEquals(0, network2.getTwoWindingsTransformer("DDE2AA1  DDE3AA1  1").getPhaseTapChanger().getTapPosition());
 
         TopologicalOptimizationResult topologicalOptimizationResult2 = new TopologicalOptimizationResult(raoInput2, raoResult2);
         topologicalOptimizationResult2.applyTopologicalActions();
 
-        assertEquals(networkVariantId2 + "_with_topological_actions", network2.getVariantManager().getWorkingVariantId());
+        assertEquals("InitialScenario_with_topological_actions", network2.getVariantManager().getWorkingVariantId());
         assertEquals(5, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
         assertEquals(5, network2.getTwoWindingsTransformer("DDE2AA1  DDE3AA1  1").getPhaseTapChanger().getTapPosition());
 
@@ -103,15 +109,13 @@ class TopologicalOptimizationResultTest {
         RaoResult raoResult3 = Mockito.mock(RaoResult.class);
         Mockito.when(raoResult3.getActivatedNetworkActionsDuringState(crac3.getPreventiveState())).thenReturn(Set.of(crac3.getNetworkAction("shutDownGenerators")));
 
-        String networkVariantId3 = network3.getVariantManager().getWorkingVariantId();
-
         assertEquals(-1000.0, network3.getGenerator("FFR1AA1 _generator").getTargetP());
         assertEquals(1000.0, network3.getGenerator("NNL1AA1 _generator").getTargetP());
 
         TopologicalOptimizationResult topologicalOptimizationResult3 = new TopologicalOptimizationResult(raoInput3, raoResult3);
         topologicalOptimizationResult3.applyTopologicalActions();
 
-        assertEquals(networkVariantId3 + "_with_topological_actions", network3.getVariantManager().getWorkingVariantId());
+        assertEquals("InitialScenario_with_topological_actions", network3.getVariantManager().getWorkingVariantId());
         assertEquals(0.0, network3.getGenerator("NNL1AA1 _generator").getTargetP());
         assertEquals(0.0, network3.getGenerator("FFR1AA1 _generator").getTargetP());
 

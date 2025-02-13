@@ -55,9 +55,6 @@ public class Marmot implements InterTemporalRaoProvider {
 
     @Override
     public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInput raoInput, RaoParameters raoParameters) {
-        // store initial variants as networks will be modified by topological optimization
-        TemporalData<String> initialVariants = raoInput.getRaoInputs().map(RaoInput::getNetwork).map(network -> network.getVariantManager().getWorkingVariantId());
-
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Topological optimization");
         TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(raoInput.getRaoInputs(), raoParameters);
@@ -70,7 +67,6 @@ public class Marmot implements InterTemporalRaoProvider {
 
         // 2. Apply preventive topological remedial actions
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
-        initialVariants.getDataPerTimestamp().forEach((timestamp, initialVariantId) -> raoInput.getRaoInputs().getData(timestamp).orElseThrow().getNetwork().getVariantManager().setWorkingVariant(initialVariantId));
         applyPreventiveTopologicalActionsOnNetwork(raoInput.getRaoInputs(), topologicalOptimizationResults);
 
         // 3. Run initial sensitivity analysis on all timestamps
