@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -26,9 +27,11 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -69,5 +72,13 @@ public final class MarmotUtils {
 
     public static <T> T getDataFromState(TemporalData<T> temporalData, State state) {
         return temporalData.getData(state.getTimestamp().orElseThrow()).orElseThrow();
+    }
+
+    public static <T> ComputationStatus getGlobalComputationStatus(TemporalData<T> temporalData, Function<T, ComputationStatus> computationStatusCalculator) {
+        Set<ComputationStatus> allStatuses = new HashSet<>(temporalData.map(computationStatusCalculator).getDataPerTimestamp().values());
+        if (allStatuses.contains(ComputationStatus.FAILURE)) {
+            return ComputationStatus.FAILURE;
+        }
+        return allStatuses.contains(ComputationStatus.PARTIAL_FAILURE) ? ComputationStatus.PARTIAL_FAILURE : ComputationStatus.DEFAULT;
     }
 }

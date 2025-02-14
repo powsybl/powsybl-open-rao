@@ -10,6 +10,8 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalRemedialActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
@@ -38,7 +40,7 @@ public class InterTemporalIteratingLinearOptimizationResult {
     public InterTemporalIteratingLinearOptimizationResult(LinearProblemStatus status, TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResult, TemporalData<RangeActionActivationResult> rangeActionActivation, ObjectiveFunction objectiveFunction) {
         this.status = status;
         this.resultPerTimestamp = mergeFlowSensitivityAndRangeActionResults(flowResults, sensitivityResult, rangeActionActivation, objectiveFunction, status);
-        this.globalObjectiveFunctionResult = evaluateGlobalObjectiveFunction(objectiveFunction, flowResults, rangeActionActivation.map(rangeActionActivationResult -> new RemedialActionActivationResultImpl(rangeActionActivationResult, new NetworkActionsResultImpl(Set.of()))));
+        this.globalObjectiveFunctionResult = evaluateGlobalObjectiveFunction(objectiveFunction, flowResults, rangeActionActivation);
     }
 
     public void setStatus(LinearProblemStatus status) {
@@ -70,9 +72,9 @@ public class InterTemporalIteratingLinearOptimizationResult {
         return new TemporalDataImpl<>(linearOptimizationResults);
     }
 
-    private static ObjectiveFunctionResult evaluateGlobalObjectiveFunction(ObjectiveFunction objectiveFunction, TemporalData<FlowResult> flowResults, TemporalData<RemedialActionActivationResult> remedialActionActivationResults) {
+    private static ObjectiveFunctionResult evaluateGlobalObjectiveFunction(ObjectiveFunction objectiveFunction, TemporalData<FlowResult> flowResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults) {
         FlowResult globalFlowResult = new GlobalFlowResult(flowResults);
-        RemedialActionActivationResult globalRemedialActionActivationResult = new GlobalRemedialActionActivationResult(remedialActionActivationResults);
+        RemedialActionActivationResult globalRemedialActionActivationResult = new GlobalRemedialActionActivationResult(rangeActionActivationResults);
         return objectiveFunction.evaluate(globalFlowResult, globalRemedialActionActivationResult);
     }
 }

@@ -31,6 +31,8 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Preventi
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -103,8 +105,7 @@ public class Marmot implements InterTemporalRaoProvider {
     private static TemporalData<LinearOptimizationResult> optimizeLinearRemedialActions(InterTemporalRaoInput raoInput, TemporalData<PrePerimeterResult> prePerimeterResults, RaoParameters parameters) {
         // -- BUILD OBJECTIVE FUNCTION
 
-        InterTemporalPrePerimeterResult interTemporalPrePerimeterResult = new InterTemporalPrePerimeterResult(prePerimeterResults);
-        ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), interTemporalPrePerimeterResult, parameters);
+        ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult)), parameters);
 
         // TODO : withOutageInstant : why not directly write integer value (in this case, not a paremeter)
         // no objective function defined in individual IteratingLinearOptimizerInputs as it is global
@@ -165,7 +166,7 @@ public class Marmot implements InterTemporalRaoProvider {
         return getPostOptimizationResults(raoInputs, prePerimeterResults, linearOptimizationResults, topologicalOptimizationResults).map(PostOptimizationResult::merge);
     }
 
-    private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, InterTemporalPrePerimeterResult interTemporalPrePerimeterResult, RaoParameters raoParameters) {
+    private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalFlowResult, RaoParameters raoParameters) {
         Set<FlowCnec> allFlowCnecs = new HashSet<>();
         cracs.map(MarmotUtils::getPreventivePerimeterCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
 
@@ -173,8 +174,8 @@ public class Marmot implements InterTemporalRaoProvider {
 
         return ObjectiveFunction.build(allFlowCnecs,
             new HashSet<>(), // no loop flows for now
-            interTemporalPrePerimeterResult,
-            interTemporalPrePerimeterResult,
+            globalFlowResult,
+            globalFlowResult,
             Collections.emptySet(),
             raoParameters,
             allOptimizedStates);
