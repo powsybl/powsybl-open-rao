@@ -92,7 +92,7 @@ public final class PstRangeActionArrayDeserializer {
                     case JsonSerializationConstants.INITIAL_TAP:
                         jsonParser.nextToken();
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
-                            JsonSerializationConstants.getPrimaryVersionNumber(version) >= 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
+                            JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
                             BUSINESS_WARNS.warn("The initial tap is now read from the network so the value in the crac will not be read");
                         }
                         break;
@@ -100,7 +100,7 @@ public final class PstRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         readIntToDoubleMap(jsonParser);
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
-                            JsonSerializationConstants.getPrimaryVersionNumber(version) >= 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
+                            JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
                             BUSINESS_WARNS.warn("The tap to angle conversion map is now read from the network so the value in the crac will not be read");
                         }
                         break;
