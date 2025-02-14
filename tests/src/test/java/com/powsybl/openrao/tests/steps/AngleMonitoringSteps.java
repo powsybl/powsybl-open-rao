@@ -43,6 +43,11 @@ public class AngleMonitoringSteps {
         runAngleMonitoring(cracTimestamp, numberOfLoadFlowsInParallel);
     }
 
+    @When("I launch angle monitoring on {int} threads")
+    public void iLaunchAngleMonitoring(int numberOfLoadFlowsInParallel) throws IOException {
+        runAngleMonitoring(null, numberOfLoadFlowsInParallel);
+    }
+
     private void runAngleMonitoring(String cracTimestamp, int numberOfLoadFlowsInParallel) throws IOException {
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);

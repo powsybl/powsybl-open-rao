@@ -3,6 +3,7 @@
   "extensions" : {
     "CimCracCreatorParameters" : {
       "range-action-groups" : [ "rangeAction3 + rangeAction4", "hvdc1 + hvdc2" ]
-    }
+    },
+    "timestamp": "2025-01-01T05:00Z"
   }
 }
