@@ -81,6 +81,14 @@ class CracImportExportTest {
     }
 
     @Test
+    void testPstMissingInNetwork() {
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracMissingPst.json"), new CracCreationParameters(), network, Mockito.mock(OffsetDateTime.class));
+        assertFalse(context.isCreationSuccessful());
+        assertEquals(List.of("[ERROR] PST missing-pst does not exist in the current network"), context.getCreationReport().getReport());
+    }
+
+    @Test
     void testImportFailure() {
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), Mockito.mock(Network.class), Mockito.mock(OffsetDateTime.class));
         assertNotNull(context);
