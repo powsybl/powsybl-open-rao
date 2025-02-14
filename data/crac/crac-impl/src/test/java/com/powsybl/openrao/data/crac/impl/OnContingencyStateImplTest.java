@@ -48,9 +48,9 @@ class OnContingencyStateImplTest {
             .withId("contingency2")
             .withContingencyElement("anyNetworkElement", ContingencyElementType.LINE)
             .add();
-        initialState = new PreventiveState(preventiveInstant);
-        curativeState1 = new PostContingencyState(contingency1, curativeInstant);
-        curativeState2 = new PostContingencyState(contingency2, curativeInstant);
+        initialState = new PreventiveState(preventiveInstant, null);
+        curativeState1 = new PostContingencyState(contingency1, curativeInstant, null);
+        curativeState2 = new PostContingencyState(contingency2, curativeInstant, null);
     }
 
     @Test

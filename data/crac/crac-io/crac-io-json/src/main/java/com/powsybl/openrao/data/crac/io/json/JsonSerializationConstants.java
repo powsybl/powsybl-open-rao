@@ -44,7 +44,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.6";
+    public static final String CRAC_IO_VERSION = "2.7";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -62,6 +62,7 @@ public final class JsonSerializationConstants {
     v2.4: new names for onConstraint and cnecId, side left/right -> one/two
     v2.5: elementary actions have new type coming from core remedial actions
     v2.6: addition of activation-cost and variation-costs for remedial actions
+    v2.7: addition of timestamp
      */
 
     // headers
@@ -142,6 +143,7 @@ public final class JsonSerializationConstants {
 
     public static final String ID = "id";
     public static final String NAME = "name";
+    public static final String TIMESTAMP = "timestamp";
     public static final String EXTENSIONS = "extensions";
 
     public static final String RANGES = "ranges";

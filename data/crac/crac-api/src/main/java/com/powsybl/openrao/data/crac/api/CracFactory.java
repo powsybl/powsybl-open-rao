@@ -11,6 +11,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -27,9 +29,21 @@ public interface CracFactory {
      *
      * @param id: ID to assign to the created Crac.
      * @param name: Name to assign to the created Crac.
+     * @param timestamp: Timestamp of validity of the Crac.
      * @return the created {@code Crac} instance.
      */
-    Crac create(String id, String name);
+    Crac create(String id, String name, OffsetDateTime timestamp);
+
+    /**
+     * Create a {@code Crac} object.
+     *
+     * @param id: ID to assign to the created Crac.
+     * @param name: Name to assign to the created Crac.
+     * @return the created {@code Crac} instance.
+     */
+    default Crac create(String id, String name) {
+        return create(id, name, null);
+    }
 
     /**
      * Create a {@code Crac} object. Name will be equal to id.
