@@ -11,6 +11,8 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.google.auto.service.AutoService;
 
+import java.time.OffsetDateTime;
+
 /**
  * Crac Factory implementation.
  *
@@ -24,6 +26,11 @@ public class CracImplFactory implements CracFactory {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public Crac create(String id, String name, OffsetDateTime timestamp) {
+        return new CracImpl(id, name, timestamp);
     }
 
     @Override

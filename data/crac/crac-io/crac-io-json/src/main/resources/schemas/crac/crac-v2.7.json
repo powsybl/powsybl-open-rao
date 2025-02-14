@@ -20,6 +20,9 @@
     "name": {
       "type": "string"
     },
+    "timestamp": {
+      "type": "string"
+    },
     "instants": {
       "type": "array",
       "items": {
