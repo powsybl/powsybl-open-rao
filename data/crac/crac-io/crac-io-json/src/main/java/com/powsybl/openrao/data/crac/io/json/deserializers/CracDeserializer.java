@@ -118,7 +118,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case JsonSerializationConstants.PST_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    PstRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);
+                    PstRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
                     break;
 
                 case JsonSerializationConstants.HVDC_RANGE_ACTIONS:

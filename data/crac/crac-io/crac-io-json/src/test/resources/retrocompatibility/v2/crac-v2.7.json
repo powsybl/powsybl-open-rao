@@ -230,16 +230,6 @@
       "usageMethod" : "available"
     } ],
     "networkElementId" : "pst",
-    "initialTap" : 2,
-    "tapToAngleConversionMap" : {
-      "-1" : 1.0,
-      "0" : 1.5,
-      "1" : 2.0,
-      "2" : 2.5,
-      "3" : 3.0,
-      "-3" : 0.0,
-      "-2" : 0.5
-    },
     "ranges" : [ {
       "min" : 1,
       "max" : 7,
@@ -260,16 +250,6 @@
     } ],
     "networkElementId" : "pst2",
     "groupId" : "group-1-pst",
-    "initialTap" : 1,
-    "tapToAngleConversionMap" : {
-      "-1" : 1.0,
-      "0" : 1.5,
-      "1" : 2.0,
-      "2" : 2.5,
-      "3" : 3.0,
-      "-3" : 0.0,
-      "-2" : 0.5
-    },
     "ranges" : [ {
       "min" : 1,
       "max" : 7,
@@ -295,16 +275,6 @@
       "up": 0.0,
       "down": 0.0
     },
-    "initialTap" : 1,
-    "tapToAngleConversionMap" : {
-      "-1" : 1.0,
-      "0" : 1.5,
-      "1" : 2.0,
-      "2" : 2.5,
-      "3" : 3.0,
-      "-3" : 0.0,
-      "-2" : 0.5
-    },
     "ranges" : [ {
       "min" : 1,
       "max" : 7,
@@ -325,16 +295,6 @@
     } ],
     "networkElementId" : "pst4",
     "groupId" : "group-3-pst",
-    "initialTap" : 1,
-    "tapToAngleConversionMap" : {
-      "-1" : 1.0,
-      "0" : 1.5,
-      "1" : 2.0,
-      "2" : 2.5,
-      "3" : 3.0,
-      "-3" : 0.0,
-      "-2" : 0.5
-    },
     "ranges" : [ {
       "min" : -2,
       "max" : 7,
