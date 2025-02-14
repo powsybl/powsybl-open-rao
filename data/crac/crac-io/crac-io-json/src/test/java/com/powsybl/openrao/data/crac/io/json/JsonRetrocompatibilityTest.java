@@ -93,7 +93,7 @@ class JsonRetrocompatibilityTest {
         OpenRaoException exception;
         try (InputStream inputStream = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json")) {
             CracCreationParameters cracCreationParameters = CracCreationParameters.load();
-            exception = assertThrows(OpenRaoException.class, () -> jsonImport.importData(inputStream, cracCreationParameters, null, null));
+            exception = assertThrows(OpenRaoException.class, () -> jsonImport.importData(inputStream, cracCreationParameters, null));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
