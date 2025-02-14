@@ -12,12 +12,11 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
-import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -30,6 +29,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -37,19 +37,25 @@ import java.util.stream.IntStream;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
  */
 public class PowerGradientConstraintFiller implements ProblemFiller {
-    private final InterTemporalRaoInput input;
+    private final TemporalData<State> preventiveStates;
+    private final TemporalData<Network> networkPerTimestamp;
+    private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;  //raoInput.getCrac().getRangeActions(raoInput.getCrac().getPreventiveState(), UsageMethod.AVAILABLE)
+    private final Set<PowerGradient> powerGradients;
 
-    public PowerGradientConstraintFiller(InterTemporalRaoInput input) {
-        this.input = input;
+    public PowerGradientConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Network> networkPerTimestamp, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<PowerGradient> powerGradients) {
+        this.preventiveStates = preventiveStates;
+        this.networkPerTimestamp = networkPerTimestamp;
+        this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
+        this.powerGradients = powerGradients;
     }
 
-    @Override
     //  TODO : only create generator variables when necessary (map injection range actions/generators)
+    @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        List<OffsetDateTime> timestamps = input.getRaoInputs().getTimestamps();
+        List<OffsetDateTime> timestamps = preventiveStates.getTimestamps();
         IntStream.range(0, timestamps.size()).forEach(timestampIndex -> {
             OffsetDateTime timestamp = timestamps.get(timestampIndex);
-            input.getPowerGradients().forEach(powerGradient -> {
+            powerGradients.forEach(powerGradient -> {
                 String generatorId = powerGradient.getNetworkElementId();
                 OpenRaoMPVariable generatorPowerVariable = linearProblem.addGeneratorPowerVariable(generatorId, timestamp);
                 addPowerConstraint(linearProblem, generatorId, generatorPowerVariable, timestamp);
@@ -78,18 +84,16 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
      * P(g,t) = p0(g,t) + sum_{i \in injectionAction_prev(g,t)} d_i(g) * [delta^{+}(r,s,t) - delta^{-}(r,s,t)]
      * */
     private void addPowerConstraint(LinearProblem linearProblem, String generatorId, OpenRaoMPVariable generatorPowerVariable, OffsetDateTime timestamp) {
-        RaoInput raoInput = input.getRaoInputs().getData(timestamp).orElseThrow();
-        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, getInitialPower(generatorId, raoInput.getNetwork()), timestamp);
+        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, getInitialPower(generatorId, networkPerTimestamp.getData(timestamp).orElseThrow()), timestamp);
         generatorPowerConstraint.setCoefficient(generatorPowerVariable, 1.0);
 
         // Find injection range actions related to generators with power gradients
-        raoInput.getCrac().getRangeActions(raoInput.getCrac().getPreventiveState(), UsageMethod.AVAILABLE).stream()
-            .filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast)
+        injectionRangeActionsPerTimestamp.getData(timestamp).orElseThrow().stream()
             .filter(injectionRangeAction -> injectionRangeAction.getInjectionDistributionKeys().keySet().stream().map(NetworkElement::getId).anyMatch(generatorId::equals))
             .forEach(injectionRangeAction -> {
                 double injectionKey = injectionRangeAction.getInjectionDistributionKeys().entrySet().stream().filter(entry -> generatorId.equals(entry.getKey().getId())).map(Map.Entry::getValue).findFirst().get();
-                OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(injectionRangeAction, raoInput.getCrac().getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp));
-                OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(injectionRangeAction, raoInput.getCrac().getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.ofNullable(timestamp));
+                OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow(), LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp));
+                OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow(), LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.ofNullable(timestamp));
                 generatorPowerConstraint.setCoefficient(upwardVariationVariable, -injectionKey);
                 generatorPowerConstraint.setCoefficient(downwardVariationVariable, injectionKey);
             });
