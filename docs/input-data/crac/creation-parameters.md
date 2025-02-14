@@ -252,6 +252,10 @@ at defined instants (the contingences shall be identified by their CIM CRAC mRID
 - For every instant, the minimum and maximum voltage thresholds to be respected for every nominal voltage level.  
 See [example below](#full-cim-example) for a better illustration.
 
+### timestamp
+This parameter allows the user to define the timestamp for which to create the CRAC.
+
+In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00"
 
 ### Full CIM example
 
@@ -299,6 +303,7 @@ cimParameters.setVoltageCnecsCreationParameters(new VoltageCnecsCreationParamete
     ),
     voltageMonitoredElements
 ));
+cimParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
 // Add CIM extension to CracCreationParameters
 cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParameters);
 ```
@@ -372,7 +377,8 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
           "ne1",
           "ne2"
         ]
-      }
+      },
+      "timestamp": "2019-01-08T12:00+02:00"
     }
   }
 }
@@ -400,6 +406,12 @@ Because of the three curative instants used in CSA, the definition of the instan
 
 Usually, the PATL is used as the operational limit for the final state (i.e. after all three batches of CRAs have been applied) but some TSOs may want to use a TATL instead so this information has to be configurable.
 
+### timestamp
+
+This parameter allows the user to define the timestamp for which to create the CRAC.
+
+In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
+
 ### Full CSA example
 
 ::::{tabs}
@@ -425,6 +437,7 @@ csaParameters.setCraApplicationWindow(Map.of(
     "curative 2", 600,
     "curative 3", 1200
 ));
+csaParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
 // Add CSA extension to CracCreationParameters
 cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParameters);
 ```
@@ -447,7 +460,50 @@ cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParamete
         "curative 1": 300,
         "curative 2": 600,
         "curative 3": 1200
-      }
+      }, 
+      "timestamp": "2019-01-08T12:00+02:00"
+    }
+  }
+}
+```
+:::
+::::
+
+## Flow Based Constraint-specific parameters
+
+The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint) need an additional information to be converted to the internal OpenRAO CRAC format. 
+The user can define a [FbConstraintCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-io/crac-io-fb-constraint/src/main/java/com/powsybl/openrao/data/crac/io/fbconstraint/parameters/FbConstraintCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+
+### timestamp
+
+This parameter allows the user to define the timestamp for which to create the CRAC.
+
+In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
+
+
+### Full FbConstraint example
+
+::::{tabs}
+:::{group-tab} JAVA API
+```java
+// Create CracCreationParameters and set global parameters
+CracCreationParameters cracCreationParameters = new CracCreationParameters();
+// Create CSA-specific parameters
+FbConstraintCracCreationParameters fbConstraintParameters = new FbConstraintCracCreationParameters();
+// Add timestamp
+fbConstraintParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
+// Add FbConstraint extension to CracCreationParameters
+cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParameters);
+```
+:::
+
+:::{group-tab} JSON file
+```json
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "FbConstraintCracCreatorParameters" : {
+      "timestamp": "2019-01-08T12:00+02:00"
     }
   }
 }
