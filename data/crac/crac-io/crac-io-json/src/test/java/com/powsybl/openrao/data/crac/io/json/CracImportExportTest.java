@@ -73,9 +73,8 @@ class CracImportExportTest {
     @Test
     void testNonNullOffsetDateTime() {
         Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
-        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), network, Mockito.mock(OffsetDateTime.class));
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), network);
         assertTrue(context.isCreationSuccessful());
-        assertEquals(List.of("[WARN] OffsetDateTime was ignored by the JSON CRAC importer"), context.getCreationReport().getReport());
         assertNull(context.getTimeStamp());
         assertEquals("test", context.getNetworkName());
     }
@@ -90,7 +89,7 @@ class CracImportExportTest {
 
     @Test
     void testImportFailure() {
-        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), Mockito.mock(Network.class), Mockito.mock(OffsetDateTime.class));
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), Mockito.mock(Network.class));
         assertNotNull(context);
         assertFalse(context.isCreationSuccessful());
         assertNull(context.getCrac());

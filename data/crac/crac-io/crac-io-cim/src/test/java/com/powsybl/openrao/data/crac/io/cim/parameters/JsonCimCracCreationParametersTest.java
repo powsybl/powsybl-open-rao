@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +34,7 @@ class JsonCimCracCreationParametersTest {
         CimCracCreationParameters exportedCimParameters = new CimCracCreationParameters();
         exportedCimParameters.setRangeActionGroupsAsString(List.of("rangeAction3 + rangeAction4", "hvdc1 + hvdc2"));
         exportedCimParameters.setRemedialActionSpeed(Set.of(new RangeActionSpeed("rangeAction1", 1)));
-
+        exportedCimParameters.setTimestamp(OffsetDateTime.parse("2025-01-10T05:00:00Z"));
         exportedParameters.addExtension(CimCracCreationParameters.class, exportedCimParameters);
 
         // roundTrip
@@ -49,6 +50,7 @@ class JsonCimCracCreationParametersTest {
         assertEquals("rangeAction3 + rangeAction4", cimCracCreationParameters.getRangeActionGroupsAsString().get(0));
         assertEquals("hvdc1 + hvdc2", cimCracCreationParameters.getRangeActionGroupsAsString().get(1));
         assertEquals(1, cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getSpeed().intValue());
+        assertEquals(OffsetDateTime.parse("2025-01-10T05:00:00Z"), cimCracCreationParameters.getTimestamp());
         assertTrue(cimCracCreationParameters.getTimeseriesMrids().isEmpty());
     }
 

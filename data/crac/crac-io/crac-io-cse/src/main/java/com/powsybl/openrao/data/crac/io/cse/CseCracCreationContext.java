@@ -28,12 +28,10 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     private Map<String, CseCriticalBranchCreationContext> monitoredElementCreationContexts = new HashMap<>();
     private Map<String, ElementaryCreationContext> outageCreationContexts = new HashMap<>();
     private Map<String, ElementaryCreationContext> remedialActionCreationContexts = new HashMap<>();
-    private final OffsetDateTime timestamp;
     private final String networkName;
 
-    public CseCracCreationContext(Crac crac, OffsetDateTime timestamp, String networkName) {
+    public CseCracCreationContext(Crac crac, String networkName) {
         this.crac = crac;
-        this.timestamp = timestamp;
         this.networkName = networkName;
         creationReport = new CracCreationReport();
     }
@@ -46,7 +44,6 @@ public class CseCracCreationContext implements UcteCracCreationContext {
         this.monitoredElementCreationContexts = new HashMap<>(toCopy.monitoredElementCreationContexts);
         this.outageCreationContexts = new HashMap<>(toCopy.outageCreationContexts);
         this.remedialActionCreationContexts = new HashMap<>(toCopy.remedialActionCreationContexts);
-        this.timestamp = toCopy.timestamp;
         this.networkName = toCopy.networkName;
     }
 
@@ -63,11 +60,6 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     }
 
     @Override
-    public OffsetDateTime getTimeStamp() {
-        return timestamp;
-    }
-
-    @Override
     public String getNetworkName() {
         return networkName;
     }
@@ -80,6 +72,11 @@ public class CseCracCreationContext implements UcteCracCreationContext {
     @Override
     public Crac getCrac() {
         return crac;
+    }
+
+    @Override
+    public OffsetDateTime getTimeStamp() {
+        return null;
     }
 
     void buildCreationReport() {
