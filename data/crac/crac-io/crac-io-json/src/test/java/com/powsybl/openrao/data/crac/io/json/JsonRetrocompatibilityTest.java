@@ -364,7 +364,7 @@ class JsonRetrocompatibilityTest {
     void importV2Point7Test() {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.7.json");
 
-        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network, null).getCrac();
+        Crac crac = new JsonImport().importData(cracFile, CracCreationParameters.load(), network).getCrac();
         assertEquals(7, crac.getNetworkActions().size());
         testContentOfV2Point7Crac(crac);
     }
