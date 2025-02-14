@@ -41,19 +41,20 @@ public class CneExportSteps {
 
     @When("I export SWE CNE")
     public void iExportSweCne() throws IOException {
-        exportSweCne(null);
+        exportSweCne(false);
     }
 
-    @When("I export SWE CNE at {string}")
-    public void iExportSweCne(String timestamp) throws IOException {
-        exportSweCne(timestamp);
+    @When("I load data and export SWE CNE")
+    public void iLoadDataAndExportSweCne() throws IOException {
+        exportSweCne(true);
     }
 
-    private void exportSweCne(String dataTimestamp) throws IOException {
+    private void exportSweCne(boolean load) throws IOException {
         cneVersion = CneHelper.CneVersion.SWE;
-        if (dataTimestamp != null) {
-            CommonTestData.loadData(dataTimestamp);
+        if (load) {
+            CommonTestData.loadData(null);
         }
+
         exportedCne = CneHelper.exportSweCne(CommonTestData.getCracCreationContext(), CommonTestData.getRaoResult());
         // The following crashes when running cucumber tests from jar-with-dependencies,
         // maybe because "urn-entsoe-eu-local-extension-types.xsd" is missing in the jar.

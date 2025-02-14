@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.OffsetDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +31,6 @@ class CseCracCreatorWithMneTest {
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
-    private final OffsetDateTime offsetDateTime = null;
     private final CracCreationParameters parameters = new CracCreationParameters();
     private CseCracCreationContext cracCreationContext;
     private Instant preventiveInstant;
@@ -43,7 +41,7 @@ class CseCracCreatorWithMneTest {
     private void setUp(String cracFileName, String networkFileName) throws IOException {
         InputStream is = getClass().getResourceAsStream(cracFileName);
         Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
-        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, offsetDateTime, parameters);
+        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, parameters);
         preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = cracCreationContext.getCrac().getInstant(OUTAGE_INSTANT_ID);
         autoInstant = cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID);

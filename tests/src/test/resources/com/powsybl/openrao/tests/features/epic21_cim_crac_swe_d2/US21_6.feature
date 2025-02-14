@@ -10,7 +10,7 @@ Feature: US 21.6 : Import HVDC Range Actions
     Given network file is "epic21/TestCase16NodesWith2Hvdc.xiidm"
     Given crac file is "epic21/CIM_21_6_1.xml"
     Given crac creation parameters file is "epic21/CimCracCreationParameters_21_6_1.json"
-    When I import crac at "2021-04-02 05:00"
+    When I import crac
     Then its name should be "CORESO-20210402-SWECCD2-F011"
     And its id should be "CORESO-20210402-SWECCD2-F011"
     And it should have 2 range actions
@@ -32,7 +32,7 @@ Feature: US 21.6 : Import HVDC Range Actions
     Given network file is "epic21/TestCase16NodesWith2Hvdc.xiidm"
     Given crac file is "epic21/CIM_21_6_2.xml"
     Given crac creation parameters file is "epic21/CimCracCreationParameters_21_6_1.json"
-    When I import crac at "2021-04-02 05:00"
+    When I import crac
     Then its name should be "CORESO-20210402-SWECCD2-F011"
     And its id should be "CORESO-20210402-SWECCD2-F011"
     And it should have 1 network actions

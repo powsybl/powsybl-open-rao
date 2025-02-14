@@ -30,7 +30,6 @@ import javax.xml.validation.Validator;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
-import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -108,8 +107,8 @@ public class FbConstraintImporter implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
-        return new FbConstraintCracCreator().createCrac(importNativeCrac(inputStream), network, offsetDateTime, cracCreationParameters);
+    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
+        return new FbConstraintCracCreator().createCrac(importNativeCrac(inputStream), network, cracCreationParameters);
     }
 
     private int flowBasedDocumentVersion(InputStream inputStream) {

@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
-import java.time.OffsetDateTime;
 import java.util.Objects;
 
 /**
@@ -88,7 +87,7 @@ public class CseCracImporter implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network, OffsetDateTime offsetDateTime) {
-        return new CseCracCreator().createCrac(importNativeCrac(inputStream), network, offsetDateTime, cracCreationParameters);
+    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
+        return new CseCracCreator().createCrac(importNativeCrac(inputStream), network, cracCreationParameters);
     }
 }

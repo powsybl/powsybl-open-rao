@@ -32,6 +32,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
+import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
@@ -91,7 +92,9 @@ class AngleMonitoringTest {
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         network = Network.read(Paths.get(new File(AngleMonitoringTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
         InputStream is = getClass().getResourceAsStream(fileName);
-        CimCracCreationContext cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(parametrableOffsetDateTime);
+        CimCracCreationContext cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         crac = cracCreationContext.getCrac();
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
     }

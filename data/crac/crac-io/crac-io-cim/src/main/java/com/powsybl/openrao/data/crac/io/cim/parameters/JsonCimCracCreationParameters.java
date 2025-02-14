@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -30,6 +32,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     private static final String SPEED = "speed";
     private static final String TIMESERIES_MRIDS = "timeseries-mrids";
     private static final String VOLTAGE_CNECS_CREATION_PARAMETERS = "voltage-cnecs-creation-parameters";
+    private static final String TIMESTAMP = "timestamp";
 
     @Override
     public void serialize(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -38,6 +41,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
         serializeRangeActionGroups(cimParameters.getRangeActionGroupsAsString(), jsonGenerator);
         serializeRangeActionSpeedSet(cimParameters.getRangeActionSpeedSet(), jsonGenerator);
         serializeVoltageCnecsCreationParameters(cimParameters.getVoltageCnecsCreationParameters(), jsonGenerator);
+        serializeTimestamp(cimParameters.getTimestamp(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -65,6 +69,10 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
                 case VOLTAGE_CNECS_CREATION_PARAMETERS:
                     jsonParser.nextToken();
                     parameters.setVoltageCnecsCreationParameters(JsonVoltageCnecsCreationParameters.deserialize(jsonParser));
+                    break;
+                case TIMESTAMP:
+                    jsonParser.nextToken();
+                    parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
                     break;
                 default:
                     throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -127,6 +135,12 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
                 jsonGenerator.writeString(string);
             }
             jsonGenerator.writeEndArray();
+        }
+    }
+
+    private void serializeTimestamp(OffsetDateTime timestamp, JsonGenerator jsonGenerator) throws IOException {
+        if (timestamp != null) {
+            jsonGenerator.writeStringField(TIMESTAMP, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(timestamp));
         }
     }
 

@@ -48,8 +48,8 @@ class SweCneDivergentAngleMonitoringTest {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setCracFactoryName("CracImplFactory");
         cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
-
-        CracCreationContext cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC));
+        CracCreationContext cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, cracCreationParameters);
         Crac crac = cracCreationContext.getCrac();
         InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/RaoResult.json").getFile());
         RaoResult raoResult = RaoResult.read(inputStream, crac);

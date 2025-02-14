@@ -91,9 +91,9 @@ class CimCracCreatorTest {
         hvdcNetwork = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
-    private void setUp(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) throws IOException {
+    private void setUp(String fileName, Network network, CracCreationParameters cracCreationParameters) throws IOException {
         InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         if (!Objects.isNull(importedCrac)) {
             preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
@@ -106,7 +106,7 @@ class CimCracCreatorTest {
         }
     }
 
-    private void setUpWithGroupId(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, List<List<String>> alignedRangeActions) throws IOException {
+    private void setUpWithGroupId(String fileName, Network network, OffsetDateTime timestamp, List<List<String>> alignedRangeActions) throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         cracCreationParameters = Mockito.spy(cracCreationParameters);
@@ -116,16 +116,16 @@ class CimCracCreatorTest {
         alignedRangeActions.forEach(listAlignedRangeActions -> rangeActionGroups.add(new RangeActionGroup(listAlignedRangeActions)));
         Mockito.when(cimCracCreationParameters.getRangeActionGroups()).thenReturn(rangeActionGroups);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
-
+        Mockito.when(cimCracCreationParameters.getTimestamp()).thenReturn(timestamp);
         InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
     }
 
-    private void setUpWithSpeed(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<RangeActionSpeed> rangeActionSpeeds) throws IOException {
+    private void setUpWithSpeed(String fileName, Network network, OffsetDateTime timestamp, Set<RangeActionSpeed> rangeActionSpeeds) throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         cracCreationParameters = Mockito.spy(cracCreationParameters);
@@ -133,27 +133,50 @@ class CimCracCreatorTest {
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         Mockito.when(cimCracCreationParameters.getRangeActionSpeedSet()).thenReturn(rangeActionSpeeds);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
+        Mockito.when(cimCracCreationParameters.getTimestamp()).thenReturn(timestamp);
         InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
     }
 
-    private void setUpWithTimeseriesMrids(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<String> timeseriesMrids) throws IOException {
+    private void setUpWithTimeseriesMrids(String fileName, Network network, OffsetDateTime timestamp, Set<String> timeseriesMrids) throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         cracCreationParameters = Mockito.spy(cracCreationParameters);
         CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(timeseriesMrids);
+        Mockito.when(cimCracCreationParameters.getTimestamp()).thenReturn(timestamp);
         InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
+    }
+
+    private void setUpWithTimestamp(String fileName, Network network, OffsetDateTime timestamp) throws IOException {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        cracCreationParameters = Mockito.spy(cracCreationParameters);
+        Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+        Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
+        Mockito.when(cimCracCreationParameters.getTimestamp()).thenReturn(timestamp);
+        InputStream is = getClass().getResourceAsStream(fileName);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
+        importedCrac = cracCreationContext.getCrac();
+        if (!Objects.isNull(importedCrac)) {
+            preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
+            autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
+            curativeInstant = importedCrac.getInstant(CURATIVE_INSTANT_ID);
+        } else {
+            preventiveInstant = null;
+            autoInstant = null;
+            curativeInstant = null;
+        }
     }
 
     private void assertContingencyNotImported(String name, String nativeName, ImportStatus importStatus) {
@@ -331,19 +354,21 @@ class CimCracCreatorTest {
 
     @Test
     void cracCreationSuccessfulFailureTime() throws IOException {
-        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, null, new CracCreationParameters());
+        CracCreationParameters cracParams = new CracCreationParameters();
+        cracParams.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
+        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, cracParams);
         assertFalse(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
     void cracCreationFailureWrongTime() throws IOException {
-        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2020-04-01T22:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2020-04-01T22:00Z"));
         assertFalse(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
     void cracCreationSuccessfulRightTime() throws IOException {
-        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"));
         assertTrue(cracCreationContext.isCreationSuccessful());
     }
 
@@ -353,7 +378,9 @@ class CimCracCreatorTest {
         RaUsageLimits raUsageLimits = new RaUsageLimits();
         raUsageLimits.setMaxRa(2);
         cracCreationParameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
-        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), cracCreationParameters);
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-01T22:00Z"));
+        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, cracCreationParameters);
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(2, cracCreationContext.getCrac().getRaUsageLimits(preventiveInstant).getMaxRa());
         assertEquals(OffsetDateTime.of(2021, 2, 9, 19, 30, 0, 0, ZoneOffset.UTC), cracCreationContext.getNetworkCaseDate());
@@ -362,8 +389,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportContingencies() throws IOException {
-        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
-
+        setUpWithTimestamp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
         assertEquals(3, importedCrac.getContingencies().size());
         assertContingencyImported("Co-1", "Co-1-name", Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
         assertContingencyImported("Co-2", "Co-2-name", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
@@ -377,19 +403,19 @@ class CimCracCreatorTest {
 
     @Test
     void testCracPeriodManagementBeforeValidPeriod() throws IOException {
-        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"));
         assertEquals(0, importedCrac.getContingencies().size());
-        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
         assertEquals(3, importedCrac.getContingencies().size());
-        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T01:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T01:00Z"));
         assertEquals(3, importedCrac.getContingencies().size());
-        setUp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T02:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_1_1_multi_period.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T02:00Z"));
         assertEquals(1, importedCrac.getContingencies().size());
     }
 
     @Test
     void testImportContingencyOnTieLine() throws IOException {
-        setUp("/cracs/CIM_co_halfline.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_co_halfline.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
 
         assertEquals(1, importedCrac.getContingencies().size());
         assertContingencyImported("Co-2", "Co-2-name", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
@@ -399,7 +425,9 @@ class CimCracCreatorTest {
     void testImportFakeCnecs() throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
-        setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-01T23:00Z"));
+        setUp("/cracs/CIM_21_2_1.xml", baseNetwork, cracCreationParameters);
 
         assertEquals(10, importedCrac.getFlowCnecs().size());
 
@@ -431,7 +459,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportPstRangeActions() throws IOException {
-        setUp("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
         assertRemedialActionImportedWithOperator("REE-PRA_1", "REE");
@@ -460,7 +488,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportNetworkActions() throws IOException {
-        setUp("/cracs/CIM_21_4_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_4_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
         assertNetworkActionImported("PRA_1", Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_b94318f6-6d24-4f56-96b9-df2531ad6543", "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"), false);
         assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
         assertRemedialActionImportedWithOperator("REE-PRA_1", "REE");
@@ -643,7 +671,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportRasAvailableForSpecificCountry() throws IOException {
-        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T20:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T20:00Z"));
 
         // RA_1
         assertNetworkActionImported("RA_1", Set.of("_2844585c-0d35-488d-a449-685bcd57afbf", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
@@ -776,7 +804,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportOnFlowConstraintRepeatedRa() throws IOException {
-        setUp("/cracs/CIM_21_5_3.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_5_3.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
 
         // PRA_CRA_1
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
@@ -799,7 +827,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportAngleCnecs() throws IOException {
-        setUp("/cracs/CIM_21_7_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_7_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
         // -- Imported
         // Angle cnec and associated RA imported :
         assertAngleCnecImportedWithContingency("AngleCnec1", "Co-1", Set.of("_8d8a82ba-b5b0-4e94-861a-192af055f2b8", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3"), 30.);
@@ -851,7 +879,7 @@ class CimCracCreatorTest {
 
     @Test
     void testImportCnecsWithSameMsMrid() throws IOException {
-        setUp("/cracs/CIM_21_2_1_mrid.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        setUpWithTimestamp("/cracs/CIM_21_2_1_mrid.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
 
         assertEquals(10, importedCrac.getFlowCnecs().size());
 
@@ -890,8 +918,8 @@ class CimCracCreatorTest {
         CimCracCreationParameters cimParams = new CimCracCreationParameters();
         cimParams.setVoltageCnecsCreationParameters(voltageCnecsCreationParameters);
         params.addExtension(CimCracCreationParameters.class, cimParams);
-
-        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), params);
+        params.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-01T23:00Z"));
+        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, params);
 
         assertEquals(3, importedCrac.getVoltageCnecs().size());
         assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - preventive"));
@@ -909,7 +937,9 @@ class CimCracCreatorTest {
     void testImportCnecOnRightSide() throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
-        setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-01T23:00Z"));
+        setUp("/cracs/CIM_21_2_1.xml", baseNetwork, cracCreationParameters);
 
         assertEquals(8, importedCrac.getFlowCnecs().size());
 
@@ -941,7 +971,9 @@ class CimCracCreatorTest {
     void testImportCnecOnBothSides() throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-01T23:00Z"));
+        setUp("/cracs/CIM_21_2_1.xml", baseNetwork, cracCreationParameters);
 
         assertEquals(10, importedCrac.getFlowCnecs().size());
 
@@ -974,13 +1006,14 @@ class CimCracCreatorTest {
     @Test
     void testTransformerCnecThresholds() throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
-
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
         // Preventive threshold is in %Imax, should be created depending on default monitored side
         // Outage threshold is in MW, should be created depending on default monitored side
         // Curative threshold is in A, should be defined on high voltage level side
 
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T20:00Z"), cracCreationParameters);
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-02T20:00Z"));
+        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, cracCreationParameters);
         assertHasTwoThresholds("OJLJJ_5_400_220 - preventive", Unit.PERCENT_IMAX, -1., 1.);
         assertHasTwoThresholds("OJLJJ_5_400_220 - CO_2 - outage", Unit.MEGAWATT, -1000., 1000.);
         assertHasTwoThresholds("OJLJJ_5_400_220 - CO_3 - outage", Unit.MEGAWATT, -1000., 1000.);
@@ -988,7 +1021,8 @@ class CimCracCreatorTest {
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
 
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
-        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T03:00Z"), cracCreationParameters);
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-02T03:00Z"));
+        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, cracCreationParameters);
         assertHasOneThreshold("OJLJJ_5_400_220 - preventive", TwoSides.ONE, Unit.PERCENT_IMAX, -1., 1.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", TwoSides.ONE, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", TwoSides.ONE, Unit.MEGAWATT, -1000., 1000.);
@@ -996,7 +1030,8 @@ class CimCracCreatorTest {
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
 
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
-        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-02T05:00Z"), cracCreationParameters);
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-02T05:00Z"));
+        setUp("/cracs/CIM_21_5_2.xml", baseNetwork, cracCreationParameters);
         assertHasOneThreshold("OJLJJ_5_400_220 - preventive", TwoSides.TWO, Unit.PERCENT_IMAX, -1., 1.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", TwoSides.TWO, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", TwoSides.TWO, Unit.MEGAWATT, -1000., 1000.);
@@ -1027,7 +1062,10 @@ class CimCracCreatorTest {
     void importAndDuplicateAutoCnecs() throws IOException {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        setUp("/cracs/CIM_21_2_1_ARA.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
+
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-01T23:00Z"));
+        setUp("/cracs/CIM_21_2_1_ARA.xml", baseNetwork, cracCreationParameters);
 
         assertEquals(12, importedCrac.getCnecs().size());
         assertCnecHasOutageDuplicate("CNEC-4 - Co-1 - auto");
