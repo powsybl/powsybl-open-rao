@@ -215,6 +215,28 @@ public final class NetworkImportsUtil {
                 .setB2(0.0)
                 .add();
         }
+
+        for (int i = 0; i <= 4; i++) {
+            TwoWindingsTransformer twt = s.newTwoWindingsTransformer()
+                .setId("pst" + (i > 0 ? i : ""))
+                .setVoltageLevel1("VL1")
+                .setBus1("B1")
+                .setVoltageLevel2("VL2")
+                .setBus2("B21")
+                .setR(1.0)
+                .setX(1.0)
+                .add();
+            PhaseTapChangerAdder ptcAdder = twt.newPhaseTapChanger()
+                .setTapPosition(2)
+                .setLowTapPosition(-5);
+            for (int j = -5; j <= 5; j++) {
+                ptcAdder.beginStep()
+                    .setAlpha(j * 0.5)
+                    .endStep();
+            }
+            ptcAdder.add();
+        }
+
         ShuntCompensator shuntCompensator = vl1.newShuntCompensator()
             .setId("SC1")
             .setName("SC1")

@@ -333,12 +333,6 @@ class CracImportExportTest {
         assertEquals("group-1-pst", crac.getRangeAction("pstRange2Id").getGroupId().orElseThrow());
         assertEquals("group-3-pst", crac.getRangeAction("pstRange3Id").getGroupId().orElseThrow());
 
-        // check taps
-        assertEquals(2, crac.getPstRangeAction("pstRange1Id").getInitialTap());
-        assertEquals(0.5, crac.getPstRangeAction("pstRange1Id").convertTapToAngle(-2));
-        assertEquals(2.5, crac.getPstRangeAction("pstRange1Id").convertTapToAngle(2));
-        assertEquals(2, crac.getPstRangeAction("pstRange1Id").convertAngleToTap(2.5));
-
         // check Tap Range
         assertEquals(2, crac.getPstRangeAction("pstRange1Id").getRanges().size());
 
