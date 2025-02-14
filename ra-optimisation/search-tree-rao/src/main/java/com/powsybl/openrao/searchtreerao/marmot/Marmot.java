@@ -97,26 +97,15 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private static TemporalData<PrePerimeterResult> runAllInitialPrePerimeterSensitivityAnalysis(TemporalData<RaoInput> raoInputs, RaoParameters raoParameters) {
-        // CONCATENATE RESULTS
         return raoInputs.map(individualRaoInput -> runInitialPrePerimeterSensitivityAnalysis(individualRaoInput, raoParameters));
     }
 
     private static TemporalData<LinearOptimizationResult> optimizeLinearRemedialActions(InterTemporalRaoInput raoInput, TemporalData<PrePerimeterResult> prePerimeterResults, RaoParameters parameters) {
-        //1) build optimization perimeters
-        //2) objective function
-        //3) iterating linear optimizer input
-        //4) iterating linear optimizer parameters
-        // Appel de optimize
-        // Linear Problem Builder
-        // Connexion des Filler
-
         // -- BUILD OBJECTIVE FUNCTION
 
         InterTemporalPrePerimeterResult interTemporalPrePerimeterResult = new InterTemporalPrePerimeterResult(prePerimeterResults);
         ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), interTemporalPrePerimeterResult, parameters);
 
-        // TODO : withRaActivationFromParentLeaf not defined, check this is ok
-        // TODO : withAppliedNetworkActionsInPrimaryState not defined, check this is ok
         // TODO : withOutageInstant : why not directly write integer value (in this case, not a paremeter)
         // no objective function defined in individual IteratingLinearOptimizerInputs as it is global
 
