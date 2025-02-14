@@ -152,7 +152,7 @@ public final class InterTemporalIteratingLinearOptimizer {
 
             // f. [PARALLEL] Update problem fillers with flows, sensitivity coefficients and set-points
 
-            Pair<InterTemporalIteratingLinearOptimizationResult, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, newResult, bestResult, problemFillers);
+            Pair<InterTemporalIteratingLinearOptimizationResult, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, newResult, bestResult, problemFillers, interTemporalProblemFillers);
             if (Boolean.TRUE.equals(mipShouldStop.getRight())) {
                 return bestResult;
             } else {
@@ -221,7 +221,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         });
     }
 
-    private static void updateLinearProblemBetweenSensiComputations(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, InterTemporalIteratingLinearOptimizationResult optimizationResult) {
+    private static void updateLinearProblemBetweenSensiComputations(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, InterTemporalIteratingLinearOptimizationResult optimizationResult) {
         linearProblem.reset();
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
@@ -229,6 +229,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             LinearOptimizationResult linearOptimizationResult = optimizationResult.getResultPerTimestamp().getData(timestamp).orElseThrow();
             problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(linearProblem, linearOptimizationResult, linearOptimizationResult, linearOptimizationResult));
         });
+        interTemporalProblemFillers.forEach(problemFiller -> problemFiller.fill(linearProblem, null, null, null));
     }
 
     private static LinearProblemStatus solveLinearProblem(LinearProblem linearProblem, int iteration) {
@@ -435,10 +436,10 @@ public final class InterTemporalIteratingLinearOptimizer {
         return false;
     }
 
-    private static Pair<InterTemporalIteratingLinearOptimizationResult, Boolean> updateBestResultAndCheckStopCondition(boolean raRangeShrinking, LinearProblem linearProblem, InterTemporalIteratingLinearOptimizerInput input, int iteration, InterTemporalIteratingLinearOptimizationResult currentResult, InterTemporalIteratingLinearOptimizationResult bestResult, TemporalData<List<ProblemFiller>> problemFillers) {
+    private static Pair<InterTemporalIteratingLinearOptimizationResult, Boolean> updateBestResultAndCheckStopCondition(boolean raRangeShrinking, LinearProblem linearProblem, InterTemporalIteratingLinearOptimizerInput input, int iteration, InterTemporalIteratingLinearOptimizationResult currentResult, InterTemporalIteratingLinearOptimizationResult bestResult, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers) {
         if (currentResult.getGlobalObjectiveFunctionResult().getCost() < bestResult.getGlobalObjectiveFunctionResult().getCost()) {
             logBetterResult(iteration, currentResult);
-            updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, currentResult);
+            updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, interTemporalProblemFillers, currentResult);
             return Pair.of(currentResult, false);
         }
         logWorseResult(iteration, bestResult, currentResult);
@@ -446,7 +447,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             applyRangeActions(bestResult.getResultPerTimestamp().getData(timestamp).orElseThrow(), input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow());
         }
         if (raRangeShrinking) {
-            updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, currentResult);
+            updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, interTemporalProblemFillers, currentResult);
         }
         return Pair.of(bestResult, !raRangeShrinking);
     }
