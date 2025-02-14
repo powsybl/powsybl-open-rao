@@ -221,15 +221,14 @@ public final class ToolProvider {
             if (optionalRelativeMarginsParameters.isEmpty()) {
                 throw new OpenRaoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
             }
-            if (searchTreeParameters.getRelativeMarginsParameters().isEmpty()) {
-                throw new OpenRaoException("No ptdf sum lower bound was defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
-            }
             toolProviderBuilder.withAbsolutePtdfSumsComputation(
                 raoInput.getGlskProvider(),
                 new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
                     optionalRelativeMarginsParameters.get().getPtdfBoundaries(),
-                    searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound()
+                    searchTreeParameters.getRelativeMarginsParameters()
+                        .orElseThrow(() -> new OpenRaoException("No ptdf sum lower bound was defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType()))
+                        .getPtdfSumLowerBound()
                 )
             );
         }
