@@ -45,7 +45,10 @@ class FbConstraintCracCreator {
 
     FbConstraintCreationContext createCrac(FlowBasedConstraintDocument fbConstraintDocument, Network network, CracCreationParameters cracCreatorParameters) {
         FbConstraintCracCreationParameters fbConstraintCracCreationParameters = cracCreatorParameters.getExtension(FbConstraintCracCreationParameters.class);
-        OffsetDateTime offsetDateTime = fbConstraintCracCreationParameters.getTimestamp();
+        OffsetDateTime offsetDateTime = null;
+        if (fbConstraintCracCreationParameters != null) {
+            offsetDateTime = fbConstraintCracCreationParameters.getTimestamp();
+        }
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
         Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocumentIdentification().getV());
         addFbContraintInstants(crac);

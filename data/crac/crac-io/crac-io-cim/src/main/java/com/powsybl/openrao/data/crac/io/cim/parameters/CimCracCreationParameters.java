@@ -19,7 +19,7 @@ public class CimCracCreationParameters extends AbstractAlignedRaCracCreationPara
     private Set<String> timeseriesMrids = new HashSet<>();
     private Set<RangeActionSpeed> speedSet = new HashSet<>();
     private VoltageCnecsCreationParameters voltageCnecsCreationParameters = null;
-    private OffsetDateTime timestamp;
+    private OffsetDateTime timestamp = null;
 
     @Override
     public String getName() {

@@ -17,6 +17,7 @@ import com.google.auto.service.AutoService;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -139,7 +140,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
 
     private void serializeTimestamp(OffsetDateTime timestamp, JsonGenerator jsonGenerator) throws IOException {
         if (timestamp != null) {
-            jsonGenerator.writeStringField(TIMESTAMP, timestamp.toString());
+            jsonGenerator.writeStringField(TIMESTAMP, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(timestamp));
         }
     }
 

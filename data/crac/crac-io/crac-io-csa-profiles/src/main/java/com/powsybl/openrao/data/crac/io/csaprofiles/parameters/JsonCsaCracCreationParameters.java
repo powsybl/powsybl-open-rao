@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -159,7 +160,7 @@ public class JsonCsaCracCreationParameters implements JsonCracCreationParameters
 
     private void serializeTimestamp(OffsetDateTime timestamp, JsonGenerator jsonGenerator) throws IOException {
         if (timestamp != null) {
-            jsonGenerator.writeStringField(TIMESTAMP, timestamp.toString());
+            jsonGenerator.writeStringField(TIMESTAMP, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(timestamp));
         }
     }
 

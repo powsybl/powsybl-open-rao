@@ -24,7 +24,7 @@ public class CsaCracCreationParameters extends AbstractExtension<CracCreationPar
     private int autoInstantApplicationTime = 0;
     private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
     private Set<Border> borders = Set.of();
-    private OffsetDateTime timestamp;
+    private OffsetDateTime timestamp = null;
 
     @Override
     public String getName() {

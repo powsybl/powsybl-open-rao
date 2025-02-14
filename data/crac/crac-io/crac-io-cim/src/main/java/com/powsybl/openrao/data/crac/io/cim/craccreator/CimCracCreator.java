@@ -41,7 +41,10 @@ class CimCracCreator {
         this.cimTimeSeries = new ArrayList<>(cimCrac.getTimeSeries());
 
         CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
-        OffsetDateTime offsetDateTime = cimCracCreationParameters.getTimestamp();
+        OffsetDateTime offsetDateTime = null;
+        if (cimCracCreationParameters != null) {
+            offsetDateTime = cimCracCreationParameters.getTimestamp();
+        }
         this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network);
 
         // Get warning messages from parameters parsing
@@ -68,7 +71,6 @@ class CimCracCreator {
                 return creationContext;
             }
         }
-
         createContingencies();
         createCnecs(parameters.getDefaultMonitoredSides());
         createRemedialActions(cimCracCreationParameters);

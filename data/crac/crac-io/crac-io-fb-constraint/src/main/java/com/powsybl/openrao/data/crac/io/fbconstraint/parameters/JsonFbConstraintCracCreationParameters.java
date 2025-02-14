@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -64,7 +65,7 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
 
     private void serializeTimestamp(OffsetDateTime timestamp, JsonGenerator jsonGenerator) throws IOException {
         if (timestamp != null) {
-            jsonGenerator.writeStringField(TIMESTAMP, timestamp.toString());
+            jsonGenerator.writeStringField(TIMESTAMP, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(timestamp));
         }
     }
 

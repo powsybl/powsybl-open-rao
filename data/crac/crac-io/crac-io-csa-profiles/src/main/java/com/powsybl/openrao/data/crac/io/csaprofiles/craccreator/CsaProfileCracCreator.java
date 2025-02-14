@@ -36,12 +36,22 @@ class CsaProfileCracCreator {
     private CsaProfileCrac nativeCrac;
 
     CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, CracCreationParameters cracCreationParameters) {
-        CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
-        OffsetDateTime offsetDateTime = csaParameters.getTimestamp();
         this.crac = cracCreationParameters.getCracFactory().create(nativeCrac.toString());
         this.network = network;
+        CsaCracCreationParameters csaParameters = cracCreationParameters.getExtension(CsaCracCreationParameters.class);
+        OffsetDateTime offsetDateTime = null;
+        if (csaParameters != null) {
+            offsetDateTime = csaParameters.getTimestamp();
+        }
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
         this.nativeCrac = nativeCrac;
+
+        if (offsetDateTime == null) {
+            creationContext.getCreationReport().error("Timestamp is null for csa crac creator.");
+            creationContext.creationFailure();
+            return creationContext;
+        }
+
         addCsaInstants(csaParameters);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreationParameters);
 

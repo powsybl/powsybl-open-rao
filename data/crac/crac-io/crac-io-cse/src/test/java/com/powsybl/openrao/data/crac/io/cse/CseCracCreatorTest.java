@@ -132,7 +132,7 @@ class CseCracCreatorTest {
         parameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
         setUp("/cracs/cse_crac_1.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(null, cracCreationContext.getTimeStamp());
+        assertNull(cracCreationContext.getTimeStamp());
         assertEquals("/networks/TestCase12Nodes_with_Xnodes", cracCreationContext.getNetworkName());
         assertEquals(4, cracCreationContext.getCrac().getRaUsageLimits(preventiveInstant).getMaxRa());
     }
