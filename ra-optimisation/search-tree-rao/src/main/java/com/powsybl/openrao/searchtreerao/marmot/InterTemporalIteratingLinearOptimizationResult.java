@@ -64,7 +64,7 @@ public class InterTemporalIteratingLinearOptimizationResult {
             FlowResult flowResult = flowResults.getData(timestamp).orElseThrow();
             SensitivityResult sensitivityResult = sensitivityResults.getData(timestamp).orElseThrow();
             RangeActionActivationResult rangeActionActivationResult = rangeActionActivationResults.getData(timestamp).orElseThrow();
-            LinearOptimizationResult linearOptimizationResult = new LinearOptimizationResultImpl(flowResult, sensitivityResult, rangeActionActivationResult, null, status);
+            LinearOptimizationResult linearOptimizationResult = new LinearOptimizationResultImpl(flowResult, sensitivityResult, rangeActionActivationResult, objectiveFunction.evaluate(flowResult, new RemedialActionActivationResultImpl(rangeActionActivationResult, new NetworkActionsResultImpl(Set.of()))), status);
             linearOptimizationResults.put(timestamp, linearOptimizationResult);
         }
         return new TemporalDataImpl<>(linearOptimizationResults);
