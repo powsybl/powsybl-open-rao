@@ -32,17 +32,22 @@ class CimCracCreator {
     private Network network;
     CimCracCreationContext creationContext;
 
-    CimCracCreationContext createCrac(CRACMarketDocument cimCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters parameters) {
+    CimCracCreationContext createCrac(CRACMarketDocument cimCrac, Network network, CracCreationParameters parameters) {
         // Set attributes
         this.crac = parameters.getCracFactory().create(cimCrac.getMRID());
         addCimInstants();
         RaUsageLimitsAdder.addRaUsageLimits(crac, parameters);
         this.network = network;
         this.cimTimeSeries = new ArrayList<>(cimCrac.getTimeSeries());
+
+        CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
+        OffsetDateTime offsetDateTime = null;
+        if (cimCracCreationParameters != null) {
+            offsetDateTime = cimCracCreationParameters.getTimestamp();
+        }
         this.creationContext = new CimCracCreationContext(crac, offsetDateTime, network);
 
         // Get warning messages from parameters parsing
-        CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
         if (cimCracCreationParameters != null) {
             cimCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message));
             if (!cimCracCreationParameters.getTimeseriesMrids().isEmpty()) {
@@ -66,7 +71,6 @@ class CimCracCreator {
                 return creationContext;
             }
         }
-
         createContingencies();
         createCnecs(parameters.getDefaultMonitoredSides());
         createRemedialActions(cimCracCreationParameters);

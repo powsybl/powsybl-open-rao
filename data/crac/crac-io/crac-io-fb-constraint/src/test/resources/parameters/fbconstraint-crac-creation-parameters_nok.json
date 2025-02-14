@@ -1,0 +1,8 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "FbConstraintCracCreatorParameters" : {
+      "timestamp": "2025-01-01 12:00"
+    }
+  }
+}
