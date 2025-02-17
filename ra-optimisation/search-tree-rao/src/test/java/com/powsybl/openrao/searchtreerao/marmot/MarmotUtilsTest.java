@@ -189,30 +189,27 @@ class MarmotUtilsTest {
         PrePerimeterResult prePerimeterResult3 = Mockito.mock(PrePerimeterResult.class);
         TemporalData<PrePerimeterResult> prePerimeterResults = new TemporalDataImpl<>(Map.of(timestamp1, prePerimeterResult1, timestamp2, prePerimeterResult2, timestamp3, prePerimeterResult3));
 
-        LinearOptimizationResult linearOptimizationResult1 = Mockito.mock(LinearOptimizationResult.class);
-        LinearOptimizationResult linearOptimizationResult2 = Mockito.mock(LinearOptimizationResult.class);
-        LinearOptimizationResult linearOptimizationResult3 = Mockito.mock(LinearOptimizationResult.class);
-        TemporalData<LinearOptimizationResult> linearOptimizationResults = new TemporalDataImpl<>(Map.of(timestamp1, linearOptimizationResult1, timestamp2, linearOptimizationResult2, timestamp3, linearOptimizationResult3));
+        LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
 
-        TemporalData<PostOptimizationResult> postOptimizationResults = getPostOptimizationResults(inputs, prePerimeterResults, linearOptimizationResults, raoResults);
+        TemporalData<PostOptimizationResult> postOptimizationResults = getPostOptimizationResults(inputs, prePerimeterResults, linearOptimizationResult, raoResults);
         assertEquals(List.of(timestamp1, timestamp2, timestamp3), postOptimizationResults.getTimestamps());
 
         PostOptimizationResult postOptimizationResult1 = postOptimizationResults.getData(timestamp1).get();
         assertEquals(crac1, postOptimizationResult1.raoInput().getCrac());
         assertEquals(prePerimeterResult1, postOptimizationResult1.initialResult());
-        assertEquals(linearOptimizationResult1, postOptimizationResult1.linearOptimizationResult());
+        assertEquals(linearOptimizationResult, postOptimizationResult1.linearOptimizationResult());
         assertEquals(raoResult1, postOptimizationResult1.topologicalOptimizationResult());
 
         PostOptimizationResult postOptimizationResult2 = postOptimizationResults.getData(timestamp2).get();
         assertEquals(crac2, postOptimizationResult2.raoInput().getCrac());
         assertEquals(prePerimeterResult2, postOptimizationResult2.initialResult());
-        assertEquals(linearOptimizationResult2, postOptimizationResult2.linearOptimizationResult());
+        assertEquals(linearOptimizationResult, postOptimizationResult2.linearOptimizationResult());
         assertEquals(raoResult2, postOptimizationResult2.topologicalOptimizationResult());
 
         PostOptimizationResult postOptimizationResult3 = postOptimizationResults.getData(timestamp3).get();
         assertEquals(crac3, postOptimizationResult3.raoInput().getCrac());
         assertEquals(prePerimeterResult3, postOptimizationResult3.initialResult());
-        assertEquals(linearOptimizationResult3, postOptimizationResult3.linearOptimizationResult());
+        assertEquals(linearOptimizationResult, postOptimizationResult3.linearOptimizationResult());
         assertEquals(raoResult3, postOptimizationResult3.topologicalOptimizationResult());
     }
 }
