@@ -87,8 +87,6 @@
   "required": [
     "id",
     "networkElementId",
-    "initialTap",
-    "tapToAngleConversionMap",
     "ranges"
   ]
 }
