@@ -7,9 +7,13 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.openrao.commons.EICode;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
+import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
@@ -36,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class AbsolutePtdfSumsComputationTest {
     private static final double DOUBLE_TOLERANCE = 0.001;
-
+    private static final double PTDF_SUM_LOWER_BOUND = 0.01;
     private SystematicSensitivityResult systematicSensitivityResult;
 
     @BeforeEach
@@ -64,6 +68,14 @@ class AbsolutePtdfSumsComputationTest {
                             case "22Y201903144---9" -> 0.9;
                             default -> 0.;
                         };
+                    } else if (branchCnec.getId().contains("cnec3")) {
+                        return switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
+                            case "10YFR-RTE------C", "10YBE----------2" -> 0.0;
+                            case "10YCB-GERMANY--8" -> 0.0;
+                            case "22Y201903145---4" -> 0.0;
+                            case "22Y201903144---9" -> 0.0;
+                            default -> 0.;
+                        };
                     } else {
                         return 0.;
                     }
@@ -85,7 +97,7 @@ class AbsolutePtdfSumsComputationTest {
                 new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
 
         // compute zToz PTDF sum
-        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
+        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, PTDF_SUM_LOWER_BOUND);
         Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // test results
@@ -110,11 +122,52 @@ class AbsolutePtdfSumsComputationTest {
                 new ZoneToZonePtdfDefinition("{ES}-{DE}")); // ES doesn't exist in GLSK map, must be filtered
 
         // compute zToz PTDF sum
-        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
+        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, PTDF_SUM_LOWER_BOUND);
         Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // Test that these 3 new boundaries are ignored (results should be the same as previous test)
         assertEquals(0.5, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) = 0.1 + 0.2 + 0.1 + 0.1
         assertEquals(0.3, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(TwoSides.ONE), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.2) = 0 + 0.1 + 0.1 + 0.1
+    }
+
+    @Test
+    void testWithNullPtdfSum() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
+            .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
+
+        // Crac
+        Set<TwoSides> monitoredCnecSides = Set.of(TwoSides.ONE, TwoSides.TWO);
+        Crac crac = new CracImpl("test-crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE);
+        // Cnecs
+        FlowCnecAdder cnecAdder1 = crac.newFlowCnec()
+            .withId("cnec3basecase")
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .withInstant("preventive")
+            .withOptimized(true)
+            .withOperator("operator1")
+            .withNominalVoltage(380.)
+            .withIMax(5000.);
+        monitoredCnecSides.forEach(side ->
+            cnecAdder1.newThreshold()
+                .withUnit(Unit.MEGAWATT)
+                .withSide(side)
+                .withMin(-1500.)
+                .withMax(1500.)
+                .add());
+        cnecAdder1.add();
+
+        List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
+            new ZoneToZonePtdfDefinition("{FR}-{BE}"),
+            new ZoneToZonePtdfDefinition("{FR}-{DE}"));
+
+        // compute zToz PTDF sum
+        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, PTDF_SUM_LOWER_BOUND);
+        Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
+
+        // Test that sum = PTDF_SUM_LOWER_BOUND
+        assertEquals(PTDF_SUM_LOWER_BOUND, ptdfSums.get(crac.getFlowCnec("cnec3basecase")).get(TwoSides.TWO), DOUBLE_TOLERANCE);
     }
 }
