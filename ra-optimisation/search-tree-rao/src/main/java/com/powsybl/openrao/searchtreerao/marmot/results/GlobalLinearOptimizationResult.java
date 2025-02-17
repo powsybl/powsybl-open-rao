@@ -83,7 +83,7 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
 
     @Override
     public double getFunctionalCost() {
-        return globalObjectiveFunctionResult.getCost();
+        return globalObjectiveFunctionResult.getFunctionalCost();
     }
 
     @Override
