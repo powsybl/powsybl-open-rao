@@ -101,17 +101,12 @@
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
         <logback.version>1.5.6</logback.version>
         <lombok.version>1.18.28</lombok.version>
-        <maven.buildnumber.version>3.2.1</maven.buildnumber.version>
         <maven.compiler.version>3.11.0</maven.compiler.version>
         <maven.dependency.version>3.6.0</maven.dependency.version>
         <maven.deploy.version>3.1.1</maven.deploy.version>
         <maven.gpg.version>3.1.0</maven.gpg.version>
-        <maven.jacoco.version>0.8.12</maven.jacoco.version>
         <maven.jar.version>3.3.0</maven.jar.version>
-        <maven.javadoc.version>3.10.1</maven.javadoc.version>
         <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
-        <maven.source.version>3.3.1</maven.source.version>
-        <maven.templating.version>3.0.0</maven.templating.version>
         <mockito.core.version>5.12.0</mockito.core.version>
         <powsybl.core.version>6.6.0</powsybl.core.version>
         <powsybl.entsoe.version>2.12.0</powsybl.entsoe.version>
