@@ -6,20 +6,14 @@
  */
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.ProblemFillerHelper;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.*;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -42,50 +36,9 @@ public class LinearProblemBuilder {
         this.withSolver(parameters.getSolverParameters().getSolver())
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
             .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters())
-            .withProblemFiller(buildCoreProblemFiller())
             .withInitialRangeActionActivationResult(inputs.raActivationFromParentLeaf());
 
-        // max.min margin, or max.min relative margin
-        if (parameters.getObjectiveFunction().relativePositiveMargins()) {
-            this.withProblemFiller(buildMaxMinRelativeMarginFiller());
-        } else {
-            this.withProblemFiller(buildMaxMinMarginFiller());
-        }
-
-        // MNEC
-        if (parameters.isRaoWithMnecLimitation()) {
-            this.withProblemFiller(buildMnecFiller());
-        }
-
-        // loop-flow limitation
-        if (parameters.isRaoWithLoopFlowLimitation()) {
-            this.withProblemFiller(buildLoopFlowFiller());
-        }
-
-        // unoptimized CNECs for TSOs without curative RA
-        if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())
-            && !Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize())
-            && inputs.optimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
-            this.withProblemFiller(buildUnoptimizedCnecFiller());
-        }
-
-        // MIP optimization vs. CONTINUOUS optimization
-        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
-            Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(inputs.optimizationPerimeter().getRangeActionsPerState());
-            Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(inputs.optimizationPerimeter().getRangeActionsPerState());
-            this.withProblemFiller(buildIntegerPstTapFiller(pstRangeActions));
-            this.withProblemFiller(buildDiscretePstGroupFiller(pstRangeActions));
-            this.withProblemFiller(buildContinuousRangeActionGroupFiller(otherRa));
-        } else {
-            this.withProblemFiller(buildContinuousRangeActionGroupFiller(inputs.optimizationPerimeter().getRangeActionsPerState()));
-        }
-
-        // RA limitation
-        if (parameters.getRaLimitationParameters() != null
-            && inputs.optimizationPerimeter().getRangeActionOptimizationStates().stream()
-            .anyMatch(state -> parameters.getRaLimitationParameters().areRangeActionLimitedForState(state))) {
-            this.withProblemFiller(buildRaUsageLimitsFiller());
-        }
+        ProblemFillerHelper.getProblemFillers(inputs, parameters, inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null)).forEach(this::withProblemFiller);
 
         return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters);
     }
@@ -117,132 +70,5 @@ public class LinearProblemBuilder {
     public LinearProblemBuilder withInitialRangeActionActivationResult(RangeActionActivationResult rangeActionActivationResult) {
         this.initialRangeActionActivationResult = rangeActionActivationResult;
         return this;
-    }
-
-    private ProblemFiller buildCoreProblemFiller() {
-        return parameters.getObjectiveFunction().costOptimization() ? new CostCoreProblemFiller(
-            inputs.optimizationPerimeter(),
-            inputs.prePerimeterSetpoints(),
-            parameters.getRangeActionParameters(),
-            parameters.getRangeActionParametersExtension(),
-            parameters.getObjectiveFunctionUnit(),
-            parameters.getRaRangeShrinking(),
-            getPstModel(parameters.getRangeActionParametersExtension()),
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null)
-        ) : new MarginCoreProblemFiller(
-            inputs.optimizationPerimeter(),
-            inputs.prePerimeterSetpoints(),
-            parameters.getRangeActionParameters(),
-            parameters.getRangeActionParametersExtension(),
-            parameters.getObjectiveFunctionUnit(),
-            parameters.getRaRangeShrinking(),
-            getPstModel(parameters.getRangeActionParametersExtension()),
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null)
-        );
-    }
-
-    private ProblemFiller buildMaxMinRelativeMarginFiller() {
-        return new MaxMinRelativeMarginFiller(
-            inputs.optimizationPerimeter().getOptimizedFlowCnecs(),
-            inputs.preOptimizationFlowResult(),
-            parameters.getObjectiveFunctionUnit(),
-            parameters.getMaxMinRelativeMarginParameters(),
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null)
-        );
-    }
-
-    private ProblemFiller buildMaxMinMarginFiller() {
-        return new MaxMinMarginFiller(
-            inputs.optimizationPerimeter().getOptimizedFlowCnecs(),
-            parameters.getObjectiveFunctionUnit(),
-            parameters.getObjectiveFunction().costOptimization(),
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null));
-    }
-
-    private ProblemFiller buildMnecFiller() {
-        return new MnecFiller(
-            inputs.initialFlowResult(),
-            inputs.optimizationPerimeter().getMonitoredFlowCnecs(),
-            parameters.getObjectiveFunctionUnit(),
-            parameters.getMnecParametersExtension().getViolationCost(),
-            parameters.getMnecParameters().getAcceptableMarginDecrease(),
-            parameters.getMnecParametersExtension().getConstraintAdjustmentCoefficient(),
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null));
-    }
-
-    private ProblemFiller buildLoopFlowFiller() {
-        return new MaxLoopFlowFiller(
-            inputs.optimizationPerimeter().getLoopFlowCnecs(),
-            inputs.initialFlowResult(),
-            parameters.getLoopFlowParameters(),
-            parameters.getLoopFlowParametersExtension(),
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null)
-        );
-    }
-
-    private ProblemFiller buildUnoptimizedCnecFiller() {
-        return new UnoptimizedCnecFiller(
-            inputs.optimizationPerimeter().getFlowCnecs(),
-            inputs.prePerimeterFlowResult(),
-            parameters.getUnoptimizedCnecParameters(),
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null)
-        );
-    }
-
-    private ProblemFiller buildIntegerPstTapFiller(Map<State, Set<PstRangeAction>> pstRangeActions) {
-        return new DiscretePstTapFiller(
-            inputs.optimizationPerimeter(),
-            pstRangeActions,
-            inputs.prePerimeterSetpoints(),
-            parameters.getRangeActionParameters(),
-            parameters.getObjectiveFunction().costOptimization(),
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null)
-        );
-    }
-
-    private ProblemFiller buildDiscretePstGroupFiller(Map<State, Set<PstRangeAction>> pstRangeActions) {
-        return new DiscretePstGroupFiller(
-            inputs.optimizationPerimeter().getMainOptimizationState(),
-            pstRangeActions,
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null));
-    }
-
-    private ProblemFiller buildContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
-        return new ContinuousRangeActionGroupFiller(rangeActionsPerState, inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null));
-    }
-
-    private ProblemFiller buildRaUsageLimitsFiller() {
-        return new RaUsageLimitsFiller(
-            inputs.optimizationPerimeter().getRangeActionsPerState(),
-            inputs.prePerimeterSetpoints(),
-            parameters.getRaLimitationParameters(),
-            getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-            inputs.network(),
-            parameters.getObjectiveFunction().costOptimization(),
-            inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null));
-    }
-
-    private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
-        Map<State, Set<RangeAction<?>>> outRangeActions = new HashMap<>();
-        inRangeActions.forEach((state, rangeActions) -> {
-            if (rangeActions.stream().anyMatch(ra -> !(ra instanceof PstRangeAction))) {
-                outRangeActions.put(state, rangeActions.stream().filter(ra -> !(ra instanceof PstRangeAction)).collect(Collectors.toCollection(
-                    () -> new TreeSet<>(Comparator.comparing(RangeAction::getId))
-                )));
-            }
-        });
-        return outRangeActions;
-    }
-
-    private Map<State, Set<PstRangeAction>> copyOnlyPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
-        Map<State, Set<PstRangeAction>> outRangeActions = new TreeMap<>(Comparator.comparing(State::getId));
-        inRangeActions.forEach((state, rangeActions) -> {
-            if (rangeActions.stream().anyMatch(PstRangeAction.class::isInstance)) {
-                outRangeActions.put(state, rangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toCollection(
-                    () -> new TreeSet<>(Comparator.comparing(PstRangeAction::getId))
-                )));
-            }
-        });
-        return outRangeActions;
     }
 }
