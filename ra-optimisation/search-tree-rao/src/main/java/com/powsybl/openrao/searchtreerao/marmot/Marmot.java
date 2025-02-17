@@ -146,6 +146,7 @@ public class Marmot implements InterTemporalRaoProvider {
         parameters.getLoopFlowParameters().ifPresent(linearOptimizerParametersBuilder::withLoopFlowParameters);
         IteratingLinearOptimizerParameters linearOptimizerParameters = linearOptimizerParametersBuilder.build();
 
+        // TODO: include applied topo PRAs to compute total activation cost
         return InterTemporalIteratingLinearOptimizer.optimize(interTemporalLinearOptimizerInput, linearOptimizerParameters);
     }
 
