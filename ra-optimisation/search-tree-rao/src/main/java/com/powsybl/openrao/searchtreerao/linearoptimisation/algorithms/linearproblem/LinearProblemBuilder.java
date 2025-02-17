@@ -24,14 +24,10 @@ public class LinearProblemBuilder {
     private double relativeMipGap = SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_RELATIVE_MIP_GAP;
     private String solverSpecificParameters = SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
     private RangeActionActivationResult initialRangeActionActivationResult;
-    private IteratingLinearOptimizerInput inputs;
-    private IteratingLinearOptimizerParameters parameters;
 
     public LinearProblem buildFromInputsAndParameters(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
         Objects.requireNonNull(inputs);
         Objects.requireNonNull(parameters);
-        this.inputs = inputs;
-        this.parameters = parameters;
 
         this.withSolver(parameters.getSolverParameters().getSolver())
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
