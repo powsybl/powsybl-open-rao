@@ -27,17 +27,16 @@ class UcteConnectableTest {
         UcteConnectable ucteElement = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
 
         // found internal_line with order code
-        assertTrue(ucteElement.doesMatch("ABC12345", "DEF12345", "1", ConnectableType.INTERNAL_LINE));
-        assertTrue(ucteElement.getUcteMatchingResult("ABC12345", "DEF12345", "1", ConnectableType.INTERNAL_LINE).hasMatched());
-        assertEquals(UcteConnectable.Side.BOTH, ucteElement.getUcteMatchingResult("ABC12345", "DEF12345", "1", ConnectableType.INTERNAL_LINE).getSide());
+        assertTrue(ucteElement.doesMatchWithOrderCode("ABC12345", "DEF12345", "1", ConnectableType.INTERNAL_LINE));
+        assertFalse(ucteElement.doesMatchWithElementName("ABC12345", "DEF12345", "1", ConnectableType.INTERNAL_LINE));
+        assertTrue(ucteElement.getUcteMatchingResult().hasMatched());
+        assertEquals(UcteConnectable.Side.BOTH, ucteElement.getUcteMatchingResult().getSide());
 
         // not found, wrong from id
-        assertFalse(ucteElement.doesMatch("ABC123 ", "DEF12345", "1", ConnectableType.INTERNAL_LINE));
-        assertFalse(ucteElement.getUcteMatchingResult("ABC123 ", "DEF12345", "1", ConnectableType.INTERNAL_LINE).hasMatched());
+        assertFalse(ucteElement.doesMatchWithOrderCode("ABC123 ", "DEF12345", "1", ConnectableType.INTERNAL_LINE));
 
         // not found, wrong type
-        assertFalse(ucteElement.doesMatch("ABC12345", "DEF12345", "1", ConnectableType.PST));
-        assertFalse(ucteElement.getUcteMatchingResult("ABC12345", "DEF12345", "1", ConnectableType.PST).hasMatched());
+        assertFalse(ucteElement.doesMatchWithOrderCode("ABC12345", "DEF12345", "1", ConnectableType.PST));
     }
 
     @Test
@@ -46,16 +45,15 @@ class UcteConnectableTest {
         UcteConnectable ucteElement = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), tieLine, false);
 
         // found tie_line with element name
-        assertTrue(ucteElement.doesMatch("ABC12345", "DEF12345", "en1", ConnectableType.TIE_LINE, ConnectableType.INTERNAL_LINE));
-        assertTrue(ucteElement.getUcteMatchingResult("ABC12345", "DEF12345", "en1", ConnectableType.TIE_LINE).hasMatched());
+        assertTrue(ucteElement.doesMatchWithElementName("ABC12345", "DEF12345", "en1", ConnectableType.TIE_LINE, ConnectableType.INTERNAL_LINE));
+        assertFalse(ucteElement.doesMatchWithOrderCode("ABC12345", "DEF12345", "en1", ConnectableType.TIE_LINE, ConnectableType.INTERNAL_LINE));
+        assertTrue(ucteElement.getUcteMatchingResult().hasMatched());
 
         // not found, wrong element name
-        assertFalse(ucteElement.doesMatch("ABC12345", "DEF12345", "unknown1", ConnectableType.TIE_LINE));
-        assertFalse(ucteElement.getUcteMatchingResult("ABC12345", "DEF12345", "unknown1", ConnectableType.TIE_LINE).hasMatched());
+        assertFalse(ucteElement.doesMatchWithElementName("ABC12345", "DEF12345", "unknown1", ConnectableType.TIE_LINE));
 
         // not found, wrong type
-        assertFalse(ucteElement.doesMatch("ABC12345", "DEF12345", "unknown1", ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST));
-        assertFalse(ucteElement.getUcteMatchingResult("ABC12345", "DEF12345", "unknown1", ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST).hasMatched());
+        assertFalse(ucteElement.doesMatchWithElementName("ABC12345", "DEF12345", "unknown1", ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST));
     }
 
     @Test
@@ -66,12 +64,10 @@ class UcteConnectableTest {
         // found transformer with id with wildcard
         UcteConnectable ucteElement = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), pst, false);
 
-        assertTrue(ucteElement.doesMatch("ABC1234*", "DEF12345", "en2", ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST));
-        assertTrue(ucteElement.getUcteMatchingResult("ABC1234*", "DEF12345", "en2", ConnectableType.PST).hasMatched());
+        assertTrue(ucteElement.doesMatchWithElementName("ABC1234*", "DEF12345", "en2", ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST));
 
         // not found, from/to inverted
-        assertFalse(ucteElement.doesMatch("DEF12345", "ABC12345", "1", ConnectableType.PST));
-        assertFalse(ucteElement.getUcteMatchingResult("DEF12345", "ABC12345", "1", ConnectableType.PST).hasMatched());
+        assertFalse(ucteElement.doesMatchWithOrderCode("DEF12345", "ABC12345", "1", ConnectableType.PST));
     }
 
     @Test
@@ -81,16 +77,16 @@ class UcteConnectableTest {
         UcteConnectable ucteElement = new UcteConnectable("X_NODE12", "R_NODE12", "1", Set.of("en1", "en2"), tieLine, false, UcteConnectable.Side.ONE);
 
         // found with element name
-        assertTrue(ucteElement.doesMatch("X_NODE12", "R_NODE12", "en2", ConnectableType.TIE_LINE));
-        assertTrue(ucteElement.getUcteMatchingResult("X_NODE12", "R_NODE12", "en2", ConnectableType.TIE_LINE).hasMatched());
-        assertEquals(UcteConnectable.Side.ONE, ucteElement.getUcteMatchingResult("X_NODE12", "R_NODE12", "en2", ConnectableType.TIE_LINE).getSide());
+        assertTrue(ucteElement.doesMatchWithElementName("X_NODE12", "R_NODE12", "en2", ConnectableType.TIE_LINE));
+        assertTrue(ucteElement.getUcteMatchingResult().hasMatched());
+        assertEquals(UcteConnectable.Side.ONE, ucteElement.getUcteMatchingResult().getSide());
 
         ucteElement = new UcteConnectable("X_NODE12", "R_NODE12", "1", Set.of("en1", "en2"), tieLine, false, UcteConnectable.Side.TWO);
 
         // id with wildcard
-        assertTrue(ucteElement.doesMatch("X_NODE1*", "R_NODE1*", "1", ConnectableType.TIE_LINE));
-        assertTrue(ucteElement.getUcteMatchingResult("X_NODE1*", "R_NODE1*", "1", ConnectableType.TIE_LINE).hasMatched());
-        assertEquals(UcteConnectable.Side.TWO, ucteElement.getUcteMatchingResult("X_NODE1*", "R_NODE1*", "1", ConnectableType.TIE_LINE).getSide());
+        assertTrue(ucteElement.doesMatchWithOrderCode("X_NODE1*", "R_NODE1*", "1", ConnectableType.TIE_LINE));
+        assertTrue(ucteElement.getUcteMatchingResult().hasMatched());
+        assertEquals(UcteConnectable.Side.TWO, ucteElement.getUcteMatchingResult().getSide());
     }
 
     @Test
@@ -102,8 +98,8 @@ class UcteConnectableTest {
         UcteConnectable ucteTransfo = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), transformer, true);
 
         // found with element name, inverted direction
-        assertTrue(ucteTransfo.getUcteMatchingResult("ABC12345", "DEF12345", "1", ConnectableType.VOLTAGE_TRANSFORMER).hasMatched());
-        assertTrue(ucteTransfo.getUcteMatchingResult("ABC12345", "DEF12345", "1", ConnectableType.VOLTAGE_TRANSFORMER).isInverted());
+        assertTrue(ucteTransfo.getUcteMatchingResult().hasMatched());
+        assertTrue(ucteTransfo.getUcteMatchingResult().isInverted());
     }
 
     @Test
