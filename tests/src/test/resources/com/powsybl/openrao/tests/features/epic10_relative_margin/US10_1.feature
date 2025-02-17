@@ -33,3 +33,18 @@ Feature: US 10.1: Linear RAO with relative margin
     And the absolute PTDF sum on cnec "NNL2AA1  BBE3AA1  1 - preventive" initially should be 1.455
     And the relative margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 2392.4 MW
     And the absolute PTDF sum on cnec "FFR2AA1  DDE3AA1  1 - preventive" initially should be 1.477
+
+  @fast @rao @mock @ac @preventive-only @relative
+  Scenario: US 10.1.3: secured case with open monitored branch
+    Given network file is "common/TestCase12NodesWithOpenBranch.uct"
+    Given crac file is "epic10/ls_relative_margin_with_open_branch.json"
+    Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
+    Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
+    When I launch search_tree_rao
+    Then its security status should be "SECURED"
+    And the value of the objective function after CRA should be -2385.0
+    And the tap of PstRangeAction "PRA_PST_BE" should be -3 in preventive
+    And the worst relative margin is 2383.0 MW on cnec "NNL2AA1  BBE3AA1  1 - preventive"
+    And the absolute PTDF sum on cnec "NNL2AA1  BBE3AA1  1 - preventive" initially should be 1.455
+    And the relative margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 2392.4 MW
+    And the absolute PTDF sum on cnec "FFR2AA1  DDE3AA1  1 - preventive" initially should be 1.477

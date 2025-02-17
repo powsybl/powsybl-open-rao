@@ -8,9 +8,12 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.openrao.commons.EICode;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -20,6 +23,8 @@ import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -157,6 +162,29 @@ class ToolProviderTest {
         raoParameters.setLoopFlowParameters(loopFlowParameters);
         loopFlowParameters.setCountries(List.of("FR"));
         assertEquals(Set.of(cnec1), toolProvider.getLoopFlowCnecs(Set.of(cnec1, cnec2)));
+    }
+
+    @Test
+    void testBuildWithoutRelativeMargin() {
+        RaoInput raoInput = RaoInput.build(network, Mockito.mock(Crac.class)).build();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+
+        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+        assertNull(toolProvider.getAbsolutePtdfSumsComputation());
+    }
+
+    @Test
+    void testBuildWithRelativeMargin() {
+        RaoInput raoInput = RaoInput.build(network, Mockito.mock(Crac.class)).build();
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
+        raoParameters.setRelativeMarginsParameters(new RelativeMarginsParameters());
+
+        OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters();
+        openRaoSearchTreeParameters.setRelativeMarginsParameters(new SearchTreeRaoRelativeMarginsParameters());
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, openRaoSearchTreeParameters);
+
+        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+        assertNotNull(toolProvider.getAbsolutePtdfSumsComputation());
     }
 
 }
