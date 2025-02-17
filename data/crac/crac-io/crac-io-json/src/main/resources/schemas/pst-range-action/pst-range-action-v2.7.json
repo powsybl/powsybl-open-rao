@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.4.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.6.json",
   "type": "object",
   "properties": {
     "id": {
@@ -18,6 +18,10 @@
         "null"
       ]
     },
+    "activationCost": "number",
+    "variationCosts": {
+      "$ref": "resource:/schemas/variation-costs/variation-costs-v2.6.json"
+    },
     "groupId": {
       "type": [
         "string",
@@ -29,15 +33,6 @@
     },
     "networkElementId": {
       "type": "string"
-    },
-    "initialTap": {
-      "type": "number"
-    },
-    "tapToAngleConversionMap": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "number"
-      }
     },
     "ranges": {
       "type": "array",

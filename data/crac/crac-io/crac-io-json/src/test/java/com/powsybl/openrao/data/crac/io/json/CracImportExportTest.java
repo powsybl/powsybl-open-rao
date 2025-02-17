@@ -80,6 +80,14 @@ class CracImportExportTest {
     }
 
     @Test
+    void testPstMissingInNetwork() {
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracMissingPst.json"), new CracCreationParameters(), network);
+        assertFalse(context.isCreationSuccessful());
+        assertEquals(List.of("[ERROR] PST missing-pst does not exist in the current network"), context.getCreationReport().getReport());
+    }
+
+    @Test
     void testImportFailure() {
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), Mockito.mock(Network.class));
         assertNotNull(context);
@@ -332,12 +340,6 @@ class CracImportExportTest {
         assertTrue(crac.getRangeAction("pstRange1Id").getGroupId().isEmpty());
         assertEquals("group-1-pst", crac.getRangeAction("pstRange2Id").getGroupId().orElseThrow());
         assertEquals("group-3-pst", crac.getRangeAction("pstRange3Id").getGroupId().orElseThrow());
-
-        // check taps
-        assertEquals(2, crac.getPstRangeAction("pstRange1Id").getInitialTap());
-        assertEquals(0.5, crac.getPstRangeAction("pstRange1Id").convertTapToAngle(-2));
-        assertEquals(2.5, crac.getPstRangeAction("pstRange1Id").convertTapToAngle(2));
-        assertEquals(2, crac.getPstRangeAction("pstRange1Id").convertAngleToTap(2.5));
 
         // check Tap Range
         assertEquals(2, crac.getPstRangeAction("pstRange1Id").getRanges().size());
