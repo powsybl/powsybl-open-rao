@@ -13,6 +13,7 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -29,11 +30,11 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     private final ObjectiveFunctionResult globalObjectiveFunctionResult;
     private LinearProblemStatus status;
 
-    public GlobalLinearOptimizationResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
+    public GlobalLinearOptimizationResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
         this.globalFlowResult = new GlobalFlowResult(flowResults);
         this.globalSensitivityResult = new GlobalSensitivityResult(sensitivityResults);
-        this.globalRangeActionActivationResult = new GlobalRemedialActionActivationResult(rangeActionActivationResults);
-        this.globalObjectiveFunctionResult = objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults));
+        this.globalRangeActionActivationResult = new GlobalRangeActionActivationResult(rangeActionActivationResults);
+        this.globalObjectiveFunctionResult = objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults, preventiveTopologicalActions));
         this.status = status;
     }
 

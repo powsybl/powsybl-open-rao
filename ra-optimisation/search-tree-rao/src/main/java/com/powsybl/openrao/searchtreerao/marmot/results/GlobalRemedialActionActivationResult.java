@@ -9,26 +9,39 @@ package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 
+import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class GlobalRemedialActionActivationResult extends GlobalRangeActionActivationResult implements RemedialActionActivationResult {
-    public GlobalRemedialActionActivationResult(TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp) {
+    private final NetworkActionsResult globalNetworkActionsResult;
+
+    public GlobalRemedialActionActivationResult(TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp, TemporalData<NetworkActionsResult> preventiveTopologicalActions) {
         super(rangeActionActivationPerTimestamp);
+        Set<NetworkAction> allPreventiveTopologicalActions = new HashSet<>();
+        preventiveTopologicalActions.getDataPerTimestamp().forEach(
+            (timestamp, networkActionsResult) -> networkActionsResult.getActivatedNetworkActions().forEach(
+                // need to duplicate the network action with the timestamp in the id in case the same network action is applied at different timestamps
+                networkAction -> allPreventiveTopologicalActions.add(NetworkActionImpl.copyWithNewId(networkAction, networkAction.getId() + " - " + timestamp.format(DateTimeFormatter.ISO_DATE_TIME)))));
+        this.globalNetworkActionsResult = new NetworkActionsResultImpl(allPreventiveTopologicalActions);
     }
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {
-        return false;
+        return globalNetworkActionsResult.isActivated(networkAction);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
-        return Set.of();
+        return globalNetworkActionsResult.getActivatedNetworkActions();
     }
 }

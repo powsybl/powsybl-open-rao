@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
@@ -112,5 +113,25 @@ class MarmotTest {
         assertEquals(250.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(500.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(500.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+    }
+
+    @Test
+    void testWithPreventiveTopologicalAction() throws IOException {
+        Network network1 = Network.read("/network/2Nodes3ParallelLinesPST2LinesClosed.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes3ParallelLinesPST2LinesClosed.uct"));
+        Network network2 = Network.read("/network/2Nodes3ParallelLinesPST2LinesClosed.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes3ParallelLinesPST2LinesClosed.uct"));
+        Crac crac1 = Crac.read("/crac/crac-topo-202502181007.json", MarmotTest.class.getResourceAsStream("/crac/crac-topo-202502181007.json"), network1);
+        Crac crac2 = Crac.read("/crac/crac-topo-202502191007.json", MarmotTest.class.getResourceAsStream("/crac/crac-topo-202502191007.json"), network2);
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
+
+        OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 18, 10, 7, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 19, 10, 7, 0, 0, ZoneOffset.UTC);
+
+        InterTemporalRaoInput input = new InterTemporalRaoInput(
+            new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build())),
+            Set.of(new PowerGradient("FFR1AA1 _generator", -250d, 250d))
+        );
+
+        TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
+        assertEquals(40.0, results.getData(timestamp1).get().getCost(crac1.getInstant(InstantKind.PREVENTIVE)));
     }
 }

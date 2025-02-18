@@ -64,6 +64,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterFlowResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints).map(RangeActionActivationResultImpl::new),
+            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::appliedNetworkActionsInPrimaryState),
             input.objectiveFunction()
         );
         GlobalLinearOptimizationResult previousResult = bestResult;
@@ -148,6 +149,7 @@ public final class InterTemporalIteratingLinearOptimizer {
                 sensitivityComputers,
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
                 rangeActionActivationPerTimestamp,
+                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::appliedNetworkActionsInPrimaryState),
                 input.objectiveFunction()
             );
             previousResult = newResult;
@@ -292,17 +294,17 @@ public final class InterTemporalIteratingLinearOptimizer {
 
     // Result management
 
-    private static GlobalLinearOptimizationResult createInitialResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivations, ObjectiveFunction objectiveFunction) {
-        return new GlobalLinearOptimizationResult(flowResults, sensitivityResults, rangeActionActivations, objectiveFunction, LinearProblemStatus.OPTIMAL);
+    private static GlobalLinearOptimizationResult createInitialResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivations, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction) {
+        return new GlobalLinearOptimizationResult(flowResults, sensitivityResults, rangeActionActivations, preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 
-    private static GlobalLinearOptimizationResult createResultFromData(TemporalData<SensitivityComputer> sensitivityComputers, TemporalData<Network> networks, TemporalData<RangeActionActivationResult> rangeActionActivation, ObjectiveFunction objectiveFunction) {
+    private static GlobalLinearOptimizationResult createResultFromData(TemporalData<SensitivityComputer> sensitivityComputers, TemporalData<Network> networks, TemporalData<RangeActionActivationResult> rangeActionActivation, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction) {
         Map<OffsetDateTime, FlowResult> flowResults = new HashMap<>();
         for (OffsetDateTime timestamp : sensitivityComputers.getTimestamps()) {
             FlowResult flowResult = sensitivityComputers.getData(timestamp).orElseThrow().getBranchResult(networks.getData(timestamp).orElseThrow());
             flowResults.put(timestamp, flowResult);
         }
-        return new GlobalLinearOptimizationResult(new TemporalDataImpl<>(flowResults), sensitivityComputers.map(SensitivityComputer::getSensitivityResult), rangeActionActivation, objectiveFunction, LinearProblemStatus.OPTIMAL);
+        return new GlobalLinearOptimizationResult(new TemporalDataImpl<>(flowResults), sensitivityComputers.map(SensitivityComputer::getSensitivityResult), rangeActionActivation, preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 
     // Set-point rounding
