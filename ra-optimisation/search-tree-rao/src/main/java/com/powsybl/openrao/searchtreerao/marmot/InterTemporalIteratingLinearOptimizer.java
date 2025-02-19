@@ -109,7 +109,6 @@ public final class InterTemporalIteratingLinearOptimizer {
             }
 
             rangeActionActivationPerTimestamp = new TemporalDataImpl<>(roundedResults);
-            // TODO: do we still want to do this in this MIP?
             rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers);
 
             // d. [PARALLEL?] Check if set-points have changed; if no, return the best result
