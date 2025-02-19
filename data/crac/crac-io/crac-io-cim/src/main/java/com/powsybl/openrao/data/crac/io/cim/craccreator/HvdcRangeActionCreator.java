@@ -93,8 +93,6 @@ public class HvdcRangeActionCreator {
                     hvdcRangeActionAdders.putIfAbsent(networkElementId, initHvdcRangeActionAdder(registeredResource));
                 }
 
-                // TODO: add is altered if only half of the HVDC is imported
-
                 boolean isRegisteredResourceInverted = readHvdcRange(
                     networkElementId,
                     registeredResource.getResourceCapacityMinimumCapacity().intValue(),
