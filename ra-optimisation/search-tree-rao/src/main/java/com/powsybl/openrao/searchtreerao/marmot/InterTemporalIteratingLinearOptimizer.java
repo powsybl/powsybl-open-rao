@@ -100,7 +100,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             }
 
             // c. [PARALLEL] Get and round range action activation results from solver results
-            // TODO: use global range action activation result below? -- > ce serait la même chose juste recuperer l'info de l'objet global ?
+            // TODO: we could use a GlobalRangeActionActivationResult rather than a TemporalData<RangeActionActivationResult>
             TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp = retrieveRangeActionActivationResults(linearProblem, input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints), input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::optimizationPerimeter));
             Map<OffsetDateTime, RangeActionActivationResult> roundedResults = new HashMap<>();
 
@@ -232,7 +232,7 @@ public final class InterTemporalIteratingLinearOptimizer {
 
     private static SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
-        // TODO: should always be global
+        // TODO: if we want to force 2P, shoud always be global
         if (input.optimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult, input);
             tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters);
