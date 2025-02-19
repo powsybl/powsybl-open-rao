@@ -1131,20 +1131,22 @@ class CimCracCreatorTest {
     @Test
     void testImportHvdcAutomatonWithFullyConnectedHvdc() throws IOException {
         Network network = loadNetworkWithHvdc();
-        setUpWithSpeed("/cracs/CIM_21_6_1.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed("/cracs/cim-hvdc.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(2, crac.getHvdcRangeActions().size());
 
         HvdcRangeAction hvdcRangeAction1 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
         assertEquals(1, hvdcRangeAction1.getRanges().size());
-        assertEquals(-1000, hvdcRangeAction1.getRanges().iterator().next().getMin());
-        assertEquals(1500, hvdcRangeAction1.getRanges().iterator().next().getMax());
+        assertEquals(-4000, hvdcRangeAction1.getRanges().iterator().next().getMin());
+        assertEquals(5000, hvdcRangeAction1.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction1.getGroupId());
 
         HvdcRangeAction hvdcRangeAction2 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1");
         assertEquals(1, hvdcRangeAction2.getRanges().size());
-        assertEquals(-1000, hvdcRangeAction2.getRanges().iterator().next().getMin());
-        assertEquals(1500, hvdcRangeAction2.getRanges().iterator().next().getMax());
+        assertEquals(-3000, hvdcRangeAction2.getRanges().iterator().next().getMin());
+        assertEquals(3500, hvdcRangeAction2.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction2.getGroupId());
     }
 
     private static void disconnectHvdcLine(HvdcLine hvdcLine) {
@@ -1156,30 +1158,32 @@ class CimCracCreatorTest {
     void testImportHvdcAutomatonWithPartiallyConnectedHvdc1() throws IOException {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
-        setUpWithSpeed("/cracs/CIM_21_6_1.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed("/cracs/cim-hvdc.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getHvdcRangeActions().size());
 
         HvdcRangeAction hvdcRangeAction = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1");
         assertEquals(1, hvdcRangeAction.getRanges().size());
-        assertEquals(-1000, hvdcRangeAction.getRanges().iterator().next().getMin());
-        assertEquals(1500, hvdcRangeAction.getRanges().iterator().next().getMax());
+        assertEquals(-3000, hvdcRangeAction.getRanges().iterator().next().getMin());
+        assertEquals(3500, hvdcRangeAction.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA12 FFR3AA12 1"), hvdcRangeAction.getGroupId());
     }
 
     @Test
     void testImportHvdcAutomatonWithPartiallyConnectedHvdc2() throws IOException {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
-        setUpWithSpeed("/cracs/CIM_21_6_1.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed("/cracs/cim-hvdc.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getHvdcRangeActions().size());
 
         HvdcRangeAction hvdcRangeAction = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
         assertEquals(1, hvdcRangeAction.getRanges().size());
-        assertEquals(-1000, hvdcRangeAction.getRanges().iterator().next().getMin());
-        assertEquals(1500, hvdcRangeAction.getRanges().iterator().next().getMax());
+        assertEquals(-4000, hvdcRangeAction.getRanges().iterator().next().getMin());
+        assertEquals(5000, hvdcRangeAction.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1"), hvdcRangeAction.getGroupId());
     }
 
     @Test
@@ -1187,8 +1191,21 @@ class CimCracCreatorTest {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
         disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
-        setUpWithSpeed("/cracs/CIM_21_6_1.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed("/cracs/cim-hvdc.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
         Crac crac = cracCreationContext.getCrac();
+
+        assertTrue(crac.getHvdcRangeActions().isEmpty());
+    }
+
+    @Test
+    void testImportHvdcAutomatonWithErrorInCimFullyConnected() throws IOException {
+        // only one error in any of the in/out nodes in CIM CRAC leads to not importing nay HVDC RA
+        Network network = loadNetworkWithHvdc();
+        disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
+        disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
+        setUpWithSpeed("/cracs/cim-hvdc-error.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+
         assertTrue(crac.getHvdcRangeActions().isEmpty());
     }
 }

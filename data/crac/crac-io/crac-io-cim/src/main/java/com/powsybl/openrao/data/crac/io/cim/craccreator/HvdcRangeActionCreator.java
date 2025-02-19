@@ -84,7 +84,16 @@ public class HvdcRangeActionCreator {
                 }
                 networkElementIds.add(networkElementId);
 
-                hvdcRangeActionAdders.putIfAbsent(networkElementId, initHvdcRangeActionAdder(registeredResource));
+                HvdcLine hvdcLine = network.getHvdcLine(networkElementId);
+                if (Objects.isNull(hvdcLine)) {
+                    throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Not a HVDC line");
+                }
+
+                if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().isConnected()) {
+                    hvdcRangeActionAdders.putIfAbsent(networkElementId, initHvdcRangeActionAdder(registeredResource));
+                }
+
+                // TODO: add is altered if only half of the HVDC is imported
 
                 boolean isRegisteredResourceInverted = readHvdcRange(
                     networkElementId,

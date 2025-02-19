@@ -214,8 +214,8 @@ public class RemedialActionSeriesCreator {
         }
 
         // --- Availability_MarketObjectStatus
-        String availabilityMarketObjectStus = remedialActionSeries.getAvailabilityMarketObjectStatusStatus();
-        if (!checkAvailabilityMarketObjectStatus(createdRemedialActionId, availabilityMarketObjectStus)) {
+        String availabilityMarketObjectStatus = remedialActionSeries.getAvailabilityMarketObjectStatusStatus();
+        if (!checkAvailabilityMarketObjectStatus(createdRemedialActionId, availabilityMarketObjectStatus)) {
             return;
         }
 
