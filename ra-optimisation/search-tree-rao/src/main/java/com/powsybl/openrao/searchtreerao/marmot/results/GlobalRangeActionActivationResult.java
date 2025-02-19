@@ -18,8 +18,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
+/** This class aggregates RangeActionActivationResult stored in TemporalData<RangeActionActivationResult> in one big RangeActionActivationResult.
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class GlobalRangeActionActivationResult implements RangeActionActivationResult {
     private final TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp;

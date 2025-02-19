@@ -7,8 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -207,13 +205,5 @@ public final class ProblemFillerHelper {
             }
         });
         return outRangeActions;
-    }
-
-    static boolean tsoHasCra(String tso, Crac crac) {
-        Set<State> optimizedCurativeStates = crac.getCurativeStates();
-        return optimizedCurativeStates.stream().anyMatch(state ->
-            crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
-                crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
-        );
     }
 }

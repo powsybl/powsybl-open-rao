@@ -36,6 +36,7 @@ import java.util.function.Function;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class MarmotUtils {
 
@@ -74,6 +75,13 @@ public final class MarmotUtils {
         return temporalData.getData(state.getTimestamp().orElseThrow()).orElseThrow();
     }
 
+    /**
+     * This function combines computation statuses from a Temporal Data.
+     * If any <T> has ComputationStatus.FAILURE, return ComputationStatus.FAILURE
+     * Else, if any <T> has  ComputationStatus.PARTIAL_FAILURE, return ComputationStatus.PARTIAL_FAILURE
+     * Else, return ComputationStatus.DEFAULT
+     */
+    // TODO : add synchronized for multithreading ?
     public static <T> ComputationStatus getGlobalComputationStatus(TemporalData<T> temporalData, Function<T, ComputationStatus> computationStatusCalculator) {
         Set<ComputationStatus> allStatuses = new HashSet<>(temporalData.map(computationStatusCalculator).getDataPerTimestamp().values());
         if (allStatuses.contains(ComputationStatus.FAILURE)) {

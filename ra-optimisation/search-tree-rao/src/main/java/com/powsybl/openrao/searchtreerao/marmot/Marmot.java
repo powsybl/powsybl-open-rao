@@ -50,6 +50,7 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPre
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 @AutoService(InterTemporalRaoProvider.class)
 public class Marmot implements InterTemporalRaoProvider {
@@ -60,7 +61,7 @@ public class Marmot implements InterTemporalRaoProvider {
     @Override
     public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInput raoInput, RaoParameters raoParameters) {
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Topological optimization");
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization");
         TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(raoInput.getRaoInputs(), raoParameters);
 
         // if no inter-temporal constraints are defined, the results can be returned
@@ -79,6 +80,7 @@ public class Marmot implements InterTemporalRaoProvider {
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
 
         // 4. Create and iteratively solve MIP to find optimal range actions' set-points
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Inter-temporal MIP");
         LinearOptimizationResult linearOptimizationResults = optimizeLinearRemedialActions(raoInput, prePerimeterResults, raoParameters, getPreventiveTopologicalActions(raoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults));
 
         // 5. Merge topological and linear result
@@ -89,7 +91,10 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInput> raoInputs, RaoParameters raoParameters) {
-        return raoInputs.map(individualRaoInput -> Rao.run(individualRaoInput, raoParameters));
+        return raoInputs.map(individualRaoInput -> {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Running RAO for timestamp {}", individualRaoInput.getCrac().getTimestamp().orElseThrow());
+            return Rao.run(individualRaoInput, raoParameters);
+        });
     }
 
     private static void applyPreventiveTopologicalActionsOnNetwork(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
@@ -97,7 +102,6 @@ public class Marmot implements InterTemporalRaoProvider {
             .getDataPerTimestamp()
             .values()
             .forEach(TopologicalOptimizationResult::applyTopologicalActions);
-        // TODO: also handle curative remedial actions
     }
 
     private static TemporalData<PrePerimeterResult> runAllInitialPrePerimeterSensitivityAnalysis(TemporalData<RaoInput> raoInputs, RaoParameters raoParameters) {
@@ -111,16 +115,12 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private static LinearOptimizationResult optimizeLinearRemedialActions(InterTemporalRaoInput raoInput, TemporalData<PrePerimeterResult> prePerimeterResults, RaoParameters parameters, TemporalData<NetworkActionsResult> preventiveTopologicalActions) {
-        // -- BUILD OBJECTIVE FUNCTION
-
+        // -- Build objective function
         ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult)), parameters);
 
-        // TODO : withOutageInstant : why not directly write integer value (in this case, not a paremeter)
-        // no objective function defined in individual IteratingLinearOptimizerInputs as it is global
-
-        // -- BUILD IteratingLinearOptimizerInterTemporalInput
+        // -- Build IteratingLinearOptimizerInterTemporalInput
         TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac));
-
+        // no objective function defined in individual IteratingLinearOptimizerInputs as it is global
         Map<OffsetDateTime, IteratingLinearOptimizerInput> linearOptimizerInputPerTimestamp = new HashMap<>();
         raoInput.getRaoInputs().getTimestamps().forEach(timestamp -> linearOptimizerInputPerTimestamp.put(timestamp, IteratingLinearOptimizerInput.create()
             .withNetwork(raoInput.getRaoInputs().getData(timestamp).orElseThrow().getNetwork())
@@ -137,19 +137,18 @@ public class Marmot implements InterTemporalRaoProvider {
             .build()));
         InterTemporalIteratingLinearOptimizerInput interTemporalLinearOptimizerInput = new InterTemporalIteratingLinearOptimizerInput(new TemporalDataImpl<>(linearOptimizerInputPerTimestamp), objectiveFunction, raoInput.getPowerGradients());
 
-        // TODO [Unit Test]: check that all parameters are properly created
-        // build parameters
+        // Build parameters
+        // Unoptimized cnec parameters ignored because only PRAs
+        // TODO: define static method to define Ra Limitation Parameters from crac and topos (mutualize with search tree) : SearchTreeParameters::decreaseRemedialActionsUsageLimits
         IteratingLinearOptimizerParameters.LinearOptimizerParametersBuilder linearOptimizerParametersBuilder = IteratingLinearOptimizerParameters.create()
             .withObjectiveFunction(parameters.getObjectiveFunctionParameters().getType())
             .withObjectiveFunctionUnit(parameters.getObjectiveFunctionParameters().getUnit())
             .withRangeActionParameters(parameters.getRangeActionsOptimizationParameters())
             .withRangeActionParametersExtension(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters())
-            // TODO: unoptimized cnec parameters ignored because only PRAs
             .withMaxNumberOfIterations(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getMaxMipIterations())
             .withRaRangeShrinking(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking()) || SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking()))
             .withSolverParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
             .withMaxMinRelativeMarginParameters(parameters.getExtension(SearchTreeRaoRelativeMarginsParameters.class))
-            // TODO: define static method to define Ra Limitation Parameters from crac and topos (mutualize with search tree) : SearchTreeParameters::decreaseRemedialActionsUsageLimits
             .withRaLimitationParameters(new RangeActionLimitationParameters());
         parameters.getMnecParameters().ifPresent(linearOptimizerParametersBuilder::withMnecParameters);
         parameters.getLoopFlowParameters().ifPresent(linearOptimizerParametersBuilder::withLoopFlowParameters);
@@ -172,16 +171,13 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private static TemporalData<RaoResult> mergeTopologicalAndLinearOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> prePerimeterResults, LinearOptimizationResult linearOptimizationResults, TemporalData<RaoResult> topologicalOptimizationResults) {
-        // TODO: add curative RAs (range action and topological)
         return getPostOptimizationResults(raoInputs, prePerimeterResults, linearOptimizationResults, topologicalOptimizationResults).map(PostOptimizationResult::merge);
     }
 
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalFlowResult, RaoParameters raoParameters) {
         Set<FlowCnec> allFlowCnecs = new HashSet<>();
         cracs.map(MarmotUtils::getPreventivePerimeterCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
-
         Set<State> allOptimizedStates = new HashSet<>(cracs.map(Crac::getPreventiveState).getDataPerTimestamp().values());
-
         return ObjectiveFunction.build(allFlowCnecs,
             new HashSet<>(), // no loop flows for now
             globalFlowResult,

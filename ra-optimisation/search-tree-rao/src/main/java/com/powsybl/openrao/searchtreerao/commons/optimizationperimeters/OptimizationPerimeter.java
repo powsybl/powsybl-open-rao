@@ -26,7 +26,7 @@ public interface OptimizationPerimeter {
      - the state on which the network actions are optimized
      - the first state (chronologically speaking) on which range actions are optimized
      */
-    State getMainOptimizationState(); // TODO: this is ambiguous for 2P
+    State getMainOptimizationState();
 
     /**
      Returns the set of states on which range actions are optimized.

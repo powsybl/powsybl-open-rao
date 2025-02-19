@@ -19,8 +19,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
+/** This class aggregates RemedialActionActivationResult stored in TemporalData<RemedialActionActivationResult> in one big RemedialActionActivationResult.
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class GlobalRemedialActionActivationResult extends GlobalRangeActionActivationResult implements RemedialActionActivationResult {
     private final NetworkActionsResult globalNetworkActionsResult;

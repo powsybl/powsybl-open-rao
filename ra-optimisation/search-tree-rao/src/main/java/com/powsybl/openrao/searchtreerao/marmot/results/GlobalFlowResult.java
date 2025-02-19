@@ -20,8 +20,9 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
+/** This class aggregates FlowResults stored in TemporalData<FlowResult> in one big FlowResult.
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class GlobalFlowResult implements FlowResult {
     private final TemporalData<FlowResult> flowResultPerTimestamp;

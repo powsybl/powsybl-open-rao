@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
 public class PowerGradientConstraintFiller implements ProblemFiller {
     private final TemporalData<State> preventiveStates;
     private final TemporalData<Network> networkPerTimestamp;
-    private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;  //raoInput.getCrac().getRangeActions(raoInput.getCrac().getPreventiveState(), UsageMethod.AVAILABLE)
+    private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;
     private final Set<PowerGradient> powerGradients;
 
     public PowerGradientConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Network> networkPerTimestamp, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<PowerGradient> powerGradients) {

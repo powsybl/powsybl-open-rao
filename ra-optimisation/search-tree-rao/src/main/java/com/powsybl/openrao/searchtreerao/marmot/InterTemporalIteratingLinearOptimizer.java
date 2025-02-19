@@ -57,9 +57,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     public static LinearOptimizationResult optimize(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
-
         // 1. Initialize best result using input data
-
         GlobalLinearOptimizationResult bestResult = createInitialResult(
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterFlowResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
@@ -72,7 +70,6 @@ public final class InterTemporalIteratingLinearOptimizer {
         TemporalData<SensitivityComputer> sensitivityComputers = new TemporalDataImpl<>();
 
         // 2. Initialize linear problem using input data
-
         TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
         List<ProblemFiller> interTemporalProblemFillers = getInterTemporalProblemFillers(input);
         LinearProblem linearProblem = buildLinearProblem(problemFillers, interTemporalProblemFillers, parameters);
@@ -85,15 +82,10 @@ public final class InterTemporalIteratingLinearOptimizer {
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints));
 
         // 3. Iterate
-
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
-
             // a. Solve linear problem
-
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
-
             // b. Check linear problem status and return best result if not FEASIBLE not OPTIMAL
-
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
                 TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");
             } else if (solveStatus != LinearProblemStatus.OPTIMAL) {
@@ -108,8 +100,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             }
 
             // c. [PARALLEL] Get and round range action activation results from solver results
-
-            // TODO: use global range action activation result below?
+            // TODO: use global range action activation result below? -- > ce serait la même chose juste recuperer l'info de l'objet global ?
             TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp = retrieveRangeActionActivationResults(linearProblem, input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints), input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::optimizationPerimeter));
             Map<OffsetDateTime, RangeActionActivationResult> roundedResults = new HashMap<>();
 
@@ -122,7 +113,6 @@ public final class InterTemporalIteratingLinearOptimizer {
             rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers);
 
             // d. [PARALLEL?] Check if set-points have changed; if no, return the best result
-
             if (!hasAnyRangeActionChanged(
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::optimizationPerimeter),
                 previousResult,
@@ -132,7 +122,6 @@ public final class InterTemporalIteratingLinearOptimizer {
             }
 
             // e. [PARALLEL] Run sensitivity analyses with new set-points
-
             Map<OffsetDateTime, SensitivityComputer> newSensitivityComputers = new HashMap<>();
             for (OffsetDateTime timestamp : rangeActionActivationPerTimestamp.getTimestamps()) {
                 newSensitivityComputers.put(timestamp, runSensitivityAnalysis(sensitivityComputers.getData(timestamp).orElse(null), iteration, rangeActionActivationPerTimestamp.getData(timestamp).orElseThrow(), input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow(), parameters));
@@ -155,7 +144,6 @@ public final class InterTemporalIteratingLinearOptimizer {
             previousResult = newResult;
 
             // f. [PARALLEL] Update problem fillers with flows, sensitivity coefficients and set-points
-
             Pair<GlobalLinearOptimizationResult, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, newResult, bestResult, problemFillers, interTemporalProblemFillers);
             if (Boolean.TRUE.equals(mipShouldStop.getRight())) {
                 return bestResult;
@@ -169,9 +157,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     /* Helper methods */
-
     // Linear problem management
-
     private static TemporalData<List<ProblemFiller>> getProblemFillersPerTimestamp(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // TODO: parallel
         Map<OffsetDateTime, List<ProblemFiller>> problemFillers = new HashMap<>();
@@ -293,7 +279,6 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     // Result management
-
     private static GlobalLinearOptimizationResult createInitialResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivations, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction) {
         return new GlobalLinearOptimizationResult(flowResults, sensitivityResults, rangeActionActivations, preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
@@ -308,7 +293,6 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     // Set-point rounding
-
     private static TemporalData<RangeActionActivationResult> resolveIfApproximatedPstTaps(GlobalLinearOptimizationResult bestResult, LinearProblem linearProblem, int iteration, TemporalData<RangeActionActivationResult> currentRangeActionActivationResults, InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, TemporalData<List<ProblemFiller>> problemFillers) {
         LinearProblemStatus solveStatus;
         TemporalData<RangeActionActivationResult> rangeActionActivationResults = currentRangeActionActivationResults;
@@ -333,7 +317,6 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     // Logging
-
     private static void logBetterResult(int iteration, LinearOptimizationResult result) {
         TECHNICAL_LOGS.info(
             "Iteration {}: better solution found with a cost of {} (functional: {})",
@@ -389,8 +372,6 @@ public final class InterTemporalIteratingLinearOptimizer {
             .filter(ra -> !(ra instanceof PstRangeAction))
             .forEach(ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
-
-    // Range action activation
 
     private static TemporalData<RangeActionActivationResult> retrieveRangeActionActivationResults(LinearProblem linearProblem, TemporalData<RangeActionSetpointResult> prePerimeterSetPoints, TemporalData<OptimizationPerimeter> optimizationPerimeters) {
         Map<OffsetDateTime, RangeActionActivationResult> linearOptimizationResults = new HashMap<>();
