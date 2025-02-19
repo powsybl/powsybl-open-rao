@@ -259,21 +259,24 @@ public class HvdcRangeActionCreator {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Wrong HVDC inAggregateNode/outAggregateNode");
         }
 
-        if (rangeMin.containsKey(networkElement)) {
-            rangeMin.get(networkElement).add(min);
-        } else {
-            List<Integer> list = new ArrayList<>();
-            list.add(min);
-            rangeMin.put(networkElement, list);
+        if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().isConnected()) {
+            if (rangeMin.containsKey(networkElement)) {
+                rangeMin.get(networkElement).add(min);
+            } else {
+                List<Integer> list = new ArrayList<>();
+                list.add(min);
+                rangeMin.put(networkElement, list);
+            }
+
+            if (rangeMax.containsKey(networkElement)) {
+                rangeMax.get(networkElement).add(max);
+            } else {
+                List<Integer> list = new ArrayList<>();
+                list.add(max);
+                rangeMax.put(networkElement, list);
+            }
         }
 
-        if (rangeMax.containsKey(networkElement)) {
-            rangeMax.get(networkElement).add(max);
-        } else {
-            List<Integer> list = new ArrayList<>();
-            list.add(max);
-            rangeMax.put(networkElement, list);
-        }
         return isInverted;
     }
 

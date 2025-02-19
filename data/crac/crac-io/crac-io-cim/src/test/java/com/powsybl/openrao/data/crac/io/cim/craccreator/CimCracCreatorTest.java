@@ -14,6 +14,7 @@ import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
@@ -24,6 +25,7 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -86,9 +88,13 @@ class CimCracCreatorTest {
 
     @BeforeAll
     public static void loadHvdcNetwork() {
+        hvdcNetwork = loadNetworkWithHvdc();
+    }
+
+    private static Network loadNetworkWithHvdc() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
-        hvdcNetwork = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        return Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
     private void setUp(String fileName, Network network, CracCreationParameters cracCreationParameters) throws IOException {
@@ -1120,5 +1126,69 @@ class CimCracCreatorTest {
         assertPstRangeActionImported("AUTO_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction auto1 = importedCrac.getPstRangeAction("AUTO_1");
         assertEquals(4, auto1.getUsageRules().size());
+    }
+
+    @Test
+    void testImportHvdcAutomatonWithFullyConnectedHvdc() throws IOException {
+        Network network = loadNetworkWithHvdc();
+        setUpWithSpeed("/cracs/CIM_21_6_1.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+
+        assertEquals(2, crac.getHvdcRangeActions().size());
+
+        HvdcRangeAction hvdcRangeAction1 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        assertEquals(1, hvdcRangeAction1.getRanges().size());
+        assertEquals(-1000, hvdcRangeAction1.getRanges().iterator().next().getMin());
+        assertEquals(1500, hvdcRangeAction1.getRanges().iterator().next().getMax());
+
+        HvdcRangeAction hvdcRangeAction2 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1");
+        assertEquals(1, hvdcRangeAction2.getRanges().size());
+        assertEquals(-1000, hvdcRangeAction2.getRanges().iterator().next().getMin());
+        assertEquals(1500, hvdcRangeAction2.getRanges().iterator().next().getMax());
+    }
+
+    private static void disconnectHvdcLine(HvdcLine hvdcLine) {
+        hvdcLine.getConverterStation1().getTerminal().disconnect();
+        hvdcLine.getConverterStation2().getTerminal().disconnect();
+    }
+
+    @Test
+    void testImportHvdcAutomatonWithPartiallyConnectedHvdc1() throws IOException {
+        Network network = loadNetworkWithHvdc();
+        disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
+        setUpWithSpeed("/cracs/CIM_21_6_1.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+
+        assertEquals(1, crac.getHvdcRangeActions().size());
+
+        HvdcRangeAction hvdcRangeAction = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1");
+        assertEquals(1, hvdcRangeAction.getRanges().size());
+        assertEquals(-1000, hvdcRangeAction.getRanges().iterator().next().getMin());
+        assertEquals(1500, hvdcRangeAction.getRanges().iterator().next().getMax());
+    }
+
+    @Test
+    void testImportHvdcAutomatonWithPartiallyConnectedHvdc2() throws IOException {
+        Network network = loadNetworkWithHvdc();
+        disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
+        setUpWithSpeed("/cracs/CIM_21_6_1.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+
+        assertEquals(1, crac.getHvdcRangeActions().size());
+
+        HvdcRangeAction hvdcRangeAction = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        assertEquals(1, hvdcRangeAction.getRanges().size());
+        assertEquals(-1000, hvdcRangeAction.getRanges().iterator().next().getMin());
+        assertEquals(1500, hvdcRangeAction.getRanges().iterator().next().getMax());
+    }
+
+    @Test
+    void testImportHvdcAutomatonWithDisconnectedHvdc() throws IOException {
+        Network network = loadNetworkWithHvdc();
+        disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
+        disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
+        setUpWithSpeed("/cracs/CIM_21_6_1.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+        assertTrue(crac.getHvdcRangeActions().isEmpty());
     }
 }
