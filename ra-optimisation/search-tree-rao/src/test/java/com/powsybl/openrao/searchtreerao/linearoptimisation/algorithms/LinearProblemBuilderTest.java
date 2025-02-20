@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,9 +72,11 @@ class LinearProblemBuilderTest {
         SearchTreeRaoLoopFlowParameters loopFlowParametersExtension = Mockito.mock(SearchTreeRaoLoopFlowParameters.class);
         when(parameters.getLoopFlowParametersExtension()).thenReturn(loopFlowParametersExtension);
 
+        State optimizationState = Mockito.mock(State.class);
+        when(optimizationState.getTimestamp()).thenReturn(Optional.empty());
         optimizationPerimeter = Mockito.mock(CurativeOptimizationPerimeter.class);
         when(inputs.optimizationPerimeter()).thenReturn(optimizationPerimeter);
-
+        when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizationState);
     }
 
     @Test

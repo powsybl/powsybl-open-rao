@@ -93,6 +93,10 @@ public final class LinearProblem {
         this.solver.setMinimization();
     }
 
+    public void reset() {
+        solver.resetModel();
+    }
+
     public List<ProblemFiller> getFillers() {
         return fillerList;
     }
@@ -103,7 +107,7 @@ public final class LinearProblem {
 
     public void updateBetweenSensiIteration(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // TODO: only reset if failed states have changed? Then we need access to all CRAC states in order to query the sensitivity result
-        this.solver.resetModel();
+        reset();
         fillerList.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult, rangeActionActivationResult));
     }
 
