@@ -92,7 +92,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         buildLinearProblem();
 
         OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
-        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState(), Optional.empty());
+        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
         OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
@@ -134,7 +134,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         buildLinearProblem();
 
         OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
-        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState(), Optional.empty());
+        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
         OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
@@ -174,7 +174,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
             .build();
 
         // AbsoluteRangeActionVariables present, but no the FlowVariables
-        linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, pstRangeAction, cnec1.getState(), Optional.empty());
+        linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, pstRangeAction, cnec1.getState());
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.fill(flowResult, sensitivityResult));
         assertEquals("Variable Tieline BE FR - N - preventive_one_flow_variable has not been created yet", e.getMessage());
     }

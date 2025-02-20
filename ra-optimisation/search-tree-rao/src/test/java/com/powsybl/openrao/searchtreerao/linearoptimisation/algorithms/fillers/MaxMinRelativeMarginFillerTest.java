@@ -126,7 +126,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         buildLinearProblem();
 
         OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
-        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState(), Optional.empty());
+        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
         OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
@@ -199,7 +199,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     private void checkFillerContentMw(double expectedPtdfSum) {
         OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
-        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState(), Optional.empty());
+        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
         OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
