@@ -153,124 +153,124 @@ public final class LinearProblem {
         return solver.getConstraint(flowConstraintId(cnec, side, timestamp));
     }
 
-    public OpenRaoMPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeNumVar(lb, ub, rangeActionSetpointVariableId(rangeAction, state, timestamp));
+    public OpenRaoMPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeNumVar(lb, ub, rangeActionSetpointVariableId(rangeAction, state));
     }
 
-    public OpenRaoMPVariable getRangeActionSetpointVariable(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(rangeActionSetpointVariableId(rangeAction, state, timestamp));
+    public OpenRaoMPVariable getRangeActionSetpointVariable(RangeAction<?> rangeAction, State state) {
+        return solver.getVariable(rangeActionSetpointVariableId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking, timestamp));
+    public OpenRaoMPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
+        return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }
 
-    public OpenRaoMPConstraint addPstRelativeTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, pstRangeActionRelativeTapConstraintId(pstRangeAction, state, timestamp));
+    public OpenRaoMPConstraint addPstRelativeTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(lb, ub, pstRangeActionRelativeTapConstraintId(pstRangeAction, state));
     }
 
-    public OpenRaoMPConstraint getPstRelativeTapConstraint(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(pstRangeActionRelativeTapConstraintId(pstRangeAction, state, timestamp));
+    public OpenRaoMPConstraint getPstRelativeTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.getConstraint(pstRangeActionRelativeTapConstraintId(pstRangeAction, state));
     }
 
-    public OpenRaoMPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking, timestamp));
+    public OpenRaoMPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
+        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }
 
-    public OpenRaoMPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeBoolVar(rangeActionBinaryVariableId(rangeAction, state, timestamp));
+    public OpenRaoMPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
+        return solver.makeBoolVar(rangeActionBinaryVariableId(rangeAction, state));
     }
 
-    public OpenRaoMPVariable getRangeActionVariationBinary(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(rangeActionBinaryVariableId(rangeAction, state, timestamp));
+    public OpenRaoMPVariable getRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
+        return solver.getVariable(rangeActionBinaryVariableId(rangeAction, state));
     }
 
-    public OpenRaoMPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, State state, VariationDirectionExtension variation, Optional<OffsetDateTime> timestamp) {
-        return solver.makeIntVar(lb, ub, pstTapVariableVariationId(rangeAction, state, variation, timestamp));
+    public OpenRaoMPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
+        return solver.makeIntVar(lb, ub, pstTapVariableVariationId(rangeAction, state, variation));
     }
 
-    public OpenRaoMPVariable getPstTapVariationVariable(PstRangeAction rangeAction, State state, VariationDirectionExtension variation, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(pstTapVariableVariationId(rangeAction, state, variation, timestamp));
+    public OpenRaoMPVariable getPstTapVariationVariable(PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
+        return solver.getVariable(pstTapVariableVariationId(rangeAction, state, variation));
     }
 
-    public OpenRaoMPVariable addPstTapVariationBinary(PstRangeAction rangeAction, State state, VariationDirectionExtension variation, Optional<OffsetDateTime> timestamp) {
-        return solver.makeBoolVar(pstTapBinaryVariationInDirectionId(rangeAction, state, variation, timestamp));
+    public OpenRaoMPVariable addPstTapVariationBinary(PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
+        return solver.makeBoolVar(pstTapBinaryVariationInDirectionId(rangeAction, state, variation));
     }
 
-    public OpenRaoMPVariable getPstTapVariationBinary(PstRangeAction rangeAction, State state, VariationDirectionExtension variation, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(pstTapBinaryVariationInDirectionId(rangeAction, state, variation, timestamp));
+    public OpenRaoMPVariable getPstTapVariationBinary(PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
+        return solver.getVariable(pstTapBinaryVariationInDirectionId(rangeAction, state, variation));
     }
 
-    public OpenRaoMPConstraint addTapToAngleConversionConstraint(double lb, double ub, PstRangeAction rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, tapToAngleConversionConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint addTapToAngleConversionConstraint(double lb, double ub, PstRangeAction rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, tapToAngleConversionConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getTapToAngleConversionConstraint(PstRangeAction rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(tapToAngleConversionConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint getTapToAngleConversionConstraint(PstRangeAction rangeAction, State state) {
+        return solver.getConstraint(tapToAngleConversionConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(upOrDownPstVariationConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint addUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
+        return solver.makeConstraint(upOrDownPstVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(upOrDownPstVariationConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint getUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
+        return solver.getConstraint(upOrDownPstVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addIsVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, isVariationConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint addIsVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, isVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getIsVariationConstraint(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(isVariationConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint getIsVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(isVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addIsVariationInDirectionConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, isVariationInDirectionConstraintId(rangeAction, state, reference, direction, timestamp));
+    public OpenRaoMPConstraint addIsVariationInDirectionConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction) {
+        return solver.makeConstraint(lb, ub, isVariationInDirectionConstraintId(rangeAction, state, reference, direction));
     }
 
-    public OpenRaoMPConstraint getIsVariationInDirectionConstraint(RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(isVariationInDirectionConstraintId(rangeAction, state, reference, direction, timestamp));
+    public OpenRaoMPConstraint getIsVariationInDirectionConstraint(RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction) {
+        return solver.getConstraint(isVariationInDirectionConstraintId(rangeAction, state, reference, direction));
     }
 
-    public OpenRaoMPVariable addRangeActionGroupSetpointVariable(double lb, double ub, String rangeActionGroupId, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeNumVar(lb, ub, rangeActionGroupSetpointVariableId(rangeActionGroupId, state, timestamp));
+    public OpenRaoMPVariable addRangeActionGroupSetpointVariable(double lb, double ub, String rangeActionGroupId, State state) {
+        return solver.makeNumVar(lb, ub, rangeActionGroupSetpointVariableId(rangeActionGroupId, state));
     }
 
-    public OpenRaoMPVariable getRangeActionGroupSetpointVariable(String rangeActionGroupId, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(rangeActionGroupSetpointVariableId(rangeActionGroupId, state, timestamp));
+    public OpenRaoMPVariable getRangeActionGroupSetpointVariable(String rangeActionGroupId, State state) {
+        return solver.getVariable(rangeActionGroupSetpointVariableId(rangeActionGroupId, state));
     }
 
-    public OpenRaoMPVariable addPstGroupTapVariable(double lb, double ub, String rangeActionGroupId, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeNumVar(lb, ub, pstGroupTapVariableId(rangeActionGroupId, state, timestamp));
+    public OpenRaoMPVariable addPstGroupTapVariable(double lb, double ub, String rangeActionGroupId, State state) {
+        return solver.makeNumVar(lb, ub, pstGroupTapVariableId(rangeActionGroupId, state));
     }
 
-    public OpenRaoMPVariable getPstGroupTapVariable(String rangeActionGroupId, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(pstGroupTapVariableId(rangeActionGroupId, state, timestamp));
+    public OpenRaoMPVariable getPstGroupTapVariable(String rangeActionGroupId, State state) {
+        return solver.getVariable(pstGroupTapVariableId(rangeActionGroupId, state));
     }
 
-    public OpenRaoMPConstraint addRangeActionGroupSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, rangeActionGroupSetpointConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint addRangeActionGroupSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, rangeActionGroupSetpointConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getRangeActionGroupSetpointConstraint(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(rangeActionGroupSetpointConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint getRangeActionGroupSetpointConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionGroupSetpointConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addPstGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, pstGroupTapConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint addPstGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, pstGroupTapConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getPstGroupTapConstraint(PstRangeAction rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(pstGroupTapConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint getPstGroupTapConstraint(PstRangeAction rangeAction, State state) {
+        return solver.getConstraint(pstGroupTapConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeNumVar(lb, ub, absoluteRangeActionVariationVariableId(rangeAction, state, timestamp));
+    public OpenRaoMPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeNumVar(lb, ub, absoluteRangeActionVariationVariableId(rangeAction, state));
     }
 
-    public OpenRaoMPVariable getAbsoluteRangeActionVariationVariable(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(absoluteRangeActionVariationVariableId(rangeAction, state, timestamp));
+    public OpenRaoMPVariable getAbsoluteRangeActionVariationVariable(RangeAction<?> rangeAction, State state) {
+        return solver.getVariable(absoluteRangeActionVariationVariableId(rangeAction, state));
     }
 
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
@@ -378,138 +378,138 @@ public final class LinearProblem {
         return solver.getConstraint(dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold, timestamp));
     }
 
-    public OpenRaoMPConstraint addMaxRaConstraint(double lb, double ub, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, maxRaConstraintId(state, timestamp));
+    public OpenRaoMPConstraint addMaxRaConstraint(double lb, double ub, State state) {
+        return solver.makeConstraint(lb, ub, maxRaConstraintId(state));
     }
 
-    public OpenRaoMPConstraint getMaxRaConstraint(State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(maxRaConstraintId(state, timestamp));
+    public OpenRaoMPConstraint getMaxRaConstraint(State state) {
+        return solver.getConstraint(maxRaConstraintId(state));
     }
 
-    public OpenRaoMPConstraint addMaxTsoConstraint(double lb, double ub, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, maxTsoConstraintId(state, timestamp));
+    public OpenRaoMPConstraint addMaxTsoConstraint(double lb, double ub, State state) {
+        return solver.makeConstraint(lb, ub, maxTsoConstraintId(state));
     }
 
-    public OpenRaoMPConstraint getMaxTsoConstraint(State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(maxTsoConstraintId(state, timestamp));
+    public OpenRaoMPConstraint getMaxTsoConstraint(State state) {
+        return solver.getConstraint(maxTsoConstraintId(state));
     }
 
-    public OpenRaoMPConstraint addMaxRaPerTsoConstraint(double lb, double ub, String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, maxRaPerTsoConstraintId(operator, state, timestamp));
+    public OpenRaoMPConstraint addMaxRaPerTsoConstraint(double lb, double ub, String operator, State state) {
+        return solver.makeConstraint(lb, ub, maxRaPerTsoConstraintId(operator, state));
     }
 
-    public OpenRaoMPConstraint getMaxRaPerTsoConstraint(String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(maxRaPerTsoConstraintId(operator, state, timestamp));
+    public OpenRaoMPConstraint getMaxRaPerTsoConstraint(String operator, State state) {
+        return solver.getConstraint(maxRaPerTsoConstraintId(operator, state));
     }
 
-    public OpenRaoMPConstraint addMaxPstPerTsoConstraint(double lb, double ub, String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, maxPstPerTsoConstraintId(operator, state, timestamp));
+    public OpenRaoMPConstraint addMaxPstPerTsoConstraint(double lb, double ub, String operator, State state) {
+        return solver.makeConstraint(lb, ub, maxPstPerTsoConstraintId(operator, state));
     }
 
-    public OpenRaoMPConstraint getMaxPstPerTsoConstraint(String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(maxPstPerTsoConstraintId(operator, state, timestamp));
+    public OpenRaoMPConstraint getMaxPstPerTsoConstraint(String operator, State state) {
+        return solver.getConstraint(maxPstPerTsoConstraintId(operator, state));
     }
 
-    public OpenRaoMPVariable addTsoRaUsedVariable(double lb, double ub, String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeNumVar(lb, ub, tsoRaUsedVariableId(operator, state, timestamp));
+    public OpenRaoMPVariable addTsoRaUsedVariable(double lb, double ub, String operator, State state) {
+        return solver.makeNumVar(lb, ub, tsoRaUsedVariableId(operator, state));
     }
 
-    public OpenRaoMPVariable getTsoRaUsedVariable(String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(tsoRaUsedVariableId(operator, state, timestamp));
+    public OpenRaoMPVariable getTsoRaUsedVariable(String operator, State state) {
+        return solver.getVariable(tsoRaUsedVariableId(operator, state));
     }
 
-    public OpenRaoMPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, tsoRaUsedConstraintId(operator, rangeAction, state, timestamp));
+    public OpenRaoMPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state, timestamp));
+    public OpenRaoMPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
-    public OpenRaoMPVariable addPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeIntVar(0, infinity(), pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state, timestamp));
+    public OpenRaoMPVariable addPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
+        return solver.makeIntVar(0, infinity(), pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state));
     }
 
-    public OpenRaoMPVariable getPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state, timestamp));
+    public OpenRaoMPVariable getPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
+        return solver.getVariable(pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state));
     }
 
-    public OpenRaoMPConstraint addPstAbsoluteVariationFromInitialTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state, AbsExtension positiveOrNegative, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, pstAbsoluteVariationFromInitialTapConstraintId(pstRangeAction, state, positiveOrNegative, timestamp));
+    public OpenRaoMPConstraint addPstAbsoluteVariationFromInitialTapConstraint(double lb, double ub, PstRangeAction pstRangeAction, State state, AbsExtension positiveOrNegative) {
+        return solver.makeConstraint(lb, ub, pstAbsoluteVariationFromInitialTapConstraintId(pstRangeAction, state, positiveOrNegative));
     }
 
-    public OpenRaoMPConstraint getPstAbsoluteVariationFromInitialTapConstraint(PstRangeAction pstRangeAction, State state, AbsExtension positiveOrNegative, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(pstAbsoluteVariationFromInitialTapConstraintId(pstRangeAction, state, positiveOrNegative, timestamp));
+    public OpenRaoMPConstraint getPstAbsoluteVariationFromInitialTapConstraint(PstRangeAction pstRangeAction, State state, AbsExtension positiveOrNegative) {
+        return solver.getConstraint(pstAbsoluteVariationFromInitialTapConstraintId(pstRangeAction, state, positiveOrNegative));
     }
 
-    public OpenRaoMPConstraint addTsoMaxElementaryActionsConstraint(double lb, double ub, String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(lb, ub, maxElementaryActionsPerTsoConstraintId(operator, state, timestamp));
+    public OpenRaoMPConstraint addTsoMaxElementaryActionsConstraint(double lb, double ub, String operator, State state) {
+        return solver.makeConstraint(lb, ub, maxElementaryActionsPerTsoConstraintId(operator, state));
     }
 
-    public OpenRaoMPConstraint getTsoMaxElementaryActionsConstraint(String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(maxElementaryActionsPerTsoConstraintId(operator, state, timestamp));
+    public OpenRaoMPConstraint getTsoMaxElementaryActionsConstraint(String operator, State state) {
+        return solver.getConstraint(maxElementaryActionsPerTsoConstraintId(operator, state));
     }
 
-    public OpenRaoMPVariable addRangeActionVariationVariable(double ub, RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
-        return solver.makeNumVar(0.0, ub, rangeActionVariationVariableId(rangeAction, state, variationDirection, timestamp));
+    public OpenRaoMPVariable addRangeActionVariationVariable(double ub, RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection) {
+        return solver.makeNumVar(0.0, ub, rangeActionVariationVariableId(rangeAction, state, variationDirection));
     }
 
-    public OpenRaoMPVariable getRangeActionVariationVariable(RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(rangeActionVariationVariableId(rangeAction, state, variationDirection, timestamp));
+    public OpenRaoMPVariable getRangeActionVariationVariable(RangeAction<?> rangeAction, State state, VariationDirectionExtension variationDirection) {
+        return solver.getVariable(rangeActionVariationVariableId(rangeAction, state, variationDirection));
     }
 
-    public OpenRaoMPConstraint addRangeActionSetPointVariationConstraint(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(0.0, 0.0, rangeActionSetPointVariationConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint addRangeActionSetPointVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(0.0, 0.0, rangeActionSetPointVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getRangeActionSetPointVariationConstraint(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(rangeActionSetPointVariationConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint getRangeActionSetPointVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionSetPointVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(0.0, 0.0, rangeActionAbsoluteVariationConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint addRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(0.0, 0.0, rangeActionAbsoluteVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state, timestamp));
+    public OpenRaoMPConstraint getRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addInjectionBalanceConstraint(State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(0.0, 0.0, injectionBalanceConstraintId(state, timestamp));
+    public OpenRaoMPConstraint addInjectionBalanceConstraint(State state) {
+        return solver.makeConstraint(0.0, 0.0, injectionBalanceConstraintId(state));
     }
 
-    public OpenRaoMPConstraint getInjectionBalanceConstraint(State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(injectionBalanceConstraintId(state, timestamp));
+    public OpenRaoMPConstraint getInjectionBalanceConstraint(State state) {
+        return solver.getConstraint(injectionBalanceConstraintId(state));
     }
 
-    public OpenRaoMPVariable addTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
-        return solver.makeIntVar(0, infinity(), totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection, timestamp));
+    public OpenRaoMPVariable addTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return solver.makeIntVar(0, infinity(), totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection));
     }
 
-    public OpenRaoMPVariable getTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection, timestamp));
+    public OpenRaoMPVariable getTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return solver.getVariable(totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection));
     }
 
-    public OpenRaoMPConstraint addTotalPstRangeActionTapVariationConstraint(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(0, 0, totalPstRangeActionTapVariationConstraintId(pstRangeAction, state, timestamp));
+    public OpenRaoMPConstraint addTotalPstRangeActionTapVariationConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(0, 0, totalPstRangeActionTapVariationConstraintId(pstRangeAction, state));
     }
 
-    public OpenRaoMPVariable addTapVariable(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
+    public OpenRaoMPVariable addTapVariable(PstRangeAction pstRangeAction, State state) {
         int minTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().min(Integer::compareTo).orElseThrow();
         int maxTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().max(Integer::compareTo).orElseThrow();
-        return solver.makeIntVar(minTap, maxTap, tapVariableId(pstRangeAction, state, timestamp));
+        return solver.makeIntVar(minTap, maxTap, tapVariableId(pstRangeAction, state));
     }
 
-    public OpenRaoMPVariable getTapVariable(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getVariable(tapVariableId(pstRangeAction, state, timestamp));
+    public OpenRaoMPVariable getTapVariable(PstRangeAction pstRangeAction, State state) {
+        return solver.getVariable(tapVariableId(pstRangeAction, state));
     }
 
-    public OpenRaoMPConstraint addTapConstraint(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.makeConstraint(0, 0, tapConstraintId(pstRangeAction, state, timestamp));
+    public OpenRaoMPConstraint addTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(0, 0, tapConstraintId(pstRangeAction, state));
     }
 
-    public OpenRaoMPConstraint getTapConstraint(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return solver.getConstraint(tapConstraintId(pstRangeAction, state, timestamp));
+    public OpenRaoMPConstraint getTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.getConstraint(tapConstraintId(pstRangeAction, state));
     }
 
     public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {

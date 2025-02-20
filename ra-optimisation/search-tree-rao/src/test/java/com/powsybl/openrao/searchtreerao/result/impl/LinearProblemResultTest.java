@@ -25,7 +25,6 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -147,11 +146,11 @@ class LinearProblemResultTest {
 
         rangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
             OpenRaoMPVariable setPointVariable = setPointVariablePerRangeAction.get(state).get(ra);
-            Mockito.when(linearProblem.getRangeActionSetpointVariable(ra, state, Optional.empty())).thenReturn(setPointVariable);
+            Mockito.when(linearProblem.getRangeActionSetpointVariable(ra, state)).thenReturn(setPointVariable);
             Mockito.when(setPointVariable.solutionValue()).thenReturn(setPointPerRangeAction.get(state).get(ra));
 
             OpenRaoMPVariable setPointVariationVariable = setPointVariationVariablePerRangeAction.get(state).get(ra);
-            Mockito.when(linearProblem.getAbsoluteRangeActionVariationVariable(ra, state, Optional.empty())).thenReturn(setPointVariationVariable);
+            Mockito.when(linearProblem.getAbsoluteRangeActionVariationVariable(ra, state)).thenReturn(setPointVariationVariable);
             Mockito.when(setPointVariationVariable.solutionValue()).thenReturn(setPointVariationPerRangeAction.get(state).get(ra));
         }));
 

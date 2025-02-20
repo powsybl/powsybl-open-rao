@@ -25,7 +25,7 @@ import static com.powsybl.openrao.data.crac.io.csaprofiles.craccreator.CsaProfil
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class CsaProfileSsiTest {
 

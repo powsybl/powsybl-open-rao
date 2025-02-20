@@ -46,7 +46,6 @@ import org.mockito.stubbing.Answer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -168,8 +167,8 @@ class IteratingLinearOptimizerTest {
                 objectiveFunctionResults[i] = objectiveFunctionResult;
             }
             when(objectiveFunction.evaluate(any(), any())).thenReturn(
-                    initialObjectiveFunctionResult,
-                    objectiveFunctionResults
+                initialObjectiveFunctionResult,
+                objectiveFunctionResults
             );
         }
     }
@@ -177,15 +176,16 @@ class IteratingLinearOptimizerTest {
     private void mockLinearProblem(List<LinearProblemStatus> statuses, List<Double> setPoints) {
         doAnswer(new Answer() {
             private int count = 0;
+
             public Object answer(InvocationOnMock invocation) {
                 count += 1;
                 if (statuses.get(count - 1) == LinearProblemStatus.OPTIMAL) {
                     OpenRaoMPVariable absVariationMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
                     when(absVariationMpVarMock.solutionValue()).thenReturn(Math.abs(setPoints.get(count - 1)));
-                    when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, optimizedState, Optional.empty())).thenReturn(absVariationMpVarMock);
+                    when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, optimizedState)).thenReturn(absVariationMpVarMock);
                     OpenRaoMPVariable setpointMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
                     when(setpointMpVarMock.solutionValue()).thenReturn(setPoints.get(count - 1));
-                    when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState, Optional.empty())).thenReturn(setpointMpVarMock);
+                    when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState)).thenReturn(setpointMpVarMock);
                 }
                 return statuses.get(count - 1);
             }
@@ -329,8 +329,8 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         Crac crac = CracFactory.findDefault().create("test-crac");
         rangeAction = crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
-                .withInitialTap(0)
-                .withTapToAngleConversionMap(Map.of(0, 0., 1, 1., 2, 2., 3, 3., 4, 4., 5, 5.)).add();
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(0, 0., 1, 1., 2, 2., 3, 3., 4, 4., 5, 5.)).add();
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(rangeAction)
         ));
