@@ -59,8 +59,6 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
             virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator));
         }
 
-        OpenRaoSearchTreeParameters openRaoSearchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-
         // mnec virtual cost evaluator
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             Optional<MnecParameters> mnecParametersOptional = raoParameters.getMnecParameters();
