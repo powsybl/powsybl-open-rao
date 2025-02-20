@@ -1169,8 +1169,8 @@ class CimCracCreatorTest {
         assertEquals(3500, hvdcRangeAction.getRanges().iterator().next().getMax());
         assertEquals(Optional.of("BBE2AA12 FFR3AA12 1"), hvdcRangeAction.getGroupId());
         assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
-        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. "));
-        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. "));
+        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. ");
+        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. ");
     }
 
     @Test
@@ -1188,8 +1188,8 @@ class CimCracCreatorTest {
         assertEquals(5000, hvdcRangeAction.getRanges().iterator().next().getMax());
         assertEquals(Optional.of("BBE2AA11 FFR3AA11 1"), hvdcRangeAction.getGroupId());
         assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
-        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. "));
-        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. "));
+        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. ");
+        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. ");
     }
 
     @Test
@@ -1202,8 +1202,8 @@ class CimCracCreatorTest {
 
         assertTrue(crac.getHvdcRangeActions().isEmpty());
         assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
-        assert(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected."));
-        assert(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected."));
+        assert cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected.");
+        assert cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected.");
     }
 
     @Test
@@ -1217,8 +1217,8 @@ class CimCracCreatorTest {
 
         assertTrue(crac.getHvdcRangeActions().isEmpty());
         assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
-        assert(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. Other RemedialActionSeries in the same HVDC Series failed."));
-        assert(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. Not a HVDC line."));
+        assert cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. Other RemedialActionSeries in the same HVDC Series failed.");
+        assert cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. Not a HVDC line.");
     }
 
     @Test
@@ -1236,7 +1236,7 @@ class CimCracCreatorTest {
         assertEquals(5000, hvdcRangeAction.getRanges().iterator().next().getMax());
         assertEquals(Optional.of("BBE2AA11 FFR3AA11 1"), hvdcRangeAction.getGroupId());
         assertEquals(4, cracCreationContext.getCreationReport().getReport().size());
-        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. "));
-        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. "));
+        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. ");
+        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. ");
     }
 }
