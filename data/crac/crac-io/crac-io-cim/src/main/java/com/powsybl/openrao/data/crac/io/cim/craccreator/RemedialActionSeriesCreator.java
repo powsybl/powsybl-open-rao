@@ -542,8 +542,8 @@ public class RemedialActionSeriesCreator {
     }
 
     private void resetSeriesContingencies() {
-        contingencies.clear();
-        invalidContingencies.clear();
+        this.contingencies = new ArrayList<>();
+        this.invalidContingencies = new ArrayList<>();
     }
 
     private boolean describesRemedialActionsToImport(Series series) {

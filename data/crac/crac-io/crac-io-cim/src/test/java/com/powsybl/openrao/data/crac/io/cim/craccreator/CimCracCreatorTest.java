@@ -1131,7 +1131,7 @@ class CimCracCreatorTest {
     @Test
     void testImportHvdcAutomatonWithFullyConnectedHvdc() throws IOException {
         Network network = loadNetworkWithHvdc();
-        setUpWithSpeed("/cracs/cim-hvdc.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed("/cracs/CIM_with_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(2, crac.getHvdcRangeActions().size());
@@ -1158,7 +1158,7 @@ class CimCracCreatorTest {
     void testImportHvdcAutomatonWithPartiallyConnectedHvdc1() throws IOException {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
-        setUpWithSpeed("/cracs/cim-hvdc.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed("/cracs/CIM_with_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getHvdcRangeActions().size());
@@ -1168,13 +1168,16 @@ class CimCracCreatorTest {
         assertEquals(-3000, hvdcRangeAction.getRanges().iterator().next().getMin());
         assertEquals(3500, hvdcRangeAction.getRanges().iterator().next().getMax());
         assertEquals(Optional.of("BBE2AA12 FFR3AA12 1"), hvdcRangeAction.getGroupId());
+        assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
+        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. "));
+        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. "));
     }
 
     @Test
     void testImportHvdcAutomatonWithPartiallyConnectedHvdc2() throws IOException {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
-        setUpWithSpeed("/cracs/cim-hvdc.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed("/cracs/CIM_with_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getHvdcRangeActions().size());
@@ -1184,6 +1187,9 @@ class CimCracCreatorTest {
         assertEquals(-4000, hvdcRangeAction.getRanges().iterator().next().getMin());
         assertEquals(5000, hvdcRangeAction.getRanges().iterator().next().getMax());
         assertEquals(Optional.of("BBE2AA11 FFR3AA11 1"), hvdcRangeAction.getGroupId());
+        assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
+        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. "));
+        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. "));
     }
 
     @Test
@@ -1191,10 +1197,13 @@ class CimCracCreatorTest {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
         disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
-        setUpWithSpeed("/cracs/cim-hvdc.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed("/cracs/CIM_with_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
         Crac crac = cracCreationContext.getCrac();
 
         assertTrue(crac.getHvdcRangeActions().isEmpty());
+        assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
+        assert(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected."));
+        assert(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected."));
     }
 
     @Test
@@ -1203,9 +1212,31 @@ class CimCracCreatorTest {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
         disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
-        setUpWithSpeed("/cracs/cim-hvdc-error.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed("/cracs/CIM_with_HVDC_error.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
         Crac crac = cracCreationContext.getCrac();
 
         assertTrue(crac.getHvdcRangeActions().isEmpty());
+        assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
+        assert(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. Other RemedialActionSeries in the same HVDC Series failed."));
+        assert(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. Not a HVDC line."));
+    }
+
+    @Test
+    void testImportHvdcAutomatonWithPartiallyConnectedHvdc2AndInvalidContingencies() throws IOException {
+        Network network = loadNetworkWithHvdc();
+        disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
+        setUpWithSpeed("/cracs/CIM_with_HVDC_and_invalid_contingencies.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+
+        assertEquals(1, crac.getHvdcRangeActions().size());
+
+        HvdcRangeAction hvdcRangeAction = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        assertEquals(1, hvdcRangeAction.getRanges().size());
+        assertEquals(-4000, hvdcRangeAction.getRanges().iterator().next().getMin());
+        assertEquals(5000, hvdcRangeAction.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1"), hvdcRangeAction.getGroupId());
+        assertEquals(4, cracCreationContext.getCreationReport().getReport().size());
+        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. "));
+        assert(cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. "));
     }
 }

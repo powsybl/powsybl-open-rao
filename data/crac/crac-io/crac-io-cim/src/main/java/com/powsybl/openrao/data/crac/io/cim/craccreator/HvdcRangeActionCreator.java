@@ -48,6 +48,8 @@ public class HvdcRangeActionCreator {
     private final Map<String, Boolean> isDirectionInverted = new HashMap<>();
     private final List<String> raSeriesIds = new ArrayList<>();
     private final Map<String, OpenRaoImportException> exceptions = new HashMap<>();
+    boolean isAltered = false;
+    String importStatusDetailifIsAltered = "";
 
     public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
         this.crac = crac;
@@ -118,8 +120,21 @@ public class HvdcRangeActionCreator {
         checkHvdcNetworkElement(networkElementId);
         HvdcLine hvdcLine = network.getHvdcLine(networkElementId);
 
-        if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().isConnected()) {
+        boolean terminal1Connected = hvdcLine.getConverterStation1().getTerminal().isConnected();
+        boolean terminal2Connected = hvdcLine.getConverterStation2().getTerminal().isConnected();
+        if (terminal1Connected && terminal2Connected) {
             hvdcRangeActionAdders.putIfAbsent(networkElementId, initHvdcRangeActionAdder(registeredResource));
+        } else {
+            isAltered = true;
+            importStatusDetailifIsAltered = String.format("HVDC line %s has ", hvdcLine.getId());
+            if (!terminal1Connected && !terminal2Connected) {
+                importStatusDetailifIsAltered += "terminals 1 and 2 ";
+            } else if (!terminal1Connected) {
+                importStatusDetailifIsAltered += "terminal 1 ";
+            } else if (!terminal2Connected) {
+                importStatusDetailifIsAltered += "terminal 2 ";
+            }
+            importStatusDetailifIsAltered += "disconnected";
         }
     }
 
@@ -161,17 +176,24 @@ public class HvdcRangeActionCreator {
                 ).collect(Collectors.toSet());
             } catch (OpenRaoException e) {
                 return raSeriesIds.stream().map(id ->
-                        RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())).collect(Collectors.toSet());
+                    RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())).collect(Collectors.toSet());
             }
         }
 
-        if (invalidContingencies.isEmpty()) {
-            return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, false, isDirectionInverted.get(id), "")).collect(Collectors.toSet());
-        } else {
-            String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, true, isDirectionInverted.get(id), String.format("Contingencies %s were not imported", contingencyList))).collect(Collectors.toSet());
+        if (createdRaIds.isEmpty()) {
+            return raSeriesIds.stream().map(id ->
+                RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, String.format("All terminals on HVDC lines are disconnected"))
+            ).collect(Collectors.toSet());
         }
 
+        if (!invalidContingencies.isEmpty()) {
+            if (isAltered) {
+                importStatusDetailifIsAltered += "; ";
+            }
+            String contingencyList = StringUtils.join(invalidContingencies, ", ");
+            importStatusDetailifIsAltered += String.format("Contingencies %s were not imported", contingencyList);
+        }
+        return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, isAltered, isDirectionInverted.get(id), importStatusDetailifIsAltered)).collect(Collectors.toSet());
     }
 
     private HvdcRangeActionAdder initHvdcRangeActionAdder(RemedialActionRegisteredResource registeredResource) {
@@ -240,8 +262,8 @@ public class HvdcRangeActionCreator {
      * @param networkElement - HVDC line name
      * @param minCapacity
      * @param maxCapacity
-     * @param inNode - The area of the related oriented border study where the energy flows INTO.
-     * @param outNode - The area of the related oriented border study where the energy comes FROM.
+     * @param inNode         - The area of the related oriented border study where the energy flows INTO.
+     * @param outNode        - The area of the related oriented border study where the energy comes FROM.
      * @return - the boolean indicates whether the Hvdc line is inverted
      */
     private boolean readHvdcRange(String networkElement, int minCapacity, int maxCapacity, String inNode, String outNode) {

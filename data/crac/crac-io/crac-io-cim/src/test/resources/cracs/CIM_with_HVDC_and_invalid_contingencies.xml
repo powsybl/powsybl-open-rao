@@ -53,6 +53,16 @@
           <name>HVDC valid range actions</name>
           <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Contingency name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">fake</mRID>
+              <name>FFR1AA11 FFR3AA11 1</name>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
             <mRID>Co-1</mRID>
             <name>Contingency name</name>
             <RegisteredResource>
