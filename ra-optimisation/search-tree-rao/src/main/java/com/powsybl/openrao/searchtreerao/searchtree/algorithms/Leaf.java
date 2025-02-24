@@ -419,6 +419,11 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
+    public double getPtdfZonalSumLowerBound() {
+        return preOptimFlowResult.getPtdfZonalSumLowerBound();
+    }
+
+    @Override
     public boolean isActivated(NetworkAction networkAction) {
         return appliedNetworkActionsInPrimaryState.contains(networkAction);
     }

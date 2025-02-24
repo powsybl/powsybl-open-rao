@@ -38,6 +38,7 @@ class AbsolutePtdfSumsComputationTest {
     private static final double DOUBLE_TOLERANCE = 0.001;
 
     private SystematicSensitivityResult systematicSensitivityResult;
+    private static final double PTDF_SUM_LOWER_BOUND = 0.01;
 
     @BeforeEach
     public void setUp() {
@@ -85,7 +86,7 @@ class AbsolutePtdfSumsComputationTest {
                 new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
 
         // compute zToz PTDF sum
-        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
+        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, PTDF_SUM_LOWER_BOUND);
         Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // test results
@@ -110,7 +111,7 @@ class AbsolutePtdfSumsComputationTest {
                 new ZoneToZonePtdfDefinition("{ES}-{DE}")); // ES doesn't exist in GLSK map, must be filtered
 
         // compute zToz PTDF sum
-        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
+        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, PTDF_SUM_LOWER_BOUND);
         Map<FlowCnec, Map<TwoSides, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // Test that these 3 new boundaries are ignored (results should be the same as previous test)

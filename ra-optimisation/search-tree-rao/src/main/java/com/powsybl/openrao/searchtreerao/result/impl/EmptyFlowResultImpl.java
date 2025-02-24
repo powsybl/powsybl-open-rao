@@ -49,6 +49,11 @@ public class EmptyFlowResultImpl implements FlowResult {
     }
 
     @Override
+    public double getPtdfZonalSumLowerBound() {
+        return Double.NaN;
+    }
+
+    @Override
     public double getMargin(FlowCnec flowCnec, Unit unit) {
         return Double.NaN;
     }

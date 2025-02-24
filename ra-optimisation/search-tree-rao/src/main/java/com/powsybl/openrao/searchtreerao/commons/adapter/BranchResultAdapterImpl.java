@@ -43,10 +43,13 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
     public FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult, Network network) {
         FlowResult ptdfs = null;
         Map<FlowCnec, Map<TwoSides, Double>> ptdfsMap = null;
+        double ptdfSumLowerBound;
         if (absolutePtdfSumsComputation != null) {
             ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
+            ptdfSumLowerBound = absolutePtdfSumsComputation.getPtdfSumLowerBound();
         } else {
             ptdfs = fixedPtdfs;
+            ptdfSumLowerBound = 0;
         }
 
         FlowResult commercialFlows = null;
@@ -60,7 +63,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         } else {
             commercialFlows = fixedCommercialFlows;
         }
-        return new FlowResultImpl(systematicSensitivityResult, commercialFlowsMap, commercialFlows, ptdfsMap, ptdfs);
+        return new FlowResultImpl(systematicSensitivityResult, commercialFlowsMap, commercialFlows, ptdfsMap, ptdfs, ptdfSumLowerBound);
     }
 
     public static final class BranchResultAdpaterBuilder {

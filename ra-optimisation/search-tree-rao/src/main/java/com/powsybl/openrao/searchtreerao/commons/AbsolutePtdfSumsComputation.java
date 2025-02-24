@@ -26,10 +26,12 @@ import java.util.*;
 public class AbsolutePtdfSumsComputation {
     private final ZonalData<SensitivityVariableSet> glskProvider;
     private final List<ZoneToZonePtdfDefinition> zTozPtdfs;
+    private final double ptdfSumLowerBound;
 
-    public AbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, List<ZoneToZonePtdfDefinition> zTozPtdfs) {
+    public AbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, List<ZoneToZonePtdfDefinition> zTozPtdfs, double ptdfSumLowerBound) {
         this.glskProvider = glskProvider;
         this.zTozPtdfs = zTozPtdfs;
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
     public Map<FlowCnec, Map<TwoSides, Double>> computeAbsolutePtdfSums(Set<FlowCnec> flowCnecs, SystematicSensitivityResult sensitivityResult) {
@@ -70,5 +72,9 @@ public class AbsolutePtdfSumsComputation {
         } else {
             return zoneToSlackPtdf.stream().mapToDouble(v -> v).sum();
         }
+    }
+
+    public double getPtdfSumLowerBound() {
+        return ptdfSumLowerBound;
     }
 }

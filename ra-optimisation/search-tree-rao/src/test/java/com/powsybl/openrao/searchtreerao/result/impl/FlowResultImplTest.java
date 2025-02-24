@@ -37,6 +37,7 @@ import static com.powsybl.iidm.network.TwoSides.TWO;
  */
 class FlowResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
+    private static final double PTDF_SUM_LOWER_BOUND = 0.01;
 
     SystematicSensitivityResult systematicSensitivityResult;
     FlowCnec loopFlowCnec;
@@ -59,9 +60,10 @@ class FlowResultImplTest {
         when(fixedPtdfs.getPtdfZonalSum(loopFlowCnec, ONE)).thenThrow(new OpenRaoException("a mock of what would happen if trying to access ptdf sum"));
 
         flowResult = new FlowResultImpl(
-                systematicSensitivityResult,
-                fixedCommercialFlows,
-                fixedPtdfs
+            systematicSensitivityResult,
+            fixedCommercialFlows,
+            fixedPtdfs,
+            PTDF_SUM_LOWER_BOUND
         );
     }
 
@@ -146,16 +148,16 @@ class FlowResultImplTest {
         Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums = new HashMap<>();
         FlowResult fixedPtdfZonalSums = Mockito.mock(FlowResult.class);
 
-        Exception e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, fixedCommercialFlows, ptdfZonalSums, null));
+        Exception e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, fixedCommercialFlows, ptdfZonalSums, null, PTDF_SUM_LOWER_BOUND));
         assertEquals("Either commercialFlows or fixedCommercialFlows should be non null", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, null, null, ptdfZonalSums, null));
+        e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, null, null, ptdfZonalSums, null, PTDF_SUM_LOWER_BOUND));
         assertEquals("Either commercialFlows or fixedCommercialFlows should be non null", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, null, ptdfZonalSums, fixedPtdfZonalSums));
+        e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, null, ptdfZonalSums, fixedPtdfZonalSums, PTDF_SUM_LOWER_BOUND));
         assertEquals("Either ptdfZonalSums or fixedPtdfZonalSums should be non null", e.getMessage());
 
-        e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, null, null, null));
+        e = assertThrows(OpenRaoException.class, () -> new FlowResultImpl(systematicSensitivityResult, commercialFlows, null, null, null, PTDF_SUM_LOWER_BOUND));
         assertEquals("Either ptdfZonalSums or fixedPtdfZonalSums should be non null", e.getMessage());
     }
 

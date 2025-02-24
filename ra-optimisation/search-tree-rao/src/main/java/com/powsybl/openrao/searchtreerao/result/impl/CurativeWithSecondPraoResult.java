@@ -110,6 +110,11 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public double getPtdfZonalSumLowerBound() {
+        return postCraSensitivityFlowResult.getPtdfZonalSumLowerBound();
+    }
+
+    @Override
     public boolean isActivated(NetworkAction networkAction) {
         if (isCraIncludedInSecondPreventiveRao(networkAction)) {
             return secondPraoResult.isActivated(networkAction);
