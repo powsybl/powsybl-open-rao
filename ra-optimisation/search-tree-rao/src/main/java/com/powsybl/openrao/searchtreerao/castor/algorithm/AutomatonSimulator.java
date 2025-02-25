@@ -65,7 +65,7 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialAct
  * Simulates the behavior of topological and range automatons
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- * @author Godelaine De-Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class AutomatonSimulator {
     private static final double DOUBLE_NON_NULL = 1e-12;
