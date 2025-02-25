@@ -32,8 +32,10 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitatio
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
@@ -66,7 +68,7 @@ public class Marmot implements InterTemporalRaoProvider {
         // if no inter-temporal constraints are defined, the results can be returned
         // TODO : Add intertemporal constraint check if none violated then return
         if (raoInput.getPowerGradients().isEmpty()) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No inter-temporal constraint provided; no need to re-optimize range actions");
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No inter-temporal constraints provided; no need to re-optimize range actions");
             return CompletableFuture.completedFuture(topologicalOptimizationResults);
         }
 
@@ -79,8 +81,10 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<PrePerimeterResult> prePerimeterResults = runAllInitialPrePerimeterSensitivityAnalysis(raoInput.getRaoInputs(), raoParameters);
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
 
-        // 4. Build objective function
+        // 4. Build objective function and initial result
         ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult)), raoParameters);
+        TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveNetworkActions(topologicalOptimizationResults, raoInput.getRaoInputs().map(RaoInput::getCrac));
+        LinearOptimizationResult initialLinearOptimizationResult = getInitialLinearOptimizationResult(prePerimeterResults, preventiveTopologicalActions, objectiveFunction);
 
         // 5. Create and iteratively solve MIP to find optimal range actions' set-points
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
@@ -91,8 +95,9 @@ public class Marmot implements InterTemporalRaoProvider {
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
         TemporalData<RaoResult> mergedRaoResults = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), prePerimeterResults, linearOptimizationResults, topologicalOptimizationResults);
 
-        logCost("[MARMOT] Before global optimization: ", linearOptimizationResults, raoParameters, 10);
-        logCost("[MARMOT] After global optimization: ", linearOptimizationResults, raoParameters, 10);
+        // 7. Log initial and final results
+        logCost("[MARMOT] Before global linear optimization: ", initialLinearOptimizationResult, raoParameters, 10);
+        logCost("[MARMOT] After global linear optimization: ", linearOptimizationResults, raoParameters, 10);
 
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
@@ -200,6 +205,10 @@ public class Marmot implements InterTemporalRaoProvider {
             Collections.emptySet(),
             raoParameters,
             allOptimizedStates);
+    }
+
+    private LinearOptimizationResult getInitialLinearOptimizationResult(TemporalData<PrePerimeterResult> prePerimeterResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction) {
+        return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), prePerimeterResults.map(RangeActionActivationResultImpl::new), preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 
     @Override
