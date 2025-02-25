@@ -97,7 +97,7 @@ public class Marmot implements InterTemporalRaoProvider {
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
 
-    private static TemporalData<NetworkActionsResult> getPreventiveNetworkActions(TemporalData<RaoResult> raoResults, TemporalData<Crac> cracs){
+    private static TemporalData<NetworkActionsResult> getPreventiveNetworkActions(TemporalData<RaoResult> raoResults, TemporalData<Crac> cracs) {
         Map<OffsetDateTime, NetworkActionsResult> preventiveTopologicalActions = new HashMap<>();
         raoResults.getDataPerTimestamp().forEach((timestamp, raoResult) ->
             preventiveTopologicalActions.put(timestamp, new NetworkActionsResultImpl(raoResult.getActivatedNetworkActionsDuringState(cracs.getData(timestamp).orElseThrow().getPreventiveState())))
