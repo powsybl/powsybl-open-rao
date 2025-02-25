@@ -38,6 +38,7 @@ import static com.powsybl.iidm.network.TwoSides.TWO;
  */
 class FlowResultAdapterImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
+    private static final double PTDF_SUM_LOWER_BOUND = 0.01;
 
     private Network network;
     private FlowCnec cnec1;
@@ -76,7 +77,7 @@ class FlowResultAdapterImplTest {
 
     @Test
     void testWithFixedPtdfs() {
-        FlowResult fixedPtdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(ONE, 20.)));
+        FlowResult fixedPtdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(ONE, 20.)), PTDF_SUM_LOWER_BOUND);
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
             .withPtdfsResults(fixedPtdfFlowResult)
             .build();
@@ -88,8 +89,8 @@ class FlowResultAdapterImplTest {
 
     @Test
     void testWithFixedPtdfsAndCommercialFlows() {
-        FlowResult ptdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(ONE, 20.)));
-        FlowResult commercialFlowFlowResult = new FlowResultImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(TWO, 300.)), new HashMap<>());
+        FlowResult ptdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(ONE, 20.)), PTDF_SUM_LOWER_BOUND);
+        FlowResult commercialFlowFlowResult = new FlowResultImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(TWO, 300.)), new HashMap<>(), PTDF_SUM_LOWER_BOUND);
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
                 .withPtdfsResults(ptdfFlowResult)
                 .withCommercialFlowsResults(commercialFlowFlowResult)
@@ -104,7 +105,7 @@ class FlowResultAdapterImplTest {
     @Test
     void testWithFixedPtdfsAndUpdatedCommercialFlows() {
         LoopFlowComputation loopFlowComputation = Mockito.mock(LoopFlowComputation.class);
-        FlowResult ptdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(ONE, 20.)));
+        FlowResult ptdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(ONE, 20.)), PTDF_SUM_LOWER_BOUND);
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder.withPtdfsResults(ptdfFlowResult)
                 .withCommercialFlowsResults(loopFlowComputation, Set.of(cnec2))
                 .build();

@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
  */
 class FlowResultFromMapImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
+    private static final double PTDF_SUM_LOWER_BOUND = 0.01;
 
     SystematicSensitivityResult systematicSensitivityResult;
     FlowCnec loopFlowCnec;
@@ -41,9 +42,10 @@ class FlowResultFromMapImplTest {
         loopFlowCnec = Mockito.mock(FlowCnec.class);
         optimizedCnec = Mockito.mock(FlowCnec.class);
         branchResultFromMap = new FlowResultImpl(
-                systematicSensitivityResult,
-                Map.of(loopFlowCnec, Map.of(ONE, 200., TWO, 250.)),
-                Map.of(optimizedCnec, Map.of(ONE, 30., TWO, 35.))
+            systematicSensitivityResult,
+            Map.of(loopFlowCnec, Map.of(ONE, 200., TWO, 250.)),
+            Map.of(optimizedCnec, Map.of(ONE, 30., TWO, 35.)),
+            PTDF_SUM_LOWER_BOUND
         );
     }
 
