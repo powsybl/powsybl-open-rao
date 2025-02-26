@@ -18,6 +18,8 @@ import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 
+import java.util.Set;
+
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventivePerimeterCnecs;
 
 /** This class concatenates all data around one individual timestamp from running Marmot:
@@ -33,7 +35,7 @@ public record PostOptimizationResult(RaoInput raoInput, PrePerimeterResult initi
     public RaoResult merge() {
         Crac crac = raoInput.getCrac();
         State preventiveState = crac.getPreventiveState();
-        OptimizationResult mergedOptimizationResult = new OptimizationResultImpl(linearOptimizationResult, linearOptimizationResult, linearOptimizationResult, new NetworkActionsResultImpl(topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState)), linearOptimizationResult);
+        OptimizationResult mergedOptimizationResult = new OptimizationResultImpl(linearOptimizationResult, linearOptimizationResult, linearOptimizationResult, new NetworkActionsResultImpl(topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState)), linearOptimizationResult, Set.of(preventiveState));
         return new OneStateOnlyRaoResultImpl(preventiveState, initialResult, mergedOptimizationResult, getPreventivePerimeterCnecs(crac));
     }
 }

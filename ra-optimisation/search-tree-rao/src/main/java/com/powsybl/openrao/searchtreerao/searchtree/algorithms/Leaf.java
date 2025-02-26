@@ -652,6 +652,11 @@ public class Leaf implements OptimizationResult {
         }
     }
 
+    @Override
+    public Set<State> getOptimizedStates() {
+        return Set.of(optimizationPerimeter.getMainOptimizationState());
+    }
+
     /**
      * Releases data used in optimization to make leaf lighter
      */

@@ -217,4 +217,9 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
             throw new OpenRaoException("State should be " + optimizedState.getId() + " but was " + state.getId());
         }
     }
+
+    @Override
+    public Set<State> getOptimizedStates() {
+        return Set.of(optimizedState);
+    }
 }

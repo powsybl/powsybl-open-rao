@@ -113,13 +113,14 @@ class GlobalLinearOptimizationResultTest {
             new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, rangeActionActivationResultTimestamp1, TestsUtils.TIMESTAMP_2, rangeActionActivationResultTimestamp2, TestsUtils.TIMESTAMP_3, rangeActionActivationResultTimestamp3)),
             new TemporalDataImpl<>(),
             objectiveFunction,
-            LinearProblemStatus.OPTIMAL
+            LinearProblemStatus.OPTIMAL,
+            Set.of(stateTimestamp1, stateTimestamp2, stateTimestamp3)
         );
     }
 
     @Test
     void testStatus() {
-        GlobalLinearOptimizationResult linearOptimizationResult = new GlobalLinearOptimizationResult(new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), objectiveFunction, LinearProblemStatus.OPTIMAL);
+        GlobalLinearOptimizationResult linearOptimizationResult = new GlobalLinearOptimizationResult(new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), objectiveFunction, LinearProblemStatus.OPTIMAL, Set.of());
         assertEquals(LinearProblemStatus.OPTIMAL, linearOptimizationResult.getStatus());
         linearOptimizationResult.setStatus(LinearProblemStatus.FEASIBLE);
         assertEquals(LinearProblemStatus.FEASIBLE, linearOptimizationResult.getStatus());
@@ -127,7 +128,7 @@ class GlobalLinearOptimizationResultTest {
 
     @Test
     void testCost() {
-        LinearOptimizationResult linearOptimizationResult = new GlobalLinearOptimizationResult(new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), objectiveFunction, LinearProblemStatus.OPTIMAL);
+        LinearOptimizationResult linearOptimizationResult = new GlobalLinearOptimizationResult(new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), objectiveFunction, LinearProblemStatus.OPTIMAL, Set.of());
         assertEquals(1000., linearOptimizationResult.getCost());
         assertEquals(900., linearOptimizationResult.getFunctionalCost());
         assertEquals(100., linearOptimizationResult.getVirtualCost());
@@ -161,7 +162,8 @@ class GlobalLinearOptimizationResultTest {
             new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, rangeActionActivationResultTimestamp1, TestsUtils.TIMESTAMP_2, rangeActionActivationResultTimestamp2)),
             new TemporalDataImpl<>(),
             objectiveFunction,
-            LinearProblemStatus.OPTIMAL
+            LinearProblemStatus.OPTIMAL,
+            Set.of(stateTimestamp1, stateTimestamp2)
         );
         assertEquals(ComputationStatus.PARTIAL_FAILURE, partialLinearOptimizationResult.getComputationStatus());
         assertEquals(ComputationStatus.PARTIAL_FAILURE, partialLinearOptimizationResult.getSensitivityStatus());
@@ -175,7 +177,8 @@ class GlobalLinearOptimizationResultTest {
             new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, rangeActionActivationResultTimestamp1)),
             new TemporalDataImpl<>(),
             objectiveFunction,
-            LinearProblemStatus.OPTIMAL
+            LinearProblemStatus.OPTIMAL,
+            Set.of(stateTimestamp1)
         );
         assertEquals(ComputationStatus.DEFAULT, partialLinearOptimizationResult.getComputationStatus());
         assertEquals(ComputationStatus.DEFAULT, partialLinearOptimizationResult.getSensitivityStatus());

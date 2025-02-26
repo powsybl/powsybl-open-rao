@@ -283,4 +283,9 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         checkCnec(flowCnec);
         return postCraSensitivitySensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
+
+    @Override
+    public Set<State> getOptimizedStates() {
+        return Set.of(state);
+    }
 }

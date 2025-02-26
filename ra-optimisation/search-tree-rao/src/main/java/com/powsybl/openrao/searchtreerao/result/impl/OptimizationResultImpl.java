@@ -32,13 +32,15 @@ public class OptimizationResultImpl implements OptimizationResult {
     private final SensitivityResult sensitivityResult;
     private final NetworkActionsResult networkActionsResult;
     private final RangeActionActivationResult rangeActionActivationResult;
+    private final Set<State> optimizedStates;
 
-    public OptimizationResultImpl(ObjectiveFunctionResult objectiveFunctionResult, FlowResult flowResult, SensitivityResult sensitivityResult, NetworkActionsResult networkActionsResult, RangeActionActivationResult rangeActionActivationResult) {
+    public OptimizationResultImpl(ObjectiveFunctionResult objectiveFunctionResult, FlowResult flowResult, SensitivityResult sensitivityResult, NetworkActionsResult networkActionsResult, RangeActionActivationResult rangeActionActivationResult, Set<State> optimizedStates) {
         this.objectiveFunctionResult = objectiveFunctionResult;
         this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;
         this.networkActionsResult = networkActionsResult;
         this.rangeActionActivationResult = rangeActionActivationResult;
+        this.optimizedStates = optimizedStates;
     }
 
     @Override
@@ -179,5 +181,10 @@ public class OptimizationResultImpl implements OptimizationResult {
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         return sensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
+    }
+
+    @Override
+    public Set<State> getOptimizedStates() {
+        return optimizedStates;
     }
 }

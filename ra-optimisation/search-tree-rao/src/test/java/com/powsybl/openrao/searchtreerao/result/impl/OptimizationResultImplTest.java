@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +49,7 @@ class OptimizationResultImplTest {
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         networkActionsResult = Mockito.mock(NetworkActionsResult.class);
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        optimizationResult = new OptimizationResultImpl(objectiveFunctionResult, flowResult, sensitivityResult, networkActionsResult, rangeActionActivationResult);
+        optimizationResult = new OptimizationResultImpl(objectiveFunctionResult, flowResult, sensitivityResult, networkActionsResult, rangeActionActivationResult, Set.of());
     }
 
     @Test
@@ -61,7 +60,6 @@ class OptimizationResultImplTest {
         Set<String> virtualCostNames = Set.of("vc1", "vc2");
         double vc1Cost = 2.3;
         List<FlowCnec> vc1CostlyElements = List.of(Mockito.mock(FlowCnec.class), Mockito.mock(FlowCnec.class));
-        ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
 
         when(objectiveFunctionResult.getFunctionalCost()).thenReturn(functionalCost);
         when(objectiveFunctionResult.getMostLimitingElements(1)).thenReturn(limitingCnecs);
