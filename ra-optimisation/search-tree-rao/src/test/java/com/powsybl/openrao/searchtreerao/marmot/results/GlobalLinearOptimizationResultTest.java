@@ -119,6 +119,11 @@ class GlobalLinearOptimizationResultTest {
     }
 
     @Test
+    void testOptimizedStates() {
+        assertEquals(Set.of(stateTimestamp1, stateTimestamp2, stateTimestamp3), globalLinearOptimizationResult.getOptimizedStates());
+    }
+
+    @Test
     void testStatus() {
         GlobalLinearOptimizationResult linearOptimizationResult = new GlobalLinearOptimizationResult(new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), new TemporalDataImpl<>(), objectiveFunction, LinearProblemStatus.OPTIMAL, Set.of());
         assertEquals(LinearProblemStatus.OPTIMAL, linearOptimizationResult.getStatus());

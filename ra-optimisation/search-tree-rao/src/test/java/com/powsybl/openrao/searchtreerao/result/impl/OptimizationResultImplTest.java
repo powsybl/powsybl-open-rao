@@ -41,6 +41,7 @@ class OptimizationResultImplTest {
     private SensitivityResult sensitivityResult;
     private NetworkActionsResult networkActionsResult;
     private RangeActionActivationResult rangeActionActivationResult;
+    private State optimizedState;
 
     @BeforeEach
     void setUp() {
@@ -49,7 +50,8 @@ class OptimizationResultImplTest {
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         networkActionsResult = Mockito.mock(NetworkActionsResult.class);
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        optimizationResult = new OptimizationResultImpl(objectiveFunctionResult, flowResult, sensitivityResult, networkActionsResult, rangeActionActivationResult, Set.of());
+        optimizedState = Mockito.mock(State.class);
+        optimizationResult = new OptimizationResultImpl(objectiveFunctionResult, flowResult, sensitivityResult, networkActionsResult, rangeActionActivationResult, Set.of(optimizedState));
     }
 
     @Test
@@ -170,5 +172,10 @@ class OptimizationResultImplTest {
         assertEquals(contingencyIds, optimizationResult.getContingencies());
         assertEquals(sensitivityValueForPst, optimizationResult.getSensitivityValue(flowCnec, side, pstRangeAction, unit));
         assertEquals(sensitivityValueForGlsk, optimizationResult.getSensitivityValue(flowCnec, side, glsk, unit));
+    }
+
+    @Test
+    void testOptimizedStates() {
+        assertEquals(Set.of(optimizedState), optimizationResult.getOptimizedStates());
     }
 }

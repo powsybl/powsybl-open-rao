@@ -144,6 +144,7 @@ class LeafTest {
         assert rootLeaf.getActivatedNetworkActions().isEmpty();
         assertTrue(rootLeaf.isRoot());
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertEquals(Set.of(optimizedState), rootLeaf.getOptimizedStates());
     }
 
     @Test
