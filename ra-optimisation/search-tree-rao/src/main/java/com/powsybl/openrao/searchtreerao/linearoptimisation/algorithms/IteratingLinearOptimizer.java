@@ -44,7 +44,6 @@ public final class IteratingLinearOptimizer {
 
     public static LinearOptimizationResult optimize(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
 
-        // TODO: if 2P global opt, add curative states with range actions
         IteratingLinearOptimizationResultImpl bestResult = createResult(
             input.preOptimizationFlowResult(),
             input.preOptimizationSensitivityResult(),
@@ -52,7 +51,7 @@ public final class IteratingLinearOptimizer {
             input.appliedNetworkActionsInPrimaryState(),
             0,
             input.objectiveFunction(),
-            Set.of(input.optimizationPerimeter().getMainOptimizationState()));
+            input.optimizationPerimeter().getRangeActionOptimizationStates());
 
         IteratingLinearOptimizationResultImpl previousResult = bestResult;
 
@@ -102,7 +101,7 @@ public final class IteratingLinearOptimizer {
                 input.appliedNetworkActionsInPrimaryState(),
                 iteration,
                 input.objectiveFunction(),
-                Set.of(input.optimizationPerimeter().getMainOptimizationState())
+                input.optimizationPerimeter().getRangeActionOptimizationStates()
             );
             previousResult = currentResult;
 
