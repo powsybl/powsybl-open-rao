@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -34,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class MarmotTest {
     @Test
-    void runCaseWithTwoTimestampsAndNoGradient() throws IOException {
+    void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
         Network network1 = Network.read("/network/2Nodes2ParallelLinesPST.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
         Network network2 = Network.read("/network/2Nodes2ParallelLinesPST.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
@@ -58,7 +59,7 @@ class MarmotTest {
     }
 
     @Test
-    void testWithRedispatchingAndNoGradient() throws IOException {
+    void testWithRedispatchingAndNoGradientOnImplicatedGenerators() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -87,7 +88,7 @@ class MarmotTest {
     }
 
     @Test
-    void testWithRedispatchingAndGradient() throws IOException {
+    void testWithRedispatchingAndGradientOnImplicatedGenerators() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -129,10 +130,12 @@ class MarmotTest {
 
         InterTemporalRaoInput input = new InterTemporalRaoInput(
             new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build())),
-            Set.of(new PowerGradient("FFR1AA1 _generator", -250d, 250d))
+            Set.of(new PowerGradient("FFR1AA1 _generator", 0d, 250d))
         );
 
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
+        assertTrue(results.getData(timestamp1).get().isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
+        assertTrue(results.getData(timestamp2).get().isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
         assertEquals(40.0, results.getData(timestamp1).get().getCost(crac1.getInstant(InstantKind.PREVENTIVE)));
     }
 }
