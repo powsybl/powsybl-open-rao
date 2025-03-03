@@ -18,7 +18,7 @@ import org.mockito.Mockito;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(FlowbasedComputationProvider.class)
 public class FlowbasedComputationProviderMock implements FlowbasedComputationProvider {

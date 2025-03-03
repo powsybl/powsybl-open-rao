@@ -137,10 +137,10 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private void addBasicRangeActionVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state, Optional.ofNullable(timestamp));
-        linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state, Optional.ofNullable(timestamp));
-        linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp));
-        linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.ofNullable(timestamp));
+        linearProblem.addRangeActionSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), rangeAction, state);
+        linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction, state);
+        linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        linearProblem.addRangeActionVariationVariable(linearProblem.infinity(), rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
     }
 
     /**
@@ -193,7 +193,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             return;
         }
 
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.ofNullable(timestamp));
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         double currentSetPoint = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
 
         flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentSetPoint);
@@ -225,7 +225,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
     private void addGlobalInjectionBalanceConstraint(LinearProblem linearProblem, State state) {
         if (optimizationContext.getRangeActionsPerState().get(state).stream().anyMatch(InjectionRangeAction.class::isInstance)) {
-            linearProblem.addInjectionBalanceConstraint(state, Optional.ofNullable(timestamp));
+            linearProblem.addInjectionBalanceConstraint(state);
         }
     }
 
@@ -249,13 +249,13 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         double lb = previousSetPointValue - constrainedSetPointRange;
         double ub = previousSetPointValue + constrainedSetPointRange;
         try {
-            OpenRaoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, LinearProblem.RaRangeShrinking.TRUE, Optional.ofNullable(timestamp));
+            OpenRaoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
             iterativeShrink.setLb(lb);
             iterativeShrink.setUb(ub);
         } catch (OpenRaoException ignored) {
             // Constraint iterativeShrink has not yet been created
-            OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.ofNullable(timestamp));
-            OpenRaoMPConstraint iterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(lb, ub, rangeAction, state, LinearProblem.RaRangeShrinking.TRUE, Optional.ofNullable(timestamp));
+            OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+            OpenRaoMPConstraint iterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(lb, ub, rangeAction, state, LinearProblem.RaRangeShrinking.TRUE);
             iterativeShrink.setCoefficient(setPointVariable, 1);
         }
     }
@@ -272,17 +272,17 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected abstract void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state);
 
     protected void addSetPointConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.ofNullable(timestamp));
-        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.ofNullable(timestamp));
-        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp));
-        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.ofNullable(timestamp));
+        OpenRaoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+        OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
+        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
-        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.addRangeActionAbsoluteVariationConstraint(rangeAction, state, Optional.ofNullable(timestamp));
+        OpenRaoMPConstraint absoluteVariationConstraint = linearProblem.addRangeActionAbsoluteVariationConstraint(rangeAction, state);
         absoluteVariationConstraint.setCoefficient(absoluteVariationVariable, 1.0);
         absoluteVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
         absoluteVariationConstraint.setCoefficient(downwardVariationVariable, -1.0);
 
-        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.addRangeActionSetPointVariationConstraint(rangeAction, state, Optional.ofNullable(timestamp));
+        OpenRaoMPConstraint setPointVariationConstraint = linearProblem.addRangeActionSetPointVariationConstraint(rangeAction, state);
         setPointVariationConstraint.setCoefficient(setPointVariable, 1.0);
         setPointVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
         setPointVariationConstraint.setCoefficient(downwardVariationVariable, 1.0);
@@ -307,7 +307,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
             // range action have been activated in a previous instant
             // getRangeActionSetpointVariable from previous instant
-            OpenRaoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue(), Optional.ofNullable(timestamp));
+            OpenRaoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
 
             List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
             double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
@@ -316,8 +316,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             double maxRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(3);
 
             // relative range
-            if (pstModel.equals(PstModel.CONTINUOUS) || !(rangeAction instanceof PstRangeAction)) {
-                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE, Optional.ofNullable(timestamp));
+            if (PstModel.CONTINUOUS.equals(pstModel) || !(rangeAction instanceof PstRangeAction)) {
+                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
                 relSetpointConstraint.setCoefficient(setPointVariable, 1);
                 relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
             }
@@ -331,7 +331,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
         if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
             double totalShiftKey = injectionRangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(v -> v).sum();
-            OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state, Optional.ofNullable(timestamp));
+            OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state);
             injectionBalanceConstraint.setCoefficient(upwardVariationVariable, totalShiftKey);
             injectionBalanceConstraint.setCoefficient(downwardVariationVariable, -totalShiftKey);
         }
