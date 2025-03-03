@@ -56,9 +56,9 @@ public class DiscretePstGroupFiller implements ProblemFiller {
             String groupId = optGroupId.get();
             // For the first time the group ID is encountered a common variable for the tap has to be created
             try {
-                linearProblem.getPstGroupTapVariable(groupId, state, Optional.ofNullable(timestamp));
+                linearProblem.getPstGroupTapVariable(groupId, state);
             } catch (OpenRaoException ignored) {
-                linearProblem.addPstGroupTapVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId, state, Optional.ofNullable(timestamp));
+                linearProblem.addPstGroupTapVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId, state);
             }
             addRangeActionGroupConstraint(linearProblem, pstRangeAction, groupId, state, rangeActionActivationResult);
         }
@@ -66,17 +66,17 @@ public class DiscretePstGroupFiller implements ProblemFiller {
 
     private void addRangeActionGroupConstraint(LinearProblem linearProblem, PstRangeAction pstRangeAction, String groupId, State state, RangeActionActivationResult rangeActionActivationResult) {
         double currentTap = rangeActionActivationResult.getOptimizedTap(pstRangeAction, optimizedState);
-        OpenRaoMPConstraint groupSetPointConstraint = linearProblem.addPstGroupTapConstraint(currentTap, currentTap, pstRangeAction, state, Optional.ofNullable(timestamp));
-        groupSetPointConstraint.setCoefficient(linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD, Optional.ofNullable(timestamp)), -1);
-        groupSetPointConstraint.setCoefficient(linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.ofNullable(timestamp)), 1);
-        groupSetPointConstraint.setCoefficient(linearProblem.getPstGroupTapVariable(groupId, state, Optional.ofNullable(timestamp)), 1);
+        OpenRaoMPConstraint groupSetPointConstraint = linearProblem.addPstGroupTapConstraint(currentTap, currentTap, pstRangeAction, state);
+        groupSetPointConstraint.setCoefficient(linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD), -1);
+        groupSetPointConstraint.setCoefficient(linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD), 1);
+        groupSetPointConstraint.setCoefficient(linearProblem.getPstGroupTapVariable(groupId, state), 1);
     }
 
     private void updateRangeActionGroupConstraint(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state, RangeActionActivationResult rangeActionActivationResult) {
         Optional<String> optGroupId = pstRangeAction.getGroupId();
         if (optGroupId.isPresent()) {
             double newTap = rangeActionActivationResult.getOptimizedTap(pstRangeAction, optimizedState);
-            OpenRaoMPConstraint groupSetPointConstraint = linearProblem.getPstGroupTapConstraint(pstRangeAction, state, Optional.ofNullable(timestamp));
+            OpenRaoMPConstraint groupSetPointConstraint = linearProblem.getPstGroupTapConstraint(pstRangeAction, state);
             groupSetPointConstraint.setLb(newTap);
             groupSetPointConstraint.setUb(newTap);
         }

@@ -9,9 +9,12 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
@@ -38,8 +41,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -124,7 +127,15 @@ class PowerGradientConstraintFillerTest {
     }
 
     private void createPowerGradientConstraintFiller() {
-        PowerGradientConstraintFiller powerGradientConstraintFiller = new PowerGradientConstraintFiller(input);
+        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getPreventiveState()).map(State.class::cast);
+        TemporalData<Network> networks = input.getRaoInputs().map(RaoInput::getNetwork).map(Network.class::cast);
+        TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
+        Set<PowerGradient> gradients = input.getPowerGradients();
+        PowerGradientConstraintFiller powerGradientConstraintFiller = new PowerGradientConstraintFiller(
+            preventiveStates,
+            networks,
+            injectionRangeActions,
+            gradients);
         linearProblemBuilder.withProblemFiller(powerGradientConstraintFiller);
     }
 
@@ -175,12 +186,12 @@ class PowerGradientConstraintFillerTest {
 
         Crac crac1 = input.getRaoInputs().getData(timestamp1).get().getCrac();
         // check coefficient for injection action variable
-        assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD, Optional.of(timestamp1))), 1e-5);
-        assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.of(timestamp1))), 1e-5);
-        assertEquals(1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD, Optional.of(timestamp1))), 1e-5);
-        assertEquals(-1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.of(timestamp1))), 1e-5);
-        assertEquals(-0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD, Optional.of(timestamp1))), 1e-5);
-        assertEquals(0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD, Optional.of(timestamp1))), 1e-5);
+        assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
+        assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
+        assertEquals(1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
+        assertEquals(-1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
+        assertEquals(-0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
+        assertEquals(0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
     }
 
     @Test
