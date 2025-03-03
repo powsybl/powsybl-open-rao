@@ -10,7 +10,7 @@ import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 
 /**
- * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface OnConstraintAdder<T extends RemedialActionAdder<T>, S extends Cnec<?>> {
     OnConstraintAdder<T, S> withInstant(String instantId);

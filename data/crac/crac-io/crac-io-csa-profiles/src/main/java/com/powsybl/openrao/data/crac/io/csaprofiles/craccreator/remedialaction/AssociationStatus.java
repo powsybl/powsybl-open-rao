@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.crac.io.csaprofiles.craccreator.remedialaction;
 import com.powsybl.openrao.data.crac.io.csaprofiles.craccreator.constants.ElementCombinationConstraintKind;
 
 /**
- * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public record AssociationStatus(boolean isValid,
                                 ElementCombinationConstraintKind elementCombinationConstraintKind,

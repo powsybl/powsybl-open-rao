@@ -28,7 +28,7 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.g
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
 /**
- * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class OnConstraintArrayDeserializer {
     private OnConstraintArrayDeserializer() {

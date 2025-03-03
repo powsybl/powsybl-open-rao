@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import java.io.IOException;
 
 /**
- * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class OnConstraintSerializer extends AbstractJsonSerializer<OnConstraint> {
     @Override
