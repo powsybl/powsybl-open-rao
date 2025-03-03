@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class OnContingencyStateUsageRuleHelper {
 

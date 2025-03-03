@@ -82,84 +82,84 @@ class LinearProblemTest {
 
     @Test
     void rangeActionSetPointVariableTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.empty()));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionSetpointVariable(rangeAction, state));
         assertEquals("Variable rangeaction_id_null_setpoint_variable has not been created yet", e.getMessage());
-        linearProblem.addRangeActionSetpointVariable(LB, UB, rangeAction, state, Optional.empty());
-        assertNotNull(linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.empty()));
-        assertEquals(LB, linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.empty()).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.empty()).ub(), DOUBLE_TOLERANCE);
+        linearProblem.addRangeActionSetpointVariable(LB, UB, rangeAction, state);
+        assertNotNull(linearProblem.getRangeActionSetpointVariable(rangeAction, state));
+        assertEquals(UB, linearProblem.getRangeActionSetpointVariable(rangeAction, state).ub(), DOUBLE_TOLERANCE);
+        assertEquals(LB, linearProblem.getRangeActionSetpointVariable(rangeAction, state).lb(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void rangeActionAbsoluteVariationVariableTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.empty()));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
         assertEquals("Variable rangeaction_id_null_absolutevariation_variable has not been created yet", e.getMessage());
-        linearProblem.addAbsoluteRangeActionVariationVariable(LB, UB, rangeAction, state, Optional.empty());
-        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.empty()));
-        assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.empty()).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, Optional.empty()).ub(), DOUBLE_TOLERANCE);
+        linearProblem.addAbsoluteRangeActionVariationVariable(LB, UB, rangeAction, state);
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
+        assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void pstTapVariationIntegerAndBinaryVariablesTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD, Optional.empty()));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD));
         assertEquals("Variable rangeaction_id_null_tapvariationupward_variable has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD, Optional.empty()));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD));
         assertEquals("Variable rangeaction_id_null_tapvariationdownward_variable has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstTapVariationBinary(rangeAction, state, UPWARD, Optional.empty()));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstTapVariationBinary(rangeAction, state, UPWARD));
         assertEquals("Variable rangeaction_id_null_isvariationupward_variable has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstTapVariationBinary(rangeAction, state, DOWNWARD, Optional.empty()));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstTapVariationBinary(rangeAction, state, DOWNWARD));
         assertEquals("Variable rangeaction_id_null_isvariationdownward_variable has not been created yet", e.getMessage());
 
-        linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, state, UPWARD, Optional.empty());
-        linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, state, DOWNWARD, Optional.empty());
-        linearProblem.addPstTapVariationBinary(rangeAction, state, UPWARD, Optional.empty());
-        linearProblem.addPstTapVariationBinary(rangeAction, state, DOWNWARD, Optional.empty());
+        linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, state, UPWARD);
+        linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, state, DOWNWARD);
+        linearProblem.addPstTapVariationBinary(rangeAction, state, UPWARD);
+        linearProblem.addPstTapVariationBinary(rangeAction, state, DOWNWARD);
 
-        assertNotNull(linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD, Optional.empty()));
-        assertNotNull(linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD, Optional.empty()));
-        assertNotNull(linearProblem.getPstTapVariationBinary(rangeAction, state, UPWARD, Optional.empty()));
-        assertNotNull(linearProblem.getPstTapVariationBinary(rangeAction, state, DOWNWARD, Optional.empty()));
-        assertEquals(LB, linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD, Optional.empty()).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD, Optional.empty()).ub(), DOUBLE_TOLERANCE);
+        assertNotNull(linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD));
+        assertNotNull(linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD));
+        assertNotNull(linearProblem.getPstTapVariationBinary(rangeAction, state, UPWARD));
+        assertNotNull(linearProblem.getPstTapVariationBinary(rangeAction, state, DOWNWARD));
+        assertEquals(LB, linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void pstTapConstraintsTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD, Optional.empty()));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD));
         assertEquals("Constraint rangeaction_id_null_isvariation_previous_iteration_upward_constraint has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD, Optional.empty()));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD));
         assertEquals("Constraint rangeaction_id_null_isvariation_previous_iteration_downward_constraint has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state, Optional.empty()));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state));
         assertEquals("Constraint rangeaction_id_null_upordownvariation_constraint has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getTapToAngleConversionConstraint(rangeAction, state, Optional.empty()));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getTapToAngleConversionConstraint(rangeAction, state));
         assertEquals("Constraint rangeaction_id_null_taptoangleconversion_constraint has not been created yet", e.getMessage());
 
-        linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, rangeAction, state, PREVIOUS_ITERATION, UPWARD, Optional.empty());
-        linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, rangeAction, state, PREVIOUS_ITERATION, DOWNWARD, Optional.empty());
-        linearProblem.addUpOrDownPstVariationConstraint(rangeAction, state, Optional.empty());
-        linearProblem.addTapToAngleConversionConstraint(LB, UB, rangeAction, state, Optional.empty());
+        linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, rangeAction, state, PREVIOUS_ITERATION, UPWARD);
+        linearProblem.addIsVariationInDirectionConstraint(-linearProblem.infinity(), 0, rangeAction, state, PREVIOUS_ITERATION, DOWNWARD);
+        linearProblem.addUpOrDownPstVariationConstraint(rangeAction, state);
+        linearProblem.addTapToAngleConversionConstraint(LB, UB, rangeAction, state);
 
-        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD, Optional.empty()));
-        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD, Optional.empty()));
-        assertNotNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state, Optional.empty()));
-        assertNotNull(linearProblem.getTapToAngleConversionConstraint(rangeAction, state, Optional.empty()));
+        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD));
+        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD));
+        assertNotNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state));
+        assertNotNull(linearProblem.getTapToAngleConversionConstraint(rangeAction, state));
     }
 
     @Test
     void pstGroupVariablesAndConstraintsTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstGroupTapVariable(GROUP_ID, state, Optional.empty()));
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstGroupTapVariable(GROUP_ID, state));
         assertEquals("Variable group_id_null_virtualtap_variable has not been created yet", e.getMessage());
-        e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstGroupTapConstraint(rangeAction, state, Optional.empty()));
+        e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstGroupTapConstraint(rangeAction, state));
         assertEquals("Constraint rangeaction_id_null_group_id_virtualtap_constraint has not been created yet", e.getMessage());
 
-        linearProblem.addPstGroupTapVariable(LB, UB, GROUP_ID, state, Optional.empty());
-        linearProblem.addPstGroupTapConstraint(LB, UB, rangeAction, state, Optional.empty());
+        linearProblem.addPstGroupTapVariable(LB, UB, GROUP_ID, state);
+        linearProblem.addPstGroupTapConstraint(LB, UB, rangeAction, state);
 
-        assertNotNull(linearProblem.getPstGroupTapVariable(GROUP_ID, state, Optional.empty()));
-        assertNotNull(linearProblem.getPstGroupTapConstraint(rangeAction, state, Optional.empty()));
-        assertEquals(LB, linearProblem.getPstGroupTapVariable(GROUP_ID, state, Optional.empty()).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getPstGroupTapConstraint(rangeAction, state, Optional.empty()).ub(), DOUBLE_TOLERANCE);
+        assertNotNull(linearProblem.getPstGroupTapVariable(GROUP_ID, state));
+        assertNotNull(linearProblem.getPstGroupTapConstraint(rangeAction, state));
+        assertEquals(LB, linearProblem.getPstGroupTapVariable(GROUP_ID, state).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getPstGroupTapConstraint(rangeAction, state).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
