@@ -40,26 +40,26 @@ public class UcteNetworkAnalyzer {
     }
 
     UcteMatchingResult findContingencyElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
-                ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.HVDC);
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
+                ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.HVDC, ConnectableType.SWITCH);
     }
 
     UcteMatchingResult findFlowElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST);
     }
 
     UcteMatchingResult findTopologicalElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.SWITCH);
     }
 
     UcteMatchingResult findPstElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(), ConnectableType.PST);
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties, ConnectableType.PST);
     }
 
     UcteMatchingResult findHvdcElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(), ConnectableType.HVDC);
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties, ConnectableType.HVDC);
     }
 
     private String completeNodeName(String nodeName) {
