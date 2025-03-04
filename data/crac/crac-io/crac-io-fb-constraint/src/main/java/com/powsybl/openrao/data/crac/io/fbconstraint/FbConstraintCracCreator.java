@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
+import static com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties.SuffixMatchPriority.NAME_BEFORE_ORDERCODE;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -65,7 +66,7 @@ class FbConstraintCracCreator {
             return creationContext.creationFailure();
         }
 
-        UcteNetworkAnalyzer ucteNetworkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(COMPLETE_WITH_WILDCARDS));
+        UcteNetworkAnalyzer ucteNetworkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(COMPLETE_WITH_WILDCARDS, NAME_BEFORE_ORDERCODE));
 
         // Store all Outages while reading CriticalBranches and ComplexVariants
         List<OutageReader> outageReaders = new ArrayList<>();
