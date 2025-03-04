@@ -30,6 +30,7 @@ public class FlowResultImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
     private final Map<FlowCnec, Map<TwoSides, Double>> commercialFlows;
     private final Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums;
+    private final double ptdfZonalSumLowerBound;
     private final FlowResult fixedCommercialFlows;
     private final FlowResult fixedPtdfZonalSums;
     private final Map<FlowCnec, Double> marginMapMW = new ConcurrentHashMap<>();
@@ -37,21 +38,24 @@ public class FlowResultImpl implements FlowResult {
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
                           Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
-                          Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums) {
-        this(systematicSensitivityResult, commercialFlows, null, ptdfZonalSums, null);
+                          Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums,
+                          double ptdfZonalSumLowerBound) {
+        this(systematicSensitivityResult, commercialFlows, null, ptdfZonalSums, null, ptdfZonalSumLowerBound);
     }
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
                           FlowResult fixedCommercialFlows,
-                          FlowResult fixedPtdfZonalSums) {
-        this(systematicSensitivityResult, null, fixedCommercialFlows, null, fixedPtdfZonalSums);
+                          FlowResult fixedPtdfZonalSums,
+                          double ptdfZonalSumLowerBound) {
+        this(systematicSensitivityResult, null, fixedCommercialFlows, null, fixedPtdfZonalSums, ptdfZonalSumLowerBound);
     }
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
                            Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
                            FlowResult fixedCommercialFlows,
                            Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums,
-                           FlowResult fixedPtdfZonalSums) {
+                           FlowResult fixedPtdfZonalSums,
+                           double ptdfZonalSumLowerBound) {
         this.systematicSensitivityResult = systematicSensitivityResult;
         if (commercialFlows == null && fixedCommercialFlows == null
             || commercialFlows != null && fixedCommercialFlows != null) {
@@ -65,6 +69,7 @@ public class FlowResultImpl implements FlowResult {
         this.ptdfZonalSums = ptdfZonalSums;
         this.fixedCommercialFlows = fixedCommercialFlows;
         this.fixedPtdfZonalSums = fixedPtdfZonalSums;
+        this.ptdfZonalSumLowerBound = ptdfZonalSumLowerBound;
     }
 
     @Override
@@ -133,6 +138,11 @@ public class FlowResultImpl implements FlowResult {
         } else {
             return ptdfZonalSums;
         }
+    }
+
+    @Override
+    public double getPtdfZonalSumLowerBound() {
+        return ptdfZonalSumLowerBound;
     }
 
     @Override

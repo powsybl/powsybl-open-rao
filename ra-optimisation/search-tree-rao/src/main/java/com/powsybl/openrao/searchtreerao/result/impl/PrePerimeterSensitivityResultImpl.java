@@ -122,6 +122,11 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     }
 
     @Override
+    public double getPtdfZonalSumLowerBound() {
+        return flowResult.getPtdfZonalSumLowerBound();
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return prePerimeterSetpoints.getRangeActions();
     }

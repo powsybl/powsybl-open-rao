@@ -89,11 +89,11 @@ public interface FlowResult {
     }
 
     default double getRelativeMargin(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        if (Double.isNaN(getPtdfZonalSum(flowCnec, side)) || getPtdfZonalSum(flowCnec, side) == 0) {
+        if (Double.isNaN(getPtdfZonalSum(flowCnec, side))) {
             return Double.NaN;
         }
         return getMargin(flowCnec, side, unit) <= 0 ? getMargin(flowCnec, side, unit)
-            : getMargin(flowCnec, side, unit) / getPtdfZonalSum(flowCnec, side);
+            : getMargin(flowCnec, side, unit) / Math.max(getPtdfZonalSum(flowCnec, side), getPtdfZonalSumLowerBound());
     }
 
     /**
@@ -141,6 +141,11 @@ public interface FlowResult {
      * @return A map of the sums of the computation areas' zonal PTDFs on each branch.
      */
     Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums();
+
+    /**
+     * @return the parameter value for the minimum value of the ptdf zonal sum to avoid dividing by 0.
+     */
+    double getPtdfZonalSumLowerBound();
 
     ComputationStatus getComputationStatus();
 

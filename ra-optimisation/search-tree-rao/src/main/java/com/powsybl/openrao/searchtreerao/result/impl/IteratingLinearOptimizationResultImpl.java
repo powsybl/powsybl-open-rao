@@ -143,6 +143,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
+    public double getPtdfZonalSumLowerBound() {
+        return flowResult.getPtdfZonalSumLowerBound();
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return rangeActionActivationResult.getRangeActions();
     }

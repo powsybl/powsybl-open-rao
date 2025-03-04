@@ -186,5 +186,4 @@ class ToolProviderTest {
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
         assertNotNull(toolProvider.getAbsolutePtdfSumsComputation());
     }
-
 }

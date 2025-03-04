@@ -72,6 +72,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getPtdfZonalSumLowerBound() {
+        return flowResult.getPtdfZonalSumLowerBound();
+    }
+
+    @Override
     public boolean isActivated(NetworkAction networkAction) {
         return networkActionsResult.isActivated(networkAction);
     }

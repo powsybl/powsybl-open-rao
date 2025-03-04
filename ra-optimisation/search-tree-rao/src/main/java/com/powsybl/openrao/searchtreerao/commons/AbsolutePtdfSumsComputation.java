@@ -42,7 +42,6 @@ public class AbsolutePtdfSumsComputation {
             flowCnec.getMonitoredSides().forEach(side -> {
                 Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(flowCnec, side, glskProvider, eiCodesInPtdfs, sensitivityResult);
                 double sumOfZToZPtdf = zTozPtdfs.stream().mapToDouble(zToz -> Math.abs(computeZToZPtdf(zToz, ptdfMap))).sum();
-                sumOfZToZPtdf = Math.max(sumOfZToZPtdf, ptdfSumLowerBound);
                 ptdfSums.computeIfAbsent(flowCnec, k -> new EnumMap<>(TwoSides.class)).put(side, sumOfZToZPtdf);
             });
         }
@@ -73,5 +72,9 @@ public class AbsolutePtdfSumsComputation {
         } else {
             return zoneToSlackPtdf.stream().mapToDouble(v -> v).sum();
         }
+    }
+
+    public double getPtdfSumLowerBound() {
+        return ptdfSumLowerBound;
     }
 }

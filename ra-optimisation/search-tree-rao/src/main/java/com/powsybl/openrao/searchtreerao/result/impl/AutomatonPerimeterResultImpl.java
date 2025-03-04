@@ -83,6 +83,11 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getPtdfZonalSumLowerBound() {
+        return postAutomatonSensitivityAnalysisOutput.getPtdfZonalSumLowerBound();
+    }
+
+    @Override
     public boolean isActivated(NetworkAction networkAction) {
         return forcedNetworkActions.contains(networkAction) || selectedNetworkActions.contains(networkAction);
     }

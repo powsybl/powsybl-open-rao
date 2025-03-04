@@ -106,6 +106,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getPtdfZonalSumLowerBound() {
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
     public boolean isActivated(NetworkAction networkAction) {
         return activatedNetworkActions.contains(networkAction);
     }
