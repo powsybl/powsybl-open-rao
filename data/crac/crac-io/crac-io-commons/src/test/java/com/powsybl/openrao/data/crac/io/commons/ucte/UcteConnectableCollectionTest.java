@@ -29,30 +29,31 @@ class UcteConnectableCollectionTest {
     @Test
     void testInternalBranch() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
         // internal branch with order code, from/to same as network
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE2AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE2AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE1AA1  BBE2AA1  1"), result.getIidmIdentifiable());
 
         // internal branch with element name, from/to same as network
-        result = ucteConnectableCollection.lookForConnectable("FFR1AA1*", "FFR3AA1*", "BR FR1FR3", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        result = ucteConnectableCollection.lookForConnectable("FFR1AA1*", "FFR3AA1*", "BR FR1FR3", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("FFR1AA1  FFR3AA1  2"), result.getIidmIdentifiable());
 
         // internal branch with order code, from/to different from network
-        result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE1AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE1AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE1AA1  BBE2AA1  1"), result.getIidmIdentifiable());
 
         // internal branch with element name, from/to different from network
-        result = ucteConnectableCollection.lookForConnectable("BBE3AA1*", "BBE1AA1 ", "BR BE1BE3", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        result = ucteConnectableCollection.lookForConnectable("BBE3AA1*", "BBE1AA1 ", "BR BE1BE3", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
@@ -62,29 +63,30 @@ class UcteConnectableCollectionTest {
     @Test
     void testInvalidInternalBranch() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
         // unknown from
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("UNKNOW1 ", "BBE1AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("UNKNOW1 ", "BBE1AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertFalse(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
 
         // unknown to
-        result = ucteConnectableCollection.lookForConnectable("BBE3AA1 ", "UNKNOW1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        result = ucteConnectableCollection.lookForConnectable("BBE3AA1 ", "UNKNOW1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertFalse(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
 
         // branch exists but not with this order code
-        result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE2AA1 ", "4", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE2AA1 ", "4", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertFalse(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
 
         // branch exists but not with this element name
-        result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE3AA1 ", "COUCOU", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE3AA1 ", "COUCOU", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertFalse(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
 
         // branch exists but not of the right type
-        result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE2AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE, ConnectableType.HVDC);
+        result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE2AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE, ConnectableType.HVDC);
         assertFalse(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
     }
@@ -92,6 +94,7 @@ class UcteConnectableCollectionTest {
     @Test
     void testValidTransformer() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
         /*
         note that transformers from/to node are systematically inverted by PowSyBl UCTE importer
@@ -104,52 +107,52 @@ class UcteConnectableCollectionTest {
          */
 
         // transformer with order code, from/to same as network
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE3AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.PST);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE3AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.PST);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA1  BBE3AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("FFR1AA2*", "FFR1AA1 ", "5", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.VOLTAGE_TRANSFORMER);
+        result = ucteConnectableCollection.lookForConnectable("FFR1AA2*", "FFR1AA1 ", "5", ucteNetworkAnalyzerProperties, ConnectableType.VOLTAGE_TRANSFORMER);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("FFR1AA2  FFR1AA1  5"), result.getIidmIdentifiable());
 
         // transformer with element name, from/to same as network
-        result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE3AA1 ", "PST BE", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.PST);
+        result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE3AA1 ", "PST BE", ucteNetworkAnalyzerProperties, ConnectableType.PST);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA1  BBE3AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("BBE1AA1*", "BBE1AA2*", "TR BE1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.VOLTAGE_TRANSFORMER);
+        result = ucteConnectableCollection.lookForConnectable("BBE1AA1*", "BBE1AA2*", "TR BE1", ucteNetworkAnalyzerProperties, ConnectableType.VOLTAGE_TRANSFORMER);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE1AA1  BBE1AA2  1"), result.getIidmIdentifiable());
 
         // transformer with order code, from/to different from network
-        result = ucteConnectableCollection.lookForConnectable("BBE3AA1 ", "BBE2AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.PST);
+        result = ucteConnectableCollection.lookForConnectable("BBE3AA1 ", "BBE2AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.PST);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA1  BBE3AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE2AA2*", "2", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.VOLTAGE_TRANSFORMER);
+        result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE2AA2*", "2", ucteNetworkAnalyzerProperties, ConnectableType.VOLTAGE_TRANSFORMER);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA2  BBE2AA1  2"), result.getIidmIdentifiable());
 
         // transformer with element name, from/to different from network
-        result = ucteConnectableCollection.lookForConnectable("BBE3AA1*", "BBE2AA1 ", "PST BE", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.PST);
+        result = ucteConnectableCollection.lookForConnectable("BBE3AA1*", "BBE2AA1 ", "PST BE", ucteNetworkAnalyzerProperties, ConnectableType.PST);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA1  BBE3AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("FFR1AA1 ", "FFR1AA2 ", "TR FR1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.VOLTAGE_TRANSFORMER);
+        result = ucteConnectableCollection.lookForConnectable("FFR1AA1 ", "FFR1AA2 ", "TR FR1", ucteNetworkAnalyzerProperties, ConnectableType.VOLTAGE_TRANSFORMER);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
@@ -159,67 +162,69 @@ class UcteConnectableCollectionTest {
     @Test
     void testInvalidTransformer() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
         // transformer exists but not with this order code
-        assertFalse(ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE3AA1 ", "2", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.PST).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE3AA1 ", "2", ucteNetworkAnalyzerProperties, ConnectableType.PST).hasMatched());
 
         // transformer exists but not with this element name
-        assertFalse(ucteConnectableCollection.lookForConnectable("FFR1AA2 ", "FFR1AA1 ", "COUCOU", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.VOLTAGE_TRANSFORMER).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("FFR1AA2 ", "FFR1AA1 ", "COUCOU", ucteNetworkAnalyzerProperties, ConnectableType.VOLTAGE_TRANSFORMER).hasMatched());
 
         // transformer exists but not with this type
-        assertFalse(ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE3AA1 ", "2", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.SWITCH).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE3AA1 ", "2", ucteNetworkAnalyzerProperties, ConnectableType.SWITCH).hasMatched());
 
     }
 
     @Test
     void testValidTieLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
         // tie-line with order code
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("XFRDE11 ", "DDE3AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("XFRDE11 ", "DDE3AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.ONE, result.getSide());
         assertSame(network.getIdentifiable("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("DDE3AA1 ", "XFRDE11 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        result = ucteConnectableCollection.lookForConnectable("DDE3AA1 ", "XFRDE11 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.ONE, result.getSide());
         assertSame(network.getIdentifiable("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("XFRDE11*", "FFR2AA1*", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        result = ucteConnectableCollection.lookForConnectable("XFRDE11*", "FFR2AA1*", "1", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.TWO, result.getSide());
         assertSame(network.getIdentifiable("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("FFR2AA1 ", "XFRDE11 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        result = ucteConnectableCollection.lookForConnectable("FFR2AA1 ", "XFRDE11 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.TWO, result.getSide());
         assertSame(network.getIdentifiable("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1"), result.getIidmIdentifiable());
 
         // tie-line with element name
-        result = ucteConnectableCollection.lookForConnectable("NNL2AA1*", "XNLBE11*", "TL NL2X", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        result = ucteConnectableCollection.lookForConnectable("NNL2AA1*", "XNLBE11*", "TL NL2X", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.ONE, result.getSide());
         assertSame(network.getIdentifiable("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("XNLBE11 ", "NNL2AA1 ", "TL NL2X", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        result = ucteConnectableCollection.lookForConnectable("XNLBE11 ", "NNL2AA1 ", "TL NL2X", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.ONE, result.getSide());
         assertSame(network.getIdentifiable("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("XNLBE11 ", "BBE3AA1*", "TL BE3X", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        result = ucteConnectableCollection.lookForConnectable("XNLBE11 ", "BBE3AA1*", "TL BE3X", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.TWO, result.getSide());
         assertSame(network.getIdentifiable("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("BBE3AA1*", "XNLBE11 ", "TL BE3X", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        result = ucteConnectableCollection.lookForConnectable("BBE3AA1*", "XNLBE11 ", "TL BE3X", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.TWO, result.getSide());
@@ -229,43 +234,45 @@ class UcteConnectableCollectionTest {
     @Test
     void testInvalidTieLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
         // tie-line exists but not with this order code
-        assertFalse(ucteConnectableCollection.lookForConnectable("XFRDE11 ", "FFR2AA1 ", "7", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("XFRDE11 ", "FFR2AA1 ", "7", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE).hasMatched());
 
         // tie-line exists but not with this element name
-        assertFalse(ucteConnectableCollection.lookForConnectable("NNL2AA1 ", "XNLBE11 ", "COUCOU", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("NNL2AA1 ", "XNLBE11 ", "COUCOU", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE).hasMatched());
 
         // tie-line exists but not with this type
-        assertFalse(ucteConnectableCollection.lookForConnectable("XFRDE11 ", "FFR2AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.DANGLING_LINE).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("XFRDE11 ", "FFR2AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE).hasMatched());
 
     }
 
     @Test
     void testValidDanglingLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
         // dangling-line with order code
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "XBE2AL1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.DANGLING_LINE);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "XBE2AL1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA1  XBE2AL1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.DANGLING_LINE);
+        result = ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA1  XBE2AL1  1"), result.getIidmIdentifiable());
 
         // dangling-line with element name
-        result = ucteConnectableCollection.lookForConnectable("XDE2AL1*", "DDE2AA1*", "DL AL", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.DANGLING_LINE);
+        result = ucteConnectableCollection.lookForConnectable("XDE2AL1*", "DDE2AA1*", "DL AL", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("XDE2AL1  DDE2AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("DDE2AA1*", "XDE2AL1*", "DL AL", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.DANGLING_LINE);
+        result = ucteConnectableCollection.lookForConnectable("DDE2AA1*", "XDE2AL1*", "DL AL", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
@@ -275,29 +282,31 @@ class UcteConnectableCollectionTest {
     @Test
     void testInvalidDanglingLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
         // dangling-line exists but not with this order code
-        assertFalse(ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "2", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.DANGLING_LINE).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "2", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE).hasMatched());
 
         // dangling-line exists but not with this element name
-        assertFalse(ucteConnectableCollection.lookForConnectable("DDE2AA1 ", "XDE2AL1 ", "COUCOU", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.DANGLING_LINE).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("DDE2AA1 ", "XDE2AL1 ", "COUCOU", ucteNetworkAnalyzerProperties, ConnectableType.DANGLING_LINE).hasMatched());
 
         // dangling-line exists but not with this type
-        assertFalse(ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "2", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE).hasMatched());
+        assertFalse(ucteConnectableCollection.lookForConnectable("XBE2AL1 ", "BBE2AA1 ", "2", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE).hasMatched());
 
     }
 
     @Test
     void testSwitch() {
         init("TestCase16Nodes_with_different_imax.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE4AA1 ", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.SWITCH);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE4AA1 ", "1", ucteNetworkAnalyzerProperties, ConnectableType.SWITCH);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE1AA1  BBE4AA1  1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("BBE4AA1*", "BBE1AA1*", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.SWITCH);
+        result = ucteConnectableCollection.lookForConnectable("BBE4AA1*", "BBE1AA1*", "1", ucteNetworkAnalyzerProperties, ConnectableType.SWITCH);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
@@ -307,16 +316,17 @@ class UcteConnectableCollectionTest {
     @Test
     void testHvdc() {
         init("TestCase16NodesWithHvdc.xiidm");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
         // hvdc in good direction
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE2AA11", "FFR3AA11", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.HVDC);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE2AA11", "FFR3AA11", "1", ucteNetworkAnalyzerProperties, ConnectableType.HVDC);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("BBE2AA11 FFR3AA11 1"), result.getIidmIdentifiable());
 
         // hvdc in opposite direction with wildcards
-        result = ucteConnectableCollection.lookForConnectable("FFR3AA1*", "BBE2AA1*", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.HVDC);
+        result = ucteConnectableCollection.lookForConnectable("FFR3AA1*", "BBE2AA1*", "1", ucteNetworkAnalyzerProperties, ConnectableType.HVDC);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
@@ -326,26 +336,27 @@ class UcteConnectableCollectionTest {
     @Test
     void someMoreTestsWithWildcards() {
         init("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "2", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "2", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("DDE1AA12 DDE2AA11 2"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("DDE2AA1*", "DDE1AA1*", "E_NAME_2", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        result = ucteConnectableCollection.lookForConnectable("DDE2AA1*", "DDE1AA1*", "E_NAME_2", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertTrue(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
         assertSame(network.getIdentifiable("DDE1AA12 DDE2AA11 2"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("XNLBE11*", "BBE3AA1*", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        result = ucteConnectableCollection.lookForConnectable("XNLBE11*", "BBE3AA1*", "1", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.TWO, result.getSide());
         assertSame(network.getIdentifiable("NNL2AA13 XNLBE111 1 + XNLBE111 BBE3AA12 1"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("BBE3AA1*", "BBE2AA1*", "PST BE", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.PST);
+        result = ucteConnectableCollection.lookForConnectable("BBE3AA1*", "BBE2AA1*", "PST BE", ucteNetworkAnalyzerProperties, ConnectableType.PST);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
@@ -355,14 +366,15 @@ class UcteConnectableCollectionTest {
     @Test
     void testYNode() {
         init("TestCase_severalVoltageLevels_Xnodes_Ynode.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("NNL3AA11", "XDENL111", "TL NL3X", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("NNL3AA11", "XDENL111", "TL NL3X", ucteNetworkAnalyzerProperties, ConnectableType.TIE_LINE);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.ONE, result.getSide());
         assertSame(network.getIdentifiable("NNL3AA11 XDENL111 1 + XDENL111 YNODE_XDENL111"), result.getIidmIdentifiable());
 
-        result = ucteConnectableCollection.lookForConnectable("XDENL111", "DDE2AA11", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.PST);
+        result = ucteConnectableCollection.lookForConnectable("XDENL111", "DDE2AA11", "1", ucteNetworkAnalyzerProperties, ConnectableType.PST);
         assertTrue(result.hasMatched());
         assertFalse(result.isInverted());
         assertEquals(UcteConnectable.Side.BOTH, result.getSide());
@@ -372,13 +384,36 @@ class UcteConnectableCollectionTest {
     @Test
     void testTooManyMatches() {
         init("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES);
 
-        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
 
-        result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "E_NAME_1", UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
+        result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "E_NAME_1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
+    }
+
+    @Test
+    void testMatchPriority() {
+        init("TestCase_severalVoltageLevels_Xnodes_8characters_priority.uct");
+
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, UcteNetworkAnalyzerProperties.SuffixMatchPriority.ALL);
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA12", "DDE2AA11", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
+        assertTrue(result.hasMatched());
+        assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
+
+        ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, UcteNetworkAnalyzerProperties.SuffixMatchPriority.ORDERCODE_BEFORE_NAME);
+        result = ucteConnectableCollection.lookForConnectable("DDE1AA12", "DDE2AA11", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
+        assertTrue(result.hasMatched());
+        assertEquals(UcteMatchingResult.MatchStatus.SINGLE_MATCH, result.getStatus());
+        assertSame(network.getIdentifiable("DDE1AA12 DDE2AA11 1"), result.getIidmIdentifiable());
+
+        ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, UcteNetworkAnalyzerProperties.SuffixMatchPriority.NAME_BEFORE_ORDERCODE);
+        result = ucteConnectableCollection.lookForConnectable("DDE1AA12", "DDE2AA11", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
+        assertTrue(result.hasMatched());
+        assertEquals(UcteMatchingResult.MatchStatus.SINGLE_MATCH, result.getStatus());
+        assertSame(network.getIdentifiable("DDE1AA12 DDE2AA11 2"), result.getIidmIdentifiable());
     }
 }

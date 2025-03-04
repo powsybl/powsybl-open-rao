@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.io.commons.ConnectableType;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
@@ -39,7 +40,7 @@ class UcteConnectableCollection {
         addHvdcs(network);
     }
 
-    UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix, UcteNetworkAnalyzerProperties.BusIdMatchPolicy policy, ConnectableType... connectableTypes) {
+    UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix, UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties, ConnectableType... connectableTypes) {
 
         /*
           priority is given to the search with the from/to direction given in argument
@@ -55,17 +56,17 @@ class UcteConnectableCollection {
           method returns the connectable with the id in the same order as the ones given in argument of the method.
          */
 
-        UcteMatchingResult ucteMatchingResult = lookForMatch(fromNodeId, toNodeId, suffix, connectableTypes);
+        UcteMatchingResult ucteMatchingResult = lookForMatch(fromNodeId, toNodeId, suffix, ucteNetworkAnalyzerProperties, connectableTypes);
 
         if (!ucteMatchingResult.getStatus().equals(UcteMatchingResult.MatchStatus.NOT_FOUND)) {
             return ucteMatchingResult;
         }
 
         // if no result has been found in the direction in argument, look for an inverted one
-        ucteMatchingResult = lookForMatch(toNodeId, fromNodeId, suffix, connectableTypes);
+        ucteMatchingResult = lookForMatch(toNodeId, fromNodeId, suffix, ucteNetworkAnalyzerProperties, connectableTypes);
 
         if (!ucteMatchingResult.getStatus().equals(UcteMatchingResult.MatchStatus.NOT_FOUND)
-            || !policy.equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
+            || !ucteNetworkAnalyzerProperties.getBusIdMatchPolicy().equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
             return ucteMatchingResult.invert();
         }
 
@@ -75,24 +76,25 @@ class UcteConnectableCollection {
         String toWildcard = String.format("%1$-7s", toNodeId).substring(0, 7) + UcteUtils.WILDCARD_CHARACTER;
 
         // with the direction in argument ...
-        ucteMatchingResult = lookForMatch(fromWildcard, toWildcard, suffix, connectableTypes);
+        ucteMatchingResult = lookForMatch(fromWildcard, toWildcard, suffix, ucteNetworkAnalyzerProperties, connectableTypes);
 
         if (!ucteMatchingResult.getStatus().equals(UcteMatchingResult.MatchStatus.NOT_FOUND)) {
             return ucteMatchingResult;
         }
 
         // or, if not found, with the inverted direction
-        return lookForMatch(toWildcard, fromWildcard, suffix, connectableTypes).invert();
+        return lookForMatch(toWildcard, fromWildcard, suffix, ucteNetworkAnalyzerProperties, connectableTypes).invert();
 
     }
 
-    private UcteMatchingResult lookForMatch(String fromNodeId, String toNodeId, String suffix, ConnectableType... types) {
+    private UcteMatchingResult lookForMatch(String fromNodeId, String toNodeId, String suffix,
+                                            UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties, ConnectableType... types) {
 
         if (!fromNodeId.endsWith(UcteUtils.WILDCARD_CHARACTER)) {
 
             // if the from node contains no wildcard, directly look for the entry of the TreeMultimap with the fromNode id
             Collection<UcteConnectable> ucteElements = connectables.asMap().getOrDefault(fromNodeId, Collections.emptyList());
-            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements, types);
+            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements, ucteNetworkAnalyzerProperties, types);
 
         } else {
 
@@ -106,37 +108,71 @@ class UcteConnectableCollection {
                 .flatMap(Collection::stream)
                 .toList();
 
-            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements, types);
+            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements, ucteNetworkAnalyzerProperties, types);
         }
     }
 
-    private UcteMatchingResult lookForMatchWithinCollection(String fromNodeId, String toNodeId, String suffix, Collection<UcteConnectable> ucteConnectables, ConnectableType... connectableTypes) {
+    private UcteMatchingResult lookForMatchWithinCollection(String fromNodeId, String toNodeId, String suffix,
+                                                            Collection<UcteConnectable> ucteConnectables,
+                                                            UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties,
+                                                            ConnectableType... connectableTypes) {
 
-        if (fromNodeId.endsWith(UcteUtils.WILDCARD_CHARACTER) || toNodeId.endsWith(UcteUtils.WILDCARD_CHARACTER)) {
-            // if the nodes contains wildCards, we have to look for all possible match
+        List<UcteMatchingResult> matchedConnectables = getUcteMatchingResultsWithPriority(fromNodeId, toNodeId, suffix,
+            ucteConnectables, ucteNetworkAnalyzerProperties.getSuffixMatchPriority(), connectableTypes);
 
-            List<UcteMatchingResult> matchedConnectables = ucteConnectables.stream()
-                .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix, connectableTypes))
-                .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
-                .toList();
-
-            if (matchedConnectables.size() == 1) {
-                return matchedConnectables.get(0);
-            } else if (matchedConnectables.size() == 2) {
-                return UcteMatchingResult.severalPossibleMatch();
-            } else if (matchedConnectables.size() > 2) {
-                return UcteMatchingResult.severalPossibleMatch();
-            } else {
-                return UcteMatchingResult.notFound();
-            }
+        if (matchedConnectables.size() == 1) {
+            return matchedConnectables.get(0);
+        } else if (matchedConnectables.size() == 2) {
+            return UcteMatchingResult.severalPossibleMatch();
+        } else if (matchedConnectables.size() > 2) {
+            return UcteMatchingResult.severalPossibleMatch();
         } else {
-
-            // if the nodes contains no wildCards, speed up the search by using findAny() instead of looking for all possible matches
-            return ucteConnectables.stream()
-                .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix, connectableTypes))
-                .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
-                .findAny().orElse(UcteMatchingResult.notFound());
+            return UcteMatchingResult.notFound();
         }
+    }
+
+    private static List<UcteMatchingResult> getUcteMatchingResultsWithPriority(String fromNodeId, String toNodeId, String suffix,
+                                                                               Collection<UcteConnectable> ucteConnectables,
+                                                                               UcteNetworkAnalyzerProperties.SuffixMatchPriority suffixMatchPriority,
+                                                                               ConnectableType[] connectableTypes) {
+        List<UcteMatchingResult> matchedConnectables;
+
+        switch (suffixMatchPriority) {
+            case ALL:
+                matchedConnectables = ucteConnectables.stream()
+                    .filter(ucteConnectable -> ucteConnectable.doesMatchWithElementName(fromNodeId, toNodeId, suffix, connectableTypes)
+                        || ucteConnectable.doesMatchWithOrderCode(fromNodeId, toNodeId, suffix, connectableTypes))
+                    .map(UcteConnectable::getUcteMatchingResult)
+                    .toList();
+                break;
+            case ORDERCODE_BEFORE_NAME:
+                matchedConnectables = ucteConnectables.stream()
+                    .filter(ucteConnectable -> ucteConnectable.doesMatchWithOrderCode(fromNodeId, toNodeId, suffix, connectableTypes))
+                    .map(UcteConnectable::getUcteMatchingResult)
+                    .toList();
+                if (matchedConnectables.isEmpty()) {
+                    matchedConnectables = ucteConnectables.stream()
+                        .filter(ucteConnectable -> ucteConnectable.doesMatchWithElementName(fromNodeId, toNodeId, suffix, connectableTypes))
+                        .map(UcteConnectable::getUcteMatchingResult)
+                        .toList();
+                }
+                break;
+            case NAME_BEFORE_ORDERCODE:
+                matchedConnectables = ucteConnectables.stream()
+                    .filter(ucteConnectable -> ucteConnectable.doesMatchWithElementName(fromNodeId, toNodeId, suffix, connectableTypes))
+                    .map(UcteConnectable::getUcteMatchingResult)
+                    .toList();
+                if (matchedConnectables.isEmpty()) {
+                    matchedConnectables = ucteConnectables.stream()
+                        .filter(ucteConnectable -> ucteConnectable.doesMatchWithOrderCode(fromNodeId, toNodeId, suffix, connectableTypes))
+                        .map(UcteConnectable::getUcteMatchingResult)
+                        .toList();
+                }
+                break;
+            default:
+                throw new OpenRaoException(String.format("SuffixMatchPriority %s is not handled", suffixMatchPriority));
+        }
+        return matchedConnectables;
     }
 
     private void addBranches(Network network) {
