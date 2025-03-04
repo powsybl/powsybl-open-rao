@@ -53,9 +53,9 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
                 String groupId = optGroupId.get();
                 // For the first time the group ID is encountered a common variable for set point has to be created
                 try {
-                    linearProblem.getRangeActionGroupSetpointVariable(groupId, state, Optional.ofNullable(timestamp));
+                    linearProblem.getRangeActionGroupSetpointVariable(groupId, state);
                 } catch (OpenRaoException ignored) {
-                    linearProblem.addRangeActionGroupSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId, state, Optional.ofNullable(timestamp));
+                    linearProblem.addRangeActionGroupSetpointVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId, state);
                 }
                 addRangeActionGroupConstraint(linearProblem, ra, groupId, state);
             }
@@ -65,8 +65,8 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
     }
 
     private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, String groupId, State state) {
-        OpenRaoMPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction, state, Optional.ofNullable(timestamp));
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(rangeAction, state, Optional.ofNullable(timestamp)), 1);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId, state, Optional.ofNullable(timestamp)), -1);
+        OpenRaoMPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction, state);
+        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(rangeAction, state), 1);
+        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId, state), -1);
     }
 }

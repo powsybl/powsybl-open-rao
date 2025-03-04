@@ -18,7 +18,6 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 
 import java.time.OffsetDateTime;
-import java.util.Optional;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -57,7 +56,7 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
-            OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state, Optional.ofNullable(timestamp));
+            OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
             if (absoluteVariationVariable != null) {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, getRangeActionPenaltyCost(ra, rangeActionParameters));
             }
