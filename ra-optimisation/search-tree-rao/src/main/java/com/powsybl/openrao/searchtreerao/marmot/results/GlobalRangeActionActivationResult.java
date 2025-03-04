@@ -70,4 +70,8 @@ public class GlobalRangeActionActivationResult implements RangeActionActivationR
     public int getTapVariation(PstRangeAction pstRangeAction, State state) {
         return MarmotUtils.getDataFromState(rangeActionActivationPerTimestamp, state).getTapVariation(pstRangeAction, state);
     }
+
+    public TemporalData<RangeActionActivationResult> getRangeActionActivationPerTimestamp() {
+        return rangeActionActivationPerTimestamp;
+    }
 }
