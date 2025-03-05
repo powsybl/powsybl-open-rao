@@ -44,7 +44,6 @@
       },
       "second-preventive-rao" : {
         "execution-condition" : "COST_INCREASE",
-        "re-optimize-curative-range-actions" : true,
         "hint-from-first-preventive-rao" : false
       },
       "load-flow-and-sensitivity-computation" : {

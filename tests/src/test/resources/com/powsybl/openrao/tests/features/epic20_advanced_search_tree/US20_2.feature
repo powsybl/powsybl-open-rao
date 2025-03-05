@@ -29,14 +29,11 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
     Then 0 remedial actions are used in preventive
-    And the remedial action "CRA_PST_BE" is used after "CO1" at "curative"
     And the worst margin is 500 MW
     And the value of the objective function after CRA should be -500
-    And the remedial action "CRA_PST_BE" is used after "CO1" at "curative"
-    And the tap of PstRangeAction "CRA_PST_BE" should be 2 after "CO1" at "curative"
     And the loopflow threshold on cnec "003_FR-DE - curative" should be 250 MW
     And the initial loopflow on cnec "003_FR-DE - curative" should be -342 MW
-    And the loopflow on cnec "003_FR-DE - curative" after CRA should be -323 MW
+    And the loopflow on cnec "003_FR-DE - curative" after CRA should be -341 MW
     Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @dc @second-preventive @loopflow

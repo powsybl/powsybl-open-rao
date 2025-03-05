@@ -971,53 +971,15 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @Test
-    void testRemedialActionsExcludedFrom2p() {
-        OptimizationResult secondPreventivePerimeterResult = Mockito.mock(OptimizationResult.class);
-        Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive = Set.of(pstRangeAction);
-
-        output = new PreventiveAndCurativesRaoResultImpl(
-            stateTree,
-            initialResult,
-            postPrevResult,
-            secondPreventivePerimeterResult,
-            remedialActionsExcludedFromSecondPreventive,
-            preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2), crac, objectiveFunctionParameters);
-
-        when(secondPreventivePerimeterResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
-        when(secondPreventivePerimeterResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
-        when(secondPreventivePerimeterResult.getOptimizedSetpoint(rangeAction, preventiveState)).thenReturn(-1000.);
-        when(secondPreventivePerimeterResult.getOptimizedSetpointsOnState(preventiveState)).thenReturn(Map.of(rangeAction, -1000.));
-
-        assertTrue(output.isActivatedDuringState(preventiveState, rangeAction));
-        assertTrue(output.isActivatedDuringState(preventiveState, pstRangeAction));
-        assertTrue(output.isActivated(preventiveState, networkAction));
-        assertEquals(22, output.getPreOptimizationTapOnState(autoState1, pstRangeAction));
-        assertEquals(28.9, output.getOptimizedSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(28.9, output.getPreOptimizationSetPointOnState(autoState1, pstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(-1000., output.getOptimizedSetPointOnState(preventiveState, rangeAction), DOUBLE_TOLERANCE);
-        assertEquals(-1000., output.getPreOptimizationSetPointOnState(autoState1, rangeAction), DOUBLE_TOLERANCE);
-        assertEquals(Map.of(pstRangeAction, 28.9, rangeAction, -1000.), output.getOptimizedSetPointsOnState(preventiveState));
-
-        when(secondPreventivePerimeterResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of());
-        when(secondPreventivePerimeterResult.getActivatedNetworkActions()).thenReturn(Set.of());
-        assertFalse(output.isActivatedDuringState(preventiveState, rangeAction));
-        assertTrue(output.isActivatedDuringState(preventiveState, pstRangeAction));
-        assertFalse(output.isActivated(preventiveState, networkAction));
-    }
-
-    @Test
     void testWithFinalCostEvaluator() {
         OptimizationResult secondPreventivePerimeterResult = Mockito.mock(OptimizationResult.class);
         ObjectiveFunctionResult postSecondAraoResults = Mockito.mock(ObjectiveFunctionResult.class);
-        Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive = Set.of(pstRangeAction);
 
         output = new PreventiveAndCurativesRaoResultImpl(
             stateTree,
             initialResult,
             postPrevResult,
             secondPreventivePerimeterResult,
-            remedialActionsExcludedFromSecondPreventive,
             preCurativeResult,
             Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2),
             postSecondAraoResults, crac, objectiveFunctionParameters);

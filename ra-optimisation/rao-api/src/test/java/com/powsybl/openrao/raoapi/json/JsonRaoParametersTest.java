@@ -80,7 +80,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(21);
         // Second preventive RAO parameters
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-        searchTreeParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
         searchTreeParameters.getSecondPreventiveRaoParameters().setHintFromFirstPreventiveRao(true);
         // Not optimized cnecs parameters
         parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);

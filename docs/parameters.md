@@ -84,7 +84,6 @@ Examples of rao parameters with business and implementation specific parameters
       },
       "second-preventive-rao" : {
         "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
-        "re-optimize-curative-range-actions" : false,
         "hint-from-first-preventive-rao" : true
       },
       "load-flow-and-sensitivity-computation" : {
