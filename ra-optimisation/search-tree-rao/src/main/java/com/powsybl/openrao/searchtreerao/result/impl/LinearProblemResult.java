@@ -20,8 +20,8 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
         super(prePerimeterSetpoints);
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
-                if (linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state, optimizationContext.getMainOptimizationState().getTimestamp()).solutionValue() > 1e-6) {
-                    double setPoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state, optimizationContext.getMainOptimizationState().getTimestamp()).solutionValue();
+                if (linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue() > 1e-6) {
+                    double setPoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state).solutionValue();
                     putResult(rangeAction, state, setPoint);
                 }
             })

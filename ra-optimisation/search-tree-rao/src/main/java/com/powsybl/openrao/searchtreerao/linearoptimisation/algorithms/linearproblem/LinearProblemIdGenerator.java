@@ -70,6 +70,10 @@ public final class LinearProblemIdGenerator {
         return timestamp.map(time -> name + SEPARATOR + time.format(DATE_TIME_FORMATER)).orElse(name);
     }
 
+    private static String formatName(String... substrings) {
+        return formatName(Optional.empty(), substrings);
+    }
+
     public static String flowVariableId(FlowCnec flowCnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
         return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), FLOW, VARIABLE_SUFFIX);
     }
@@ -78,64 +82,65 @@ public final class LinearProblemIdGenerator {
         return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), FLOW, CONSTRAINT_SUFFIX);
     }
 
-    public static String rangeActionSetpointVariableId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), SET_POINT, VARIABLE_SUFFIX);
+    public static String rangeActionSetpointVariableId(RangeAction<?> rangeAction, State state) {
+        return formatName(rangeAction.getId(), state.getId(), SET_POINT, VARIABLE_SUFFIX);
     }
 
-    public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.RaRangeShrinking raRangeShrinking, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), RELATIVE, SET_POINT, raRangeShrinking.toString(), CONSTRAINT_SUFFIX);
+    public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.RaRangeShrinking raRangeShrinking) {
+        return formatName(rangeAction.getId(), state.getId(), RELATIVE, SET_POINT, raRangeShrinking.toString(), CONSTRAINT_SUFFIX);
     }
 
-    public static String pstRangeActionRelativeTapConstraintId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, pstRangeAction.getId(), state.getId(), RELATIVE, TAP, CONSTRAINT_SUFFIX);
+    public static String pstRangeActionRelativeTapConstraintId(PstRangeAction pstRangeAction, State state) {
+        return formatName(pstRangeAction.getId(), state.getId(), RELATIVE, TAP, CONSTRAINT_SUFFIX);
     }
 
-    public static String pstTapVariableVariationId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), TAP_VARIATION + upwardOrDownward.toString().toLowerCase(), VARIABLE_SUFFIX);
+    public static String pstTapVariableVariationId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION + upwardOrDownward.toString().toLowerCase(), VARIABLE_SUFFIX);
     }
 
-    public static String rangeActionBinaryVariableId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, VARIABLE_SUFFIX);
+    public static String rangeActionBinaryVariableId(RangeAction<?> rangeAction, State state) {
+        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, VARIABLE_SUFFIX);
     }
 
-    public static String pstTapBinaryVariationInDirectionId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase(), VARIABLE_SUFFIX);
+    public static String pstTapBinaryVariationInDirectionId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase(), VARIABLE_SUFFIX);
     }
 
-    public static String tapToAngleConversionConstraintId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), TAP_TO_ANGLE_CONVERSION, CONSTRAINT_SUFFIX);
+    public static String tapToAngleConversionConstraintId(RangeAction<?> rangeAction, State state) {
+        return formatName(rangeAction.getId(), state.getId(), TAP_TO_ANGLE_CONVERSION, CONSTRAINT_SUFFIX);
     }
 
-    public static String upOrDownPstVariationConstraintId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), UP_OR_DOWN_VARIATION, CONSTRAINT_SUFFIX);
+    public static String upOrDownPstVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return formatName(rangeAction.getId(), state.getId(), UP_OR_DOWN_VARIATION, CONSTRAINT_SUFFIX);
     }
 
-    public static String isVariationConstraintId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, CONSTRAINT_SUFFIX);
+    public static String isVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, CONSTRAINT_SUFFIX);
     }
 
-    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration, LinearProblem.VariationDirectionExtension upwardOrDownward, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, preperimeterOrPreviousIteration.toString().toLowerCase(), upwardOrDownward.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration, LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, preperimeterOrPreviousIteration.toString().toLowerCase(), upwardOrDownward.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
-    public static String rangeActionGroupSetpointVariableId(String rangeActionGroupId, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeActionGroupId, state.getId(), VIRTUAL_SET_POINT, VARIABLE_SUFFIX);
+    public static String rangeActionGroupSetpointVariableId(String rangeActionGroupId, State state
+    ) {
+        return formatName(rangeActionGroupId, state.getId(), VIRTUAL_SET_POINT, VARIABLE_SUFFIX);
     }
 
-    public static String pstGroupTapVariableId(String rangeActionGroupId, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeActionGroupId, state.getId(), VIRTUAL_TAP, VARIABLE_SUFFIX);
+    public static String pstGroupTapVariableId(String rangeActionGroupId, State state) {
+        return formatName(rangeActionGroupId, state.getId(), VIRTUAL_TAP, VARIABLE_SUFFIX);
     }
 
-    public static String rangeActionGroupSetpointConstraintId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), rangeAction.getGroupId().orElseThrow(), VIRTUAL_SET_POINT, CONSTRAINT_SUFFIX);
+    public static String rangeActionGroupSetpointConstraintId(RangeAction<?> rangeAction, State state) {
+        return formatName(rangeAction.getId(), state.getId(), rangeAction.getGroupId().orElseThrow(), VIRTUAL_SET_POINT, CONSTRAINT_SUFFIX);
     }
 
-    public static String pstGroupTapConstraintId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), rangeAction.getGroupId().orElseThrow(), VIRTUAL_TAP, CONSTRAINT_SUFFIX);
+    public static String pstGroupTapConstraintId(RangeAction<?> rangeAction, State state) {
+        return formatName(rangeAction.getId(), state.getId(), rangeAction.getGroupId().orElseThrow(), VIRTUAL_TAP, CONSTRAINT_SUFFIX);
     }
 
-    public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, rangeAction.getId(), state.getId(), ABSOLUTE_VARIATION, VARIABLE_SUFFIX);
+    public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
+        return formatName(rangeAction.getId(), state.getId(), ABSOLUTE_VARIATION, VARIABLE_SUFFIX);
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
@@ -190,72 +195,72 @@ public final class LinearProblemIdGenerator {
         return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), OPTIMIZE_CNEC + belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
-    public static String maxRaConstraintId(State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, MAX_RA, state.getId(), CONSTRAINT_SUFFIX);
+    public static String maxRaConstraintId(State state) {
+        return formatName(MAX_RA, state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String maxTsoConstraintId(State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, MAX_TSO, state.getId(), CONSTRAINT_SUFFIX);
+    public static String maxTsoConstraintId(State state) {
+        return formatName(MAX_TSO, state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String maxRaPerTsoConstraintId(String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, MAX_RA_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
+    public static String maxRaPerTsoConstraintId(String operator, State state) {
+        return formatName(MAX_RA_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String maxPstPerTsoConstraintId(String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, MAX_PST_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
+    public static String maxPstPerTsoConstraintId(String operator, State state) {
+        return formatName(MAX_PST_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String tsoRaUsedVariableId(String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, TSO_RA_USED, operator, state.getId(), VARIABLE_SUFFIX);
+    public static String tsoRaUsedVariableId(String operator, State state) {
+        return formatName(TSO_RA_USED, operator, state.getId(), VARIABLE_SUFFIX);
     }
 
-    public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, TSO_RA_USED, operator, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
+    public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction, State state) {
+        return formatName(TSO_RA_USED, operator, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String pstAbsoluteVariationFromInitialTapVariableId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP, pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX);
+    public static String pstAbsoluteVariationFromInitialTapVariableId(PstRangeAction pstRangeAction, State state) {
+        return formatName(PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP, pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX);
     }
 
-    public static String pstAbsoluteVariationFromInitialTapConstraintId(PstRangeAction pstRangeAction, State state, LinearProblem.AbsExtension positiveOrNegative, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP, pstRangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX, positiveOrNegative.toString());
+    public static String pstAbsoluteVariationFromInitialTapConstraintId(PstRangeAction pstRangeAction, State state, LinearProblem.AbsExtension positiveOrNegative) {
+        return formatName(PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP, pstRangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX, positiveOrNegative.toString());
     }
 
-    public static String maxElementaryActionsPerTsoConstraintId(String operator, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, MAX_ELEMENTARY_ACTIONS_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
+    public static String maxElementaryActionsPerTsoConstraintId(String operator, State state) {
+        return formatName(MAX_ELEMENTARY_ACTIONS_PER_TSO, operator, state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String rangeActionVariationVariableId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, RANGE_ACTION_VARIATION, rangeAction.getId(), state.getId(), VARIABLE_SUFFIX, variationDirection.toString());
+    public static String rangeActionVariationVariableId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return formatName(RANGE_ACTION_VARIATION, rangeAction.getId(), state.getId(), VARIABLE_SUFFIX, variationDirection.toString());
     }
 
-    public static String rangeActionSetPointVariationConstraintId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, RANGE_ACTION_SET_POINT_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
+    public static String rangeActionSetPointVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return formatName(RANGE_ACTION_SET_POINT_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String rangeActionAbsoluteVariationConstraintId(RangeAction<?> rangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, RANGE_ACTION_ABSOLUTE_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
+    public static String rangeActionAbsoluteVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return formatName(RANGE_ACTION_ABSOLUTE_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String injectionBalanceConstraintId(State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, INJECTION_BALANCE, state.getId(), CONSTRAINT_SUFFIX);
+    public static String injectionBalanceConstraintId(State state) {
+        return formatName(INJECTION_BALANCE, state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String totalPstRangeActionTapVariationVariableId(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, TOTAL_PST_RANGE_ACTION_TAP_VARIATION, pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX, variationDirection.toString());
+    public static String totalPstRangeActionTapVariationVariableId(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return formatName(TOTAL_PST_RANGE_ACTION_TAP_VARIATION, pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX, variationDirection.toString());
     }
 
-    public static String totalPstRangeActionTapVariationConstraintId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, TOTAL_PST_RANGE_ACTION_TAP_VARIATION, pstRangeAction.getId(), state.getId() + SEPARATOR + CONSTRAINT_SUFFIX);
+    public static String totalPstRangeActionTapVariationConstraintId(PstRangeAction pstRangeAction, State state) {
+        return formatName(TOTAL_PST_RANGE_ACTION_TAP_VARIATION, pstRangeAction.getId(), state.getId() + SEPARATOR + CONSTRAINT_SUFFIX);
     }
 
-    public static String tapVariableId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX);
+    public static String tapVariableId(PstRangeAction pstRangeAction, State state) {
+        return formatName(TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX);
     }
 
-    public static String tapConstraintId(PstRangeAction pstRangeAction, State state, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
+    public static String tapConstraintId(PstRangeAction pstRangeAction, State state) {
+        return formatName(TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String generatorPowerVariableId(String generatorId, OffsetDateTime timestamp) {

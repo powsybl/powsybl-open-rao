@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.crac.api.usagerule;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 
 /**
- * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface OnConstraint<T extends Cnec<?>> extends UsageRule {
     /**
