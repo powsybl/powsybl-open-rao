@@ -11,12 +11,15 @@ import com.powsybl.openrao.commons.OpenRaoException;
 
 import java.util.Optional;
 
+// TODO: delete this class and this module and replace by GeneratorConstraints
+
 /**
  * Power Gradient (in MW/hour) that applies on a generator or a load.
  * It has a negative minimum value and/or a positive maximum value.
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
+@Deprecated
 public final class PowerGradient {
     private final String networkElementId;
     private final Double minValue;
