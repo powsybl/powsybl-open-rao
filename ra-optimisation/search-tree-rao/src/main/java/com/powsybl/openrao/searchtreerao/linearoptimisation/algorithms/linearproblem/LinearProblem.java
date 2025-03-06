@@ -80,6 +80,14 @@ public final class LinearProblem {
         }
     }
 
+    public enum GeneratorState {
+        ON, RAMP_UP, OFF, RAMP_DOWN
+    }
+
+    public enum MinOrMax {
+        MIN, MAX
+    }
+
     public static LinearProblemBuilder create() {
         return new LinearProblemBuilder();
     }
@@ -526,14 +534,6 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getGeneratorPowerConstraint(String generatorId, OffsetDateTime timestamp) {
         return solver.getConstraint(generatorPowerConstraintId(generatorId, timestamp));
-    }
-
-    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, double lb, double ub) {
-        return solver.makeConstraint(lb, ub, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
-    }
-
-    public OpenRaoMPConstraint getGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
-        return solver.getConstraint(generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
     }
 
     public double infinity() {
