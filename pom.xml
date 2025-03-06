@@ -287,6 +287,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>open-rao-generator-constraints</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-glsk-virtual-hubs</artifactId>
                 <version>${project.version}</version>
             </dependency>
