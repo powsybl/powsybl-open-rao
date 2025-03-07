@@ -520,20 +520,64 @@ public final class LinearProblem {
         return solver.getConstraint(tapConstraintId(pstRangeAction, state));
     }
 
-    public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
-        return solver.makeNumVar(-solver.infinity(), solver.infinity(), generatorPowerVariableId(generatorId, timestamp));
+    public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, double pMax, OffsetDateTime timestamp) {
+        return solver.makeNumVar(0, pMax, generatorPowerVariableId(generatorId, timestamp));
     }
 
     public OpenRaoMPVariable getGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
         return solver.getVariable(generatorPowerVariableId(generatorId, timestamp));
     }
 
-    public OpenRaoMPConstraint addGeneratorPowerConstraint(String generatorId, double initialPower, OffsetDateTime timestamp) {
-        return solver.makeConstraint(initialPower, initialPower, generatorPowerConstraintId(generatorId, timestamp));
+    public OpenRaoMPConstraint addGeneratorRedispatchingConstraint(String generatorId, double initialPower, OffsetDateTime timestamp) {
+        return solver.makeConstraint(initialPower, initialPower, generatorRedispatchingConstraintId(generatorId, timestamp));
     }
 
     public OpenRaoMPConstraint getGeneratorPowerConstraint(String generatorId, OffsetDateTime timestamp) {
-        return solver.getConstraint(generatorPowerConstraintId(generatorId, timestamp));
+        return solver.getConstraint(generatorRedispatchingConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPVariable addGeneratorStateVariable(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState) {
+        return solver.makeBoolVar(generatorStateVariableId(generatorId, generatorState, timestamp));
+    }
+
+    public OpenRaoMPVariable getGeneratorStateVariable(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState) {
+        return solver.getVariable(generatorStateVariableId(generatorId, generatorState, timestamp));
+    }
+
+    public OpenRaoMPVariable addGeneratorStateTransitionVariable(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorStateFrom, LinearProblem.GeneratorState generatorStateTo) {
+        return solver.makeBoolVar(generatorStateTransitionVariableId(generatorId, generatorStateFrom, generatorStateTo, timestamp));
+    }
+
+    public OpenRaoMPVariable getGeneratorStateTransitionVariable(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorStateFrom, LinearProblem.GeneratorState generatorStateTo) {
+        return solver.getVariable(generatorStateTransitionVariableId(generatorId, generatorStateFrom, generatorStateTo, timestamp));
+    }
+
+    public OpenRaoMPConstraint addUniqueGeneratorStateConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(1, 1, uniqueGeneratorStateConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerOffConstraint(String generatorId, double pMax, OffsetDateTime timestamp) {
+        return solver.makeConstraint(-infinity(), pMax, generatorPowerOffConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerOnConstraint(String generatorId, OffsetDateTime timestamp, double lb, double ub, AbsExtension positiveOrNegative) {
+        return solver.makeConstraint(lb, ub, generatorPowerOnConstraintId(generatorId, timestamp, positiveOrNegative));
+    }
+
+    public OpenRaoMPConstraint addGeneratorInitialStateFromTransitionConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(1, 1, generatorInitialStateFromTransitionConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorStateFromTransitionConstraint(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorStateFrom) {
+        return solver.makeConstraint(0, 0, generatorStateFromTransitionConstraintId(generatorId, generatorStateFrom, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorStateToTransitionConstraint(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorStateTo) {
+        return solver.makeConstraint(0, 0, generatorStateToTransitionConstraintId(generatorId, generatorStateTo, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerTransitionConstraint(String generatorId, double lb, double ub, OffsetDateTime timestamp, AbsExtension positiveOrNegative) {
+        return solver.makeConstraint(lb, ub, generatorPowerOnConstraintId(generatorId, timestamp, positiveOrNegative));
     }
 
     public double infinity() {

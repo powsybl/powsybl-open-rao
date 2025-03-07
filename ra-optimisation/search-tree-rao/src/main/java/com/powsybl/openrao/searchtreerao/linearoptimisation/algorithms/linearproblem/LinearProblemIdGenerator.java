@@ -57,7 +57,7 @@ public final class LinearProblemIdGenerator {
     private static final String RANGE_ACTION_ABSOLUTE_VARIATION = "rangeactionabsolutevariation";
     private static final String INJECTION_BALANCE = "injectionbalance";
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
-    private static final String GENERATOR_POWER = "generatorpower";
+    private static final String GENERATOR_REDISPATCHING = "generatorredispatching";
     private static final String GENERATOR_STATE = "generatorstate";
     private static final String UNIQUE_GENERATOR_STATE = "uniquegeneratorstate";
     private static final String GENERATOR_STATE_TRANSITION = "generatorstatetransition";
@@ -265,21 +265,21 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String tapVariableId(PstRangeAction pstRangeAction, State state) {
-        return formatName(TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX);
+        return formatName(TAP, pstRangeAction.getId(), state.getId(), VARIABLE_SUFFIX);
     }
 
     public static String tapConstraintId(PstRangeAction pstRangeAction, State state) {
-        return formatName(TAP + SEPARATOR + pstRangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
+        return formatName(TAP, pstRangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
     // Generator constraints
 
     public static String generatorPowerVariableId(String generatorId, OffsetDateTime timestamp) {
-        return formatName(Optional.of(timestamp), GENERATOR_POWER, generatorId, VARIABLE_SUFFIX);
+        return formatName(Optional.of(timestamp), GENERATOR_REDISPATCHING, generatorId, VARIABLE_SUFFIX);
     }
 
-    public static String generatorPowerConstraintId(String generatorId, OffsetDateTime timestamp) {
-        return formatName(Optional.of(timestamp), GENERATOR_POWER, generatorId, CONSTRAINT_SUFFIX);
+    public static String generatorRedispatchingConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), GENERATOR_REDISPATCHING, generatorId, CONSTRAINT_SUFFIX);
     }
 
     public static String generatorStateVariableId(String generatorId, LinearProblem.GeneratorState generatorState, OffsetDateTime timestamp) {
@@ -294,8 +294,8 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), GENERATOR_STATE_TRANSITION, generatorId, generatorStateFrom.toString(), generatorStateTo.toString(), VARIABLE_SUFFIX);
     }
 
-    public static String generatorInitialStateFromTransitionConstraintId(String generatorId, LinearProblem.GeneratorState initialGeneratorStateFrom, OffsetDateTime timestamp) {
-        return formatName(Optional.of(timestamp), INITIAL_GENERATOR_STATE_FROM, generatorId, initialGeneratorStateFrom.toString(), CONSTRAINT_SUFFIX);
+    public static String generatorInitialStateFromTransitionConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), INITIAL_GENERATOR_STATE_FROM, generatorId, CONSTRAINT_SUFFIX);
     }
 
     public static String generatorStateFromTransitionConstraintId(String generatorId, LinearProblem.GeneratorState generatorStateFrom, OffsetDateTime timestamp) {
