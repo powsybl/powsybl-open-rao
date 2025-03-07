@@ -72,6 +72,11 @@ class AutomatonPerimeterResultImplTest {
     }
 
     @Test
+    void testGetOptimizedStates() {
+        assertEquals(Set.of(state1), result.getOptimizedStates());
+    }
+
+    @Test
     void testGetPostAutomatonSensitivityAnalysisOutput() {
         assertEquals(postAutoSensitivity, result.getPostAutomatonSensitivityAnalysisOutput());
     }

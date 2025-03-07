@@ -39,13 +39,15 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     private final RangeActionActivationResult globalRangeActionActivationResult;
     private final ObjectiveFunctionResult globalObjectiveFunctionResult;
     private LinearProblemStatus status;
+    private final Set<State> optimizedStates;
 
-    public GlobalLinearOptimizationResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
+    public GlobalLinearOptimizationResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction, LinearProblemStatus status, Set<State> optimizedStates) {
         this.globalFlowResult = new GlobalFlowResult(flowResults);
         this.globalSensitivityResult = new GlobalSensitivityResult(sensitivityResults);
         this.globalRangeActionActivationResult = new GlobalRangeActionActivationResult(rangeActionActivationResults);
         this.globalObjectiveFunctionResult = objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults, preventiveTopologicalActions));
         this.status = status;
+        this.optimizedStates = optimizedStates;
     }
 
     @Override
@@ -90,6 +92,11 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     @Override
     public RangeActionActivationResult getRangeActionActivationResult() {
         return globalRangeActionActivationResult;
+    }
+
+    @Override
+    public Set<State> getOptimizedStates() {
+        return optimizedStates;
     }
 
     @Override

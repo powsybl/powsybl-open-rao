@@ -189,4 +189,9 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     public int getTapVariation(PstRangeAction pstRangeAction, State state) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
+
+    @Override
+    public Set<State> getOptimizedStates() {
+        return Set.of(state);
+    }
 }
