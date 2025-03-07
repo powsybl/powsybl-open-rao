@@ -411,7 +411,6 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
       },
       "second-preventive-rao" : {
         "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
-        "re-optimize-curative-range-actions" : false,
         "hint-from-first-preventive-rao" : true
       },
       "load-flow-and-sensitivity-computation" : {

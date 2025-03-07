@@ -79,7 +79,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = searchTreeParameters.getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT, secondPreventiveRaoParameters.getExecutionCondition());
-        assertTrue(secondPreventiveRaoParameters.getReOptimizeCurativeRangeActions());
         assertTrue(secondPreventiveRaoParameters.getHintFromFirstPreventiveRao());
 
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();
@@ -190,7 +189,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         SecondPreventiveRaoParameters secondPreventiveRaoParameters = searchTreeParameters.getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED, secondPreventiveRaoParameters.getExecutionCondition());
-        assertTrue(secondPreventiveRaoParameters.getReOptimizeCurativeRangeActions());
         assertTrue(secondPreventiveRaoParameters.getHintFromFirstPreventiveRao());
 
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = parameters.getNotOptimizedCnecsParameters();

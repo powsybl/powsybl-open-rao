@@ -10,7 +10,6 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -37,25 +36,23 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     private final State state; // the optimized state of the curative RAO
     private final OptimizationResult firstCraoResult; // contains information about the perimeter and activated network actions
     private final OptimizationResult secondPraoResult; // contains information about activated range actions
-    private final Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive; // information about whether CRAs were re-optimized in 2nd PRAO
     private final FlowResult postCraSensitivityFlowResult; // contains final flows
     private final ObjectiveFunctionResult postCraSensitivityObjectiveResult; // contains final flows
     private final SensitivityResult postCraSensitivitySensitivityResult; // contains final flows
     private final boolean costOptimization;
 
-    private CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, FlowResult postCraSensitivityFlowResult, ObjectiveFunctionResult postCraSensitivityObjectiveResult, SensitivityResult postCraSensitivitySensitivityResult, boolean costOptimization) {
+    private CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, FlowResult postCraSensitivityFlowResult, ObjectiveFunctionResult postCraSensitivityObjectiveResult, SensitivityResult postCraSensitivitySensitivityResult, boolean costOptimization) {
         this.state = state;
         this.firstCraoResult = firstCraoResult;
         this.secondPraoResult = secondPraoResult;
-        this.remedialActionsExcludedFromSecondPreventive = remedialActionsExcludedFromSecondPreventive;
         this.postCraSensitivityFlowResult = postCraSensitivityFlowResult;
         this.postCraSensitivityObjectiveResult = postCraSensitivityObjectiveResult;
         this.postCraSensitivitySensitivityResult = postCraSensitivitySensitivityResult;
         this.costOptimization = costOptimization;
     }
 
-    public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, PrePerimeterResult postCraPrePerimeterResult, boolean costOptimization) {
-        this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, postCraPrePerimeterResult, postCraPrePerimeterResult, postCraPrePerimeterResult, costOptimization);
+    public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, PrePerimeterResult postCraPrePerimeterResult, boolean costOptimization) {
+        this(state, firstCraoResult, secondPraoResult, postCraPrePerimeterResult, postCraPrePerimeterResult, postCraPrePerimeterResult, costOptimization);
     }
 
     private void checkState(State stateToCheck) {
@@ -68,10 +65,6 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         if (!cnec.getState().getContingency().equals(state.getContingency())) {
             throw new OpenRaoException(String.format("Cnec %s has a different contingency than this result's state (%s)", cnec.getId(), state.getId()));
         }
-    }
-
-    private boolean isCraIncludedInSecondPreventiveRao(RemedialAction<?> remedialAction) {
-        return !remedialActionsExcludedFromSecondPreventive.contains(remedialAction);
     }
 
     @Override
@@ -111,11 +104,7 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {
-        if (isCraIncludedInSecondPreventiveRao(networkAction)) {
-            return secondPraoResult.isActivated(networkAction);
-        } else {
-            return firstCraoResult.isActivated(networkAction);
-        }
+        return secondPraoResult.isActivated(networkAction);
     }
 
     @Override
@@ -193,19 +182,13 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         checkState(state);
-        Set<RangeAction<?>> activated = firstCraoResult.getActivatedRangeActions(state).stream().filter(ra -> !isCraIncludedInSecondPreventiveRao(ra)).collect(Collectors.toSet());
-        activated.addAll(secondPraoResult.getActivatedRangeActions(state));
-        return activated;
+        return secondPraoResult.getActivatedRangeActions(state);
     }
 
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         checkState(state);
-        if (isCraIncludedInSecondPreventiveRao(rangeAction)) {
-            return secondPraoResult.getOptimizedSetpoint(rangeAction, state);
-        } else {
-            return firstCraoResult.getOptimizedSetpoint(rangeAction, state);
-        }
+        return secondPraoResult.getOptimizedSetpoint(rangeAction, state);
     }
 
     @Override
@@ -217,21 +200,13 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     @Override
     public double getSetPointVariation(RangeAction<?> rangeAction, State state) {
         checkState(state);
-        if (isCraIncludedInSecondPreventiveRao(rangeAction)) {
-            return secondPraoResult.getSetPointVariation(rangeAction, state);
-        } else {
-            return firstCraoResult.getSetPointVariation(rangeAction, state);
-        }
+        return secondPraoResult.getSetPointVariation(rangeAction, state);
     }
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         checkState(state);
-        if (isCraIncludedInSecondPreventiveRao(pstRangeAction)) {
-            return secondPraoResult.getOptimizedTap(pstRangeAction, state);
-        } else {
-            return firstCraoResult.getOptimizedTap(pstRangeAction, state);
-        }
+        return secondPraoResult.getOptimizedTap(pstRangeAction, state);
     }
 
     @Override
@@ -245,11 +220,7 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     @Override
     public int getTapVariation(PstRangeAction pstRangeAction, State state) {
         checkState(state);
-        if (isCraIncludedInSecondPreventiveRao(pstRangeAction)) {
-            return secondPraoResult.getTapVariation(pstRangeAction, state);
-        } else {
-            return firstCraoResult.getTapVariation(pstRangeAction, state);
-        }
+        return secondPraoResult.getTapVariation(pstRangeAction, state);
     }
 
     @Override

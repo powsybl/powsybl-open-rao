@@ -132,7 +132,6 @@ class RaoParametersConfigTest {
         RaoParameters parameters = RaoParameters.load(platformCfg);
         SecondPreventiveRaoParameters params = parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT, params.getExecutionCondition());
-        assertFalse(params.getReOptimizeCurativeRangeActions());
         assertTrue(params.getHintFromFirstPreventiveRao());
     }
 

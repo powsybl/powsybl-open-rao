@@ -12,14 +12,8 @@ import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -42,10 +36,8 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-import static com.powsybl.openrao.data.crac.api.range.RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.getCurativeMinObjImprovement;
@@ -163,15 +155,13 @@ public class CastorSecondPreventive {
         // ------ appliedCras from secondPreventiveRaoResult
         AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedArasAndCras().copyCurative();
         // ------ + curative range actions optimized during second preventive with global optimization
-        if (getSecondPreventiveReOptimizeCurativeRangeActions(raoParameters)) {
-            for (Map.Entry<State, OptimizationResult> entry : postContingencyResults.entrySet()) {
-                State state = entry.getKey();
-                if (!state.getInstant().isCurative()) {
-                    continue;
-                }
-                secondPreventiveRaoResult.perimeterResult().getActivatedRangeActions(state)
-                    .forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(state, rangeAction, secondPreventiveRaoResult.perimeterResult.getOptimizedSetpoint(rangeAction, state)));
+        for (Map.Entry<State, OptimizationResult> entry : postContingencyResults.entrySet()) {
+            State state = entry.getKey();
+            if (!state.getInstant().isCurative()) {
+                continue;
             }
+            secondPreventiveRaoResult.perimeterResult().getActivatedRangeActions(state)
+                .forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(state, rangeAction, secondPreventiveRaoResult.perimeterResult.getOptimizedSetpoint(rangeAction, state)));
         }
         // ---- Auto remedial actions : computed during second auto, saved in newPostContingencyResults
         // ---- only RAs from perimeters that haven't failed are included in appliedArasAndCras
@@ -199,7 +189,7 @@ public class CastorSecondPreventive {
             if (entry.getValue() instanceof SkippedOptimizationResultImpl) {
                 newPostContingencyResults.put(state, new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey()), getSensitivityFailureOvercost(raoParameters)));
             } else {
-                newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult(), secondPreventiveRaoResult.remedialActionsExcluded(), postCraSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType().costOptimization()));
+                newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult(), postCraSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType().costOptimization()));
             }
         }
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
@@ -208,7 +198,6 @@ public class CastorSecondPreventive {
             initialOutput,
             firstPreventiveResult,
             secondPreventiveRaoResult.perimeterResult(),
-            secondPreventiveRaoResult.remedialActionsExcluded(),
             secondPreventiveRaoResult.postPraSensitivityAnalysisOutput(),
             newPostContingencyResults,
             postCraSensitivityAnalysisOutput,
@@ -218,7 +207,6 @@ public class CastorSecondPreventive {
 
     private record SecondPreventiveRaoResult(OptimizationResult perimeterResult,
                                              PrePerimeterResult postPraSensitivityAnalysisOutput,
-                                             Set<RemedialAction<?>> remedialActionsExcluded,
                                              AppliedRemedialActions appliedArasAndCras) {
     }
 
@@ -243,16 +231,6 @@ public class CastorSecondPreventive {
         // Get the applied range actions for every auto contingency perimeter
         if (crac.hasAutoInstant()) {
             addAppliedRangeActionsPostContingency(crac.getInstants(InstantKind.AUTO), appliedArasAndCras, postContingencyResults);
-        }
-
-        // Apply 1st preventive results for range actions that are both preventive and auto or curative. This way we are sure
-        // that the optimal setpoints of the curative results stay coherent with their allowed range and close to
-        // optimality in their perimeters. These range actions will be excluded from 2nd preventive RAO.
-        Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>();
-        if (!getSecondPreventiveReOptimizeCurativeRangeActions(raoParameters)) { // keep old behaviour
-            remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(firstPreventiveResult, postContingencyResults));
-            applyPreventiveResultsForAutoOrCurativeRangeActions(firstPreventiveResult);
-            addAppliedRangeActionsPostContingency(crac.getInstants(InstantKind.CURATIVE), appliedArasAndCras, postContingencyResults);
         }
 
         // Run a first sensitivity computation using initial network and applied CRAs
@@ -282,7 +260,7 @@ public class CastorSecondPreventive {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed");
         }
         BUSINESS_LOGS.info("----- Second preventive perimeter optimization [end]");
-        return new SecondPreventiveRaoResult(secondPreventiveResult, postPraSensitivityAnalysisOutput, remedialActionsExcluded, appliedArasAndCras);
+        return new SecondPreventiveRaoResult(secondPreventiveResult, postPraSensitivityAnalysisOutput, appliedArasAndCras);
     }
 
     void addAppliedNetworkActionsPostContingency(Set<Instant> instants, AppliedRemedialActions appliedRemedialActions, Map<State, OptimizationResult> postContingencyResults) {
@@ -321,33 +299,15 @@ public class CastorSecondPreventive {
                                                                                            AppliedRemedialActions appliedCras) {
 
         OptimizationPerimeter optPerimeter;
-        Instant preventiveInstant = crac.getPreventiveInstant();
         State preventiveState = crac.getPreventiveState();
-        Set<RangeAction<?>> excludedRangeActions = getRangeActionsExcludedFromSecondPreventive(firstPreventiveResult, postContingencyResults);
 
-        if (getSecondPreventiveReOptimizeCurativeRangeActions(raoParameters)) {
-            optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
-        } else {
-            Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(crac.getRangeActions());
-            excludedRangeActions.forEach(rangeAction -> {
-                BUSINESS_WARNS.warn("Range action {} will not be considered in 2nd preventive RAO as it is also auto/curative (or its network element has an associated ARA/CRA)", rangeAction.getId());
-                rangeActionsFor2p.remove(rangeAction);
-            });
-            optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(crac, rangeActionsFor2p, network, raoParameters, prePerimeterResult);
-        }
+        optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(TreeParameters.buildForSecondPreventivePerimeter(raoParameters))
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
             .build();
-
-        // update RaUsageLimits with already applied RangeActions
-        if (!getSecondPreventiveReOptimizeCurativeRangeActions(raoParameters) && searchTreeParameters.getRaLimitationParameters().containsKey(preventiveInstant)) {
-            Set<RangeAction<?>> activatedPreventiveRangeActions = firstPreventiveResult.getActivatedRangeActions(preventiveState);
-            Set<RangeAction<?>> excludedActivatedRangeActions = excludedRangeActions.stream().filter(activatedPreventiveRangeActions::contains).collect(Collectors.toSet());
-            searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(preventiveInstant), excludedActivatedRangeActions, preventiveInstant);
-        }
 
         if (getSecondPreventiveHintFromFirstPreventiveRao(raoParameters)) {
             // Set the optimal set of network actions decided in 1st preventive RAO as a hint for 2nd preventive RAO
@@ -376,169 +336,5 @@ public class CastorSecondPreventive {
         result.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(network));
 
         return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(preventiveState, prePerimeterResult, result, optPerimeter.getFlowCnecs()));
-    }
-
-    /**
-     * This method applies range action results on the network, for range actions that are auto or curative
-     * It is used for second preventive optimization along with 1st preventive results in order to keep the result
-     * of 1st preventive for range actions that are both preventive and auto or curative
-     */
-    void applyPreventiveResultsForAutoOrCurativeRangeActions(OptimizationResult preventiveResult) {
-        preventiveResult.getActivatedRangeActions(crac.getPreventiveState()).stream()
-            .filter(crac::isRangeActionAutoOrCurative)
-            .forEach(rangeAction -> rangeAction.apply(network, preventiveResult.getOptimizedSetpoint(rangeAction, crac.getPreventiveState())));
-    }
-
-    /**
-     * Returns the set of range actions that are excluded from the 2nd preventive RAO.
-     * The concerned range actions meet certain criterion.
-     * 1- The RA has a range limit relative to the previous instant.
-     * This way we avoid incoherence between preventive & curative tap positions.
-     * 2- For the remaining RAs we are going to remove some for the reason explained below.
-     * Let's consider a rangeAction that has the same tap in preventive and in another state.
-     * If so, considering it in the second preventive optimization could change its tap for preventive only.
-     * Therefore, the RA would no longer have the same taps in preventive and for the given contingency state: It's consider used for the given state.
-     * That could lead the RAO to wrongly exceed the RaUsageLimits for the given state.
-     * To avoid this, we don't want to optimize these RAs.
-     * For the same reason, we are going to check preventive RAs that share the same network elements as auto or curative RAs.
-     */
-    Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(OptimizationResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults) {
-
-        // Excludes every non-preventive RA.
-        Set<RangeAction<?>> nonPreventiveRangeActions = crac.getRangeActions().stream().filter(ra -> !crac.isRangeActionPreventive(ra)).collect(Collectors.toSet());
-        Set<RangeAction<?>> rangeActionsToExclude = new HashSet<>(nonPreventiveRangeActions);
-
-        // Gathers PRAs that are also ARA/CRAs.
-        Set<RangeAction<?>> multipleInstantRangeActions = crac.getRangeActions().stream()
-            .filter(ra -> crac.isRangeActionPreventive(ra) && crac.isRangeActionAutoOrCurative(ra))
-            .collect(Collectors.toSet());
-
-        // Excludes the ones that have a range limit relative to the previous instant.
-        multipleInstantRangeActions.stream().filter(CastorSecondPreventive::raHasRelativeToPreviousInstantRange).forEach(rangeActionsToExclude::add);
-        rangeActionsToExclude.forEach(multipleInstantRangeActions::remove);
-
-        // We look for PRAs that share the same network element as ARA/CRAs as the same rules apply to them.
-        Map<RangeAction<?>, Set<RangeAction<?>>> correspondanceMap = new HashMap<>();
-        crac.getRangeActions().stream().filter(ra -> crac.isRangeActionPreventive(ra) && !crac.isRangeActionAutoOrCurative(ra)).forEach(pra -> {
-            Set<NetworkElement> praNetworkElements = pra.getNetworkElements();
-            for (RangeAction<?> cra : nonPreventiveRangeActions) {
-                if (cra.getNetworkElements().equals(praNetworkElements)) {
-                    if (raHasRelativeToPreviousInstantRange(cra)) {
-                        // Excludes PRAs which share the same network element as an ARA/CRA with a range limit relative to the previous instant.
-                        rangeActionsToExclude.add(pra);
-                        correspondanceMap.remove(pra);
-                        break;
-                    } else {
-                        // Gathers PRAs with their associated ARA/CRAs inside a map.
-                        correspondanceMap.putIfAbsent(pra, new HashSet<>());
-                        correspondanceMap.get(pra).add(cra);
-                    }
-                }
-            }
-        });
-
-        // If first preventive diverged, we want to remove every range action that is both preventive and auto or curative.
-        if (firstPreventiveResult instanceof SkippedOptimizationResultImpl) {
-            multipleInstantRangeActions.addAll(correspondanceMap.keySet());
-            return multipleInstantRangeActions;
-        }
-
-        // Excludes RAs that put crac RaUsageLimits at risk.
-        // First, we filter out state that diverged because we know no set-point was chosen for this state.
-        Map<State, OptimizationResult> newContingencyResults = new HashMap<>(contingencyResults);
-        newContingencyResults.entrySet().removeIf(entry -> entry.getValue() instanceof SkippedOptimizationResultImpl);
-
-        // Then, we build a map that gives for each RA, its tap at each state it's available at.
-        State preventiveState = crac.getPreventiveState();
-        Map<State, Map<RangeAction<?>, Double>> setPointResults = buildSetPointResultsMap(crac, firstPreventiveResult, newContingencyResults, correspondanceMap, multipleInstantRangeActions, preventiveState);
-
-        // Finally, we filter out RAs that put crac RaUsageLimits at risk.
-        rangeActionsToExclude.addAll(getRangeActionsToRemove(crac, preventiveState, setPointResults, newContingencyResults));
-        return rangeActionsToExclude;
-    }
-
-    /**
-     * Creates a map that gives for a given state, each available RA with its tap.
-     * The only subtlety being that RAs sharing exactly the same network elements are considered to be only one RA.
-     */
-    private static Map<State, Map<RangeAction<?>, Double>> buildSetPointResultsMap(Crac crac, OptimizationResult firstPreventiveResult, Map<State, OptimizationResult> contingencyResults, Map<RangeAction<?>, Set<RangeAction<?>>> correspondanceMap, Set<RangeAction<?>> multipleInstantRangeActions, State preventiveState) {
-        Map<State, Map<RangeAction<?>, Double>> setPointResults = new HashMap<>(Map.of(preventiveState, new HashMap<>()));
-        correspondanceMap.forEach((pra, associatedCras) -> {
-            setPointResults.get(preventiveState).put(pra, firstPreventiveResult.getOptimizedSetpoint(pra, preventiveState));
-            associatedCras.forEach(cra -> contingencyResults.forEach((state, result) -> {
-                if (crac.isRangeActionAvailableInState(cra, state) && result.getComputationStatus() != FAILURE) {
-                    setPointResults.putIfAbsent(state, new HashMap<>());
-                    setPointResults.get(state).put(pra, result.getOptimizedSetpoint(cra, state));
-                }
-            }));
-        });
-        multipleInstantRangeActions.forEach(ra -> {
-            setPointResults.get(preventiveState).put(ra, firstPreventiveResult.getOptimizedSetpoint(ra, preventiveState));
-            contingencyResults.forEach((state, result) -> {
-                if (crac.isRangeActionAvailableInState(ra, state) && result.getComputationStatus() != FAILURE) {
-                    setPointResults.putIfAbsent(state, new HashMap<>());
-                    setPointResults.get(state).put(ra, result.getOptimizedSetpoint(ra, state));
-                }
-            });
-        });
-        return setPointResults;
-    }
-
-    /**
-     * Checks if raUsageLimits are at risk if we choose to re-optimize a range action.
-     * Returns True if it's at risk, False otherwise.
-     */
-    private static boolean shouldRemoveRaDueToUsageLimits(String operator, RaUsageLimits raUsageLimits, Set<RangeAction<?>> activatableRangeActions, Set<NetworkAction> activatedNetworkActions) {
-        if (operator == null) {
-            return raUsageLimits.getMaxRa() < activatableRangeActions.size() + activatedNetworkActions.size();
-        }
-
-        Set<RemedialAction<?>> activatableRemedialActions = new HashSet<>(activatableRangeActions);
-        activatableRemedialActions.addAll(activatedNetworkActions);
-
-        long activatableRangeActionsForTheTso = activatableRangeActions.stream().filter(ra -> operator.equals(ra.getOperator())).count();
-        long activatableRemedialActionsForTheTso = activatableRemedialActions.stream().filter(ra -> operator.equals(ra.getOperator())).count();
-        long activatableTsos = activatableRemedialActions.stream().map(RemedialAction::getOperator).filter(Objects::nonNull).distinct().count();
-
-        int limitingRangeActionValueForTheTso = raUsageLimits.getMaxPstPerTso().getOrDefault(operator, Integer.MAX_VALUE);
-        int limitingRemedialActionValueForTheTso = raUsageLimits.getMaxRaPerTso().getOrDefault(operator, Integer.MAX_VALUE);
-
-        return raUsageLimits.getMaxRa() < activatableRangeActions.size() + activatedNetworkActions.size()
-            || limitingRangeActionValueForTheTso < activatableRangeActionsForTheTso
-            || limitingRemedialActionValueForTheTso < activatableRemedialActionsForTheTso
-            || raUsageLimits.getMaxTso() < activatableTsos;
-    }
-
-    /**
-     * Gathers every range action that should not be considered in the second preventive if those 2 criterion are met :
-     * 1- The range action has the same tap in preventive and in a contingency scenario.
-     * 2- For the given state, the crac has limiting RaUsageLimits.
-     */
-    private static Set<RangeAction<?>> getRangeActionsToRemove(Crac crac, State preventiveState, Map<State, Map<RangeAction<?>, Double>> setPointResults, Map<State, OptimizationResult> contingencyResults) {
-        Set<RangeAction<?>> rangeActionsToRemove = new HashSet<>();
-        setPointResults.forEach((state, spMap) -> {
-            if (!state.isPreventive()) {
-                Set<RangeAction<?>> activatableRangeActions = crac.getPotentiallyAvailableRangeActions(state);
-                Set<NetworkAction> activatedNetworkActions = contingencyResults.get(state).getActivatedNetworkActions();
-                spMap.forEach((ra, setPoint) -> {
-                    if (setPoint.equals(setPointResults.get(preventiveState).get(ra))
-                        && crac.getRaUsageLimitsPerInstant().containsKey(state.getInstant())
-                        && shouldRemoveRaDueToUsageLimits(ra.getOperator(), crac.getRaUsageLimits(state.getInstant()), activatableRangeActions, activatedNetworkActions)) {
-                        rangeActionsToRemove.add(ra);
-                    }
-                });
-            }
-        });
-        return rangeActionsToRemove;
-    }
-
-    /**
-     * Returns True if the rangeAction has a RELATIVE_TO_PREVIOUS_INSTANT range. Else, returns False.
-     */
-    private static boolean raHasRelativeToPreviousInstantRange(RangeAction<?> rangeAction) {
-        if (rangeAction instanceof PstRangeAction pstRangeAction) {
-            return pstRangeAction.getRanges().stream().anyMatch(tapRange -> tapRange.getRangeType().equals(RELATIVE_TO_PREVIOUS_INSTANT));
-        }
-        return ((StandardRangeAction<?>) rangeAction).getRanges().stream().anyMatch(standardRange -> standardRange.getRangeType().equals(RELATIVE_TO_PREVIOUS_INSTANT));
     }
 }
