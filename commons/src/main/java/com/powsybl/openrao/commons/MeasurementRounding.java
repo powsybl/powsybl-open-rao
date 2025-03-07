@@ -54,6 +54,7 @@ public final class MeasurementRounding {
             // for a number x in [0, 1[, the position of the first decimal which is not a 0 is given by ⌈-log10(x)⌉
             relevantDecimals = Math.max(defaultDecimals, (int) Math.ceil(-Math.log10(Math.abs(margin))));
         }
-        return BigDecimal.valueOf(value).setScale(relevantDecimals, RoundingMode.HALF_UP);
+        double boundedValue = Math.min(Double.MAX_VALUE, Math.max(-Double.MAX_VALUE, value));
+        return BigDecimal.valueOf(boundedValue).setScale(relevantDecimals, RoundingMode.HALF_UP);
     }
 }
