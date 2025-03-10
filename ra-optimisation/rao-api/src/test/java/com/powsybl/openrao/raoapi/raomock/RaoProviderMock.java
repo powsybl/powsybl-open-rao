@@ -18,7 +18,7 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Baptiste Seguinot <baptiste.seguinot at rte-france.com>
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
 public class RaoProviderMock implements RaoProvider {
