@@ -47,6 +47,7 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRang
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public abstract class AbstractCoreProblemFiller implements ProblemFiller {
+    private Map<RangeAction<?>, Set<RangeAction<?>>> memoizedSameRangeActions = new HashMap<>();
     protected static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
     protected final OptimizationPerimeter optimizationContext;
     protected final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
@@ -409,6 +410,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private Set<RangeAction<?>> getAvailableRangeActionsOnSameAction(RangeAction<?> rangeAction) {
+        if (memoizedSameRangeActions.containsKey(rangeAction)) {
+            return memoizedSameRangeActions.get(rangeAction);
+        }
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
             raSet.forEach(ra -> {
@@ -417,6 +421,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                 }
             })
         );
+        memoizedSameRangeActions.put(rangeAction, rangeActions);
         return rangeActions;
     }
 

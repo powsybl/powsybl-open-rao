@@ -51,7 +51,7 @@ class FbConstraintCracCreator {
             offsetDateTime = fbConstraintCracCreationParameters.getTimestamp();
         }
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
-        Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocumentIdentification().getV());
+        Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocumentIdentification().getV(), fbConstraintDocument.getDocumentIdentification().getV(), offsetDateTime);
         addFbContraintInstants(crac);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreatorParameters);
 

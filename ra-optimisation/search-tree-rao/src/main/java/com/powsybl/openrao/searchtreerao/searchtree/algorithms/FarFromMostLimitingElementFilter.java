@@ -9,11 +9,14 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.CountryGraph;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,7 +63,12 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
 
     Set<Optional<Country>> getOptimizedMostLimitingElementsLocation(OptimizationResult optimizationResult) {
         Set<Optional<Country>> locations = new HashSet<>();
-        optimizationResult.getMostLimitingElements(1).forEach(element -> locations.addAll(element.getLocation(network)));
+        List<FlowCnec> mostLimitingElements = optimizationResult.getMostLimitingElements(10);
+        double mostLimitingElementMargin = optimizationResult.getMargin(mostLimitingElements.get(0), Unit.MEGAWATT);
+        //TODO:parametrize 25
+        mostLimitingElements.stream()
+            .filter(flowCnec -> optimizationResult.getMargin(flowCnec, Unit.MEGAWATT) < mostLimitingElementMargin + 25)
+            .forEach(element -> locations.addAll(element.getLocation(network)));
         for (String virtualCost : optimizationResult.getVirtualCostNames()) {
             optimizationResult.getCostlyElements(virtualCost, Integer.MAX_VALUE).forEach(element -> locations.addAll(element.getLocation(network)));
         }
