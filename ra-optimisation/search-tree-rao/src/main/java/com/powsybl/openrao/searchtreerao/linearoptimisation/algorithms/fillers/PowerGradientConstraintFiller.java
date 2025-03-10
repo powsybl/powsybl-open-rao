@@ -56,7 +56,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
             OffsetDateTime timestamp = timestamps.get(timestampIndex);
             powerGradients.forEach(powerGradient -> {
                 String generatorId = powerGradient.getNetworkElementId();
-                OpenRaoMPVariable generatorPowerVariable = linearProblem.addGeneratorPowerVariable(generatorId, timestamp);
+                OpenRaoMPVariable generatorPowerVariable = linearProblem.addGeneratorPowerVariable(generatorId, linearProblem.infinity(), timestamp);
                 addPowerConstraint(linearProblem, generatorId, generatorPowerVariable, timestamp);
                 if (timestampIndex > 0) {
                     addPowerGradientConstraint(linearProblem, powerGradient, timestamp, timestamps.get(timestampIndex - 1), generatorPowerVariable);
@@ -83,7 +83,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
      * P(g,t) = p0(g,t) + sum_{i \in injectionAction_prev(g,t)} d_i(g) * [delta^{+}(r,s,t) - delta^{-}(r,s,t)]
      * */
     private void addPowerConstraint(LinearProblem linearProblem, String generatorId, OpenRaoMPVariable generatorPowerVariable, OffsetDateTime timestamp) {
-        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, getInitialPower(generatorId, networkPerTimestamp.getData(timestamp).orElseThrow()), timestamp);
+        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorRedispatchingConstraint(generatorId, getInitialPower(generatorId, networkPerTimestamp.getData(timestamp).orElseThrow()), timestamp);
         generatorPowerConstraint.setCoefficient(generatorPowerVariable, 1.0);
 
         // Find injection range actions related to generators with power gradients
