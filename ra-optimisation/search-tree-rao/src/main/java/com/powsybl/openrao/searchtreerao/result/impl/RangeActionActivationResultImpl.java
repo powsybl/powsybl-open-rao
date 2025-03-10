@@ -207,7 +207,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
         if (memoizedPreviousState.containsKey(state)) {
             return memoizedPreviousState.get(state);
         }
-        Optional<State> previousState =  elementaryResultMap.values().stream()
+        Optional<State> previousState = elementaryResultMap.values().stream()
             .flatMap(eR -> eR.getAllStatesWithActivation().stream())
             .filter(s -> s.getContingency().equals(state.getContingency()) || s.getContingency().isEmpty())
             .filter(s -> s.getInstant().comesBefore(state.getInstant()))
