@@ -89,7 +89,7 @@ public interface FlowResult {
     }
 
     default double getRelativeMargin(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        if (Double.isNaN(getPtdfZonalSum(flowCnec, side)) || getPtdfZonalSum(flowCnec, side) == 0) {
+        if (Double.isNaN(getPtdfZonalSum(flowCnec, side))) {
             return Double.NaN;
         }
         return getMargin(flowCnec, side, unit) <= 0 ? getMargin(flowCnec, side, unit)
