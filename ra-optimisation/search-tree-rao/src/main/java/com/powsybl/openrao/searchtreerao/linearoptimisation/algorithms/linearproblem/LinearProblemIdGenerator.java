@@ -314,11 +314,11 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), GENERATOR_POWER_ON, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString());
     }
 
-    public static String generatorPowerTransitionConstraintId(String generatorId, OffsetDateTime timestampFrom, OffsetDateTime timestampTo, LinearProblem.AbsExtension positiveOrNegative) {
-        return formatName(GENERATOR_POWER_TRANSITION, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString()) + SEPARATOR + timestampFrom.format(DATE_TIME_FORMATER) + SEPARATOR + timestampTo.format(DATE_TIME_FORMATER);
+    public static String generatorPowerTransitionConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension positiveOrNegative) {
+        return formatName(Optional.of(timestamp), GENERATOR_POWER_TRANSITION, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString());
     }
 
-    public static String generatorTimeConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState, LinearProblem.MinOrMax minOrMax) {
+    public static String generatorStateTimeConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState, LinearProblem.MinOrMax minOrMax) {
         return formatName(Optional.of(timestamp), GENERATOR_TIME, generatorId, generatorState.toString(), minOrMax.toString(), CONSTRAINT_SUFFIX);
     }
 }

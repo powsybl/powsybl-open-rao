@@ -577,7 +577,11 @@ public final class LinearProblem {
     }
 
     public OpenRaoMPConstraint addGeneratorPowerTransitionConstraint(String generatorId, double lb, double ub, OffsetDateTime timestamp, AbsExtension positiveOrNegative) {
-        return solver.makeConstraint(lb, ub, generatorPowerOnConstraintId(generatorId, timestamp, positiveOrNegative));
+        return solver.makeConstraint(lb, ub, generatorPowerTransitionConstraintId(generatorId, timestamp, positiveOrNegative));
+    }
+
+    public OpenRaoMPConstraint addGeneratorStateTimeConstraint(String generatorId, double lb, double ub, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState, LinearProblem.MinOrMax minOrMax) {
+        return solver.makeConstraint(lb, ub, generatorStateTimeConstraintId(generatorId, timestamp, generatorState, minOrMax));
     }
 
     public double infinity() {
