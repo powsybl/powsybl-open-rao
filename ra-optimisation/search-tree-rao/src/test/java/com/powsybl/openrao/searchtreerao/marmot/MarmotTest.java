@@ -18,6 +18,7 @@ import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalRaoResult;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -52,9 +53,16 @@ class MarmotTest {
 
         // first RAOs shift tap to -5 for a cost of 55 each
         // MARMOT should also move the tap to -5 for both timestamps with a total cost of 110
-        TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
-        assertEquals(-5, results.getData(timestamp1).get().getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
-        assertEquals(-5, results.getData(timestamp2).get().getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
+        GlobalRaoResult globalRaoResult = (GlobalRaoResult) new Marmot().run(input, raoParameters).join();
+        assertEquals(110.0, globalRaoResult.getCost());
+
+        RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
+        assertEquals(55.0, raoResult1.getCost(crac1.getPreventiveInstant()));
+        assertEquals(-5, raoResult1.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
+
+        RaoResult raoResult2 = globalRaoResult.getData(timestamp1).get();
+        assertEquals(55.0, raoResult2.getCost(crac1.getPreventiveInstant()));
+        assertEquals(-5, raoResult2.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
     }
 
     @Test

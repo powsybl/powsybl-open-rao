@@ -11,12 +11,18 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventivePerimeterCnecs;
 
@@ -29,11 +35,14 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventive
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public record PostOptimizationResult(RaoInput raoInput, PrePerimeterResult initialResult, LinearOptimizationResult linearOptimizationResult, RaoResult topologicalOptimizationResult) {
+public record PostOptimizationResult(RaoInput raoInput, PrePerimeterResult initialResult, LinearOptimizationResult linearOptimizationResult, RaoResult topologicalOptimizationResult, ObjectiveFunction objectiveFunction) {
     public RaoResult merge() {
         Crac crac = raoInput.getCrac();
         State preventiveState = crac.getPreventiveState();
-        OptimizationResult mergedOptimizationResult = new OptimizationResultImpl(linearOptimizationResult, linearOptimizationResult, linearOptimizationResult, new NetworkActionsResultImpl(topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState)), linearOptimizationResult);
+        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState));
+        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(linearOptimizationResult, networkActionsResult);
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(linearOptimizationResult, remedialActionActivationResult);
+        OptimizationResult mergedOptimizationResult = new OptimizationResultImpl(objectiveFunctionResult, linearOptimizationResult, linearOptimizationResult, networkActionsResult, linearOptimizationResult);
         return new OneStateOnlyRaoResultImpl(preventiveState, initialResult, mergedOptimizationResult, getPreventivePerimeterCnecs(crac));
     }
 }
