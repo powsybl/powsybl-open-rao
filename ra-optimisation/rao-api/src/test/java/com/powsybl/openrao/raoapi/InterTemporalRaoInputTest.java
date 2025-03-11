@@ -10,7 +10,7 @@ package com.powsybl.openrao.raoapi;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
-import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,7 +32,7 @@ class InterTemporalRaoInputTest {
     private OffsetDateTime timestamp2;
     private OffsetDateTime timestamp3;
     private TemporalData<RaoInput> temporalData;
-    private Set<GeneratorConstraints> generatorConstraints;
+    private Set<PowerGradient> powerGradients;
 
     @BeforeEach
     void setUp() {
@@ -43,26 +43,23 @@ class InterTemporalRaoInputTest {
         timestamp2 = OffsetDateTime.of(2024, 12, 10, 17, 21, 0, 0, ZoneOffset.UTC);
         timestamp3 = OffsetDateTime.of(2024, 12, 10, 18, 21, 0, 0, ZoneOffset.UTC);
         temporalData = new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3));
-        generatorConstraints = Set.of(
-            GeneratorConstraints.create().withGeneratorId("generator-1").withLeadTime(0.0).withLagTime(0.0).withPMin(400.0).withPMax(1000.0).withUpwardPowerGradient(200.0).build(),
-            GeneratorConstraints.create().withGeneratorId("generator-2").withLeadTime(0.0).withLagTime(0.0).withPMin(400.0).withPMax(1000.0).withDownwardPowerGradient(-50.0).build()
-        );
+        powerGradients = Set.of(PowerGradient.builder().withNetworkElementId("generator-1").withMaxValue(200.0).build(), PowerGradient.builder().withNetworkElementId("generator-2").withMinValue(-50.0).build());
     }
 
     @Test
     void testInstantiateInterTemporalRaoInput() {
-        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, Set.of(timestamp1, timestamp3), generatorConstraints);
+        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, Set.of(timestamp1, timestamp3), powerGradients);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp3), input.getTimestampsToRun());
-        assertEquals(generatorConstraints, input.getGeneratorConstraints());
+        assertEquals(powerGradients, input.getPowerGradients());
     }
 
     @Test
     void testInstantiateInterTemporalRaoInputAllTimestamps() {
-        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, generatorConstraints);
+        InterTemporalRaoInput input = new InterTemporalRaoInput(temporalData, powerGradients);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp2, timestamp3), input.getTimestampsToRun());
-        assertEquals(generatorConstraints, input.getGeneratorConstraints());
+        assertEquals(powerGradients, input.getPowerGradients());
     }
 
     @Test
