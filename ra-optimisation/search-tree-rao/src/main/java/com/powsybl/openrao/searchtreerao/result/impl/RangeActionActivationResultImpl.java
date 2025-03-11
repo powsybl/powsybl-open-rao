@@ -27,9 +27,10 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     private final Map<RangeAction<?>, ElementaryResult> elementaryResultMap = new HashMap<>();
 
-    boolean shouldRecomputeSetpointsPerState = true;
+    boolean shouldRecomputeSetpointsPerState;
 
     private Map<String, Map<State, Double> > setpointPerStatePerPstId;
+    private Map<State, Optional<State>> memoizedPreviousState = new HashMap<>();
 
     private static class ElementaryResult {
         private final double refSetpoint;
@@ -81,6 +82,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     public void putResult(RangeAction<?> rangeAction, State state, double setpoint) {
         shouldRecomputeSetpointsPerState = true;
         elementaryResultMap.get(rangeAction).put(state, setpoint);
+        memoizedPreviousState = new HashMap<>();
     }
 
     private synchronized void computeSetpointsPerStatePerPst() {
@@ -202,10 +204,15 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     private Optional<State> getPreviousState(State state) {
-        return elementaryResultMap.values().stream()
+        if (memoizedPreviousState.containsKey(state)) {
+            return memoizedPreviousState.get(state);
+        }
+        Optional<State> previousState = elementaryResultMap.values().stream()
             .flatMap(eR -> eR.getAllStatesWithActivation().stream())
             .filter(s -> s.getContingency().equals(state.getContingency()) || s.getContingency().isEmpty())
             .filter(s -> s.getInstant().comesBefore(state.getInstant()))
             .max(Comparator.comparingInt(s -> s.getInstant().getOrder()));
+        memoizedPreviousState.put(state, previousState);
+        return previousState;
     }
 }
