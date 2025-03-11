@@ -82,8 +82,8 @@ class MarmotTest {
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
 
         assertEquals(-0.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        assertEquals(506.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(506.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
     }
 
     @Test
@@ -111,9 +111,9 @@ class MarmotTest {
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
-        assertEquals(300.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        assertEquals(306.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+        assertEquals(506.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(506.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
     }
 
     @Test

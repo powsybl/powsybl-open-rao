@@ -17,7 +17,6 @@ import com.powsybl.openrao.raoapi.ICSImporter;
 import com.powsybl.openrao.raoapi.InterTemporalRao;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import io.cucumber.datatable.DataTable;
@@ -33,7 +32,7 @@ import static com.powsybl.openrao.tests.steps.CommonTestData.*;
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 
-public class InterTemporalRaoSteps {
+public final class InterTemporalRaoSteps {
     private static String networkFolderPath;
     private static String cracFolderPath;
     private static String icsStaticPath;

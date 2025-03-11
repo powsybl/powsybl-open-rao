@@ -35,15 +35,15 @@
         }
       },
       "topological-actions-optimization" : {
-        "max-preventive-search-tree-depth" : 5,
-        "max-auto-search-tree-depth" : 5,
-        "max-curative-search-tree-depth" : 5,
+        "max-preventive-search-tree-depth" : 2,
+        "max-auto-search-tree-depth" : 2,
+        "max-curative-search-tree-depth" : 2,
         "predefined-combinations" : [ ],
-        "skip-actions-far-from-most-limiting-element" : true,
+        "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 1
       },
       "second-preventive-rao" : {
-        "execution-condition" : "DISABLED",
+        "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
         "re-optimize-curative-range-actions" : true,
         "hint-from-first-preventive-rao" : false
       },

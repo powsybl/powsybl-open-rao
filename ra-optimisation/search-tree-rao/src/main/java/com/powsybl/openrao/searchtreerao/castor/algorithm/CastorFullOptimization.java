@@ -178,22 +178,14 @@ public class CastorFullOptimization {
                 if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults)) {
                     mergedRaoResults = secondPreventiveRaoResults;
                     mergedRaoResults.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
-                    logFinalResultsOutsideOfSecondPreventive = false;
                 } else {
                     mergedRaoResults.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION);
                 }
             }
             // Log final results
-            if (logFinalResultsOutsideOfSecondPreventive) {
-                BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
-                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
-            }
-            RaoLogger.logSensitivityAnalysisResults(String.format("Iteration %d: sensitivity analysis: ", 1),
-                prePerimeterSensitivityAnalysis.getObjectiveFunction(),
-                null, //TODO: Find the right remedialActionActivationResult if we want to use costly objective function not needed otherwise
-                preCurativeSensitivityAnalysisOutput,
-                raoParameters,
-                NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+            BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
         } catch (RuntimeException e) {
             BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));

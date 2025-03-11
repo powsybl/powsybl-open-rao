@@ -39,8 +39,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.*;
 import java.time.OffsetDateTime;
-import java.util.Objects;
-import java.util.Set;
 
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;

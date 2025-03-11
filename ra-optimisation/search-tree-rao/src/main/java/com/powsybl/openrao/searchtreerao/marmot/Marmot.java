@@ -29,6 +29,7 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
+import com.powsybl.openrao.searchtreerao.faorao.FastRao;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
@@ -91,9 +92,10 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInput> raoInputs, RaoParameters raoParameters) {
+        Set<String> consideredCnecs = new HashSet<>();
         return raoInputs.map(individualRaoInput -> {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Running RAO for timestamp {}", individualRaoInput.getCrac().getTimestamp().orElseThrow());
-            return Rao.run(individualRaoInput, raoParameters);
+            return FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, consideredCnecs);
         });
     }
 
