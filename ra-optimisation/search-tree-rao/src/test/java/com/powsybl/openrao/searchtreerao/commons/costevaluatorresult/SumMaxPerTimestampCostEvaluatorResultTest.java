@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class SumMaxPerTimestampCostEvaluatorResultTest {
+class SumMaxPerTimestampCostEvaluatorResultTest {
 
     private State preventiveStateT1;
     private State preventiveStateT2;
@@ -70,22 +70,31 @@ public class SumMaxPerTimestampCostEvaluatorResultTest {
     }
 
     @Test
-    public void testEvaluator() {
+    void testEvaluator() {
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(
             Map.of(preventiveStateT1, 120.0, preventiveStateT2, 34.0, preventiveStateT3, -43.0, curativeState1T1, 10.0, curativeState1T2, 546.0, curativeState1T3, 76.0),
             List.of()
         );
 
+        // timestamp 1: 120, 10 -> max = 120
+        // timestamp 2: 34, 546 -> max = 546
+        // timestamp 3: -43, 76 -> max = 76
+        // the expected evaluation in the sum of maxes: 120 + 546 + 76 = 742
         assertEquals(742, evaluatorResult.getCost(Set.of()));
     }
 
     @Test
-    public void testEvaluatorWithExclusion() {
+    void testEvaluatorWithExclusion() {
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(
             Map.of(preventiveStateT1, 120.0, preventiveStateT2, 34.0, preventiveStateT3, -43.0, curativeState1T1, 10.0, curativeState1T2, 546.0, curativeState1T3, 76.0),
             List.of()
         );
 
+        // contingencies 2 and 3 are excluded so results associated to curativeState1T2 and curativeState1T3 are ignored
+        // timestamp 1: 120, 10 -> max = 120
+        // timestamp 2: 34      -> max = 34
+        // timestamp 3: -43     -> max = -43
+        // the expected evaluation in the sum of maxes: 120 + 34 - 43 = 111
         assertEquals(111, evaluatorResult.getCost(Set.of("contingency-3", "contingency-2")));
     }
 
