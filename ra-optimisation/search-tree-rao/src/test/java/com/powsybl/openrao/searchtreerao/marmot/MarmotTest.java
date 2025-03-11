@@ -34,6 +34,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class MarmotTest {
+
+    /*
+    TODO
+    For each test check the global MARMOT cost and the individual costs for each timestamp.
+    This cannot currently be done since all individual RAO results use the global cost as their cost.
+    The costs will be separated in a future PR and will have to be checked here.
+     */
+
     @Test
     void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
