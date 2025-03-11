@@ -83,12 +83,12 @@ public class Marmot implements InterTemporalRaoProvider {
 
         // 4. Build objective function and initial result
         ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult)), raoParameters);
-        TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveNetworkActions(topologicalOptimizationResults, raoInput.getRaoInputs().map(RaoInput::getCrac));
+        TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(raoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults);
         LinearOptimizationResult initialLinearOptimizationResult = getInitialLinearOptimizationResult(prePerimeterResults, preventiveTopologicalActions, objectiveFunction);
 
         // 5. Create and iteratively solve MIP to find optimal range actions' set-points
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
-        LinearOptimizationResult linearOptimizationResults = optimizeLinearRemedialActions(raoInput, prePerimeterResults, raoParameters, getPreventiveTopologicalActions(raoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults), objectiveFunction);
+        LinearOptimizationResult linearOptimizationResults = optimizeLinearRemedialActions(raoInput, prePerimeterResults, raoParameters, preventiveTopologicalActions, objectiveFunction);
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
 
         // 6. Merge topological and linear result
@@ -100,14 +100,6 @@ public class Marmot implements InterTemporalRaoProvider {
         logCost("[MARMOT] After global linear optimization: ", linearOptimizationResults, raoParameters, 10);
 
         return CompletableFuture.completedFuture(mergedRaoResults);
-    }
-
-    private static TemporalData<NetworkActionsResult> getPreventiveNetworkActions(TemporalData<RaoResult> raoResults, TemporalData<Crac> cracs) {
-        Map<OffsetDateTime, NetworkActionsResult> preventiveTopologicalActions = new HashMap<>();
-        raoResults.getDataPerTimestamp().forEach((timestamp, raoResult) ->
-            preventiveTopologicalActions.put(timestamp, new NetworkActionsResultImpl(raoResult.getActivatedNetworkActionsDuringState(cracs.getData(timestamp).orElseThrow().getPreventiveState())))
-        );
-        return new TemporalDataImpl<>(preventiveTopologicalActions);
     }
 
     private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInput> raoInputs, RaoParameters raoParameters) {
