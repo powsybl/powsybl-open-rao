@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.stream.DoubleStream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class MaxCostEvaluatorResult extends AbstractStateWiseCostEvaluatorResult {
-    public MaxCostEvaluatorResult(Map<State, Double> costPerState, List<FlowCnec> costlyElements) {
-        super(costPerState, costlyElements);
+public class MaxCostEvaluatorResult extends AbstractCnecWiseCostEvaluatorResult {
+    public MaxCostEvaluatorResult(Map<FlowCnec, Double> marginPerCnec, List<FlowCnec> costlyElements, Unit unit) {
+        super(marginPerCnec, costlyElements, unit);
     }
 
     @Override

@@ -132,7 +132,6 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
         globalObjectiveFunctionResult.excludeCnecs(cnecsToExclude);
     }
 
-
     @Override
     public Set<RangeAction<?>> getRangeActions() {
         return globalRangeActionActivationResult.getRangeActions();

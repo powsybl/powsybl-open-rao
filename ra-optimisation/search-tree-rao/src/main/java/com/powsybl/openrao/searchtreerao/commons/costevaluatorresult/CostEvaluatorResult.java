@@ -16,7 +16,7 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface CostEvaluatorResult {
-    double getCost(Set<String> contingenciesToExclude);
+    double getCost(Set<String> contingenciesToExclude, Set<String> cnecsToExclude);
 
-    List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude);
+    List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude, Set<String> cnecsToExclude);
 }
