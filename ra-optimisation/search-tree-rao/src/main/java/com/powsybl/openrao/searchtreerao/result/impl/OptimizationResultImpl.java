@@ -117,6 +117,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        objectiveFunctionResult.excludeCnecs(cnecsToExclude);
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return rangeActionActivationResult.getRangeActions();
     }

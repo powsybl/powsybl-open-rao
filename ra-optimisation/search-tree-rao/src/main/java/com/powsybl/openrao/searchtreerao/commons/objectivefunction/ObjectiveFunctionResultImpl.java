@@ -24,12 +24,14 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final Map<String, CostEvaluatorResult> virtualCostResults;
     private final List<FlowCnec> flowCnecsByMargin;
     private Set<String> excludedContingencies;
+    private Set<String> excludedCnecs;
 
     public ObjectiveFunctionResultImpl(CostEvaluatorResult functionalCostResult, Map<String, CostEvaluatorResult> virtualCostResults, List<FlowCnec> flowCnecsByMargin) {
         this.functionalCostResult = functionalCostResult;
         this.virtualCostResults = virtualCostResults;
         this.flowCnecsByMargin = flowCnecsByMargin;
         this.excludedContingencies = new HashSet<>();
+        this.excludedCnecs = new  HashSet<>();
     }
 
     @Override
@@ -67,5 +69,10 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         this.excludedContingencies = new HashSet<>(contingenciesToExclude);
+    }
+
+    @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        this.excludedCnecs = new HashSet<>(cnecsToExclude);
     }
 }
