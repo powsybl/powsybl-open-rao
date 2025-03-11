@@ -65,7 +65,7 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(raoInput.getRaoInputs(), raoParameters);
 
         // if no inter-temporal constraints are defined, the results can be returned
-        if (raoInput.getGeneratorConstraints().isEmpty()) {
+        if (raoInput.getPowerGradients().isEmpty()) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No inter-temporal constraint provided; no need to re-optimize range actions");
             return CompletableFuture.completedFuture(topologicalOptimizationResults);
         }
@@ -135,7 +135,7 @@ public class Marmot implements InterTemporalRaoProvider {
             .withOutageInstant(raoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getOutageInstant())
             .withAppliedNetworkActionsInPrimaryState(preventiveTopologicalActions.getData(timestamp).orElseThrow())
             .build()));
-        InterTemporalIteratingLinearOptimizerInput interTemporalLinearOptimizerInput = new InterTemporalIteratingLinearOptimizerInput(new TemporalDataImpl<>(linearOptimizerInputPerTimestamp), objectiveFunction, raoInput.getGeneratorConstraints());
+        InterTemporalIteratingLinearOptimizerInput interTemporalLinearOptimizerInput = new InterTemporalIteratingLinearOptimizerInput(new TemporalDataImpl<>(linearOptimizerInputPerTimestamp), objectiveFunction, raoInput.getPowerGradients());
 
         // Build parameters
         // Unoptimized cnec parameters ignored because only PRAs
