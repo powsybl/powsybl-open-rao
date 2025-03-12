@@ -41,6 +41,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
         this.initialResult = initialResult;
         this.postOptimizationResult = postOptimizationResult;
         this.optimizedFlowCnecs = optimizedFlowCnecs;
+        excludeDuplicateCnec();
     }
 
     private FlowResult getAppropriateResult(Instant optimizedInstant, FlowCnec flowCnec) {
@@ -66,6 +67,10 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
             }
         }
         return initialResult;
+    }
+
+    public OptimizationResult getPostOptimizationResult() {
+        return postOptimizationResult;
     }
 
     @Override
@@ -282,5 +287,16 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public String getExecutionDetails() {
         return executionDetails;
+    }
+
+    private void excludeDuplicateCnec() {
+        if (optimizedState != null) {
+            Set<String> cnecsToExclude = optimizedFlowCnecs.stream()
+                .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
+                .map(FlowCnec::getId)
+                .collect(Collectors.toSet());
+            postOptimizationResult.excludeCnecs(cnecsToExclude);
+        }
+
     }
 }
