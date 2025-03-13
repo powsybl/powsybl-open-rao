@@ -104,20 +104,20 @@ public final class IcsImporter {
 
     private static String processNetworks(String uctNodeOrGskId, InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, Map<String, CSVRecord> seriesPerType) {
         String generatorId = seriesPerType.get("P0").get("RA RD ID") + "_GENERATOR";
-        for (Map.Entry<OffsetDateTime, RaoInputWithNetworkPaths> entry : interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().entrySet()) {
-            Network network = Network.read(entry.getValue().getInitialNetworkPath());
-            Bus bus = network.getBusBreakerView().getBus(uctNodeOrGskId);
-            if (bus == null) {
-                return null;
-            }
-            Double p0 = Double.parseDouble(seriesPerType.get("P0").get(entry.getKey().getHour() + OFFSET));
-            processBus(bus, generatorId, p0);
-
-            Properties properties = new Properties();
-            properties.put(XMLExporter.EXTENSIONS_LIST, "");
-            properties.put(XMLExporter.VERSION, "1.3");
-            network.write("JIIDM", properties, Path.of(entry.getValue().getPostIcsImportNetworkPath()));
-        }
+//        for (Map.Entry<OffsetDateTime, RaoInputWithNetworkPaths> entry : interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().entrySet()) {
+//            Network network = Network.read(entry.getValue().getInitialNetworkPath());
+//            Bus bus = network.getBusBreakerView().getBus(uctNodeOrGskId);
+//            if (bus == null) {
+//                return null;
+//            }
+//            Double p0 = Double.parseDouble(seriesPerType.get("P0").get(entry.getKey().getHour() + OFFSET));
+//            processBus(bus, generatorId, p0);
+//
+//            Properties properties = new Properties();
+//            properties.put(XMLExporter.EXTENSIONS_LIST, "");
+//            properties.put(XMLExporter.VERSION, "1.3");
+//            network.write("JIIDM", properties, Path.of(entry.getValue().getPostIcsImportNetworkPath()));
+//        }
         return generatorId;
     }
 
