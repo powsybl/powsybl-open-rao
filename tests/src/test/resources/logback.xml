@@ -5,10 +5,19 @@
         </encoder>
     </appender>
 
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${user.home}/farao_2_iter.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <root level="info">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
     <logger name="com.powsybl" level="OFF"/>
-    <logger name="com.powsybl.openrao" level="INFO"/>
+    <logger name="com.powsybl.openrao" level="DEBUG"/>
 
 </configuration>

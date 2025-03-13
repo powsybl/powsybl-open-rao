@@ -22,7 +22,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.CONSTRAINT_ADJUSTM
  */
 public class SearchTreeRaoMnecParameters {
     static final double DEFAULT_VIOLATION_COST = 10.0;
-    static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 3.0;
     // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double violationCost = DEFAULT_VIOLATION_COST;
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;

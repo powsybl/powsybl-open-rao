@@ -71,6 +71,30 @@ public final class RaoLogger {
             numberOfLoggedLimitingElements);
     }
 
+    public static void logCost(String prefix,
+                               LinearOptimizationResult linearOptimizationResult,
+                               RaoParameters raoParameters,
+                               int numberOfLoggedLimitingElements) {
+
+        if (!BUSINESS_LOGS.isInfoEnabled()) {
+            return;
+        }
+
+        Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(linearOptimizationResult);
+
+        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})",
+            formatDoubleBasedOnMargin(linearOptimizationResult.getCost(), -linearOptimizationResult.getCost()),
+            formatDoubleBasedOnMargin(linearOptimizationResult.getFunctionalCost(), -linearOptimizationResult.getCost()),
+            formatDoubleBasedOnMargin(linearOptimizationResult.getVirtualCost(), -linearOptimizationResult.getCost()),
+            virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
+
+        RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
+            linearOptimizationResult,
+            raoParameters.getObjectiveFunctionParameters().getType(),
+            raoParameters.getObjectiveFunctionParameters().getUnit(),
+            numberOfLoggedLimitingElements);
+    }
+
     public static void logObjectiveFunctionResult(String prefix,
                                                  ObjectiveFunctionResult objectiveFunctionResult,
                                                  PrePerimeterResult sensitivityAnalysisResult,
@@ -129,6 +153,10 @@ public final class RaoLogger {
 
     public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, Unit unit, int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, null, objectiveFunction, unit, numberOfLoggedElements);
+    }
+
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger, LinearOptimizationResult linearOptimizationResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, Unit unit, int numberOfLoggedElements) {
+        logMostLimitingElementsResults(logger, linearOptimizationResult, linearOptimizationResult, null, objectiveFunction, unit, numberOfLoggedElements);
     }
 
     private static void logMostLimitingElementsResults(OpenRaoLogger logger,

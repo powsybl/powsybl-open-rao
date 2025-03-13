@@ -57,24 +57,24 @@ class ComplexVariantReader {
     void addRemedialAction(Crac crac) {
         if (type.equals(ActionReader.Type.PST)) {
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
-                    .withId(complexVariant.getId())
-                    .withName(complexVariant.getName())
-                    .withOperator(complexVariant.getTsoOrigin());
+                .withId(complexVariant.getId())
+                .withName(complexVariant.getName())
+                .withOperator(complexVariant.getTsoOrigin());
             actionReaders.get(0).addAction(pstRangeActionAdder);
             addUsageRules(pstRangeActionAdder, crac);
             pstRangeActionAdder.add();
             complexVariantCreationContext = PstComplexVariantCreationContext.imported(
-                    complexVariant.getId(),
-                    actionReaders.get(0).getNativeNetworkElementId(),
-                    getCreatedRaId(),
-                    actionReaders.get(0).isInverted(),
-                    actionReaders.get(0).getInversionMessage()
+                complexVariant.getId(),
+                actionReaders.get(0).getNativeNetworkElementId(),
+                getCreatedRaId(),
+                actionReaders.get(0).isInverted(),
+                actionReaders.get(0).getInversionMessage()
             );
         } else {
             NetworkActionAdder networkActionAdder = crac.newNetworkAction()
-                    .withId(complexVariant.getId())
-                    .withName(complexVariant.getName())
-                    .withOperator(complexVariant.getTsoOrigin());
+                .withId(complexVariant.getId())
+                .withName(complexVariant.getName())
+                .withOperator(complexVariant.getTsoOrigin());
             actionReaders.forEach(action -> action.addAction(networkActionAdder, complexVariant.getId()));
             addUsageRules(networkActionAdder, crac);
             networkActionAdder.add();

@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
-import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.MaxCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumMaxPerTimestampCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
@@ -47,6 +47,6 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(flowCnecs);
         Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(flowResult, entry.getValue())));
-        return new MaxCostEvaluatorResult(costPerState, FlowCnecSorting.sortByNegativeMargin(flowCnecs, unit, marginEvaluator, flowResult));
+        return new SumMaxPerTimestampCostEvaluatorResult(costPerState, FlowCnecSorting.sortByNegativeMargin(flowCnecs, unit, marginEvaluator, flowResult));
     }
 }

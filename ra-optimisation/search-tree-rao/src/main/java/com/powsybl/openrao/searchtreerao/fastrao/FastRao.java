@@ -95,7 +95,7 @@ public class FastRao implements RaoProvider {
 
             PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                 crac.getFlowCnecs(),
-                crac.getRangeActions(),
+                new HashSet<>(),
                 parameters,
                 toolProvider);
 
@@ -386,7 +386,7 @@ public class FastRao implements RaoProvider {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(toolProvider)
             .withCnecs(flowCnecs)
-            .withRangeActions(crac.getRangeActions())
+            .withRangeActions(new HashSet<>())
             .withOutageInstant(raoInput.getCrac().getOutageInstant());
 
         if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().isPresent()) {

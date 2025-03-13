@@ -21,6 +21,7 @@ public final class IcsImporter {
     private static final int OFFSET = 2;
     private static final double COST_UP = 10;
     private static final double COST_DOWN = 10;
+    private static final double ACTIVATION_COST = 50;
 
     //TODO:QUALITY CHECK: do PO respect constraints?
 
@@ -47,14 +48,14 @@ public final class IcsImporter {
             if (shouldBeImported(staticRecord)) {
                 String raId = staticRecord.get("RA RD ID");
                 Map<String, CSVRecord> seriesPerType = seriesPerIdAndType.get(raId);
-                if (seriesPerType != null && seriesPerType.containsKey("P0") && seriesPerType.containsKey("RDP-") && seriesPerType.containsKey("RDP+")) {
+                if (seriesPerType != null && seriesPerType.containsKey("P0") && seriesPerType.containsKey("RDP-") && seriesPerType.containsKey("RDP+") && P0RespectsGradients(staticRecord, seriesPerType.get("P0"))) {
                     String networkElement = processNetworks(staticRecord.get("UCT Node or GSK ID"), interTemporalRaoInput, seriesPerType);
                     if (networkElement == null) {
                         return;
                     }
                     interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
                         Crac crac = raoInput.getCrac();
-                        Double p0 = Double.parseDouble(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
+                        double p0 = Double.parseDouble(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
                         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
                             .withId(raId + "_RD")
                             .withName(staticRecord.get("Generator Name"))
@@ -62,6 +63,7 @@ public final class IcsImporter {
                             .withInitialSetpoint(p0)
                             .withVariationCost(COST_UP, VariationDirection.UP)
                             .withVariationCost(COST_DOWN, VariationDirection.DOWN)
+                            //.withActivationCost(ACTIVATION_COST)
                             .newRange()
                             .withMin(p0 - Double.parseDouble(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
                             .withMax(p0 + Double.parseDouble(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
@@ -72,12 +74,12 @@ public final class IcsImporter {
                                 .withUsageMethod(UsageMethod.AVAILABLE)
                                 .add();
                         }
-                        if (staticRecord.get("Curative").equals("TRUE")) {
+                        /*if (staticRecord.get("Curative").equals("TRUE")) {
                             injectionRangeActionAdder.newOnInstantUsageRule()
                                 .withInstant(crac.getLastInstant().getId())
                                 .withUsageMethod(UsageMethod.AVAILABLE)
                                 .add();
-                        }
+                        }*/
                         injectionRangeActionAdder.add();
 
                     });
@@ -135,6 +137,22 @@ public final class IcsImporter {
 
     private static boolean shouldBeImported(CSVRecord staticRecord) {
         return staticRecord.get("RD description mode").equals("NODE") &&
-            (staticRecord.get("Preventive").equals("TRUE") || staticRecord.get("Curative").equals("TRUE"));
+            (staticRecord.get("Preventive").equals("TRUE") /*|| staticRecord.get("Curative").equals("TRUE")*/);
+    }
+
+    private static boolean P0RespectsGradients(CSVRecord staticRecord, CSVRecord P0record) {
+        double maxGradient = Double.parseDouble(staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
+            "1000" : staticRecord.get("Maximum positive power gradient [MW/h]"));
+        double minGradient = -Double.parseDouble(staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
+            "1000" : staticRecord.get("Maximum negative power gradient [MW/h]"));
+
+        for (int i = 0; i < 2; i++) {
+            double diff = Double.parseDouble(P0record.get(i + OFFSET + 1)) - Double.parseDouble(P0record.get(i + OFFSET));
+            if (diff > maxGradient || diff < minGradient) {
+                System.out.printf("%s does not respect power gradients : min/max/diff %f %f %f%n", staticRecord.get(0), minGradient, maxGradient, diff);
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -59,7 +59,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected final boolean raRangeShrinking;
     protected final PstModel pstModel;
     protected final OffsetDateTime timestamp;
-    private final Map<RangeAction<?>, Set<RangeAction<?>>> memoizedSameRangeActions = new HashMap<>();
+    private Map<RangeAction<?>, Set<RangeAction<?>>> memoizedSameRangeActions = new HashMap<>();
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,

@@ -27,14 +27,23 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class MarmotTest {
+
+    /*
+    TODO
+    For each test check the global MARMOT cost and the individual costs for each timestamp.
+    This cannot currently be done since all individual RAO results use the global cost as their cost.
+    The costs will be separated in a future PR and will have to be checked here.
+     */
+
     @Test
-    void runCaseWithTwoTimestampsAndNoGradient() throws IOException {
+    void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
         Network network1 = Network.read("/network/2Nodes2ParallelLinesPST.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
         Network network2 = Network.read("/network/2Nodes2ParallelLinesPST.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
@@ -58,7 +67,7 @@ class MarmotTest {
     }
 
     @Test
-    void testWithRedispatchingAndNoGradient() throws IOException {
+    void testWithRedispatchingAndNoGradientOnImplicatedGenerators() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -82,12 +91,12 @@ class MarmotTest {
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
 
         assertEquals(-0.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        assertEquals(503.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(503.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
     }
 
     @Test
-    void testWithRedispatchingAndGradient() throws IOException {
+    void testWithRedispatchingAndGradientOnImplicatedGenerators() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -111,9 +120,9 @@ class MarmotTest {
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
-        assertEquals(300.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        assertEquals(303.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+        assertEquals(503.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(503.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
     }
 
     @Test
@@ -133,6 +142,8 @@ class MarmotTest {
         );
 
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
+        assertTrue(results.getData(timestamp1).get().isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
+        assertTrue(results.getData(timestamp2).get().isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
         assertEquals(40.0, results.getData(timestamp1).get().getCost(crac1.getInstant(InstantKind.PREVENTIVE)));
     }
 }

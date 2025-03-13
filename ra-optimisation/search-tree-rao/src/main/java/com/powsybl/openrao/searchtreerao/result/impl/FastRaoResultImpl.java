@@ -69,6 +69,10 @@ public class FastRaoResultImpl implements RaoResult {
         finalResult.excludeContingencies(failingContingencies);
     }
 
+    public PrePerimeterResult getInitialResult() {
+        return initialResult;
+    }
+
     @Override
     public ComputationStatus getComputationStatus() {
         //TODO: PreventivAndCurativesRaoResult has a postContingencyResults object that we go through to evaluate the PARTIAL_FAILURE status. Understand why this object is not defined here.

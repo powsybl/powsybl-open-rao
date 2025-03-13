@@ -83,8 +83,9 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
      * P(g,t) = p0(g,t) + sum_{i \in injectionAction_prev(g,t)} d_i(g) * [delta^{+}(r,s,t) - delta^{-}(r,s,t)]
      * */
     private void addPowerConstraint(LinearProblem linearProblem, String generatorId, OpenRaoMPVariable generatorPowerVariable, OffsetDateTime timestamp) {
-        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, getInitialPower(generatorId, networkPerTimestamp.getData(timestamp).orElseThrow()), timestamp);
+        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, 0., timestamp);
         generatorPowerConstraint.setCoefficient(generatorPowerVariable, 1.0);
+        final double[] bound = {0};
 
         // Find injection range actions related to generators with power gradients
         injectionRangeActionsPerTimestamp.getData(timestamp).orElseThrow().stream()
@@ -95,7 +96,11 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow(), LinearProblem.VariationDirectionExtension.DOWNWARD);
                 generatorPowerConstraint.setCoefficient(upwardVariationVariable, -injectionKey);
                 generatorPowerConstraint.setCoefficient(downwardVariationVariable, injectionKey);
+
+                OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow());
+                bound[0] = bound[0] + setPointVariationConstraint.ub() * injectionKey;
             });
+        generatorPowerConstraint.setBounds(bound[0], bound[0]);
     }
 
     private static double getInitialPower(String generatorId, Network network) {

@@ -34,6 +34,6 @@ public record PostOptimizationResult(RaoInput raoInput, PrePerimeterResult initi
         Crac crac = raoInput.getCrac();
         State preventiveState = crac.getPreventiveState();
         OptimizationResult mergedOptimizationResult = new OptimizationResultImpl(linearOptimizationResult, linearOptimizationResult, linearOptimizationResult, new NetworkActionsResultImpl(topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState)), linearOptimizationResult);
-        return new OneStateOnlyRaoResultImpl(preventiveState, initialResult, mergedOptimizationResult, getPreventivePerimeterCnecs(crac));
+        return new OneStateOnlyRaoResultImpl(preventiveState, initialResult, mergedOptimizationResult, crac.getFlowCnecs());
     }
 }

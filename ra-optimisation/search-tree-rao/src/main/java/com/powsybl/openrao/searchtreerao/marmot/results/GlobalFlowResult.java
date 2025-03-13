@@ -25,9 +25,9 @@ import java.util.Map;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class GlobalFlowResult implements FlowResult {
-    private final TemporalData<FlowResult> flowResultPerTimestamp;
+    private final TemporalData<? extends FlowResult> flowResultPerTimestamp;
 
-    public GlobalFlowResult(TemporalData<FlowResult> flowResultPerTimestamp) {
+    public GlobalFlowResult(TemporalData<? extends FlowResult> flowResultPerTimestamp) {
         this.flowResultPerTimestamp = flowResultPerTimestamp;
     }
 
