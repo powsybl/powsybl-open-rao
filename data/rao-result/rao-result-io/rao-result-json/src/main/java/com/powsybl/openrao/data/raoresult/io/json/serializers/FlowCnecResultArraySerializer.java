@@ -42,7 +42,9 @@ final class FlowCnecResultArraySerializer {
 
         jsonGenerator.writeArrayFieldStart(RaoResultJsonConstants.FLOWCNEC_RESULTS);
         for (FlowCnec flowCnec : sortedListOfFlowCnecs) {
-            serializeFlowCnecResult(flowCnec, raoResult, crac, flowUnits, jsonGenerator);
+            if (!flowCnec.getId().contains("OUTAGE DUPLICATE")){
+                serializeFlowCnecResult(flowCnec, raoResult, crac, flowUnits, jsonGenerator);
+            }
         }
         jsonGenerator.writeEndArray();
     }
