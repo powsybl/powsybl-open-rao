@@ -26,7 +26,7 @@ import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluat
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class MaxCostEvaluatorResult implements CostEvaluatorResult{
+public class MaxCostEvaluatorResult implements CostEvaluatorResult {
 
     private final List<FlowCnec> costlyElements;
     private final Map<FlowCnec, Double> marginPerCnec;
