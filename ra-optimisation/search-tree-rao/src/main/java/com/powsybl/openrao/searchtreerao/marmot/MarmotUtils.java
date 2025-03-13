@@ -64,10 +64,10 @@ public final class MarmotUtils {
         return new TemporalDataImpl<>(topologicalOptimizationResultMap);
     }
 
-    public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
+    public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, TemporalData<PrePerimeterResult> prePerimeterResults, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
-        timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), globalLinearOptimizationResult.getFlowResult(timestamp), globalLinearOptimizationResult.getSensitivityResult(timestamp), globalLinearOptimizationResult.getRangeActionActivationResult(timestamp), topologicalOptimizationResults.getData(timestamp).orElseThrow(), raoParameters)));
+        timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), prePerimeterResults.getData(timestamp).orElseThrow(), globalLinearOptimizationResult.getFlowResult(timestamp), globalLinearOptimizationResult.getSensitivityResult(timestamp), globalLinearOptimizationResult.getRangeActionActivationResult(timestamp), topologicalOptimizationResults.getData(timestamp).orElseThrow(), raoParameters)));
         return new TemporalDataImpl<>(postOptimizationResults);
     }
 

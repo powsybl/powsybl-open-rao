@@ -65,7 +65,12 @@ public class Marmot implements InterTemporalRaoProvider {
 
     @Override
     public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInput raoInput, RaoParameters raoParameters) {
-        // 1. Run independent RAOs to compute optimal preventive topological remedial actions
+        // 1. Run initial sensitivity analysis on all timestamps
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [start]");
+        TemporalData<PrePerimeterResult> initialResults = runAllInitialPrePerimeterSensitivityAnalysis(raoInput.getRaoInputs(), raoParameters);
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
+
+        // 2. Run independent RAOs to compute optimal preventive topological remedial actions
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
         TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(raoInput.getRaoInputs(), raoParameters);
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
@@ -77,30 +82,31 @@ public class Marmot implements InterTemporalRaoProvider {
             return CompletableFuture.completedFuture(topologicalOptimizationResults);
         }
 
-        // 2. Apply preventive topological remedial actions
+        // 3. Apply preventive topological remedial actions
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
         applyPreventiveTopologicalActionsOnNetwork(raoInput.getRaoInputs(), topologicalOptimizationResults);
 
-        // 3. Run initial sensitivity analysis on all timestamps
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [start]");
+        // 4. Run initial sensitivity analysis on all timestamps after topological actions are applied
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis after topological actions application [start]");
         TemporalData<PrePerimeterResult> prePerimeterResults = runAllInitialPrePerimeterSensitivityAnalysis(raoInput.getRaoInputs(), raoParameters);
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis after topological actions application [end]");
 
-        // 4. Build objective function and initial result
-        ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult)), raoParameters);
+        // 5. Build objective function and initial result
+        ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults.map(PrePerimeterResult::getFlowResult)), new GlobalFlowResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult)), raoParameters);
         TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(raoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults);
         LinearOptimizationResult initialLinearOptimizationResult = getInitialLinearOptimizationResult(prePerimeterResults, preventiveTopologicalActions, objectiveFunction);
 
-        // 5. Create and iteratively solve MIP to find optimal range actions' set-points
+        // 6. Create and iteratively solve MIP to find optimal range actions' set-points
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
         GlobalLinearOptimizationResult globalLinearOptimizationResult = optimizeLinearRemedialActions(raoInput, prePerimeterResults, raoParameters, preventiveTopologicalActions, objectiveFunction);
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
 
-        // 6. Merge topological and linear result
+        // 7. Merge topological and linear result
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
-        GlobalRaoResult globalRaoResult = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), prePerimeterResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters);
+        GlobalRaoResult globalRaoResult = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), initialResults, prePerimeterResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters);
 
-        // 7. Log initial and final results
+        // 8. Log initial and final results
+        logCost("[MARMOT] Before topological optimizations: ", getInitialLinearOptimizationResult(initialResults, new TemporalDataImpl<>(), objectiveFunction), raoParameters, 10);
         logCost("[MARMOT] Before global linear optimization: ", initialLinearOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", globalLinearOptimizationResult, raoParameters, 10);
 
@@ -187,18 +193,18 @@ public class Marmot implements InterTemporalRaoProvider {
         );
     }
 
-    private static GlobalRaoResult mergeTopologicalAndLinearOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> prePerimeterResults, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
-        return new GlobalRaoResult(globalLinearOptimizationResult, getPostOptimizationResults(raoInputs, prePerimeterResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters).map(PostOptimizationResult::merge));
+    private static GlobalRaoResult mergeTopologicalAndLinearOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, TemporalData<PrePerimeterResult> prePerimeterResults, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
+        return new GlobalRaoResult(globalLinearOptimizationResult, getPostOptimizationResults(raoInputs, initialResults, prePerimeterResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters).map(PostOptimizationResult::merge));
     }
 
-    private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalFlowResult, RaoParameters raoParameters) {
+    private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, FlowResult globalPrePerimeterFlowResult, RaoParameters raoParameters) {
         Set<FlowCnec> allFlowCnecs = new HashSet<>();
         cracs.map(MarmotUtils::getPreventivePerimeterCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
         Set<State> allOptimizedStates = new HashSet<>(cracs.map(Crac::getPreventiveState).getDataPerTimestamp().values());
         return ObjectiveFunction.build(allFlowCnecs,
             new HashSet<>(), // no loop flows for now
-            globalFlowResult,
-            globalFlowResult,
+            globalInitialFlowResult,
+            globalPrePerimeterFlowResult,
             Collections.emptySet(),
             raoParameters,
             allOptimizedStates);

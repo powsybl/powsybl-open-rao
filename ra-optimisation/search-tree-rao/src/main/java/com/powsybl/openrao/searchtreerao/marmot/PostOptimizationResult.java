@@ -40,12 +40,11 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventive
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public record PostOptimizationResult(RaoInput raoInput, PrePerimeterResult initialResult, FlowResult finalFlowResult, SensitivityResult finalSensitivityResult, RangeActionActivationResult finalRangeActionActivationResult, RaoResult topologicalOptimizationResult, RaoParameters raoParameters) {
+public record PostOptimizationResult(RaoInput raoInput, PrePerimeterResult initialResult, FlowResult prePerimeterFlowResult, FlowResult finalFlowResult, SensitivityResult finalSensitivityResult, RangeActionActivationResult finalRangeActionActivationResult, RaoResult topologicalOptimizationResult, RaoParameters raoParameters) {
     public RaoResult merge() {
         Crac crac = raoInput.getCrac();
         State preventiveState = crac.getPreventiveState();
-        // TODO: should it be flow before and after topos?
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(MarmotUtils.getPreventivePerimeterCnecs(crac), Set.of(), initialResult, initialResult, Set.of(), raoParameters, Set.of(preventiveState));
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(MarmotUtils.getPreventivePerimeterCnecs(crac), Set.of(), initialResult, prePerimeterFlowResult, Set.of(), raoParameters, Set.of(preventiveState));
         NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState));
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(finalRangeActionActivationResult, networkActionsResult);
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(finalFlowResult, remedialActionActivationResult);
