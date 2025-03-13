@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -16,9 +17,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
-import com.powsybl.openrao.raoapi.InterTemporalRaoProvider;
-import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -59,40 +58,42 @@ public class Marmot implements InterTemporalRaoProvider {
     private static final String VERSION = "1.0.0";
 
     @Override
-    public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInput raoInput, RaoParameters raoParameters) {
+    public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters raoParameters) {
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization");
         TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(raoInput.getRaoInputs(), raoParameters);
 
-        // if no inter-temporal constraints are defined, the results can be returned
-        if (raoInput.getPowerGradients().isEmpty()) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No inter-temporal constraint provided; no need to re-optimize range actions");
-            return CompletableFuture.completedFuture(topologicalOptimizationResults);
-        }
-
-        // 2. Apply preventive topological remedial actions
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
-        applyPreventiveTopologicalActionsOnNetwork(raoInput.getRaoInputs(), topologicalOptimizationResults);
-
-        // 3. Run initial sensitivity analysis on all timestamps
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [start]");
-        TemporalData<PrePerimeterResult> prePerimeterResults = runAllInitialPrePerimeterSensitivityAnalysis(raoInput.getRaoInputs(), raoParameters);
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
-
-        // 4. Create and iteratively solve MIP to find optimal range actions' set-points
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Inter-temporal MIP");
-        LinearOptimizationResult linearOptimizationResults = optimizeLinearRemedialActions(raoInput, prePerimeterResults, raoParameters, getPreventiveTopologicalActions(raoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults));
-
-        // 5. Merge topological and linear result
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
-        TemporalData<RaoResult> mergedRaoResults = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), prePerimeterResults, linearOptimizationResults, topologicalOptimizationResults);
-
-        return CompletableFuture.completedFuture(mergedRaoResults);
+//        // if no inter-temporal constraints are defined, the results can be returned
+//        if (raoInput.getPowerGradients().isEmpty()) {
+//            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No inter-temporal constraint provided; no need to re-optimize range actions");
+//            return CompletableFuture.completedFuture(topologicalOptimizationResults);
+//        }
+//
+//        // 2. Apply preventive topological remedial actions
+//        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
+//        applyPreventiveTopologicalActionsOnNetwork(raoInput.getRaoInputs(), topologicalOptimizationResults);
+//
+//        // 3. Run initial sensitivity analysis on all timestamps
+//        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [start]");
+//        TemporalData<PrePerimeterResult> prePerimeterResults = runAllInitialPrePerimeterSensitivityAnalysis(raoInput.getRaoInputs(), raoParameters);
+//        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
+//
+//        // 4. Create and iteratively solve MIP to find optimal range actions' set-points
+//        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Inter-temporal MIP");
+//        LinearOptimizationResult linearOptimizationResults = optimizeLinearRemedialActions(raoInput, prePerimeterResults, raoParameters, getPreventiveTopologicalActions(raoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults));
+//
+//        // 5. Merge topological and linear result
+//        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
+//        TemporalData<RaoResult> mergedRaoResults = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), prePerimeterResults, linearOptimizationResults, topologicalOptimizationResults);
+//
+        return CompletableFuture.completedFuture(null);
     }
 
-    private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInput> raoInputs, RaoParameters raoParameters) {
+    private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInputWithNetworkPaths> raoInputs, RaoParameters raoParameters) {
         Set<String> consideredCnecs = new HashSet<>();
-        return raoInputs.map(individualRaoInput -> {
+        // TODO convert raoInputWithNetworkPath en raoInputWithNetwork
+        return raoInputs.map(individualRaoInputWithNetworkPath -> {
+            RaoInput individualRaoInput = RaoInput.build(Network.read(individualRaoInputWithNetworkPath.getPostIcsImportNetworkPath()), individualRaoInputWithNetworkPath.getCrac()).build();
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Running RAO for timestamp {}", individualRaoInput.getCrac().getTimestamp().orElseThrow());
             return FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, consideredCnecs);
         });

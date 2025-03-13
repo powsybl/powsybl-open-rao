@@ -2,6 +2,8 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.XMLExporter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -13,9 +15,13 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 public final class IcsImporter {
     private static final int OFFSET = 2;
@@ -28,7 +34,7 @@ public final class IcsImporter {
         //should only be used statically
     }
 
-    public static void populateInputWithICS(InterTemporalRaoInput interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream) throws IOException {
+    public static void populateInputWithICS(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream) throws IOException {
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
             .setDelimiter(";")
             .setHeader()
@@ -96,15 +102,21 @@ public final class IcsImporter {
 
     }
 
-    private static String processNetworks(String uctNodeOrGskId, InterTemporalRaoInput interTemporalRaoInput, Map<String, CSVRecord> seriesPerType) {
+    private static String processNetworks(String uctNodeOrGskId, InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, Map<String, CSVRecord> seriesPerType) {
         String generatorId = seriesPerType.get("P0").get("RA RD ID") + "_GENERATOR";
-        for (Map.Entry<OffsetDateTime, RaoInput> entry : interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().entrySet()) {
-            Bus bus = entry.getValue().getNetwork().getBusBreakerView().getBus(uctNodeOrGskId);
+        for (Map.Entry<OffsetDateTime, RaoInputWithNetworkPaths> entry : interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().entrySet()) {
+            Network network = Network.read(entry.getValue().getInitialNetworkPath());
+            Bus bus = network.getBusBreakerView().getBus(uctNodeOrGskId);
             if (bus == null) {
                 return null;
             }
             Double p0 = Double.parseDouble(seriesPerType.get("P0").get(entry.getKey().getHour() + OFFSET));
             processBus(bus, generatorId, p0);
+
+            Properties properties = new Properties();
+            properties.put(XMLExporter.EXTENSIONS_LIST, "");
+            properties.put(XMLExporter.VERSION, "1.3");
+            network.write("JIIDM", properties, Path.of(entry.getValue().getPostIcsImportNetworkPath()));
         }
         return generatorId;
     }
@@ -131,6 +143,8 @@ public final class IcsImporter {
             .setQ0(0)
             .setLoadType(LoadType.FICTITIOUS)
             .add();
+
+        TECHNICAL_LOGS.info("**** added bus {} to network", bus.getId());
     }
 
     private static boolean shouldBeImported(CSVRecord staticRecord) {
