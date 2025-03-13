@@ -8,10 +8,8 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
@@ -35,13 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class MarmotTest {
-
-    /*
-    TODO
-    For each test check the global MARMOT cost and the individual costs for each timestamp.
-    This cannot currently be done since all individual RAO results use the global cost as their cost.
-    The costs will be separated in a future PR and will have to be checked here.
-     */
 
     @Test
     void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction() throws IOException {
@@ -69,9 +60,9 @@ class MarmotTest {
         assertEquals(55.0, raoResult1.getCost(crac1.getPreventiveInstant()));
         assertEquals(-5, raoResult1.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
 
-        RaoResult raoResult2 = globalRaoResult.getData(timestamp1).get();
-        assertEquals(55.0, raoResult2.getCost(crac1.getPreventiveInstant()));
-        assertEquals(-5, raoResult2.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
+        RaoResult raoResult2 = globalRaoResult.getData(timestamp2).get();
+        assertEquals(55.0, raoResult2.getCost(crac2.getPreventiveInstant()));
+        assertEquals(-5, raoResult2.getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
     }
 
     @Test
@@ -96,11 +87,20 @@ class MarmotTest {
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
-        TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
+        GlobalRaoResult globalRaoResult = (GlobalRaoResult) new Marmot().run(input, raoParameters).join();
+        assertEquals(50020.0, globalRaoResult.getCost());
 
-        assertEquals(-0.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
+        assertEquals(0.0, raoResult1.getCost(crac1.getPreventiveInstant()));
+        assertEquals(-0.0, raoResult1.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+
+        RaoResult raoResult2 = globalRaoResult.getData(timestamp2).get();
+        assertEquals(25010.0, raoResult2.getCost(crac2.getPreventiveInstant()));
+        assertEquals(500.0, raoResult2.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+
+        RaoResult raoResult3 = globalRaoResult.getData(timestamp3).get();
+        assertEquals(25010.0, raoResult3.getCost(crac3.getPreventiveInstant()));
+        assertEquals(500.0, raoResult3.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
     }
 
     @Test
@@ -123,14 +123,24 @@ class MarmotTest {
         );
 
         // no redispatching required during the first timestamp
-        // MARMOT will activate 3000 MW however in timestamp 1 : it is the minimum necessary to be able to activate 500 MW in timestamp 2
+        // MARMOT will activate 300 MW however in timestamp 1 : it is the minimum necessary to be able to activate 500 MW in timestamp 2
         // due to the max gradient of 200. Not activating 500 MW in timestamps 2 and 3 will create an overload and be very costly.
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
-        TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
-        assertEquals(300.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
-        assertEquals(500.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        GlobalRaoResult globalRaoResult = (GlobalRaoResult) new Marmot().run(input, raoParameters).join();
+        assertEquals(65030.0, globalRaoResult.getCost());
+
+        RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
+        assertEquals(15010.0, raoResult1.getCost(crac1.getPreventiveInstant()));
+        assertEquals(300.0, raoResult1.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+
+        RaoResult raoResult2 = globalRaoResult.getData(timestamp2).get();
+        assertEquals(25010.0, raoResult2.getCost(crac2.getPreventiveInstant()));
+        assertEquals(500.0, raoResult2.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+
+        RaoResult raoResult3 = globalRaoResult.getData(timestamp3).get();
+        assertEquals(25010.0, raoResult3.getCost(crac3.getPreventiveInstant()));
+        assertEquals(500.0, raoResult3.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
     }
 
     @Test
@@ -149,9 +159,15 @@ class MarmotTest {
             Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build())
         );
 
-        TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
-        assertTrue(results.getData(timestamp1).get().isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
-        assertTrue(results.getData(timestamp2).get().isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
-        assertEquals(40.0, results.getData(timestamp1).get().getCost(crac1.getInstant(InstantKind.PREVENTIVE)));
+        GlobalRaoResult globalRaoResult = (GlobalRaoResult) new Marmot().run(input, raoParameters).join();
+        assertEquals(40.0, globalRaoResult.getCost());
+
+        RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
+        assertEquals(20.0, raoResult1.getCost(crac1.getPreventiveInstant()));
+        assertTrue(raoResult1.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
+
+        RaoResult raoResult2 = globalRaoResult.getData(timestamp2).get();
+        assertEquals(20.0, raoResult2.getCost(crac2.getPreventiveInstant()));
+        assertTrue(raoResult2.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
     }
 }

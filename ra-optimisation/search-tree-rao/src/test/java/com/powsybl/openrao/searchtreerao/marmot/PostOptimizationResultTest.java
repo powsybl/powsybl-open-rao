@@ -16,8 +16,11 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -58,13 +61,17 @@ class PostOptimizationResultTest {
         Mockito.when(prePerimeterResult.getSetpoint(rangeAction)).thenReturn(4.672743946063913);
         Mockito.when(prePerimeterResult.getSetpoint(rangeActionCur)).thenReturn(4.672743946063913);
 
-        LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
-        Mockito.when(linearOptimizationResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(345.25);
-        Mockito.when(linearOptimizationResult.getRangeActions()).thenReturn(Set.of(rangeAction, rangeActionCur));
-        Mockito.when(linearOptimizationResult.getOptimizedSetpoint(rangeAction, preventiveState)).thenReturn(6.2276423729910535);
-        Mockito.when(linearOptimizationResult.getOptimizedSetpoint(rangeActionCur, preventiveState)).thenReturn(4.672743946063913);
+        FlowResult flowResult = Mockito.mock(FlowResult.class);
+        Mockito.when(flowResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(345.25);
 
-        PostOptimizationResult postOptimizationResult = new PostOptimizationResult(raoInput, prePerimeterResult, linearOptimizationResult, raoResult);
+        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+
+        RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
+        Mockito.when(rangeActionActivationResult.getRangeActions()).thenReturn(Set.of(rangeAction, rangeActionCur));
+        Mockito.when(rangeActionActivationResult.getOptimizedSetpoint(rangeAction, preventiveState)).thenReturn(6.2276423729910535);
+        Mockito.when(rangeActionActivationResult.getOptimizedSetpoint(rangeActionCur, preventiveState)).thenReturn(4.672743946063913);
+
+        PostOptimizationResult postOptimizationResult = new PostOptimizationResult(raoInput, prePerimeterResult, flowResult, sensitivityResult, rangeActionActivationResult, raoResult, new RaoParameters());
 
         RaoResult mergedResults = postOptimizationResult.merge();
 
