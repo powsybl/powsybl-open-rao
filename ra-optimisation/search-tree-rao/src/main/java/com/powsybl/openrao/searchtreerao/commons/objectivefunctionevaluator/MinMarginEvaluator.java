@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
-import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.MaxCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumMaxPerTimestampCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
@@ -41,7 +41,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         Map<FlowCnec, Double> marginPerCnec = getMarginPerCnec(flowCnecs, flowResult, unit);
-        return new MaxCostEvaluatorResult(marginPerCnec, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
+        return new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
     }
 
     protected Map<FlowCnec, Double> getMarginPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
