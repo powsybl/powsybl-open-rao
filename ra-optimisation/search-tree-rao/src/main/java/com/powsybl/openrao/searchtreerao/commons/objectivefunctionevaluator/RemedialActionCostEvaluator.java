@@ -18,7 +18,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResu
 
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -57,9 +57,9 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
         double activationCost = rangeAction.getActivationCost().orElse(0.0);
         VariationDirection variationDirection = variation > 0 ? VariationDirection.UP : VariationDirection.DOWN;
         if (!(rangeAction instanceof PstRangeAction)) {
-            BUSINESS_WARNS.warn("{} variation of {} MW at state {}", rangeAction.getId(), variation, state);
+            TECHNICAL_LOGS.debug("{} variation of {} MW at state {}", rangeAction.getId(), variation, state);
         } else {
-            BUSINESS_WARNS.warn("{} variation of {} taps at state {}", rangeAction.getId(), variation, state);
+            TECHNICAL_LOGS.debug("{} variation of {} taps at state {}", rangeAction.getId(), variation, state);
         }
         return activationCost + Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(0.0);
     }
