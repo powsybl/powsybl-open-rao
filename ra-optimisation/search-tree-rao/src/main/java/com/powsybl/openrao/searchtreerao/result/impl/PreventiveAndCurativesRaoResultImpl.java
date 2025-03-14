@@ -30,6 +30,7 @@ import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.MaximumFu
 import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.TotalFunctionalCostComputer;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
 
@@ -62,6 +63,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                Crac crac,
                                                ObjectiveFunctionParameters objectiveFunctionParameters) {
         this(preventiveState, initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, new HashMap<>(), null, crac, objectiveFunctionParameters);
+        excludeDuplicateCnecs();
     }
 
     /**
@@ -76,6 +78,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                ObjectiveFunctionParameters objectiveFunctionParameters) {
         this(stateTree.getBasecaseScenario().getRaOptimisationState(), initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, postContingencyResults), null, crac, objectiveFunctionParameters);
         excludeContingencies(getContingenciesToExclude(stateTree));
+        excludeDuplicateCnecs();
     }
 
     /**
@@ -92,6 +95,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                ObjectiveFunctionParameters objectiveFunctionParameters) {
         this(stateTree.getBasecaseScenario().getRaOptimisationState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, postContingencyResults), secondPreventivePerimeterResult, crac, objectiveFunctionParameters);
         excludeContingencies(getContingenciesToExclude(stateTree));
+        excludeDuplicateCnecs();
     }
 
     /**
@@ -109,6 +113,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                ObjectiveFunctionParameters objectiveFunctionParameters) {
         this(stateTree.getBasecaseScenario().getRaOptimisationState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, postContingencyResults), postSecondAraoResults, crac, objectiveFunctionParameters);
         excludeContingencies(getContingenciesToExclude(stateTree));
+        excludeDuplicateCnecs();
     }
 
     private PreventiveAndCurativesRaoResultImpl(State preventiveState,
@@ -180,6 +185,27 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             }
         });
         return contingenciesToExclude;
+    }
+
+    private void excludeDuplicateCnecs() {
+
+        Set<FlowCnec> sortedFlowCnecs = crac.getFlowCnecs();
+        Set<String> cnecsToExclude = sortedFlowCnecs.stream()
+            .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
+            .map(FlowCnec::getId)
+            .collect(Collectors.toSet());
+
+        // exclude fictional cnec from the results
+        initialResult.excludeCnecs(cnecsToExclude);
+        firstPreventivePerimeterResult.excludeCnecs(cnecsToExclude);
+        secondPreventivePerimeterResult.excludeCnecs(cnecsToExclude);
+        resultsWithPrasForAllCnecs.excludeCnecs(cnecsToExclude);
+        postContingencyResults.forEach((state, optimizationResult) -> {
+            optimizationResult.excludeCnecs(cnecsToExclude);
+        });
+        if (finalCostEvaluator != null) {
+            finalCostEvaluator.excludeCnecs(cnecsToExclude);
+        }
     }
 
     private void excludeContingencies(Set<String> contingenciesToExclude) {

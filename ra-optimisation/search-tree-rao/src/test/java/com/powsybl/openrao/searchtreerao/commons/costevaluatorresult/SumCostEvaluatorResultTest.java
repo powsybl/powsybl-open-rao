@@ -54,28 +54,28 @@ class SumCostEvaluatorResultTest {
     void testWithPreventiveAndCurative() {
         Map<State, Double> costPerState = Map.of(preventiveState, 10.0, curativeState1, 50.0, curativeState2, -20.0, curativeState3, 17.0);
         SumCostEvaluatorResult evaluatorResult = new SumCostEvaluatorResult(costPerState, List.of());
-        assertEquals(57.0, evaluatorResult.getCost(Set.of()));
-        assertEquals(27.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-2")));
+        assertEquals(57.0, evaluatorResult.getCost(Set.of(), Set.of()));
+        assertEquals(27.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-2"), Set.of()));
     }
 
     @Test
     void testWithPreventiveOnly() {
         Map<State, Double> costPerState = Map.of(preventiveState, 10.0);
         SumCostEvaluatorResult evaluatorResult = new SumCostEvaluatorResult(costPerState, List.of());
-        assertEquals(10.0, evaluatorResult.getCost(Set.of()));
+        assertEquals(10.0, evaluatorResult.getCost(Set.of(), Set.of()));
     }
 
     @Test
     void testWithCurativeOnly() {
         Map<State, Double> costPerState = Map.of(curativeState1, 50.0, curativeState2, -20.0, curativeState3, 17.0);
         SumCostEvaluatorResult evaluatorResult = new SumCostEvaluatorResult(costPerState, List.of());
-        assertEquals(47.0, evaluatorResult.getCost(Set.of()));
-        assertEquals(-20.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-3")));
+        assertEquals(47.0, evaluatorResult.getCost(Set.of(), Set.of()));
+        assertEquals(-20.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-3"), Set.of()));
     }
 
     @Test
     void testEmptyResult() {
         SumCostEvaluatorResult evaluatorResult = new SumCostEvaluatorResult(Map.of(), List.of());
-        assertEquals(0.0, evaluatorResult.getCost(Set.of()));
+        assertEquals(0.0, evaluatorResult.getCost(Set.of(), Set.of()));
     }
 }

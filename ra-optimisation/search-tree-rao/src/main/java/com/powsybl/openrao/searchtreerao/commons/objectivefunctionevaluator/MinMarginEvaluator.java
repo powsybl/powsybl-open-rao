@@ -8,9 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumMaxPerTimestampCostEvaluatorResult;
@@ -19,9 +17,6 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.groupFlowCnecsPerState;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -45,6 +40,8 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+        Map<FlowCnec, Double> marginPerCnec = getMarginPerCnec(flowCnecs, flowResult, unit);
+        return new MaxCostEvaluatorResult(marginPerCnec, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
         Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(flowCnecs);
         Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(flowResult, entry.getValue())));
         return new SumMaxPerTimestampCostEvaluatorResult(costPerState, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult));
@@ -64,26 +61,9 @@ public class MinMarginEvaluator implements CostEvaluator {
                 -flowCnec.getLowerBound(TwoSides.TWO, unit).orElse(0.0)));
     }
 
-    protected double computeCostForState(FlowResult flowResult, Set<FlowCnec> flowCnecsOfState) {
-        List<FlowCnec> flowCnecsByMargin = FlowCnecSorting.sortByMargin(flowCnecsOfState, unit, marginEvaluator, flowResult);
-        FlowCnec limitingElement;
-        if (flowCnecsByMargin.isEmpty()) {
-            limitingElement = null;
-        } else {
-            limitingElement = flowCnecsByMargin.get(0);
-        }
-        if (limitingElement == null) {
-            // In case there is no limiting element (may happen in perimeters where only MNECs exist),
-            // return a finite value, so that the virtual cost is not hidden by the functional cost
-            // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
-            return -getHighestThresholdAmongFlowCnecs();
-        }
-        double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
-        if (margin >= Double.MAX_VALUE / 2) {
-            // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
-            // return a finite value, like MNEC case above
-            return -getHighestThresholdAmongFlowCnecs();
-        }
-        return -margin;
+    protected Map<FlowCnec, Double> getMarginPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
+        Map<FlowCnec, Double> marginPerCnec = new HashMap<>();
+        flowCnecs.forEach(cnec -> marginPerCnec.put(cnec, marginEvaluator.getMargin(flowResult, cnec, unit)));
+        return marginPerCnec;
     }
 }
