@@ -8,6 +8,9 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Suppliers;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -38,6 +41,7 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -91,7 +95,6 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInputWithNetworkPaths> raoInputs, RaoParameters raoParameters) {
         Set<String> consideredCnecs = new HashSet<>();
-        // TODO convert raoInputWithNetworkPath en raoInputWithNetwork
         return raoInputs.map(individualRaoInputWithNetworkPath -> {
             RaoInput individualRaoInput = RaoInput.build(Network.read(individualRaoInputWithNetworkPath.getPostIcsImportNetworkPath()), individualRaoInputWithNetworkPath.getCrac()).build();
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Running RAO for timestamp {}", individualRaoInput.getCrac().getTimestamp().orElseThrow());

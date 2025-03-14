@@ -101,15 +101,12 @@ public final class InterTemporalRaoSteps {
                 .build();
             raoInputsWithNetworkPaths.add(offsetDateTime, raoInputWithNetworkPaths);
         }
-        TECHNICAL_LOGS.info("**** before populating with ICS ****");
         interTemporalRaoInputWithNetworkPaths = new InterTemporalRaoInputWithNetworkPaths(raoInputsWithNetworkPaths, new HashSet<>());
         IcsImporter.populateInputWithICS(interTemporalRaoInputWithNetworkPaths, new FileInputStream(getFile(icsStaticPath)), new FileInputStream(getFile(icsSeriesPath)));
-        TECHNICAL_LOGS.info("**** interTemporalRaoInputWithNetworkPaths complete ****");
     }
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        TECHNICAL_LOGS.info("**** Launching MARMOT ****");
         InterTemporalRao.run(interTemporalRaoInputWithNetworkPaths, CommonTestData.getRaoParameters());
     }
 }
