@@ -7,7 +7,7 @@ Feature: US 93.1: power gradient constraints
 
   @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.2.1: Test for CORE IDCC
-    Given network files are in folder "20241028-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T/"
+    Given network files are in folder "20241028-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
     Given crac file is "20241028-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20241028-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20241028-V001_.csv"

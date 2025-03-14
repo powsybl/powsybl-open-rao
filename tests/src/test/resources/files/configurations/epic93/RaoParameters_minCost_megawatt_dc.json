@@ -136,8 +136,6 @@
         "available-cpus" : 8
       },
       "mnec-parameters" : {
-        "acceptable-margin-decrease" : 50.0,
-        "violation-cost" : 10.0,
         "constraint-adjustment-coefficient" : 3.0
       }
     }

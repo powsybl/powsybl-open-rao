@@ -55,7 +55,7 @@ public final class IcsImporter {
             if (shouldBeImported(staticRecord)) {
                 String raId = staticRecord.get("RA RD ID");
                 Map<String, CSVRecord> seriesPerType = seriesPerIdAndType.get(raId);
-                if (seriesPerType != null && seriesPerType.containsKey("P0") && seriesPerType.containsKey("RDP-") && seriesPerType.containsKey("RDP+") && P0RespectsGradients(staticRecord, seriesPerType.get("P0"))) {
+                if (seriesPerType != null && seriesPerType.containsKey("P0") && seriesPerType.containsKey("RDP-") && seriesPerType.containsKey("RDP+") && P0RespectsGradients(staticRecord, seriesPerType.get("P0"), interTemporalRaoInput.getTimestampsToRun())) {
                     String networkElement = processNetworks(staticRecord.get("UCT Node or GSK ID"), initialNetworks, seriesPerType);
                     if (networkElement == null) {
                         return;
