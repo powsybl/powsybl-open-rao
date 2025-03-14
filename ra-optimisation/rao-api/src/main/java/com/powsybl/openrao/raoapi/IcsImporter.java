@@ -18,9 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public final class IcsImporter {
     private static final int OFFSET = 2;
@@ -151,18 +149,22 @@ public final class IcsImporter {
             (staticRecord.get("Preventive").equals("TRUE") /*|| staticRecord.get("Curative").equals("TRUE")*/);
     }
 
-    private static boolean P0RespectsGradients(CSVRecord staticRecord, CSVRecord P0record) {
+    private static boolean P0RespectsGradients(CSVRecord staticRecord, CSVRecord P0record, Set<OffsetDateTime> dateTimes) {
         double maxGradient = Double.parseDouble(staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
             "1000" : staticRecord.get("Maximum positive power gradient [MW/h]"));
         double minGradient = -Double.parseDouble(staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
             "1000" : staticRecord.get("Maximum negative power gradient [MW/h]"));
 
-        for (int i = 0; i < 2; i++) {
-            double diff = Double.parseDouble(P0record.get(i + OFFSET + 1)) - Double.parseDouble(P0record.get(i + OFFSET));
+        Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
+        OffsetDateTime currentDateTime = dateTimeIterator.next();
+        while(dateTimeIterator.hasNext()) {
+            OffsetDateTime nextDateTime = dateTimeIterator.next();
+            double diff = Double.parseDouble(P0record.get(nextDateTime.getHour() + OFFSET + 1)) - Double.parseDouble(P0record.get(currentDateTime.getHour() + OFFSET));
             if (diff > maxGradient || diff < minGradient) {
                 System.out.printf("%s does not respect power gradients : min/max/diff %f %f %f%n", staticRecord.get(0), minGradient, maxGradient, diff);
                 return false;
             }
+            currentDateTime = nextDateTime;
         }
         return true;
     }
