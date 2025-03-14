@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -43,9 +44,10 @@ public final class MarmotUtils {
     private MarmotUtils() {
     }
 
-    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysis(RaoInput raoInput, RaoParameters raoParameters) {
-        Crac crac = raoInput.getCrac();
-        Network network = raoInput.getNetwork();
+    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysis(RaoInputWithNetworkPaths raoInputWithNetworkPaths, RaoParameters raoParameters) {
+        Crac crac = raoInputWithNetworkPaths.getCrac();
+        Network network = Network.read(raoInputWithNetworkPaths.getPostIcsImportNetworkPath());
+        RaoInput raoInput = RaoInput.build(network, crac).build();
         State preventiveState = crac.getPreventiveState();
         Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
         return new PrePerimeterSensitivityAnalysis(getPreventivePerimeterCnecs(crac), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runInitialSensitivityAnalysis(network, crac);
@@ -57,19 +59,19 @@ public final class MarmotUtils {
         return flowCnecs;
     }
 
-    public static TemporalData<TopologicalOptimizationResult> getTopologicalOptimizationResult(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
+    public static TemporalData<TopologicalOptimizationResult> getTopologicalOptimizationResult(TemporalData<RaoInputWithNetworkPaths> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, TopologicalOptimizationResult> topologicalOptimizationResultMap = new HashMap<>();
         timestamps.forEach(timestamp -> topologicalOptimizationResultMap.put(timestamp, new TopologicalOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), topologicalOptimizationResults.getData(timestamp).orElseThrow())));
         return new TemporalDataImpl<>(topologicalOptimizationResultMap);
     }
 
-    public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, LinearOptimizationResult linearOptimizationResults, TemporalData<RaoResult> topologicalOptimizationResults) {
-        List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
-        Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
-        timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), linearOptimizationResults, topologicalOptimizationResults.getData(timestamp).orElseThrow())));
-        return new TemporalDataImpl<>(postOptimizationResults);
-    }
+//    public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInputWithNetworkPaths> raoInputs, TemporalData<PrePerimeterResult> initialResults, LinearOptimizationResult linearOptimizationResults, TemporalData<RaoResult> topologicalOptimizationResults) {
+//        List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
+//        Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
+//        timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), linearOptimizationResults, topologicalOptimizationResults.getData(timestamp).orElseThrow())));
+//        return new TemporalDataImpl<>(postOptimizationResults);
+//    }
 
     public static <T> T getDataFromState(TemporalData<T> temporalData, State state) {
         return temporalData.getData(state.getTimestamp().orElseThrow()).orElseThrow();

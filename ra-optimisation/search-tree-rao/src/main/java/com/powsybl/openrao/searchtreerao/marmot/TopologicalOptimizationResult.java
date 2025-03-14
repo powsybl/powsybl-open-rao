@@ -7,11 +7,15 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 
+import java.nio.file.Path;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -22,21 +26,19 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public record TopologicalOptimizationResult(RaoInput raoInput, RaoResult topologicalOptimizationResult) {
-    private static final String INITIAL_SCENARIO = "InitialScenario";
-    private static final String VARIANT_NAME_SUFFIX = "_with_topological_actions";
-
+public record TopologicalOptimizationResult(RaoInputWithNetworkPaths raoInput, RaoResult topologicalOptimizationResult) {
     public void applyTopologicalActions() {
-        String newNetworkVariantId = INITIAL_SCENARIO + VARIANT_NAME_SUFFIX;
-        raoInput.getNetwork().getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
-        raoInput.getNetwork().getVariantManager().cloneVariant(INITIAL_SCENARIO, newNetworkVariantId);
-        raoInput.getNetwork().getVariantManager().setWorkingVariant(newNetworkVariantId);
         Set<NetworkAction> networkActionsToBeApplied = topologicalOptimizationResult.getActivatedNetworkActionsDuringState(raoInput.getCrac().getPreventiveState());
         if (networkActionsToBeApplied.isEmpty()) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No topological actions applied for timestamp {}", raoInput.getCrac().getTimestamp().orElseThrow());
             return;
         }
         topologicalOptimizationResult.getActivatedNetworkActionsDuringState(raoInput.getCrac().getPreventiveState())
-            .forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
+            .forEach(networkAction -> {
+                Network network = Network.read(raoInput.getPostIcsImportNetworkPath());
+                networkAction.apply(network);
+                network.write("JIIDM", new Properties(), Path.of(raoInput.getPostIcsImportNetworkPath()));
+            });
+
     }
 }
