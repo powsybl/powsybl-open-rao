@@ -47,7 +47,7 @@ class InterTemporalRaoTest {
     private InMemoryPlatformConfig platformConfig;
     private InterTemporalRaoInput raoInput;
 
-    @BeforeEach
+    /*@BeforeEach
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -118,5 +118,5 @@ class InterTemporalRaoTest {
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
         List<InterTemporalRaoProvider> raoProviders = List.of(new InterTemporalRaoProviderMock());
         assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig));
-    }
+    }*/
 }

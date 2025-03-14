@@ -14,10 +14,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
-import com.powsybl.openrao.raoapi.IcsImporter;
-import com.powsybl.openrao.raoapi.InterTemporalRao;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
-import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import io.cucumber.datatable.DataTable;
@@ -29,15 +26,17 @@ import java.io.*;
 import java.time.OffsetDateTime;
 import java.util.*;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.tests.steps.CommonTestData.*;
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 
 public final class InterTemporalRaoSteps {
     private static String networkFolderPath;
+    private static String networkFolderPathPostIcsImport;
     private static String icsStaticPath;
     private static String icsSeriesPath;
-    private static InterTemporalRaoInput interTemporalRaoInput;
+    private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
 
     private InterTemporalRaoSteps() {
         // should not be instantiated
@@ -46,10 +45,15 @@ public final class InterTemporalRaoSteps {
     @Given("network files are in folder {string}")
     public static void networkFilesAreIn(String folderPath) {
         setNetworkInputs(folderPath);
+        setNetworkInputsPostIcs(folderPath);
     }
 
     private static void setNetworkInputs(String folderPath) {
-        networkFolderPath = getResourcesPath().concat("cases/").concat(folderPath);
+        networkFolderPath = getResourcesPath().concat("cases/").concat(folderPath + "/");
+    }
+
+    private static void setNetworkInputsPostIcs(String folderPath) {
+        networkFolderPathPostIcsImport = getResourcesPath().concat("cases/").concat(folderPath+"-postIcsImport/");
     }
 
     @Given("ics static file is {string}")
@@ -82,20 +86,22 @@ public final class InterTemporalRaoSteps {
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver()
             .setSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.valueOf("XPRESS"));
 
-        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>();
+        TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>();
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
+            TECHNICAL_LOGS.info("**** Loading data for TS {} ****", offsetDateTime);
+            String initialNetworkPath = networkFolderPath.concat(tsInput.get("Network"));
+            String postIcsNetworkPath = networkFolderPathPostIcsImport.concat(tsInput.get("Network")).split(".uct")[0].concat(".jiidm");
             addTimestampToCracCreationParameters("FlowBasedConstraintDocument", offsetDateTime, cracCreationParameters);
             Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
             Pair<Crac, CracCreationContext> cracImportResult = importCrac(cracFile, network, cracCreationParameters);
-            RaoInput raoInput = RaoInput
-                .build(network, cracImportResult.getLeft())
+            RaoInputWithNetworkPaths raoInput = RaoInputWithNetworkPaths
+                .build(initialNetworkPath, postIcsNetworkPath, cracImportResult.getLeft())
                 .build();
             raoInputs.add(offsetDateTime, raoInput);
         }
-
-        interTemporalRaoInput = new InterTemporalRaoInput(raoInputs, new HashSet<>());
+        interTemporalRaoInput = new InterTemporalRaoInputWithNetworkPaths(raoInputs, new HashSet<>());
         IcsImporter.populateInputWithICS(interTemporalRaoInput, new FileInputStream(getFile(icsStaticPath)), new FileInputStream(getFile(icsSeriesPath)));
     }
 
