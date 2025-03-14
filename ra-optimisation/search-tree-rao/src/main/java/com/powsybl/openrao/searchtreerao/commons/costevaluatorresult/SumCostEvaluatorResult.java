@@ -30,7 +30,7 @@ public class SumCostEvaluatorResult implements CostEvaluatorResult {
     }
 
     @Override
-    public double getCost(Set<String> contingenciesToExclude) {
+    public double getCost(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
         DoubleStream filteredCosts = costPerState.entrySet().stream()
             .filter(entry -> statesContingencyMustBeKept(entry.getKey(), contingenciesToExclude))
             .mapToDouble(Map.Entry::getValue);
@@ -38,7 +38,7 @@ public class SumCostEvaluatorResult implements CostEvaluatorResult {
     }
 
     @Override
-    public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude) {
+    public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
         return costlyElements.stream().filter(flowCnec -> statesContingencyMustBeKept(flowCnec.getState(), contingenciesToExclude)).toList();
     }
 
