@@ -62,29 +62,6 @@ public final class MarmotUtils {
             .runBasedOnInitialResults(network, crac, initialResult, null, curativeRemedialActions);
     }
 
-    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(RaoInput raoInput, AppliedRemedialActions curativeRemedialActions, PrePerimeterResult initialResult, RaoParameters raoParameters) {
-        Crac crac = raoInput.getCrac();
-        Network network = raoInput.getNetwork();
-        return new PrePerimeterSensitivityAnalysis(crac.getFlowCnecs(), new HashSet<>(), raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters))
-            .runBasedOnInitialResults(network, crac, initialResult, null, curativeRemedialActions);
-    }
-
-    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysis(RaoInput raoInput, AppliedRemedialActions curativeRemedialActions, PrePerimeterResult initialResult, Set<String> consideredCnecs, RaoParameters raoParameters) {
-        Crac crac = raoInput.getCrac();
-        Network network = raoInput.getNetwork();
-        State preventiveState = crac.getPreventiveState();
-        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
-        Set<FlowCnec> filteredCnecs = getFilteredCnecs(crac, consideredCnecs);
-        return new PrePerimeterSensitivityAnalysis(filteredCnecs, rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters))
-            .runBasedOnInitialResults(network, crac, initialResult, null, curativeRemedialActions);
-    }
-
-    public static Set<FlowCnec> getFilteredCnecs(Crac crac, Set<String> consideredCnecs) {
-        return crac.getFlowCnecs().stream()
-            .filter(flowCnec -> consideredCnecs.contains(flowCnec.getId()))
-            .collect(Collectors.toSet());
-    }
-
     public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<RaoInput> inputs, TemporalData<RaoResult> raoResults) {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = new TemporalDataImpl<>();
         inputs.getTimestamps().forEach(timestamp -> {
