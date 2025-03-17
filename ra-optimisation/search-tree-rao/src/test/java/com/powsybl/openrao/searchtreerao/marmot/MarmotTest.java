@@ -56,13 +56,11 @@ class MarmotTest {
         GlobalRaoResultImpl globalRaoResult = (GlobalRaoResultImpl) new Marmot().run(input, raoParameters).join();
         assertEquals(110.0, globalRaoResult.getGlobalCost());
 
-        RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
-        assertEquals(55.0, raoResult1.getCost(crac1.getPreventiveInstant()));
-        assertEquals(-5, raoResult1.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
+        assertEquals(55.0, globalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
+        assertEquals(-5, globalRaoResult.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
 
-        RaoResult raoResult2 = globalRaoResult.getData(timestamp2).get();
-        assertEquals(55.0, raoResult2.getCost(crac2.getPreventiveInstant()));
-        assertEquals(-5, raoResult2.getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
+        assertEquals(55.0, globalRaoResult.getCost(crac2.getPreventiveInstant(), timestamp2));
+        assertEquals(-5, globalRaoResult.getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
     }
 
     @Test
@@ -90,17 +88,14 @@ class MarmotTest {
         GlobalRaoResultImpl globalRaoResult = (GlobalRaoResultImpl) new Marmot().run(input, raoParameters).join();
         assertEquals(50020.0, globalRaoResult.getGlobalCost());
 
-        RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
-        assertEquals(0.0, raoResult1.getCost(crac1.getPreventiveInstant()));
-        assertEquals(-0.0, raoResult1.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+        assertEquals(0.0, globalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
+        assertEquals(-0.0, globalRaoResult.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
 
-        RaoResult raoResult2 = globalRaoResult.getData(timestamp2).get();
-        assertEquals(25010.0, raoResult2.getCost(crac2.getPreventiveInstant()));
-        assertEquals(500.0, raoResult2.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(25010.0, globalRaoResult.getCost(crac2.getPreventiveInstant(), timestamp2));
+        assertEquals(500.0, globalRaoResult.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
 
-        RaoResult raoResult3 = globalRaoResult.getData(timestamp3).get();
-        assertEquals(25010.0, raoResult3.getCost(crac3.getPreventiveInstant()));
-        assertEquals(500.0, raoResult3.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        assertEquals(25010.0, globalRaoResult.getCost(crac3.getPreventiveInstant(), timestamp3));
+        assertEquals(500.0, globalRaoResult.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
     }
 
     @Test
@@ -130,17 +125,14 @@ class MarmotTest {
         GlobalRaoResultImpl globalRaoResult = (GlobalRaoResultImpl) new Marmot().run(input, raoParameters).join();
         assertEquals(65030.0, globalRaoResult.getGlobalCost());
 
-        RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
-        assertEquals(15010.0, raoResult1.getCost(crac1.getPreventiveInstant()));
-        assertEquals(300.0, raoResult1.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+        assertEquals(15010.0, globalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
+        assertEquals(300.0, globalRaoResult.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
 
-        RaoResult raoResult2 = globalRaoResult.getData(timestamp2).get();
-        assertEquals(25010.0, raoResult2.getCost(crac2.getPreventiveInstant()));
-        assertEquals(500.0, raoResult2.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(25010.0, globalRaoResult.getCost(crac2.getPreventiveInstant(), timestamp2));
+        assertEquals(500.0, globalRaoResult.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
 
-        RaoResult raoResult3 = globalRaoResult.getData(timestamp3).get();
-        assertEquals(25010.0, raoResult3.getCost(crac3.getPreventiveInstant()));
-        assertEquals(500.0, raoResult3.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        assertEquals(25010.0, globalRaoResult.getCost(crac3.getPreventiveInstant(), timestamp3));
+        assertEquals(500.0, globalRaoResult.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
     }
 
     @Test
@@ -162,12 +154,10 @@ class MarmotTest {
         GlobalRaoResultImpl globalRaoResult = (GlobalRaoResultImpl) new Marmot().run(input, raoParameters).join();
         assertEquals(40.0, globalRaoResult.getGlobalCost());
 
-        RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
-        assertEquals(20.0, raoResult1.getCost(crac1.getPreventiveInstant()));
-        assertTrue(raoResult1.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
+        assertEquals(20.0, globalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
+        assertTrue(globalRaoResult.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
 
-        RaoResult raoResult2 = globalRaoResult.getData(timestamp2).get();
-        assertEquals(20.0, raoResult2.getCost(crac2.getPreventiveInstant()));
-        assertTrue(raoResult2.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
+        assertEquals(20.0, globalRaoResult.getCost(crac2.getPreventiveInstant(), timestamp2));
+        assertTrue(globalRaoResult.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
     }
 }

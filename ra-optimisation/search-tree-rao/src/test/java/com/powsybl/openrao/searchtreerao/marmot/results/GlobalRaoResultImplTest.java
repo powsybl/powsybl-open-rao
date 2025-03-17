@@ -60,15 +60,6 @@ class GlobalRaoResultImplTest {
         assertEquals(100., globalRaoResult.getGlobalVirtualCost());
         assertEquals(100., globalRaoResult.getGlobalVirtualCost("virtual"));
         assertEquals(Set.of("virtual"), globalRaoResult.getVirtualCostNames());
-        assertEquals(List.of(flowCnec), globalRaoResult.getMostLimitingElements(1));
         assertEquals(List.of(TestsUtils.TIMESTAMP_1, TestsUtils.TIMESTAMP_2, TestsUtils.TIMESTAMP_3), globalRaoResult.getTimestamps());
-        assertTrue(globalRaoResult.getCostlyElements("virtual", 1).isEmpty());
-    }
-
-    @Test
-    void testIndividualRaoResults() {
-        assertEquals(Optional.of(raoResultTimestamp1), globalRaoResult.getData(TestsUtils.TIMESTAMP_1));
-        assertEquals(Optional.of(raoResultTimestamp2), globalRaoResult.getData(TestsUtils.TIMESTAMP_2));
-        assertEquals(Optional.of(raoResultTimestamp3), globalRaoResult.getData(TestsUtils.TIMESTAMP_3));
     }
 }

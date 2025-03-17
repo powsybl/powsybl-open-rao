@@ -17,6 +17,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherInterTemporalRaoProviderMock;
@@ -74,11 +75,10 @@ class InterTemporalRaoTest {
 
         // run rao
         OffsetDateTime timestamp = OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC);
-        TemporalData<RaoResult> result = defaultRao.run(raoInput, new RaoParameters());
+        GlobalRaoResult result = defaultRao.run(raoInput, new RaoParameters());
         assertNotNull(result);
         assertEquals(List.of(timestamp), result.getTimestamps());
-        assertTrue(result.getData(timestamp).isPresent());
-        assertEquals(ComputationStatus.DEFAULT, result.getData(timestamp).get().getComputationStatus());
+        assertEquals(ComputationStatus.DEFAULT, result.getComputationStatus());
     }
 
     @Test
