@@ -9,8 +9,6 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.data.crac.api.Crac;
 
-import static java.lang.String.format;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -20,7 +18,6 @@ public final class RaoInputWithNetworkPaths {
         private Crac crac;
         private String initalNetworkPath;
         private String postIcsImportNetworkPath;
-
 
         private RaoInputWithNetworkPathBuilder() {
         }
@@ -40,7 +37,6 @@ public final class RaoInputWithNetworkPaths {
             return this;
         }
 
-
         public RaoInputWithNetworkPaths build() {
             RaoInputWithNetworkPaths raoInputWithNetworkPaths = new RaoInputWithNetworkPaths();
             raoInputWithNetworkPaths.crac = crac;
@@ -53,6 +49,7 @@ public final class RaoInputWithNetworkPaths {
     private Crac crac;
     private String initialNetworkPath;
     private String postIcsImportNetworkPath;
+
     private RaoInputWithNetworkPaths() {
     }
 
@@ -67,9 +64,13 @@ public final class RaoInputWithNetworkPaths {
     public Crac getCrac() {
         return crac;
     }
+
     public String getInitialNetworkPath() {
         return initialNetworkPath;
     }
-    public String getPostIcsImportNetworkPath() { return postIcsImportNetworkPath; }
+
+    public String getPostIcsImportNetworkPath() {
+        return postIcsImportNetworkPath;
+    }
 
 }

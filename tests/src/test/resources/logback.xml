@@ -1,9 +1,18 @@
 <configuration>
+    <property name="LOG_FILE" value="josiris-camarero" />
+    <property name="LOG_DIR" value="/tmp" />
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>/tmp/RAO_LOGS/openrao.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>${user.home}/farao_2_iter.log</file>

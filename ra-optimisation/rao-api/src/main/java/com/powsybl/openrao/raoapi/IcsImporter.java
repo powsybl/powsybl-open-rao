@@ -55,7 +55,7 @@ public final class IcsImporter {
             if (shouldBeImported(staticRecord)) {
                 String raId = staticRecord.get("RA RD ID");
                 Map<String, CSVRecord> seriesPerType = seriesPerIdAndType.get(raId);
-                if (seriesPerType != null && seriesPerType.containsKey("P0") && seriesPerType.containsKey("RDP-") && seriesPerType.containsKey("RDP+") && P0RespectsGradients(staticRecord, seriesPerType.get("P0"))) {
+                if (seriesPerType != null && seriesPerType.containsKey("P0") && seriesPerType.containsKey("RDP-") && seriesPerType.containsKey("RDP+") && p0RespectsGradients(staticRecord, seriesPerType.get("P0"), interTemporalRaoInput.getTimestampsToRun())) {
                     String networkElement = processNetworks(staticRecord.get("UCT Node or GSK ID"), initialNetworks, seriesPerType);
                     if (networkElement == null) {
                         return;
@@ -149,7 +149,7 @@ public final class IcsImporter {
             (staticRecord.get("Preventive").equals("TRUE") /*|| staticRecord.get("Curative").equals("TRUE")*/);
     }
 
-    private static boolean P0RespectsGradients(CSVRecord staticRecord, CSVRecord P0record, Set<OffsetDateTime> dateTimes) {
+    private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, Set<OffsetDateTime> dateTimes) {
         double maxGradient = Double.parseDouble(staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
             "1000" : staticRecord.get("Maximum positive power gradient [MW/h]"));
         double minGradient = -Double.parseDouble(staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
@@ -157,9 +157,9 @@ public final class IcsImporter {
 
         Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
         OffsetDateTime currentDateTime = dateTimeIterator.next();
-        while(dateTimeIterator.hasNext()) {
+        while (dateTimeIterator.hasNext()) {
             OffsetDateTime nextDateTime = dateTimeIterator.next();
-            double diff = Double.parseDouble(P0record.get(nextDateTime.getHour() + OFFSET + 1)) - Double.parseDouble(P0record.get(currentDateTime.getHour() + OFFSET));
+            double diff = Double.parseDouble(p0record.get(nextDateTime.getHour() + OFFSET + 1)) - Double.parseDouble(p0record.get(currentDateTime.getHour() + OFFSET));
             if (diff > maxGradient || diff < minGradient) {
                 System.out.printf("%s does not respect power gradients : min/max/diff %f %f %f%n", staticRecord.get(0), minGradient, maxGradient, diff);
                 return false;
