@@ -42,7 +42,7 @@ import static java.lang.String.format;
  */
 public final class RaoLogger {
     private static final String OUTAGE_DUPLICATE = "OUTAGE_DUPLICATE";
-    private static final String LOG_FICTIONAL_CNEC = "Limiting element is a fictional CNEC excluded from final cost computation";
+    private static final String LOG_FICTIONAL_CNEC = "Limiting element is a fictional CNEC that is excluded from final cost computation";
 
     private RaoLogger() {
     }
