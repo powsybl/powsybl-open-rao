@@ -31,11 +31,6 @@ public class GlobalRaoResult implements ObjectiveFunctionResult, TemporalData<Ra
     }
 
     @Override
-    public void add(OffsetDateTime timestamp, RaoResult data) {
-        raoResultPerTimestamp.add(timestamp, data);
-    }
-
-    @Override
     public double getFunctionalCost() {
         return globalObjectiveFunctionResult.getFunctionalCost();
     }
@@ -63,6 +58,11 @@ public class GlobalRaoResult implements ObjectiveFunctionResult, TemporalData<Ra
     @Override
     public Set<String> getVirtualCostNames() {
         return globalObjectiveFunctionResult.getVirtualCostNames();
+    }
+
+    @Override
+    public void add(OffsetDateTime timestamp, RaoResult data) {
+        raoResultPerTimestamp.add(timestamp, data);
     }
 
     @Override
