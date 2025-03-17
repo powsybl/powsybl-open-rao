@@ -30,7 +30,6 @@ import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.MaximumFu
 import com.powsybl.openrao.searchtreerao.result.functionalcostcomputer.TotalFunctionalCostComputer;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;

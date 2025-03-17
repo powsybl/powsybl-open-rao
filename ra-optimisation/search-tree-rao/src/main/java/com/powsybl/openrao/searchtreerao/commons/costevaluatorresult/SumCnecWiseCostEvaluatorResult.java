@@ -8,8 +8,6 @@
 package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 
 import java.util.List;
@@ -46,6 +44,6 @@ public class SumCnecWiseCostEvaluatorResult implements CostEvaluatorResult {
 
     private static boolean cnecMustBeKept(FlowCnec flowCnec, Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
         Optional<Contingency> contingency = flowCnec.getState().getContingency();
-        return (contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId())) && !cnecsToExclude.contains(flowCnec.getId()) ;
+        return (contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId())) && !cnecsToExclude.contains(flowCnec.getId());
     }
 }

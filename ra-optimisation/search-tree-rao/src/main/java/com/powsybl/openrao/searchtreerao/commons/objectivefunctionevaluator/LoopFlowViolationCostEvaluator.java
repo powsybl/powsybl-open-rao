@@ -53,7 +53,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
             .entrySet()
             .stream()
             .filter(entry -> entry.getValue() > 0)
-            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()*loopFlowViolationCost));
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue() * loopFlowViolationCost));
 
         if (costPerLoopFlowCnec.values().stream().anyMatch(loopFlowCost -> loopFlowCost > 0)) {
             // will be logged even if the contingency is filtered out at some point
