@@ -31,23 +31,8 @@ public class GlobalRaoResult implements ObjectiveFunctionResult, TemporalData<Ra
     }
 
     @Override
-    public Map<OffsetDateTime, RaoResult> getDataPerTimestamp() {
-        return raoResultPerTimestamp.getDataPerTimestamp();
-    }
-
-    @Override
-    public List<OffsetDateTime> getTimestamps() {
-        return raoResultPerTimestamp.getTimestamps();
-    }
-
-    @Override
     public void add(OffsetDateTime timestamp, RaoResult data) {
         raoResultPerTimestamp.add(timestamp, data);
-    }
-
-    @Override
-    public <U> TemporalData<U> map(Function<RaoResult, U> function) {
-        return raoResultPerTimestamp.map(function);
     }
 
     @Override
@@ -58,6 +43,16 @@ public class GlobalRaoResult implements ObjectiveFunctionResult, TemporalData<Ra
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
         return globalObjectiveFunctionResult.getMostLimitingElements(number);
+    }
+
+    @Override
+    public Map<OffsetDateTime, RaoResult> getDataPerTimestamp() {
+        return raoResultPerTimestamp.getDataPerTimestamp();
+    }
+
+    @Override
+    public List<OffsetDateTime> getTimestamps() {
+        return raoResultPerTimestamp.getTimestamps();
     }
 
     @Override
@@ -73,6 +68,11 @@ public class GlobalRaoResult implements ObjectiveFunctionResult, TemporalData<Ra
     @Override
     public double getVirtualCost(String virtualCostName) {
         return globalObjectiveFunctionResult.getVirtualCost(virtualCostName);
+    }
+
+    @Override
+    public <U> TemporalData<U> map(Function<RaoResult, U> function) {
+        return raoResultPerTimestamp.map(function);
     }
 
     @Override
