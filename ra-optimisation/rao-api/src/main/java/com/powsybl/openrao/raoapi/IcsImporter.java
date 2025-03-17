@@ -159,7 +159,7 @@ public final class IcsImporter {
         OffsetDateTime currentDateTime = dateTimeIterator.next();
         while(dateTimeIterator.hasNext()) {
             OffsetDateTime nextDateTime = dateTimeIterator.next();
-            double diff = Double.parseDouble(P0record.get(nextDateTime.getHour() + OFFSET + 1)) - Double.parseDouble(P0record.get(currentDateTime.getHour() + OFFSET));
+            double diff = Double.parseDouble(P0record.get(nextDateTime.getHour() + OFFSET)) - Double.parseDouble(P0record.get(currentDateTime.getHour() + OFFSET));
             if (diff > maxGradient || diff < minGradient) {
                 System.out.printf("%s does not respect power gradients : min/max/diff %f %f %f%n", staticRecord.get(0), minGradient, maxGradient, diff);
                 return false;

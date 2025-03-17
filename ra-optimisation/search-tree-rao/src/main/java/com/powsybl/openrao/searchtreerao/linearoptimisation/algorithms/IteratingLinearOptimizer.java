@@ -277,6 +277,13 @@ public final class IteratingLinearOptimizer {
                 iteration,
                 formatDouble(currentObjectiveFunctionResult.getCost()),
                 formatDouble(currentObjectiveFunctionResult.getFunctionalCost()));
+
+        currentObjectiveFunctionResult.getVirtualCostNames().forEach(vc -> {
+            double cost = currentObjectiveFunctionResult.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+            }
+        });
     }
 
     private static void logWorseResult(int iteration, ObjectiveFunctionResult bestResult, ObjectiveFunctionResult currentResult) {
@@ -287,6 +294,13 @@ public final class IteratingLinearOptimizer {
                 formatDouble(currentResult.getCost()),
                 formatDouble(bestResult.getFunctionalCost()),
                 formatDouble(currentResult.getFunctionalCost()));
+
+        currentResult.getVirtualCostNames().forEach(vc -> {
+            double cost = currentResult.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+            }
+        });
     }
 
     private static String formatDouble(double value) {
