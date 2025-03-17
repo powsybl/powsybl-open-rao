@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
- * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class OnConstraintUsageRuleHelper {
 

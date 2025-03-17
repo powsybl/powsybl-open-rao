@@ -18,7 +18,7 @@ import java.util.Objects;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
 /**
- * @author Thomas Bouquet <thomas.bouquet at rte-france.com>
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, S extends Cnec<?>> implements OnConstraintAdder<T, S> {
     public static final String ON_CONSTRAINT = "OnConstraint";

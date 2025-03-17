@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
+import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -27,14 +27,23 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class MarmotTest {
+
+    /*
+    TODO
+    For each test check the global MARMOT cost and the individual costs for each timestamp.
+    This cannot currently be done since all individual RAO results use the global cost as their cost.
+    The costs will be separated in a future PR and will have to be checked here.
+     */
+
     @Test
-    void runCaseWithTwoTimestampsAndNoGradient() throws IOException {
+    void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
         Network network1 = Network.read("/network/2Nodes2ParallelLinesPST.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
         Network network2 = Network.read("/network/2Nodes2ParallelLinesPST.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
@@ -47,7 +56,7 @@ class MarmotTest {
 
         InterTemporalRaoInput input = new InterTemporalRaoInput(
             new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build())),
-            Set.of(new PowerGradient("FFR1AA1 _generator", -1000d, 1000d))
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(1000.0).withDownwardPowerGradient(-1000.0).build())
         );
 
         // first RAOs shift tap to -5 for a cost of 55 each
@@ -58,7 +67,7 @@ class MarmotTest {
     }
 
     @Test
-    void testWithRedispatchingAndNoGradient() throws IOException {
+    void testWithRedispatchingAndNoGradientOnImplicatedGenerators() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -73,7 +82,7 @@ class MarmotTest {
 
         InterTemporalRaoInput input = new InterTemporalRaoInput(
             new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build(), timestamp3, RaoInput.build(network3, crac3).build())),
-            Set.of(new PowerGradient("FFR1AA1 _generator", -250d, 250d))
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build())
         );
 
         // no redispatching required during the first timestamp
@@ -87,7 +96,7 @@ class MarmotTest {
     }
 
     @Test
-    void testWithRedispatchingAndGradient() throws IOException {
+    void testWithRedispatchingAndGradientOnImplicatedGenerators() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -102,7 +111,7 @@ class MarmotTest {
 
         InterTemporalRaoInput input = new InterTemporalRaoInput(
             new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build(), timestamp3, RaoInput.build(network3, crac3).build())),
-            Set.of(new PowerGradient("FFR3AA1 _generator", 0d, 200d))
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(0.0).build())
         );
 
         // no redispatching required during the first timestamp
@@ -129,10 +138,12 @@ class MarmotTest {
 
         InterTemporalRaoInput input = new InterTemporalRaoInput(
             new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build())),
-            Set.of(new PowerGradient("FFR1AA1 _generator", -250d, 250d))
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build())
         );
 
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
+        assertTrue(results.getData(timestamp1).get().isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
+        assertTrue(results.getData(timestamp2).get().isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
         assertEquals(40.0, results.getData(timestamp1).get().getCost(crac1.getInstant(InstantKind.PREVENTIVE)));
     }
 }

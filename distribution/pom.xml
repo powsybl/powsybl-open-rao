@@ -84,7 +84,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-inter-temporal-constraint</artifactId>
+            <artifactId>open-rao-generator-constraints</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

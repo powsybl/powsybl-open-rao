@@ -21,7 +21,6 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.glsk.commons.ZonalData;
@@ -215,8 +214,7 @@ public final class ToolProvider {
                 )
             );
         }
-        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins() && !Objects.isNull(searchTreeParameters)) {
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
             Optional<RelativeMarginsParameters> optionalRelativeMarginsParameters = raoParameters.getRelativeMarginsParameters();
             if (optionalRelativeMarginsParameters.isEmpty()) {
                 throw new OpenRaoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
@@ -225,10 +223,7 @@ public final class ToolProvider {
                 raoInput.getGlskProvider(),
                 new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
-                    optionalRelativeMarginsParameters.get().getPtdfBoundaries(),
-                    searchTreeParameters.getRelativeMarginsParameters()
-                        .orElseThrow(() -> new OpenRaoException("No ptdf sum lower bound was defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType()))
-                        .getPtdfSumLowerBound()
+                    optionalRelativeMarginsParameters.get().getPtdfBoundaries()
                 )
             );
         }

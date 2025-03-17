@@ -61,16 +61,16 @@ class UcteConnectable implements Comparable<UcteConnectable> {
         this.type = ConnectableType.getType(iidmConnectable);
     }
 
-    boolean doesMatch(String from, String to, String suffix, ConnectableType... connectableTypes) {
-        return matchSuffix(suffix) && matchFromTo(from, to) && matchType(connectableTypes);
+    boolean doesMatchWithOrderCode(String from, String to, String suffix, ConnectableType... connectableTypes) {
+        return ucteOrderCodeMatchesSuffix(suffix) && matchFromTo(from, to) && matchType(connectableTypes);
     }
 
-    UcteMatchingResult getUcteMatchingResult(String from, String to, String suffix, ConnectableType... connectableTypes) {
-        if (!doesMatch(from, to, suffix, connectableTypes)) {
-            return UcteMatchingResult.notFound();
-        } else {
-            return UcteMatchingResult.found(iidmSide, isIidmConventionInverted, iidmIdentifiable);
-        }
+    boolean doesMatchWithElementName(String from, String to, String suffix, ConnectableType... connectableTypes) {
+        return elementNameMatchesSuffix(suffix) && matchFromTo(from, to) && matchType(connectableTypes);
+    }
+
+    UcteMatchingResult getUcteMatchingResult() {
+        return UcteMatchingResult.found(iidmSide, isIidmConventionInverted, iidmIdentifiable);
     }
 
     @Override
@@ -105,9 +105,12 @@ class UcteConnectable implements Comparable<UcteConnectable> {
         return UcteUtils.matchNodeNames(from, this.ucteFromNode) && UcteUtils.matchNodeNames(to, this.ucteToNode);
     }
 
-    private boolean matchSuffix(String suffix) {
-        return suffix.equals(ucteOrderCode)
-            || ucteElementNames != null && ucteElementNames.contains(suffix);
+    private boolean ucteOrderCodeMatchesSuffix(String suffix) {
+        return suffix.equals(ucteOrderCode);
+    }
+
+    private boolean elementNameMatchesSuffix(String suffix) {
+        return ucteElementNames != null && ucteElementNames.contains(suffix);
     }
 
     private boolean matchType(ConnectableType... connectableTypes) {
