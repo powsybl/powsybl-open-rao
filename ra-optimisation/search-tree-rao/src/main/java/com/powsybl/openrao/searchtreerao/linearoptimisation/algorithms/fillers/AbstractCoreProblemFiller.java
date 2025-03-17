@@ -59,6 +59,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected final boolean raRangeShrinking;
     protected final PstModel pstModel;
     protected final OffsetDateTime timestamp;
+    private final Map<RangeAction<?>, Set<RangeAction<?>>> memoizedSameRangeActions = new HashMap<>();
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,
@@ -409,6 +410,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private Set<RangeAction<?>> getAvailableRangeActionsOnSameAction(RangeAction<?> rangeAction) {
+        if (memoizedSameRangeActions.containsKey(rangeAction)) {
+            return memoizedSameRangeActions.get(rangeAction);
+        }
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
             raSet.forEach(ra -> {
@@ -417,6 +421,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                 }
             })
         );
+        memoizedSameRangeActions.put(rangeAction, rangeActions);
         return rangeActions;
     }
 
