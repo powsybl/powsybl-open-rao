@@ -13,12 +13,9 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherInterTemporalRaoProviderMock;
 import com.powsybl.openrao.raoapi.raomock.InterTemporalRaoProviderMock;
@@ -37,7 +34,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

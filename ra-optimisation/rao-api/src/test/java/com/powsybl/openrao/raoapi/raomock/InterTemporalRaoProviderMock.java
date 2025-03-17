@@ -8,8 +8,6 @@
 package com.powsybl.openrao.raoapi.raomock;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
