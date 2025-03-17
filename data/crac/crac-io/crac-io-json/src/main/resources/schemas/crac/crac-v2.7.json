@@ -51,7 +51,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v2.4.json"
+          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v2.7.json"
         }
       }
     },

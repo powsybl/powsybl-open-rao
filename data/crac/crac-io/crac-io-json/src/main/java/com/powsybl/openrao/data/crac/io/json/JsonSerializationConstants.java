@@ -62,7 +62,7 @@ public final class JsonSerializationConstants {
     v2.4: new names for onConstraint and cnecId, side left/right -> one/two
     v2.5: elementary actions have new type coming from core remedial actions
     v2.6: addition of activation-cost and variation-costs for remedial actions
-    v2.7: addition of timestamp
+    v2.7: addition of timestamp, deletion of PSTs' initial tap and tap-to-angle map, deletion of FlowCnecs' nominal voltage
      */
 
     // headers
@@ -347,7 +347,7 @@ public final class JsonSerializationConstants {
                 if (Objects.isNull(nominalV) || Objects.isNull(nominalV.getLeft()) || Objects.isNull(nominalV.getRight()) || Double.isNaN(nominalV.getLeft()) || Double.isNaN(nominalV.getRight())) {
                     throw new OpenRaoException("ON_LOW_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
                 }
-                if (nominalV.getLeft() <= nominalV.getRight()) {
+                if (nominalV.getLeft() < nominalV.getRight()) {
                     return TwoSides.ONE;
                 } else {
                     return TwoSides.TWO;

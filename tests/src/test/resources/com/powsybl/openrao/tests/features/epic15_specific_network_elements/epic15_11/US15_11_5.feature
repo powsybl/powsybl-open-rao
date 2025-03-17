@@ -81,7 +81,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
 
   @fast @rao @mock @dc @second-preventive
   Scenario: US 15.11.5.6: Considering ARA in 2P improves 2P optimization
-    Given network file is "epic15/TestCase12Nodes_15_automaton.uct"
+    Given network file is "epic15/TestCase12Nodes_15_automaton.uct" for CORE CC
     Given crac file is "epic15/crac_15_11_5_2.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-5-1.json"
     When I launch search_tree_rao

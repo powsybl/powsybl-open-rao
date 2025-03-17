@@ -13,10 +13,10 @@ Feature: US 90.7: Handle Xnodes
     When I import crac
     Then it should have the following flow CNECs:
       | Name       | NetworkElementId                          | Instant    | Contingency | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |
-      | Cnec BE-FR | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | preventive |             | yes       | no        | 5000     | 5000      | 400                | 400                 |
-      | Cnec BE-FR | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000     | 5000      | 400                | 400                 |
-      | Cnec DE-FR | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 | preventive |             | yes       | no        | 5000     | 5000      | 400                | 400                 |
-      | Cnec DE-FR | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000     | 5000      | 400                | 400                 |
+      | Cnec BE-FR | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | preventive |             | yes       | no        | 5000     | 5000      | 380                | 380                 |
+      | Cnec BE-FR | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000     | 5000      | 380                | 380                 |
+      | Cnec DE-FR | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 | preventive |             | yes       | no        | 5000     | 5000      | 380                | 380                 |
+      | Cnec DE-FR | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000     | 5000      | 380                | 380                 |
     And the flow cnecs should have the following thresholds:
       | CnecId                                                         | Unit   | Min   | Max  | Side  |
       | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -1500 | 1500 | ONE  |

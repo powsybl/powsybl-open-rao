@@ -33,7 +33,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
 
   @fast @rao @mock @dc @preventive-only
   Scenario: US 4.2.3: A thresholds in DC mode and min margin in MW
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic4/SL_ep4us2_4MR_A.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -60,7 +60,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
 
   @fast @rao @mock @dc @preventive-only
   Scenario: US 4.2.5: mixed thresholds in DC mode and min margin in MW
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic4/SL_ep4us2_4MR_mixed.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -72,7 +72,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 4.2.6: mixed thresholds in AC mode and min margin in MW
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic4/SL_ep4us2_4MR_mixed.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch search_tree_rao

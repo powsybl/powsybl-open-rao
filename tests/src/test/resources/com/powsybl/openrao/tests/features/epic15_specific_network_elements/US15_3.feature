@@ -7,7 +7,7 @@ Feature: US 15.3: Handle transformers
 
   @fast @rao @mock @dc @preventive-only
   Scenario: US 15.3.1: Handle transformers on a small test case in DC
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_1.uct"
+    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_1.uct" for CORE CC
     Given crac file is "epic15/SL_ep15us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -27,7 +27,7 @@ Feature: US 15.3: Handle transformers
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 15.3.2: Handle transformers on a small test case in AC - On side 1
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2.uct"
+    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2.uct" for CORE CC
     Given crac file is "epic15/SL_ep15us3case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
