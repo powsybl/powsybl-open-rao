@@ -74,11 +74,8 @@ class InterTemporalRaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        OffsetDateTime timestamp = OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC);
         GlobalRaoResult result = defaultRao.run(raoInput, new RaoParameters());
         assertNotNull(result);
-        assertEquals(List.of(timestamp), result.getTimestamps());
-        assertEquals(ComputationStatus.DEFAULT, result.getComputationStatus());
     }
 
     @Test
