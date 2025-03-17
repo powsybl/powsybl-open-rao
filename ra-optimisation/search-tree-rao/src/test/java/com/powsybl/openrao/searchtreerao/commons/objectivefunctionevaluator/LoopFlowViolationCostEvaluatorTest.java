@@ -50,12 +50,14 @@ class LoopFlowViolationCostEvaluatorTest {
         when(cnec1.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
         when(cnec1.getExtension(LoopFlowThreshold.class)).thenReturn(cnec1Extension);
         when(cnec1.getState()).thenReturn(state);
+        when(cnec1.getId()).thenReturn("cnec1");
 
         LoopFlowThreshold cnec2Extension = Mockito.mock(LoopFlowThreshold.class);
         cnec2 = Mockito.mock(FlowCnec.class);
         when(cnec2.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
         when(cnec2.getExtension(LoopFlowThreshold.class)).thenReturn(cnec2Extension);
         when(cnec2.getState()).thenReturn(state);
+        when(cnec2.getId()).thenReturn("cnec2");
 
         initialLoopFlows = Mockito.mock(FlowResult.class);
         currentLoopFlows = Mockito.mock(FlowResult.class);

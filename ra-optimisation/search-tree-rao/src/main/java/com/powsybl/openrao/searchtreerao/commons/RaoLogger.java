@@ -41,6 +41,9 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class RaoLogger {
+    private static final String OUTAGE_DUPLICATE = "OUTAGE_DUPLICATE";
+    private static final String LOG_FICTIONAL_CNEC = "Limiting element is a fictional CNEC excluded from final cost computation";
+
     private RaoLogger() {
     }
 
@@ -406,8 +409,8 @@ public final class RaoLogger {
 
         List<FlowCnec> sortedFlowCnecs = getSortedFlowCnecs(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunction, unit);
         String mostLimitingCnecId = sortedFlowCnecs.get(0).getId();
-        if (mostLimitingCnecId.contains("OUTAGE DUPLICATE")) {
-            logger.info("Limiting element is a fictional CNEC excluded from final cost computation");
+        if (mostLimitingCnecId.contains(OUTAGE_DUPLICATE)) {
+            logger.info(LOG_FICTIONAL_CNEC);
         }
     }
 

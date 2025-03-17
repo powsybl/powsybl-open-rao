@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 
@@ -40,8 +41,8 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         // exclude cnecs
         Map<FlowCnec, Double> filteredCnecs = marginPerCnec.entrySet().stream()
             .filter(entry -> !cnecsToExclude.contains(entry.getKey().getId()))
-            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        // Compute state wise cost
         Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(filteredCnecs.keySet());
         Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(entry.getValue())));
 
@@ -79,7 +80,10 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
     }
 
     protected double computeCostForState(Set<FlowCnec> flowCnecsOfState) {
-        List<FlowCnec> flowCnecsByMargin = FlowCnecSorting.sortByMargin(flowCnecsOfState, marginPerCnec);
+        List<FlowCnec> flowCnecsByMargin = flowCnecsOfState.stream()
+            .filter(Cnec::isOptimized)
+            .sorted(Comparator.comparingDouble(flowCnec -> marginPerCnec.get(flowCnec)))
+            .toList();
         FlowCnec limitingElement;
         if (flowCnecsByMargin.isEmpty()) {
             limitingElement = null;
@@ -101,10 +105,12 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         return -margin;
     }
 
-    //TODO: tochange
     @Override
     public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
-        return costlyElements.stream().filter(flowCnec -> statesContingencyMustBeKept(flowCnec.getState(), contingenciesToExclude)).toList();
+        return costlyElements.stream()
+            .filter(flowCnec -> !flowCnec.getId().contains("OUTAGE DUPLICATE"))
+            .filter(flowCnec -> statesContingencyMustBeKept(flowCnec.getState(), contingenciesToExclude))
+            .toList();
     }
 
     private static boolean statesContingencyMustBeKept(State state, Set<String> contingenciesToExclude) {

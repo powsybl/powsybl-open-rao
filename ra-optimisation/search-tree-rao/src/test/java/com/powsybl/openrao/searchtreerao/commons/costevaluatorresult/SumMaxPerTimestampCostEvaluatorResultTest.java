@@ -148,7 +148,7 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
     }
 
     @Test
-    void testWithoutAnyTimestamp() {
+    void testWithoutAnyTimestampWithExclusion() {
         Map<FlowCnec, Double> marginPerCnec = Map.of(flowCnecPreventiveT1, -10.0, flowCnecCurative1T1, -50.0, flowCnecCurative12T1, -40.0, flowCnecCurativeT2, 20.0, flowCnecCurativeT3, -17.0);
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, List.of(), Unit.MEGAWATT);
         assertEquals(50.0, evaluatorResult.getCost(Set.of(), Set.of()));

@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 
 import java.util.List;
@@ -20,30 +21,31 @@ import java.util.stream.DoubleStream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class SumCostEvaluatorResult implements CostEvaluatorResult {
-    private final Map<State, Double> costPerState;
+public class SumCnecWiseCostEvaluatorResult implements CostEvaluatorResult {
+    private final Map<FlowCnec, Double> costPerCnec;
     private final List<FlowCnec> costlyElements;
 
-    public SumCostEvaluatorResult(Map<State, Double> costPerState, List<FlowCnec> costlyElements) {
-        this.costPerState = costPerState;
+    public SumCnecWiseCostEvaluatorResult(Map<FlowCnec, Double> costPerCnec, List<FlowCnec> costlyElements) {
+        this.costPerCnec = costPerCnec;
         this.costlyElements = costlyElements;
     }
 
     @Override
     public double getCost(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
-        DoubleStream filteredCosts = costPerState.entrySet().stream()
-            .filter(entry -> statesContingencyMustBeKept(entry.getKey(), contingenciesToExclude))
+
+        DoubleStream filteredCosts = costPerCnec.entrySet().stream()
+            .filter(entry -> cnecMustBeKept(entry.getKey(), contingenciesToExclude, cnecsToExclude))
             .mapToDouble(Map.Entry::getValue);
         return filteredCosts.sum();
     }
 
     @Override
     public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
-        return costlyElements.stream().filter(flowCnec -> statesContingencyMustBeKept(flowCnec.getState(), contingenciesToExclude)).toList();
+        return costlyElements.stream().filter(flowCnec -> cnecMustBeKept(flowCnec, contingenciesToExclude, cnecsToExclude)).toList();
     }
 
-    private static boolean statesContingencyMustBeKept(State state, Set<String> contingenciesToExclude) {
-        Optional<Contingency> contingency = state.getContingency();
-        return contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId());
+    private static boolean cnecMustBeKept(FlowCnec flowCnec, Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
+        Optional<Contingency> contingency = flowCnec.getState().getContingency();
+        return (contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId())) && !cnecsToExclude.contains(flowCnec.getId()) ;
     }
 }

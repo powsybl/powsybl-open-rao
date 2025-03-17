@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -189,20 +190,14 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     private void excludeDuplicateCnecs() {
 
-        Set<FlowCnec> sortedFlowCnecs = crac.getFlowCnecs();
-        Set<String> cnecsToExclude = sortedFlowCnecs.stream()
-            .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
-            .map(FlowCnec::getId)
-            .collect(Collectors.toSet());
-
+        Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
+        Set<String> cnecsToExclude = getDuplicateCnecs(flowCnecs);
         // exclude fictional cnec from the results
         initialResult.excludeCnecs(cnecsToExclude);
         firstPreventivePerimeterResult.excludeCnecs(cnecsToExclude);
         secondPreventivePerimeterResult.excludeCnecs(cnecsToExclude);
         resultsWithPrasForAllCnecs.excludeCnecs(cnecsToExclude);
-        postContingencyResults.forEach((state, optimizationResult) -> {
-            optimizationResult.excludeCnecs(cnecsToExclude);
-        });
+        postContingencyResults.values().forEach(optimizationResult -> optimizationResult.excludeCnecs(cnecsToExclude));
         if (finalCostEvaluator != null) {
             finalCostEvaluator.excludeCnecs(cnecsToExclude);
         }

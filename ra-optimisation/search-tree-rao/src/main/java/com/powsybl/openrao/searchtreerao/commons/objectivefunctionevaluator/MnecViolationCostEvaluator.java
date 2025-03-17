@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
-import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCnecWiseCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
@@ -52,22 +52,20 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Map<FlowCnec, Double> violationPerMnec = flowCnecs.stream().filter(Cnec::isMonitored)
+        Map<FlowCnec, Double> costPerMnec = flowCnecs.stream().filter(Cnec::isMonitored)
             .collect(Collectors.toMap(Function.identity(), mnec -> computeMnecViolation(flowResult, mnec)))
             .entrySet()
             .stream()
             .filter(entry -> entry.getValue() > 0)
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Map<State, Set<FlowCnec>> mnecsPerState = groupFlowCnecsPerState(violationPerMnec.keySet());
-        Map<State, Double> costPerState = mnecsPerState.keySet().stream().collect(Collectors.toMap(Function.identity(), state -> mnecViolationCost * mnecsPerState.get(state).stream().mapToDouble(violationPerMnec::get).sum()));
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue() * mnecViolationCost));
 
-        if (costPerState.values().stream().anyMatch(mnecViolationCost -> mnecViolationCost > 0)) {
+        if (costPerMnec.values().stream().anyMatch(mnecViolationCost -> mnecViolationCost > 0)) {
             // will be logged even if the contingency is filtered out at some point
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some MNEC constraints are not respected.");
         }
 
-        List<FlowCnec> sortedMnecs = sortFlowCnecsByDecreasingCost(violationPerMnec);
-        return new SumCostEvaluatorResult(costPerState, sortedMnecs);
+        List<FlowCnec> sortedMnecs = sortFlowCnecsByDecreasingCost(costPerMnec);
+        return new SumCnecWiseCostEvaluatorResult(costPerMnec, sortedMnecs);
     }
 
     private double computeMnecViolation(FlowResult flowResult, FlowCnec mnec) {

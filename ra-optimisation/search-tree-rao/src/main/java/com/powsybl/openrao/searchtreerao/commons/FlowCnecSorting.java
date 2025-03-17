@@ -33,10 +33,4 @@ public final class FlowCnecSorting {
             .toList();
     }
 
-    public static List<FlowCnec> sortByMargin(Set<FlowCnec> flowCnecs, Map<FlowCnec, Double> marginPerCnec) {
-        return flowCnecs.stream()
-            .filter(Cnec::isOptimized)
-            .sorted(Comparator.comparingDouble(flowCnec -> marginPerCnec.get(flowCnec)))
-            .toList();
-    }
 }

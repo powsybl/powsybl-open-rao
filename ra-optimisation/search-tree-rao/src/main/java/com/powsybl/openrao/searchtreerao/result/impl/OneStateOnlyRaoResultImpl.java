@@ -25,6 +25,8 @@ import com.powsybl.openrao.searchtreerao.result.api.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -291,10 +293,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
 
     private void excludeDuplicateCnec() {
         if (optimizedState != null) {
-            Set<String> cnecsToExclude = optimizedFlowCnecs.stream()
-                .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
-                .map(FlowCnec::getId)
-                .collect(Collectors.toSet());
+            Set<String> cnecsToExclude = getDuplicateCnecs(optimizedFlowCnecs);
             postOptimizationResult.excludeCnecs(cnecsToExclude);
         }
 
