@@ -10,6 +10,8 @@ package com.powsybl.openrao.searchtreerao.result.api;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 
+import java.util.Set;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -28,4 +30,6 @@ public interface LinearOptimizationResult extends FlowResult, SensitivityResult,
     default ComputationStatus getComputationStatus(State state) {
         return getSensitivityStatus(state);
     }
+
+    Set<State> getOptimizedStates();
 }

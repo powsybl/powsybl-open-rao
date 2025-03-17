@@ -18,6 +18,7 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -55,6 +56,7 @@ class CurativeWithSecondPraoResultTest {
         when(postCraPrePerimeterResult.getFlow(eq(cnec1), any(), any(), any())).thenReturn(135.4);
 
         CurativeWithSecondPraoResult result = new CurativeWithSecondPraoResult(state1, null, null, null, postCraPrePerimeterResult, false);
+        assertEquals(Set.of(state1), result.getOptimizedStates());
 
         assertEquals(135.4, result.getFlow(cnec1, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(135.4, result.getFlow(cnec1, TwoSides.ONE, Unit.AMPERE, mock(Instant.class)), DOUBLE_TOLERANCE);

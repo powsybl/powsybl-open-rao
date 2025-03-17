@@ -33,19 +33,22 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     private final FlowResult flowResult;
     private final SensitivityResult sensitivityResult;
     private final ObjectiveFunctionResult objectiveFunctionResult;
+    private final Set<State> optimizedStates;
 
     public IteratingLinearOptimizationResultImpl(LinearProblemStatus status,
                                                  int nbOfIteration,
                                                  RangeActionActivationResult rangeActionActivationResult,
                                                  FlowResult flowResult,
                                                  ObjectiveFunctionResult objectiveFunctionResult,
-                                                 SensitivityResult sensitivityResult) {
+                                                 SensitivityResult sensitivityResult,
+                                                 Set<State> optimizedStates) {
         this.status = status;
         this.nbOfIteration = nbOfIteration;
         this.rangeActionActivationResult = rangeActionActivationResult;
         this.flowResult = flowResult;
         this.objectiveFunctionResult = objectiveFunctionResult;
         this.sensitivityResult = sensitivityResult;
+        this.optimizedStates = optimizedStates;
     }
 
     public void setStatus(LinearProblemStatus status) {
@@ -210,6 +213,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     @Override
     public RangeActionActivationResult getRangeActionActivationResult() {
         return rangeActionActivationResult;
+    }
+
+    @Override
+    public Set<State> getOptimizedStates() {
+        return optimizedStates;
     }
 
 }
