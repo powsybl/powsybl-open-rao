@@ -15,7 +15,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
 import java.util.Comparator;
 import java.util.List;
-fiimport java.util.Set;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
