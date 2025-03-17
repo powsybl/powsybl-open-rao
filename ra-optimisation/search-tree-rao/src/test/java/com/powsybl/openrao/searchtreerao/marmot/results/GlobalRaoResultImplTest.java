@@ -27,12 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class GlobalRaoResultTest {
+class GlobalRaoResultImplTest {
     private FlowCnec flowCnec;
     private RaoResult raoResultTimestamp1;
     private RaoResult raoResultTimestamp2;
     private RaoResult raoResultTimestamp3;
-    private GlobalRaoResult globalRaoResult;
+    private GlobalRaoResultImpl globalRaoResult;
 
     @BeforeEach
     void setUp() {
@@ -50,15 +50,15 @@ class GlobalRaoResultTest {
         raoResultTimestamp2 = Mockito.mock(RaoResult.class);
         raoResultTimestamp3 = Mockito.mock(RaoResult.class);
 
-        globalRaoResult = new GlobalRaoResult(objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
+        globalRaoResult = new GlobalRaoResultImpl(objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
     }
 
     @Test
     void testCost() {
-        assertEquals(1000., globalRaoResult.getCost());
-        assertEquals(900., globalRaoResult.getFunctionalCost());
-        assertEquals(100., globalRaoResult.getVirtualCost());
-        assertEquals(100., globalRaoResult.getVirtualCost("virtual"));
+        assertEquals(1000., globalRaoResult.getGlobalCost());
+        assertEquals(900., globalRaoResult.getGlobalFunctionalCost());
+        assertEquals(100., globalRaoResult.getGlobalVirtualCost());
+        assertEquals(100., globalRaoResult.getGlobalVirtualCost("virtual"));
         assertEquals(Set.of("virtual"), globalRaoResult.getVirtualCostNames());
         assertEquals(List.of(flowCnec), globalRaoResult.getMostLimitingElements(1));
         assertEquals(List.of(TestsUtils.TIMESTAMP_1, TestsUtils.TIMESTAMP_2, TestsUtils.TIMESTAMP_3), globalRaoResult.getTimestamps());

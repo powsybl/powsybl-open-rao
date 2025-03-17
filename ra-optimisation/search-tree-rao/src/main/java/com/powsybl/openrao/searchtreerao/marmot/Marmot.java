@@ -34,7 +34,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.Iterating
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.marmot.results.GlobalRaoResult;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
@@ -103,7 +103,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
         // 7. Merge topological and linear result
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
-        GlobalRaoResult globalRaoResult = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), initialResults, prePerimeterResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters);
+        GlobalRaoResultImpl globalRaoResult = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), initialResults, prePerimeterResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters);
 
         // 8. Log initial and final results
         logCost("[MARMOT] Before topological optimizations: ", getInitialLinearOptimizationResult(initialResults, new TemporalDataImpl<>(), objectiveFunction), raoParameters, 10);
@@ -193,8 +193,8 @@ public class Marmot implements InterTemporalRaoProvider {
         );
     }
 
-    private static GlobalRaoResult mergeTopologicalAndLinearOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, TemporalData<PrePerimeterResult> prePerimeterResults, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
-        return new GlobalRaoResult(globalLinearOptimizationResult, getPostOptimizationResults(raoInputs, initialResults, prePerimeterResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters).map(PostOptimizationResult::merge));
+    private static GlobalRaoResultImpl mergeTopologicalAndLinearOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, TemporalData<PrePerimeterResult> prePerimeterResults, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
+        return new GlobalRaoResultImpl(globalLinearOptimizationResult, getPostOptimizationResults(raoInputs, initialResults, prePerimeterResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters).map(PostOptimizationResult::merge));
     }
 
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, FlowResult globalPrePerimeterFlowResult, RaoParameters raoParameters) {

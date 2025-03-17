@@ -16,7 +16,7 @@ import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.marmot.results.GlobalRaoResult;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalRaoResultImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -53,8 +53,8 @@ class MarmotTest {
 
         // first RAOs shift tap to -5 for a cost of 55 each
         // MARMOT should also move the tap to -5 for both timestamps with a total cost of 110
-        GlobalRaoResult globalRaoResult = (GlobalRaoResult) new Marmot().run(input, raoParameters).join();
-        assertEquals(110.0, globalRaoResult.getCost());
+        GlobalRaoResultImpl globalRaoResult = (GlobalRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        assertEquals(110.0, globalRaoResult.getGlobalCost());
 
         RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
         assertEquals(55.0, raoResult1.getCost(crac1.getPreventiveInstant()));
@@ -87,8 +87,8 @@ class MarmotTest {
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
-        GlobalRaoResult globalRaoResult = (GlobalRaoResult) new Marmot().run(input, raoParameters).join();
-        assertEquals(50020.0, globalRaoResult.getCost());
+        GlobalRaoResultImpl globalRaoResult = (GlobalRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        assertEquals(50020.0, globalRaoResult.getGlobalCost());
 
         RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
         assertEquals(0.0, raoResult1.getCost(crac1.getPreventiveInstant()));
@@ -127,8 +127,8 @@ class MarmotTest {
         // due to the max gradient of 200. Not activating 500 MW in timestamps 2 and 3 will create an overload and be very costly.
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
-        GlobalRaoResult globalRaoResult = (GlobalRaoResult) new Marmot().run(input, raoParameters).join();
-        assertEquals(65030.0, globalRaoResult.getCost());
+        GlobalRaoResultImpl globalRaoResult = (GlobalRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        assertEquals(65030.0, globalRaoResult.getGlobalCost());
 
         RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
         assertEquals(15010.0, raoResult1.getCost(crac1.getPreventiveInstant()));
@@ -159,8 +159,8 @@ class MarmotTest {
             Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build())
         );
 
-        GlobalRaoResult globalRaoResult = (GlobalRaoResult) new Marmot().run(input, raoParameters).join();
-        assertEquals(40.0, globalRaoResult.getCost());
+        GlobalRaoResultImpl globalRaoResult = (GlobalRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        assertEquals(40.0, globalRaoResult.getGlobalCost());
 
         RaoResult raoResult1 = globalRaoResult.getData(timestamp1).get();
         assertEquals(20.0, raoResult1.getCost(crac1.getPreventiveInstant()));
