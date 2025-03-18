@@ -81,7 +81,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
     protected double computeCostForState(Set<FlowCnec> flowCnecsOfState) {
         List<FlowCnec> flowCnecsByMargin = flowCnecsOfState.stream()
             .filter(Cnec::isOptimized)
-            .sorted(Comparator.comparingDouble(flowCnec -> marginPerCnec.get(flowCnec)))
+            .sorted(Comparator.comparingDouble(marginPerCnec::get))
             .toList();
         FlowCnec limitingElement;
         if (flowCnecsByMargin.isEmpty()) {
